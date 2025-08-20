@@ -7,6 +7,7 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import com.github.standobyte.jojo.client.shader.standaura.AuraUtil;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.v1_21_4_stuff.OldPlayerModelJank;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
@@ -156,7 +157,7 @@ public class PlayerModelBends {
 			}
 			for (ModelPart.Cube cube : limb.cubes) {
 //				cube.compile(poseStack.last(), buffer, packedLight, packedOverlay, color);
-				renderBentPolygons(cube.polygons, poseStack, bend,
+				renderBentPolygons(cube, cube.polygons, poseStack, bend,
 						bendOffsetX, bendOffsetY, bendOffsetZ, 
 						buffer, packedLight, packedOverlay, color);
 			}
@@ -180,9 +181,24 @@ public class PlayerModelBends {
 	
 	// XXX (player anim) use the main cube height (12 in case of players) instead of the individual cube heights for bending
 	private static Vector3f dest = new Vector3f();
-	private static void renderBentPolygons(ModelPart.Polygon[] polygons, PoseStack poseStack, ModelPart bend,
+	private static void renderBentPolygons(ModelPart.Cube cube, ModelPart.Polygon[] polygons, PoseStack poseStack, ModelPart bend,
 			float bendOffsetX, float bendOffsetY, float bendOffsetZ, 
 			VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
+		poseStack.pushPose();
+
+		if (AuraUtil.inflateEachCube != null) {
+			float inflate = AuraUtil.inflateEachCube;
+			float sizeX = cube.maxX - cube.minX;
+			float sizeY = cube.maxY - cube.minY;
+			float sizeZ = (cube.maxZ - cube.minZ) * 2; // for some reason i need this to make the limbs on the outline not too long
+			float offsetX = -(cube.minX + cube.maxX) / 32;
+			float offsetY = -(cube.minY + cube.maxY) / 32;
+			float offsetZ = -(cube.minZ + cube.maxZ) / 32;
+			poseStack.translate(-offsetX, -offsetY, -offsetZ);
+			poseStack.scale(1 + inflate * 2 / sizeX, 1 + inflate * 2 / sizeY, 1 + inflate * 2 / sizeZ);
+			poseStack.translate(offsetX, offsetY, offsetZ);
+		}
+        
 		for (ModelPart.Polygon polygon : polygons) {
 			Vector3f normal = polygon.normal;
 			
@@ -223,6 +239,8 @@ public class PlayerModelBends {
 			}
 			poseStack.popPose();
 		}
+		
+		poseStack.popPose();
 	}
 	
 	private static boolean fillCutRectangle(ModelPart.Vertex[] vertices, MutablePolygon rectangle, float minLimitY, float maxLimitY) {
