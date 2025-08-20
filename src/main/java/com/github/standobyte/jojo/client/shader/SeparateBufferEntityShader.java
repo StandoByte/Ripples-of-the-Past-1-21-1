@@ -30,9 +30,9 @@ public class SeparateBufferEntityShader {
 	protected ResourceLocation postShaderId;
 	protected String outputShardName;
 	
-	protected RenderTarget frameBuffer;
+	public RenderTarget frameBuffer;
+	public MultiBufferSource bufferSource;
 	
-	protected MultiBufferSource bufferSource;
 	protected boolean usedThisFrame = false;
 	
 	public SeparateBufferEntityShader(Minecraft mc, String outputShardName, ResourceLocation postShaderId) {
@@ -42,17 +42,26 @@ public class SeparateBufferEntityShader {
 	}
 	
 	protected void initTargetBuffer(Minecraft mc) {
-		frameBuffer = new MainTarget(mc.getWindow().getWidth(), mc.getWindow().getHeight()/*, false*/);
+		frameBuffer = createBuffer(mc);
+	}
+	
+	protected static MainTarget createBuffer(Minecraft mc) {
+		MainTarget frameBuffer = new MainTarget(mc.getWindow().getWidth(), mc.getWindow().getHeight()/*, false*/);
 		frameBuffer.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
 		frameBuffer.clear(Minecraft.ON_OSX);
+		return frameBuffer;
 	}
 	
 	protected RenderStateShard renderTypeModification() {
-		RenderStateShard.OutputStateShard targetShard = new RenderStateShard.OutputStateShard(
-				outputShardName, 
-				() -> frameBuffer.bindWrite(false), 
-				() -> Minecraft.getInstance().getMainRenderTarget().bindWrite(false));
+		RenderStateShard.OutputStateShard targetShard = createTargetShard(outputShardName, frameBuffer);
 		return targetShard;
+	}
+
+	protected static RenderStateShard.OutputStateShard createTargetShard(String name, RenderTarget buffer) {
+		return new RenderStateShard.OutputStateShard(
+				name, 
+				() -> buffer.bindWrite(false), 
+				() -> Minecraft.getInstance().getMainRenderTarget().bindWrite(false));
 	}
 	
 	protected void createBufferSource(Minecraft mc, RenderBuffers vanillaRenderBuffers) {
@@ -79,8 +88,6 @@ public class SeparateBufferEntityShader {
 
 		MultiBufferSource source = this.useBufferSourceThisFrame();
 		_renderingNow = true;
-		// FIXME (entity shader) depth
-//		frameBuffer.copyDepthFrom(Minecraft.getInstance().getMainRenderTarget());
 		renderer.render(entity, entityYaw, partialTicks, poseStack, source, ClientUtil.MAX_LIGHT);
 		_renderingNow = false;
 		return true;
@@ -110,6 +117,11 @@ public class SeparateBufferEntityShader {
 		frameBuffer.clear(Minecraft.ON_OSX);
 	}
 	
+	protected void setupBuffer() {
+		Minecraft mc = Minecraft.getInstance();
+		frameBuffer.copyDepthFrom(mc.getMainRenderTarget());
+	}
+	
 	protected void endBatch() {
 		MultiBufferSource.BufferSource bufferSource = (MultiBufferSource.BufferSource) this.bufferSource;
 //		bufferSource.endLastBatch();
@@ -123,11 +135,6 @@ public class SeparateBufferEntityShader {
 //		bufferSource.endBatch(RenderType.entityGlintDirect());
 //		bufferSource.endBatch(RenderType.waterMask());
 		bufferSource.endBatch();
-	}
-	
-	protected void setupBuffer() {
-		Minecraft mc = Minecraft.getInstance();
-		frameBuffer.copyDepthFrom(mc.getMainRenderTarget());
 	}
 
 //	@SuppressWarnings("deprecation")
