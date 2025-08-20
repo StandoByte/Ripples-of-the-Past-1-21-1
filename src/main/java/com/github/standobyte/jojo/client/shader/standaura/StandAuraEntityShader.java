@@ -71,7 +71,6 @@ public class StandAuraEntityShader extends SeparateBufferEntityShader {
 				new ByteBufferBuilder(786432), 
 				new Object2ObjectLinkedOpenHashMap<>(), 
 				silhouetteTargetShard, RenderStateShard.RENDERTYPE_OUTLINE_SHADER);
-		silhouetteBufferSource.setColor(1, 1, 1, 1);
 	}
 	
 
@@ -144,6 +143,7 @@ public class StandAuraEntityShader extends SeparateBufferEntityShader {
 		int color = getStandAuraColor(event.getEntity());
 		if (color == -1) return;
 		shader.auraColor.setColor(color);
+		shader.silhouetteBufferSource.setColor(color);
 
 		MultiBufferSource source = shader.useBufferSourceThisFrame();
 		shader._renderingNow = true;
