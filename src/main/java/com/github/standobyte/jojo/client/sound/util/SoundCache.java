@@ -27,7 +27,7 @@ import net.neoforged.neoforge.client.event.sound.SoundEngineLoadEvent;
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class SoundCache {
 	public static Map<ResourceLocation, List<Weighted<Sound>>> soundEventSeparateSounds = new HashMap<>();
-	public static Map<ResourceLocation, BgmLoopPartitioning> bgmLoopMeta = new HashMap<>();
+	public static Map<ResourceLocation, List<Weighted<BgmLoopPartitioning>>> bgmLoopMeta = new HashMap<>();
 	public static PartitionedSoundBuffers partitionedSoundBuffers;
 	
 	/**

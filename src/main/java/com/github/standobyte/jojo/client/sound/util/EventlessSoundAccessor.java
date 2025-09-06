@@ -24,7 +24,7 @@ public class EventlessSoundAccessor extends WeighedSoundEvents {
 	}
 
 	@Override
-	public Sound getSound(RandomSource IDINAHUY) {
+	public Sound getSound(RandomSource random) {
 		return sound;
 	}
 

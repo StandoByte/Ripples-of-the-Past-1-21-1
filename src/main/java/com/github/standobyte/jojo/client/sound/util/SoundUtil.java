@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
@@ -87,24 +88,68 @@ public class SoundUtil {
 
 	protected static RandomSource randomSource = RandomSource.create();
 	public static Sound pick(List<Weighted<Sound>> sounds) {
+		return pick(sounds, SoundManager.EMPTY_SOUND);
+	}
+	
+	public static <T> T pick(List<Weighted<T>> sounds, T empty) {
+		if (sounds.isEmpty()) {
+			return empty;
+		}
+		if (sounds.size() == 1) {
+			Weighted<T> entry = sounds.get(0);
+			if (entry.getWeight() > 0) {
+				return entry.getSound(randomSource);
+			}
+		}
+		
 		int i = 0;
-		for (Weighted<Sound> weighted : sounds) {
+		for (Weighted<T> weighted : sounds) {
 			i += weighted.getWeight();
 		}
 
-		if (!sounds.isEmpty() && i != 0) {
+		if (i != 0) {
 			int j = randomSource.nextInt(i);
-
-			for (Weighted<Sound> weighted : sounds) {
+			for (Weighted<T> weighted : sounds) {
 				j -= weighted.getWeight();
 				if (j < 0) {
 					return weighted.getSound(randomSource);
 				}
 			}
-
-			return SoundManager.EMPTY_SOUND;
-		} else {
-			return SoundManager.EMPTY_SOUND;
 		}
+		
+		return empty;
 	}
+	
+	/**
+	 * If the sounds list elements have randomness on their own, this won't work correctly 
+	 * (that's not a use case I need anyway, at least for now, so that's deliberate)
+	 */
+	public static <T> T pick(List<Weighted<T>> sounds, Predicate<T> filter, T empty) {
+		if (sounds.isEmpty()) {
+			return empty;
+		}
+		
+		int i = 0;
+		List<Weighted<T>> filtered = new ArrayList<>(sounds.size());
+		for (Weighted<T> weighted : sounds) {
+			T value = weighted.getSound(randomSource);
+			if (filter.test(value)) {
+				filtered.add(weighted);
+				i += weighted.getWeight();
+			}
+		}
+
+		if (i != 0) {
+			int j = randomSource.nextInt(i);
+			for (Weighted<T> weighted : filtered) {
+				j -= weighted.getWeight();
+				if (j < 0) {
+					return weighted.getSound(randomSource);
+				}
+			}
+		}
+		
+		return empty;
+	}
+	
 }

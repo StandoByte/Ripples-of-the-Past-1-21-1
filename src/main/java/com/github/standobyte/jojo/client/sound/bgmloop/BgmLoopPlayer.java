@@ -18,6 +18,8 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.JSONUtil;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mojang.blaze3d.audio.Library;
 import com.mojang.blaze3d.audio.SoundBuffer;
 import com.mojang.logging.LogUtils;
@@ -89,6 +91,7 @@ public class BgmLoopPlayer {
 	// FIXME !!!!!!!!!!!!!!!!!! a function to preload sound events
 
 
+	// TODO (bgm) allow playing a sound event without bgm meta
 	public void start() {
 		Minecraft mc = Minecraft.getInstance();
 		SoundManager soundManager = mc.getSoundManager();
@@ -111,32 +114,43 @@ public class BgmLoopPlayer {
 		List<Weighted<Sound>> sounds = SoundUtil.getSoundFiles(soundEvent, soundManager);
 		if (sounds.isEmpty()) {
 			LOGGER.error("Failed playing looping BGM - empty sound event {}", soundEvent.getLocation());
+			finished = true;
+			return;
 		}
 		
 		// read and cache the .bgmmeta files for all the sounds, and get only the sound files that have those
 		sounds = sounds.stream().filter(_sound -> {
 			Sound sound = _sound.getSound(null);
 			ResourceLocation key = sound.getLocation();
-			BgmLoopPartitioning data = SoundCache.computeIfKeyAbsent(SoundCache.bgmLoopMeta, key, soundId -> {
+			List<Weighted<BgmLoopPartitioning>> data = SoundCache.computeIfKeyAbsent(SoundCache.bgmLoopMeta, key, soundId -> {
 				ResourceLocation path = BgmLoopPartitioning.LISTER.idToFile(soundId);
 				try (var fileReader = resourceManager.openAsReader(path)) {
-					JsonElement json = JSONUtil.parse(fileReader);
-					return BgmLoopPartitioning.fromResourceJson(json);
+					JsonElement json = JsonParser.parseReader(fileReader);
+					return BgmLoopPartitioning.parseList(json);
 				} catch (Exception e) {
 					LOGGER.error("Failed to read {}", path, e);
 					return null;
 				}
 			});
-			return data != null;
+			return data != null && !data.isEmpty();
 		}).toList();
 		if (sounds.isEmpty()) {
 			LOGGER.error("Failed playing looping BGM - no sounds in {} have a BGM meta file", soundEvent.getLocation());
+			finished = true;
+			return;
 		}
 		
 		// randomly pick the track
 		sound = SoundUtil.pick(sounds);
 		ResourceLocation soundLocation = sound.getLocation();
-		BgmLoopPartitioning loopData = SoundCache.bgmLoopMeta.get(soundLocation);
+		List<Weighted<BgmLoopPartitioning>> loopsList = SoundCache.bgmLoopMeta.get(soundLocation);
+		BgmLoopPartitioning loopData = SoundUtil.pick(loopsList, bgm -> bgm.matchesSoundEvent(soundEvent), null);
+		
+		if (loopData == null) {
+			LOGGER.error("Failed playing looping BGM - you probably messed up the sound events field (tried playing {} but didn't find a BGM meta matching the sound event {})", sound.getLocation(), soundEvent.getLocation());
+			finished = true;
+			return;
+		}
 		
 		play((channelHandle, soundInstance) -> {
 			// play the intro part buffer and queue the main loop buffer immediately after
