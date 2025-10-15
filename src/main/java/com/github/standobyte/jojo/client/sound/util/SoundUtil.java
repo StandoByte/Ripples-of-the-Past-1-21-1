@@ -86,7 +86,7 @@ public class SoundUtil {
 	}
 	protected static Field DELEGATE_CLOSURE_SOUND_ID;
 
-	protected static RandomSource randomSource = RandomSource.create();
+	public static RandomSource random = RandomSource.create();
 	public static Sound pick(List<Weighted<Sound>> sounds) {
 		return pick(sounds, SoundManager.EMPTY_SOUND);
 	}
@@ -98,7 +98,7 @@ public class SoundUtil {
 		if (sounds.size() == 1) {
 			Weighted<T> entry = sounds.get(0);
 			if (entry.getWeight() > 0) {
-				return entry.getSound(randomSource);
+				return entry.getSound(random);
 			}
 		}
 		
@@ -108,11 +108,11 @@ public class SoundUtil {
 		}
 
 		if (i != 0) {
-			int j = randomSource.nextInt(i);
+			int j = random.nextInt(i);
 			for (Weighted<T> weighted : sounds) {
 				j -= weighted.getWeight();
 				if (j < 0) {
-					return weighted.getSound(randomSource);
+					return weighted.getSound(random);
 				}
 			}
 		}
@@ -132,7 +132,7 @@ public class SoundUtil {
 		int i = 0;
 		List<Weighted<T>> filtered = new ArrayList<>(sounds.size());
 		for (Weighted<T> weighted : sounds) {
-			T value = weighted.getSound(randomSource);
+			T value = weighted.getSound(random);
 			if (filter.test(value)) {
 				filtered.add(weighted);
 				i += weighted.getWeight();
@@ -140,11 +140,11 @@ public class SoundUtil {
 		}
 
 		if (i != 0) {
-			int j = randomSource.nextInt(i);
+			int j = random.nextInt(i);
 			for (Weighted<T> weighted : filtered) {
 				j -= weighted.getWeight();
 				if (j < 0) {
-					return weighted.getSound(randomSource);
+					return weighted.getSound(random);
 				}
 			}
 		}

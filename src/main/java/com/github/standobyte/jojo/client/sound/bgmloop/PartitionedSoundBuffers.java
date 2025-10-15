@@ -8,7 +8,8 @@ import java.util.concurrent.CompletableFuture;
 
 import javax.sound.sampled.AudioFormat;
 
-import com.github.standobyte.jojo.client.sound.bgmloop.BgmLoopPartitioning.BgmPart;
+import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo.BgmLoopPartitioning;
+import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo.BgmLoopPartitioning.BgmPart;
 import com.github.standobyte.jojo.client.sound.util.SoundCache;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
 import com.mojang.blaze3d.audio.SoundBuffer;

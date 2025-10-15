@@ -6,6 +6,7 @@ import java.util.Set;
 import com.github.standobyte.jojo.client.entityanim.AnimationLoader;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
 import com.github.standobyte.jojo.client.shader.EntityShaders;
+import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackLoader;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.utils.ResourcePathChecker;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -28,6 +29,7 @@ public class ModClientResources {
 		AnimationLoader.init(event);
 		ClothesModelLoader.init(event);
 		EntityShaders.resourceReload(event);
+		BgmTrackLoader.init(event);
 	}
 	
 	public static Set<AutoCloseable> closeables = new HashSet<>();

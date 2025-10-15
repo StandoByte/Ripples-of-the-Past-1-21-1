@@ -8,7 +8,7 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.sound.bgmloop.BgmLoopPartitioning;
+import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo.BgmLoopPartitioning;
 import com.github.standobyte.jojo.client.sound.bgmloop.PartitionedSoundBuffers;
 import com.github.standobyte.jojo.core.JojoMod;
 
@@ -51,8 +51,8 @@ public class SoundCache {
 		if (partitionedSoundBuffers != null) partitionedSoundBuffers.clear();
 	}
 	
-	// FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! call this on Minecraft#close
-	// FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! do i have to make a BgmLoopPlayer#close() too?
+	// FIXME !!!!!!!!!!!!!! (bgm) call this on Minecraft#close
+	// FIXME !!!!!!!!!!!!!! (bgm) do i have to make a BgmLoopPlayer#close() too?
 	public static void close() {
 		if (partitionedSoundBuffers != null) partitionedSoundBuffers.clear();
 	}
