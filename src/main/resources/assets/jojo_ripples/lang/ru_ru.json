@@ -80,6 +80,15 @@
   "jojo_ripples.config.client.hamonAuraBlur.tooltip": "Размытие частиц ауры Хамона",
   "jojo_ripples.config.client.vampireGlowingEyes": "Светящиеся глаза",
   "jojo_ripples.config.client.vampireGlowingEyes.tooltip": "Красные светящиеся в темноте глаза от 3 лица, когда у вас 80% или больше энергии",
+  
+  "commands.jojo_ripples.bgm.preload.success.multiple": "Предзагружена звуковая дорожка \"%s\" для %s игроков",
+  "commands.jojo_ripples.bgm.preload.success.single": "Предзагружена звуковая дорожка \"%s\" для игрока %s",
+  "commands.jojo_ripples.bgm.play.success.multiple": "Воспроизводится звуковая дорожка \"%s\" %s игрокам",
+  "commands.jojo_ripples.bgm.play.success.single": "Воспроизводится звуковая дорожка \"%s\" игроку %s",
+  "commands.jojo_ripples.bgm.finish.success.multiple": "Воспроизводится финальная часть звуковой дорожки %s игрокам",
+  "commands.jojo_ripples.bgm.finish.success.single": "Воспроизводится финальная часть звуковой дорожки игроку %s",
+  "commands.jojo_ripples.bgm.stop.success.multiple": "Остановлена звуковая дорожка у %s игроков",
+  "commands.jojo_ripples.bgm.stop.success.single": "Остановлена звуковая дорожка у игрока %s",
 
   "jojo_ripples.ui.story": "История (NYI)",
   "jojo_ripples.menu.player.profile": "Профиль персонажа: %s (NYI)",

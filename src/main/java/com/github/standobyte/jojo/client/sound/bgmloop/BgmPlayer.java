@@ -101,7 +101,7 @@ public class BgmPlayer {
 	}
 
 
-	static BgmPlayer tickLoopPlayer;
+	@Nullable public static BgmPlayer bgmPlaying;
 
 	// FIXME !!!!! (bgm) a function to preload sounds
 	public static void start(BgmPlayer bgm) {
@@ -145,10 +145,10 @@ public class BgmPlayer {
 						bgm.loopSoundInstance = soundInstance;
 						
 						// FIXME !!!!!!!!!!! (bgm) i think i can reuse the same channel actually
-						if (tickLoopPlayer != null) {
-							tickLoopPlayer.forceStop();
+						if (bgmPlaying != null) {
+							bgmPlaying.forceStop();
 						}
-						tickLoopPlayer = bgm;
+						bgmPlaying = bgm;
 						
 						AL10.alSourcei(soundSourceId, AL10.AL_BUFFER, 0);
 						AL10.alSourceQueueBuffers(soundSourceId, introSoundBuffer.getAsInt());
@@ -205,21 +205,15 @@ public class BgmPlayer {
 		}
 	}
 	
-	public static void stop() {
-		if (tickLoopPlayer != null && !tickLoopPlayer.hasFinished()) {
-			tickLoopPlayer.forceStop();
-		}
-	}
-	
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void tickBossMusic(ClientTickEvent.Pre event) {
 		Minecraft mc = Minecraft.getInstance();
-		if (!mc.isPaused() && tickLoopPlayer != null && tickLoopPlayer.isPlaying) {
-			tickLoopPlayer.tick();
+		if (!mc.isPaused() && bgmPlaying != null && bgmPlaying.isPlaying) {
+			bgmPlaying.tick();
 		}
-		if (tickLoopPlayer != null && !tickLoopPlayer.isPlaying) {
-			tickLoopPlayer = null;
+		if (bgmPlaying != null && !bgmPlaying.isPlaying) {
+			bgmPlaying = null;
 		}
 	}
 
@@ -275,12 +269,14 @@ public class BgmPlayer {
 
 	// FIXME !!!!!!!! (bgm) properly close this
 	public void forceStop() {
-		SoundManager soundManager = Minecraft.getInstance().getSoundManager();
-		if (loopSoundInstance != null) {
-			soundManager.stop(loopSoundInstance);
-			loopSoundInstance = null;
+		if (isPlaying) {
+			SoundManager soundManager = Minecraft.getInstance().getSoundManager();
+			if (loopSoundInstance != null) {
+				soundManager.stop(loopSoundInstance);
+				loopSoundInstance = null;
+			}
+			isPlaying = false;
 		}
-		isPlaying = false;
 	}
 
 	public boolean hasFinished() {

@@ -2,16 +2,23 @@ package com.github.standobyte.jojo.core;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.core.command.JojoPowerCommand;
+import com.github.standobyte.jojo.core.command.PlayBgmCommand;
+import com.github.standobyte.jojo.core.command.StandCommand;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.util.entitycomponent.DataEventListeners;
+import com.mojang.brigadier.CommandDispatcher;
 
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
@@ -20,6 +27,15 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 public class EventHandler {
 
 	@SubscribeEvent
+	public static void registerCommands(RegisterCommandsEvent event) {
+		CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
+		CommandBuildContext context = event.getBuildContext();
+		
+		StandCommand.register(dispatcher, context);
+		JojoPowerCommand.register(dispatcher, context);
+		PlayBgmCommand.register(dispatcher, context);
+	}
+
 	public static void onEntityCreated(EntityJoinLevelEvent event) {
 		/* 
 		 * Attach the power data to the player.
