@@ -10,6 +10,7 @@ import org.joml.Quaternionf;
 import org.lwjgl.glfw.GLFW;
 
 import com.github.standobyte.jojo.client.ClientProxy;
+import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.input.InputHandler;
@@ -163,6 +164,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 			onClose();
 			return;
 		}
+		partialTick = ClientUtil.partialTick(Minecraft.getInstance().getTimer(), true);
 		
 		renderBackground(gui, mouseX, mouseY, partialTick);
 		renderWindow(gui);
