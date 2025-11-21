@@ -160,23 +160,29 @@
   "item.jojo_ripples.stand_disc.experimental": "Экспериментальный / Неигровой",
   "item.jojo_ripples.stand_disc.addon_author": "Автор(ы) аддона: %s",
   "item.jojo_ripples.stand_disc.data_pack": "Стенд из датапака",
-  "jojo_ripples.menu.stand.info": "Информация о Стенде (NYI)",
+  "jojo_ripples.menu.stand.info": "Информация о Стенде",
   "jojo_ripples.menu.stand.skills": "Навыки (NYI)",
   "jojo_ripples.menu.stand.skins": "Скины Стенда",
   "moveset_default_group": "Способности",
   "moveset_group.stand.tooltip": "Эта клавиша активирует управление Стендом, но не призывает его сразу же - с помощью этого некоторые из способностей можно использовать, призвав только руки Стенда.",
   
   "jojo_ripples.stand_stat.strength": "Разрушительная мощь",
+  "jojo_ripples.stand_stat.strength.shortened": "СИЛ - ",
   "jojo_ripples.stand_stat.strength.desc": "Влияет на физический урон от атак Стенда, и в меньшей степени на его сопротивление урону от атак других Стендов.",
   "jojo_ripples.stand_stat.speed": "Скорость",
+  "jojo_ripples.stand_stat.speed.shortened": "СКОР - ",
   "jojo_ripples.stand_stat.speed.desc": "Влияет на скорость атаки и перемещения Стенда, его скорость стрельбы снарядами, а так же на эффективность шквала ударов.",
   "jojo_ripples.stand_stat.range": "Дальность",
+  "jojo_ripples.stand_stat.range.shortened": "ДАЛ - ",
   "jojo_ripples.stand_stat.range.desc": "Совмещает эффективную дальность, за пределами которой Стенд становится менее эффективным; и максимальную дальность, за пределы которой Стенд не может перемещаться вовсе.",
   "jojo_ripples.stand_stat.durability": "Выносливость",
+  "jojo_ripples.stand_stat.durability.shortened": "ВЫН - ",
   "jojo_ripples.stand_stat.durability.desc": "Влияет на шкалу стойкости Стенда и на его сопротивление урону от атак других Стендов.",
   "jojo_ripples.stand_stat.precision": "Меткость",
+  "jojo_ripples.stand_stat.precision.shortened": "МЕТК - ",
   "jojo_ripples.stand_stat.precision.desc": "Улучшает наведение на цель ударов Стенда и меткость его снарядов.",
   "jojo_ripples.stand_stat.dev_potential": "Способность развиваться",
+  "jojo_ripples.stand_stat.dev_potential.shortened": "РАЗВ - ",
   "jojo_ripples.stand_stat.dev_potential.desc": "Отображает, наколько много различных применений способности своего Стенда этот персонаж ещё может обнаружить. По мере того, как обладатель изучает навыки Стенда, этот параметр уменьшается.",
   
   "jojo_ripples.stand_stat.stand_name": "Имя Стенда: %s",
@@ -280,6 +286,7 @@
   
   
   "stand.jojo_ripples.star_platinum": "Star Platinum",
+  "    перевести-stand.jojo_ripples.star_platinum.desc": "A power-type Stand with exceptionally high physical strength, speed and precision. Being the same type of Stand as The World, at one point Star Platinum also awakens an ability to stop time.",
   
   "jojo_ripples.skill.uppercut": "(NYI) Добивающий апперкот",
   "jojo_ripples.skill.uppercut.desc": "Более быстрый тяжёлый удар, который пробивает защиту и подбрасывает цель вверх.",
@@ -324,6 +331,7 @@
   
   
   "stand.jojo_ripples.hierophant_green": "Hierophant Green",
+  "    перевести-stand.jojo_ripples.hierophant_green.desc": "A long-range Stand with average physical strength, more suitable for reconnaissance than for close combat. Its body can unravel into tendrils, allowing the user to set up traps.",
   
   "jojo_ripples.skill.puppet": "(WIP) Взять под контроль",
   "jojo_ripples.skill.puppet.desc": "Hierophant Green разматывает своё тело и залезвает внутрь сущности, позволяя вам механически управлять действиями цели.",
@@ -333,6 +341,7 @@
   
   
   "stand.jojo_ripples.crazy_diamond": "Crazy Diamond",
+  "    перевести-stand.jojo_ripples.crazy_diamond.desc": "One of the more physically strong power-type Stands, Crazy Diamond's ability is fixing objects and people. This ability has a multitude of various uses and makes the Stand very versatile, however, Crazy Diamond cannot heal the user's own wounds or cure any diseases.",
   
   "jojo_ripples.skill.disfiguring_punch": "(NYI) Деформирующий удар",
   "    перевести-jojo_ripples.skill.disfiguring_punch.desc": "After a finisher punch, incorrectly restore the attacked body part. This partially heals the injury, but leaves the target unable to correctly control that body part for a short period of time.",

@@ -1,15 +1,16 @@
 package com.github.standobyte.jojo.client.text;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
 
 public class ShortenText {
 
-	public static Component shortenedTranslatable(String translatableKey) {
+	public static MutableComponent shortenedTranslatable(String translatableKey) {
 		return Component.translatableWithFallback(translatableKey + ".shortened", translatableKey);
 	}
 
-	public static Component shortenedTranslatable(String translatableKey, Object... args) {
+	public static MutableComponent shortenedTranslatable(String translatableKey, Object... args) {
 		return Component.translatableWithFallback(translatableKey + ".shortened", translatableKey, args);
 	}
 

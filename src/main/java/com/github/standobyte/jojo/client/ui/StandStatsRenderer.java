@@ -305,12 +305,14 @@ public class StandStatsRenderer {
 			}
 		};
 
+		public final String tlKey;
 		public final Component name;
 		public final Component desc;
 		public final int x;
 		public final int y;
 
 		private HexagonStandStat(String name, int x, int y) {
+			this.tlKey = name;
 			this.name = Component.translatable(name).withStyle(ChatFormatting.BLACK);
 			this.desc = Component.translatable(name + ".desc").withStyle(ChatFormatting.DARK_GRAY);
 			this.x = x;
@@ -612,28 +614,27 @@ public class StandStatsRenderer {
 			}
 			float letterAlpha = tick_ >= letterFullTick ? 1 : 0.25f + 0.75f * 
 					(float) (tick_ - letterStartTick) / (float) (letterFullTick - letterStartTick);
+			statRankLetter = REFERENCE_MARK;
 
 
 			Component rank = Component.literal(statRankLetter).withStyle(ChatFormatting.BOLD);
 			int letterWidth = mc.font.width(rank);
 			int letterColor = ARGB.color(letterAlpha, bnw(BLACK, invertBnW));
 
+			float rankX = statX - letterWidth / 2;
 			switch (statRankLetter) {
 			case "∅":
-				letterWidth = 9;
-				renderLetterFromTex(poseStack, letterColor, statX, statY, letterWidth, 0, 504);
+				renderLetterFromTex(poseStack, letterColor, rankX, statY, 0, 504);
 				break;
 			case "∞":
-				letterWidth = 9;
-				renderLetterFromTex(poseStack, letterColor, statX, statY, letterWidth, 12, 504);
+				renderLetterFromTex(poseStack, letterColor, rankX, statY, 12, 504);
 				break;
 			case REFERENCE_MARK:
-				letterWidth = 9;
-				renderLetterFromTex(poseStack, letterColor, statX + 1f, statY, letterWidth, 24, 504);
+				renderLetterFromTex(poseStack, letterColor, rankX, statY, 24, 504);
 				break;
 			default:
 				guiGraphics.drawString(mc.font, rank.getVisualOrderText(), 
-						statX - mc.font.width(rank) / 2, statY, 
+						rankX, statY, 
 						letterColor, false);
 			}
 
@@ -648,11 +649,11 @@ public class StandStatsRenderer {
 		poseStack.popPose();
 	}
 
-	protected static void renderLetterFromTex(PoseStack poseStack, int color, 
-			float statX, float statY, float letterWidth, int texX, int texY) {
+	public static void renderLetterFromTex(PoseStack poseStack, int color, 
+			float statX, float statY, int texX, int texY) {
 		RenderSystem.enableBlend();
 		BlitFloat.blit(poseStack, Minecraft.getInstance(), STAND_STATS_UI, 
-				statX - letterWidth / 2, statY, 8, 7, 0,
+				statX, statY, 8, 7, 0,
 				texX, texY, 8, 7, 512, 512, 
 				color);
 	}

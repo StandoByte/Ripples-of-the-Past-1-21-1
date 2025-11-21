@@ -4,6 +4,7 @@ import java.util.OptionalInt;
 
 import com.github.standobyte.jojo.core.JojoMod;
 
+import net.minecraft.util.FastColor;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -33,6 +34,15 @@ public class TooltipParams {
 		return new TooltipParams(
 				OptionalInt.of(0xc0FFFFFF), 
 				OptionalInt.of(0xc0FFFFFF),
+				OptionalInt.of(0xc0000000),
+				OptionalInt.of(0xc0000000), true);
+	}
+	
+	public static TooltipParams paperStyle(float bgAlpha) {
+		int alphaChannel = FastColor.as8BitChannel(bgAlpha)<< 24 ;
+		return new TooltipParams(
+				OptionalInt.of(alphaChannel | 0x00FFFFFF), 
+				OptionalInt.of(alphaChannel | 0x00FFFFFF),
 				OptionalInt.of(0xc0000000),
 				OptionalInt.of(0xc0000000), true);
 	}

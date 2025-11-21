@@ -145,6 +145,7 @@ public class JojoMenuTabs {
 			PowerHud.renderClientStandIcon(guiGraphics.pose(), x, y);
 		}
 	}
+			.withScreen(tab -> new StandInfoScreen(tab.category, tab))
 			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.stand.info"));
 	
 	public static final Tab STAND_SKILLS = new Tab(CATEGORY_STAND)
