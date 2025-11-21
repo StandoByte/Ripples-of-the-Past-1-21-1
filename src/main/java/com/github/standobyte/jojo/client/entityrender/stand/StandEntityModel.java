@@ -1,11 +1,15 @@
 package com.github.standobyte.jojo.client.entityrender.stand;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.entityanim.HiddenModelParts;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.barrage.BarrageSwings;
 import com.github.standobyte.jojo.client.utils.ModelUtil;
@@ -26,7 +30,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.HumanoidArm;
 
-public class StandEntityModel<T extends StandEntity, S extends StandEntityRenderState> extends EntityModel<T> implements ArmedModel {
+public class StandEntityModel<T extends StandEntity, S extends StandEntityRenderState> extends EntityModel<T> implements ArmedModel, HiddenModelParts {
 	public ModelPart left_arm_xrot;
 	public ModelPart left_arm;
 	public ModelPart right_arm_xrot;
@@ -38,6 +42,7 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 	public ModelPart left_leg;
 	public ModelPart right_leg_xrot;
 	public ModelPart right_leg;
+	protected Set<ModelPart> hiddenParts = new HashSet<>();
 	protected Map<String, ModelPart[]> inheritanceChains = new HashMap<>();
 
 	public StandEntityModel(ModelPart root) {
@@ -59,6 +64,7 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 		// TODO (entity anim) make an array of all model parts that aren't visible by default
 		
 		addMissingItemHoldPoints();
+		initHiddenParts(this);
 		inheritanceChains = ModelUtil.modelPartInheritanceChains("root", ((Model_1_21_2plus) this).jojo_ripples$root(), "left_item", "right_item");
 	}
 	
@@ -81,6 +87,11 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 				armBend.children.put("right_item", itemPoint);
 			}
 		}
+	}
+	
+	@Override
+	public Collection<ModelPart> getInitiallyHidden() {
+		return hiddenParts;
 	}
 
 //	@Override // 1.21.2+

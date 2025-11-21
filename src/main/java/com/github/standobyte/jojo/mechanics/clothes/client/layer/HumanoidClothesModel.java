@@ -11,10 +11,9 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.entityanim.playerbend.IPlayerBendModel;
 import com.github.standobyte.jojo.client.entityanim.playerbend.IPlayerLimbBend;
-import com.github.standobyte.jojo.client.utils.ModelUtil;
+import com.github.standobyte.jojo.client.entityrender.NamedModelParts;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
 import com.github.standobyte.v1_21_4_stuff.Reminder;
-import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
@@ -111,9 +110,10 @@ public class HumanoidClothesModel extends HumanoidModel/*<HumanoidRenderState>*/
 	
 	
 	public void initClothesSlots() {
-		var modelParts = ModelUtil.mapNamedModelParts(((Model_1_21_2plus) this).jojo_ripples$root());
-		for (Map.Entry<String, ModelPart> modelPart : modelParts.entrySet()) {
-			String name = modelPart.getKey();
+		var modelParts = ((NamedModelParts) this).jojo_ripples$getAllNamedParts();
+		while (modelParts.hasNext()) {
+			var modelPartEntry = modelParts.next();
+			String name = modelPartEntry.getKey();
 			if (name.length() >= 5 && name.startsWith("slot")) {
 				ClothesSlotType clothesPart = null;
 				switch (name.charAt(4)) {
@@ -131,7 +131,8 @@ public class HumanoidClothesModel extends HumanoidModel/*<HumanoidRenderState>*/
 					break;
 				}
 				if (clothesPart != null) {
-					byClothesPart.computeIfAbsent(clothesPart, __ -> new ArrayList<>()).add(modelPart.getValue());
+					ModelPart modelPart = modelPartEntry.getValue().get();
+					byClothesPart.computeIfAbsent(clothesPart, __ -> new ArrayList<>()).add(modelPart);
 				}
 			}
 		}

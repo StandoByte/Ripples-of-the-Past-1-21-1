@@ -57,9 +57,12 @@ public class RotpAnimDefinition {
 
 	public void animate(Model model, LivingEntityRenderState renderState, float seconds, float animSpeed) {
 		Model_1_21_2plus _model = (Model_1_21_2plus) model;
+		HiddenModelParts _withHidden = model instanceof HiddenModelParts __ ? __ : null;
+		if (_withHidden != null) _withHidden.beforeAnim();
 		evaluateQueries(renderState);
 		for (Map.Entry<String, List<AnimationChannel>> entry : boneAnimations.entrySet()) {
 			_model.jojo_ripples$getAnyDescendantWithName(entry.getKey()).ifPresent(modelPart -> {
+				if (_withHidden != null) _withHidden.onAnimate(modelPart);
 				animateModelPart(this, modelPart, entry.getValue(), seconds, animSpeed);
 			});
 		}

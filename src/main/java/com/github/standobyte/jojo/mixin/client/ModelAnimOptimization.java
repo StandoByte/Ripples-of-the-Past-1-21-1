@@ -1,18 +1,20 @@
 package com.github.standobyte.jojo.mixin.client;
 
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 
 import org.spongepowered.asm.mixin.Mixin;
 
+import com.github.standobyte.jojo.client.entityrender.NamedModelParts;
+import com.github.standobyte.jojo.client.utils.ModelUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 
 @Mixin(Model.class)
-public abstract class ModelAnimOptimization implements Model_1_21_2plus {
+public abstract class ModelAnimOptimization implements Model_1_21_2plus, NamedModelParts {
 	private Map<String, Optional<ModelPart>> jojo_ripples$allModelParts;
 
 //	@Inject(method = "<init>("
@@ -23,15 +25,7 @@ public abstract class ModelAnimOptimization implements Model_1_21_2plus {
 //	}
 	
 	public void jojo_ripples$initModelPartsCache(ModelPart root) {
-		jojo_ripples$allModelParts = new HashMap<>();
-		jojo_ripples$recursionTime(root, "root", jojo_ripples$allModelParts);
-	}
-
-	private static void jojo_ripples$recursionTime(ModelPart modelPart, String modelPartName, Map<String, Optional<ModelPart>> allModelParts) {
-		allModelParts.put(modelPartName, Optional.of(modelPart));
-		for (var childEntry : modelPart.children.entrySet()) {
-			jojo_ripples$recursionTime(childEntry.getValue(), childEntry.getKey(), allModelParts);
-		}
+		jojo_ripples$allModelParts = ModelUtil.mapNamedModelParts(root, Optional::of);
 	}
 	
 //	@Inject(method = "getAnyDescendantWithName", at = @At("HEAD"), cancellable = true)
@@ -42,6 +36,11 @@ public abstract class ModelAnimOptimization implements Model_1_21_2plus {
 			return part != null ? part : Optional.empty();
 		}
 		return Optional.empty();
+	}
+	
+	@Override
+	public Iterator<Map.Entry<String, Optional<ModelPart>>> jojo_ripples$getAllNamedParts() {
+		return jojo_ripples$allModelParts != null ? jojo_ripples$allModelParts.entrySet().iterator() : null;
 	}
 
 }

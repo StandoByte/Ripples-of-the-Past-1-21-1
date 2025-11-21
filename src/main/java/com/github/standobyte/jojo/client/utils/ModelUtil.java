@@ -9,6 +9,7 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
@@ -29,17 +30,21 @@ import net.minecraft.world.phys.Vec3;
 public class ModelUtil {
 
 	public static Map<String, ModelPart> mapNamedModelParts(ModelPart root) {
-		Map<String, ModelPart> map = new HashMap<>();
-		map.put("root", root);
-		putChildrenRecursive(root, map);
+		return mapNamedModelParts(root, Function.identity());
+	}
+
+	public static <T> Map<String, T> mapNamedModelParts(ModelPart root, Function<ModelPart, T> wrap) {
+		Map<String, T> map = new HashMap<>();
+		putChildrenRecursive(root, "root", map, wrap);
 		return map;
 	}
 	
-	private static void putChildrenRecursive(ModelPart parent, Map<String, ModelPart> dest) {
-		for (var childEntry : parent.children.entrySet()) {
-			ModelPart modelPart = childEntry.getValue();
-			dest.putIfAbsent(childEntry.getKey(), modelPart);
-			putChildrenRecursive(modelPart, dest);
+	private static <T> void putChildrenRecursive(ModelPart modelPart, String partName, Map<String, T> dest, Function<ModelPart, T> wrap) {
+		dest.put(partName, wrap.apply(modelPart));
+		for (var childEntry : modelPart.children.entrySet()) {
+			ModelPart childModelPart = childEntry.getValue();
+			String childName = childEntry.getKey();
+			putChildrenRecursive(childModelPart, childName, dest, wrap);
 		}
 	}
 	
