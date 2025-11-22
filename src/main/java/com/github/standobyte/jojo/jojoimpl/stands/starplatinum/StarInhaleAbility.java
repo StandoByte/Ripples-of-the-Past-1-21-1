@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.jojoimpl.stands.starplatinum;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityStoppableSoundInstance;
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModParticles;
@@ -18,7 +19,6 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromU
 import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.damage.DamageUtil;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -127,7 +127,7 @@ public class StarInhaleAbility extends StandEntityAbility {
                             this.id,
                             () -> getPhase() != ActionPhase.PERFORM
                     );
-                    Minecraft.getInstance().getSoundManager().play(soundInstance);
+                    ClientsideSoundsHelper.playNonVanillaClassSound(soundInstance);
                 }
             }
         }
