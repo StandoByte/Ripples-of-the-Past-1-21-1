@@ -9,7 +9,7 @@ tasks.named('wrapper', Wrapper).configure {
     distributionType = Wrapper.DistributionType.BIN
 }
 
-version = mod_version
+version = release_snapshot.toBoolean() ? "${minecraft_version}-${mod_version}-${snapshot_version}" : "${minecraft_version}-${mod_version}"
 group = mod_group_id
 
 repositories {
@@ -18,7 +18,7 @@ repositories {
 }
 
 base {
-    archivesName = 'RipplesOfThePast-NeoForge-1.21.1'
+    archivesName = 'RipplesOfThePast-NeoForge'
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
@@ -123,11 +123,29 @@ sourceSets.main.resources.srcDir generateModMetadata
 // To avoid having to run "generateModMetadata" manually, make it run on every project reload
 neoForge.ideSyncTask generateModMetadata
 
+task srcJar (type: Jar) {
+    from sourceSets.main.java
+    archiveClassifier = 'sources'
+}
+
+artifacts {
+    archives srcJar
+}
+
 // Example configuration to allow publishing using the maven-publish plugin
 publishing {
     publications {
         register('mavenJava', MavenPublication) {
+            groupId project.group
+            artifactId project.archivesBaseName
+            version "${minecraft_version}-${mod_version}-${snapshot_version}"
             from components.java
+            artifact srcJar
+            pom.withXml {
+                def node = asNode()
+                if (node.dependencies.size() > 0)
+                    node.remove(node.dependencies) // Remove dependencies from .pom
+            }
         }
     }
     repositories {
