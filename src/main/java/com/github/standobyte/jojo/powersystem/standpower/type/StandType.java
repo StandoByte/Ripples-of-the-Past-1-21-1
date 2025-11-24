@@ -10,6 +10,8 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.standskin.StandSkin;
+import com.github.standobyte.jojo.client.standskin.StandSkinsScreen;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.core.packet.fromserver.StandSkinSoundPacket;
@@ -293,6 +295,11 @@ public class StandType extends PowerType {
 		return ((StandPower) playerPowerData).getStandInstance()
 				.map(stand -> stand.getStandName(playerPowerData.getUser().level().isClientSide()))
 				.orElseGet(this.name::get);
+	}
+	
+	
+	public StandSkinsScreen.SkinView makeSkinUIElement(StandSkin skin, StandSkinsScreen screen, int x, int y, int standY, int row, int column, boolean isBottomRow) {
+		return new StandSkinsScreen.SkinView(this, skin, screen, x, y, standY, row, column, isBottomRow);
 	}
 	
 }

@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.joml.Quaternionf;
 import org.lwjgl.glfw.GLFW;
 
@@ -115,7 +116,8 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 	
 	private void setStandCap(StandPower standCap) {
 		this.standCap = standCap;
-		List<StandSkin> skins = StandSkinsLoader.getInstance().getStandSkinsView(standCap.getPowerType().getId());
+		StandType standType = standCap.getPowerType();
+		List<StandSkin> skins = StandSkinsLoader.getInstance().getStandSkinsView(standType.getId());
 		int rowsCount = (skins.size() - 1) / SKINS_IN_ROW + 1;
 		this.skins = Streams.mapWithIndex(skins.stream(), (skin, index) -> {
 					int row = (int) (index / SKINS_IN_ROW);
@@ -133,7 +135,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 						else if (column == 1) yOffset = -4;
 						else if (column == 2) yOffset = -6;
 					}
-					return new SkinView(skin, x, y + yOffset, y, row, column, row == rowsCount - 1);
+					return standType.makeSkinUIElement(skin, this, x, y + yOffset, y, row, column, row == rowsCount - 1);
 				})
 				.collect(Collectors.toList());
 		setScroll(0);
@@ -227,7 +229,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 			gui.pose().translate(0, -scroll, 0);
 			Optional<SkinView> hoveredSkin = getSkinAt(mouseX, mouseY);
 			for (SkinView skin : skinsVisible) {
-				skin.renderStand(gui, mouseX, mouseY, ticks, 
+				skin.render(gui, mouseX, mouseY, ticks, 
 						hoveredSkin.map(hovered -> skin == hovered).orElse(false));
 			}
 
@@ -388,15 +390,17 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 	
 	private void setFullViewSkin(@Nullable SkinView skin) {
 		if (skin != null) {
-			skinFullView = new SkinFullView(skin.skin, skins.indexOf(skin));
+			skinFullView = new SkinFullView(this, skin.skin, skin, skins.indexOf(skin));
 		}
 		else {
 			skinFullView = null;
 		}
 	}
 	
-	private class SkinView {
+	public static class SkinView {
+		public final StandType standType;
 		public final StandSkin skin;
+		public final StandSkinsScreen screen;
 		public final int x;
 		public final int y;
 		public final int standY;
@@ -407,8 +411,10 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		public final int column;
 		public final boolean isBottomRow;
 		
-		public SkinView(StandSkin skin, int x, int y, int standY, int row, int column, boolean isBottomRow) {
+		public SkinView(StandType standType, StandSkin skin, StandSkinsScreen screen, int x, int y, int standY, int row, int column, boolean isBottomRow) {
+			this.standType = standType;
 			this.skin = skin;
+			this.screen = screen;
 			this.x = x;
 			this.y = y;
 			this.standY = standY;
@@ -417,7 +423,8 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 			this.isBottomRow = isBottomRow;
 		}
 		
-		public void renderStand(GuiGraphics gui, int mouseX, int mouseY, float ticks, boolean isHovered) {
+		@ApiStatus.NonExtendable
+		public void render(GuiGraphics gui, int mouseX, int mouseY, float ticks, boolean isHovered) {
 			GuiIcon[] skinBoxRow;
 			if (row == 0)			skinBoxRow = SkinBoxes.TOP;
 			else if (row % 2 == 1)	skinBoxRow = isBottomRow ? SkinBoxes.EVEN_BOTTOM : SkinBoxes.EVEN;
@@ -427,17 +434,25 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 			int color = isHovered ? skin.getColor() : 0x80FFFFFF;
 			skinBox.render(gui.pose(), x, y, color);
 
-			StandType standType = standCap.getPowerType();
+			renderStand(gui, mouseX, mouseY, ticks, isHovered, 
+					x + boxWidth / 2, standY + boxHeight / 2 + 35, 30, 1, 
+					0, 0, 0, 0);
+		}
+		
+		public void renderStand(GuiGraphics gui, int mouseX, int mouseY, float ticks, boolean isHovered, 
+				float posX, float posY, float scale, float scaleZoom, 
+				float yRot, float xRot, float xOffsetRatio, float yOffsetRatio) {
 			if (standType instanceof EntityStandType) {
-				renderStandModel(gui, x + boxWidth / 2, standY + boxHeight / 2 + 35, 30, 
-						1, 0, 0, 0, 0, 
+				renderStandModel(gui, posX, posY, scale, scaleZoom, 
+						yRot, xRot, xOffsetRatio, yOffsetRatio, 
 						(EntityStandType) standType, skin, ticks);
 			}
 		}
-		
+
+		@ApiStatus.NonExtendable
 		public void renderAdditional(GuiGraphics gui, int mouseX, int mouseY, 
 				float ticks, boolean isHovered) {
-			if (isSkinSelected(skin)) {
+			if (screen.isSkinSelected(skin)) {
 				BlitFloat.blit(gui.pose(), Minecraft.getInstance(), TEXTURE_ELEMENTS, 
 						x + 1, y + 2, 16, 16, 0, 
 						213,   18,    16, 16, 512, 512, 
@@ -447,8 +462,10 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 	}
 	
 	
-	private class SkinFullView {
+	public static class SkinFullView {
+		public final StandSkinsScreen screen;
 		public final StandSkin skin;
+		public final SkinView skinView;
 		public final int skinIndex;
 		public float yRot = 0;
 		public float xRot = 0;
@@ -456,8 +473,10 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		public float xOffset = 0;
 		public float yOffset = 0;
 		
-		public SkinFullView(StandSkin skin, int skinIndex) {
+		public SkinFullView(StandSkinsScreen screen, StandSkin skin, SkinView skinView, int skinIndex) {
+			this.screen = screen;
 			this.skin = skin;
+			this.skinView = skinView;
 			this.skinIndex = skinIndex;
 		}
 
@@ -469,14 +488,11 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 //			minecraft.getTextureManager().bind(standIcon);
 //			blit(matrixStack, 4, 4, 0, 0, 16, 16, 16, 16);
 			
-			StandType standType = standCap.getPowerType();
-			if (standType instanceof EntityStandType) {
-				renderStandModel(gui, WINDOW_WIDTH / 2 - 15, 180, 
-						70, scale, yRot * MathUtil.PI, xRot * MathUtil.PI, xOffset, yOffset, 
-						(EntityStandType) standType, skin, ticks);
-			}
+			skinView.renderStand(gui, mouseX, mouseY, ticks, true, 
+					WINDOW_WIDTH / 2 - 15, 180, 70, scale, 
+					yRot * MathUtil.PI, xRot * MathUtil.PI, xOffset, yOffset);
 			
-			if (isSkinSelected(skin)) {
+			if (screen.isSkinSelected(skin)) {
 				BlitFloat.blit(gui.pose(), Minecraft.getInstance(), TEXTURE_ELEMENTS, 
 						WINDOW_INSIDE_WIDTH - 20, 4,  16, 16, 0, 
 						213,                      18, 16, 16, 512, 512, 
@@ -517,11 +533,12 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		
 		public boolean keyPressed(Direction2D arrowKey) {
 			SkinFullView prev = this;
+			List<SkinView> skins = screen.skins;
 			switch (arrowKey) {
-				case DOWN, RIGHT -> setFullViewSkin(skins.get((this.skinIndex + 1) % skins.size()));
-				case UP, LEFT -> setFullViewSkin(skins.get((this.skinIndex - 1 + skins.size()) % skins.size()));
+				case DOWN, RIGHT -> screen.setFullViewSkin(skins.get((this.skinIndex + 1) % skins.size()));
+				case UP, LEFT -> screen.setFullViewSkin(skins.get((this.skinIndex - 1 + skins.size()) % skins.size()));
 			}
-			StandSkinsScreen.this.skinFullView.copyFromPrev(prev);
+			screen.skinFullView.copyFromPrev(prev);
 			return true;
 		}
 		
@@ -535,7 +552,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 	}
 
 	public static <S extends StandEntityRenderState> void renderStandModel(GuiGraphics gui, float posX, float posY, 
-			float scale, float scale2, float yRot, float xRot, float xOffsetRatio, float yOffsetRatio, 
+			float scale, float scaleZoom, float yRot, float xRot, float xOffsetRatio, float yOffsetRatio, 
 			EntityStandType standType, StandSkin standSkin, float ticks) {
 		Quaternionf rotation = new Quaternionf()
 				.rotateX(-xRot)
@@ -546,7 +563,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		gui.pose().translate(xOffsetRatio, yOffsetRatio, 0);
 		gui.pose().scale(scale, -scale, scale);
 		gui.pose().translate(0, 1.25, 0);
-		gui.pose().scale(scale2, scale2, scale2);
+		gui.pose().scale(scaleZoom, scaleZoom, scaleZoom);
 		gui.pose().mulPose(rotation);
 		gui.pose().translate(0, -1.25, 0);
 		gui.flush();
