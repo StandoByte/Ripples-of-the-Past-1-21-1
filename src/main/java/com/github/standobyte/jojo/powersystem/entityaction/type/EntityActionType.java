@@ -5,6 +5,8 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.JojoRegistries;
+import com.github.standobyte.jojo.powersystem.Power;
+import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId.AbilityInputNetwork;
@@ -12,7 +14,6 @@ import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
-import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -88,7 +89,12 @@ public interface EntityActionType {
 	
 	
 	default ResourceLocation getEntityAnimSet(LivingEntity user) {
-		PlayerPower power = PlayerPower.get(user);
+		AbilityId abilityId = getAbilityId();
+		PowerClass<?> powerClass = abilityId != null ? abilityId.powerClass() : null;
+		if (powerClass == null) {
+			powerClass = PowerClass.PLAYER_POWER;
+		}
+		Power<?> power = powerClass.get(user);
 		if (power != null && power.hasPower()) {
 			return power.getPowerType().getId();
 		}
