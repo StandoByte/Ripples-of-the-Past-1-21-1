@@ -24,12 +24,59 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
+
       - name: Build with Gradle
         run: ./gradlew build
 
       - name: Upload built jar
         uses: actions/upload-artifact@v4
-        if: always()
         with:
-            name: jar
-            path: '**/build/libs/'
+          name: jar
+          path: '**/build/libs/'
+
+
+      - name: Check if Gradle properties changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          base: ${{ github.ref }}
+          filters: |
+            new-snapshot:
+              - 'gradle.properties'
+
+      - name: Make main branch snapshot
+        id: maven-publish
+        # Only run this if gradle.properties was edited. 
+		# Also no need to run this on other branches (if they aren't merged, they aren't for Maven publishing yet) or forks
+        if: steps.filter.outputs.new-snapshot == 'true' && github.ref == 'refs/heads/1.21.1' && github.repository == 'StandoByte/Ripples-of-the-Past-Kiwami'
+        run: ./gradlew publish
+
+      - name: Read Gradle build variables
+        if: steps.maven-publish.outcome == 'success'
+        id: gradle-vars
+        run: 
+          cat ./build/tmp/variables.txt >> $GITHUB_OUTPUT
+
+      - name: Push snapshot to the Maven repo
+        if: steps.gradle-vars.outcome == 'success'
+        # Fork of cpina/github-action-push-to-another-repository, literally only adds '--ignore-removal' to 'git add' command, so that previous snapshots don't get deleted from the repo
+        uses: StandoByte/github-action-push-to-another-repo-ignore-removal@main
+        env:
+          SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+        with:
+          source-directory: 'repo'
+          destination-github-username: 'StandoByte'
+          destination-repository-name: 'RotP-maven'
+          user-email: '94539965+StandoByte@users.noreply.github.com'
+          user-name: 'StandoByte'
+          target-branch: '1.21.1'
+          commit-message: "${{ steps.gradle-vars.outputs.SNAPSHOT_VERSION }}"
+
+      - name: Publish snapshot on Discord
+        if: steps.gradle-vars.outcome == 'success'
+        uses: appleboy/discord-action@v1.2.0
+        with:
+          webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          file: './build/libs/${{ steps.gradle-vars.outputs.ARCHIVES_NAME }}-${{ steps.gradle-vars.outputs.RELEASE_VERSION }}.jar'
+          username: '1.21.1 Snapshot'
+          avatar_url: 'https://cdn.discordapp.com/icons/912347321633755156/272bb650bf83404413cf6f560c6442ea.png'

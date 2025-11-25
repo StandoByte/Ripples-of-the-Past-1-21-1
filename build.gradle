@@ -9,7 +9,11 @@ tasks.named('wrapper', Wrapper).configure {
     distributionType = Wrapper.DistributionType.BIN
 }
 
-version = release_snapshot.toBoolean() ? "${minecraft_version}-${mod_version}-${snapshot_version}" : "${minecraft_version}-${mod_version}"
+def build_dir = "${project.buildDir}"
+def snapshot_full_version = "${minecraft_version}-${mod_version}-${snapshot_version}"
+def mod_full_version = release_snapshot.toBoolean() ? "${snapshot_full_version}" : "${minecraft_version}-${mod_version}"
+def file_name = file_name
+version = "${mod_full_version}"
 group = mod_group_id
 
 repositories {
@@ -18,7 +22,7 @@ repositories {
 }
 
 base {
-    archivesName = 'RipplesOfThePast-NeoForge'
+    archivesName = "${file_name}"
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
@@ -133,12 +137,23 @@ artifacts {
 }
 
 // Example configuration to allow publishing using the maven-publish plugin
+tasks.withType(PublishToMavenRepository) {
+    doFirst {
+        def file = new File("${build_dir}/tmp/variables.txt")
+        file.write(
+        	"SNAPSHOT_VERSION=${snapshot_full_version}\n" + 
+        	"RELEASE_VERSION=${mod_full_version}\n" + 
+	       	"ARCHIVES_NAME=${file_name}"
+        )
+    }
+}
+
 publishing {
     publications {
         register('mavenJava', MavenPublication) {
             groupId project.group
             artifactId project.archivesBaseName
-            version "${minecraft_version}-${mod_version}-${snapshot_version}"
+            version "${snapshot_full_version}"
             from components.java
             artifact srcJar
             pom.withXml {
