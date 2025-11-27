@@ -20,7 +20,7 @@ public class StandEntityRenderState extends HumanoidRenderState {
 
     public static void extractStandRenderState(StandEntity entity, StandEntityRenderState reusedState, float partialTick) {
         if (entity.getCurStandAction() instanceof ActionOBB obbToRender && obbToRender.extendableOBB() != null){
-            reusedState.extendablePartLength = obbToRender.extendableOBB().getLength(partialTick);
+            reusedState.extendablePartLength = obbToRender.extendableOBB().getAnimLength(partialTick);
         }
     }
 }

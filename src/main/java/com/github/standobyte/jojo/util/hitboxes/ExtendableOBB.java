@@ -56,8 +56,10 @@ public class ExtendableOBB {
         return lengthLerp.get();
     }
 
-    public float getLength(float partialTick){
-        return isMovingForward() || isRetracting() ? lengthLerp.lerp(partialTick) : getLength();
+    // FIXME out of sync with Star Finger animation
+    public float getAnimLength(float partialTick){
+        float length = lengthLerp.lerp(partialTick);
+        return length;
     }
 
 
@@ -119,7 +121,8 @@ public class ExtendableOBB {
         updateHitboxExtension();
         updateOBB();
         lengthChange = ((int)(lengthChange * 1000)) / 1000F;
-        if (isMovingForward() || isRetracting()) lengthLerp.set(Mth.clamp(lengthLerp.get() + lengthChange, 0, Integer.MAX_VALUE), true);
+        if (isMovingForward() || isRetracting()) lengthLerp.set(Mth.clamp(lengthLerp.get() + lengthChange, 0, Integer.MAX_VALUE), false);
+        lengthLerp.lerpTick();
         lifeSpan --;
     }
 
