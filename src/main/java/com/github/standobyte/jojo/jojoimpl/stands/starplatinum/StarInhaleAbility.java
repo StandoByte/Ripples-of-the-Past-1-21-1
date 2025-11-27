@@ -31,7 +31,10 @@ import net.minecraft.world.phys.Vec3;
 public class StarInhaleAbility extends StandEntityAbility {
 
     public StarInhaleAbility(AbilityType<?> abilityType, AbilityId abilityId) {
-        super(abilityType, abilityId, InhaleAbilityInstance::new);
+    	super(abilityType, abilityId, InhaleAbilityInstance::new);
+    	setDefaultPhaseLength(ActionPhase.WINDUP, 2);
+    	setDefaultPhaseLength(ActionPhase.PERFORM, 120);
+    	setDefaultPhaseLength(ActionPhase.RECOVERY, 20);
     }
 
     public static class InhaleAbilityInstance extends EntityActionInstance {

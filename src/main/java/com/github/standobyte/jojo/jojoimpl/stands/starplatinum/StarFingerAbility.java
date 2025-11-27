@@ -35,6 +35,9 @@ public class StarFingerAbility extends StandEntityAbility {
 
 	public StarFingerAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId, StarFingerInstance::new);
+		setDefaultPhaseLength(ActionPhase.WINDUP, 5);
+		setDefaultPhaseLength(ActionPhase.PERFORM, 20);
+		setDefaultPhaseLength(ActionPhase.RECOVERY, 20);
 	}
 
     public static class StarFingerInstance extends EntityActionInstance implements ActionOBB {

@@ -96,21 +96,13 @@ public class ModStands {
 //					.addAbility("enhanced_eyesight", ModStandAbilities.SP_EYESIGHT)
 //					.inHotbar(0, InputMethod.CLICK)
 					
-					.addAbility("star_finger", ModStandAbilities.SP_STAR_FINGER, starFingerAbility -> {
-                        starFingerAbility.setDefaultPhaseLength(ActionPhase.WINDUP, 5);
-                        starFingerAbility.setDefaultPhaseLength(ActionPhase.PERFORM, 20);
-                        starFingerAbility.setDefaultPhaseLength(ActionPhase.RECOVERY, 20);
-                    })
+					.addAbility("star_finger", ModStandAbilities.SP_STAR_FINGER)
 					.inHotbar(0, InputMethod.CLICK)
 					
 //					.addAbility("star_finger_swipe", ModStandAbilities.SP_STAR_FINGER_SWIPE)
 //					.inHotbarSlotVariation("star_finger", InputKey.Modifier.CONTROL, InputMethod.CLICK)
 
-                    .addAbility("inhale", ModStandAbilities.SP_INHALE, inhaleAbility -> {
-                        inhaleAbility.setDefaultPhaseLength(ActionPhase.WINDUP, 2);
-                        inhaleAbility.setDefaultPhaseLength(ActionPhase.PERFORM, 120);
-                        inhaleAbility.setDefaultPhaseLength(ActionPhase.RECOVERY, 20);
-                    })
+                    .addAbility("inhale", ModStandAbilities.SP_INHALE)
 					.inHotbar(0, InputMethod.HOLD)
 					
 //					.addAbility("time_stop", ModStandAbilities.TIME_STOP)
