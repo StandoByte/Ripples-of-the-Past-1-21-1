@@ -128,7 +128,7 @@ public class StarInhaleAbility extends StandEntityAbility {
                             2.0F,
                             stand,
                             this.id,
-                            () -> getPhase() != ActionPhase.PERFORM
+                            () -> this.isOver() || this.getPhase() != ActionPhase.PERFORM
                     );
                     ClientsideSoundsHelper.playNonVanillaClassSound(soundInstance);
                 }
