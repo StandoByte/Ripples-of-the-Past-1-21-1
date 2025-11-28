@@ -12,6 +12,7 @@ import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.java.LazyNullable;
@@ -79,7 +80,7 @@ public class StandEntityRenderer<
 	}
 	
 	public static final ActionAnimIdentifier IDLE_ANIM = ActionAnimIdentifier.getOrCreate("idle", true);
-	public static final ActionAnimIdentifier GRAB_IDLE_ANIM = ActionAnimIdentifier.getOrCreate("grab_idle", true);
+	public static final ActionAnimIdentifier GRAB_IDLE_ANIM = ActionAnimIdentifier.getOrCreate("grab", true);
 //	@Override // 1.21.2+
 	public void extractRenderState(T entity, S renderState, float partialTick) {
 //		super.extractRenderState(entity, renderState, partialTick); // 1.21.2+
@@ -100,12 +101,20 @@ public class StandEntityRenderer<
 		EntityActionInstance action = entity.getCurStandAction();
 		EntityActionRenderState.extract(renderState.action, entity, action, partialTick);
 		if (renderState.action.animId == null) {
-			renderState.action.animId = LivingComponentGrab.getEntityGrabbedBy(entity) != null ? GRAB_IDLE_ANIM : IDLE_ANIM;
+			float idleTime = entity.tickCount - entity.nonIdlePoseTimeStamp + partialTick;
+			// FIXME for a bit after grabbing, the grabbed entity is not yet synced to the client, causing it to use regular idle anim for a few frames
+			boolean isGrabbing = LivingComponentGrab.getEntityGrabbedBy(entity) != null;
+			if (isGrabbing) {
+				renderState.action.animId = GRAB_IDLE_ANIM;
+				renderState.action.actionPhase = ActionPhase.PERFORM;
+				renderState.action.phaseTime = idleTime;
+			}
+			else {
+				renderState.action.animId = IDLE_ANIM;
+				renderState.action.time = idleTime;
+			}
 		}
-		if (renderState.action.animId.isIdle) {
-			renderState.action.time = entity.tickCount - entity.nonIdlePoseTimeStamp + partialTick;
-		}
-		else {
+		if (!renderState.action.animId.isIdle()) {
 			entity.nonIdlePoseTimeStamp = entity.tickCount;
 		}
 		EntityActionRenderState.setAnim(renderState.action, renderState, entity, 

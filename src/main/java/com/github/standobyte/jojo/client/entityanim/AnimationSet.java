@@ -29,9 +29,9 @@ public class AnimationSet {
 	}
 
 	public RotpAnimDefinition getNamedAnim(ActionAnimIdentifier animId) {
-		List<RotpAnimDefinition> anims = namedAnimations.get(animId.name);
+		List<RotpAnimDefinition> anims = namedAnimations.get(animId.name());
 		if (anims == null || anims.isEmpty()) return null;
-		return anims.get(animId.index % anims.size());
+		return anims.get(animId.index() % anims.size());
 	}
 	
 	public RotpAnimDefinition getStandIdleAnim() {
