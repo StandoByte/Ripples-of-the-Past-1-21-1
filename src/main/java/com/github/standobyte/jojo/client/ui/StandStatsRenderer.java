@@ -614,7 +614,6 @@ public class StandStatsRenderer {
 			}
 			float letterAlpha = tick_ >= letterFullTick ? 1 : 0.25f + 0.75f * 
 					(float) (tick_ - letterStartTick) / (float) (letterFullTick - letterStartTick);
-			statRankLetter = REFERENCE_MARK;
 
 
 			Component rank = Component.literal(statRankLetter).withStyle(ChatFormatting.BOLD);
