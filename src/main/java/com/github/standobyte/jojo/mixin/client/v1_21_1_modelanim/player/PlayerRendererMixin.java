@@ -8,16 +8,25 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState;
 import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
 import com.github.standobyte.v1_21_4_stuff.renderstate.HumanoidRenderState;
+import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
 import com.github.standobyte.v1_21_4_stuff.renderstate.RenderStateCrutches;
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 
 @Mixin(PlayerRenderer.class)
-public class PlayerRendererMixin {
+public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
+
+	public PlayerRendererMixin(Context context, PlayerModel<AbstractClientPlayer> model, float shadowRadius) {
+		super(context, model, shadowRadius);
+	}
+
 	private HumanoidRenderState jojo_ripples$reusedState = new HumanoidRenderState();
 
 	@Inject(method = "render", at = @At(value = "INVOKE", 
@@ -31,6 +40,7 @@ public class PlayerRendererMixin {
 	public void jojo_ripples$extractPlayerRenderState(AbstractClientPlayer entity, float entityYaw, float partialTick, 
 			PoseStack poseStack, MultiBufferSource buffer, int light, CallbackInfo ci) {
 		final HumanoidRenderState reusedState = jojo_ripples$reusedState;
+		LivingEntityRenderState.extract(entity, reusedState, this, entityRenderDispatcher, partialTick);
 		HumanoidRenderState.extractHumanoidRenderState(entity, reusedState, partialTick);
 		RipplesPlayerRenderState.extract(entity, reusedState, ((RipplesRenderStateExtensionMixin) reusedState).get(), partialTick);
         RenderStateCrutches.currentEntityRenderState = reusedState;
