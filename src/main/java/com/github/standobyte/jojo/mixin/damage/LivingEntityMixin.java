@@ -11,8 +11,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -27,6 +29,13 @@ public abstract class LivingEntityMixin extends Entity {
 	public LivingEntityMixin(EntityType<?> entityType, Level level) {
 		super(entityType, level);
 	}
+	
+	
+	@Inject(method = "tick", at = @At("HEAD"))
+	public void jojo_ripples$tickLivingDamageStuff(CallbackInfo ci) {
+		if (jojo_ripples$armorBreakCooldown > 0) --jojo_ripples$armorBreakCooldown;
+	}
+	
 
 	@Shadow protected LivingEntity lastHurtByMob;
 	@Shadow protected Player lastHurtByPlayer;
@@ -66,4 +75,20 @@ public abstract class LivingEntityMixin extends Entity {
 		RipplesModifiedDamageSource.afterKnockbackApplied((LivingEntity) (Entity) this, curDamage);
 	}
 	
+	
+	protected int jojo_ripples$armorBreakCooldown;
+	@WrapWithCondition(method = "getDamageAfterArmorAbsorb", at = @At(
+			value = "INVOKE", 
+			target = "Lnet/minecraft/world/entity/LivingEntity;hurtArmor("
+					+ "Lnet/minecraft/world/damagesource/DamageSource;F)V"))
+	public boolean jojo_ripples$armorBreakCooldownCheck(LivingEntity entity, DamageSource dmgSource, float dmgAmount) {
+		if (dmgSource.is(ModDamageTypes.ARMOR_BREAK_COOLDOWN)) {
+			if (jojo_ripples$armorBreakCooldown > 0) {
+				return false;
+			}
+			jojo_ripples$armorBreakCooldown = 5;
+		}
+		
+		return true;
+	}
 }

@@ -12,6 +12,7 @@ import net.minecraft.world.damagesource.DamageType;
 public class ModDamageTypes {
 	/** Tags: 
 	 * jojo:can_hurt_stands, 
+	 * jojo_ripples:armor_break_cooldown, 
 	 * jojo_ripples:adds_resolve, 
 	 * minecraft:bypasses_cooldown, 
 	 * minecraft:bypasses_enchantments, 
@@ -23,6 +24,7 @@ public class ModDamageTypes {
 	
 	/** Tags: 
 	 * jojo:can_hurt_stands, 
+	 * jojo_ripples:armor_break_cooldown, 
 	 * jojo_ripples:adds_resolve, 
 	 * minecraft:is_projectile, 
 	 * minecraft:bypasses_cooldown, 
@@ -34,6 +36,7 @@ public class ModDamageTypes {
 	public static final ResourceKey<DamageType> STAND_PROJECTILE = ResourceKey.create(Registries.DAMAGE_TYPE, JojoMod.resLoc("stand_projectile"));
 	
 	/** Tags: 
+	 * jojo_ripples:armor_break_cooldown, 
 	 * minecraft:is_projectile, 
 	 * minecraft:bypasses_cooldown, 
 	 * minecraft:always_hurts_ender_dragons, 
@@ -66,6 +69,8 @@ public class ModDamageTypes {
 	
 	public static final TagKey<DamageType> CAN_HURT_STANDS = TagKey.create(Registries.DAMAGE_TYPE, 
 			ResourceLocation.fromNamespaceAndPath("jojo", "can_hurt_stands"));
+	public static final TagKey<DamageType> ARMOR_BREAK_COOLDOWN = TagKey.create(Registries.DAMAGE_TYPE, 
+			ResourceLocation.fromNamespaceAndPath("jojo_ripples", "armor_break_cooldown"));
 	public static final TagKey<DamageType> ADDS_RESOLVE = TagKey.create(Registries.DAMAGE_TYPE, 
 			ResourceLocation.fromNamespaceAndPath("jojo_ripples", "adds_resolve"));
 }
