@@ -123,6 +123,7 @@ public final class JojoRegistries {
 				ClothesSet.DIRECT_CODEC,
 				ClothesSet.DIRECT_CODEC,
 				builder -> {
+					builder.onBake((Registry<ClothesSet> registry) -> ClothesSet.onBake(registry));
 				}
 		);
 		
@@ -142,7 +143,14 @@ public final class JojoRegistries {
 		while (iter.hasNext()) {
 			RegistryDataLoader.RegistryData<?> registryData = iter.next();
 			ResourceKey<? extends Registry<?>> registryKey = registryData.key();
-			if (registryKey.equals(STORY_PARTS_REG_KEY)) {
+			if (registryKey.equals(CLOTHES_SETS_REG_KEY)) {
+				iter.set(JojoRegistries.<ClothesSet>withCallbacks(registryData, 
+					builder -> {
+						builder.onBake((Registry<ClothesSet> registry) -> ClothesSet.onBake(registry));
+					}
+				));
+			}
+			else if (registryKey.equals(STORY_PARTS_REG_KEY)) {
 				iter.set(JojoRegistries.<StoryPart>withCallbacks(registryData, 
 					builder -> {
 						builder.onAdd((Registry<StoryPart> registry, int id, ResourceKey<StoryPart> key, StoryPart value) -> value.initNameAndIcon(key));

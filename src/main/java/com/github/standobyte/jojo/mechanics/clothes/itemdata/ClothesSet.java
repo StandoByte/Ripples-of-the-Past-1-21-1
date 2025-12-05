@@ -11,7 +11,9 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.RegistryFixedCodec;
+import net.minecraft.resources.ResourceLocation;
 
 public class ClothesSet {
 	protected final Holder<StoryCharacter> character;
@@ -35,6 +37,15 @@ public class ClothesSet {
 	@Nullable
 	public ClothesPiece getPiece(ClothesSlotType slot) { 
 		return pieces.get(slot);
+	}
+	
+	
+	public static void onBake(Registry<ClothesSet> registry) {
+		registry.holders().forEach(holder -> {
+			ClothesSet clothes = holder.value();
+			ResourceLocation key = holder.getKey().location();
+			clothes.character.value().addClothesSet(key, holder);
+		});
 	}
 	
 	

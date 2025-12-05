@@ -1,6 +1,9 @@
 package com.github.standobyte.jojo.mechanics.clothes.itemdata;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.mojang.serialization.Codec;
@@ -12,9 +15,23 @@ import net.minecraft.resources.ResourceLocation;
 
 public class StoryCharacter {
 	protected final Optional<ResourceLocation> stand;
+	private Map<ResourceLocation, Holder<ClothesSet>> clothesInit = new TreeMap<>();
+	protected List<Holder<ClothesSet>> clothesOrdered;
 	
 	public StoryCharacter(Optional<ResourceLocation> stand) {
 		this.stand = stand;
+	}
+	
+	protected void addClothesSet(ResourceLocation key, Holder<ClothesSet> clothesSet) {
+		clothesInit.put(key, clothesSet);
+		clothesOrdered = null;
+	}
+	
+	public List<Holder<ClothesSet>> getClothesSets() {
+		if (clothesOrdered == null) {
+			clothesOrdered = clothesInit.values().stream().toList();
+		}
+		return clothesOrdered;
 	}
 	
 	
