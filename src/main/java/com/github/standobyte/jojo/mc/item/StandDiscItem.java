@@ -49,7 +49,7 @@ public class StandDiscItem extends Item {
 		if (skin != null) {
 			Holder<StoryPart> storyPart = skin.getStoryPart(ctx.registries());
 			if (storyPart != null) {
-				tooltip.add(StoryPart.partName(storyPart));
+				tooltip.add(storyPart.value().getPartName());
 			}
 		}
 		

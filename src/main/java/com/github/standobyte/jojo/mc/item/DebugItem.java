@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.github.standobyte.jojo.client.ui.DebugFunctionsScreen;
 import com.github.standobyte.jojo.core.JojoRegistries;
-import com.github.standobyte.jojo.mechanics.StoryPart;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -34,7 +33,7 @@ public class DebugItem extends Item {
 	public void appendHoverText(ItemStack item, Item.TooltipContext ctx, List<Component> tooltip, TooltipFlag flags) {
 		ctx.registries().lookup(JojoRegistries.STORY_PARTS_REG_KEY).ifPresent(registry -> {
 			registry.listElements().forEach(holder -> {
-				tooltip.add(StoryPart.partName(holder));
+				tooltip.add(holder.value().getPartName());
 			});
 		});
 	}

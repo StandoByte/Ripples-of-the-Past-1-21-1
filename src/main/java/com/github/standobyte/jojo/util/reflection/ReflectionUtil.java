@@ -14,6 +14,8 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
+import com.google.common.base.Preconditions;
+
 public final class ReflectionUtil {
 	static final Logger LOGGER = LogManager.getLogger();
 	static final Marker REFLECTION = MarkerManager.getMarker("REFLECTION");
@@ -165,18 +167,41 @@ public final class ReflectionUtil {
 			throw UnableToAccessFieldException.onIllegalAccessException(e, field, instance);
 		}
 	}
-	
+
+	//
+
+	public static <T> Field findField(final Class<? super T> clazz, final String fieldName) {
+		Preconditions.checkNotNull(clazz, "Class to find field on cannot be null.");
+		Preconditions.checkNotNull(fieldName, "Name of field to find cannot be null.");
+		Preconditions.checkArgument(!fieldName.isEmpty(), "Name of field to find cannot be empty.");
+
+		try {
+			Field f = clazz.getDeclaredField(fieldName);
+			f.setAccessible(true);
+			return f;
+		} catch (Exception e) {
+			throw new UnableToFindFieldException(e);
+		}
+	}
+
 	//
 
 	@SuppressWarnings("serial")
 	public static class UnableToAccessFieldException extends RuntimeException {
-		
+
 		public static UnableToAccessFieldException onIllegalAccessException(IllegalAccessException e, Field field, Object instance) {
 			LOGGER.error(REFLECTION, "Unable to access field {} on an object of type {}", field.getName(), instance.getClass().getName(), e);
 			return new UnableToAccessFieldException(e);
 		}
 		
 		public UnableToAccessFieldException(IllegalAccessException e) {
+			super(e);
+		}
+	}
+
+	@SuppressWarnings("serial")
+	public static class UnableToFindFieldException extends RuntimeException {
+		public UnableToFindFieldException(Exception e) {
 			super(e);
 		}
 	}

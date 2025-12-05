@@ -1,5 +1,9 @@
 package com.github.standobyte.jojo.core;
 
+import java.util.List;
+import java.util.ListIterator;
+import java.util.function.Consumer;
+
 import com.github.standobyte.jojo.jojoimpl.hamon.HamonSkill;
 import com.github.standobyte.jojo.jojoimpl.hamon.HamonTechnique;
 import com.github.standobyte.jojo.mechanics.StoryPart;
@@ -10,14 +14,17 @@ import com.github.standobyte.jojo.powersystem.entityaction.type.SpecialEntityAct
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectType;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
+import com.github.standobyte.jojo.util.reflection.CommonReflection;
 
 import net.minecraft.core.Registry;
+import net.minecraft.resources.RegistryDataLoader;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.ModifyRegistriesEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.registries.RegistryBuilder;
 
@@ -108,20 +115,52 @@ public final class JojoRegistries {
 		event.dataPackRegistry(STORY_CHARACTERS_REG_KEY,
 				StoryCharacter.DIRECT_CODEC,
 				StoryCharacter.DIRECT_CODEC,
-				builder -> {}
+				builder -> {
+				}
 		);
 		
 		event.dataPackRegistry(CLOTHES_SETS_REG_KEY,
 				ClothesSet.DIRECT_CODEC,
 				ClothesSet.DIRECT_CODEC,
-				builder -> {}
+				builder -> {
+				}
 		);
 		
 		event.dataPackRegistry(STORY_PARTS_REG_KEY,
 				StoryPart.DIRECT_CODEC,
 				StoryPart.DIRECT_CODEC,
-				builder -> {}
+				builder -> {
+					builder.onAdd((Registry<StoryPart> registry, int id, ResourceKey<StoryPart> key, StoryPart value) -> value.initNameAndIcon(key));
+				}
 		);
+	}
+	
+	@SubscribeEvent
+	public static void makeTheCallbacksForDataPackRegistriesAlsoWorkOnClientSideBecauseFuckMeIGuess(ModifyRegistriesEvent event) {
+		List<RegistryDataLoader.RegistryData<?>> NETWORKABLE_REGISTRIES = CommonReflection.getDataPackNetworkableRegistries();
+		ListIterator<RegistryDataLoader.RegistryData<?>> iter = NETWORKABLE_REGISTRIES.listIterator();
+		while (iter.hasNext()) {
+			RegistryDataLoader.RegistryData<?> registryData = iter.next();
+			ResourceKey<? extends Registry<?>> registryKey = registryData.key();
+			if (registryKey.equals(STORY_PARTS_REG_KEY)) {
+				iter.set(JojoRegistries.<StoryPart>withCallbacks(registryData, 
+					builder -> {
+						builder.onAdd((Registry<StoryPart> registry, int id, ResourceKey<StoryPart> key, StoryPart value) -> value.initNameAndIcon(key));
+					}
+				));
+			}
+		}
+	}
+	
+	public static <T> RegistryDataLoader.RegistryData<T> withCallbacks(RegistryDataLoader.RegistryData<?> dataWithoutCallbacksForWhoTheFuckKnowsWhatReason, Consumer<RegistryBuilder<T>> callbacks) {
+		@SuppressWarnings("unchecked")
+		RegistryDataLoader.RegistryData<T> cast = (RegistryDataLoader.RegistryData<T>) dataWithoutCallbacksForWhoTheFuckKnowsWhatReason;
+		return new RegistryDataLoader.RegistryData<T>(
+				cast.key(), 
+				cast.elementCodec(), 
+				cast.requiredNonEmpty(), 
+				cast.registryBuilderConsumer() /* that's technically empty enyway, but whatever*/ 
+					.andThen(callbacks));
 	}
 	
 }

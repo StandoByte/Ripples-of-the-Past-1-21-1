@@ -16,7 +16,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextColor;
@@ -51,51 +50,36 @@ public class StoryPart {
 		this.iconHeight = iconHeight;
 	}
 	
-
-	public static Component partName(Holder<StoryPart> holder) {
-		if (holder == null) return CommonComponents.EMPTY;
-		StoryPart value = holder.value();					if (value == null) return CommonComponents.EMPTY;
-		ResourceKey<StoryPart> key = holder.getKey();		if (key == null) return CommonComponents.EMPTY;
-
-		if (value.name == null) {
-			MutableComponent iconAndName = null;
-			if (FMLEnvironment.dist == Dist.CLIENT) {
-				ResourceLocation icon = StoryPart.partIcon(holder);
-				if (icon != null && value.clientGlyphIndex > 0) {
-					iconAndName = Component.literal(Character.toString(value.clientGlyphIndex));
-				}
-			}
-			if (iconAndName == null) {
-				iconAndName = Component.empty();
-			}
-
+	public void initNameAndIcon(ResourceKey<StoryPart> key) {
+		MutableComponent iconAndName = null;
+		if (FMLEnvironment.dist == Dist.CLIENT) {
 			ResourceLocation id = key.location();
-			String tlKey = id.getNamespace() + ".story_part." + id.getPath();
-			MutableComponent name = Component.translatable(tlKey);
-			if (value.nameColor != null) {
-				name.withStyle(style -> style.withColor(value.nameColor));
-			}
-			iconAndName.append(name);
-
-			value.name = iconAndName;
+			this.icon = id.withPath(path -> "textures/story_part/" + path + ".png");
+			this.clientGlyphIndex = IconGlyphsCache.makeCharCodeFor(
+					new IconGlyphInfo(new GuiIcon(this.icon, this.iconWidth, this.iconHeight), this.iconWidth / 2, this.iconHeight / 2));
+			iconAndName = Component.literal(Character.toString(this.clientGlyphIndex));
 		}
-		return value.name;
+		else {
+			iconAndName = Component.empty();
+		}
+
+		ResourceLocation id = key.location();
+		String tlKey = id.getNamespace() + ".story_part." + id.getPath();
+		MutableComponent name = Component.translatable(tlKey);
+		if (this.nameColor != null) {
+			name.withStyle(style -> style.withColor(this.nameColor));
+		}
+		iconAndName.append(name);
+
+		this.name = iconAndName;
 	}
-
-	public static ResourceLocation partIcon(Holder<StoryPart> holder) {
-		if (holder == null) return null;
-		StoryPart value = holder.value();					if (value == null) return null;
-		ResourceKey<StoryPart> key = holder.getKey();		if (key == null) return null;
-
-		if (value.icon == null) {
-			ResourceLocation id = key.location();
-			value.icon = id.withPath(path -> "textures/story_part/" + path + ".png");
-			if (FMLEnvironment.dist == Dist.CLIENT) {
-				value.clientGlyphIndex = IconGlyphsCache.makeCharCodeFor(
-						new IconGlyphInfo(new GuiIcon(value.icon, value.iconWidth, value.iconHeight), value.iconWidth / 2, value.iconHeight / 2));
-			}
-		}
-		return value.icon;
+	
+	public Component getPartName() {
+		return name;
+	}
+	
+	public ResourceLocation getPartIcon() {
+		return icon;
 	}
 
 

@@ -6,7 +6,6 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
-import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesPiece.SubClothingPiece;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
@@ -99,7 +98,7 @@ public class ClothesItem extends Item {
 		var clothesSet = clothes.getClothesSet().value();	if (clothesSet == null) return;
 		
 		clothesSet.getStoryPart().ifPresent(storyPart -> {
-			Component partName = StoryPart.partName(storyPart);
+			Component partName = storyPart.value().getPartName();
 			if (partName != null) {
 				tooltipComponents.add(partName);
 			}
