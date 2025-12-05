@@ -33,6 +33,7 @@
   
   "jojo_ripples.subtitle.blood_drain": "Кровь поглощена",
   "jojo_ripples.subtitle.liquid_splash": "Брызг жидкости",
+  "jojo_ripples.subtitle.clothes_sewed": "Одежда сшита",
   
   "death.attack.suffocation": "%s задохнулся",
   "death.attack.suffocation.player": "%s задохнулся, пока боролся с %s",
@@ -110,10 +111,15 @@
   "jojo_ripples.story_part.p9": "The JOJOLands",
 
   "jojo_ripples.menu.player.clothes": "Одежда (WIP)",
+  "block.jojo_ripples.sewing_machine": "Швейная машинка",
+  "item.jojo_ripples.sewing_needle": "Швейная игла",
   "item.jojo_ripples.mannequin": "Манекен",
   "item.jojo_ripples.mannequin_slim": "Манекен (худой)",
   "ripples_clothes_split": "ПКМ: разделить на %s и %s",
   "ripples_clothes_combine": "ЛКМ: объединить с %s в %s",
+  
+  "advancements.jojo_ripples.craft_clothes.title": "Стопроцентная шерсть",
+  "advancements.jojo_ripples.craft_clothes.description": "Сшейте какой-либо предмет одежды на швейной машинке",
 
   "ripples_hud.stand_summoned": "Ваш Стенд %s призван",
   "ripples_hud.resolve_bar": "Решимость: %s%%",

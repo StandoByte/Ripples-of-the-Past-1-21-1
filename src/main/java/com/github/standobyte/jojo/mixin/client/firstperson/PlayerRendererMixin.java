@@ -38,7 +38,7 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
 	private void jojo_ripples$hideOuterLayer(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, 
 			AbstractClientPlayer player, ModelPart rendererArm, ModelPart rendererArmwear, CallbackInfo ci) {
 		ExtractRSExtensionManually.extractClothes(player);
-		HumanoidClothesLayer.disablePlayerOuterLayer((PlayerRenderer) (LivingEntityRenderer) this, HumanoidClothesRSExtension.getCurRenderData());
+		HumanoidClothesLayer.disablePlayerOuterLayer(this.getModel(), HumanoidClothesRSExtension.getCurRenderData());
 	}
 
 	@Inject(method = "renderHand", at = @At("TAIL"))

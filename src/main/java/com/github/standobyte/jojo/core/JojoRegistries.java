@@ -110,29 +110,44 @@ public final class JojoRegistries {
 		event.register(NON_POWER_ACTIONS_REG);
 	}
 	
+	
+	static Consumer<RegistryBuilder<StoryCharacter>> storyCharactersCommon = builder -> {
+		builder.onAdd((Registry<StoryCharacter> registry, int id, ResourceKey<StoryCharacter> key, StoryCharacter value) -> value.initName(key));
+	};
+	
+	static Consumer<RegistryBuilder<ClothesSet>> clothesSetsCommon = builder -> {
+		builder.onAdd((Registry<ClothesSet> registry, int id, ResourceKey<ClothesSet> key, ClothesSet value) -> value.initName(key));
+		builder.onBake((Registry<ClothesSet> registry) -> ClothesSet.onBake(registry));
+	};
+	
+	static Consumer<RegistryBuilder<StoryPart>> storyPartsCommon = builder -> {
+		builder.onAdd((Registry<StoryPart> registry, int id, ResourceKey<StoryPart> key, StoryPart value) -> value.initNameAndIcon(key));
+	};
+	
 	@SubscribeEvent
 	public static void registerDataPackRegistries(DataPackRegistryEvent.NewRegistry event) {
 		event.dataPackRegistry(STORY_CHARACTERS_REG_KEY,
 				StoryCharacter.DIRECT_CODEC,
 				StoryCharacter.DIRECT_CODEC,
-				builder -> {
-				}
+				storyCharactersCommon
+				.andThen(builder -> {
+					builder.sync(true);
+				})
 		);
 		
 		event.dataPackRegistry(CLOTHES_SETS_REG_KEY,
 				ClothesSet.DIRECT_CODEC,
 				ClothesSet.DIRECT_CODEC,
-				builder -> {
-					builder.onBake((Registry<ClothesSet> registry) -> ClothesSet.onBake(registry));
-				}
+				clothesSetsCommon
+				.andThen(builder -> {
+					builder.sync(true);
+				})
 		);
 		
 		event.dataPackRegistry(STORY_PARTS_REG_KEY,
 				StoryPart.DIRECT_CODEC,
 				StoryPart.DIRECT_CODEC,
-				builder -> {
-					builder.onAdd((Registry<StoryPart> registry, int id, ResourceKey<StoryPart> key, StoryPart value) -> value.initNameAndIcon(key));
-				}
+				storyPartsCommon
 		);
 	}
 	
@@ -143,19 +158,14 @@ public final class JojoRegistries {
 		while (iter.hasNext()) {
 			RegistryDataLoader.RegistryData<?> registryData = iter.next();
 			ResourceKey<? extends Registry<?>> registryKey = registryData.key();
-			if (registryKey.equals(CLOTHES_SETS_REG_KEY)) {
-				iter.set(JojoRegistries.<ClothesSet>withCallbacks(registryData, 
-					builder -> {
-						builder.onBake((Registry<ClothesSet> registry) -> ClothesSet.onBake(registry));
-					}
-				));
+			if (registryKey.equals(STORY_CHARACTERS_REG_KEY)) {
+				iter.set(JojoRegistries.<StoryCharacter>withCallbacks(registryData, storyCharactersCommon));
+			}
+			else if (registryKey.equals(CLOTHES_SETS_REG_KEY)) {
+				iter.set(JojoRegistries.<ClothesSet>withCallbacks(registryData, clothesSetsCommon));
 			}
 			else if (registryKey.equals(STORY_PARTS_REG_KEY)) {
-				iter.set(JojoRegistries.<StoryPart>withCallbacks(registryData, 
-					builder -> {
-						builder.onAdd((Registry<StoryPart> registry, int id, ResourceKey<StoryPart> key, StoryPart value) -> value.initNameAndIcon(key));
-					}
-				));
+				iter.set(JojoRegistries.<StoryPart>withCallbacks(registryData, storyPartsCommon));
 			}
 		}
 	}

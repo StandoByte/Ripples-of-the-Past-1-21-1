@@ -47,6 +47,7 @@
   
   "jojo_ripples.subtitle.blood_drain": "Blood drained",
   "jojo_ripples.subtitle.liquid_splash": "Liquid splashes",
+  "jojo_ripples.subtitle.clothes_sewed": "Clothes sewed",
   
   "death.attack.suffocation": "%s suffocated",
   "death.attack.suffocation.player": "%s suffocated whilst fighting %s",
@@ -124,10 +125,15 @@
   "jojo_ripples.story_part.p9": "The JOJOLands",
   
   "jojo_ripples.menu.player.clothes": "Clothes (WIP)",
+  "block.jojo_ripples.sewing_machine": "Sewing Machine",
+  "item.jojo_ripples.sewing_needle": "Sewing Needle",
   "item.jojo_ripples.mannequin": "Mannequin",
   "item.jojo_ripples.mannequin_slim": "Mannequin (slim)",
   "ripples_clothes_split": "Right click to split into %s and %s",
   "ripples_clothes_combine": "Left click on a %s to combine into %s",
+  
+  "advancements.jojo_ripples.craft_clothes.title": "One Hundred Percent Wool",
+  "advancements.jojo_ripples.craft_clothes.description": "Sew a piece of clothing using a sewing machine",
 
   "ripples_hud.stand_summoned": "Your %s is summoned",
   "ripples_hud.resolve_bar": "Resolve: %s%%",

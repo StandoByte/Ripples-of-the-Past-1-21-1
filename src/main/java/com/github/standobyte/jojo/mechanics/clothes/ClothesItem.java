@@ -7,12 +7,15 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
+import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesPiece;
+import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSet;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesPiece.SubClothingPiece;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
 import com.github.standobyte.v1_21_4_stuff.itemmodel.__ItemModelComponent;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._ItemStack;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -37,7 +40,24 @@ public class ClothesItem extends Item {
 		super(properties.stacksTo(1));
 	}
 	
+	@Nullable
+	public static ClothesDataComponent makeItemComponent(Holder<ClothesSet> clothesSetHolder, ClothesSlotType slot) {
+		ClothesSet clothesSet = clothesSetHolder.value();
+		if (clothesSet != null) {
+			ClothesPiece piece = clothesSet.getPiece(slot);
+			if (piece != null) {
+				ClothesDataComponent component = new ClothesDataComponent(clothesSetHolder, slot, ClothesPiece.SubClothingPiece.FULL);
+				return component;
+			}
+		}
+		return null;
+	}
+	
 	public ItemStack makeClothesPieceStack(ClothesDataComponent clothesData) {
+		if (clothesData == null) {
+			return ItemStack.EMPTY;
+		}
+		
 		ItemStack stack = new ItemStack(this);
 		stack.set(ModItemDataComponents.CLOTHES_PIECE.get(), clothesData);
 		
@@ -52,6 +72,10 @@ public class ClothesItem extends Item {
 		}
 		
 		return stack;
+	}
+	
+	public ItemStack makeClothesPieceStack(Holder<ClothesSet> clothesSetHolder, ClothesSlotType slot) {
+		return makeClothesPieceStack(makeItemComponent(clothesSetHolder, slot));
 	}
 
 	@Override

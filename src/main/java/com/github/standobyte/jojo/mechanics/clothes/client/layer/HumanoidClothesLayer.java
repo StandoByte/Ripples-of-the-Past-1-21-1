@@ -8,7 +8,6 @@ import com.github.standobyte.v1_21_4_stuff.renderstate.ExtractRSExtensionManuall
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -49,11 +48,20 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 //	public void render(PoseStack poseStack, MultiBufferSource bufferSource, 
 //			int packedLight, S renderState, float yRot, float xRot) {
 //		HumanoidClothesRSExtension clothesRS = renderState.getRenderData(ModEntityRenderers.CLOTHES_CONTEXT);
+		M parentModel = getParentModel();
+		int overlay = LivingEntityRenderer.getOverlayCoords(livingEntity, 0);
+		render(parentModel, poseStack, bufferSource, packedLight, overlay);
+	}
+	
+	/**
+	 * Don't forget to fill {@link HumanoidClothesRSExtension} before rendering this from outside.
+	 */
+	public static <T extends LivingEntity, M extends HumanoidModel<T>> void render(M parentModel, 
+			PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int overlay) {
 		HumanoidClothesRSExtension clothesRS = HumanoidClothesRSExtension.getCurRenderData();
 		if (clothesRS == null) return;
 		ClothesModelLoader clothesModels = ClothesModelLoader.getInstance();
 		if (clothesModels == null) return;
-		M parentModel = getParentModel();
 		for (ClothesSlotType piece : RENDER_ORDER) {
 			ItemStack clothesItem = clothesRS.items.get(piece); if (clothesItem.isEmpty()) continue;
 			var clothesComponent = clothesItem.get(ModItemDataComponents.CLOTHES_PIECE.get()); if (clothesComponent == null) continue;
@@ -68,7 +76,6 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 			clothesModel.setClothesPartsVisibility(clothesRS.slimModel, piece);
 			clothesModel.poseClothes(parentModel);
 			VertexConsumer ivertexbuilder = bufferSource.getBuffer(RenderType.entityCutoutNoCull(clothesTexture));
-			int overlay = LivingEntityRenderer.getOverlayCoords(livingEntity, 0);
 			clothesModel.renderToBuffer(poseStack, ivertexbuilder, packedLight, overlay);
 		}
 	}
@@ -77,29 +84,28 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 	@SubscribeEvent
 	public static void beforeEntityRender(RenderLivingEvent.Pre<?, ?> event) {
 		ExtractRSExtensionManually.extractClothes(event.getEntity());
-		disablePlayerOuterLayer(event.getRenderer(), HumanoidClothesRSExtension.getCurRenderData());
-	}
-	
-	public static void disablePlayerOuterLayer(LivingEntityRenderer<?, ?> renderer, HumanoidClothesRSExtension clothesRS) {
-		if (clothesRS != null) {
-			EntityModel<?> model = renderer.getModel();
-			if (model instanceof PlayerModel playerModel) {
-				if (!clothesRS.items.get(ClothesSlotType.HEAD).isEmpty()) {
-					playerModel.hat.visible = false;
-				}
-				if (!clothesRS.items.get(ClothesSlotType.CHEST).isEmpty()) {
-					playerModel.jacket.visible = false;
-					playerModel.leftSleeve.visible = false;
-					playerModel.rightSleeve.visible = false;
-				}
-				if (!clothesRS.items.get(ClothesSlotType.LEGS).isEmpty()) {
-					playerModel.leftPants.visible = false;
-					playerModel.rightPants.visible = false;
-				}
-			}
+		if (event.getRenderer().getModel() instanceof PlayerModel playerModel) {
+			disablePlayerOuterLayer(playerModel, HumanoidClothesRSExtension.getCurRenderData());
 		}
 	}
 	
+	public static void disablePlayerOuterLayer(PlayerModel<?> playerModel, HumanoidClothesRSExtension clothesRS) {
+		if (clothesRS != null) {
+			if (!clothesRS.items.get(ClothesSlotType.HEAD).isEmpty()) {
+				playerModel.hat.visible = false;
+			}
+			if (!clothesRS.items.get(ClothesSlotType.CHEST).isEmpty()) {
+				playerModel.jacket.visible = false;
+				playerModel.leftSleeve.visible = false;
+				playerModel.rightSleeve.visible = false;
+			}
+			if (!clothesRS.items.get(ClothesSlotType.LEGS).isEmpty()) {
+				playerModel.leftPants.visible = false;
+				playerModel.rightPants.visible = false;
+			}
+		}
+	}
+
 	@SubscribeEvent
 	public static void clear(RenderLivingEvent.Post<?, ?> event) {
 		ExtractRSExtensionManually.resetClothes();
