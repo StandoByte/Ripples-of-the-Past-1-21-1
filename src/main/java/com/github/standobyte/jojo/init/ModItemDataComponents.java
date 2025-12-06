@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mc.item.component.StandWrittenOnDisc;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
+import com.github.standobyte.jojo.mechanics.itemtracking.internal.ItemTrackerIdComponent;
 import com.github.standobyte.v1_21_4_stuff.itemmodel.__ItemModelComponent;
 
 import net.minecraft.core.component.DataComponentType;
@@ -19,6 +20,10 @@ public class ModItemDataComponents {
 			builder -> builder
 			.persistent(StandWrittenOnDisc.CODEC)
 			.networkSynchronized(StandWrittenOnDisc.STREAM_CODEC)
+			/*
+			 * "cacheEncoding caches the encoding result of the Codec such that any subsequent encodes uses the cached value if the component value hasn't changed. 
+			 * This should only be used if the component value is expected to rarely or never change."
+			 */
 			.cacheEncoding());
 
 	public static final Supplier<DataComponentType<ClothesDataComponent>> CLOTHES_PIECE = DATA_COMPONENT_TYPES.registerComponentType("clothes", 
@@ -26,6 +31,11 @@ public class ModItemDataComponents {
 			.persistent(ClothesDataComponent.CODEC)
 			.networkSynchronized(ClothesDataComponent.STREAM_CODEC)
 			.cacheEncoding());
+
+	public static final Supplier<DataComponentType<ItemTrackerIdComponent>> TRACKER_ID = DATA_COMPONENT_TYPES.registerComponentType("tracker_id", 
+			builder -> builder
+			.persistent(ItemTrackerIdComponent.CODEC)
+			.networkSynchronized(ItemTrackerIdComponent.STREAM_CODEC));
 
 	public static final Supplier<DataComponentType<ResourceLocation>> ITEM_MODEL = DATA_COMPONENT_TYPES.registerComponentType("item_model", 
 			__ItemModelComponent.builder());

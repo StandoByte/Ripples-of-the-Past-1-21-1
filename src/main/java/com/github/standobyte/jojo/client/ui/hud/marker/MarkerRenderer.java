@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ClientPowerCache;
+import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
@@ -20,16 +21,22 @@ import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInsta
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectType;
 import com.github.standobyte.jojo.powersystem.standpower.effect.UserStandEffects;
 import com.github.standobyte.jojo.util.MathUtil;
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
@@ -148,7 +155,40 @@ public abstract class MarkerRenderer {
 			this.icon.render(poseStack, 0, 0);
 		}
 	}
-	
+
+	protected static void renderItem(PoseStack poseStack, ItemStack item, float partialTick) {
+//		// FIXME the item marker doesn't rendered behind blocks/entities
+		
+		Minecraft mc = Minecraft.getInstance();
+		MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
+		
+		RenderSystem.disableDepthTest();
+		BakedModel bakedmodel = mc.getItemRenderer().getModel(item, mc.level, null, 0);
+		poseStack.pushPose();
+		poseStack.translate(8, 8, 0);
+		poseStack.scale(16, 16, 0.0625f);
+		poseStack.scale(1, -1, -1);
+
+		boolean flag = !bakedmodel.usesBlockLight();
+		if (flag) {
+			Lighting.setupForFlatItems();
+		}
+
+		mc.getItemRenderer().render(item, ItemDisplayContext.GUI, false, poseStack, bufferSource, 
+				ClientUtil.MAX_LIGHT, OverlayTexture.NO_OVERLAY, bakedmodel);
+		RenderSystem.disableDepthTest();
+		bufferSource.endBatch();
+		RenderSystem.enableDepthTest();
+		if (flag) {
+			if (mc.level.effects().constantAmbientLight()) {
+				Lighting.setupNetherLevel();
+			} else {
+				Lighting.setupLevel();
+			}
+		}
+		poseStack.popPose();
+	}
+
 	public static final GuiIcon MARKER_BORDER = new GuiIcon(JojoMod.resLoc("textures/hud/marker.png"), 32, 32);
 	public static final GuiIcon MARKER_BORDER_OUTLINE = new GuiIcon(JojoMod.resLoc("textures/hud/marker_highlight.png"), 32, 32);
 

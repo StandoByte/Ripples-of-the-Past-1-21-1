@@ -31,6 +31,8 @@
 	"possession.LivingEntityMixin",
 	"possession.PlayerEntityMixin",
 	
+	"itemtracking.ItemStackMixin",
+	
 	"ProjectileHighSpeedSync",
 	"attributes.EntityMixin",
 	"MobEffectLivingEntityMixin",

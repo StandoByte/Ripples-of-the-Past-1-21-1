@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client;
 
+import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracking;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -37,5 +39,7 @@ public final class ClientProxy {
 	public static void openScreen(Object screen) {
 		Minecraft.getInstance().setScreen((Screen) screen);
 	}
+	
+    public static final ItemTracking clientTrackedItems = new ItemTracking(null);
 	
 }

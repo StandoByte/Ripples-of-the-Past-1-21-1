@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -179,6 +180,26 @@ public class NetworkUtil {
 	
 	public static <T, B extends FriendlyByteBuf> Optional<T> readOptional(B buf, StreamDecoder<? super B, T> reader) {
 		return buf.readBoolean() ? Optional.of(reader.decode(buf)) : Optional.empty();
+	}
+
+	public static void writeOptionalInt(FriendlyByteBuf buf, OptionalInt optional, boolean varInt) {
+		buf.writeBoolean(optional.isPresent());
+		optional.ifPresent(value -> {
+			if (varInt) {
+				buf.writeVarInt(value);
+			}
+			else {
+				buf.writeInt(value);
+			}
+		});
+	}
+
+	public static OptionalInt readOptionalInt(FriendlyByteBuf buf, boolean varInt) {
+		if (!buf.readBoolean()) {
+			return OptionalInt.empty();
+		}
+		int value = varInt ? buf.readVarInt() : buf.readInt();
+		return OptionalInt.of(value);
 	}
 
 }
