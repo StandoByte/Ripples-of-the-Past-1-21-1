@@ -27,7 +27,7 @@ import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.cli
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.stand.ClStandManualMovementPacket;
 import com.github.standobyte.jojo.mechanics.entity_like_player.useitem.ClStandClickPacket;
 import com.github.standobyte.jojo.mechanics.grab.TrSetGrabbedEntityPacket;
-import com.github.standobyte.jojo.mechanics.itemtracking.internal.TrackedItemPacket;
+import com.github.standobyte.jojo.mechanics.itemtracking.TrackedItemPacket;
 import com.github.standobyte.jojo.mechanics.possessionv2.TrPossessEntityPacket;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionInstancePacket;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionPhaseTimePacket;

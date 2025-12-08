@@ -1027,7 +1027,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	
 	
 	protected NonNullList<ItemStack> handItems = NonNullList.withSize(2, ItemStack.EMPTY);
-	protected HandItemsAsInventory pseudoInventory = new HandItemsAsInventory(handItems);
+	protected HandItemsAsInventory pseudoInventory = new HandItemsAsInventory(this, handItems);
 	@Override
 	public Iterable<ItemStack> getHandSlots() {
 		return this.handItems;

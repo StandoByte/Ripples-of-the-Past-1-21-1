@@ -37,6 +37,7 @@ import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -350,6 +351,11 @@ public class PowerUserMobEntity extends Mob {
 			}
 		}
 	}
+
+
+	// Picking up items is handled by playerWrapper instead
+	@Override
+	protected void pickUpItem(ItemEntity itemEntity) {}
 
 
 	@Override

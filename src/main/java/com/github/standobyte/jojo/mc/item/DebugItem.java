@@ -1,7 +1,6 @@
 package com.github.standobyte.jojo.mc.item;
 
 import java.util.List;
-import java.util.UUID;
 
 import com.github.standobyte.jojo.client.ui.DebugFunctionsScreen;
 import com.github.standobyte.jojo.core.JojoRegistries;
@@ -12,14 +11,15 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 public class DebugItem extends Item {
-	public static UUID trackerId = UUID.fromString("1df04b26-4394-4107-aa65-1afe4dfce0cc");
 
 	public DebugItem(Item.Properties properties) {
 		super(properties);
@@ -49,9 +49,9 @@ public class DebugItem extends Item {
 			"test2",
 			"test3",
 			"test4",
+			"test5",
 			"track_offhand",
-			"test6",
-			"test7"
+			"drop_tracked"
 	};
 	public static String[] getOptions() {
 		return OPTIONS;
@@ -75,12 +75,24 @@ public class DebugItem extends Item {
 				if (!item.isEmpty()) {
 					ServerLevel level = (ServerLevel) player.level();
 					ItemTracking trackingSystem = ItemTracking.getItemTracking(level);
-					if (trackerId != null) {
-						trackingSystem.stopTracking(trackerId, level);
-					}
 					ItemTracker tracker = trackingSystem.startTracking(item, level);
-					trackerId = tracker.trackerUuid;
+					tracker.context = "debug";
 					tracker.setTrackedByPlayer(player);
+				}
+			}
+			case "drop_tracked" -> {
+				ServerLevel level = (ServerLevel) player.level();
+				ItemTracking trackingSystem = ItemTracking.getItemTracking(level);
+				for (ItemTracker tracker : trackingSystem.values()) {
+					ItemStack item = tracker.getItem();
+					if (item != null && !item.isEmpty()) {
+						Vec3 pos = tracker.markerPos(level, 1);
+						if (pos != null) {
+							ItemStack itemToDrop = tracker.clearAndCopyItem(level);
+							ItemEntity dropItem = new ItemEntity(level, pos.x, pos.y, pos.z, itemToDrop);
+							level.addFreshEntity(dropItem);
+						}
+					}
 				}
 			}
 			default -> {}

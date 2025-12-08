@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mixin.itemtracking;
+package com.github.standobyte.jojo.mixin.itemtracking.track;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,15 +20,16 @@ public class ItemStackMixin {
 	@Shadow private Entity entityRepresentation;
 
 	@Inject(method = "setEntityRepresentation", at = @At("HEAD"))
-	public void onSetEntityRepresentation(Entity entity, CallbackInfo ci) {
+	public void jojo_ripples$onSetEntityRepresentation(Entity entity, CallbackInfo ci) {
 		if (entity != null) {
 			Level level = entity.level();
 			if (level != null && !level.isClientSide()) {
 				ItemStack asItem = (ItemStack) (Object) this;
 				ItemTracker tracker = ItemTracking.getItemTracker(asItem, level);
 				if (tracker != null) {
-					tracker.setAtEntity(asItem, entity.getId(), level, entity instanceof ItemEntity ? KnownItemState.ENTITY_IS_ITEM : KnownItemState.ENTITY_HAS_ITEM);
-					tracker.setItemStillThereCheck(trackerId -> this.entityRepresentation == entity);
+					KnownItemState state = entity instanceof ItemEntity ? KnownItemState.ENTITY_IS_ITEM : KnownItemState.ENTITY_HAS_ITEM;
+					tracker.setAtEntity(asItem, entity.getId(), level, state, trackerId -> 
+							this.entityRepresentation == entity);
 				}
 			}
 		}

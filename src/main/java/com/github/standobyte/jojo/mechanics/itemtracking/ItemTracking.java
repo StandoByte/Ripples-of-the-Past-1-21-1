@@ -4,7 +4,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -13,7 +16,7 @@ import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.ServerSavedData;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
-import com.github.standobyte.jojo.mechanics.itemtracking.internal.ItemTrackerIdComponent;
+import com.github.standobyte.jojo.util.mc.ItemUtil;
 
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.ListTag;
@@ -50,13 +53,13 @@ public class ItemTracking implements INBTSerializable<ListTag> {
 		ItemTracker tracker = new ItemTracker(trackerId, this);
 		ItemTracker prev = trackingMap.get(trackerId);
 		if (prev != null) {
-			prev.setItemStack(itemStack);
+			prev.setItemStack(itemStack, level);
 		}
 		else {
 			trackingMap.put(trackerId, tracker);
 		}
 		setDirty();
-		itemStack.set(ModItemDataComponents.TRACKER_ID, new ItemTrackerIdComponent(trackerId));
+		itemStack.set(ModItemDataComponents.TRACKER_ID, trackerId);
 		return tracker;
 	}
 
@@ -85,10 +88,9 @@ public class ItemTracking implements INBTSerializable<ListTag> {
 	
 	@Nullable
 	public static ItemTracker getItemTracker(ItemStack item, Level level) {
-		ItemTrackerIdComponent id = item.get(ModItemDataComponents.TRACKER_ID);
-		if (id != null) {
+		UUID uuid = getTrackerId(item);
+		if (uuid != null) {
 			ItemTracking itemTracking = getItemTracking(level);
-			UUID uuid = id.uuid();
 			ItemTracker tracker = itemTracking.trackingMap.get(uuid);
 			if (tracker == null && !level.isClientSide()) {
 				ItemTracker.clearTrackingFromItem(item);
@@ -104,8 +106,49 @@ public class ItemTracking implements INBTSerializable<ListTag> {
 		ItemTracker tracker = itemTracking.trackingMap.get(uuid);
 		return tracker;
 	}
-
 	
+	@Nullable
+	public static UUID getTrackerId(ItemStack item) {
+		return ItemUtil.getFromEmptyItem(item, ModItemDataComponents.TRACKER_ID.get());
+	}
+
+
+	public static Predicate<ItemStack> trackerIdCheck(UUID trackerId) {
+		return invItem -> hasTrackerId(invItem, trackerId);
+	}
+
+	public static boolean hasTrackerId(ItemStack item, UUID trackerId) {
+		return trackerId.equals(getTrackerId(item));
+	}
+	
+	public static boolean isProbablyTracked(ItemStack item) {
+		return item.has(ModItemDataComponents.TRACKER_ID);
+	}
+
+	/* when an item is being added to inventory, the original ItemStack's count is being taken from (to split the item between slots),
+	 * so we have to find the new ItemStack inside the inventory first
+	 */
+	@Nullable
+	public static ItemStack getItemWithTrackerInInventory(UUID trackerId, Stream<ItemStack> inventoryItems, Level level) {
+		if (trackerId != null) {
+			Optional<ItemStack> newTrackedItem = inventoryItems
+					.filter(item -> {
+						UUID foundTrackerId = ItemTracking.getTrackerId(item);
+						return foundTrackerId != null && trackerId.equals(foundTrackerId);
+					})
+					.findFirst();
+			if (newTrackedItem.isPresent()) return newTrackedItem.get();
+		}
+		return null;
+	}
+	
+	@Nullable
+	public static ItemStack getItemWithTrackerInInventory(ItemStack originalItemStack, Stream<ItemStack> inventoryItems, Level level) {
+		UUID trackerId = getTrackerId(originalItemStack);
+		return getItemWithTrackerInInventory(trackerId, inventoryItems, level);
+	}
+
+
 	public static ItemTracking getItemTracking(Level level) {
 		if (!level.isClientSide()) {
 			return getServerItemTracking(level.getServer());
@@ -149,8 +192,8 @@ public class ItemTracking implements INBTSerializable<ListTag> {
 	public void deserializeNBT(Provider provider, ListTag nbt) {
 		for (Tag element : nbt) {
 			ItemTracker tracker = ItemTracker.fromNBT(element, this);
-			if (tracker != null && tracker.trackerUuid != null) {
-				trackingMap.put(tracker.trackerUuid, tracker);
+			if (tracker != null && tracker.trackerId != null) {
+				trackingMap.put(tracker.trackerId, tracker);
 			}
 		}
 	}

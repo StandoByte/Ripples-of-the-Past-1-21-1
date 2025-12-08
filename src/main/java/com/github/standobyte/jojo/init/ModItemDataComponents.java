@@ -1,13 +1,14 @@
 package com.github.standobyte.jojo.init;
 
+import java.util.UUID;
 import java.util.function.Supplier;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mc.item.component.StandWrittenOnDisc;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
-import com.github.standobyte.jojo.mechanics.itemtracking.internal.ItemTrackerIdComponent;
 import com.github.standobyte.v1_21_4_stuff.itemmodel.__ItemModelComponent;
 
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -32,10 +33,10 @@ public class ModItemDataComponents {
 			.networkSynchronized(ClothesDataComponent.STREAM_CODEC)
 			.cacheEncoding());
 
-	public static final Supplier<DataComponentType<ItemTrackerIdComponent>> TRACKER_ID = DATA_COMPONENT_TYPES.registerComponentType("tracker_id", 
+	public static final Supplier<DataComponentType<UUID>> TRACKER_ID = DATA_COMPONENT_TYPES.registerComponentType("tracker_id", 
 			builder -> builder
-			.persistent(ItemTrackerIdComponent.CODEC)
-			.networkSynchronized(ItemTrackerIdComponent.STREAM_CODEC));
+			.persistent(UUIDUtil.CODEC)
+			.networkSynchronized(UUIDUtil.STREAM_CODEC));
 
 	public static final Supplier<DataComponentType<ResourceLocation>> ITEM_MODEL = DATA_COMPONENT_TYPES.registerComponentType("item_model", 
 			__ItemModelComponent.builder());

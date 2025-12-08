@@ -8,7 +8,6 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.init.ModItemDataComponents;
-import com.github.standobyte.jojo.mechanics.itemtracking.internal.TrackedItemPacket;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -19,21 +18,49 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Entity.RemovalReason;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.JukeboxBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.JukeboxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+/**
+ * Currently item stacks are being tracked in:<br>
+ *   - ItemEntity & ItemFrame (ItemStackMixin)<br>
+ *   - BaseContainerBlockEntity (ContainerTileEntityMixin)<br>
+ *   - Hoppers (HopperTileEntityMixin)<br>
+ *   - Jukeboxes (JukeboxTileEntityMixin)<br>
+ *   - Player inventory (PlayerInventoryMixin; ContainerSlotMixin (i forgor what this one actually achieves though))<br>
+ *   - Horse chest inventory (HorseInventoryMixin)<br>
+ *   - Minecart with chest/hopper, boat with chest (ContainerEntityMixin)<br>
+ *   - Mobs, players and armor stands equipment (LivingEntityEquipMixin)<br>
+ *   - Items picked up by mobs (e.g. villagers picking up items like wheat from the ground) (LivingEntityEquipMixin)<br>
+ *   - Stands taking items (LivingEntityEquipMixin; HandItemsAsInventory#setToSlot(int, ItemStack) calling LivingEntity#onEquipItem(EquipmentSlot, ItemStack, ItemStack))<br>
+ *   - Shot arrows, knives, clackers, blade hats (ItemTrackingEventHandler, and the projectile item classes from ROTP)<br>
+ *   - Thrown ender pearls, snowballs, eggs, splash/lingering potions (ProjectileItemEntityMixin)<br>
+ *   - Placed & shot firework rockets (FireworkRocketEntityMixin)<br>
+ *   - Stuck arrows and knives (AbstractArrowStuckOnHitMixin)<br>
+ *   - Items sold to villagers (MerchantResultSlotMixin)<br>
+ *   - Piglins picking up gold (LivingEntityEquipMixin)<br>
+ */
 public class ItemTracker {
 	protected static final RandomSource RANDOM = RandomSource.create();
 
-	public final UUID trackerUuid;
+	public final UUID trackerId;
 	protected final ItemTracking trackerSystem;
 
 	@Nullable protected ItemStack itemStack;
 	@Nullable protected UUID trackingPlayerId;
+	@Nullable public String context;
 
 	@Nullable protected ResourceKey<Level> positionDimension;
 	protected OptionalInt positionEntity = OptionalInt.empty();
@@ -43,7 +70,7 @@ public class ItemTracker {
 	@Nullable protected KnownItemState itemState;
 
 	public ItemTracker(UUID id, ItemTracking trackerSystem) {
-		this.trackerUuid = id;
+		this.trackerId = id;
 		this.trackerSystem = trackerSystem;
 	}
 
@@ -53,39 +80,38 @@ public class ItemTracker {
 		trackerSystem.setDirty();
 	}
 	
-	public void setAtEntity(ItemStack item, int entityId, Level level, KnownItemState itemState) {
-		setItemStack(item);
+	public void setAtEntity(ItemStack item, int entityId, Level level, KnownItemState itemState, 
+			@Nullable Predicate<UUID> itemStillThereCheck) {
+		setItemStack(item, level);
 		this.positionEntity = OptionalInt.of(entityId);
 		this.positionBlock = null;
 		this.containerBlockState = null;
 		this.positionDimension = level.dimension();
 		this.itemState = itemState;
+		this.itemStillThere = itemStillThereCheck;
 		trackerSystem.setDirty();
 		if (!level.isClientSide()) {
 			syncToPlayer((ServerLevel) level);
 		}
 	}
 
-	public void setAtBlockPos(ItemStack item, BlockPos blockPos, Level level, KnownItemState itemState) {
-		setItemStack(item);
+	public void setAtBlockPos(ItemStack item, BlockPos blockPos, Level level, KnownItemState itemState, 
+			@Nullable Predicate<UUID> itemStillThereCheck) {
+		setItemStack(item, level);
 		this.positionEntity = OptionalInt.empty();
 		this.positionBlock = blockPos;
 		this.containerBlockState = level.getBlockState(blockPos);
 		this.positionDimension = level.dimension();
 		this.itemState = itemState;
+		this.itemStillThere = itemStillThereCheck;
 		trackerSystem.setDirty();
 		if (!level.isClientSide()) {
 			syncToPlayer((ServerLevel) level);
 		}
 	}
 
-	public void setItemStillThereCheck(@Nullable Predicate<UUID> check) {
-		this.itemStillThere = check;
-		trackerSystem.setDirty();
-	}
-
 	public void setDisappeared(ServerLevel level) {
-		setItemStack(null);
+		setItemStack(null, level);
 		this.positionEntity = OptionalInt.empty();
 		this.positionBlock = null;
 		this.containerBlockState = null;
@@ -144,57 +170,84 @@ public class ItemTracker {
 			}
 		}
 
-		return itemStillThere == null || itemStillThere.test(trackerUuid);
+		return itemStillThere == null || itemStillThere.test(trackerId);
 	}
 	
 	
-	protected void setItemStack(ItemStack itemStack) {
-		if (this.itemStack != null) {
-			clearTrackingFromItem(this.itemStack);
+	protected void setItemStack(ItemStack itemStack, Level level) {
+		if (!level.isClientSide() && this.itemStack != itemStack) {
+			if (this.itemStack != null) {
+				clearTrackingFromItem(this.itemStack);
+			}
+			if (itemStack != null) {
+				itemStack.set(ModItemDataComponents.TRACKER_ID, this.trackerId);
+			}
 		}
 		this.itemStack = itemStack;
 		trackerSystem.setDirty();
 	}
 	
 	public static void clearTrackingFromItem(ItemStack itemStack) {
-		itemStack.remove(ModItemDataComponents.TRACKER_ID);
+		if (itemStack != null) {
+			itemStack.remove(ModItemDataComponents.TRACKER_ID);
+		}
 	}
-
-
-//	/* when an item is being added to inventory, the original ItemStack's count is being taken from (to split the item between slots),
-//	 * so we have to find the new ItemStack inside the inventory first
-//	 */
-//	public static Optional<TrackerItemStack> getItemTrackerInInventory(ItemStack originalItemStack, Stream<ItemStack> inventoryItems, boolean allowEmpty) {
-//		return getItemTracker(originalItemStack, allowEmpty).flatMap(oldTracker -> {
-//			UUID trackerId = oldTracker.getTrackerId();
-//			Optional<TrackerItemStack> newTracker = inventoryItems
-//					.map(movedItem -> movedItem.getCapability(TrackerItemStackProvider.CAPABILITY).resolve().map(tracker -> {
-//						if (trackerId.equals(tracker.getTrackerId())) {
-//							return tracker;
-//						}
-//						return null;
-//					}))
-//					.filter(Optional::isPresent)
-//					.map(Optional::get)
-//					.findFirst();
-//			return newTracker;
-//		});
-//	}
-//
-//	public static Predicate<ItemStack> trackerIdCheck(UUID trackerId) {
-//		return invItem -> hasTrackerId(invItem, trackerId);
-//	}
-//
-//	public static boolean hasTrackerId(ItemStack item, UUID trackerId) {
-//		return trackerId.equals(TrackerItemStack.getItemTracker(item).map(TrackerItemStack::getTrackerId).orElse(null));
-//	}
+	
+	
+	@Nullable
+	public ItemStack clearAndCopyItem(ServerLevel level) {
+		if (itemStack != null && !itemStack.isEmpty()) {
+			ItemStack copy = itemStack.copy();
+			itemStack.setCount(0);
+			if (positionEntity.isPresent()) {
+				Entity entity = level.getEntity(positionEntity.getAsInt());
+				if (entity != null) {
+					switch (entity) {
+						case ItemFrame itemFrame -> {
+							itemFrame.setItem(ItemStack.EMPTY);
+						}
+						case Projectile projectile -> {
+							if (itemState == KnownItemState.ENTITY_IS_ITEM) {
+								projectile.remove(RemovalReason.DISCARDED);
+							}
+						}
+						case AbstractHorse horse -> {
+							horse.getInventory().setChanged();
+						}
+						default -> {}
+					}
+				}
+			}
+			if (positionBlock != null) {
+				BlockState blockState = level.getBlockState(positionBlock);
+				if (blockState.hasBlockEntity()) {
+					BlockEntity blockEntity = level.getBlockEntity(positionBlock);
+					if (blockEntity != null) {
+						switch (blockEntity) {
+							case JukeboxBlockEntity jukebox -> {
+								// copypaste of notifyItemChangedInJukebox because they made it fucking private
+								level.setBlock(positionBlock, blockState.setValue(JukeboxBlock.HAS_RECORD, false), 2);
+								BlockState newBlockState = jukebox.getBlockState();
+								level.gameEvent(GameEvent.BLOCK_CHANGE, positionBlock, GameEvent.Context.of(newBlockState));
+								jukebox.getSongPlayer().stop(level, newBlockState);
+							}
+							default -> {}
+						}
+					}
+				}
+			}
+			return copy;
+		}
+		return null;
+	}
 
 
 	public void syncToPlayer(ServerLevel level) {
 		Player player = getTrackingPlayer(level);
 		if (player instanceof ServerPlayer serverPlayer) {
 			PacketDistributor.sendToPlayer(serverPlayer, new TrackedItemPacket(
-					trackerUuid, itemStack, positionEntity, Optional.ofNullable(positionBlock)));
+					trackerId, itemStack, context, 
+					positionEntity, Optional.ofNullable(positionBlock)));
 		}
 	}
 
@@ -267,9 +320,12 @@ public class ItemTracker {
 
 	public Tag toNBT(boolean savePlayerId) {
 		CompoundTag nbt = new CompoundTag();
-		nbt.putUUID("Id", trackerUuid);
+		nbt.putUUID("Id", trackerId);
 		if (trackingPlayerId != null) {
 			nbt.putUUID("Player", trackingPlayerId);
+		}
+		if (context != null) {
+			nbt.putString("context", context);
 		}
 		return nbt;
 	}
@@ -278,7 +334,10 @@ public class ItemTracker {
 		CompoundTag nbt = (CompoundTag) inbt;
 		UUID trackerUuid = nbt.getUUID("Id");
 		ItemTracker tracker = new ItemTracker(trackerUuid, trackerSystem);
+		
 		tracker.trackingPlayerId = nbt.hasUUID("Player") ? nbt.getUUID("Player") : null;
+		tracker.context = nbt.getString("context");
+		
 		return tracker;
 	}
 

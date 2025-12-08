@@ -3,15 +3,19 @@ package com.github.standobyte.jojo.mc.entity.util;
 import java.util.List;
 
 import net.minecraft.core.NonNullList;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 /* this shit was copypasted from net.minecraft.world.entity.player.Inventory
  * and i ain't spending my braincells on rewriting that
  */
 public class HandItemsAsInventory {
+	protected LivingEntity entity;
 	public List<ItemStack> handItems = NonNullList.withSize(2, ItemStack.EMPTY);
 	
-	public HandItemsAsInventory(List<ItemStack> handItemsList) {
+	public HandItemsAsInventory(LivingEntity entity, List<ItemStack> handItemsList) {
+		this.entity = entity;
 		this.handItems = handItemsList;
 	}
 
@@ -26,7 +30,7 @@ public class HandItemsAsInventory {
 				int slot = this.getFreeSlot();
 
 				if (slot >= 0) {
-					this.handItems.set(slot, stack.copyAndClear());
+					setToSlot(slot, stack.copyAndClear());
 					this.handItems.get(slot).setPopTime(5);
 					return true;
 				} else {
@@ -42,6 +46,16 @@ public class HandItemsAsInventory {
 				return stack.getCount() < i;
 			}
 		}
+	}
+	
+	protected void setToSlot(int slot, ItemStack item) {
+		ItemStack oldItem = this.handItems.set(slot, item);
+		EquipmentSlot slotType = switch (slot) {
+			case 0 -> EquipmentSlot.MAINHAND;
+			case 1 -> EquipmentSlot.OFFHAND;
+			default -> throw new IllegalArgumentException();
+		};
+		entity.onEquipItem(slotType, oldItem, item);
 	}
 
 	public int getFreeSlot() {
@@ -91,7 +105,7 @@ public class HandItemsAsInventory {
 		ItemStack itemstack = handItems.get(slot);
 		if (itemstack.isEmpty()) {
 			itemstack = stack.copyWithCount(0);
-			handItems.set(slot, itemstack);
+			setToSlot(slot, itemstack);
 		}
 
 		int j = this.getMaxStackSize(itemstack) - itemstack.getCount();
