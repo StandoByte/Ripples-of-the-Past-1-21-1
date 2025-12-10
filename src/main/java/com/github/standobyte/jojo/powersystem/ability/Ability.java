@@ -38,6 +38,7 @@ public class Ability {
 		this.abilityId = abilityId;
 		this.spriteName = StringUtil.splitIntAtTheEnd(abilityId.nameInMoveset()).getFirst();
 		this.name = abilityName(abilityId, "");
+		initVariationAssets();
 	}
 	
 	protected static Component abilityName(AbilityId abilityId, String postfix) {
@@ -81,6 +82,7 @@ public class Ability {
 	/**
 	 * A version of {@link Ability#checkSpecificConditions(Power)} with more control, allowing one ability to disable others dynamically
 	 */
+	// FIXME target parameter (or a simple enough getter)
 	public void onConditionCheck(Power<?> context, AvailableAbilities abilities, AbilityConditionCheck thisAbility) {
 		ConditionCheck check = checkConditions(context);
 		thisAbility.conditionCheck = check;
@@ -172,5 +174,8 @@ public class Ability {
 	public void applyConfig(JsonObject config) {
 		// TODO (ability config) reflection to edit field values?
 	}
+	
+	
+	protected void initVariationAssets() {}
 	
 }

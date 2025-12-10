@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.brokenblocks.BrokenBlocksChunkData;
 import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.EntityComponentController;
@@ -21,6 +22,7 @@ import com.github.standobyte.jojo.util.entitycomponent.DataEventListeners;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
@@ -70,5 +72,11 @@ public final class ModDataAttachmentTypes {
 	
 	public static final Supplier<AttachmentType<ServerBlockDestroyTracker>> BLOCK_DESTROY = ATTACHMENT_TYPES.register("block_destroy",
 			() -> AttachmentType.builder(obj -> obj instanceof ServerLevel level ? new ServerBlockDestroyTracker(level) : null).build());
+	
+	
+	// Chunk
+	
+	public static final Supplier<AttachmentType<BrokenBlocksChunkData>> BROKEN_BLOCKS = ATTACHMENT_TYPES.register("broken_blocks", 
+			() -> AttachmentType.builder(obj -> obj instanceof LevelChunk chunk ? new BrokenBlocksChunkData(chunk) : null).build());
 	
 }

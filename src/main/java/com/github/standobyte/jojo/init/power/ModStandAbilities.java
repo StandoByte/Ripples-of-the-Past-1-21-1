@@ -2,6 +2,8 @@ package com.github.standobyte.jojo.init.power;
 
 import static com.github.standobyte.jojo.core.JojoRegistries.ABILITY_TYPES;
 
+import java.util.function.Supplier;
+
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandBearingShotAbility;
@@ -34,9 +36,9 @@ import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDUncraftItem
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.DriedBloodDropsEffect;
 import com.github.standobyte.jojo.jojoimpl.stands.hierophant.HierophantPuppetAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.hierophant.HierophantPuppetEffect;
-import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarInhaleAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarFingerAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarFingerSwipeAbility;
+import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarInhaleAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.theworld.TimeStopAbility;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
@@ -133,7 +135,7 @@ public final class ModStandAbilities {
 			"heal", key -> new AbilityType<>(key, CrazyDHealAbility::new));
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> CD_RESTORE_TERRAIN = ABILITY_TYPES.register(
-			"restore_terrain", key -> new AbilityType<>(key, Ability::new));
+			"restore_terrain", key -> new AbilityType<>(key, CrazyDRestoreTerrainAbility::new));
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDTerrainWallAbility>> CD_WALL_FROM_TERRAIN = ABILITY_TYPES.register(
 			"wall_from_terrain", key -> new AbilityType<>(key, CrazyDTerrainWallAbility::new));
@@ -155,6 +157,8 @@ public final class ModStandAbilities {
 
 	public static final DeferredHolder<StandEffectType<?>, StandEffectType<DriedBloodDropsEffect>> EFFECT_CD_BLOOD_DROPS = STAND_EFFECT_TYPES.register(
 			"cd_blood_drops", key -> new StandEffectType<>(key, DriedBloodDropsEffect::new));
+	
+	public static final Supplier<StandEffectType<?>> _PLACEHOLDER_CD_TURN_INTO_ANGELO_ROCK_EFFECT = () -> null;
 
 //	public static final DeferredHolder<StandEffectType<?>, StandEffectType<CrazyDLeaveObjectPunchEffect>> EFFECT_CD_PUNCH_LEAVE_OBJECT = STAND_EFFECT_TYPES.register(
 //			"cd_punch_leave_object", key -> new StandEffectType<>(key, CrazyDLeaveObjectPunchEffect::new));

@@ -20,6 +20,8 @@ import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrStandDataPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrStandSkinPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSyncStandOffsetPacket;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.brokenblocks.BrokenChunkBlocksPacket;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.brokenblocks.CDBlocksRestoredPacket;
 import com.github.standobyte.jojo.mechanics.clothes.TrClothesItemsPacket;
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.SetClientControllerPacket;
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.mob.ClControlledMobCommandPacket;
@@ -86,6 +88,8 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new EntitySyncMotionBypassingPacket.Handler(JojoMod.resLoc("motfix")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new DeflectedBulletPacket.Handler(JojoMod.resLoc("projdefl")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new BloodParticlesPacket.Handler(JojoMod.resLoc("blood")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new BrokenChunkBlocksPacket.Handler(JojoMod.resLoc("brokenblocks")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new CDBlocksRestoredPacket.Handler(JojoMod.resLoc("restoreblocks")));
 	}
 
 	

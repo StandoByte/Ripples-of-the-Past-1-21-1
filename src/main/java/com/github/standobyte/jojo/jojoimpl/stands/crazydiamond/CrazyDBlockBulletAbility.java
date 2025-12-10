@@ -38,7 +38,6 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 	public CrazyDBlockBulletAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId, BlockBulletShot::new);
 		setDefaultPhaseLength(ActionPhase.WINDUP, 15);
-		initVariationAssets();
 	}
 
 	@Override
@@ -174,6 +173,7 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 	protected String homingSpriteName;
 	protected Component homingAbilityName;
 	
+	@Override
 	protected void initVariationAssets() {
 		this.homingSpriteName = this.spriteName + "_homing";
 		this.homingAbilityName = abilityName(abilityId, ".homing");

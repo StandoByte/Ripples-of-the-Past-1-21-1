@@ -26,7 +26,6 @@ public class HierophantPuppetAbility extends StandEntityAbility {
 
 	public HierophantPuppetAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId, PuppetingAction::new);
-		initVariationAssets();
 	}
 	
 	
@@ -93,6 +92,7 @@ public class HierophantPuppetAbility extends StandEntityAbility {
 	protected String releaseSpriteName;
 	protected Component releaseAbilityName;
 	
+	@Override
 	protected void initVariationAssets() {
 		this.releaseSpriteName = this.spriteName + "_release";
 		this.releaseAbilityName = abilityName(abilityId, ".release");
