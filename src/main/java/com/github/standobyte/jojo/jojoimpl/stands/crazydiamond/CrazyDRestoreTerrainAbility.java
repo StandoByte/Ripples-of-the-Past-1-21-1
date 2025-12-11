@@ -118,9 +118,15 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 				Vec3 lookVec = cameraEntity.getLookAngle();
 				Vec3 eyePosD = cameraEntity.getEyePosition(1.0F);
 				float staminaPerBlock = 0; // getStaminaCostPerBlock(userPower);
-				int blocksToRestore = resolveEffect ? 64 : 
-					Math.min(blocksPerTick((StandEntity) standEntity), (int) (staminaPerBlock * userPower.getStamina()));
-				blocksToRestore = 64;
+				
+				int blocksToRestore;
+				if (resolveEffect) blocksToRestore = 64;
+				else {
+					blocksToRestore = blocksPerTick((StandEntity) standEntity);
+					if (staminaPerBlock > 0) {
+						blocksToRestore = Math.min(blocksToRestore, (int) (userPower.getStamina() / staminaPerBlock));
+					}
+				}
 				boolean onlyAimedAt = user.isShiftKeyDown();
 				
 				Stream<PrevBlockInfo> blocks = getBlocksInRange(level, user, eyePos, manhattanRange, 
