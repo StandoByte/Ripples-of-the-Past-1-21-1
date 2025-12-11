@@ -32,6 +32,7 @@ public class SimpleEntityRenderer<T extends Entity> extends EntityRenderer<T> {
 	
 	protected ResourceLocation texPath;
 	protected boolean texFromStandSkin;
+	protected boolean modelFromStandSkin;
 
 	public SimpleEntityRenderer(EntityRendererProvider.Context renderManager) {
 		super(renderManager);
@@ -51,14 +52,15 @@ public class SimpleEntityRenderer<T extends Entity> extends EntityRenderer<T> {
 	public SimpleEntityRenderer<T> initResourceModel(ResourceLocation modelPath, 
 			Function<ModelPart, EntityModel<T>> modelClass, boolean loadFromStandSkin) {
 		this.resourceModel = RotpGeckoModelLoader.getInstance().getModelContainer(modelPath);
-		this.resourceModel.rendererInit(modelClass, loadFromStandSkin);
+		this.modelFromStandSkin = loadFromStandSkin;
+		this.resourceModel.rendererInit(modelClass);
 		return this;
 	}
 	
 
 	protected EntityModel<T> getEntityModel(T entity) {
 		if (resourceModel != null) {
-			EntityModel<T> modelFromResource = resourceModel.getModel(entity);
+			EntityModel<T> modelFromResource = resourceModel.getModel(modelFromStandSkin ? SimpleEntityRenderer.getStandSkin(entity) : null);
 			if (modelFromResource != null) {
 				return modelFromResource;
 			}

@@ -14,6 +14,7 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
+import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 
@@ -22,9 +23,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
 public class ModelUtil {
@@ -159,6 +163,11 @@ public class ModelUtil {
 		}
 		
 		return null;
+	}
+	
+	public static boolean isSlimModel(LivingEntity entity) {
+		return entity instanceof MannequinEntity mannequin && mannequin.isSlim()
+				|| entity instanceof AbstractClientPlayer player && player.getSkin().model() == PlayerSkin.Model.SLIM;
 	}
 	
 }

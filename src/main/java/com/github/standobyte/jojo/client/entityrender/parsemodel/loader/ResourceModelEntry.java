@@ -7,10 +7,8 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.jojo.client.entityrender.entities.SimpleEntityRenderer;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 
-import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
@@ -23,42 +21,37 @@ public class ResourceModelEntry {
 	@Nullable public ModelPart modelRoot;
 	@Nullable public Model model;
 	
-	protected Function<LayerDefinition, EntityModel<?>> modelConstructor;
-	protected boolean loadFromStandSkin;
+	@ApiStatus.Internal
+	public Function<LayerDefinition, ? extends Model> modelConstructor;
 	
 	public ResourceModelEntry(ResourceLocation modelPath) {
 		this.modelPath = modelPath;
 	}
 	
-	public <T extends Entity> void rendererInit(Function<ModelPart, EntityModel<T>> modelClass, boolean loadFromStandSkin) {
+	public <T extends Entity> void rendererInit(Function<ModelPart, ? extends Model> modelClass) {
 		this.modelConstructor = (LayerDefinition modelDefinition) -> modelClass.apply(modelDefinition.bakeRoot());
-		this.loadFromStandSkin = loadFromStandSkin;
 	}
 	
 	@Nullable
-	public <T extends Entity, M extends EntityModel<T>> EntityModel<T> getModel(T entity) {
-		if (loadFromStandSkin) {
-			StandSkin standSkin = SimpleEntityRenderer.getStandSkin(entity);
-			if (standSkin != null) {
-				EntityModel<T> modelFromSkin = (EntityModel<T>) standSkin.getModel(this.modelPath, this.modelConstructor);
-				if (modelFromSkin != null) {
-					return modelFromSkin;
-				}
+	public <M extends Model> M getModel(@Nullable StandSkin standSkin) {
+		if (standSkin != null) {
+			M modelFromSkin = (M) standSkin.getModel(this.modelPath, this.modelConstructor);
+			if (modelFromSkin != null) {
+				return modelFromSkin;
 			}
 		}
 		
-		EntityModel<T> modelFromResource = (EntityModel<T>) this.getModel(this.modelConstructor);
+		M modelFromResource = (M) this.getModel(this.modelConstructor);
 		return modelFromResource;
 	}
-	
-	@Nullable
+
+	@ApiStatus.Internal
 	public <M extends Model> M getModel(Function<LayerDefinition, M> modelConstructor) {
 		if (model == null && modelDefinition != null) {
 			this.model = modelConstructor.apply(modelDefinition);
 		}
 		return (M) model;
 	}
-	
 	
 	
 	@ApiStatus.Internal
