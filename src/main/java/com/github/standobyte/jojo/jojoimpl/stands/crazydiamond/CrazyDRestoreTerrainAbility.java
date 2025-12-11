@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -37,6 +36,7 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.jojo.util.UselessCrap;
 import com.github.standobyte.jojo.util.mc.XpFormulas;
 
 import net.minecraft.Util;
@@ -273,7 +273,6 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 	}
 
 
-	private static final Random RANDOM = new Random();
 	public static RestoreResult restoreBlocks(Level level, Entity trackedEntity, Stream<PrevBlockInfo> blocks, 
 			Comparator<PrevBlockInfo> sort, long limit, 
 			boolean isCreative, boolean randomizePos, boolean forgetFailed, 
@@ -329,7 +328,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 	}
 
 	// this whole junk fixes janky restoration of sand blocks, e.g. explosions in a desert
-	private static boolean restorationExclude(PrevBlockInfo block, Level level) {
+	protected static boolean restorationExclude(PrevBlockInfo block, Level level) {
 		if (block.state.getBlock() instanceof FallingBlock) {
 			BlockPos blockBelow = block.pos.below();
 			if (level.isEmptyBlock(blockBelow)) {
@@ -343,7 +342,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 		return !block.state.canSurvive(level, block.pos);
 	}
 
-	private static int restorationPriority(PrevBlockInfo block, Level level) {
+	protected static int restorationPriority(PrevBlockInfo block, Level level) {
 		if (block.state.getBlock() instanceof FallingBlock && !level.isEmptyBlock(block.pos.below())) {
 			return 1;
 		}
@@ -351,12 +350,13 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 	}
 
 
-	private static boolean tryPlaceBlock(Level level, BlockPos blockPos, BlockState blockState, boolean isCreative, boolean randomizePos, 
+	public static boolean tryPlaceBlock(Level level, BlockPos blockPos, BlockState blockState, boolean isCreative, boolean randomizePos, 
 			List<ItemStack> restorationCost, int xpCost, @Nullable Player consumeXpFrom, List<ItemStack> itemsSource) {
 		if (!isCreative && xpCost > 0 && (consumeXpFrom == null || XpFormulas.getTotalExperience(consumeXpFrom) < xpCost)) {
 			return false;
 		}
 		if (randomizePos) {
+			RandomSource RANDOM = UselessCrap.RANDOM;
 			BlockPos randomPos = blockPos = blockPos.offset(
 					RANDOM.nextBoolean() ? RANDOM.nextInt(3) - 1 : 0, 
 					RANDOM.nextInt(2) + 1,
@@ -434,7 +434,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 		return false;
 	}
 
-	private static boolean consumeSingleItem(ItemStack neededSingleItem, List<ItemStack> itemsSource, 
+	protected static boolean consumeSingleItem(ItemStack neededSingleItem, List<ItemStack> itemsSource, 
 			@Nullable List<ItemStack> collectConsumedItems) {
 		for (ItemStack item : itemsSource) {
 			if (stacksMatch(neededSingleItem, item)) {
@@ -451,7 +451,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 		return false;
 	}
 
-	private static void sortItem(Map<ItemStack, Pair<List<ItemStack>, MutableInt>> sortMap, List<ItemStack> cost, ItemStack existingItem) {
+	protected static void sortItem(Map<ItemStack, Pair<List<ItemStack>, MutableInt>> sortMap, List<ItemStack> cost, ItemStack existingItem) {
 		cost.stream().filter(costItem -> stacksMatch(costItem, existingItem)).findFirst().ifPresent(neededItem -> {
 			if (!sortMap.containsKey(neededItem)) {
 				// i made sure to fill the map, so it should instead fail-fast if this actually happens somehow
@@ -463,7 +463,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 		});
 	}
 
-	private static boolean stacksMatch(ItemStack neededItem, ItemStack itemInQuestion) {
+	public static boolean stacksMatch(ItemStack neededItem, ItemStack itemInQuestion) {
 		return (!itemInQuestion.isEmpty() && itemInQuestion.getItem() == neededItem.getItem()
 				&& ItemStack.isSameItemSameComponents(itemInQuestion, neededItem));
 	}
@@ -566,7 +566,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 		}
 	}
 
-	private static int restorationDistManhattan(boolean resolve) {
+	public static int restorationDistManhattan(boolean resolve) {
 		return 12;
 	}
 

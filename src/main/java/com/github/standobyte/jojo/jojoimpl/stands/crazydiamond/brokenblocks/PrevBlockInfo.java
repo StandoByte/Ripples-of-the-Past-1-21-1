@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDRestoreTerrainAbility;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -36,8 +38,22 @@ public class PrevBlockInfo {
 	public PrevBlockInfo(BlockPos pos, BlockState state, List<ItemStack> drops, boolean keep) {
 		this.pos = pos;
 		this.state = state;
-		this.drops = drops.stream().map(stack -> stack.copy()).collect(Collectors.toList());
 		this.keep = keep;
+		
+		this.drops = new ArrayList<>(drops.size());
+		for (ItemStack droppedItem : drops) {
+			boolean foundMatching = false;
+			for (ItemStack recordedCost : this.drops) {
+				if (CrazyDRestoreTerrainAbility.stacksMatch(recordedCost, droppedItem)) {
+					recordedCost.setCount(recordedCost.getCount() + droppedItem.getCount());
+					foundMatching = true;
+					break;
+				}
+			}
+			if (!foundMatching) {
+				this.drops.add(droppedItem.copy());
+			}
+		}
 	}
 
 	public static PrevBlockInfo clientInstance(BlockPos pos, BlockState state) {
