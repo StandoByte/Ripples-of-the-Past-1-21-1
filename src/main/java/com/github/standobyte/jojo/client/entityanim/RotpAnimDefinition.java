@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -56,25 +57,41 @@ public class RotpAnimDefinition {
 
 
 	public void animate(Model model, LivingEntityRenderState renderState, float seconds, float animSpeed) {
-		Model_1_21_2plus _model = (Model_1_21_2plus) model;
+		Model_1_21_2plus interfaceCast = model instanceof Model_1_21_2plus __ ? __ : null;
+		HumanoidModel<?> humanoidCast = model instanceof HumanoidModel __ ? __ : null;
 		HiddenModelParts _withHidden = model instanceof HiddenModelParts __ ? __ : null;
+		
 		if (_withHidden != null) _withHidden.beforeAnim();
 		evaluateQueries(renderState);
 		for (Map.Entry<String, List<AnimationChannel>> entry : boneAnimations.entrySet()) {
-			_model.jojo_ripples$getAnyDescendantWithName(entry.getKey()).ifPresent(modelPart -> {
+			ModelPart modelPart = getModelPart(entry.getKey(), model, humanoidCast, interfaceCast);
+			if (modelPart != null) {
 				if (_withHidden != null) _withHidden.onAnimate(modelPart);
 				animateModelPart(this, modelPart, entry.getValue(), seconds, animSpeed);
-			});
+			}
+		}
+		if (humanoidCast != null) {
+			OldPlayerModelJank._onAnimate(humanoidCast);
 		}
 	}
 
+	@Deprecated
 	public void animateVanillaPlayer(HumanoidModel<?> humanoidModel, LivingEntityRenderState renderState, float seconds, float animSpeed) {
-		evaluateQueries(renderState);
-		for (Map.Entry<String, List<AnimationChannel>> entry : boneAnimations.entrySet()) {
-			ModelPart modelPart = PlayerModelBends.getModelPartForPlayerAnim(humanoidModel, entry.getKey());
-			animateModelPart(this, modelPart, entry.getValue(), seconds, animSpeed);
+		animate(humanoidModel, renderState, seconds, animSpeed);
+	}
+	
+	public static ModelPart getModelPart(String animBoneName, Model model, @Nullable HumanoidModel<?> humanoidModelCast, @Nullable Model_1_21_2plus modModelCast) {
+		if (humanoidModelCast != null) {
+			ModelPart playerModelPart = PlayerModelBends.getModelPartForPlayerAnim(humanoidModelCast, animBoneName);
+			if (playerModelPart != null) {
+				return playerModelPart;
+			}
 		}
-		OldPlayerModelJank._onAnimate(humanoidModel);
+		if (modModelCast != null) {
+			Optional<ModelPart> modelPart = modModelCast.jojo_ripples$getAnyDescendantWithName(animBoneName);
+			if (modelPart.isPresent()) return modelPart.get();
+		}
+		return null;
 	}
 	
 	
@@ -170,8 +187,8 @@ public class RotpAnimDefinition {
 	}
 	
 	
-	public static void animateModelPart(RotpAnimDefinition anim, ModelPart modelPart, List<AnimationChannel> transformations, float seconds, float animSpeed) {
-		if (modelPart == null || !modelPart.visible) return;
+	public static void animateModelPart(RotpAnimDefinition anim, @Nonnull ModelPart modelPart, List<AnimationChannel> transformations, float seconds, float animSpeed) {
+		if (!modelPart.visible) return;
 		for (AnimationChannel tf : transformations) {
 			Vector3f vec = calcVec(anim, tf, seconds, animSpeed);
 			setTargetValue(modelPart, vec, tf.target());

@@ -44,7 +44,7 @@ public class RipplesPlayerRenderState {
 //		}
 		
 		if (anim != null) {
-			anim.animateVanillaPlayer(model, vanillaRenderState, seconds, 1);
+			anim.animate(model, vanillaRenderState, seconds, 1);
 			return true;
 		}
 		
