@@ -56,7 +56,6 @@ import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -327,12 +326,9 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 		if (block.state.getBlock() instanceof FallingBlock) {
 			BlockPos blockBelow = block.pos.below();
 			if (level.isEmptyBlock(blockBelow)) {
-				ChunkAccess chunkAccess = level.getChunk(block.pos);
-				if (chunkAccess instanceof LevelChunk chunk) {
-					BrokenBlocksChunkData data = BrokenBlocksChunkData.getExistingData(chunk);
-					if (data != null && data.getBrokenBlocks().anyMatch(brokenBlock -> blockBelow.equals(brokenBlock.pos))) {
-						return true;
-					}
+				BrokenBlocksChunkData data = BrokenBlocksChunkData.getExistingData(level, block.pos);
+				if (data != null && data.getBrokenBlocks().anyMatch(brokenBlock -> blockBelow.equals(brokenBlock.pos))) {
+					return true;
 				}
 			}
 		}
@@ -359,13 +355,10 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 					RANDOM.nextInt(2) + 1,
 					RANDOM.nextBoolean() ? RANDOM.nextInt(3) - 1 : 0);
 			if (blockCanBePlaced(level, blockPos, blockState)) {
-				ChunkAccess chunkAccess = level.getChunk(randomPos);
 				boolean differentBlockAtRandomPos = false;
-				if (chunkAccess instanceof LevelChunk chunk) {
-					BrokenBlocksChunkData data = BrokenBlocksChunkData.getExistingData(chunk);
-					if (data != null && data.wasBlockBroken(randomPos)) {
-						differentBlockAtRandomPos = true;
-					}
+				BrokenBlocksChunkData data = BrokenBlocksChunkData.getChunkData(level, randomPos);
+				if (data != null && data.wasBlockBroken(randomPos)) {
+					differentBlockAtRandomPos = true;
 				}
 				if (!differentBlockAtRandomPos) {
 					blockPos = randomPos;
@@ -488,26 +481,21 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 		Block block = state.getBlock();
 		if (block instanceof FireBlock) return null;
 
-		ChunkAccess chunkAccess = level.getChunk(pos);
-		if (chunkAccess instanceof LevelChunk chunk) {
-			BrokenBlocksChunkData data = BrokenBlocksChunkData.getChunkData(chunk);
-			if (data != null) {
-				return data.saveBrokenBlock(pos, state, tileEntity, drops);
-			}
+		BrokenBlocksChunkData data = BrokenBlocksChunkData.getChunkData(level, pos);
+		if (data != null) {
+			return data.saveBrokenBlock(pos, state, tileEntity, drops);
 		}
 		return null;
 	}
 
 	public static void forgetBrokenBlocks(Level level, Collection<BlockPos> posCollection) {
 		posCollection.stream()
-		.map(pos -> level.getChunk(pos))
+		.map(pos -> BrokenBlocksChunkData.getExistingData(level, pos))
 		.distinct()
-		.forEach(chunkAccess -> {
-			if (chunkAccess instanceof LevelChunk chunk) {
-				BrokenBlocksChunkData data = BrokenBlocksChunkData.getExistingData(chunk);
-				if (data != null) {
-					posCollection.forEach(pos -> data.removeBrokenBlock(pos));
-				}
+		.filter(Objects::nonNull)
+		.forEach(data -> {
+			if (data != null) {
+				posCollection.forEach(pos -> data.removeBrokenBlock(pos));
 			}
 		});
 	}

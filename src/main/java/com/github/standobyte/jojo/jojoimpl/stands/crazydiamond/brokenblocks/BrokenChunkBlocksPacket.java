@@ -13,8 +13,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record BrokenChunkBlocksPacket(Collection<PrevBlockInfo> blocks, boolean reset) implements CustomPacketPayload {
@@ -49,19 +47,16 @@ public record BrokenChunkBlocksPacket(Collection<PrevBlockInfo> blocks, boolean 
 		public void handle(BrokenChunkBlocksPacket payload, IPayloadContext context) {
 			Level world = ClientProxy.getClientWorld();
 			for (PrevBlockInfo block : payload.blocks) {
-				ChunkAccess chunkAccess = world.getChunk(block.pos);
-				if (chunkAccess instanceof LevelChunk chunk) {
-					BrokenBlocksChunkData data = BrokenBlocksChunkData.getChunkData(chunk);
-					if (data != null) {
-						if (payload.reset) {
-							data.reset();
-						}
-						if (block.state != Blocks.AIR.defaultBlockState()) {
-							data.saveBrokenBlock(block.pos, block.state, Optional.empty(), Collections.emptyList());
-						}
-						else {
-							data.removeBrokenBlock(block.pos);
-						}
+				BrokenBlocksChunkData data = BrokenBlocksChunkData.getChunkData(world, block.pos);
+				if (data != null) {
+					if (payload.reset) {
+						data.reset();
+					}
+					if (block.state != Blocks.AIR.defaultBlockState()) {
+						data.saveBrokenBlock(block.pos, block.state, Optional.empty(), Collections.emptyList());
+					}
+					else {
+						data.removeBrokenBlock(block.pos);
 					}
 				}
 			}

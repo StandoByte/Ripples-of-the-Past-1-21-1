@@ -48,6 +48,7 @@
     "itemtracking.track.MerchantResultSlotMixin",
     "itemtracking.rigged.MobEntityLootingMixin",
     
+    "stand.crazyd.LootTableMixin",
     "stand.crazyd.FireBlockMixin",
 	
 	"ProjectileHighSpeedSync",

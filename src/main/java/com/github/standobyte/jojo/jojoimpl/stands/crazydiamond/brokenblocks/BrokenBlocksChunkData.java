@@ -30,6 +30,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -165,15 +166,35 @@ public class BrokenBlocksChunkData {
 		}
 		loadedNBT = true;
 	}
+
 	
+	
+	public static BrokenBlocksChunkData getChunkData(Level level, BlockPos blockPos) {
+		ChunkAccess chunkAccess = level.getChunk(blockPos);
+		if (chunkAccess instanceof LevelChunk chunk) {
+			return chunk.getData(ModDataAttachmentTypes.BROKEN_BLOCKS);
+		}
+		return null;
+	}
 	
 	public static BrokenBlocksChunkData getChunkData(LevelChunk chunk) {
 		return chunk.getData(ModDataAttachmentTypes.BROKEN_BLOCKS);
 	}
 	
+	@Nullable
+	public static BrokenBlocksChunkData getExistingData(Level level, BlockPos blockPos) {
+		ChunkAccess chunkAccess = level.getChunk(blockPos);
+		if (chunkAccess instanceof LevelChunk chunk) {
+			return ComponentUtil.getExistingDataOrNull(chunk, ModDataAttachmentTypes.BROKEN_BLOCKS);
+		}
+		return null;
+	}
+	
+	@Nullable
 	public static BrokenBlocksChunkData getExistingData(LevelChunk chunk) {
 		return ComponentUtil.getExistingDataOrNull(chunk, ModDataAttachmentTypes.BROKEN_BLOCKS);
 	}
+
 
 	@SubscribeEvent
 	public static void onWorldTick(LevelTickEvent.Post event) {
