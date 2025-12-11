@@ -37,6 +37,7 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.jojo.util.mc.XpFormulas;
 
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -346,7 +347,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 
 	private static boolean tryPlaceBlock(Level level, BlockPos blockPos, BlockState blockState, boolean isCreative, boolean randomizePos, 
 			List<ItemStack> restorationCost, int xpCost, @Nullable Player consumeXpFrom, List<ItemStack> itemsSource) {
-		if (xpCost > 0 && (consumeXpFrom == null || consumeXpFrom.totalExperience < xpCost)) {
+		if (!isCreative && xpCost > 0 && (consumeXpFrom == null || XpFormulas.getTotalExperience(consumeXpFrom) < xpCost)) {
 			return false;
 		}
 		if (randomizePos) {
