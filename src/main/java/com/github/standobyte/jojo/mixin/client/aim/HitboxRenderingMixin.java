@@ -43,23 +43,25 @@ public class HitboxRenderingMixin {
 				AABB aabb = p_entity.getBoundingBox().move(-p_entity.getX(), -p_entity.getY(), -p_entity.getZ());
 				AABB precisionAABB = HitResultUtil.standPrecisionTargetHitbox(aabb, ClientGlobals.standPrecision);
 				StandSkin skin = StandSkinsLoader.getInstance().getSkin(ClientGlobals.playerStandEntity);
-				float[] setColor = RGBUtil.rgb(skin.getColor());
-				ActionTarget target = ClientsideAim.standAim.getTarget();
-				if (target.getEntity() == p_entity) {
-					LevelRenderer.renderLineBox(poseStack, buffer, precisionAABB, setColor[0], setColor[1], setColor[2], 1);
-
-					Optional<Vec3> clipPos = target.getClipPos();
-					if (clipPos.isPresent()) {
-						Vec3 point = clipPos.get().subtract(p_entity.getX(), p_entity.getY(), p_entity.getZ());
-						LevelRenderer.renderLineBox(
-								poseStack, buffer,
-								point.x - 0.01, point.y - 0.01, point.z - 0.01,
-								point.x + 0.01, point.y + 0.01, point.z + 0.01,
-								1.0F, 0.0F, 0.0F, 1.0F);
+				if (skin != null) {
+					float[] setColor = RGBUtil.rgb(skin.getColor());
+					ActionTarget target = ClientsideAim.standAim.getTarget();
+					if (target.getEntity() == p_entity) {
+						LevelRenderer.renderLineBox(poseStack, buffer, precisionAABB, setColor[0], setColor[1], setColor[2], 1);
+						
+						Optional<Vec3> clipPos = target.getClipPos();
+						if (clipPos.isPresent()) {
+							Vec3 point = clipPos.get().subtract(p_entity.getX(), p_entity.getY(), p_entity.getZ());
+							LevelRenderer.renderLineBox(
+									poseStack, buffer,
+									point.x - 0.01, point.y - 0.01, point.z - 0.01,
+									point.x + 0.01, point.y + 0.01, point.z + 0.01,
+									1.0F, 0.0F, 0.0F, 1.0F);
+						}
 					}
-				}
-				else {
-					LevelRenderer.renderLineBox(poseStack, buffer, precisionAABB, setColor[0], setColor[1], setColor[2], 0.25f);
+					else {
+						LevelRenderer.renderLineBox(poseStack, buffer, precisionAABB, setColor[0], setColor[1], setColor[2], 0.25f);
+					}
 				}
 			}
 		}
