@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 
 import org.joml.Vector3f;
 
+import com.github.standobyte.jojo.client.entityanim.AnimFramePose.ModelPartFrame;
 import com.github.standobyte.jojo.client.entityanim.action.AnimActionPhase;
 import com.github.standobyte.jojo.client.entityanim.action.AnimInstructionTimelines;
 import com.github.standobyte.jojo.client.entityanim.action.AnimObjTimeline;
@@ -24,7 +25,6 @@ import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.java.OptionalFloat;
 import com.github.standobyte.v1_21_4_stuff.OldPlayerModelJank;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
-import com.github.standobyte.v1_21_4_stuff.missingmethods._PartPose;
 import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
 import com.google.common.collect.Maps;
 
@@ -34,7 +34,6 @@ import net.minecraft.client.animation.Keyframe;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.util.Mth;
 
 public class RotpAnimDefinition {
@@ -56,42 +55,63 @@ public class RotpAnimDefinition {
 	}
 
 
-	public void animate(Model model, LivingEntityRenderState renderState, float seconds, float animSpeed) {
-		Model_1_21_2plus interfaceCast = model instanceof Model_1_21_2plus __ ? __ : null;
-		HumanoidModel<?> humanoidCast = model instanceof HumanoidModel __ ? __ : null;
+	public AnimFramePose calcAnimPose(LivingEntityRenderState renderState, float seconds, float animSpeed) {
+		evaluateQueries(renderState);
+		AnimFramePose frame = AnimFramePose.reused.clear();
+		for (Map.Entry<String, List<AnimationChannel>> entry : boneAnimations.entrySet()) {
+			ModelPartFrame modelPartPose = frame.getForModelPart(entry.getKey());
+			for (AnimationChannel tf : entry.getValue()) {
+				Vector3f vec = calcVec(this, tf, seconds, animSpeed);
+				modelPartPose.set(vec, tf.target());
+			}
+		}
+		return frame;
+	}
+	
+	public static void animate(Model model, AnimFramePose frame) {
+		HumanoidModel<?> humanoidModelCast = model instanceof HumanoidModel __ ? __ : null;
+		Model_1_21_2plus rotpModelCast = model instanceof Model_1_21_2plus __ ? __ : null;
 		HiddenModelParts _withHidden = model instanceof HiddenModelParts __ ? __ : null;
 		
 		if (_withHidden != null) _withHidden.beforeAnim();
-		evaluateQueries(renderState);
-		for (Map.Entry<String, List<AnimationChannel>> entry : boneAnimations.entrySet()) {
-			ModelPart modelPart = getModelPart(entry.getKey(), model, humanoidCast, interfaceCast);
+		
+		for (var modelPartEntry : frame.pose.entrySet()) {
+			String modelPartName = modelPartEntry.getKey();
+			ModelPart modelPart = getModelPart(modelPartName, model, humanoidModelCast, rotpModelCast);
 			if (modelPart != null) {
-				if (_withHidden != null) _withHidden.onAnimate(modelPart);
-				animateModelPart(this, modelPart, entry.getValue(), seconds, animSpeed);
+				modelPartEntry.getValue().apply(modelPart);
 			}
 		}
-		if (humanoidCast != null) {
-			OldPlayerModelJank._onAnimate(humanoidCast);
+		
+		if (humanoidModelCast != null) {
+			OldPlayerModelJank._onAnimate(humanoidModelCast);
 		}
 	}
-
-	@Deprecated
-	public void animateVanillaPlayer(HumanoidModel<?> humanoidModel, LivingEntityRenderState renderState, float seconds, float animSpeed) {
-		animate(humanoidModel, renderState, seconds, animSpeed);
-	}
 	
-	public static ModelPart getModelPart(String animBoneName, Model model, @Nullable HumanoidModel<?> humanoidModelCast, @Nullable Model_1_21_2plus modModelCast) {
+
+	public static ModelPart getModelPart(String animBoneName, Model model, @Nullable HumanoidModel<?> humanoidModelCast, @Nullable Model_1_21_2plus rotpModelCast) {
 		if (humanoidModelCast != null) {
 			ModelPart playerModelPart = PlayerModelBends.getModelPartForPlayerAnim(humanoidModelCast, animBoneName);
 			if (playerModelPart != null) {
 				return playerModelPart;
 			}
 		}
-		if (modModelCast != null) {
-			Optional<ModelPart> modelPart = modModelCast.jojo_ripples$getAnyDescendantWithName(animBoneName);
+		if (rotpModelCast != null) {
+			Optional<ModelPart> modelPart = rotpModelCast.jojo_ripples$getAnyDescendantWithName(animBoneName);
 			if (modelPart.isPresent()) return modelPart.get();
 		}
 		return null;
+	}
+	
+
+	public void animate(Model model, LivingEntityRenderState renderState, float seconds, float animSpeed) {
+		AnimFramePose frame = calcAnimPose(renderState, seconds, animSpeed);
+		animate(model, frame);
+	}
+
+	@Deprecated
+	public void animateVanillaPlayer(HumanoidModel<?> humanoidModel, LivingEntityRenderState renderState, float seconds, float animSpeed) {
+		animate(humanoidModel, renderState, seconds, animSpeed);
 	}
 	
 	
@@ -186,14 +206,6 @@ public class RotpAnimDefinition {
 		return time;
 	}
 	
-	
-	public static void animateModelPart(RotpAnimDefinition anim, @Nonnull ModelPart modelPart, List<AnimationChannel> transformations, float seconds, float animSpeed) {
-		if (!modelPart.visible) return;
-		for (AnimationChannel tf : transformations) {
-			Vector3f vec = calcVec(anim, tf, seconds, animSpeed);
-			setTargetValue(modelPart, vec, tf.target());
-		}
-	}
 
 	protected static final Vector3f TEMP = new Vector3f();
 	
@@ -221,31 +233,6 @@ public class RotpAnimDefinition {
 		float k = j != i ? Mth.clamp(h / (keyframe2.timestamp() - keyframe.timestamp()), 0.0f, 1.0f) : 0.0f;
 		keyframe2.interpolation().apply(TEMP, k, keyframes, i, j, animSpeed);
 		return TEMP;
-	}
-	
-	public static void setTargetValue(ModelPart modelPart, Vector3f value, AnimationChannel.Target target) {
-		resetChannel(modelPart, target);
-		target.apply(modelPart, value);
-	}
-	
-	public static void resetChannel(ModelPart modelPart, AnimationChannel.Target target) {
-		PartPose initialPose = modelPart.getInitialPose();
-		// this ain't an enum
-		if (target == AnimationChannel.Targets.ROTATION) {
-			modelPart.xRot = initialPose.xRot;
-			modelPart.yRot = initialPose.yRot;
-			modelPart.zRot = initialPose.zRot;
-		}
-		else if (target == AnimationChannel.Targets.POSITION) {
-			modelPart.x = initialPose.x;
-			modelPart.y = initialPose.y;
-			modelPart.z = initialPose.z;
-		}
-		else if (target == AnimationChannel.Targets.SCALE) {
-			modelPart.xScale = _PartPose.xScale(initialPose);
-			modelPart.yScale = _PartPose.yScale(initialPose);
-			modelPart.zScale = _PartPose.zScale(initialPose);
-		}
 	}
 	
 	
