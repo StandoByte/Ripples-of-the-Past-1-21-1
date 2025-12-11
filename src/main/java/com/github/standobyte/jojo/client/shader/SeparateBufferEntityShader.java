@@ -57,7 +57,7 @@ public class SeparateBufferEntityShader {
 	
 	protected void createBufferSource(Minecraft mc, RenderBuffers vanillaRenderBuffers) {
 		RenderStateShard modification = renderTypeModification();
-		SequencedMap<RenderType, ByteBufferBuilder> fixedBuffers;// = new Object2ObjectLinkedOpenHashMap<>();
+		SequencedMap<RenderType, ByteBufferBuilder> fixedBuffers;
 		fixedBuffers = ClientReflection.getFixedBuffers(vanillaRenderBuffers.bufferSource());
 		bufferSource = new CustomMultiBufferSource(
 				new ByteBufferBuilder(786432), 

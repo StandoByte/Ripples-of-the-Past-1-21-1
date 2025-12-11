@@ -11,9 +11,11 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModBlockEntities;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDRestoreTerrainAbility;
+import com.github.standobyte.jojo.util.entitycomponent.ComponentUtil;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -29,8 +31,12 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+@EventBusSubscriber(modid = JojoMod.MOD_ID)
 public class BrokenBlocksChunkData {
 	public final LevelChunk chunk;
 
@@ -104,7 +110,7 @@ public class BrokenBlocksChunkData {
 			}
 
 			if (!blocksToSync.isEmpty()) {
-				PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, chunk.getPos(), new BrokenChunkBlocksPacket(blocksToSync, false));
+				PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, chunk.getPos(), new BrokenChunkBlocksPacket(new ArrayList<>(blocksToSync), false));
 				blocksToSync.clear();
 //				syncedTo = ((ServerChunkProvider) chunk.getLevel().getChunkSource()).chunkMap.getPlayers(chunk.getPos(), false)
 //						.collect(Collectors.toSet());
@@ -163,5 +169,23 @@ public class BrokenBlocksChunkData {
 	
 	public static BrokenBlocksChunkData getChunkData(LevelChunk chunk) {
 		return chunk.getData(ModDataAttachmentTypes.BROKEN_BLOCKS);
+	}
+	
+	public static BrokenBlocksChunkData getExistingData(LevelChunk chunk) {
+		return ComponentUtil.getExistingDataOrNull(chunk, ModDataAttachmentTypes.BROKEN_BLOCKS);
+	}
+
+	@SubscribeEvent
+	public static void onWorldTick(LevelTickEvent.Post event) {
+		Level level = event.getLevel();
+		if (!level.isClientSide()) {
+			((ServerLevel) level).getChunkSource().chunkMap.getChunks().forEach(chunkHolder -> {
+				LevelChunk chunk = chunkHolder.getTickingChunk();
+				if (chunk != null) {
+					BrokenBlocksChunkData data = getExistingData(chunk);
+					if (data != null) data.tick();
+				}
+			});
+		}
 	}
 }

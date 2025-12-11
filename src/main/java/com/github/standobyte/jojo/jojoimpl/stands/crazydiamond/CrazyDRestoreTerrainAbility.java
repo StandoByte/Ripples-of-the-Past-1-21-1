@@ -329,7 +329,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 			if (level.isEmptyBlock(blockBelow)) {
 				ChunkAccess chunkAccess = level.getChunk(block.pos);
 				if (chunkAccess instanceof LevelChunk chunk) {
-					BrokenBlocksChunkData data = BrokenBlocksChunkData.getChunkData(chunk);
+					BrokenBlocksChunkData data = BrokenBlocksChunkData.getExistingData(chunk);
 					if (data != null && data.getBrokenBlocks().anyMatch(brokenBlock -> blockBelow.equals(brokenBlock.pos))) {
 						return true;
 					}
@@ -362,7 +362,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 				ChunkAccess chunkAccess = level.getChunk(randomPos);
 				boolean differentBlockAtRandomPos = false;
 				if (chunkAccess instanceof LevelChunk chunk) {
-					BrokenBlocksChunkData data = BrokenBlocksChunkData.getChunkData(chunk);
+					BrokenBlocksChunkData data = BrokenBlocksChunkData.getExistingData(chunk);
 					if (data != null && data.wasBlockBroken(randomPos)) {
 						differentBlockAtRandomPos = true;
 					}
@@ -504,7 +504,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 		.distinct()
 		.forEach(chunkAccess -> {
 			if (chunkAccess instanceof LevelChunk chunk) {
-				BrokenBlocksChunkData data = BrokenBlocksChunkData.getChunkData(chunk);
+				BrokenBlocksChunkData data = BrokenBlocksChunkData.getExistingData(chunk);
 				if (data != null) {
 					posCollection.forEach(pos -> data.removeBrokenBlock(pos));
 				}
@@ -529,7 +529,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 			}
 		}
 		Stream<PrevBlockInfo> stream = builder.build().flatMap(chunk -> {
-			BrokenBlocksChunkData data = BrokenBlocksChunkData.getChunkData(chunk);
+			BrokenBlocksChunkData data = BrokenBlocksChunkData.getExistingData(chunk);
 			if (data != null) {
 				return data.getBrokenBlocks().filter(block -> {
 					return block.pos.distManhattan(center) <= blockRange && !user.getBoundingBox().intersects(new AABB(block.pos))

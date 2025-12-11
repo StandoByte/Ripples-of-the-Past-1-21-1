@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.PacketsRegister;
-import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.util.network.NetworkUtil;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -48,23 +47,20 @@ public record BrokenChunkBlocksPacket(Collection<PrevBlockInfo> blocks, boolean 
 
 		@Override
 		public void handle(BrokenChunkBlocksPacket payload, IPayloadContext context) {
-			StandPower power = StandPower.get(ClientProxy.getClientPlayer());
-			if (power != null) {
-				Level world = ClientProxy.getClientWorld();
-				for (PrevBlockInfo block : payload.blocks) {
-					ChunkAccess chunkAccess = world.getChunk(block.pos);
-					if (chunkAccess instanceof LevelChunk chunk) {
-						BrokenBlocksChunkData data = BrokenBlocksChunkData.getChunkData(chunk);
-						if (data != null) {
-							if (payload.reset) {
-								data.reset();
-							}
-							if (block.state != Blocks.AIR.defaultBlockState()) {
-								data.saveBrokenBlock(block.pos, block.state, Optional.empty(), Collections.emptyList());
-							}
-							else {
-								data.removeBrokenBlock(block.pos);
-							}
+			Level world = ClientProxy.getClientWorld();
+			for (PrevBlockInfo block : payload.blocks) {
+				ChunkAccess chunkAccess = world.getChunk(block.pos);
+				if (chunkAccess instanceof LevelChunk chunk) {
+					BrokenBlocksChunkData data = BrokenBlocksChunkData.getChunkData(chunk);
+					if (data != null) {
+						if (payload.reset) {
+							data.reset();
+						}
+						if (block.state != Blocks.AIR.defaultBlockState()) {
+							data.saveBrokenBlock(block.pos, block.state, Optional.empty(), Collections.emptyList());
+						}
+						else {
+							data.removeBrokenBlock(block.pos);
 						}
 					}
 				}

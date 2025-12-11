@@ -217,9 +217,6 @@ public class NetworkUtil {
 			T element = iter.next();
 			writer.encode(buf, element);
 			i++;
-//			if (removeWrittenFromCollection) {
-//				iter.remove();
-//			}
 			int writerIndex = buf.writerIndex();
 			maxElemSize = Math.max(maxElemSize, writerIndex - lastWriterIndex);
 			lastWriterIndex = writerIndex;
