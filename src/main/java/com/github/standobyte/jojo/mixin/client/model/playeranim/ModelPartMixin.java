@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mixin.client.playeranim;
+package com.github.standobyte.jojo.mixin.client.model.playeranim;
 
 import java.util.List;
 import java.util.Map;

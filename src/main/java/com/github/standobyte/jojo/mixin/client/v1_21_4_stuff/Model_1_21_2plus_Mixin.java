@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.spongepowered.asm.mixin.Mixin;
 
-import com.github.standobyte.jojo.mixin.client.ModelAnimOptimization;
+import com.github.standobyte.jojo.mixin.client.model.ModelAnimOptimization;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 
 import net.minecraft.client.model.EntityModel;

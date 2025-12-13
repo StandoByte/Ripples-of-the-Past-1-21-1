@@ -20,6 +20,8 @@ import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery;
 import com.github.standobyte.jojo.client.entityanim.molang.KeyframeQuery;
 import com.github.standobyte.jojo.client.entityanim.playerbend.PlayerModelBends;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
+import com.github.standobyte.jojo.client.entityrender.HiddenModelPartsUtil;
+import com.github.standobyte.jojo.client.entityrender.ModelWithExtraFeatures;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.java.OptionalFloat;
@@ -70,16 +72,14 @@ public class RotpAnimDefinition {
 	
 	public static void animate(Model model, AnimFramePose frame) {
 		HumanoidModel<?> humanoidModelCast = model instanceof HumanoidModel __ ? __ : null;
-		Model_1_21_2plus rotpModelCast = model instanceof Model_1_21_2plus __ ? __ : null;
-		HiddenModelParts _withHidden = model instanceof HiddenModelParts __ ? __ : null;
+		Model_1_21_2plus backportModelCast = (Model_1_21_2plus) model;
+		ModelWithExtraFeatures rotpModelCast = (ModelWithExtraFeatures) model;
 		
 		for (var modelPartEntry : frame.pose.entrySet()) {
 			String modelPartName = modelPartEntry.getKey();
-			ModelPart modelPart = getModelPart(modelPartName, model, humanoidModelCast, rotpModelCast);
+			ModelPart modelPart = getModelPart(modelPartName, model, humanoidModelCast, backportModelCast);
 			if (modelPart != null) {
-				if (_withHidden != null) {
-					_withHidden.onAnimate(modelPart);
-				}
+				HiddenModelPartsUtil.onAnimate(rotpModelCast, modelPart);
 				modelPartEntry.getValue().apply(modelPart);
 			}
 		}

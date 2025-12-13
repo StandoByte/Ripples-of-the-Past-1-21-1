@@ -9,6 +9,5 @@ import javax.annotation.Nullable;
 import net.minecraft.client.model.geom.ModelPart;
 
 public interface NamedModelParts {
-	@Nullable
-	Iterator<Map.Entry<String, Optional<ModelPart>>> jojo_ripples$getAllNamedParts();
+	@Nullable Iterator<Map.Entry<String, Optional<ModelPart>>> jojo_ripples$getAllNamedParts();
 }

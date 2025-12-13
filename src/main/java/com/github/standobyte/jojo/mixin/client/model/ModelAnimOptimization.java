@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mixin.client;
+package com.github.standobyte.jojo.mixin.client.model;
 
 import java.util.Iterator;
 import java.util.Map;
