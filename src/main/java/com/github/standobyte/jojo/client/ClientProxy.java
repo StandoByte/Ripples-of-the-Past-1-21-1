@@ -34,8 +34,8 @@ public final class ClientProxy {
 		return ((ClientLevel) level).entitiesForRendering();
 	}
 	
-	public static void openScreen(Screen screen) {
-		Minecraft.getInstance().setScreen(screen);
+	public static void openScreen(Object screen) {
+		Minecraft.getInstance().setScreen((Screen) screen);
 	}
 	
 }
