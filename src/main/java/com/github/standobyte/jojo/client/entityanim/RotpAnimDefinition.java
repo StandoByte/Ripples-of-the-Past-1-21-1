@@ -73,12 +73,13 @@ public class RotpAnimDefinition {
 		Model_1_21_2plus rotpModelCast = model instanceof Model_1_21_2plus __ ? __ : null;
 		HiddenModelParts _withHidden = model instanceof HiddenModelParts __ ? __ : null;
 		
-		if (_withHidden != null) _withHidden.beforeAnim();
-		
 		for (var modelPartEntry : frame.pose.entrySet()) {
 			String modelPartName = modelPartEntry.getKey();
 			ModelPart modelPart = getModelPart(modelPartName, model, humanoidModelCast, rotpModelCast);
 			if (modelPart != null) {
+				if (_withHidden != null) {
+					_withHidden.onAnimate(modelPart);
+				}
 				modelPartEntry.getValue().apply(modelPart);
 			}
 		}

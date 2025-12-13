@@ -25,7 +25,7 @@ public interface HiddenModelParts {
 		}
 	}
 
-	default void beforeAnim() {
+	default void reset() {
 		for (ModelPart modelPart : getInitiallyHidden()) {
 			modelPart.visible = false;
 		}

@@ -15,7 +15,14 @@ public enum HumanoidPart {
 	public static final HumanoidPart[] RIGHT_ARM_ONLY = new HumanoidPart[] { RIGHT_ARM };
 	
 	public static void setPartsVisible(StandEntityModel<?, ?> model, HumanoidPart... parts) {
-		model.setAllVisible(true);
+		StandEntityModel.setVisible(model.head, true);
+		StandEntityModel.setVisible(model.torso_no_arms, true);
+		StandEntityModel.setVisible(model.torso_lower, true);
+		StandEntityModel.setVisible(model.left_arm, true);
+		StandEntityModel.setVisible(model.right_arm, true);
+		StandEntityModel.setVisible(model.left_leg, true);
+		StandEntityModel.setVisible(model.right_leg, true);
+		
 		byte mask = 0;
 		for (HumanoidPart part : parts) {
 			mask |= (1 << part.ordinal());
