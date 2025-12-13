@@ -14720,7 +14720,7 @@
 						}
 					}
 				},
-				"hidden#finger": {
+				"hidden.finger": {
 					"rotation": {
 						"vector": [0, 0, "-query.head_x_rotation"]
 					},

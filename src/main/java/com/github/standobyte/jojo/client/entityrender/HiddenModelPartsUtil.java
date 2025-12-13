@@ -8,7 +8,7 @@ import net.minecraft.client.model.geom.ModelPart;
 public abstract class HiddenModelPartsUtil {
 	private HiddenModelPartsUtil() {}
 	
-	public static final String HIDDEN_PREFIX = "hidden#";
+	public static final String HIDDEN_PREFIX = "hidden.";
 	
 	public static void initHiddenParts(Model model) {
 		var modelParts = ((NamedModelParts) model).jojo_ripples$getAllNamedParts();
