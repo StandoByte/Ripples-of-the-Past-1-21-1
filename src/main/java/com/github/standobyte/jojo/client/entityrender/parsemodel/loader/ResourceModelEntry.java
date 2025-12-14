@@ -44,6 +44,11 @@ public class ResourceModelEntry {
 		M modelFromResource = (M) this.getModel(this.modelConstructor);
 		return modelFromResource;
 	}
+	
+	@Nullable
+	public <M extends Model> M getModel() {
+		return (M) this.getModel(this.modelConstructor);
+	}
 
 	@ApiStatus.Internal
 	public <M extends Model> M getModel(Function<LayerDefinition, M> modelConstructor) {

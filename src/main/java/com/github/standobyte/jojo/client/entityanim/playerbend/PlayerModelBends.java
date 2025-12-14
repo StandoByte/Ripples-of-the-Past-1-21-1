@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.entityanim.playerbend;
 
+import javax.annotation.Nullable;
+
 import org.jetbrains.annotations.ApiStatus;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -19,8 +21,7 @@ import net.minecraft.world.entity.HumanoidArm;
 
 // TODO (entity animation) fix model bends with smaller child cubes
 // TODO (entity animation) fix model bends with StuckInBodyLayer
-// TODO (entity animation) item holding position/rotation
-// TODO (entity animation) parent xrot bones for limbs?
+// TODO (entity animation) parent xrot bones for limbs
 public class PlayerModelBends {
 	
 	public static float getLimbHeight(ModelPart limb) {
@@ -31,6 +32,7 @@ public class PlayerModelBends {
 		return cube.maxY - cube.minY;
 	}
 	
+	@Nullable
 	public static ModelPart getModelPartForPlayerAnim(HumanoidModel<?> playerModel, String animBoneName) {
 		return switch (animBoneName) {
 			case "body" -> 				((IPlayerBendModel) playerModel).jojo_ripples$animMainBody();
@@ -162,10 +164,17 @@ public class PlayerModelBends {
 			}
 		}
 		
-		// TODO (player anim) child elements with limb bends (clothes, stands)
 		for (ModelPart modelpart : limb.children.values()) {
+			if (modelpart != bend) {
+				modelpart.render(poseStack, buffer, packedLight, packedOverlay, color);
+			}
+		}
+		poseStack.pushPose();
+		bend.translateAndRotate(poseStack);
+		for (ModelPart modelpart : bend.children.values()) {
 			modelpart.render(poseStack, buffer, packedLight, packedOverlay, color);
 		}
+		poseStack.popPose();
 	}
 	
 	// FIXME (player anim) use the main cube height (12 in case of players) instead of the individual cube heights for bending

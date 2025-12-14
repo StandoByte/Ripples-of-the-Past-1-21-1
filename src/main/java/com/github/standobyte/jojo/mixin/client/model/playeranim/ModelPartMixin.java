@@ -54,17 +54,20 @@ public class ModelPartMixin implements IPlayerLimbBend {
 	}
 	
 	public void jojo_ripples$setBendBone(ModelPart bendBone, float bendOffsetX, float bendOffsetY, float bendOffsetZ, boolean invertBend) {
+		if ((Object) bendBone == this) throw new IllegalArgumentException();
 		this.jojo_ripples$bendBone = bendBone;
 		this.jojo_ripples$bendOffsetX = bendOffsetX;
 		this.jojo_ripples$bendOffsetY = bendOffsetY;
 		this.jojo_ripples$bendOffsetZ = bendOffsetZ;
 		this.jojo_ripples$invertBend = invertBend;
 		for (ModelPart modelPart : children.values()) {
-			((ModelPartMixin) (Object) modelPart).jojo_ripples$setBendBone(bendBone, 
-					bendOffsetX - this.initialPose.x, 
-					bendOffsetY - this.initialPose.y, 
-					bendOffsetZ - this.initialPose.z, 
-					invertBend);
+			if (modelPart != bendBone) {
+				((ModelPartMixin) (Object) modelPart).jojo_ripples$setBendBone(bendBone, 
+						bendOffsetX - this.initialPose.x, 
+						bendOffsetY - this.initialPose.y, 
+						bendOffsetZ - this.initialPose.z, 
+						invertBend);
+			}
 		}
 	}
 	

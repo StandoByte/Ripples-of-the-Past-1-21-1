@@ -23,6 +23,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.renderer.RenderType;
@@ -65,26 +66,73 @@ public abstract class HumanoidModelMixin/* extends ModelMixinSuperclass*/ extend
 		float leftItemPos = (leftArmLength - leftArmLengthUpper) - 2.25f;		// 3.75
 		float rightItemPos = (rightArmLength - rightArmLengthUpper) - 2.25f;	// 3.75
 		
-		jojo_ripples$animMainBody = new ModelPart(ImmutableList.of(), ImmutableMap.of());
-		jojo_ripples$animMainBody.setInitialPose(PartPose.offset(0, legLength, 0));
-		jojo_ripples$animTorsoBend = new ModelPart(ImmutableList.of(), ImmutableMap.of());
-		jojo_ripples$animTorsoBend.setInitialPose(PartPose.offset(0, (torsoLength - torsoLengthUpper), 0));
-		jojo_ripples$animTorso = new ModelPart(ImmutableList.of(), ImmutableMap.of());
-		jojo_ripples$animTorso.setInitialPose(PartPose.offset(0, torsoLengthUpper, 0));
-		jojo_ripples$animRightArmBend = new ModelPart(ImmutableList.of(), ImmutableMap.of());
-		jojo_ripples$animRightArmBend.setInitialPose(PartPose.offset(0, rightArmLengthUpper - rightArmPos, 0));
-		jojo_ripples$animLeftArmBend = new ModelPart(ImmutableList.of(), ImmutableMap.of());
-		jojo_ripples$animLeftArmBend.setInitialPose(PartPose.offset(0, leftArmLengthUpper - leftArmPos, 0));
-		jojo_ripples$animRightLegBend = new ModelPart(ImmutableList.of(), ImmutableMap.of());
-		jojo_ripples$animRightLegBend.setInitialPose(PartPose.offset(0, legLengthUpper, 0));
-		jojo_ripples$animLeftLegBend = new ModelPart(ImmutableList.of(), ImmutableMap.of());
-		jojo_ripples$animLeftLegBend.setInitialPose(PartPose.offset(0, legLengthUpper, 0));
-		jojo_ripples$animRightItem = new ModelPart(ImmutableList.of(), ImmutableMap.of());
-		jojo_ripples$animRightItem.setInitialPose(PartPose.offset(0, rightItemPos, 2));
-		jojo_ripples$animLeftItem = new ModelPart(ImmutableList.of(), ImmutableMap.of());
-		jojo_ripples$animLeftItem.setInitialPose(PartPose.offset(0, leftItemPos, 2));
-		jojo_ripples$animCapeBend = new ModelPart(ImmutableList.of(), ImmutableMap.of());
-		jojo_ripples$animCapeBend.setInitialPose(PartPose.offset(0, torsoLengthUpper, 0));
+		HumanoidModel<?> humanoid = (HumanoidModel<?>) (Model) this;
+		
+		if (!root.children.containsKey("head")) {
+			jojo_ripples$animMainBody = root.children.get("body");
+		}
+		if (jojo_ripples$animMainBody == null) {
+			jojo_ripples$animMainBody = new ModelPart(ImmutableList.of(), ImmutableMap.of());
+			jojo_ripples$animMainBody.setInitialPose(PartPose.offset(0, legLength, 0));
+		}
+
+		jojo_ripples$animTorso = jojo_ripples$animMainBody.children.get("torso");
+		if (jojo_ripples$animTorso == null) {
+			jojo_ripples$animTorso = new ModelPart(ImmutableList.of(), ImmutableMap.of());
+			jojo_ripples$animTorso.setInitialPose(PartPose.offset(0, torsoLengthUpper, 0));
+		}
+		
+		jojo_ripples$animTorsoBend = jojo_ripples$animTorso.children.get("torso_bend");
+		if (jojo_ripples$animTorsoBend == null) {
+			jojo_ripples$animTorsoBend = new ModelPart(ImmutableList.of(), ImmutableMap.of());
+			jojo_ripples$animTorsoBend.setInitialPose(PartPose.offset(0, (torsoLength - torsoLengthUpper), 0));
+		}
+
+		jojo_ripples$animRightArmBend = humanoid.rightArm.children.get("right_arm_bend");
+		if (jojo_ripples$animRightArmBend == null) {
+			jojo_ripples$animRightArmBend = new ModelPart(ImmutableList.of(), ImmutableMap.of());
+			jojo_ripples$animRightArmBend.setInitialPose(PartPose.offset(0, rightArmLengthUpper - rightArmPos, 0));
+		}
+
+		jojo_ripples$animLeftArmBend = humanoid.leftArm.children.get("left_arm_bend");
+		if (jojo_ripples$animLeftArmBend == null) {
+			jojo_ripples$animLeftArmBend = new ModelPart(ImmutableList.of(), ImmutableMap.of());
+			jojo_ripples$animLeftArmBend.setInitialPose(PartPose.offset(0, leftArmLengthUpper - leftArmPos, 0));
+		}
+
+		jojo_ripples$animRightLegBend = humanoid.rightLeg.children.get("right_leg_bend");
+		if (jojo_ripples$animRightLegBend == null) {
+			jojo_ripples$animRightLegBend = new ModelPart(ImmutableList.of(), ImmutableMap.of());
+			jojo_ripples$animRightLegBend.setInitialPose(PartPose.offset(0, legLengthUpper, 0));
+		}
+
+		jojo_ripples$animLeftLegBend = humanoid.leftLeg.children.get("left_leg_bend");
+		if (jojo_ripples$animLeftLegBend == null) {
+			jojo_ripples$animLeftLegBend = new ModelPart(ImmutableList.of(), ImmutableMap.of());
+			jojo_ripples$animLeftLegBend.setInitialPose(PartPose.offset(0, legLengthUpper, 0));
+		}
+
+		jojo_ripples$animRightItem = jojo_ripples$animRightArmBend.children.get("rightItem");
+		if (jojo_ripples$animRightItem == null) {
+			jojo_ripples$animRightItem = new ModelPart(ImmutableList.of(), ImmutableMap.of());
+			jojo_ripples$animRightItem.setInitialPose(PartPose.offset(0, rightItemPos, 2));
+		}
+
+		jojo_ripples$animLeftItem = jojo_ripples$animLeftArmBend.children.get("leftItem");
+		if (jojo_ripples$animLeftItem == null) {
+			jojo_ripples$animLeftItem = new ModelPart(ImmutableList.of(), ImmutableMap.of());
+			jojo_ripples$animLeftItem.setInitialPose(PartPose.offset(0, leftItemPos, 2));
+		}
+
+		ModelPart cape = jojo_ripples$animTorsoBend.children.get("cape");
+		if (cape != null) {
+			jojo_ripples$animCapeBend = cape.children.get("cape_bend");
+		}
+		if (jojo_ripples$animCapeBend == null) {
+			jojo_ripples$animCapeBend = new ModelPart(ImmutableList.of(), ImmutableMap.of());
+			jojo_ripples$animCapeBend.setInitialPose(PartPose.offset(0, torsoLengthUpper, 0));
+		}
+
 		((IPlayerLimbBend) (Object) body).jojo_ripples$setBendBone(jojo_ripples$animTorsoBend, true);
 		((IPlayerLimbBend) (Object) rightArm).jojo_ripples$setBendBone(jojo_ripples$animRightArmBend, false);
 		((IPlayerLimbBend) (Object) leftArm).jojo_ripples$setBendBone(jojo_ripples$animLeftArmBend, false);

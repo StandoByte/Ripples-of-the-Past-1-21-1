@@ -21,7 +21,7 @@ public class HumanoidPlayerModel<T extends LivingEntity> extends HumanoidModel<T
 	public ModelPart leftArmSlim;
 	
 	protected static String[] BASE_HUMANOID_PARTS = new String[] { "head", "body", "right_arm", "left_arm", "right_leg", "left_leg", "right_arm_slim", "left_arm_slim" };
-	public static ModelPart addMissingHumanoid(ModelPart root) {
+	public static ModelPart addMissingBoneDefinitions(ModelPart root) {
 		for (String basePartName : BASE_HUMANOID_PARTS) {
 			root.children.putIfAbsent(basePartName, new ModelPart(new ArrayList<>(), new HashMap<>()));
 		}
@@ -31,7 +31,7 @@ public class HumanoidPlayerModel<T extends LivingEntity> extends HumanoidModel<T
 	}
 
 	public HumanoidPlayerModel(ModelPart root) {
-		super(addMissingHumanoid(root));
+		super(addMissingBoneDefinitions(root));
 		this.rightArmSlim = root.getChild("right_arm_slim");
 		this.leftArmSlim = root.getChild("left_arm_slim");
 		IPlayerBendModel thisBends = (IPlayerBendModel) this;
