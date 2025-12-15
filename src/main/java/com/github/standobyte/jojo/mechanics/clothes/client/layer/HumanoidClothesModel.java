@@ -14,11 +14,12 @@ import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.LivingEntity;
 
 // TODO (clothes) fix the model z-fighting
 // FIXME model bend on left leg
 // WHY IS IT ONLY LEFT LEG SPECIFICALLY FOR BOTH????
-public class HumanoidClothesModel extends HumanoidPlayerModel/*<HumanoidRenderState>*/ {
+public class HumanoidClothesModel extends HumanoidPlayerModel<LivingEntity>/*<HumanoidRenderState>*/ {
 	private Map<ClothesSlotType, List<ModelPart>> byClothesPart = new EnumMap<>(ClothesSlotType.class);
 
 	@ApiStatus.Internal

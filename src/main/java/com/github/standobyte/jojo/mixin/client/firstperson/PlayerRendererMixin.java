@@ -38,13 +38,13 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
 	private void jojo_ripples$hideOuterLayer(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, 
 			AbstractClientPlayer player, ModelPart rendererArm, ModelPart rendererArmwear, CallbackInfo ci) {
 		ExtractRSExtensionManually.extractClothes(player);
-		HumanoidClothesLayer.disablePlayerOuterLayer((PlayerRenderer) (LivingEntityRenderer) this, HumanoidClothesRSExtension.getCurRenderData());
+		HumanoidClothesLayer.disablePlayerOuterLayer((PlayerRenderer) (LivingEntityRenderer<?, ?>) this, HumanoidClothesRSExtension.getCurRenderData());
 	}
 
 	@Inject(method = "renderHand", at = @At("TAIL"))
 	private void jojo_ripples$afterRenderHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, 
 			AbstractClientPlayer player, ModelPart rendererArm, ModelPart rendererArmwear, CallbackInfo ci) {
-		HumanoidArm side = rendererArm == ((HumanoidModel) model).leftArm ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
+		HumanoidArm side = rendererArm == ((HumanoidModel<?>) model).leftArm ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
 		FirstPersonRender.renderLayers(this, player, poseStack, buffer, combinedLight, side);
 	}
 }

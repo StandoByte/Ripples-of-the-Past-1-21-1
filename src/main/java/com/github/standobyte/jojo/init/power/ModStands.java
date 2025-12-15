@@ -15,7 +15,7 @@ import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-// XXX test the stand datapack configs
+// XXX (data-driven stands) test the stand datapack configs
 // XXX add a way to ban hardcoded stands
 public class ModStands {
 	public static final DeferredRegister<StandType> DEFAULT_STANDS = DeferredRegister.create(JojoRegistries.DEFAULT_STANDS_REG, JojoMod.MOD_ID);

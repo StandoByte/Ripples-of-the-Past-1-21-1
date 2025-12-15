@@ -26,7 +26,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class BleedingEffect extends RotpStatusEffect implements StatusEffectApplicable {
-	private static final float HP_REDUCTION = 4;
+	public static final float HP_REDUCTION = 4;
 	public static final UUID ATTRIBUTE_MODIFIER_ID = UUID.fromString("1588be77-b81b-4eb0-a745-a8912de51e72");
 
 	public BleedingEffect(MobEffectCategory type, int liquidColor) {
@@ -231,7 +231,7 @@ public class BleedingEffect extends RotpStatusEffect implements StatusEffectAppl
 //
 //	private static void applyMaskEffect(LivingEntity entity, ItemStack headStack) {
 //		entity.level().playSound(null, entity, ModSoundEvents.STONE_MASK_ACTIVATION_ENTITY.get(), entity.getSoundSource(), 1.0F, 1.0F);
-//		StoneMaskItem.setActivatedArmorTexture(headStack); // XXX light beams on stone mask activation
+//		StoneMaskItem.setActivatedArmorTexture(headStack); // note: add light beams on stone mask activation
 //		headStack.hurtAndBreak(1, entity, stack -> {});
 //	}
 }

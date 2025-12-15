@@ -24,7 +24,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
-// XXX tick the unlocked abilities (passives are also abilities that aren't in the HUD)
 public class Ability {
 	public final AbilityType<?> abilityType;
 	public final AbilityId abilityId;

@@ -44,7 +44,7 @@ public abstract class PowerType implements JsonConfigurable {
 		return json;
 	}
 	
-	// TODO control scheme in data-driven stands
+	// XXX (data-driven stands) control scheme in data-driven stands
 	@Override
 	public void applyConfig(JsonElement json) {
 		JsonObject config = json.getAsJsonObject();

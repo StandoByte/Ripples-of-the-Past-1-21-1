@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import net.minecraft.network.chat.Component;
 
+// XXX tick the unlocked stand skills
 public abstract class UnlockableSkill {
 	public final String skillName;
 	public List<String> prerequisiteSkills;

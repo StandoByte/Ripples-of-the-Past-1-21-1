@@ -534,7 +534,7 @@ public class StandSkinsLoader implements PreparableReloadListener {
 		this.skins.clear();
 		for (var skinBuilder : preps.skinsRead.values()) {
 			if (skinBuilder.isValidSkin(JojoMod.getLogger())) {
-				// TODO move the makeSkin call to prepare?
+				// XXX move the makeSkin call to prepare?
 				StandSkin skin = skinBuilder.makeSkin();
 				this.skins.computeIfAbsent(skinBuilder.standId, __ -> new HashMap<>()).put(skinBuilder.skinId, skin);
 				if (skin.skinId.equals(skinBuilder.standId)) {

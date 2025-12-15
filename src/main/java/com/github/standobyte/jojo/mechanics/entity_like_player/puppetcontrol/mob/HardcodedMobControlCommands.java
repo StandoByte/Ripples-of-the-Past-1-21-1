@@ -47,10 +47,10 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-// TODO (mob controller) sync all status effects of the mob to the controller player
-// TODO (mob controller) make witch not drink potions instinctively on its own
-// TODO (mob controller) make mobs not avoid liquids instinctively
-// TODO (mob controller) ...there's a lot of other stuff
+// XXX (mob controller) sync all status effects of the mob to the controller player
+// XXX (mob controller) make witch not drink potions instinctively on its own
+// XXX (mob controller) make mobs not avoid liquids instinctively
+// XXX (mob controller) ...there's a lot of other stuff
 public class HardcodedMobControlCommands {
 	
 	public enum CommandType {
@@ -208,7 +208,7 @@ public class HardcodedMobControlCommands {
 				for (InteractionHand hand : InteractionHand.values()) {
 					ItemStack item = mob.getItemInHand(hand);
 					if (!item.isEmpty()) {
-						// TODO (mob controller) make witch not drink splash potions
+						// XXX (mob controller) make witch not drink splash potions
 						mob.startUsingItem(hand);
 						if (mob.isUsingItem()) {
 							break;
@@ -302,6 +302,7 @@ public class HardcodedMobControlCommands {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Nullable
 	public static <T extends Goal> T getMobAIGoal(Mob mob, Class<T> goalClass) {
 		Set<WrappedGoal> availableAIGoals = mob.goalSelector.getAvailableGoals();

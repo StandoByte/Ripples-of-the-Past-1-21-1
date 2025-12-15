@@ -338,7 +338,7 @@ public class ClientMobController extends ClientEntityController {
 			}
 		}
 		
-		// TODO set them on the client side too, to account for server lag
+		// XXX set them on the client side too, to account for server lag
 		// make sure that the right click will use the correct potion, similarly to net.minecraft.client.multiplayer.MultiPlayerGameMode#ensureHasSentCarriedItem()
 		public void setSelectedSlot(Integer slot) {
 			this.hotbarSlot = slot;

@@ -123,7 +123,6 @@ public class EntityClothesInventory implements Container, SynchronizablePlayerDa
 		}
 	}
 
-	// XXX (clothes) attributes
 	protected void onOldItemRemoved(ClothesSlotType slot, ItemStack oldItem, LivingEntity entity, ServerLevel serverLevel) {
 //		AttributeMap attributeMap = entity.getAttributes();
 //		oldItem.forEachModifier(slot, (attribute, modifier) -> {

@@ -11,6 +11,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.AgeableListModel;
 import net.minecraft.client.model.EntityModel;
 
+@SuppressWarnings("rawtypes")
 @Mixin(AgeableListModel.class)
 public abstract class AgeableModelMixinSuperclass extends EntityModel {
 

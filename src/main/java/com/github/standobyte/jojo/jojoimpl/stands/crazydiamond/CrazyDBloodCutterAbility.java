@@ -60,12 +60,12 @@ public class CrazyDBloodCutterAbility extends StandEntityAbility {
 				cutter.setShootingPosOf(user);
 				
 				Vec3 pos = cutter.position();
-				// offset it a bit to the right (doesn't work correctly when looking up/down but i wanna go sleep already)
+				// TODO (blood cutter) offset it a bit to the right (doesn't work correctly when looking up/down but i wanna go sleep already)
 				pos = pos.add(user.getLookAngle().yRot((float) -Math.PI / 2).scale(0.25));
 				cutter.setPos(pos);
 				
 				// FIXME projectile inaccuracy
-				// FIXME WHAT THE FUCK IS THIS STUTTER HELLO
+				// FIXME stutter when shooting a projectile
 //				cutter.shootFromRotation(user, 1.5f, standEntity.getProjectileInaccuracy(1.0F));
 				cutter.shootFromRotation(user, 1.5f, 0);
 				addProjectileWithStandStats(cutter);

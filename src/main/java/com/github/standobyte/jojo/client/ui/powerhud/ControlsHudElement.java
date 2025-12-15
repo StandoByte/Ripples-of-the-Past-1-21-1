@@ -118,7 +118,7 @@ public class ControlsHudElement extends HudElement {
 		int textColor = controlScheme.powerClassCosmetic == PowerClass.STAND && standSkin != null ? standSkin.getColor() : 0xFFFFFFFF;
 
 		this.prepare(hud, controlScheme, font, input.getCurModifier(), standSkin);
-		// TODO (controls HUD) update size
+		// XXX (controls HUD) update size
 		this.renderControls(this.getX(), this.getY(), mc, guiGraphics, deltaTracker, font, textColor, partialTick);
 	}
 	

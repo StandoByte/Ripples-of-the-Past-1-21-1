@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.core.command;
 
-// XXX /jojocommands
+// TODO /jojocommands
 public class JojoCommandsCommand {
 //	private static final Set<String> COMMANDS = new HashSet<>();
 //	private static IFormattableTextComponent finalText = new StringTextComponent("");

@@ -4,11 +4,8 @@ import java.io.File;
 
 import com.github.standobyte.jojo.client.config.ClientModSettings;
 import com.github.standobyte.jojo.client.input.InputHandler;
-import com.github.standobyte.jojo.client.ui.hud.marker.MarkerRenderer;
-import com.github.standobyte.jojo.client.ui.hud.marker.StandAimMarker;
 import com.github.standobyte.jojo.client.ui.jojomenu.JojoMenuTabs;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.client.CrazyDBloodHomingMarker;
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.stand.StandHudElements;
 
 import net.minecraft.client.Minecraft;

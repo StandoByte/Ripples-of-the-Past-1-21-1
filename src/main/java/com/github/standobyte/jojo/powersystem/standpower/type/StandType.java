@@ -68,6 +68,7 @@ public class StandType extends PowerType {
 	}
 	
 	public <T extends StandType> T init(Consumer<T> init) {
+		@SuppressWarnings("unchecked")
 		T cast = (T) this;
 		init.accept(cast);
 		return cast;

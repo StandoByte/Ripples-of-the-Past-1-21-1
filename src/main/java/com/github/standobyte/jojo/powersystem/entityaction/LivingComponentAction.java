@@ -33,6 +33,7 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 	
 	public ActionComboStringTracker comboString = new ActionComboStringTracker();
 	
+	// TODO move aim to a separate component
 	@Deprecated
 	public final ActionTargetAim entityAim;
 	

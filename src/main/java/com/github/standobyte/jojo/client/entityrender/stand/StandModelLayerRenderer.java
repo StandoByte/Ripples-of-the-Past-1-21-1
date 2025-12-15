@@ -30,6 +30,7 @@ public class StandModelLayerRenderer<T extends StandEntity, S extends StandEntit
 		this(entityRenderer, true, null, texture);
 	}
 
+	@SuppressWarnings("unchecked")
 	public StandModelLayerRenderer(RenderLayerParent<T, M> entityRenderer, boolean useParentModel, M model, ResourceLocation texture) {
 		super(entityRenderer);
 		this.entityRenderer = (StandEntityRenderer<T, S, M>) entityRenderer;
@@ -86,6 +87,7 @@ public class StandModelLayerRenderer<T extends StandEntity, S extends StandEntit
 //				.getRemappedResPath(manager -> manager.getStandSkin(standSkin), texture);
 //	}
 
+	@SuppressWarnings("unchecked")
 	@Deprecated
 	@Override
 	public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight,

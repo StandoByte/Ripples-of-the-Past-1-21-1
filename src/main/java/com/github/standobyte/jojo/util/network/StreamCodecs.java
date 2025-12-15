@@ -63,6 +63,7 @@ public class StreamCodecs {
 			@Override
 			public V[] decode(B buf) {
 				int length = buf.readVarInt();
+				@SuppressWarnings("unchecked")
 				V[] array = (V[]) new Object[length];
 				for (int i = 0; i < length; ++i) {
 					array[i] = codec.decode(buf);

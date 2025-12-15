@@ -15,8 +15,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-// TODO (gradual unsummon) remove the hud as soon as you press the button
-// TODO (gradual unsummon) move the stand inside the user
+// XXX (gradual unsummon) remove the hud as soon as you press the button
+// XXX (gradual unsummon) move the stand inside the user
 public class StandEntityUnsummonAction extends SpecialEntityActionType {
 
 	public StandEntityUnsummonAction(ResourceLocation id) {

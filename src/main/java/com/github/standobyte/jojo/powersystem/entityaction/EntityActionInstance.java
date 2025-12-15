@@ -355,7 +355,7 @@ public class EntityActionInstance implements HeldInput {
 	
 	
 
-	// TODO (!) (entity action) partial tick for consecutive actions
+	// TODO (!) (entity action) test partial tick for consecutive actions
 	@ApiStatus.Internal
 	public void setPartialTick(float partialTick) {
 		if (partialTick >= 1) throw new IllegalArgumentException();

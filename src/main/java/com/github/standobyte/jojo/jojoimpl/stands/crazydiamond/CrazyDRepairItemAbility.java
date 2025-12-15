@@ -90,7 +90,7 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 	}
 
 
-	// XXX (item repair) CD heal particles on the model of the item being repaired
+	// TODO (item repair) CD heal particles on the model of the item being repaired
 	// TODO (item repair) sounds
 	public static class ItemRepair extends EntityActionInstance {
 		private Optional<ContainerSlotInput> inputInvSlot = Optional.empty();
@@ -223,7 +223,7 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 		}
 		
 		if (itemStack.isDamageableItem()) {
-			// XXX (item repair) retrieve the tool tier to give more learning points
+			// TODO (item repair) retrieve the tool tier to give more learning points
 //			if (itemStack.getItem() instanceof TieredItem) {
 //				int level = ((TieredItem) itemStack.getItem()).getTier().getLevel();
 //				multiplier += (float) level / 2;

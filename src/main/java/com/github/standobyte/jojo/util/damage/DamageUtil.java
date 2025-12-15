@@ -5,7 +5,6 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.init.ModDamageTypes;
-import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
@@ -67,12 +66,6 @@ public class DamageUtil {
 		target.invulnerableTime = 0;
 		LivingEntity targetLiving = target instanceof LivingEntity ? (LivingEntity) target : null;
 		float lastHurt = targetLiving != null ? targetLiving.lastHurt : 0;
-
-		// TODO make this kind of damage not melt armor
-//		if (!dmgSource.isBypassArmor() && dmgSource instanceof IModdedDamageSource && targetLiving != null) {
-//			targetLiving.getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(
-//					cap -> cap.onHurtThroughInvul((IModdedDamageSource) dmgSource));
-//		}
 		
 		boolean dealtDamage = target.hurt(dmgSource, dmgAmount);
 

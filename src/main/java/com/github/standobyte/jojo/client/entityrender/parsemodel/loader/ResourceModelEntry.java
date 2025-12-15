@@ -32,6 +32,7 @@ public class ResourceModelEntry {
 		this.modelConstructor = (LayerDefinition modelDefinition) -> modelClass.apply(modelDefinition.bakeRoot());
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Nullable
 	public <M extends Model> M getModel(@Nullable StandSkin standSkin) {
 		if (standSkin != null) {
@@ -45,11 +46,13 @@ public class ResourceModelEntry {
 		return modelFromResource;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Nullable
 	public <M extends Model> M getModel() {
 		return (M) this.getModel(this.modelConstructor);
 	}
 
+	@SuppressWarnings("unchecked")
 	@ApiStatus.Internal
 	public <M extends Model> M getModel(Function<LayerDefinition, M> modelConstructor) {
 		if (model == null && modelDefinition != null) {

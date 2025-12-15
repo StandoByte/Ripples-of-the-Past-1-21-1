@@ -16,10 +16,10 @@ import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
 public class ClothesSlot extends Slot {
-	private final LivingEntity owner;
-	private final ClothesSlotType slot;
+	public final LivingEntity owner;
+	public final ClothesSlotType slot;
 	@Nullable
-	private final ResourceLocation emptyIcon;
+	public final ResourceLocation emptyIcon;
 
 	public ClothesSlot(
 			Container container, LivingEntity owner, ClothesSlotType slot, int slotIndex, int x, int y, @Nullable ResourceLocation emptyIcon

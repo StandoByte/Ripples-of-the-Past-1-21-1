@@ -18,7 +18,7 @@ public class ClientUtil {
 	public static void setCameraEntityPreventShaderSwitch(Entity entity) {
 		Minecraft mc = Minecraft.getInstance();
 		mc.setCameraEntity(entity);
-		// XXX prevent shader switch
+		// TODO prevent shader switch
 //		if (mc.gameRenderer.currentEffect() == null) {
 //			ShaderEffectApplier.getInstance().updateCurrentShader();
 //		}

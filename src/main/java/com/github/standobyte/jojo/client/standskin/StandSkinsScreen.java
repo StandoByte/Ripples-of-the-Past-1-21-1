@@ -480,7 +480,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 			this.skinIndex = skinIndex;
 		}
 
-		// XXX (stans skins UI) stand icon
+		// TODO (stans skins UI) stand icon
 		public void render(GuiGraphics gui, int mouseX, int mouseY, float ticks) {
 //			ResourceLocation standIcon = JojoModUtil.makeTextureLocation("power", 
 //					skinFullView.skin.standTypeId.getNamespace(), skinFullView.skin.standTypeId.getPath());
@@ -570,6 +570,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		Lighting.setupForEntityInInventory();
 		EntityRenderDispatcher renderManager = Minecraft.getInstance().getEntityRenderDispatcher();
 		
+		@SuppressWarnings("unchecked")
 		StandEntityRenderer<?, S, ?> renderer = (StandEntityRenderer<?, S, ?>) renderManager.renderers.get(standType.getEntityType());
 		renderManager.setRenderShadow(false);
 //		gui.drawSpecial(bufferSource -> renderer.renderWithRenderState(renderState -> {

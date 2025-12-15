@@ -66,7 +66,7 @@ public class Moveset {
 		return json;
 	}
 
-	// XXX deserialize default control schemes
+	// XXX (data-driven stands) deserialize default control schemes
 	public static MovesetBuilder applyJsonConfig(MovesetBuilder moveset, JsonObject movesetJson) {
 		JsonArray disable = movesetJson.getAsJsonArray("disable");
 		if (disable != null) {

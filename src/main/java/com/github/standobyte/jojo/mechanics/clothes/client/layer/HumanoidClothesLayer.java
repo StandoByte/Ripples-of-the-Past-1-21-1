@@ -41,6 +41,7 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 		super(renderer);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void render(PoseStack poseStack, MultiBufferSource bufferSource, 
 			int packedLight, T livingEntity,
@@ -105,6 +106,7 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 		ExtractRSExtensionManually.resetClothes();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void renderHandFirstPerson(HumanoidArm side, PoseStack poseStack, MultiBufferSource buffer, int light,
 			LivingEntity entity, LivingEntityRenderer<?, ?> entityRenderer) {

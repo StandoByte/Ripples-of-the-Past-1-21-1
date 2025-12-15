@@ -55,6 +55,10 @@ public class ClothesDataComponent {
 		}
 	}
 	
+	public Holder<StoryCharacter> getJojoCharacter() {
+		return character;
+	}
+	
 	public ClothesPiece getPiece() {
 		return piece;
 	}

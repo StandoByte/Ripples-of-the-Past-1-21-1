@@ -41,7 +41,7 @@ public class MannequinRenderer_1_21_2plus /*extends LivingEntityRenderer<Mannequ
 //		this.bigModelSlim = new MannequinModel_1_21_2plus(ctx.bakeLayer(ModEntityRenderers.MANNEQUIN_SLIM));
 //		this.smallModel = new MannequinModel_1_21_2plus(ctx.bakeLayer(ModEntityRenderers.MANNEQUIN_SMALL));
 //		this.smallModelSlim = new MannequinModel_1_21_2plus(ctx.bakeLayer(ModEntityRenderers.MANNEQUIN_SLIM_SMALL));
-//		// TODO (mannequin) switch between wide and slim layer variants
+//		// XXX (mannequin) switch between wide and slim layer variants
 //		this.addLayer(
 //			new HumanoidArmorLayer<>(
 //				this,

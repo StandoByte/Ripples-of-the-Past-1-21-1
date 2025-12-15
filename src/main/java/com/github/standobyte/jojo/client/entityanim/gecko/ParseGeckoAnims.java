@@ -27,7 +27,7 @@ import net.minecraft.client.animation.Keyframe;
 
 public class ParseGeckoAnims {
 	
-	// TODO parse generic BB format anims
+	// XXX parse generic BB format anims
 	// "geckolib_format_version": 2
 	public static RotpAnimDefinition parseAnim(JsonObject animJson) {
 		

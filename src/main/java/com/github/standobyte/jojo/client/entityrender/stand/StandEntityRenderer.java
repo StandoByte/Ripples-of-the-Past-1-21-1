@@ -75,6 +75,7 @@ public class StandEntityRenderer<
 		return (S) new StandEntityRenderState();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public M createStandModel(LayerDefinition definition) {
 		return (M) new StandEntityModel<>(definition.bakeRoot());
 	}
@@ -162,6 +163,7 @@ public class StandEntityRenderer<
 		return texture != null ? texture : MISSING_TEXTURE;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public ResourceLocation getTextureLocation(T entity) {
 		if (RenderStateCrutches.currentEntityRenderState != null) {

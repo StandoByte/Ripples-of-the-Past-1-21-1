@@ -173,7 +173,7 @@ public class LivingComponentGrab implements TickingEntityData {
 							grabbingEntity.yBodyRotO, grabbingEntity.yBodyRot)) * MathUtil.DEG_TO_RAD;
 					animOffset = animOffset.yRot(yBodyRot);
 					grabOffset = grabOffset.add(animOffset);
-					// XXX sync the offset to the server?
+					// TODO (grab) sync the offset to the server?
 				}
 				else {
 					useModelArmPos = false;

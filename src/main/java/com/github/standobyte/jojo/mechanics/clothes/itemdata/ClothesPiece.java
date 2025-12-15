@@ -28,7 +28,7 @@ import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
 public class ClothesPiece {
 	public final ResourceKey<EquipmentAsset> assetId;
-	// XXX (clothes) make these fields optional in the jsons (defaulting to fit the assetId)
+	// TODO (clothes) make these fields optional in the jsons (defaulting to fit the assetId)
 	public final ResourceLocation itemModel;
 	public final Component itemName;
 	public final Holder<SoundEvent> equipSound;

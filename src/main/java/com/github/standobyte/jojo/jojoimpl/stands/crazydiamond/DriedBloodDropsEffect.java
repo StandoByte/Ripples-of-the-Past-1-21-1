@@ -1,7 +1,6 @@
 package com.github.standobyte.jojo.jojoimpl.stands.crazydiamond;
 
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
-import com.github.standobyte.jojo.init.power.ModStandEffects;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectType;

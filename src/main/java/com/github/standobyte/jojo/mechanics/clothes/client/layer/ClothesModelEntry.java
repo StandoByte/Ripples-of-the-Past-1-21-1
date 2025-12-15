@@ -8,10 +8,10 @@ import com.github.standobyte.v1_21_4_stuff.Reminder;
 import net.minecraft.resources.ResourceLocation;
 
 public class ClothesModelEntry {
-	private final ResourceLocation path;
-	private final HumanoidClothesModel model;
-//	private final HumanoidClothesModel adultModel;
-//	private final HumanoidClothesModel babyModel;
+	public final ResourceLocation path;
+	public final HumanoidClothesModel model;
+//	public final HumanoidClothesModel adultModel;
+//	public final HumanoidClothesModel babyModel;
 	public final ResourceLocation texPath;
 	
 	public ClothesModelEntry(ResourceLocation path, LayerDefinition modelDefinition) {

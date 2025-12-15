@@ -19,9 +19,10 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.HumanoidArm;
 
-// TODO (entity animation) fix model bends with smaller child cubes
-// TODO (entity animation) fix model bends with StuckInBodyLayer
-// TODO (entity animation) parent xrot bones for limbs
+// TODO (player animation) fix model bends with smaller child cubes
+// TODO (player animation) fix model bends with StuckInBodyLayer
+// TODO (player animation) parent xrot bones for limbs
+// TODO (player animation) 1st person animation
 public class PlayerModelBends {
 	
 	public static float getLimbHeight(ModelPart limb) {
@@ -177,7 +178,7 @@ public class PlayerModelBends {
 		poseStack.popPose();
 	}
 	
-	// FIXME (player anim) use the main cube height (12 in case of players) instead of the individual cube heights for bending
+	// XXX (player anim) use the main cube height (12 in case of players) instead of the individual cube heights for bending
 	private static Vector3f dest = new Vector3f();
 	private static void renderBentPolygons(ModelPart.Polygon[] polygons, PoseStack poseStack, ModelPart bend,
 			float bendOffsetX, float bendOffsetY, float bendOffsetZ, 

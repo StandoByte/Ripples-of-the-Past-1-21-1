@@ -104,8 +104,9 @@ public class ModEntityRenderers {
 	
 	
 	
+	@SuppressWarnings("unchecked")
 	public static <T extends LivingEntity, M extends HumanoidModel<T>> Optional<LivingEntityRenderer<T, M>> castToHumanoid(EntityRenderer<?> renderer) {
-		if (renderer instanceof LivingEntityRenderer && ((LivingEntityRenderer) renderer).getModel() instanceof HumanoidModel /* && renderer.reusedState instanceof HumanoidRenderState*/) {
+		if (renderer instanceof LivingEntityRenderer livingRenderer && livingRenderer.getModel() instanceof HumanoidModel /* && renderer.reusedState instanceof HumanoidRenderState*/) {
 			var humanoid = (LivingEntityRenderer<T, M>) renderer;
 			return Optional.of(humanoid);
 		}

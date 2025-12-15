@@ -50,7 +50,7 @@ public class EntityRenderState {
     }
     
     public static void extract(Entity entity, EntityRenderState reusedState, 
-    		EntityRenderer renderer, EntityRenderDispatcher entityRenderDispatcher, float partialTick) {
+    		EntityRenderer<?> renderer, EntityRenderDispatcher entityRenderDispatcher, float partialTick) {
     	reusedState.x = Mth.lerp((double)partialTick, entity.xOld, entity.getX());
     	reusedState.y = Mth.lerp((double)partialTick, entity.yOld, entity.getY());
     	reusedState.z = Mth.lerp((double)partialTick, entity.zOld, entity.getZ());

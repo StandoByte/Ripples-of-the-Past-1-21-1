@@ -7,7 +7,6 @@ import com.github.standobyte.jojo.init.ModEntityTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -73,7 +72,7 @@ public class ThrownNuggetBearingEntity extends ThrowableItemProjectile implement
 	@Override
 	protected void onHitEntity(EntityHitResult result) {
 		super.onHitEntity(result);
-		if (level() instanceof ServerLevel serverLevel) {
+		if (!level().isClientSide()) {
 			ItemStack item = getItem();
 			float damage = tickCount < dropOffTick ? 5 : 3;
 			if (item.is(Tags.Items.NUGGETS_GOLD)) {

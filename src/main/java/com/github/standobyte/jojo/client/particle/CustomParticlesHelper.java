@@ -155,7 +155,7 @@ public abstract class CustomParticlesHelper {
 //		}
 //	}
 
-//	// XXX use chariot's armor layer if it is on
+//	// note: use chariot's armor layer if it is on
 //	public static <T extends StandEntity> void addStandCrumbleParticles(T standEntity, Vec3 pos, TargetHitPart humanoidPart) {
 //		EntityRenderer<? super T> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(standEntity);
 //		if (renderer instanceof StandEntityRenderer) {

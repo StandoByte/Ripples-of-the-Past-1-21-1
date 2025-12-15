@@ -87,7 +87,7 @@ public class MobItemManageAI {
 				if (!item.isEmpty()) {
 					if (compartment != mob.getArmorSlots()) {
 						// Look for unequipped armor
-						// TODO consider enchantments
+						// XXX consider enchantments
 						EquipmentSlot equipmentSlot = mob.getEquipmentSlotForItem(item);
 						if (equipmentSlot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR && mob.canUseSlot(equipmentSlot)) {
 							ItemSearchResult curBestArmor = this._armorSearch.get(equipmentSlot);
@@ -96,11 +96,11 @@ public class MobItemManageAI {
 									true, inventory, slotIndex);
 						}
 
-						// TODO look for food
+						// XXX look for food
 
-						// TODO look for weapon
+						// XXX look for weapon
 
-						// TODO look for shield
+						// XXX look for shield
 					}
 				}
 				slotIndex++;

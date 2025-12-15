@@ -153,6 +153,7 @@ public class StandSkin {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public <M extends Model> M getModel(ResourceLocation modelPath, Function<LayerDefinition, M> newModelFactory) {
 		Optional<Model> cached = createdModelsCache.get(modelPath);
 		if (cached != null) {
@@ -172,6 +173,7 @@ public class StandSkin {
 		return null;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public 
 		<T extends StandEntity, 
 		S extends StandEntityRenderState, 

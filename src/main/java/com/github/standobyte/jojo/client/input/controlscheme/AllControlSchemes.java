@@ -30,7 +30,7 @@ public class AllControlSchemes {
 			add(playerPowerEntry.getValue());
 		}
 		
-		// XXX load controls for data-driven stands
+		// XXX (data-driven stands) load controls for data-driven stands
 		for (var playerPowerEntry : JojoRegistries.DEFAULT_STANDS_REG.entrySet()) {
 			add(playerPowerEntry.getValue());
 		}

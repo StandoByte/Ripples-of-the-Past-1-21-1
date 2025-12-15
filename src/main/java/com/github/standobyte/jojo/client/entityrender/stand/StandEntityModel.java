@@ -57,7 +57,6 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 		left_leg = _this.jojo_ripples$getAnyDescendantWithName("left_leg").orElse(null);
 		right_leg_xrot = _this.jojo_ripples$getAnyDescendantWithName("right_leg_xrot").orElse(null);
 		right_leg = _this.jojo_ripples$getAnyDescendantWithName("right_leg").orElse(null);
-		// TODO (entity anim) make an array of all model parts that aren't visible by default
 		
 		addMissingItemHoldPoints();
 		HiddenModelPartsUtil.initHiddenParts(this);
@@ -101,10 +100,9 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 			head.xRot = renderState.xRot * MathUtil.DEG_TO_RAD;
 			head.yRot = renderState.yRot * MathUtil.DEG_TO_RAD;
 		}
-		
-		// TODO (entity anim) iterate over the array of parts invisible by default - if a part was not animated, set visible to false
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Deprecated
 	@Override
     public void setupAnim(StandEntity entity, float limbSwing, float limbSwingAmount, 

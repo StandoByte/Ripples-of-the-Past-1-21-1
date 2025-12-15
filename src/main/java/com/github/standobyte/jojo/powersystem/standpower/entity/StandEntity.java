@@ -189,7 +189,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	
 	@Override
 	public void remove(Entity.RemovalReason reason) {
-		if (reason.shouldDestroy() && level() instanceof ServerLevel level) {
+		if (reason.shouldDestroy() && level() instanceof ServerLevel) {
 			dropEquipment(/*level*/);
 		}
 		super.remove(reason);
@@ -564,7 +564,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 	public void onUnsummonUserInput() {
-		// TODO only cancel current stand action
+		// TODO on unsummon input, only cancel current stand action
 		if (!this.isBeingRetracted()) {
 			this.retractAndUnsummon();
 		}
@@ -861,7 +861,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		if (!dmgSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
 			float blockedRatio = 0;
 			// TODO stand guard
-			// TODO stand guard - cancel user hurt sound when blocking an attack
+			// TODO (stand guard) cancel user hurt sound when blocking an attack
 //			if (isBlocking && userPower != null) {
 //				blockedRatio = 1F;
 //				if (userPower.usesStamina()) {

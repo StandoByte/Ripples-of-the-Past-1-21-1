@@ -96,8 +96,6 @@ public class ClientModSettingsScreen extends Screen {
 //			@Override public void set(Boolean value) { settingsValues.menacingParticles = value; }
 //		};
 //		addRenderableWidget(menacingParticles.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
-		
-		// XXX icon symbols at the start of each button
 
 		
 		// HUD settings

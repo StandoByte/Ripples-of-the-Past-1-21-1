@@ -379,6 +379,7 @@ public class PowerUserMobEntity extends Mob {
 
 	@Override
 	public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
+		@SuppressWarnings("deprecation")
 		var ret = super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
 		setDummyFlag(spawnType);
 		return ret;

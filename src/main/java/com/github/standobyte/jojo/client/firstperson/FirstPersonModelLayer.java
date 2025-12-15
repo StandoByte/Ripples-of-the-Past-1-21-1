@@ -57,6 +57,7 @@ public interface FirstPersonModelLayer {
 		return side == HumanoidArm.LEFT ? model.leftSleeve : model.rightSleeve;
 	}
 
+	@SuppressWarnings("unchecked")
 	static <T extends LivingEntity> void setupForFirstPersonRender(HumanoidModel<T> model, LivingEntity entity) {
 		model.rightArmPose = HumanoidModel.ArmPose.EMPTY;
 		model.leftArmPose = HumanoidModel.ArmPose.EMPTY;

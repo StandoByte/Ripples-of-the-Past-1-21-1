@@ -52,6 +52,7 @@ public class ClientPowerCache {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static <P extends Power<P>> P getPower(PowerClass<P> powerClass) {
 		return (P) powersCache[powerClass.ordinal()];
 	}
