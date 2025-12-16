@@ -50,7 +50,7 @@ public class ClientControlScheme {
 		@ApiStatus.Internal public List<Bind> binds = new ArrayList<>();
 		@ApiStatus.Internal public List<Hotbar> hotbars = new ArrayList<>();
 		
-		protected Map<ClientKey, InputsByKeyModifier> bindsMap = new TreeMap<>(Comparator.comparingInt(ClientKey::keyId));
+		protected Map<ClientKey, InputsByKeyModifier> bindsMap = new TreeMap<>(Comparator.comparingInt(ClientKey::keyOrder));
 		
 		public MoveGroup(Component name, ClientInputBind toggleHudKey) {
 			this.name = name;
