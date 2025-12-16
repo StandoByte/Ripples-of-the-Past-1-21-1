@@ -254,13 +254,13 @@ public class ClientControlScheme {
 			controls.moveGroups.put(groupTemplate.name, group);
 			
 			// separate binds
-			for (Pair<String, Pair<InputMethod, InputBindTemplate>> bind : groupTemplate.separateBinds) {
-				var input = bind.getSecond();
+			for (Map.Entry<String, Pair<InputMethod, InputBindTemplate>> bind : groupTemplate.separateBinds.entrySet()) {
+				var input = bind.getValue();
 				InputBindTemplate inputBindTemplate = input.getSecond();
 				ClientInputBind inputBind = ClientInputBind.toClientInput(inputBindTemplate);
 				if (inputBind != null) {
 					InputMethod inputMethod = input.getFirst();
-					String abilityName = bind.getFirst();
+					String abilityName = bind.getKey();
 					AbilityControlsEntry ability = new AbilityControlsEntry(powerClass, abilityName);
 					group.binds.add(new Bind(inputBind, inputMethod, ability));
 				}

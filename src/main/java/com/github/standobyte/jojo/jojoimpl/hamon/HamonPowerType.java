@@ -30,16 +30,17 @@ public class HamonPowerType extends PlayerPowerType<HamonData> {
 
 	public static final DeferredHolder<PlayerPowerType<?>, HamonPowerType> HAMON = PLAYER_POWERS.register(
 			"hamon", key -> new HamonPowerType(key, new MovesetBuilder()
-					.makeMovesetGroup("moveset_group.hamon.combat", new InputUseVanillaMapping("jojo_ripples.key.non_stand_mode"))
 					
 					.addAbility("hamon_beat", HAMON_BEAT)
-					.withBind("moveset_group.hamon.combat", InputMethod.CLICK, InputKey.LMB)
-					
 					.addAbility("sunlight_yellow_overdrive", SUNLIGHT_YELLOW_OVERDRIVE)
-					.withBind("moveset_group.hamon.combat", InputMethod.HOLD, InputKey.LMB)
-					
 					.addAbility("rebuff_overdrive", REBUFF_OVERDRIVE)
-					.withBind("moveset_group.hamon.combat", InputMethod.CLICK, InputKey.RMB)
+					
+					.makeControlScheme("default")
+						.makeMovesetGroup("moveset_group.hamon.combat", new InputUseVanillaMapping("jojo_ripples.key.non_stand_mode"))
+							.bind("hamon_beat", InputMethod.CLICK, InputKey.LMB)
+							.bind("sunlight_yellow_overdrive", InputMethod.HOLD, InputKey.LMB)
+							.bind("rebuff_overdrive", InputMethod.CLICK, InputKey.RMB)
+					.finalizeControlScheme()
 					));
 
 	

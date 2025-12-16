@@ -38,14 +38,12 @@ public class ModStands {
 					
 					// has a higher priority than regular item usage (added in addHumanoidStandStuff()) or charged heavy
 					.addAbility("bearing_shot", ModStandAbilities.BEARING_SHOT)
-					.withBind(InputMethod.HOLD, InputKey.RMB)
 					
 					.addHumanoidStandStuff()
 					
 					.addAbility("punch", ModStandAbilities.PUNCH)
-					.withBind(InputMethod.CLICK, InputKey.LMB)
 					
-					// TODO refactor sub-punches initialization
+					// FIXME refactor sub-punches initialization
 					.addAbility("punch2", ModStandAbilities.PUNCH, punch -> punch.isSubAbility = true)
 					.addAbility("punch3", ModStandAbilities.PUNCH, punch -> punch.isSubAbility = true)
 					.addAbility("punch4", ModStandAbilities.PUNCH, punch -> {
@@ -54,25 +52,16 @@ public class ModStands {
 					})
 					
 					.addAbility("barrage", ModStandAbilities.BARRAGE)
-					.withBind(InputMethod.HOLD, InputKey.LMB)
 
 					.addAbility("heavy_punch", ModStandAbilities.HEAVY_PUNCH)
-					.withBind(InputMethod.CLICK, InputKey.RMB)
 					.addAbility("heavy_punch2", ModStandAbilities.HEAVY_PUNCH, punch -> punch.isSubAbility = true)
 					.addAbility("finisher_uppercut", ModStandAbilities.HEAVY_PUNCH, punch -> punch.isSubAbility = true)
 					
 					.addAbility("heavy_charged", ModStandAbilities.HEAVY_CHARGED)
-					.withBind(InputMethod.HOLD, InputKey.RMB)
 					
 					.addAbility("grab",ModStandAbilities.GRAB)
-					.withBind(InputMethod.CLICK, InputKey.RMB.withModifier(InputKey.Modifier.CONTROL))
-					
-					.addAbility("grab_release", ModStandAbilities.GRAB_RELEASE)
-					.withBind(InputMethod.CLICK, InputKey.Q)
 					
 					.addAbility("grab_throw", ModStandAbilities.GRAB_THROW)
-					.withBind(InputMethod.HOLD, InputKey.RMB)
-					
 					.addAbility("grab_punch", ModStandAbilities.GRAB_PUNCH, punch -> punch.isSubAbility = true)
 					.addAbility("grab_barrage", ModStandAbilities.GRAB_BARRAGE, punch -> punch.isSubAbility = true)
 					.addAbility("grab_uppercut", ModStandAbilities.GRAB_HEAVY_PUNCH, punch -> {
@@ -83,30 +72,34 @@ public class ModStands {
 //					.addAbility("grab_ground_slam", ModStandAbilities.HEAVY_PUNCH)
 //					.addAbility("grab_terrain", ModStandAbilities.GRAB_TERRAIN)
 //					.addAbility("terrain_throw", ModStandAbilities.GRAB_TERRAIN_THROW)
-					
-//					.addAbility("guard", ModStandAbilities.GUARD)
-					
-//					.addAbility("leap", ModStandAbilities.STAND_LEAP)
-
 //					.addAbility("uppercut_ground_throw", ModStandAbilities.HEAVY_PUNCH)
 					
+//					.addAbility("guard", ModStandAbilities.GUARD)
+//					.addAbility("leap", ModStandAbilities.STAND_LEAP)
 
-					.makeHotbar(0, USE_SPECIAL, SWITCH_SPECIAL)
-					
 //					.addAbility("enhanced_eyesight", ModStandAbilities.SP_EYESIGHT)
-//					.inHotbar(0, InputMethod.CLICK)
-					
 					.addAbility("star_finger", ModStandAbilities.SP_STAR_FINGER)
-					.inHotbar(0, InputMethod.CLICK)
-					
 //					.addAbility("star_finger_swipe", ModStandAbilities.SP_STAR_FINGER_SWIPE)
-//					.inHotbarSlotVariation("star_finger", InputKey.Modifier.CONTROL, InputMethod.CLICK)
-
-                    .addAbility("inhale", ModStandAbilities.SP_INHALE)
-					.inHotbar(0, InputMethod.HOLD)
-					
+					.addAbility("inhale", ModStandAbilities.SP_INHALE)
 //					.addAbility("time_stop", ModStandAbilities.TIME_STOP)
-//					.inHotbar(0, InputMethod.CLICK)
+					
+					
+					.makeControlScheme("hotbar")
+						.bind("bearing_shot", InputMethod.HOLD, InputKey.RMB)
+						.bind("punch", InputMethod.CLICK, InputKey.LMB)
+						.bind("barrage", InputMethod.HOLD, InputKey.LMB)
+						.bind("heavy_punch", InputMethod.CLICK, InputKey.RMB)
+						.bind("heavy_charged", InputMethod.HOLD, InputKey.RMB)
+						.bind("grab", InputMethod.CLICK, InputKey.RMB.withModifier(InputKey.Modifier.CONTROL))
+						.bind("grab_throw", InputMethod.HOLD, InputKey.RMB)
+						
+						.makeHotbar(0, USE_SPECIAL, SWITCH_SPECIAL)
+//						.addToHotbar("enhanced_eyesight", 0, InputMethod.CLICK)
+						.addToHotbar("star_finger", 0, InputMethod.CLICK)
+//						.addToHotbarSlotVariation("star_finger_swipe", "star_finger", InputKey.Modifier.CONTROL, InputMethod.CLICK)
+						.addToHotbar("inhale", 0, InputMethod.HOLD)
+//						.addToHotbar("time_stop", 0, InputMethod.HOLD)
+					.finalizeControlScheme()
 					
 					
 					.addSkill(StandUnlockableSkill.startingAbility("punch"))
@@ -151,16 +144,17 @@ public class ModStands {
 					.addHumanoidStandStuff()
 					
 					.addAbility("repair_item", ModStandAbilities.CD_REPAIR_ITEM)
-					.withBind(InputMethod.HOLD, InputKey.C)
-					
-
-					.makeHotbar(0, USE_SPECIAL, SWITCH_SPECIAL)
-					
 					.addAbility("block_bullet", ModStandAbilities.CD_BLOCK_BULLET)
-					.inHotbar(0, InputMethod.CLICK)
-					
 					.addAbility("blood_cutter", ModStandAbilities.CD_BLOOD_CUTTER)
-					.inHotbar(0, InputMethod.CLICK)
+					
+					
+					.makeControlScheme("hotbar")
+						.bind("repair_item", InputMethod.HOLD, InputKey.C)
+						
+						.makeHotbar(0, USE_SPECIAL, SWITCH_SPECIAL)
+						.addToHotbar("block_bullet", 0, InputMethod.CLICK)
+						.addToHotbar("blood_cutter", 0, InputMethod.CLICK)
+					.finalizeControlScheme()
 					
 					
 					.addSkill(StandUnlockableSkill.startingAbility("punch"))
@@ -207,11 +201,13 @@ public class ModStands {
 					
 					.addHumanoidStandStuff()
 					
-
-					.makeHotbar(0, USE_SPECIAL, SWITCH_SPECIAL)
-					
 					.addAbility("puppet", ModStandAbilities.HG_PUPPET)
-					.inHotbar(0, InputMethod.CLICK)
+					
+					
+					.makeControlScheme("hotbar")
+						.makeHotbar(0, USE_SPECIAL, SWITCH_SPECIAL)
+						.addToHotbar("puppet", 0, InputMethod.CLICK)
+					.finalizeControlScheme()
 					
 					
 					.addSkill(StandUnlockableSkill.unlockableAbility("puppet", 1))

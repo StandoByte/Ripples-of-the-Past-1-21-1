@@ -39,7 +39,7 @@ public class AllControlSchemes {
 	private static void add(PowerType powerType) {
 		ResourceLocation id = powerType.getId();
 		MovesetBuilder moveset = powerType.getDefaultMoveset();
-		ControlSchemeTemplate defaultCtrlScheme = moveset._controlScheme;
+		ControlSchemeTemplate defaultCtrlScheme = moveset.controlSchemes.values().iterator().next(); // the first control scheme that was created
 		controls.put(id, ClientControlScheme.create(defaultCtrlScheme, powerType));
 	}
 	
