@@ -17,6 +17,7 @@ import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.ui.jojomenu.IJojoMenuScreen;
 import com.github.standobyte.jojo.client.ui.jojomenu.JojoMenuTabs;
+import com.github.standobyte.jojo.client.ui.jojomenu.StandInfoScreen;
 import com.github.standobyte.jojo.client.ui.jojomenu.Tab;
 import com.github.standobyte.jojo.client.ui.jojomenu.TabCategory;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
@@ -34,6 +35,7 @@ import com.github.standobyte.v1_21_4_stuff.GuiScissor;
 import com.google.common.collect.Streams;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -445,7 +447,28 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 			if (standType instanceof EntityStandType) {
 				renderStandModel(gui, posX, posY, scale, scaleZoom, 
 						yRot, xRot, xOffsetRatio, yOffsetRatio, 
-						(EntityStandType) standType, skin, ticks);
+						(EntityStandType) standType, skin, ticks, 0xFFFFFFFF);
+			}
+		}
+		
+		// XXX set it to one of the stand summon poses
+		public void renderInStandInfo(GuiGraphics gui, int mouseX, int mouseY, float ticks, 
+				float windowX, float windowY, float scale) {
+			if (standType instanceof EntityStandType) {
+				PoseStack poseStack = gui.pose();
+				float angle = (float) -Math.PI / 12;
+				
+				windowY += StandInfoScreen.spHairTmpCrutch(standType);
+				poseStack.pushPose();
+				poseStack.translate(0, 0, -100);
+				renderStandModel(gui, windowX + 60, windowY + 150, scale, 1, 
+						(float) Math.PI + angle, 0, 0, 0, 
+						(EntityStandType) standType, skin, ticks, 0xFFB0B0B0);
+				
+				poseStack.popPose();
+				renderStandModel(gui, windowX + 45, windowY + 150, scale, 1, 
+						angle, 0, 0, 0, 
+						(EntityStandType) standType, skin, ticks, 0xFFFFFFFF);
 			}
 		}
 
@@ -553,7 +576,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 
 	public static <S extends StandEntityRenderState> void renderStandModel(GuiGraphics gui, float posX, float posY, 
 			float scale, float scaleZoom, float yRot, float xRot, float xOffsetRatio, float yOffsetRatio, 
-			EntityStandType standType, StandSkin standSkin, float ticks) {
+			EntityStandType standType, StandSkin standSkin, float ticks, int tint) {
 		Quaternionf rotation = new Quaternionf()
 				.rotateX(-xRot)
 				.rotateY(-yRot);
@@ -577,7 +600,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 //			renderer.extractSkinMenuRenderState(renderState, standSkin, standType.getId(), ticks);
 //		}, gui.pose(), bufferSource, 0xF000F0));
 		RenderSystem.runAsFancy(() -> renderer.renderForStandSkinUI(standSkin, standType.getId(), ticks, 
-				gui.pose(), Minecraft.getInstance().renderBuffers().bufferSource()));
+				gui.pose(), Minecraft.getInstance().renderBuffers().bufferSource(), tint));
 		
 		gui.flush();
 		renderManager.setRenderShadow(true);

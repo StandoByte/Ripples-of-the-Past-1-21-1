@@ -133,14 +133,14 @@ public class StandEntityRenderer<
 		}
 	}
 	
-	public void extractSkinMenuRenderState(S renderState, StandSkin skin, ResourceLocation standId, float ticks) {
+	public void extractSkinMenuRenderState(S renderState, StandSkin skin, ResourceLocation standId, float ticks, int tint) {
 		renderState.skin = skin;
 		renderState.visibleParts = HumanoidPart.ALL;
 		renderState.standId = standId;
 		renderState.action.animId = StandEntityRenderer.IDLE_ANIM;
 		renderState.action.time = ticks;
 		EntityActionRenderState.setAnim(renderState.action, renderState, null, this.getStandAnim(renderState), null);
-		renderState.tint = -1;
+		renderState.tint = tint;
 	}
 	
 	public RotpAnimDefinition getStandAnim(S renderState) {
@@ -200,9 +200,9 @@ public class StandEntityRenderer<
 	
 	
 	public void renderForStandSkinUI(StandSkin skin, ResourceLocation standId, float ticks, 
-			PoseStack poseStack, MultiBufferSource bufferSource) {
+			PoseStack poseStack, MultiBufferSource bufferSource, int tint) {
 		S renderState = outOfLevelRenderState;
-		extractSkinMenuRenderState(renderState, skin, standId, ticks);
+		extractSkinMenuRenderState(renderState, skin, standId, ticks, tint);
 		preRender(renderState);
 
 		M model = modelFrom(renderState);
@@ -227,7 +227,7 @@ public class StandEntityRenderer<
 		if (renderType != null) {
 			VertexConsumer vertexBuilder = bufferSource.getBuffer(renderType);
 			int packedOverlay = OverlayTexture.NO_OVERLAY;
-			model.renderToBuffer(poseStack, vertexBuilder, packedLight, packedOverlay, 0xFFFFFFFF);
+			model.renderToBuffer(poseStack, vertexBuilder, packedLight, packedOverlay, renderState.tint);
 
 			for (RenderLayer<T, M> layerRenderer : this.layers) {
 				if (layerRenderer instanceof StandModelLayerRenderer) {
@@ -240,7 +240,7 @@ public class StandEntityRenderer<
 //						layerModel.riding = false;
 //						layerModel.young = false;
 //						layerModel.setupAnim(renderState);
-//						layerModel.renderToBuffer(poseStack, layerVertexBuilder, packedLight, packedOverlay, 0xFFFFFFFF);
+//						layerModel.renderToBuffer(poseStack, layerVertexBuilder, packedLight, packedOverlay, renderState.tint);
 //					}
 				}
 			}

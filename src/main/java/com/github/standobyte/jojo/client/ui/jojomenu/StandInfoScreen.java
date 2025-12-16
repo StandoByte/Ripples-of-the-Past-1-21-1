@@ -3,6 +3,10 @@ package com.github.standobyte.jojo.client.ui.jojomenu;
 import java.util.List;
 
 import com.github.standobyte.jojo.client.ClientPowerCache;
+import com.github.standobyte.jojo.client.ClientUtil;
+import com.github.standobyte.jojo.client.standskin.StandSkin;
+import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.client.standskin.StandSkinsScreen;
 import com.github.standobyte.jojo.client.text.ShortenText;
 import com.github.standobyte.jojo.client.ui.StandStatsRenderer;
 import com.github.standobyte.jojo.client.ui.StandStatsRenderer.CosmeticStandStats;
@@ -10,9 +14,11 @@ import com.github.standobyte.jojo.client.ui.StandStatsRenderer.HexagonStandStat;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.init.power.ModStands;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.ChatFormatting;
@@ -33,6 +39,9 @@ public class StandInfoScreen extends Screen implements IJojoMenuScreen {
 	protected Tab tab;
 	
 	protected StandPower standData;
+	protected StandSkin standSkin;
+	protected StandSkinsScreen.SkinView standRender;
+	protected int tickCount = 0;
 
 	public StandInfoScreen(TabCategory category, Tab tab) {
 		super(Component.empty());
@@ -45,6 +54,10 @@ public class StandInfoScreen extends Screen implements IJojoMenuScreen {
 	public void init() {
 		super.init();
 		standData = ClientPowerCache.getPower(PowerClass.STAND);
+		if (standData.hasPower()) {
+			standSkin = StandSkinsLoader.getInstance().getSkin(standData);
+			standRender = standData.getPowerType().makeSkinUIElement(standSkin, null, 0, 0, 0, 0, 0, true);
+		}
 	}
 
 	@Override
@@ -56,6 +69,9 @@ public class StandInfoScreen extends Screen implements IJojoMenuScreen {
 	public Tab getTab() {
 		return tab;
 	}
+	
+	@Override
+	public void tick() { this.tickCount++; }
 
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float p_283123_) {
@@ -88,7 +104,8 @@ public class StandInfoScreen extends Screen implements IJojoMenuScreen {
 		int width = getWindowWidth();
 		int height = getWindowHeight();
 		
-		StandStats stats = power.getPowerType().getStandStats();
+		StandType standType = power.getPowerType();
+		StandStats stats = standType.getStandStats();
 //		float statLeveling = power.getStatsDevelopment();
 		float statLeveling = 0;
 		CosmeticStandStats override = CosmeticStandStats.getHandler(power);
@@ -173,6 +190,14 @@ public class StandInfoScreen extends Screen implements IJojoMenuScreen {
 			}
 		}
 		
+		
+		// stand model
+		if (standRender != null) {
+			float partialTick = ClientUtil.partialTick(Minecraft.getInstance().getTimer(), true);
+			standRender.renderInStandInfo(guiGraphics, mouseX, mouseY, tickCount + partialTick, x, y, 35);
+		}
+		
+		
 		// stand description
 		var description = minecraft.font.split(Component.translatable(standData.getPowerType().getId().toLanguageKey("stand", "desc")), 200);
 		int lineX = x + 10;
@@ -188,6 +213,12 @@ public class StandInfoScreen extends Screen implements IJojoMenuScreen {
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (clickTab(mouseX, mouseY, button, this)) return true;
 		return super.mouseClicked(mouseX, mouseY, button);
+	}
+	
+	// XXX scrollable text box with the description
+	@Deprecated
+	public static float spHairTmpCrutch(StandType standType) {
+		return standType == ModStands.STAR_PLATINUM.get() ? 0 : -10;
 	}
 
 }
