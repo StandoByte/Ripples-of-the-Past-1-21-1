@@ -236,7 +236,7 @@ public class FirstPersonRender {
 			HumanoidArm handSide = isMainHand ? entity.getMainArm() : entity.getMainArm().getOpposite();
 			poseStack.pushPose();
 			if (stack.isEmpty()) {
-				if (isMainHand && !entity.isInvisible()) {
+				if (isMainHand/* && !entity.isInvisible()*/) {
 					renderEntityArm(getLivingRenderer(entity), entity, 
 							poseStack, buffer, light, equippedProgress, swingProgress, handSide);
 				}
@@ -402,7 +402,7 @@ public class FirstPersonRender {
 		poseStack.mulPose(Axis.XP.rotationDegrees(200.0F));
 		poseStack.mulPose(Axis.YP.rotationDegrees(f * -135.0F));
 		poseStack.translate(f * 5.6F, 0.0F, 0.0F);
-		renderHand(renderer, entity, poseStack, buffer, light, handSide);
+		renderHand(renderer, entity, poseStack, buffer, light, handSide, entity.isInvisible());
 	}
 
 	public static void renderMapArm(LivingEntityRenderer renderer, LivingEntity entity, 
@@ -413,14 +413,14 @@ public class FirstPersonRender {
 		poseStack.mulPose(Axis.XP.rotationDegrees(45.0F));
 		poseStack.mulPose(Axis.ZP.rotationDegrees(f * -41.0F));
 		poseStack.translate(f * 0.3F, -1.1F, 0.45F);
-		renderHand(renderer, entity, poseStack, buffer, light, handSide);
+		renderHand(renderer, entity, poseStack, buffer, light, handSide, entity.isInvisible());
 
 		poseStack.popPose();
 	}
 
 	public static void renderHand(LivingEntityRenderer renderer, LivingEntity entity, PoseStack poseStack, 
-			MultiBufferSource buffer, int light, HumanoidArm handSide) {
-		if (entity instanceof AbstractClientPlayer player && !ClientHooks.renderSpecificFirstPersonArm(poseStack, buffer, light, player, handSide)) return;
+			MultiBufferSource buffer, int light, HumanoidArm handSide, boolean isInvisible) {
+		if (!isInvisible && entity instanceof AbstractClientPlayer player && !ClientHooks.renderSpecificFirstPersonArm(poseStack, buffer, light, player, handSide)) return;
 
 		if (renderer.getModel() instanceof HumanoidModel humanoidModel) {
 			HumanoidModel.ArmPose mainArmPose = getArmPose(entity, InteractionHand.MAIN_HAND);
@@ -442,22 +442,24 @@ public class FirstPersonRender {
 			humanoidModel.swimAmount = 0.0F;
 			humanoidModel.setupAnim(entity, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
 			ResourceLocation texture = renderer.getTextureLocation(entity);
-			ModelPart rendererArm = switch (handSide) {
-				case LEFT -> humanoidModel.leftArm;
-				case RIGHT -> humanoidModel.rightArm;
-			};
-			rendererArm.visible = true;
-			rendererArm.xRot = 0.0F;
-			rendererArm.render(poseStack, buffer.getBuffer(RenderType.entitySolid(texture)), light, OverlayTexture.NO_OVERLAY);
-			if (humanoidModel instanceof PlayerModel playerModel) {
-				ModelPart rendererArmwear = switch (handSide) {
-					case LEFT -> playerModel.leftSleeve;
-					case RIGHT -> playerModel.rightSleeve;
+			if (!isInvisible) {
+				ModelPart rendererArm = switch (handSide) {
+					case LEFT -> humanoidModel.leftArm;
+					case RIGHT -> humanoidModel.rightArm;
 				};
-				playerModel.leftSleeve.visible = entity instanceof Player player ? player.isModelPartShown(
-						handSide == HumanoidArm.LEFT ? PlayerModelPart.LEFT_SLEEVE : PlayerModelPart.RIGHT_SLEEVE) : true;
-				rendererArmwear.xRot = 0.0F;
-				rendererArmwear.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(texture)), light, OverlayTexture.NO_OVERLAY);
+				rendererArm.visible = true;
+				rendererArm.xRot = 0.0F;
+				rendererArm.render(poseStack, buffer.getBuffer(RenderType.entitySolid(texture)), light, OverlayTexture.NO_OVERLAY);
+				if (humanoidModel instanceof PlayerModel playerModel) {
+					ModelPart rendererArmwear = switch (handSide) {
+						case LEFT -> playerModel.leftSleeve;
+						case RIGHT -> playerModel.rightSleeve;
+					};
+					playerModel.leftSleeve.visible = entity instanceof Player player ? player.isModelPartShown(
+							handSide == HumanoidArm.LEFT ? PlayerModelPart.LEFT_SLEEVE : PlayerModelPart.RIGHT_SLEEVE) : true;
+					rendererArmwear.xRot = 0.0F;
+					rendererArmwear.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(texture)), light, OverlayTexture.NO_OVERLAY);
+				}
 			}
 			
 			renderLayers(renderer, entity, poseStack, buffer, light, handSide);
@@ -557,12 +559,12 @@ public class FirstPersonRender {
 			int packedLight, float equippedProgress, HumanoidArm hand, float swingProgress, ItemStack stack) {
 		float f = hand == HumanoidArm.RIGHT ? 1.0F : -1.0F;
 		poseStack.translate(f * 0.125F, -0.125F, 0.0F);
-		if (!entity.isInvisible()) {
+//		if (!entity.isInvisible()) {
 			poseStack.pushPose();
 			poseStack.mulPose(Axis.ZP.rotationDegrees(f * 10.0F));
 			renderEntityArm(getLivingRenderer(entity), entity, poseStack, buffer, packedLight, equippedProgress, swingProgress, hand);
 			poseStack.popPose();
-		}
+//		}
 
 		poseStack.pushPose();
 		poseStack.translate(f * 0.51F, -0.08F + equippedProgress * -1.2F, -0.75F);
@@ -587,13 +589,13 @@ public class FirstPersonRender {
 		float f3 = calculateMapTilt(pitch);
 		poseStack.translate(0.0F, 0.04F + equippedProgress * -1.2F + f3 * -0.5F, -0.72F);
 		poseStack.mulPose(Axis.XP.rotationDegrees(f3 * -85.0F));
-		if (!entity.isInvisible()) {
+//		if (!entity.isInvisible()) {
 			poseStack.pushPose();
 			poseStack.mulPose(Axis.YP.rotationDegrees(90.0F));
 			renderMapArm(getLivingRenderer(entity), entity, poseStack, buffer, packedLight, HumanoidArm.RIGHT);
 			renderMapArm(getLivingRenderer(entity), entity, poseStack, buffer, packedLight, HumanoidArm.LEFT);
 			poseStack.popPose();
-		}
+//		}
 
 		float f4 = Mth.sin(f * (float) Math.PI);
 		poseStack.mulPose(Axis.XP.rotationDegrees(f4 * 20.0F));

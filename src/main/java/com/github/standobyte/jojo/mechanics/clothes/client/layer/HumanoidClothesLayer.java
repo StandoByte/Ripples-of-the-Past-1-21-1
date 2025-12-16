@@ -50,6 +50,8 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 //	public void render(PoseStack poseStack, MultiBufferSource bufferSource, 
 //			int packedLight, S renderState, float yRot, float xRot) {
 //		HumanoidClothesRSExtension clothesRS = renderState.getRenderData(ModEntityRenderers.CLOTHES_CONTEXT);
+		if (livingEntity.isInvisible()) return;
+		
 		HumanoidClothesRSExtension clothesRS = HumanoidClothesRSExtension.getCurRenderData();
 		if (clothesRS == null) return;
 		ClothesModelLoader clothesModels = ClothesModelLoader.getInstance();
@@ -110,6 +112,8 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 	@Override
 	public void renderHandFirstPerson(HumanoidArm side, PoseStack poseStack, MultiBufferSource buffer, int light,
 			LivingEntity entity, LivingEntityRenderer<?, ?> entityRenderer) {
+		if (entity.isInvisible()) return;
+		
 		ExtractRSExtensionManually.extractClothes(entity);
 		HumanoidClothesRSExtension clothes = HumanoidClothesRSExtension.getCurRenderData();
 		if (clothes == null) return;
