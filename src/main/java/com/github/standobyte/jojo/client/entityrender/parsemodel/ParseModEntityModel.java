@@ -33,7 +33,6 @@ public class ParseModEntityModel {
 		GENERIC
 	}
 	
-	// TODO make specific JSON parsing functions instead of using reflection in Gson
 	public static LayerDefinition parse(JsonElement json, ModelFormat format) {
 		return switch (format) {
 			case GECKO -> GeckoModelFormat.parseGeckoModel(json);
