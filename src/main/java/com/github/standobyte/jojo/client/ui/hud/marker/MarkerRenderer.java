@@ -186,7 +186,6 @@ public abstract class MarkerRenderer {
 		return entity.getPosition(partialTick).add(0, entity.getBbHeight() * 1.1, 0);
 	}
 	
-	// TODO (marker) UI color (current stand color)
 	protected int getColor() {
 		if (useStandSkinColor && _curStandSkinColor != -1) {
 			return _curStandSkinColor;

@@ -9,7 +9,6 @@ import net.minecraft.world.entity.Entity;
  * An interface to synchronize the data attached to an entity with 1 line of code
  * ({@link SynchronizableEntityData#addSynchronization(Entity)}), instead of having to add it into an event handler.
  */
-// TODO try out NeoForge's AttachmentSyncHandler, if it works - deprecate this interface
 public interface SynchronizableEntityData {
 	void syncToTracking(ServerPlayer trackingPlayer);
 	

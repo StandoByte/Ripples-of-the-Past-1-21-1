@@ -11,7 +11,6 @@ import net.minecraft.world.entity.player.Player;
  * If your data class is intended to also be attached to players and sync some of the data exclusively with the player, 
  * implement this interface.
  */
-//TODO try out NeoForge's AttachmentSyncHandler, if it works - deprecate this interface
 public interface SynchronizablePlayerData extends SynchronizableEntityData {
 	void syncToPlayer(ServerPlayer entityAsPlayer);
 	void onPlayerClone(Player newPlayer, boolean wasDeath);

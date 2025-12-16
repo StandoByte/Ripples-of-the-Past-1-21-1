@@ -12,7 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.attachment.AttachmentType;
-import net.neoforged.neoforge.event.entity.EntityEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
@@ -20,7 +20,7 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 public class EventHandler {
 
 	@SubscribeEvent
-	public static void onEntityCreated(EntityEvent.EntityConstructing event) {
+	public static void onEntityCreated(EntityJoinLevelEvent event) {
 		/* 
 		 * Attach the power data to the player.
 		 * The capabilities system is now strictly per-EntityType, can't have an instanceof check anymore 
