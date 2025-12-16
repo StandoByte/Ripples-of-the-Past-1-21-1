@@ -393,6 +393,10 @@
   "jojo_ripples.skill.restore_terrain.controls": "Special ability",
   "jojo_ripples.ability.restore_terrain": "Restore terrain",
   
+  "jojo_ripples.skill.block_anchor": "(NYI) Block Anchor",
+  "jojo_ripples.skill.block_anchor.desc": "Blocks grabbed by Stands keep their original positions, so they can be used as \"anchors\": when fixing an anchor held by someone, the holder will be able to transport to the original position of the anchor.",
+  "jojo_ripples.skill.block_anchor.controls": "Passive skill",
+  
   "jojo_ripples.skill.create_wall": "(NYI) Wall creation",
   "jojo_ripples.skill.create_wall.desc": "Rather than restoring the original terrain, use broken blocks to create a thin wall in your look direction.",
   "jojo_ripples.skill.create_wall.controls": "Ctrl + Restore terrain",
@@ -402,12 +406,6 @@
   "jojo_ripples.skill.fuse_with_rock.desc": "After punching a target with a finisher punch, if the impact from knockback breaks stone blocks, and the target is low on health, fuse the stone blocks with the target to turn them into a hideous rock resembling a face. The rock can be broken with a pickaxe.",
   "jojo_ripples.skill.fuse_with_rock.controls": "Finisher Punch + Restore terrain",
   "jojo_ripples.ability.fuse_with_rock": "Fuse with rock",
-  
-  "jojo_ripples.skill.block_anchor": "(NYI) Block Anchor",
-  "jojo_ripples.skill.block_anchor.desc": "Break a block and record its position within the dropped item, which will be considered an anchor. When holding the anchor and restoring it, you'll be able to transport to the original position of the anchor.",
-  "jojo_ripples.skill.block_anchor.controls": "Special ability",
-  "jojo_ripples.ability.block_anchor_make": "Make anchor block",
-  "jojo_ripples.ability.block_anchor_move": "All anchors",
   
   "jojo_ripples.skill.block_bullet": "(WIP) Block Bullet",
   "jojo_ripples.skill.block_bullet.desc": "Crazy Diamond restructures a block held in your offhand into a sharp projectile and shoots it at a high speed.",

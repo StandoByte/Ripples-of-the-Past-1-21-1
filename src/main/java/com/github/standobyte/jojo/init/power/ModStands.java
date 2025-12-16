@@ -54,22 +54,22 @@ public class ModStands {
 					.addAbility("barrage", ModStandAbilities.BARRAGE)
 
 					.addAbility("heavy_punch", ModStandAbilities.HEAVY_PUNCH)
-					.addAbility("heavy_punch2", ModStandAbilities.HEAVY_PUNCH, punch -> punch.isSubAbility = true)
 					.addAbility("finisher_uppercut", ModStandAbilities.HEAVY_PUNCH, punch -> punch.isSubAbility = true)
-					
 					.addAbility("heavy_charged", ModStandAbilities.HEAVY_CHARGED)
+//					.addAbility("ground_slam", ModStandAbilities.HEAVY_PUNCH)
 					
 					.addAbility("grab",ModStandAbilities.GRAB)
 					
 					.addAbility("grab_throw", ModStandAbilities.GRAB_THROW)
 					.addAbility("grab_punch", ModStandAbilities.GRAB_PUNCH, punch -> punch.isSubAbility = true)
 					.addAbility("grab_barrage", ModStandAbilities.GRAB_BARRAGE, punch -> punch.isSubAbility = true)
+//					.addAbility("grab_heavy_punch", ModStandAbilities.GRAB_HEAVY_PUNCH, punch -> punch.isSubAbility = true)
 					.addAbility("grab_uppercut", ModStandAbilities.GRAB_HEAVY_PUNCH, punch -> {
 						punch.isSubAbility = true;
 						punch.verticalKnockback = true;
 					})
-					
 //					.addAbility("grab_ground_slam", ModStandAbilities.HEAVY_PUNCH)
+					
 //					.addAbility("grab_terrain", ModStandAbilities.GRAB_TERRAIN)
 //					.addAbility("terrain_throw", ModStandAbilities.GRAB_TERRAIN_THROW)
 //					.addAbility("uppercut_ground_throw", ModStandAbilities.HEAVY_PUNCH)
@@ -143,17 +143,59 @@ public class ModStands {
 					
 					.addHumanoidStandStuff()
 					
+//					.addAbility("punch", ModStandAbilities.PUNCH)
+//					.addAbility("barrage", ModStandAbilities.BARRAGE)
+//					.addAbility("heavy_punch", ModStandAbilities.HEAVY_PUNCH)
+//					.addAbility("finisher", ModStandAbilities.HEAVY_PUNCH, punch -> punch.isSubAbility = true)
+//					.addAbility("heavy_charged", ModStandAbilities.HEAVY_CHARGED)
+					
+//					.addAbility("grab",ModStandAbilities.GRAB)
+					
+//					.addAbility("grab_throw", ModStandAbilities.GRAB_THROW)
+//					.addAbility("grab_punch", ModStandAbilities.GRAB_PUNCH, punch -> punch.isSubAbility = true)
+//					.addAbility("grab_barrage", ModStandAbilities.GRAB_BARRAGE, punch -> punch.isSubAbility = true)
+//					.addAbility("grab_heavy_punch", ModStandAbilities.GRAB_HEAVY_PUNCH, punch -> punch.isSubAbility = true)
+//					.addAbility("grab_finisher", ModStandAbilities.GRAB_HEAVY_PUNCH, punch -> punch.isSubAbility = true)
+					
+//					.addAbility("guard", ModStandAbilities.GUARD)
+//					.addAbility("leap", ModStandAbilities.STAND_LEAP)
+					
+//					.addAbility("leave_object", ModStandAbilities._PLACEHOLDER)
+//					.addAbility("disfiguring_punch", ModStandAbilities._PLACEHOLDER)
+//					.addAbility("fuse_with_rock", ModStandAbilities._PLACEHOLDER)
+					
 					.addAbility("repair_item", ModStandAbilities.CD_REPAIR_ITEM)
+//					.addAbility("uncraft", ModStandAbilities.CD_REPAIR_ITEM)
+//					.addAbility("heal", ModStandAbilities._PLACEHOLDER)
+//					.addAbility("revert_state", ModStandAbilities._PLACEHOLDER)
+//					.addAbility("restore_terrain", ModStandAbilities._PLACEHOLDER)
+//					.addAbility("create_wall", ModStandAbilities._PLACEHOLDER)
 					.addAbility("block_bullet", ModStandAbilities.CD_BLOCK_BULLET)
 					.addAbility("blood_cutter", ModStandAbilities.CD_BLOOD_CUTTER)
+					
+					
+//					.makeControlScheme("keybinds")
+//						.bind("repair_item", InputMethod.HOLD, InputKey.C)
+//						
+//						.bind("blood_cutter", InputMethod.CLICK, InputKey.Z)
+//						.bind("block_bullet", InputMethod.CLICK, InputKey.X)
+//						.bind("heal", InputMethod.HOLD, InputKey.C)
+//						.bind("revert_state", InputMethod.HOLD, InputKey.C.withModifier(InputKey.Modifier.CONTROL))
+//						.bind("restore_terrain", InputMethod.HOLD, InputKey.V)
+//						.bind("create_wall", InputMethod.CLICK, InputKey.V.withModifier(InputKey.Modifier.CONTROL))
+//					.finalizeControlScheme()
 					
 					
 					.makeControlScheme("hotbar")
 						.bind("repair_item", InputMethod.HOLD, InputKey.C)
 						
 						.makeHotbar(0, USE_SPECIAL, SWITCH_SPECIAL)
-						.addToHotbar("block_bullet", 0, InputMethod.CLICK)
 						.addToHotbar("blood_cutter", 0, InputMethod.CLICK)
+						.addToHotbar("block_bullet", 0, InputMethod.CLICK)
+						.addToHotbar("heal", 0, InputMethod.HOLD)
+						.addHotbarSlotVariation("revert_state", "heal", InputKey.Modifier.CONTROL, InputMethod.HOLD)
+						.addToHotbar("restore_terrain", 0, InputMethod.HOLD)
+						.addHotbarSlotVariation("create_wall", "restore_terrain", InputKey.Modifier.CONTROL, InputMethod.CLICK)
 					.finalizeControlScheme()
 					
 					
@@ -168,13 +210,17 @@ public class ModStands {
 					.addSkill(StandUnlockableSkill.tiedToMainSkill("block_toss", "grab"))
 					
 					.addSkill(StandUnlockableSkill.startingAbility("repair_item"))
+					
 					.addSkill(StandUnlockableSkill.unlockableAbility("heal", 1))
 					.addSkill(StandUnlockableSkill.unlockableAbility("revert_state", 1).prerequisiteSkill("repair_item"))
 					.addSkill(StandUnlockableSkill.tiedToMainSkill("uncraft", "revert_state").withAbility("uncraft"))
+					
 					.addSkill(StandUnlockableSkill.unlockableAbility("restore_terrain", 1))
+					.addSkill(StandUnlockableSkill.tiedToMainSkill("block_anchor", "restore_terrain"))
 					.addSkill(StandUnlockableSkill.unlockableAbility("create_wall", 1).prerequisiteSkill("restore_terrain"))
 					.addSkill(StandUnlockableSkill.unlockableAbility("fuse_with_rock", 1).prerequisiteSkill("finisher_misshape", "restore_terrain"))
-					.addSkill(StandUnlockableSkill.unlockableAbility("block_anchor", 1).withAbility("block_anchor_move"))
+					
+					
 					.addSkill(StandUnlockableSkill.unlockableAbility("block_bullet", 1).withAbility("blood_cutter"))
 					.addSkill(StandUnlockableSkill.tiedToMainSkill("blood_cutter", "block_bullet").withAbility("blood_cutter"))
 
