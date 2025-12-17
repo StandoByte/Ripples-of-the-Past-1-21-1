@@ -134,7 +134,7 @@ public final class ModStandAbilities {
 	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDHealAbility>> CD_HEAL = ABILITY_TYPES.register(
 			"heal", key -> new AbilityType<>(key, CrazyDHealAbility::new));
 	
-	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> CD_RESTORE_TERRAIN = ABILITY_TYPES.register(
+	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDRestoreTerrainAbility>> CD_RESTORE_TERRAIN = ABILITY_TYPES.register(
 			"restore_terrain", key -> new AbilityType<>(key, CrazyDRestoreTerrainAbility::new));
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDTerrainWallAbility>> CD_WALL_FROM_TERRAIN = ABILITY_TYPES.register(
@@ -157,6 +157,15 @@ public final class ModStandAbilities {
 
 	public static final DeferredHolder<StandEffectType<?>, StandEffectType<DriedBloodDropsEffect>> EFFECT_CD_BLOOD_DROPS = STAND_EFFECT_TYPES.register(
 			"cd_blood_drops", key -> new StandEffectType<>(key, DriedBloodDropsEffect::new));
+
+//	public static final DeferredHolder<StandEffectType<?>, StandEffectType<CrazyDLeaveObjectPunchEffect>> EFFECT_CD_PUNCH_LEAVE_OBJECT = STAND_EFFECT_TYPES.register(
+//			"cd_punch_leave_object", key -> new StandEffectType<>(key, CrazyDLeaveObjectPunchEffect::new));
+//
+	public static final DeferredHolder<StandEffectType<?>, StandEffectType<CrazyDMisshapingPunchEffect>> EFFECT_CD_PUNCH_MISSHAPING = STAND_EFFECT_TYPES.register(
+			"cd_punch_misshaping", key -> new StandEffectType<>(key, CrazyDMisshapingPunchEffect::new));
+//
+//	public static final DeferredHolder<StandEffectType<?>, StandEffectType<CrazyDAngeloRockPunchEffect>> EFFECT_CD_PUNCH_ANGELO_ROCK = STAND_EFFECT_TYPES.register(
+//			"cd_punch_angelo_rock", key -> new StandEffectType<>(key, CrazyDAngeloRockPunchEffect::new));
 	
 	public static final Supplier<StandEffectType<?>> _PLACEHOLDER_CD_TURN_INTO_ANGELO_ROCK_EFFECT = () -> null;
 
