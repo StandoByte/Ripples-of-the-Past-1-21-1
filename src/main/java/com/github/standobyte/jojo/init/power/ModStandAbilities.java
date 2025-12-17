@@ -19,9 +19,18 @@ import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityPunchAb
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.item.SwapStandHandItemsAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.item.SwapUserStandItemsAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.item.TossStandItemAbility;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDAngeloRockPunchInput;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBlockBulletAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBloodCutterAbility;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDHealAbility;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDLeaveObjectPunchInput;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDMisshapingPunchEffect;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDMisshapingPunchInput;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDRepairItemAbility;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDRestoreTerrainAbility;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDRevertEntityAndBlocksAbility;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDTerrainWallAbility;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDUncraftItemAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.DriedBloodDropsEffect;
 import com.github.standobyte.jojo.jojoimpl.stands.hierophant.HierophantPuppetAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.hierophant.HierophantPuppetEffect;
@@ -117,29 +126,44 @@ public final class ModStandAbilities {
 	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDBlockBulletAbility>> CD_BLOCK_BULLET = ABILITY_TYPES.register(
 			"block_bullet", key -> new AbilityType<>(key, CrazyDBlockBulletAbility::new));
 	
-	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> CD_REVERT_STATE = ABILITY_TYPES.register(
-			"revert_state", key -> new AbilityType<>(key, Ability::new));
+	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDRevertEntityAndBlocksAbility>> CD_REVERT_STATE = ABILITY_TYPES.register(
+			"revert_state", key -> new AbilityType<>(key, CrazyDRevertEntityAndBlocksAbility::new));
 	
-	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> CD_HEAL = ABILITY_TYPES.register(
-			"heal", key -> new AbilityType<>(key, Ability::new));
+	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDHealAbility>> CD_HEAL = ABILITY_TYPES.register(
+			"heal", key -> new AbilityType<>(key, CrazyDHealAbility::new));
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> CD_RESTORE_TERRAIN = ABILITY_TYPES.register(
 			"restore_terrain", key -> new AbilityType<>(key, Ability::new));
 	
-	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> CD_MAKE_BLOCK_ANCHOR = ABILITY_TYPES.register(
-			"block_anchor_make", key -> new AbilityType<>(key, Ability::new));
-	
-	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> CD_MOVE_W_BLOCK_ANCHOR = ABILITY_TYPES.register(
-			"block_anchor_move", key -> new AbilityType<>(key, Ability::new));
+	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDTerrainWallAbility>> CD_WALL_FROM_TERRAIN = ABILITY_TYPES.register(
+			"wall_from_terrain", key -> new AbilityType<>(key, CrazyDTerrainWallAbility::new));
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDRepairItemAbility>> CD_REPAIR_ITEM = ABILITY_TYPES.register(
 			"repair_item", key -> new AbilityType<>(key, CrazyDRepairItemAbility::new));
 	
-	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> CD_UNCRAFT_ITEM = ABILITY_TYPES.register(
-			"uncraft_item", key -> new AbilityType<>(key, Ability::new));
+	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDUncraftItemAbility>> CD_UNCRAFT_ITEM = ABILITY_TYPES.register(
+			"uncraft_item", key -> new AbilityType<>(key, CrazyDUncraftItemAbility::new));
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDLeaveObjectPunchInput>> CD_LEAVE_OBJECT_ON_PUNCH = ABILITY_TYPES.register(
+			"leave_object", key -> new AbilityType<>(key, CrazyDLeaveObjectPunchInput::new));
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDMisshapingPunchInput>> CD_DISFIGURE_ON_PUNCH = ABILITY_TYPES.register(
+			"misshape", key -> new AbilityType<>(key, CrazyDMisshapingPunchInput::new));
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDAngeloRockPunchInput>> CD_ANGELO_ROCK_ON_PUNCH = ABILITY_TYPES.register(
+			"angelo_rock", key -> new AbilityType<>(key, CrazyDAngeloRockPunchInput::new));
 
 	public static final DeferredHolder<StandEffectType<?>, StandEffectType<DriedBloodDropsEffect>> EFFECT_CD_BLOOD_DROPS = STAND_EFFECT_TYPES.register(
 			"cd_blood_drops", key -> new StandEffectType<>(key, DriedBloodDropsEffect::new));
+
+//	public static final DeferredHolder<StandEffectType<?>, StandEffectType<CrazyDLeaveObjectPunchEffect>> EFFECT_CD_PUNCH_LEAVE_OBJECT = STAND_EFFECT_TYPES.register(
+//			"cd_punch_leave_object", key -> new StandEffectType<>(key, CrazyDLeaveObjectPunchEffect::new));
+//
+	public static final DeferredHolder<StandEffectType<?>, StandEffectType<CrazyDMisshapingPunchEffect>> EFFECT_CD_PUNCH_MISSHAPING = STAND_EFFECT_TYPES.register(
+			"cd_punch_misshaping", key -> new StandEffectType<>(key, CrazyDMisshapingPunchEffect::new));
+//
+//	public static final DeferredHolder<StandEffectType<?>, StandEffectType<CrazyDAngeloRockPunchEffect>> EFFECT_CD_PUNCH_ANGELO_ROCK = STAND_EFFECT_TYPES.register(
+//			"cd_punch_angelo_rock", key -> new StandEffectType<>(key, CrazyDAngeloRockPunchEffect::new));
 
 
 

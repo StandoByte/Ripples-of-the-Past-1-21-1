@@ -56,6 +56,9 @@ public class EntityActionInstance implements HeldInput {
 	@Nullable public ActionTarget standRotationTarget;
 	public AimingEntity aimAs = AimingEntity.PLAYER;
 	
+	/** Stores the target of the punch action, to be able to communicate with other internal systems, like Stand effects */
+	@Nullable public ActionTarget punchedTarget;
+	
 	public float userWalkSpeed = 1;
 	
 	public EntityActionInstance(EntityActionType ability) {

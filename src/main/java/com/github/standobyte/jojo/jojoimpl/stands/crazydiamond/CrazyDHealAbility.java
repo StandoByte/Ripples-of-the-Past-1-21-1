@@ -2,13 +2,30 @@ package com.github.standobyte.jojo.jojoimpl.stands.crazydiamond;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.init.ModParticles;
+import com.github.standobyte.jojo.powersystem.ability.AbilityId;
+import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 
-public class CrazyDHealAbility {
+public class CrazyDHealAbility extends StandEntityAbility {
+
+	public CrazyDHealAbility(AbilityType<?> abilityType, AbilityId abilityId) {
+		super(abilityType, abilityId, HealingAction::new);
+	}
+
+	public static class HealingAction extends EntityActionInstance {
+
+		public HealingAction(EntityActionType ability) {
+			super(ability);
+		}
+
+	}
 
 	public static double crazyDRestorationSpeed(StandEntity standEntity) {
 		return standEntity.getAttackSpeed() * 0.05F + 0.55;
