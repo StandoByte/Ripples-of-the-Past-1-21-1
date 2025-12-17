@@ -95,15 +95,17 @@ public class JojoModUtil {
 		}
 	}
 
+	@Deprecated
 	public static boolean destroyBlock(Level level, BlockPos blockPos, boolean dropBlock, @Nullable Entity entity) {
-		BlockState oldState = dropBlock ? null /*no need to call it in this case*/ : level.getBlockState(blockPos);
-		boolean res = level.destroyBlock(blockPos, dropBlock, entity);
-		if (res && !dropBlock) {
-			CrazyDRestoreTerrainAbility.rememberBrokenBlock(level, blockPos, oldState, 
-					Optional.ofNullable(level.getBlockEntity(blockPos)), 
-					Collections.emptyList());
-		}
-		return res;
+//		BlockState oldState = dropBlock ? null /*no need to call it in this case*/ : level.getBlockState(blockPos);
+//		boolean res = level.destroyBlock(blockPos, dropBlock, entity);
+////		if (res && !dropBlock) {
+////			CrazyDRestoreTerrainAbility.rememberBrokenBlock(level, blockPos, oldState, 
+////					Optional.ofNullable(level.getBlockEntity(blockPos)), 
+////					Collections.emptyList());
+////		}
+//		return res;
+		return level.destroyBlock(blockPos, dropBlock, entity);
 	}
 
 	public static boolean dropBrokenBlock(LivingEntity entity) {

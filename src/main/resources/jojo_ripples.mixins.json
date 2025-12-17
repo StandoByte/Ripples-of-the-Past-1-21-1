@@ -49,6 +49,7 @@
     "itemtracking.rigged.MobEntityLootingMixin",
     
     "stand.crazyd.LootTableMixin",
+    "stand.crazyd.LevelDestroyBlockMixin",
     "stand.crazyd.FireBlockMixin",
 	
 	"ProjectileHighSpeedSync",

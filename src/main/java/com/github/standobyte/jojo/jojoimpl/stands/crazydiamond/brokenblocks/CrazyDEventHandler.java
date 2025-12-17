@@ -19,8 +19,9 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 @EventBusSubscriber(modid = JojoMod.MOD_ID)
 public class CrazyDEventHandler {
 
+	// the case of creative players breaking blocks isn't covered by LevelDestroyBlockMixin
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public static void onBlockBreak(BlockEvent.BreakEvent event) {
+	public static void onCreativePlayerBlockDestroy(BlockEvent.BreakEvent event) {
 		LevelAccessor _level = event.getLevel();
 		if (!_level.isClientSide()) {
 			Level world = (Level) _level;
@@ -35,7 +36,7 @@ public class CrazyDEventHandler {
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public static void recordBlockDrops(BlockDropsEvent event) {
+	public static void recordDroppedXp(BlockDropsEvent event) {
 		ServerLevel level = event.getLevel();
 		if (!level.isClientSide()) {
 			int xp = event.getDroppedExperience();
