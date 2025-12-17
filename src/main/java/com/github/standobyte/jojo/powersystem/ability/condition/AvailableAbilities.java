@@ -29,7 +29,7 @@ public class AvailableAbilities {
 		
 		for (var baseAbilityEntry : baseMoveset.abilities.entrySet()) {
 			Ability ability = baseAbilityEntry.getValue();
-			ability = ability.replaceWithSubAbility(context);
+			ability = Ability.tryReplaceWithSubAbility(ability, context);
 			if (ability.isAbilityAvailable(context)) {
 				AbilityConditionCheck container = getContainerFor(ability);
 				_inMoveset.put(baseAbilityEntry.getKey(), container);

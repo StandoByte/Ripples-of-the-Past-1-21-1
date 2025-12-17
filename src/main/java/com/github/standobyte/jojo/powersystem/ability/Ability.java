@@ -56,6 +56,15 @@ public class Ability {
 	
 	// Most of the methods below are called in AvailableAbilities#update(Power, Moveset)
 	
+	@Nonnull
+	public static Ability tryReplaceWithSubAbility(Ability baseAbility, Power<?> context) {
+		Ability subAbility = baseAbility.replaceWithSubAbility(context);
+		if (subAbility != null) {
+			return subAbility;
+		}
+		return baseAbility;
+	}
+	
 	/**
 	 * @return A variation of this ability depending on the context
 	 * (e.g. a specific punch in a combo string, a heavy punch finisher, etc.).
@@ -63,7 +72,6 @@ public class Ability {
 	 * to make sure the ability shows up when and only when it is unlocked.
 	 */
 	@ApiStatus.OverrideOnly
-	@Nonnull
 	public Ability replaceWithSubAbility(Power<?> context) {
 		return this;
 	}
