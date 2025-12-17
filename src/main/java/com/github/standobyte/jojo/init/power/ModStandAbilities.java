@@ -169,15 +169,6 @@ public final class ModStandAbilities {
 	
 	public static final Supplier<StandEffectType<?>> _PLACEHOLDER_CD_TURN_INTO_ANGELO_ROCK_EFFECT = () -> null;
 
-//	public static final DeferredHolder<StandEffectType<?>, StandEffectType<CrazyDLeaveObjectPunchEffect>> EFFECT_CD_PUNCH_LEAVE_OBJECT = STAND_EFFECT_TYPES.register(
-//			"cd_punch_leave_object", key -> new StandEffectType<>(key, CrazyDLeaveObjectPunchEffect::new));
-//
-	public static final DeferredHolder<StandEffectType<?>, StandEffectType<CrazyDMisshapingPunchEffect>> EFFECT_CD_PUNCH_MISSHAPING = STAND_EFFECT_TYPES.register(
-			"cd_punch_misshaping", key -> new StandEffectType<>(key, CrazyDMisshapingPunchEffect::new));
-//
-//	public static final DeferredHolder<StandEffectType<?>, StandEffectType<CrazyDAngeloRockPunchEffect>> EFFECT_CD_PUNCH_ANGELO_ROCK = STAND_EFFECT_TYPES.register(
-//			"cd_punch_angelo_rock", key -> new StandEffectType<>(key, CrazyDAngeloRockPunchEffect::new));
-
 
 
 	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> _PLACEHOLDER = ABILITY_TYPES.register(
