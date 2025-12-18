@@ -184,6 +184,28 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 					.forEach(list::add);;
 		}
 		
+		// doesn't work anyway
+//		for (ServerPlayer player : level.players()) {
+//			PlayerBreakingBlock block = BlockBreakingVanilla.getBlockBeingBrokenByPlayer(player);
+//			if (block != null && filter.test(block.blockPos)) {
+//				list.add(new AbstractMap.SimpleEntry<>(block.blockPos, block));
+//			}
+//		}
+//		
+//		AABB lookForZombies = new AABB(
+//				center.getX() - blockRange,
+//				center.getY() - blockRange,
+//				center.getZ() - blockRange,
+//				center.getX() + blockRange + 1,
+//				center.getY() + blockRange + 1,
+//				center.getZ() + blockRange + 1);
+//		level.getEntitiesOfClass(Zombie.class, lookForZombies).forEach(zombie -> {
+//			ZombieBreakingDoor block = BlockBreakingVanilla.getDoorBeingBrokenByZombie(zombie);
+//			if (block != null && filter.test(block.blockPos)) {
+//				list.add(new AbstractMap.SimpleEntry<>(block.blockPos, block));
+//			}
+//		});
+
 		return list;
 	}
 
