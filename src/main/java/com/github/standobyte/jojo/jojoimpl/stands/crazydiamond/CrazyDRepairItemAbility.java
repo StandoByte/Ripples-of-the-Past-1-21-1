@@ -19,6 +19,7 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbili
 import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.UtilFunctions;
 import com.github.standobyte.jojo.util.mc.ContainerSlotInput;
+import com.github.standobyte.jojo.util.mc.ItemUtil;
 import com.github.standobyte.jojo.util.network.NetworkUtil;
 
 import net.minecraft.client.Minecraft;
@@ -105,7 +106,6 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 			inputInvSlot = NetworkUtil.readOptional(input, ContainerSlotInput.STREAM_CODEC);
 		}
 
-		// TODO (item repair) does not work in CreativeModeInventoryScreen
 		@Override
 		public void onActionSet(@Nullable EntityActionInstance prevAction) {
 			if (inputInvSlot != null && inputInvSlot.isPresent() && powerUser.getEntity(level()) instanceof Player player) {
@@ -164,9 +164,22 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 
 		return false;
 	}
+	
+	public static class ItemRepairResult {
+		static ItemRepairResult instance = new ItemRepairResult();
+		
+		public boolean isRepairing;
+		public float uncraftLearnPoints;
+	}
 
-	public static float repairTick(LivingEntity user, StandEntity standEntity, ItemStack itemStack, int taskTicks) {
-		if (itemStack.isEmpty()) return 0;
+	public static ItemRepairResult repairTick(LivingEntity user, StandEntity standEntity, ItemStack itemStack, int taskTicks) {
+		ItemRepairResult result = ItemRepairResult.instance;
+		result.isRepairing = false;
+		
+		if (itemStack.isEmpty()) {
+			result.uncraftLearnPoints = 0;
+			return result;
+		}
 		
 		int damage = 0;
 		float multiplier = 1;
@@ -212,16 +225,6 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 			break;
 		}
 		
-		int xp = getFullExperienceAmount(itemStack);
-		if (xp > 0) {
-			damage += xp * 5;
-			dropExperience(user, itemStack, xp);
-		}
-		DataComponentType<ItemEnchantments> enchComponentType = EnchantmentHelper.getComponentType(itemStack);
-		if (itemStack.has(enchComponentType)) {
-			itemStack.set(enchComponentType, ItemEnchantments.EMPTY);
-		}
-		
 		if (itemStack.isDamageableItem()) {
 			// TODO (item repair) retrieve the tool tier to give more learning points
 //			if (itemStack.getItem() instanceof TieredItem) {
@@ -232,21 +235,35 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 			damage += damageToRestore;
 			itemStack.setDamageValue(itemStack.getDamageValue() - damageToRestore);
 			itemStack.set(DataComponents.REPAIR_COST, 0);
+			result.isRepairing = true;
+		}
+		boolean transformTick = isItemTransformationTick(taskTicks, standEntity);
+		
+		int xp = getFullExperienceAmount(itemStack);
+		if (xp > 0) {
+			if (damage > 0) {
+				damage += xp * 5;
+			}
+			dropExperience(user, xp);
+		}
+		DataComponentType<ItemEnchantments> enchComponentType = EnchantmentHelper.getComponentType(itemStack);
+		if (itemStack.has(enchComponentType)) {
+			itemStack.set(enchComponentType, ItemEnchantments.EMPTY);
 		}
 
-		if (newStack != null && user instanceof Player player) {
-			if (isItemTransformationTick(taskTicks, standEntity)) {
+		if (newStack != null) {
+			result.isRepairing = true;
+			if (transformTick) {
 				itemStack.shrink(1);
-				if (!player.getInventory().add(newStack)) {
-					player.drop(newStack, false);
-				}
+				ItemUtil.giveItemTo(user, newStack, true);
 			}
 			else {
 				damage = -1;
 			}
 		}
 
-		return (float) damage * multiplier * UNCRAFT_LEARNING_RATE;
+		result.uncraftLearnPoints = (float) damage * multiplier * UNCRAFT_LEARNING_RATE;
+		return result;
 	}
 	private static final float UNCRAFT_LEARNING_RATE = 0.002f / 13f;
 
@@ -254,10 +271,10 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 		int ticks = (int) (10 / CrazyDHealAbility.crazyDRestorationSpeed(standEntity));
 		return taskTicks % ticks == ticks - 1;
 	}
-
-	public static int dropExperience(LivingEntity entity, ItemStack enchantedItem, int xp) {
+	
+	public static int dropExperience(LivingEntity entity, int xp) {
 		Level level = entity.level();
-		if (!level.isClientSide() && (enchantedItem.hasFoil() || enchantedItem.isEnchanted()) && xp > 0) {
+		if (!level.isClientSide() && xp > 0) {
 			int i1 = (int) Math.ceil((double)xp / 2.0);
 			xp = i1 + level.random.nextInt(i1);
 			

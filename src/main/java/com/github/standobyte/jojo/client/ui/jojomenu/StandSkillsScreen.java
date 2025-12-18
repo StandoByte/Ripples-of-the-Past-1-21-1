@@ -44,18 +44,18 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 				"guard",
 				"leap",
 				"ledge_grab",
+				
 				"uppercut",
 				"ground_slam",
 				"grab_terrain",
 				"uppercut_ground_throw",
 				"enhanced_eyesight",
 				"time_stop",
+				
 				"disfiguring_punch",
 				"leave_object",
 				"heal",
 				"revert_state",
-				"uncraft",
-				"restore_terrain",
 				"create_wall",
 				"fuse_with_rock",
 				"block_anchor"

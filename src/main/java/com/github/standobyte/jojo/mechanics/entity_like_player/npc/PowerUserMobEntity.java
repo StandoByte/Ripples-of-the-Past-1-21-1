@@ -74,7 +74,7 @@ import net.neoforged.neoforge.entity.XpOrbTargetingEvent;
 ⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠛⢛⢿⣿⣿⣿⣿⣿⣿⣷⡿⠁⠄⠄⠄
 ⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠉⠉⠉⠉⠈⠄⠄⠄⠄⠄⠄
  */
-public class PowerUserMobEntity extends Mob {
+public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 	public static final EntityDataAccessor<Optional<ResolvableProfile>> DATA_PROFILE = SynchedEntityData.defineId(PowerUserMobEntity.class, 
 			ModEntityDataSerializers.RESOLVABLE_PROFILE_OPTIONAL.get());
 	public static final EntityDataAccessor<Boolean> IS_DEBUG_DUMMY = SynchedEntityData.defineId(PowerUserMobEntity.class, 
@@ -107,6 +107,16 @@ public class PowerUserMobEntity extends Mob {
     	boolean qwe = super.shouldShowName();
     	return qwe;
     }
+	
+	@Override
+	public Entity getEntity() {
+		return this;
+	}
+	
+	@Override
+	public Player asPlayer() {
+		return (Player) playerWrapper;
+	}
 	
 	
 	public static boolean isMobPlayerLike(Entity entity) {
