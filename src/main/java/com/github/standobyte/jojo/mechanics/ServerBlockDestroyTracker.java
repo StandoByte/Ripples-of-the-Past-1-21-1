@@ -41,6 +41,7 @@ public class ServerBlockDestroyTracker {
 		BlockDestroy blockProgress = tracker.blockDestroy.computeIfAbsent(blockPos, 
 				pos -> new BlockDestroy(counter.getAndIncrement() % 16383 /* 2 bytes of varint */));
 //		blockProgress.ticksBeforeRevert = ticksBeforeRevert;
+		blockProgress.ticksBeforeRevert = 40;
 		boolean remove = blockProgress.setAndSyncProgress(blockProgress.progress + progress, blockPos, level);
 		if (remove) {
 			tracker.blockDestroy.remove(blockPos);
@@ -60,17 +61,18 @@ public class ServerBlockDestroyTracker {
 				sync(blockPos, progress, level);
 				iter.remove();
 			}
-//			else {
-//				if (progress.ticksBeforeRevert > 0) {
-//					--progress.ticksBeforeRevert;
-//				}
-//				else {
-//					boolean remove = progress.setAndSyncProgress(progress.progress - 0.01f, blockPos, level);
-//					if (remove) {
-//						iter.remove();
-//					}
-//				}
-//			}
+			else {
+				if (progress.ticksBeforeRevert > 0) {
+					--progress.ticksBeforeRevert;
+				}
+				else {
+					float reductionPerTick = 1;//0.01f;
+					boolean remove = progress.setAndSyncProgress(progress.progress - reductionPerTick, blockPos, level);
+					if (remove) {
+						iter.remove();
+					}
+				}
+			}
 
 		}
 	}
@@ -79,7 +81,7 @@ public class ServerBlockDestroyTracker {
 	public static class BlockDestroy {
 		public final int id;
 		public float progress;
-//		public int ticksBeforeRevert;
+		public int ticksBeforeRevert;
 
 		protected BlockDestroy(int id) {
 			this.id = id;
