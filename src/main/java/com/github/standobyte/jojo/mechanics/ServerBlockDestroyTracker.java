@@ -10,6 +10,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.brokenblocks.BlockBreaking;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
@@ -42,11 +43,11 @@ public class ServerBlockDestroyTracker {
 				pos -> new BlockDestroy(counter.getAndIncrement() % 16383 /* 2 bytes of varint */));
 //		blockProgress.ticksBeforeRevert = ticksBeforeRevert;
 		blockProgress.ticksBeforeRevert = 40;
-		boolean remove = blockProgress.setAndSyncProgress(blockProgress.progress + progress, blockPos, level);
+		boolean remove = blockProgress.setAndSyncProgress(blockProgress.curProgress + progress, blockPos, level);
 		if (remove) {
 			tracker.blockDestroy.remove(blockPos);
 		}
-		return blockProgress.progress >= 1;
+		return blockProgress.curProgress >= 1;
 	}
 
 	public void tickPost() {
@@ -57,7 +58,7 @@ public class ServerBlockDestroyTracker {
 			BlockDestroy progress = blockEntry.getValue();
 			BlockState blockState = level.getBlockState(blockPos);
 			if (blockState.isAir()) {
-				progress.progress = 0;
+				progress.curProgress = 0;
 				sync(blockPos, progress, level);
 				iter.remove();
 			}
@@ -67,7 +68,7 @@ public class ServerBlockDestroyTracker {
 				}
 				else {
 					float reductionPerTick = 1;//0.01f;
-					boolean remove = progress.setAndSyncProgress(progress.progress - reductionPerTick, blockPos, level);
+					boolean remove = progress.setAndSyncProgress(progress.curProgress - reductionPerTick, blockPos, level);
 					if (remove) {
 						iter.remove();
 					}
@@ -78,27 +79,34 @@ public class ServerBlockDestroyTracker {
 	}
 
 	@ApiStatus.Internal
-	public static class BlockDestroy {
+	public static class BlockDestroy implements BlockBreaking {
 		public final int id;
-		public float progress;
+		public float curProgress;
 		public int ticksBeforeRevert;
 
 		protected BlockDestroy(int id) {
 			this.id = id;
 		}
 		
+		@Override
+		public float getProgress() {
+			return curProgress;
+		}
+		
+		@Override
 		public boolean setAndSyncProgress(float value, BlockPos blockPos, ServerLevel level) {
 			int prevProgress = this.getVanillaProgressValue();
-			this.progress = value;
+			this.curProgress = value;
 			int newProgress = this.getVanillaProgressValue();
 			if (newProgress != prevProgress) {
 				sync(blockPos, this, level);
 			}
-			return this.progress <= 0 || this.progress >= 1;
+			return this.curProgress <= 0 || this.curProgress >= 1;
 		}
 
+		public static final int VANILLA_SCALE = 10;
 		public int getVanillaProgressValue() {
-			return progress <= 0 ? -1 : Mth.clamp((int) (progress * 10f), 0, 10);
+			return curProgress <= 0 ? -1 : Mth.clamp((int) (curProgress * VANILLA_SCALE), 0, VANILLA_SCALE);
 		}
 	}
 	
@@ -135,7 +143,7 @@ public class ServerBlockDestroyTracker {
 			ServerBlockDestroyTracker tracker = level.getData(attachmentType);
 			BlockDestroy progress = tracker.blockDestroy.get(blockPos);
 			if (progress != null) {
-				return progress.progress;
+				return progress.curProgress;
 			}
 		}
 		return 0;

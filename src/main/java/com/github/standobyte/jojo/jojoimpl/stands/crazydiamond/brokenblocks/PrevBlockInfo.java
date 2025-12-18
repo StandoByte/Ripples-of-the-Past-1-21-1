@@ -30,7 +30,7 @@ public class PrevBlockInfo {
 
 	public final List<ItemStack> drops;
 	private int xp = 0;
-	private List<WeakReference<EntityMadeFromBlock>> blockShards;
+	public List<WeakReference<EntityMadeFromBlock>> blockShards;
 
 	public final boolean keep;
 	private int tickCount = 0;
@@ -72,17 +72,6 @@ public class PrevBlockInfo {
 		this.blockShards = Arrays.stream(blockShardEntities).map(WeakReference::new).collect(Collectors.toList());
 	}
 
-	public boolean onRestore() {
-		if (blockShards != null) {
-			for (WeakReference<EntityMadeFromBlock> shardRef : blockShards) {
-				EntityMadeFromBlock shard = shardRef.get();
-				if (shard != null && shard.isEntityAlive()) {
-					return shard.crazyDRestore(pos);
-				}
-			}
-		}
-		return true;
-	}
 
 	boolean forget() {
 		return !keep && tickCount++ == 24000;
