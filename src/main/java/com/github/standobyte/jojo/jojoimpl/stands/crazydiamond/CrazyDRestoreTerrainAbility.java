@@ -20,11 +20,13 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
+import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModParticles;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.brokenblocks.BrokenBlocksChunkData;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.brokenblocks.CDBlocksRestoredPacket;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.brokenblocks.PrevBlockInfo;
+import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
@@ -37,11 +39,14 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.UselessCrap;
+import com.github.standobyte.jojo.util.entitycomponent.ComponentUtil;
 import com.github.standobyte.jojo.util.mc.XpFormulas;
 
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -129,8 +134,10 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 				}
 				boolean onlyAimedAt = user.isShiftKeyDown();
 				
-				Stream<PrevBlockInfo> blocks = getBlocksInRange(level, user, eyePos, manhattanRange, 
-						block -> blockPosSelectedForRestoration(block, cameraEntity, lookVec, eyePosD, eyePos, resolveEffect, onlyAimedAt));
+				Stream<Map.Entry<BlockPos, ?>> blocks = getFixableBlocksInRange(level, user, eyePos, manhattanRange, 
+						blockPos -> blockPosSelectedForRestoration(blockPos, cameraEntity, 
+								lookVec, eyePosD, eyePos, manhattanRange, 
+								resolveEffect, onlyAimedAt));
 				
 				AABB area = cameraEntity.getBoundingBox().inflate(manhattanRange * 2);
 				Vec3 center = area.getCenter();
@@ -140,13 +147,13 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 						playerUser != null ? SourceType.PLAYER_INVENTORY.from(playerUser) : null, 
 								useOtherPlayersInventories ? SourceType.PLAYER_INVENTORY.fromAllNearby().sort() : null);
 				
-				Set<BlockPos> blocksPlaced = restoreBlocks(level, standEntity, blocks, 
-						Comparator.comparingInt((PrevBlockInfo block) -> block.pos.distManhattan(eyePos)), 
-						blocksToRestore, 
+				ServerLevel serverLevel = (ServerLevel) level;
+				RestoreResult result = restoreBlocks(serverLevel, standEntity, blocks, 
+						blocksToRestore, eyePos, 
 						creative, resolveEffect && !onlyAimedAt, true, 
-						playerUser, itemsSource).blocksPlaced;
+						playerUser, itemsSource);
 				
-				userPower.consumeStamina(staminaPerBlock * blocksPlaced.size());
+				userPower.consumeStamina(staminaPerBlock * result.blockForStaminaCost);
 			}
 		}
 
@@ -273,48 +280,67 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 	}
 
 
-	public static RestoreResult restoreBlocks(Level level, Entity trackedEntity, Stream<PrevBlockInfo> blocks, 
-			Comparator<PrevBlockInfo> sort, long limit, 
+	public static RestoreResult restoreBlocks(ServerLevel level, Entity trackedEntity, Stream<Map.Entry<BlockPos, ?>> blocks, 
+			float limit, Vec3i eyePos, 
 			boolean isCreative, boolean randomizePos, boolean forgetFailed, 
 			@Nullable Player playerWithXp, List<ItemStack> itemsSource) {
 		RestoreResult result = new RestoreResult();
 		if (limit == 0) return result;
 
 		blocks = blocks
-				.filter(block -> {
-					if (restorationExclude(block, level)) {
-						return false;
-					}
-					if (blockCanBePlaced(level, block.pos, block.state)) {
-						return true;
-					}
-					if (forgetFailed) {
-						result.blocksToForget.add(block.pos);
-					}
-					return false;
+				.filter(blockEntry -> {
+					return switch (blockEntry.getValue()) {
+						case PrevBlockInfo block -> {
+							if (restorationExclude(block, level)) {
+								yield false;
+							}
+							if (blockCanBePlaced(level, block.pos, block.state)) {
+								yield true;
+							}
+							if (forgetFailed) {
+								result.blocksToForget.add(block.pos);
+							}
+							yield false;
+						}
+						default -> true;
+					};
 				});
-		if (sort != null) {
-			sort = Comparator.comparingInt((PrevBlockInfo block) -> restorationPriority(block, level))
-					.thenComparing(sort);
-			blocks = blocks.sorted(sort);
-		}
-		if (limit >= 0) {
-			blocks = blocks.limit(limit);
-		}
+		
+		blocks = blocks.sorted(Comparator.comparingInt(
+				(Map.Entry<BlockPos, ?> blockEntry) -> restorationPriority(blockEntry.getValue(), level)).thenComparingInt(
+				(Map.Entry<BlockPos, ?> blockEntry) -> blockEntry.getKey().distManhattan(eyePos)));
 
-		blocks.forEach(block -> {
-			if (block.onRestore()) {
-				result.blocksTried.add(block.pos);
-				if (tryPlaceBlock(level, block.pos, block.state, isCreative, randomizePos, 
-						block.drops, block.getDroppedXp(), playerWithXp, itemsSource)) {
-					result.blocksPlaced.add(block.pos);
-					result.blocksToForget.add(block.pos);
+		blocks.forEach(blockEntry -> {
+			BlockPos blockPos = blockEntry.getKey();
+			switch (blockEntry.getValue()) {
+				case PrevBlockInfo block -> {
+					float blockToRestore = 1;
+					if (result.blockForStaminaCost + blockToRestore <= limit) {
+						if (block.onRestore()) {
+//							result.blocksTried.add(block.pos);
+							if (tryPlaceBlock(level, block.pos, block.state, isCreative, randomizePos, 
+									block.drops, block.getDroppedXp(), playerWithXp, itemsSource)) {
+								result.blocksFixParticles.add(block.pos);
+								result.blocksToForget.add(block.pos);
+								result.blockForStaminaCost += blockToRestore;
+							}
+						}
+					}
 				}
+				case ServerBlockDestroyTracker.BlockDestroy blockBeingBroken -> {
+					float breakProgressToFix = Mth.clamp(limit - result.blockForStaminaCost, 0, blockBeingBroken.progress);
+					if (breakProgressToFix > 0) {
+						blockBeingBroken.setAndSyncProgress(blockBeingBroken.progress - breakProgressToFix, blockPos, level);
+						result.blockForStaminaCost += breakProgressToFix;
+						result.blocksFixParticles.add(blockPos);
+					}
+				}
+				default -> {}
 			}
 		});
 
-		if (!result.blocksPlaced.isEmpty()) {
-			PacketDistributor.sendToPlayersTrackingEntityAndSelf(trackedEntity, new CDBlocksRestoredPacket(result.blocksPlaced));
+		if (!result.blocksFixParticles.isEmpty()) {
+			PacketDistributor.sendToPlayersTrackingEntityAndSelf(trackedEntity, new CDBlocksRestoredPacket(result.blocksFixParticles));
 		}
 		forgetBrokenBlocks(level, result.blocksToForget);
 
@@ -322,18 +348,19 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 	}
 
 	public static class RestoreResult {
-		public final Set<BlockPos> blocksTried = new HashSet<>();
-		public final Set<BlockPos> blocksPlaced = new HashSet<>();
+		public float blockForStaminaCost = 0;
+//		public final Set<BlockPos> blocksTried = new HashSet<>();
+		public final Set<BlockPos> blocksFixParticles = new HashSet<>();
 		public final Set<BlockPos> blocksToForget = new HashSet<>();
 	}
 
-	// this whole junk fixes janky restoration of sand blocks, e.g. explosions in a desert
+	// this whole junk somewhat fixes janky restoration of sand blocks, e.g. an explosion in a desert
 	protected static boolean restorationExclude(PrevBlockInfo block, Level level) {
 		if (block.state.getBlock() instanceof FallingBlock) {
 			BlockPos blockBelow = block.pos.below();
 			if (level.isEmptyBlock(blockBelow)) {
 				BrokenBlocksChunkData data = BrokenBlocksChunkData.getExistingData(level, block.pos);
-				if (data != null && data.getBrokenBlocks().anyMatch(brokenBlock -> blockBelow.equals(brokenBlock.pos))) {
+				if (data != null && data.brokenBlocks.containsKey(blockBelow)) {
 					return true;
 				}
 			}
@@ -342,11 +369,13 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 		return !block.state.canSurvive(level, block.pos);
 	}
 
-	protected static int restorationPriority(PrevBlockInfo block, Level level) {
-		if (block.state.getBlock() instanceof FallingBlock && !level.isEmptyBlock(block.pos.below())) {
-			return 1;
+	protected static int restorationPriority(Object blockToFix, Level level) {
+		if (blockToFix instanceof PrevBlockInfo block) {
+			if (block.state.getBlock() instanceof FallingBlock && !level.isEmptyBlock(block.pos.below())) {
+				return 0;
+			}
 		}
-		return 2;
+		return 1;
 	}
 
 
@@ -472,7 +501,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 	public static void addParticlesAroundBlock(Level level, BlockPos blockPos, RandomSource random) {
 		if (level.isClientSide() && ClientGlobals.canSeeStands) {
 			Vec3 posLLCorner = Vec3.atLowerCornerOf(blockPos).subtract(0.25, 0.25, 0.25);
-			for (int i = 0; i < 24; i++) {
+			for (int i = 0; i < 12; i++) {
 				level.addParticle(ModParticles.CD_RESTORATION.get(), 
 						posLLCorner.x + random.nextDouble() * 1.5, 
 						posLLCorner.y + random.nextDouble() * 1.5, 
@@ -508,8 +537,19 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 	}
 
 
+	public static Stream<Map.Entry<BlockPos, ?>> getFixableBlocksInRange(Level level, LivingEntity user, Vec3i center, int blockRange, Predicate<BlockPos> filter) {
+		Stream<Map.Entry<BlockPos, ServerBlockDestroyTracker.BlockDestroy>> blocksBeingDestroyed;
+		ServerBlockDestroyTracker trackers = ComponentUtil.getExistingDataOrNull(level, ModDataAttachmentTypes.BLOCK_DESTROY);
+		if (trackers != null) {
+			blocksBeingDestroyed = trackers.blockDestroy.entrySet().stream()
+					.filter(entry -> filter.test(entry.getKey()));
+		}
+		else blocksBeingDestroyed = Stream.empty();
+		
+		return Stream.concat(getBrokenBlocksInRange(level, user, center, blockRange, block -> filter.test(block.pos)), blocksBeingDestroyed);
+	}
 
-	public static Stream<PrevBlockInfo> getBlocksInRange(Level level, LivingEntity user, Vec3i center, int blockRange, Predicate<PrevBlockInfo> filter) {
+	public static Stream<Map.Entry<BlockPos, PrevBlockInfo>> getBrokenBlocksInRange(Level level, LivingEntity user, Vec3i center, int blockRange, Predicate<PrevBlockInfo> filter) {
 		int chunkXMin = center.getX() - blockRange >> 4;
 		int chunkXMax = center.getX() + blockRange >> 4;
 		int chunkZMin = center.getZ() - blockRange >> 4;
@@ -523,19 +563,23 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 				}
 			}
 		}
-		Stream<PrevBlockInfo> stream = builder.build().flatMap(chunk -> {
+		Stream<LevelChunk> chunks = builder.build();
+		Stream<Map.Entry<BlockPos, PrevBlockInfo>> brokenBlocks = chunks.flatMap(chunk -> {
 			BrokenBlocksChunkData data = BrokenBlocksChunkData.getExistingData(chunk);
 			if (data != null) {
-				return data.getBrokenBlocks().filter(block -> {
-					return block.pos.distManhattan(center) <= blockRange && !user.getBoundingBox().intersects(new AABB(block.pos))
-							&& filter.test(block);
+				return data.brokenBlocks.entrySet().stream().filter(blockEntry -> {
+					PrevBlockInfo block = blockEntry.getValue();
+					BlockPos blockPos = blockEntry.getKey();
+//					return blockPos.distManhattan(center) <= blockRange
+//							&& !user.getBoundingBox().intersects(new AABB(blockPos))
+//							&& filter.test(block);
+					return filter.test(block)
+							&& !user.getBoundingBox().intersects(new AABB(blockPos));
 				});
 			}
-			else {
-				return Stream.empty();
-			}
+			else return Stream.empty();
 		});
-		return stream;
+		return brokenBlocks;
 	}
 
 	public static Entity restorationCenterEntity(LivingEntity user, StandPower power) {
@@ -551,18 +595,18 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 		return new Vec3i((int) Math.round(pos.x), (int) Math.round(pos.y), (int) Math.round(pos.z));
 	}
 
-	public static boolean blockPosSelectedForRestoration(PrevBlockInfo block, Entity cameraEntity, 
-			Vec3 entityLookVec, Vec3 entityEyePos, Vec3i restorationCenter, boolean resolve, boolean aimedOnly) {
-		int rangeManhattan = restorationDistManhattan(resolve);
-		if (block.pos.distManhattan(restorationCenter) > rangeManhattan) {
+	public static boolean blockPosSelectedForRestoration(BlockPos blockPos, Entity cameraEntity, 
+			Vec3 entityLookVec, Vec3 entityEyePos, Vec3i restorationCenter, int rangeManhattan, 
+			boolean resolve, boolean aimedOnly) {
+		if (blockPos.distManhattan(restorationCenter) > rangeManhattan) {
 			return false;
 		}
 		if (aimedOnly) {
 			Vec3 pos2 = entityEyePos.add(entityLookVec.scale(rangeManhattan * 2));
-			return new AABB(block.pos).clip(entityEyePos, pos2).isPresent();
+			return new AABB(blockPos).clip(entityEyePos, pos2).isPresent();
 		}
 		else {
-			return entityLookVec.dot(Vec3.atCenterOf(block.pos).subtract(entityEyePos).normalize()) >= (resolve ? 0 : 0.7071);
+			return entityLookVec.dot(Vec3.atCenterOf(blockPos).subtract(entityEyePos).normalize()) >= (resolve ? 0 : 0.7071);
 		}
 	}
 

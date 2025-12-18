@@ -27,7 +27,7 @@ import net.neoforged.neoforge.event.tick.LevelTickEvent;
 public class ServerBlockDestroyTracker {
 	public final ServerLevel level;
 	protected static AtomicInteger counter = new AtomicInteger();
-	protected Map<BlockPos, BlockDestroy> blockDestroy = new HashMap<>();
+	public Map<BlockPos, BlockDestroy> blockDestroy = new HashMap<>();
 
 	public ServerBlockDestroyTracker(ServerLevel level) {
 		this.level = level;

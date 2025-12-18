@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.client;
 
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -68,17 +69,21 @@ public class TranslucentBlockRenderHelper {
 				Vec3i pos = CrazyDRestoreTerrainAbility.eyePos(entity);
 				Vec3 lookVec = entity.getLookAngle();
 				Vec3 eyePosD = entity.getEyePosition(1.0F);
+				boolean resolveEffect = mc.player.hasEffect(ModStatusEffects.RESOLVE);
+				int manhattanRange = CrazyDRestoreTerrainAbility.restorationDistManhattan(resolveEffect);
+				Stream<Map.Entry<BlockPos, PrevBlockInfo>> allFixableBlocks = CrazyDRestoreTerrainAbility.getBrokenBlocksInRange(mc.level, mc.player, pos, 32, 
+								block -> CrazyDRestoreTerrainAbility.blockCanBePlaced(mc.level, block.pos, block.state));
+				Predicate<PrevBlockInfo> inAbilityRange = block -> CrazyDRestoreTerrainAbility.blockPosSelectedForRestoration(block.pos, entity, 
+						lookVec, eyePosD, pos, manhattanRange, 
+						resolveEffect, mc.player.isShiftKeyDown());
 				TranslucentBlockRenderHelper.renderCDRestorationTranslucentBlocks(poseStack, mc, 
-						CrazyDRestoreTerrainAbility.getBlocksInRange(mc.level, mc.player, pos, 32, 
-								block -> CrazyDRestoreTerrainAbility.blockCanBePlaced(mc.level, block.pos, block.state)),
-						block -> CrazyDRestoreTerrainAbility.blockPosSelectedForRestoration(block, entity, lookVec, eyePosD, pos, 
-								mc.player.hasEffect(ModStatusEffects.RESOLVE), mc.player.isShiftKeyDown()));
+						allFixableBlocks, inAbilityRange);
 			}
 		}
 	}
 
 	public static void renderCDRestorationTranslucentBlocks(PoseStack poseStack, Minecraft mc, 
-			Stream<PrevBlockInfo> blocks, Predicate<PrevBlockInfo> inAbilityRange) {
+			Stream<Map.Entry<BlockPos, PrevBlockInfo>> blocks, Predicate<PrevBlockInfo> inAbilityRange) {
 		if (buffers == null) {
 			RenderStateShard.OutputStateShard targetShard = new RenderStateShard.OutputStateShard(
 					"crazy_d_blocks", 
@@ -115,7 +120,8 @@ public class TranslucentBlockRenderHelper {
 		BlockRenderDispatcher renderer = mc.getBlockRenderer();
 		int overlayFade = Math.abs((int) (Util.getMillis() % 2000) / 100 - 10);
 		int overlayTexture = OverlayTexture.pack(overlayFade, 10);
-		blocks.forEach(block -> {
+		blocks.forEach(blockEntry -> {
+			PrevBlockInfo block = blockEntry.getValue();
 			BlockPos pos = block.pos;
 			BlockState blockState = block.state;
 			ModelData tileData = mc.level.getModelData(pos);
