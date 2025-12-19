@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.jojoimpl;
 
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
+import com.github.standobyte.jojo.mechanics.entity_like_player.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
 
@@ -13,6 +14,7 @@ import net.minecraft.world.entity.monster.AbstractIllager;
 import net.minecraft.world.entity.monster.Husk;
 import net.minecraft.world.entity.monster.Zoglin;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.npc.Npc;
 import net.minecraft.world.entity.player.Player;
 
 public class JojoDefinitions {
@@ -62,6 +64,7 @@ public class JojoDefinitions {
 	public static boolean canBleed(LivingEntity entity) {
 		if (entity.getType().is(EntityTypeTags.UNDEAD)) {
 			return entity instanceof Player
+					|| entity instanceof PowerUserMobEntity
 					|| entity instanceof Zombie && !(entity instanceof Husk)
 					|| entity instanceof Zoglin
 					|| entity instanceof ZombieHorse;
@@ -70,11 +73,11 @@ public class JojoDefinitions {
 			return false;
 		}
 		return entity instanceof Player
+				|| entity instanceof PowerUserMobEntity
 				|| entity instanceof AgeableMob
-//				|| entity instanceof INPC
+				|| entity instanceof Npc
 				|| entity instanceof AbstractIllager
 				|| entity instanceof WaterAnimal;
-//				|| entity instanceof IMobStandUser;
 	}
 	
 	public static boolean isDyingBody(LivingEntity entity) {

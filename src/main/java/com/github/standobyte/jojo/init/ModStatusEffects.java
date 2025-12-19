@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.mc.statuseffect.BleedingEffect;
 import com.github.standobyte.jojo.mc.statuseffect.ResolveModeEffect;
 
 import net.minecraft.core.Holder;
@@ -40,6 +41,9 @@ public class ModStatusEffects {
 
 	public static final DeferredHolder<MobEffect, ResolveModeEffect> RESOLVE = STATUS_EFFECTS.register("resolve", 
 			id -> new ResolveModeEffect(MobEffectCategory.BENEFICIAL, 0xC6151F).setUncurable());
+
+	public static final DeferredHolder<MobEffect, BleedingEffect> BLEEDING = STATUS_EFFECTS.register("bleeding", 
+			id -> new BleedingEffect(MobEffectCategory.HARMFUL, 0x990000));
 	
 
 	@SubscribeEvent
