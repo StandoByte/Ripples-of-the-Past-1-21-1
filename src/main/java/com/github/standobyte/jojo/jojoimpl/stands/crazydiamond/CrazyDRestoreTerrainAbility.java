@@ -121,7 +121,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 				Player playerUser = user instanceof Player ? (Player) user : null;
 				boolean creative = playerUser != null ? playerUser.getAbilities().instabuild : false;
 				Entity cameraEntity = restorationCenterEntity(user, userPower);
-				boolean resolveEffect = user.hasEffect(ModStatusEffects.RESOLVE);
+				boolean resolveEffect = ModStatusEffects.isInResolveEffect(user);
 				int manhattanRange = restorationDistManhattan(resolveEffect);
 				Vec3i eyePos = eyePos(cameraEntity);
 				Vec3 lookVec = cameraEntity.getLookAngle();
@@ -689,7 +689,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 	public String getSpriteName(Power<?> context) {
 		if (context != null) {
 			LivingEntity user = context.getUser();
-			if (user != null && user.hasEffect(ModStatusEffects.RESOLVE)) {
+			if (user != null && ModStatusEffects.isInResolveEffect(user)) {
 				return resolveSpriteName;
 			}
 		}
