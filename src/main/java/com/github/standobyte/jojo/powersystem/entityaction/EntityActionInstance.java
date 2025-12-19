@@ -54,7 +54,7 @@ public class EntityActionInstance implements HeldInput {
 	protected EntityResolver powerUser = new EntityResolver();
 	
 	@Nullable public ActionTarget standRotationTarget;
-	public AimingEntity aimAs = AimingEntity.PLAYER;
+	public AimingEntity aimAs = AimingEntity.CAMERA_ENTITY;
 	
 	/** Stores the target of the punch action, to be able to communicate with other internal systems, like Stand effects */
 	@Nullable public ActionTarget punchedTarget;

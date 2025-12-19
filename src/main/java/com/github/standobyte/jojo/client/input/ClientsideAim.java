@@ -44,6 +44,7 @@ public class ClientsideAim {
 					aiming = switch (curAction.aimAs) {
 						case PLAYER -> mc.player;
 						case STAND -> stand;
+						case CAMERA_ENTITY -> isPlayerCameraEntity ? mc.player : stand;
 					};
 				}
 				else {

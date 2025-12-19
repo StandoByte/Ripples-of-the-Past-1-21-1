@@ -134,7 +134,7 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 					standRotationTarget = target;
 				}
 				else {
-					aimAs = AimingEntity.PLAYER;
+					aimAs = AimingEntity.CAMERA_ENTITY;
 				}
 			}
 		}

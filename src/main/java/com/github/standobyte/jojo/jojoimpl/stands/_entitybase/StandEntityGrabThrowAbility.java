@@ -103,7 +103,7 @@ public class StandEntityGrabThrowAbility extends StandEntityAbility {
 				StandPower standPower = StandPower.get(getPowerUser());
 				standPower.consumeStamina(50);
 			}
-			aimAs = AimingEntity.PLAYER;
+			aimAs = AimingEntity.CAMERA_ENTITY;
 		}
 		
 		@Override
