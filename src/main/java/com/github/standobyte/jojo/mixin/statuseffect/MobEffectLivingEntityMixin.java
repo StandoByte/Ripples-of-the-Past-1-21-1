@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mixin;
+package com.github.standobyte.jojo.mixin.statuseffect;
 
 import javax.annotation.Nullable;
 

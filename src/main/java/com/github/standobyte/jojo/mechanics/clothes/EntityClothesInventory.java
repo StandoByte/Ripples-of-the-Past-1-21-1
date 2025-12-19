@@ -15,9 +15,9 @@ import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
-import com.github.standobyte.jojo.util.JojoModUtil;
 import com.github.standobyte.jojo.util.entitycomponent.SynchronizablePlayerData;
 import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
+import com.github.standobyte.jojo.util.mc.ItemUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._ItemStack;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
@@ -291,7 +291,7 @@ public class EntityClothesInventory implements Container, SynchronizablePlayerDa
 					ItemStack item = itemEntry.getValue();
 					if (!item.isEmpty()) {
 						if (!EnchantmentHelper.has(item, EnchantmentEffectComponents.PREVENT_EQUIPMENT_DROP)) {
-							ItemEntity itemEntity = JojoModUtil.dropItem(entity, item, true, true);
+							ItemEntity itemEntity = ItemUtil.dropItem(entity, item, true, true);
 							drops.add(itemEntity);
 						}
 						itemEntry.setValue(ItemStack.EMPTY);

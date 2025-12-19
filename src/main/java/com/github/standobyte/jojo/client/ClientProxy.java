@@ -5,6 +5,7 @@ import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -38,6 +39,10 @@ public final class ClientProxy {
 	
 	public static void openScreen(Object screen) {
 		Minecraft.getInstance().setScreen((Screen) screen);
+	}
+	
+	public static void setOverlayMessage(Component message, boolean animateColor) {
+		Minecraft.getInstance().gui.setOverlayMessage(message, animateColor);
 	}
 	
     public static final ItemTracking clientTrackedItems = new ItemTracking(null);

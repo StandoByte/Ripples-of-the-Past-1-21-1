@@ -199,6 +199,7 @@
   
   "stand.unknown": "Неизвестный Стенд: %s",
   "effect.jojo_ripples.resolve": "Решимость",
+  "effect.jojo_ripples.bleeding": "Кровотечение",
 
   "jojo.message.action_condition.stand_user_too_far": "Вы и ваш Стенд слишком далеко друг от друга",
   "jojo.message.action_condition.stand_too_slow": "Ваш Стенд слишком медленный",
@@ -362,6 +363,8 @@
   "    перевести-jojo_ripples.skill.heal.desc": "Fix the damage and injuries of a damaged entity.",
   "jojo_ripples.skill.heal.controls": "Особая способность",
   "jojo_ripples.ability.heal": "Лечение",
+  "jojo.message.action_condition.cd_heal_self": "Вы не можете исцелить самого себя",
+  "jojo.message.action_condition.heal_target": "Эту сущность нельзя исцелить",
   
   "jojo_ripples.skill.revert_state": "(NYI) Вернуть исходное состояние",
   "    перевести-jojo_ripples.skill.revert_state.desc": "Revert the state of some entities and placed blocks. Examples include defusing TNTs and turning glass into sand.",

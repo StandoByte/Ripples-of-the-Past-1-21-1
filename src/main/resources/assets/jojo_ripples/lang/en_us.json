@@ -214,6 +214,7 @@
   
   "stand.unknown": "Unknown Stand: %s",
   "effect.jojo_ripples.resolve": "Resolve",
+  "effect.jojo_ripples.bleeding": "Bleeding",
 
   "jojo.message.action_condition.stand_user_too_far": "You and your Stand are too far away from each other",
   "jojo.message.action_condition.stand_too_slow": "Your Stand is too slow to do this",
@@ -377,6 +378,8 @@
   "jojo_ripples.skill.heal.desc": "Fix the damage and injuries of a damaged entity.",
   "jojo_ripples.skill.heal.controls": "Special ability",
   "jojo_ripples.ability.heal": "Heal",
+  "jojo.message.action_condition.cd_heal_self": "You can't heal yourself",
+  "jojo.message.action_condition.heal_target": "This entity can't be healed",
   
   "jojo_ripples.skill.revert_state": "(NYI) Revert state",
   "jojo_ripples.skill.revert_state.desc": "Revert the state of some entities and placed blocks. Examples include defusing TNTs and turning glass into sand.",

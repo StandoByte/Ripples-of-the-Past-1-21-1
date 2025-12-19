@@ -49,6 +49,7 @@ public class ModStatusEffects {
 	@SubscribeEvent
 	public static void afterRegister(FMLCommonSetupEvent event) {
 		TRACKED_EFFECTS.add(RESOLVE);
+		TRACKED_EFFECTS.add(BLEEDING);
 		
 		RESOLVE_EFFECTS.add(RESOLVE);
 	}

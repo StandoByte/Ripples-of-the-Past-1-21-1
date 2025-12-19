@@ -48,13 +48,15 @@
     "itemtracking.track.MerchantResultSlotMixin",
     "itemtracking.rigged.MobEntityLootingMixin",
     
+	"statuseffect.MobEffectLivingEntityMixin",
+	"statuseffect.LivingEntityMobEffectStuffAccessor",
+    
     "stand.crazyd.LootTableMixin",
     "stand.crazyd.LevelDestroyBlockMixin",
     "stand.crazyd.FireBlockMixin",
 	
 	"ProjectileHighSpeedSync",
 	"attributes.EntityMixin",
-	"MobEffectLivingEntityMixin",
 	"modcompat.MthInitBeforeLithium",
 	
 	"debughelper.CodecErrorMessageMixin"

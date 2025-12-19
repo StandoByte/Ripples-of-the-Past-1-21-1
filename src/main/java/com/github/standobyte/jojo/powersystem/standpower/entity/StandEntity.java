@@ -334,9 +334,13 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			}
 		}
 		
-		Vec3 targetPos = switch (lookTarget.getType()) {
+		return lookAtTarget(lookTarget, fullyRotateBody);
+	}
+	
+	public Vec3 getPosToLookAt(ActionTarget target) {
+		return switch (target.getType()) {
 			case ENTITY -> {
-				Entity targetEntity = lookTarget.getEntity();
+				Entity targetEntity = target.getEntity();
                 if (targetEntity != null){
                     // TODO (stand aiming) look closer to where the user is looking (legs/head aiming)
                     double y = targetEntity instanceof LivingEntity ?
@@ -347,10 +351,14 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 				yield null;
 			}
 			case BLOCK -> {
-				yield Vec3.atCenterOf(lookTarget.getBlockPos());
+				yield Vec3.atCenterOf(target.getBlockPos());
 			}
 			default -> null;
 		};
+	}
+	
+	public boolean lookAtTarget(ActionTarget target, boolean fullyRotateBody) {
+		Vec3 targetPos = getPosToLookAt(target);
 		
 		if (targetPos != null) {
 			Vec2 rotations = MathUtil.lookAnglesTowards(targetPos, this, EntityAnchorArgument.Anchor.EYES);

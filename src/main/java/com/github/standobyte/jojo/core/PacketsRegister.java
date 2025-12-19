@@ -16,6 +16,7 @@ import com.github.standobyte.jojo.core.packet.fromserver.TrAimTargetPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrNonEntityStandSummonPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrPowerStandInstancePacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrPowerTypePacket;
+import com.github.standobyte.jojo.core.packet.fromserver.TrResetDeathTimePacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrStandDataPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrStandSkinPacket;
@@ -86,6 +87,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrClothesItemsPacket.Handler(JojoMod.resLoc("clothes")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrSetGrabbedEntityPacket.Handler(JojoMod.resLoc("grab")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new EntitySyncMotionBypassingPacket.Handler(JojoMod.resLoc("motfix")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new TrResetDeathTimePacket.Handler(JojoMod.resLoc("undeath")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new DeflectedBulletPacket.Handler(JojoMod.resLoc("projdefl")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new BloodParticlesPacket.Handler(JojoMod.resLoc("blood")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new BrokenChunkBlocksPacket.Handler(JojoMod.resLoc("brokenblocks")));

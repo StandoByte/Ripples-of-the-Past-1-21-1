@@ -152,12 +152,12 @@ public class StandOffsetFromUser {
 		}
 	}
 	
-	protected float getLerpAmount() {
-		return getLerpAmount(0);
-	}
+//	public float getLerpAmount() {
+//		return getLerpAmount(0);
+//	}
 	
-	protected float getLerpAmount(int tickOffset) {
-		int timeDiff = (standEntity.tickCount + tickOffset) - changedTimestamp;
+	public float getLerpAmount(/*int tickOffset*/) {
+		int timeDiff = (standEntity.tickCount/* + tickOffset*/) - changedTimestamp;
 		return Mth.clamp((float) timeDiff / LERP_TIME, 0, 1);
 	}
 	
