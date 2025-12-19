@@ -408,6 +408,7 @@ public class EntityActionInstance implements HeldInput {
 	@ApiStatus.Internal
 	public void _beforeActionRemoved(@Nullable EntityActionInstance newAction) {
 		onActionCleared(newAction);
+		this.phase = null;
 	}
 	
 	@ApiStatus.Internal
