@@ -68,7 +68,7 @@ public class CrazyDHealAbility extends StandEntityAbility {
 			}
 		}
 		
-		// TODO ! (CD heal) pose only when it has a target (start counting animation ticks from there)
+		// TODO !! (CD heal) pose only when it has a target (start counting animation ticks from there)
 		
 		@Override
 		public boolean canBeCancelledInto(EntityActionType cancellingAbility) {
@@ -126,15 +126,15 @@ public class CrazyDHealAbility extends StandEntityAbility {
 									StandOffsetFromUser.Rotations.HEAD_XY, false);
 						}
 						if (cur.barrageVisuals) {
-							// TODO ! (CD heal) barrage visuals
+							// TODO !! (CD heal) barrage visuals
 						}
-						// TODO ! (CD heal) healing sound
+						// TODO !! (CD heal) healing sound
 					}
 					else if (old == null || old.isHealing) {
 						if (standEntity != null) {
 							standEntity.offsetFromUser.resetToIdle();
 						}
-						// TODO ! (CD heal) stop the sound
+						// TODO !! (CD heal) stop the sound
 					}
 				}
 
@@ -324,7 +324,7 @@ public class CrazyDHealAbility extends StandEntityAbility {
 	public static void addParticlesAround(Entity entity) {
 		Level level = entity.level();
 		if (level.isClientSide() && ClientGlobals.canSeeStands) {
-			int particlesCount = Math.max(Mth.ceil(entity.getBbWidth() * (entity.getBbHeight() * 2 * entity.getBbHeight())), 1);
+			int particlesCount = Math.max(Mth.ceil(0.5f * entity.getBbWidth() * (entity.getBbHeight() * 2 * entity.getBbHeight())), 1);
 			for (int i = 0; i < particlesCount; i++) {
 				level.addParticle(ModParticles.CD_RESTORATION.get(), entity.getRandomX(1), entity.getRandomY(), entity.getRandomZ(1), 0, 0, 0);
 			}
