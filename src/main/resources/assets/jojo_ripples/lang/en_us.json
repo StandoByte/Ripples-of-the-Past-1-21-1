@@ -26,6 +26,10 @@
   "key.keyboard.left.shortened": "←",
   "key.keyboard.right.shortened": "→",
   "key.keyboard.print.screen.shortened": "PrtSc",
+  "neoforge.controlsgui.shift.noplus": "SHIFT",
+  "neoforge.controlsgui.control.noplus": "CTRL",
+  "neoforge.controlsgui.control.mac.noplus": "CMD",
+  "neoforge.controlsgui.alt.noplus": "ALT",
   
   "key.categories.jojo_ripples": "JoJo: Ripples of the Past",
   "jojo_ripples.key.toggle_stand": "Summon/unsummon Stand",

@@ -136,8 +136,8 @@ public class ControlsHudElement extends HudElement {
 						InputMethod inputMethod = byInputMethod.getKey();
 						AbilityBindUI bindUI = byInputMethod.getValue();
 						Component keyName = switch (inputMethod) {
-							case CLICK -> slot.keybind;
-							case HOLD -> Component.translatable("ripples_hud.hold_key", slot.keybind);
+							case CLICK -> slot.fullKeybind;
+							case HOLD -> Component.translatable("ripples_hud.hold_key", slot.fullKeybind);
 						};
 						Ability ability = bindUI.ability.ability;
 						Power<?> power = ClientPowerCache.getPower(ability.abilityId.powerClass());
@@ -172,7 +172,9 @@ public class ControlsHudElement extends HudElement {
 	}
 	
 	public static class BindUI {
-		public Component keybind;
+		public Component mainKey;
+		@Nullable public Component modifierKey;
+		public Component fullKeybind;
 		@Nullable public KeyModifier modifier;
 		public Map<InputMethod, AbilityBindUI> abilities = new EnumMap<>(InputMethod.class);
 		
@@ -227,6 +229,7 @@ public class ControlsHudElement extends HudElement {
 			BindUI bindUI = new BindUI();
 			InputsByKeyModifier bindsForInputMethod = bindEntry.getValue();
 			
+			boolean hasBind = false;
 			for (InputMethod inputMethod : InputMethod.values()) {
 				AbilityBindUI abilityBindUI = makeBindUI(inputMethod, bindsForInputMethod, 
 						modifier, key, false, 
@@ -235,35 +238,41 @@ public class ControlsHudElement extends HudElement {
 				if (abilityBindUI != null) {
 					bindUI.modifier = null;
 					bindUI.abilities.put(inputMethod, abilityBindUI);
+					hasBind = true;
 				}
-				else {
-					if (modifier == KeyModifier.NONE) {
-						// if you aren't pressing Ctrl or Shift, but there is no ability keybind to render, render the Ctrl and Shift ones instead
-						for (KeyModifier otherModifier : KeyModifier.values()) {
-							if (otherModifier != modifier) {
-								abilityBindUI = makeBindUI(inputMethod, bindsForInputMethod, 
-										otherModifier, key, true, 
-										abilityIconSprites, standSkin, 
-										font, hud.forContainerMenu);
-								
-								if (abilityBindUI != null) {
-									if (bindUI.modifier == null) {
-										bindUI.modifier = otherModifier;
-									}
-									bindUI.abilities.put(inputMethod, abilityBindUI);
+			}
+			
+			if (!hasBind && modifier == KeyModifier.NONE) {
+				// if you aren't pressing Ctrl or Shift, but there is no ability keybind to render, render the Ctrl and Shift ones instead
+				for (InputMethod inputMethod : InputMethod.values()) {
+					for (KeyModifier otherModifier : KeyModifier.values()) {
+						if (otherModifier != modifier) {
+							AbilityBindUI abilityBindUI = makeBindUI(inputMethod, bindsForInputMethod, 
+									otherModifier, key, true, 
+									abilityIconSprites, standSkin, 
+									font, hud.forContainerMenu);
+							
+							if (abilityBindUI != null) {
+								if (bindUI.modifier == null) {
+									bindUI.modifier = otherModifier;
 								}
+								bindUI.abilities.put(inputMethod, abilityBindUI);
 							}
 						}
 					}
 				}
 			}
 			
-			// XXX aren't bind names with modifiers too long?
-			if (bindUI.modifier != KeyModifier.NONE && bindUI.modifier != null) continue;
-			
 			if (!bindUI.abilities.isEmpty()) {
-				bindUI.keybind = getKeyName(key, bindUI.modifier);
-				bindUI.keybindWidth = font.width(bindUI.keybind) + 4;
+				bindUI.mainKey = getKeyName(key);
+				bindUI.modifierKey = getModifierName(bindUI.modifier);
+				bindUI.fullKeybind = getKeyName(key, bindUI.mainKey, bindUI.modifier);
+				
+				bindUI.keybindWidth = font.width(bindUI.mainKey);
+				if (bindUI.modifierKey != null) 
+					bindUI.keybindWidth = Math.max(bindUI.keybindWidth, font.width(bindUI.modifierKey));
+				bindUI.keybindWidth += 4;
+				
 				bindUI.width = bindUI.keybindWidth + bindUI.abilities.size() * SLOT_WIDTH + 4;
 				this.binds.add(bindUI);
 			}
@@ -281,7 +290,9 @@ public class ControlsHudElement extends HudElement {
 					HotbarSlotUI slotUI = new HotbarSlotUI();
 					ClientKey key = input.getKey();
 					slotUI.bind = new BindUI();
-					slotUI.bind.keybind = getKeyName(key, input.getKeyModifier());
+					slotUI.bind.mainKey = getKeyName(key);
+					slotUI.bind.modifierKey = getModifierName(input.getKeyModifier());
+					slotUI.bind.fullKeybind = getKeyName(key, slotUI.bind.mainKey, input.getKeyModifier());
 					
 					for (InputMethod inputMethod : InputMethod.values()) {
 						AbilityControlsEntry ability = slot.getBinds().getFirst(modifier, inputMethod);
@@ -307,7 +318,8 @@ public class ControlsHudElement extends HudElement {
 					}
 				}
 
-				hotbarUI.keybind = getKeyName(input.getKey(), KeyModifier.NONE);
+				ClientKey hotbarKey = input.getKey();
+				hotbarUI.keybind = getKeyName(hotbarKey, KeyModifier.NONE);
 				hotbarUI.switchHint = Component.translatable("ripples_hud.hotbar_switch", 
 						getKeyName(hotbar.switchAbilityKey.getKey(), hotbar.switchAbilityKey.getKeyModifier()));
 				hotbarUI.keybindWidth = font.width(hotbarUI.keybind) + 4;
@@ -320,7 +332,8 @@ public class ControlsHudElement extends HudElement {
 		}
 
 
-		int maxKeybindWidth = this.binds.stream().mapToInt(bind -> bind.keybindWidth).max().orElse(0);
+//		int maxKeybindWidth = this.binds.stream().mapToInt(bind -> bind.keybindWidth).max().orElse(0);
+		int maxKeybindWidth = 17;
 		for (BindUI bindUI : this.binds) {
 			bindUI.keybindWidth = maxKeybindWidth;
 		}
@@ -424,10 +437,22 @@ public class ControlsHudElement extends HudElement {
 				int y0 = y;
 
 				y += bind.y;
-				int centered = (bind.keybindWidth - font.width(bind.keybind)) / 2;
-				guiGraphics.drawString(font, bind.keybind, 
-						x + centered, y + (SLOT_HEIGHT - font.lineHeight) / 2, 
-						textColor);
+				if (bind.modifierKey == null) {
+					int centered = (bind.keybindWidth - font.width(bind.fullKeybind)) / 2;
+					guiGraphics.drawString(font, bind.fullKeybind, 
+							x + centered, y + (SLOT_HEIGHT - font.lineHeight) / 2 + 2, 
+							textColor);
+				}
+				else {
+					int centered = (bind.keybindWidth - font.width(bind.modifierKey)) / 2;
+					guiGraphics.drawString(font, bind.modifierKey, 
+							x + centered, y + (SLOT_HEIGHT - font.lineHeight) / 2 - 3, 
+							textColor);
+					centered = (bind.keybindWidth - font.width(bind.mainKey)) / 2;
+					guiGraphics.drawString(font, bind.mainKey, 
+							x + centered, y + (SLOT_HEIGHT - font.lineHeight) / 2 + 7, 
+							textColor);
+				}
 				x += bind.keybindWidth;
 
 				RenderSystem.enableBlend();
@@ -565,12 +590,15 @@ public class ControlsHudElement extends HudElement {
 	}
 
 	public static final Component NOT_BOUND = Component.translatable("key.keyboard.unknown");
-	public static Component getKeyName(@Nullable ClientKey key, KeyModifier modifier) {
+	
+	public static Component getKeyName(@Nullable ClientKey key, Component keyName, KeyModifier modifier) {
 		if (key == null) {
 			return NOT_BOUND;
 		}
-		return modifier != null ? modifier.getCombinedName(key.getVanillaKey(), () -> getKeyName(key)) : getKeyName(key);
+		return modifier != null ? modifier.getCombinedName(key.getVanillaKey(), () -> keyName) : keyName;
 	}
+	
+	public static Component getKeyName(@Nullable ClientKey key, KeyModifier modifier) { return getKeyName(key, getKeyName(key), modifier); }
 
 	public static Component getKeyName(ClientKey key) {
 		if (key == ClientKey.make(InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_LEFT)) {
@@ -585,6 +613,22 @@ public class ControlsHudElement extends HudElement {
 		else {
 			return ShortenText.shortenIfAble(key.keyName());
 		}
+	}
+	
+	public static final Component CONTROL = Component.translatable("neoforge.controlsgui.control.noplus");
+	public static final Component CONTROL_MAC = Component.translatable("neoforge.controlsgui.control.mac.noplus");
+	public static final Component SHIFT = Component.translatable("neoforge.controlsgui.shift.noplus");
+	public static final Component ALT = Component.translatable("neoforge.controlsgui.alt.noplus");
+	
+	@Nullable
+	public static Component getModifierName(KeyModifier modifier) {
+		if (modifier == null) return null;
+		return switch (modifier) {
+			case CONTROL -> Minecraft.ON_OSX ? CONTROL_MAC : CONTROL;
+			case SHIFT -> SHIFT;
+			case ALT -> ALT;
+			case NONE -> null;
+		};
 	}
 
 }
