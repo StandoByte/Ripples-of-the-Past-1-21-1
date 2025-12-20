@@ -4,7 +4,11 @@ import org.spongepowered.include.com.google.common.base.Objects;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientProxy;
+import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
+import com.github.standobyte.jojo.client.sound.sounds.EntityLingeringSoundInstance;
+import com.github.standobyte.jojo.client.sound.sounds.EntityStoppableSoundInstance;
 import com.github.standobyte.jojo.init.ModParticles;
+import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.init.core.ModEntityDataSerializers;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
@@ -116,7 +120,8 @@ public class CrazyDHealAbility extends StandEntityAbility {
 			if (dataKey == HEAL_RESULT) {
 				HealResult old = (HealResult) oldValue;
 				HealResult cur = (HealResult) newValue;
-				cur.target.resolveEntityId(level());
+				Level level = level();
+				cur.target.resolveEntityId(level);
 				
 				if (old == null || cur.isHealing != old.isHealing) {
 					StandEntity standEntity = performer instanceof StandEntity __ ? __ : null;
@@ -128,13 +133,32 @@ public class CrazyDHealAbility extends StandEntityAbility {
 						if (cur.barrageVisuals) {
 							// TODO !! (CD heal) barrage visuals
 						}
-						// TODO !! (CD heal) healing sound
+						if (level.isClientSide() && standEntity != null) {
+							Entity targetEntity = cur.target.getEntity();
+							if (targetEntity != null) {
+								ClientsideSoundsHelper.playNonVanillaClassSound(new EntityLingeringSoundInstance(ClientsideSoundsHelper.withStandSkin(
+										ModSoundEvents.CRAZY_DIAMOND_FIX_STARTED.get(), standEntity), 
+										standEntity.getSoundSource(), 1, 1, targetEntity, level));
+								
+								ClientsideSoundsHelper.playNonVanillaClassSound(new EntityStoppableSoundInstance(ClientsideSoundsHelper.withStandSkin(
+										ModSoundEvents.CRAZY_DIAMOND_FIX_LOOP.get(), standEntity), 
+										standEntity.getSoundSource(), 1, 1, targetEntity, level.random.nextLong(), 
+										() -> this.isOver() || this.phase != ActionPhase.PERFORM || !this.getSynchedData(HEAL_RESULT).isHealing));
+							}
+						}
 					}
 					else if (old == null || old.isHealing) {
 						if (standEntity != null) {
 							standEntity.offsetFromUser.resetToIdle();
 						}
-						// TODO !! (CD heal) stop the sound
+						if (level.isClientSide() && standEntity != null) {
+							Entity targetEntity = old != null ? old.target.getEntity() : null;
+							if (targetEntity != null) {
+								ClientsideSoundsHelper.playNonVanillaClassSound(new EntityLingeringSoundInstance(ClientsideSoundsHelper.withStandSkin(
+										ModSoundEvents.CRAZY_DIAMOND_FIX_ENDED.get(), standEntity), 
+										standEntity.getSoundSource(), 1, 1, targetEntity, level));
+							}
+						}
 					}
 				}
 
