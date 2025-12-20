@@ -150,6 +150,14 @@ public class InputHandler {
 		else if (input(key, action, modifiers)) {
 			event.setCanceled(true);
 		}
+		
+		Key vanillaKey = key.getVanillaKey();
+		if (vanillaKey != null) {
+			switch (action) {
+				case InputConstants.PRESS -> addKeyModifier(vanillaKey);
+				case InputConstants.RELEASE -> removeKeyModifier(vanillaKey);
+			}
+		}
 	}
 	
 	protected void tickReleaseEventQueue() {
@@ -252,11 +260,6 @@ public class InputHandler {
 				
 				putHeldKeyTimer(key, heldKeyTimer);
 				
-				Key vanillaKey = key.getVanillaKey();
-				if (vanillaKey != null) {
-					addKeyModifier(vanillaKey);
-				}
-				
 				if (heldAbility == null && clickAbility == null && mc.screen == null) {
 					checkStartHotbarSelection(key);
 				}
@@ -269,10 +272,6 @@ public class InputHandler {
 					removeHeldKeyTimer(key);
 				}
 
-				Key vanillaKey = key.getVanillaKey();
-				if (vanillaKey != null) {
-					removeKeyModifier(vanillaKey);
-				}
 				checkStopHotbarSelection(key);
 			}
 			case InputConstants.REPEAT -> {
