@@ -11,7 +11,8 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.mc.entity.projectile.DamagingEntity;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionPhaseTimePacket;
-import com.github.standobyte.jojo.powersystem.entityaction.syncdata.SynchedDataWrapper;
+import com.github.standobyte.jojo.powersystem.entityaction.syncdata.SyncedDataHolderExtended;
+import com.github.standobyte.jojo.powersystem.entityaction.syncdata.SynchedDataExtended;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
@@ -26,7 +27,6 @@ import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.SyncedDataHolder;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -43,14 +43,14 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 // TODO (entity action) test the phase lengths stuff (with partial lengths and lengths < 1)
-public class EntityActionInstance implements HeldInput, SyncedDataHolder {
+public class EntityActionInstance implements HeldInput, SyncedDataHolderExtended {
 	/** Is used in network code, to make sure server and client are on the same page when sending changes to the action's phases from server */
 	@ApiStatus.Internal public int id;
 	@Nonnull public final EntityActionType ability;
 	@ApiStatus.Internal public Object2FloatMap<ActionPhase> phasesLength = new Object2FloatArrayMap<>();
 	@ApiStatus.Internal @Nullable public Object2FloatMap<ActionPhase> skippedWindupPhase = null;
 	
-	@Nullable protected SynchedDataWrapper _synchedData;
+	@Nullable protected SynchedDataExtended _synchedData;
 	protected boolean _emptySynchedData = false;
 	
 	@Nonnull protected ActionPhase phase;
@@ -152,7 +152,7 @@ public class EntityActionInstance implements HeldInput, SyncedDataHolder {
 
 	@Nullable
 	@ApiStatus.NonExtendable
-	public SynchedDataWrapper getSynchedData(boolean clientSide) {
+	public SynchedDataExtended getSynchedData(boolean clientSide) {
 		if (_synchedData == null && !_emptySynchedData) {
 			SynchedEntityData.Builder builder = new SynchedEntityData.Builder(this);
 			defineSynchedData(builder);
@@ -161,14 +161,14 @@ public class EntityActionInstance implements HeldInput, SyncedDataHolder {
 				_emptySynchedData = true;
 			}
 			else {
-				_synchedData = new SynchedDataWrapper(builder.build(), clientSide);
+				_synchedData = new SynchedDataExtended(builder, clientSide);
 			}
 		}
 		return _synchedData;
 	}
 	
 	public <T> T getSynchedData(EntityDataAccessor<T> key) {
-		return getSynchedData(level().isClientSide()).data.get(key);
+		return getSynchedData(level().isClientSide()).get(key);
 	}
 
 	public <T> void setSynchedData(EntityDataAccessor<T> key, T value) {
@@ -176,11 +176,16 @@ public class EntityActionInstance implements HeldInput, SyncedDataHolder {
 	}
 
 	public <T> void setSynchedData(EntityDataAccessor<T> key, T value, boolean forceUpdate) {
-		getSynchedData(level().isClientSide()).data.set(key, value, forceUpdate);
+		getSynchedData(level().isClientSide()).set(key, value, forceUpdate);
 	}
 
 	@ApiStatus.OverrideOnly
 	public void defineSynchedData(SynchedEntityData.Builder builder) {}
+	
+	@Override
+	public <T> void onSyncedDataUpdated(T oldValue, T newValue, EntityDataAccessor<T> dataKey) {
+		onSyncedDataUpdated(dataKey);
+	}
 	
 	@Override
 	public void onSyncedDataUpdated(EntityDataAccessor<?> dataKey) {}

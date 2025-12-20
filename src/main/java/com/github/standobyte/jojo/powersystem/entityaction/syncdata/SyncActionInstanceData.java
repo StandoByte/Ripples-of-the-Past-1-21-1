@@ -23,7 +23,7 @@ public class SyncActionInstanceData {
 	@SubscribeEvent
 	public static void onStartedTracking(PlayerEvent.StartTracking event) {
 		Entity entity = event.getTarget();
-		SynchedDataWrapper synchedData = getActionSynchedData(entity);
+		SynchedDataExtended synchedData = getActionSynchedData(entity);
 		if (synchedData != null) {
 			var nonDefaultData = synchedData.syncOnStartedTracking();
 			if (nonDefaultData != null) {
@@ -34,7 +34,7 @@ public class SyncActionInstanceData {
 	}
 	
 	@Nullable
-	public static void tickSyncDirtyData(Entity entity, SynchedDataWrapper synchedData) {
+	public static void tickSyncDirtyData(Entity entity, SynchedDataExtended synchedData) {
 		if (synchedData != null) {
 			var dirtyData = synchedData.syncDirtyData();
 			if (dirtyData != null) {
@@ -44,14 +44,14 @@ public class SyncActionInstanceData {
 	}
 	
 	public static void setDataClientSide(LivingEntity entity, List<SynchedEntityData.DataValue<?>> packedItems) {
-		SynchedDataWrapper synchedData = getActionSynchedData(entity);
+		SynchedDataExtended synchedData = getActionSynchedData(entity);
 		if (synchedData != null) {
-			synchedData.data.assignValues(packedItems);
+			synchedData.assignValues(packedItems);
 		}
 	}
 	
 	@Nullable
-	public static SynchedDataWrapper getActionSynchedData(Entity entity) {
+	public static SynchedDataExtended getActionSynchedData(Entity entity) {
 		if (entity instanceof LivingEntity living) {
 			EntityActionInstance action = LivingComponentAction.getCurEntityAction(living);
 			if (action != null) {
