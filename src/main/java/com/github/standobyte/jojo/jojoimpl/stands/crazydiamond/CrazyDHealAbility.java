@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.jojoimpl.stands.crazydiamond;
 
+import org.spongepowered.include.com.google.common.base.Objects;
+
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.init.ModParticles;
@@ -44,7 +46,6 @@ public class CrazyDHealAbility extends StandEntityAbility {
 	// TODO ! (CD heal) gray out the ability if you're not aiming at a correct target
 
 	public static class HealingAction extends EntityActionInstance {
-		public boolean wasHealingLastTick;
 		public BleedingTimer bleedingTimer;
 
 		public HealingAction(EntityActionType ability) {
@@ -67,6 +68,7 @@ public class CrazyDHealAbility extends StandEntityAbility {
 		}
 		
 
+		protected HealResult prevHealResult;
 		@Override
 		public void actionTick() {
 			ActionTarget aimTarget = LivingComponentAction.getAim(performer).getTarget();
@@ -81,10 +83,11 @@ public class CrazyDHealAbility extends StandEntityAbility {
 				aimAs = AimingEntity.CAMERA_ENTITY;
 			}
 			
+			// TODO (CD heal) only run this on server, sync to clients to update client-side stuff
 			HealResult healingResult = restoreTarget(aimTarget, standEntity);
 
 			if (healingResult.isHealing) {
-				if (!wasHealingLastTick) {
+				if (prevHealResult == null || !prevHealResult.isHealing) {
 					_setStandOffset(standEntity, new Vec3(0, standEntity.Y_OFFSET, 1.5), 
 							StandOffsetFromUser.Rotations.HEAD_XY, false);
 //					standEntity.offsetFromUser.syncToTracking();
@@ -95,7 +98,7 @@ public class CrazyDHealAbility extends StandEntityAbility {
 				}
 			}
 			else {
-				if (wasHealingLastTick) {
+				if (prevHealResult == null || prevHealResult.isHealing) {
 					if (standEntity != null) {
 						standEntity.offsetFromUser.resetToIdle();
 //						standEntity.offsetFromUser.syncToTracking();
@@ -103,13 +106,13 @@ public class CrazyDHealAbility extends StandEntityAbility {
 					// TODO ! (CD heal) stop the sound
 				}
 			}
-			this.wasHealingLastTick = healingResult.isHealing;
+			this.prevHealResult = healingResult;
 			
 			userWalkSpeed = healingResult.isHealing ? 0.6f : 1;
 		}
 
 		public HealResult restoreTarget(ActionTarget target, StandEntity crazyDiamond) {
-			HealResult result = HealResult.clearGetObj();
+			HealResult result = new HealResult(target);
 			LivingEntity user = getPowerUser();
 			result.barrageVisuals = user != null && ModStatusEffects.isInResolveEffect(user);
 			
@@ -126,7 +129,7 @@ public class CrazyDHealAbility extends StandEntityAbility {
 					}
 
 					if (targetEntity instanceof LivingEntity targetLiving) {
-						return healLivingEntity(level, targetLiving, crazyDiamond);
+						return healLivingEntity(level, targetLiving, crazyDiamond, result);
 					}
 
 					else if (targetEntity instanceof ModEntityWithHealth toHeal) {
@@ -154,23 +157,8 @@ public class CrazyDHealAbility extends StandEntityAbility {
 			}
 			return result;
 		}
-		
-		public static class HealResult {
-			static HealResult instance = new HealResult();
-			
-			public static HealResult clearGetObj() {
-				instance.isHealing = false;
-				instance.barrageVisuals = false;
-				return instance;
-			}
-			
-			public boolean isHealing;
-			public boolean barrageVisuals;
-		}
 
-		public HealResult healLivingEntity(Level level, LivingEntity entity, StandEntity crazyDiamond) {
-			HealResult result = HealResult.instance;
-			
+		public HealResult healLivingEntity(Level level, LivingEntity entity, StandEntity crazyDiamond, HealResult result) {
 			LivingEntity toHeal = StandUtil.getStandUser(entity);
 			// FIXME (1.16.5) disable it if the target is a dead body already
 			if (entity.deathTime > 0) {
@@ -232,6 +220,47 @@ public class CrazyDHealAbility extends StandEntityAbility {
 
 			return result;
 		}
+		
+		
+		public static class HealResult {
+			public ActionTarget target;
+			public boolean isHealing;
+			public boolean barrageVisuals;
+			
+			public HealResult(ActionTarget target) {
+				this.target = target;
+			}
+			
+			@Override
+			public boolean equals(Object obj) {
+				if (obj.getClass() == HealResult.class) {
+					HealResult other = (HealResult) obj;
+					return this.target.equals(other.target) 
+							&& this.isHealing == other.isHealing
+							&& this.barrageVisuals == other.barrageVisuals;
+				}
+				return false;
+			}
+			
+			@Override
+			public int hashCode() {
+				return Objects.hashCode(target, isHealing, barrageVisuals);
+			}
+		}
+		
+//		public static final EntityDataAccessor<HealResult> HEAL_RESULT = SynchedEntityData.defineId(HealingAction.class, HealingAction.SERIALIZER);
+//		@Override
+//		public void defineSynchedData(SynchedEntityData.Builder builder) {
+//			builder.define(HEAL_RESULT, prevHealResult = new HealResult(ActionTarget.EMPTY, false, false));
+//		}
+//		
+//		@Override
+//		public void onSyncedDataUpdated(EntityDataAccessor<?> dataKey) {
+//			if (dataKey == HEAL_RESULT) {
+//				onUpdatedHealResult();
+//			}
+//		}
+		
 
 		// TODO ! (CD heal) healSpeed config
 		protected double healSpeedWithConfig(StandEntity standEntity) {

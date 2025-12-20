@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.powersystem.entityaction;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.mc.entity.projectile.DamagingEntity;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionPhaseTimePacket;
+import com.github.standobyte.jojo.powersystem.entityaction.syncdata.SynchedDataWrapper;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
@@ -23,6 +25,9 @@ import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.SyncedDataHolder;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -38,12 +43,15 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 // TODO (entity action) test the phase lengths stuff (with partial lengths and lengths < 1)
-public class EntityActionInstance implements HeldInput {
+public class EntityActionInstance implements HeldInput, SyncedDataHolder {
 	/** Is used in network code, to make sure server and client are on the same page when sending changes to the action's phases from server */
 	@ApiStatus.Internal public int id;
 	@Nonnull public final EntityActionType ability;
 	@ApiStatus.Internal public Object2FloatMap<ActionPhase> phasesLength = new Object2FloatArrayMap<>();
 	@ApiStatus.Internal @Nullable public Object2FloatMap<ActionPhase> skippedWindupPhase = null;
+	
+	@Nullable protected SynchedDataWrapper _synchedData;
+	protected boolean _emptySynchedData = false;
 	
 	@Nonnull protected ActionPhase phase;
 	protected int curPhaseTick;
@@ -140,6 +148,45 @@ public class EntityActionInstance implements HeldInput {
 
 	@ApiStatus.OverrideOnly
 	public void fromBuf(FriendlyByteBuf buf) {}
+	
+
+	@Nullable
+	@ApiStatus.NonExtendable
+	public SynchedDataWrapper getSynchedData(boolean clientSide) {
+		if (_synchedData == null && !_emptySynchedData) {
+			SynchedEntityData.Builder builder = new SynchedEntityData.Builder(this);
+			defineSynchedData(builder);
+			boolean isEmpty = builder.itemsById.length == 0;
+			if (isEmpty) {
+				_emptySynchedData = true;
+			}
+			else {
+				_synchedData = new SynchedDataWrapper(builder.build(), clientSide);
+			}
+		}
+		return _synchedData;
+	}
+	
+	public <T> T getSynchedData(EntityDataAccessor<T> key) {
+		return getSynchedData(level().isClientSide()).data.get(key);
+	}
+
+	public <T> void setSynchedData(EntityDataAccessor<T> key, T value) {
+		setSynchedData(key, value, false);
+	}
+
+	public <T> void setSynchedData(EntityDataAccessor<T> key, T value, boolean forceUpdate) {
+		getSynchedData(level().isClientSide()).data.set(key, value, forceUpdate);
+	}
+
+	@ApiStatus.OverrideOnly
+	public void defineSynchedData(SynchedEntityData.Builder builder) {}
+	
+	@Override
+	public void onSyncedDataUpdated(EntityDataAccessor<?> dataKey) {}
+
+	@Override
+	public void onSyncedDataUpdated(List<SynchedEntityData.DataValue<?>> newData) {}
 	
 	
 	// Some helper methods to write less boilerplate in Stand abilities

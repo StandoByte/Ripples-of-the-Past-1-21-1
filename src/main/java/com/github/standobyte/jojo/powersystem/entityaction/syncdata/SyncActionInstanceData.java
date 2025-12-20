@@ -1,0 +1,64 @@
+package com.github.standobyte.jojo.powersystem.entityaction.syncdata;
+
+import java.util.List;
+
+import javax.annotation.Nullable;
+
+import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
+
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
+
+@EventBusSubscriber(modid = JojoMod.MOD_ID)
+public class SyncActionInstanceData {
+
+	@SubscribeEvent
+	public static void onStartedTracking(PlayerEvent.StartTracking event) {
+		Entity entity = event.getTarget();
+		SynchedDataWrapper synchedData = getActionSynchedData(entity);
+		if (synchedData != null) {
+			var nonDefaultData = synchedData.syncOnStartedTracking();
+			if (nonDefaultData != null) {
+				ServerPlayer tracking = (ServerPlayer) event.getEntity();
+				PacketDistributor.sendToPlayer(tracking, new TrActionSynchedDataPacket(entity.getId(), nonDefaultData));
+			}
+		}
+	}
+	
+	@Nullable
+	public static void tickSyncDirtyData(Entity entity, SynchedDataWrapper synchedData) {
+		if (synchedData != null) {
+			var dirtyData = synchedData.syncDirtyData();
+			if (dirtyData != null) {
+				PacketDistributor.sendToPlayersTrackingEntity(entity, new TrActionSynchedDataPacket(entity.getId(), dirtyData));
+			}
+		}
+	}
+	
+	public static void setDataClientSide(LivingEntity entity, List<SynchedEntityData.DataValue<?>> packedItems) {
+		SynchedDataWrapper synchedData = getActionSynchedData(entity);
+		if (synchedData != null) {
+			synchedData.data.assignValues(packedItems);
+		}
+	}
+	
+	@Nullable
+	public static SynchedDataWrapper getActionSynchedData(Entity entity) {
+		if (entity instanceof LivingEntity living) {
+			EntityActionInstance action = LivingComponentAction.getCurEntityAction(living);
+			if (action != null) {
+				return action.getSynchedData(entity.level().isClientSide());
+			}
+		}
+		return null;
+	}
+	
+}
