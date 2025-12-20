@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.mc.entity.projectile.DamagingEntity;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionPhaseTimePacket;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -330,6 +331,18 @@ public class EntityActionInstance implements HeldInput {
 			}
 		}
 		return ticks + partialTick;
+	}
+	
+	public void extractAnim(EntityActionRenderState renderState, float partialTick) {
+		renderState.animId = getEntityAnim();
+		renderState.time = getAnimFullTicksPassed(partialTick);
+		renderState.actionPhase = getPhase();
+		renderState.phaseTime = getAnimPhaseTick(partialTick);
+		renderState.phaseCompletion = getAnimPhaseRatio(partialTick);
+	}
+
+	public ActionAnimIdentifier getEntityAnim() {
+		return ability.getEntityAnim(this);
 	}
 	
 
