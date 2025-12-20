@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.util;
 
+import java.util.function.Consumer;
+
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.packet.fromserver.StandSkinSoundPacket;
@@ -49,6 +51,22 @@ public class StandUtil {
     public static StandEntity getSummonedStand(Power<?> standPower) {
     	StandPower _standPower = PowerClass.STAND.cast(standPower);
     	return _standPower != null ? _standPower.getSummonedStandEntity() : null;
+    }
+    
+    public static class StandAndUserEntity {
+    	protected static StandAndUserEntity instance = new StandAndUserEntity();
+    	
+    	@Nullable public LivingEntity standUser;
+    	@Nullable public LivingEntity standEntity;
+    }
+    
+    public static StandAndUserEntity getStandAndUser(LivingEntity someEntity) {
+    	LivingEntity targetStandEntity = StandUtil.getSummonedStand(someEntity);
+    	LivingEntity targetStandUser = someEntity == targetStandEntity ? StandUtil.getStandUser(targetStandEntity) : someEntity;
+    	StandAndUserEntity obj = StandAndUserEntity.instance;
+    	obj.standUser = targetStandUser;
+    	obj.standEntity = targetStandEntity;
+    	return obj;
     }
     
     public static boolean isEntityStandUser(LivingEntity entity) {

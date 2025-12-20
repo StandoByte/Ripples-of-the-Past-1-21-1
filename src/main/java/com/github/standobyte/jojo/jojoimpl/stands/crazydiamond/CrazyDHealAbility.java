@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.init.ModParticles;
 import com.github.standobyte.jojo.init.ModStatusEffects;
+import com.github.standobyte.jojo.init.core.ModEntityDataSerializers;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
@@ -19,11 +20,17 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromU
 import com.github.standobyte.jojo.util.JojoModUtil;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.StandUtil;
+import com.github.standobyte.jojo.util.StandUtil.StandAndUserEntity;
 import com.github.standobyte.jojo.util.mc.StatusEffectUtil;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.target.AimingEntity;
 
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -40,6 +47,7 @@ public class CrazyDHealAbility extends StandEntityAbility {
 		setButtonHoldPhase(ActionPhase.PERFORM);
 		healSpeed = 1;
 		// TODO ! (CD heal) friendly fire
+		// TODO ! (CD heal) aim at dying entities
 //		friendlyFire = true;
 	}
 	
@@ -68,51 +76,90 @@ public class CrazyDHealAbility extends StandEntityAbility {
 		}
 		
 
-		protected HealResult prevHealResult;
 		@Override
 		public void actionTick() {
-			ActionTarget aimTarget = LivingComponentAction.getAim(performer).getTarget();
-			StandEntity standEntity = performer instanceof StandEntity s ? s : null;
-
-			if (aimTarget.getType() == TargetType.ENTITY) {
-				standRotationTarget = aimTarget;
-				aimAs = AimingEntity.STAND;
+			boolean isClientSide = level().isClientSide();
+			if (!isClientSide) {
+				ActionTarget aimTarget = LivingComponentAction.getAim(performer).getTarget();
+				StandEntity standEntity = performer instanceof StandEntity s ? s : null;
+				HealResult healingResult = restoreTarget(aimTarget, standEntity);
+				setSynchedData(HEAL_RESULT, healingResult);
 			}
-			else {
-				standRotationTarget = ActionTarget.EMPTY;
-				aimAs = AimingEntity.CAMERA_ENTITY;
-			}
+			HealResult curHealing = getSynchedData(HEAL_RESULT);
+			userWalkSpeed = curHealing.isHealing ? 0.6f : 1;
 			
-			// TODO (CD heal) only run this on server, sync to clients to update client-side stuff
-			HealResult healingResult = restoreTarget(aimTarget, standEntity);
-
-			if (healingResult.isHealing) {
-				if (prevHealResult == null || !prevHealResult.isHealing) {
-					_setStandOffset(standEntity, new Vec3(0, standEntity.Y_OFFSET, 1.5), 
-							StandOffsetFromUser.Rotations.HEAD_XY, false);
-//					standEntity.offsetFromUser.syncToTracking();
-					if (healingResult.barrageVisuals) {
-						// TODO ! (CD heal) barrage visuals
+			if (isClientSide && curHealing.isHealing && curHealing.target.getType() == TargetType.ENTITY) {
+				Entity targetEntity = curHealing.target.getEntity();
+				if (targetEntity != null) {
+					if (targetEntity instanceof LivingEntity targetLiving) {
+						StandAndUserEntity standAndUser = StandUtil.getStandAndUser(targetLiving);
+						
+						if (standAndUser.standUser != null) 
+							addParticlesAround(standAndUser.standUser);
+						if (standAndUser.standEntity != null) 
+							addParticlesAround(standAndUser.standEntity);
+						
+						if (curHealing.deathTime != HealResult.NO_DEATH_TIME_CHANGE) {
+							if (standAndUser.standUser != null) standAndUser.standUser.deathTime = curHealing.deathTime;
+							if (standAndUser.standEntity != null) standAndUser.standEntity.deathTime = curHealing.deathTime;
+						}
 					}
-					// TODO ! (CD heal) healing sound
+					else {
+						addParticlesAround(targetEntity);
+					}
 				}
 			}
-			else {
-				if (prevHealResult == null || prevHealResult.isHealing) {
-					if (standEntity != null) {
-						standEntity.offsetFromUser.resetToIdle();
-//						standEntity.offsetFromUser.syncToTracking();
+		}
+		
+		@Override
+		public <T> void onSyncedDataUpdated(T oldValue, T newValue, EntityDataAccessor<T> dataKey) {
+			if (dataKey == HEAL_RESULT) {
+				HealResult old = (HealResult) oldValue;
+				HealResult cur = (HealResult) newValue;
+				cur.target.resolveEntityId(level());
+				
+				if (old == null || cur.isHealing != old.isHealing) {
+					StandEntity standEntity = performer instanceof StandEntity __ ? __ : null;
+					if (cur.isHealing) {
+						if (standEntity != null) {
+							_setStandOffset(standEntity, new Vec3(0, standEntity.Y_OFFSET, 1.5), 
+									StandOffsetFromUser.Rotations.HEAD_XY, false);
+						}
+						if (cur.barrageVisuals) {
+							// TODO ! (CD heal) barrage visuals
+						}
+						// TODO ! (CD heal) healing sound
 					}
-					// TODO ! (CD heal) stop the sound
+					else if (old == null || old.isHealing) {
+						if (standEntity != null) {
+							standEntity.offsetFromUser.resetToIdle();
+						}
+						// TODO ! (CD heal) stop the sound
+					}
+				}
+
+				if (old == null || !cur.target.equals(old.target)) {
+					if (cur.target.getType() == TargetType.ENTITY) {
+						standRotationTarget = cur.target;
+						aimAs = AimingEntity.STAND;
+						
+						Entity targetEntity = cur.target.getEntity();
+						LivingEntity user = getPowerUser();
+						if (user == targetEntity && user != null && user.level().isClientSide() && user == ClientProxy.getClientPlayer()) {
+							ClientProxy.setOverlayMessage(ConditionCheck.message("cd_heal_self"), false);
+						}
+					}
+					else {
+						standRotationTarget = ActionTarget.EMPTY;
+						aimAs = AimingEntity.CAMERA_ENTITY;
+					}
 				}
 			}
-			this.prevHealResult = healingResult;
-			
-			userWalkSpeed = healingResult.isHealing ? 0.6f : 1;
 		}
 
 		public HealResult restoreTarget(ActionTarget target, StandEntity crazyDiamond) {
-			HealResult result = new HealResult(target);
+			HealResult result = new HealResult();
+			result.target = target;
 			LivingEntity user = getPowerUser();
 			result.barrageVisuals = user != null && ModStatusEffects.isInResolveEffect(user);
 			
@@ -122,9 +169,6 @@ public class CrazyDHealAbility extends StandEntityAbility {
 					Level level = targetEntity.level();
 					
 					if (targetEntity == performer || targetEntity == user) {
-						if (user != null && level.isClientSide() && user == ClientProxy.getClientPlayer()) {
-							ClientProxy.setOverlayMessage(ConditionCheck.message("cd_heal_self"), false);
-						}
 						return result;
 					}
 
@@ -137,7 +181,6 @@ public class CrazyDHealAbility extends StandEntityAbility {
 							if (!level.isClientSide()) {
 								toHeal.setHealth(toHeal.getHealth() + toHeal.getMaxHealth() / 40 * (float) healSpeedWithConfig(crazyDiamond));
 							}
-							addParticlesAround(targetEntity);
 							result.isHealing = true;
 							return result;
 						}
@@ -148,7 +191,6 @@ public class CrazyDHealAbility extends StandEntityAbility {
 							if (!level.isClientSide()) {
 								toHeal.setDamage(Math.max(toHeal.getDamage() - (float) healSpeedWithConfig(crazyDiamond), 0));
 							}
-							addParticlesAround(targetEntity);
 							result.isHealing = true;
 							return result;
 						}
@@ -166,12 +208,10 @@ public class CrazyDHealAbility extends StandEntityAbility {
 				// if (!resolveEffect && entity.deathTime > 1 || entity.deathTime > 15) {
 				// 	return false;
 				// }
-				if (entity.deathTime > 15) {
-					return result;
-				}
 
 				toHeal.deathTime = Math.max(toHeal.deathTime - 2, 0);
-				entity.deathTime = toHeal.deathTime;
+				result.deathTime = entity.deathTime;
+				
 				if (!level.isClientSide() && toHeal.deathTime <= 0 && toHeal.getHealth() <= 0) {
 					toHeal.setHealth(0.001F);
 					JojoModUtil.onLivingResurrect(toHeal);
@@ -210,25 +250,28 @@ public class CrazyDHealAbility extends StandEntityAbility {
 				}
 			}
 
-			if (result.isHealing) {
-				addParticlesAround(toHeal);
-				if (toHeal != entity) {
-					addParticlesAround(entity);
-				}
-				return result;
-			}
-
 			return result;
 		}
-		
-		
+
+
+		public static final EntityDataAccessor<HealResult> HEAL_RESULT = SynchedEntityData.defineId(HealingAction.class, ModEntityDataSerializers.CD_HEAL_RESULT.get());
 		public static class HealResult {
 			public ActionTarget target;
 			public boolean isHealing;
 			public boolean barrageVisuals;
+			public int deathTime;
 			
-			public HealResult(ActionTarget target) {
+			public static final int NO_DEATH_TIME_CHANGE = 67;
+			
+			public HealResult() {
+				this(ActionTarget.EMPTY, false, false, NO_DEATH_TIME_CHANGE);
+			}
+			
+			public HealResult(ActionTarget target, boolean isHealing, boolean barrageVisuals, int deathTime) {
 				this.target = target;
+				this.isHealing = isHealing;
+				this.barrageVisuals = barrageVisuals;
+				this.deathTime = deathTime;
 			}
 			
 			@Override
@@ -237,32 +280,37 @@ public class CrazyDHealAbility extends StandEntityAbility {
 					HealResult other = (HealResult) obj;
 					return this.target.equals(other.target) 
 							&& this.isHealing == other.isHealing
-							&& this.barrageVisuals == other.barrageVisuals;
+							&& this.barrageVisuals == other.barrageVisuals
+							&& this.deathTime == other.deathTime;
 				}
 				return false;
 			}
 			
 			@Override
 			public int hashCode() {
-				return Objects.hashCode(target, isHealing, barrageVisuals);
+				return Objects.hashCode(target, isHealing, barrageVisuals, deathTime);
+			}
+			
+			public static final StreamCodec<? super RegistryFriendlyByteBuf, HealResult> STREAM_CODEC = StreamCodec.composite(
+					ActionTarget.STREAM_CODEC_UNRESOLVED_ENTITY_ID, heal -> heal.target, 
+					ByteBufCodecs.BOOL, heal -> heal.isHealing, 
+					ByteBufCodecs.BOOL, heal -> heal.barrageVisuals, 
+					ByteBufCodecs.VAR_INT, heal -> heal.deathTime, 
+					HealResult::new);
+
+			public HealResult copy() {
+				return new HealResult(this.target.copy(), this.isHealing, this.barrageVisuals, this.deathTime);
 			}
 		}
 		
-//		public static final EntityDataAccessor<HealResult> HEAL_RESULT = SynchedEntityData.defineId(HealingAction.class, HealingAction.SERIALIZER);
-//		@Override
-//		public void defineSynchedData(SynchedEntityData.Builder builder) {
-//			builder.define(HEAL_RESULT, prevHealResult = new HealResult(ActionTarget.EMPTY, false, false));
-//		}
-//		
-//		@Override
-//		public void onSyncedDataUpdated(EntityDataAccessor<?> dataKey) {
-//			if (dataKey == HEAL_RESULT) {
-//				onUpdatedHealResult();
-//			}
-//		}
+		@Override
+		public void defineSynchedData(SynchedEntityData.Builder builder) {
+			builder.define(HEAL_RESULT, new HealResult());
+		}
+		
 		
 
-		// TODO ! (CD heal) healSpeed config
+		// TODO (CD heal) healSpeed config
 		protected double healSpeedWithConfig(StandEntity standEntity) {
 			return crazyDRestorationSpeed(standEntity)/* * healSpeed*/;
 		}
