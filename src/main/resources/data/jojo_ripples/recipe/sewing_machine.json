@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "prl",
+    "n i",
+    "iii"
+  ],
+  "key": {
+    "p": { "item": "minecraft:sticky_piston" },
+    "n": { "item": "jojo_ripples:sewing_needle" },
+    "r": { "item": "minecraft:repeater" },
+    "l": { "item": "minecraft:lever" },
+    "i": { "tag": "c:ingots/iron" }
+  },
+  "result": {
+    "count": 1,
+    "id": "jojo_ripples:sewing_machine"
+  }
+}

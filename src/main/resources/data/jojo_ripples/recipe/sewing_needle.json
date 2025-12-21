@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "  s",
+    " n ",
+    "n  "
+  ],
+  "key": {
+    "n": { "tag": "c:nuggets/iron" },
+    "s": { "tag": "c:strings" }
+  },
+  "result": {
+    "count": 1,
+    "id": "jojo_ripples:sewing_needle"
+  }
+}
