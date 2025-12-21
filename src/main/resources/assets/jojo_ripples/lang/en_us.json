@@ -374,7 +374,7 @@
   "jojo_ripples.skill.repair_item.controls": "C on a damaged item in the inventory",
   "jojo_ripples.ability.repair_item": "Repair Item",
   
-  "jojo_ripples.skill.heal": "(NYI) Heal",
+  "jojo_ripples.skill.heal": "(WIP) Heal",
   "jojo_ripples.skill.heal.desc": "Fix the damage and injuries of a damaged entity.",
   "jojo_ripples.skill.heal.controls": "Special ability",
   "jojo_ripples.ability.heal": "Heal",
@@ -386,12 +386,12 @@
   "jojo_ripples.skill.revert_state.controls": "Ctrl + Heal",
   "jojo_ripples.ability.revert_state": "Revert state",
   
-  "jojo_ripples.skill.uncraft": "(NYI) Revert into ingredients",
+  "jojo_ripples.skill.uncraft": "(WIP) Revert into ingredients",
   "jojo_ripples.skill.uncraft.desc": "Revert an item into the original component(s) it was crafted or smelted from.",
-  "jojo_ripples.skill.uncraft.controls": "Z on an item in the inventory",
+  "jojo_ripples.skill.uncraft.controls": "I on an item in the inventory",
   "jojo_ripples.ability.uncraft": "Revert into ingredients",
   
-  "jojo_ripples.skill.restore_terrain": "(NYI) Restore terrain",
+  "jojo_ripples.skill.restore_terrain": "(WIP) Restore terrain",
   "jojo_ripples.skill.restore_terrain.desc": "Fix blocks that were previously broken, as long as you have the items and experience that were dropped from the blocks.",
   "jojo_ripples.skill.restore_terrain.controls": "Special ability",
   "jojo_ripples.ability.restore_terrain": "Restore terrain",

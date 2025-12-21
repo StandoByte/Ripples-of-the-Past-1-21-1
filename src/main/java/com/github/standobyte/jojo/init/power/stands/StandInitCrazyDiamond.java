@@ -122,8 +122,8 @@ public class StandInitCrazyDiamond {
 				.addSkill(StandUnlockableSkill.unlockableAbility("leave_object", 1).prerequisiteSkill("heal", "heavy_charged"))
 
 				.addSkill(StandUnlockableSkill.unlockableAbility("restore_terrain", 1))
-				.addSkill(StandUnlockableSkill.tiedToMainSkill("block_anchor", "restore_terrain"))
 				.addSkill(StandUnlockableSkill.unlockableAbility("create_wall", 1).prerequisiteSkill("restore_terrain"))
+				.addSkill(StandUnlockableSkill.tiedToMainSkill("block_anchor", "restore_terrain"))
 				.addSkill(StandUnlockableSkill.unlockableAbility("fuse_with_rock", 1).prerequisiteSkill("finisher_misshape", "restore_terrain"))
 
 				.addSkill(StandUnlockableSkill.unlockableAbility("block_bullet", 1).withAbility("blood_cutter"))

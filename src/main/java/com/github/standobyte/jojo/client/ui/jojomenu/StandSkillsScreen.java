@@ -54,7 +54,6 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 				
 				"disfiguring_punch",
 				"leave_object",
-				"heal",
 				"revert_state",
 				"create_wall",
 				"fuse_with_rock",
