@@ -17,6 +17,7 @@ import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
+import com.github.standobyte.jojo.powersystem.entityaction.syncdata.SyncedDataHolderExtended;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
@@ -57,7 +58,7 @@ public class CrazyDHealAbility extends StandEntityAbility {
 	
 	// TODO ! (CD heal) gray out the ability if you're not aiming at a correct target
 
-	public static class HealingAction extends EntityActionInstance {
+	public static class HealingAction extends EntityActionInstance implements SyncedDataHolderExtended {
 		public BleedingTimer bleedingTimer;
 
 		public HealingAction(EntityActionType ability) {
@@ -115,68 +116,63 @@ public class CrazyDHealAbility extends StandEntityAbility {
 			}
 		}
 		
-		@Override
-		public <T> void onSyncedDataUpdated(T oldValue, T newValue, EntityDataAccessor<T> dataKey) {
-			if (dataKey == HEAL_RESULT) {
-				HealResult old = (HealResult) oldValue;
-				HealResult cur = (HealResult) newValue;
-				Level level = level();
-				cur.target.resolveEntityId(level);
-				
-				if (old == null || cur.isHealing != old.isHealing) {
-					StandEntity standEntity = performer instanceof StandEntity __ ? __ : null;
-					if (cur.isHealing) {
-						if (standEntity != null) {
-							_setStandOffset(standEntity, new Vec3(0, standEntity.Y_OFFSET, 1.5), 
-									StandOffsetFromUser.Rotations.HEAD_XY, false);
-						}
-						if (cur.barrageVisuals) {
-							// TODO !! (CD heal) barrage visuals
-						}
-						if (level.isClientSide() && standEntity != null) {
-							Entity targetEntity = cur.target.getEntity();
-							if (targetEntity != null) {
-								ClientsideSoundsHelper.playNonVanillaClassSound(new EntityLingeringSoundInstance(ClientsideSoundsHelper.withStandSkin(
-										ModSoundEvents.CRAZY_DIAMOND_FIX_STARTED.get(), standEntity), 
-										standEntity.getSoundSource(), 1, 1, targetEntity, level));
-								
-								ClientsideSoundsHelper.playNonVanillaClassSound(new EntityStoppableSoundInstance(ClientsideSoundsHelper.withStandSkin(
-										ModSoundEvents.CRAZY_DIAMOND_FIX_LOOP.get(), standEntity), 
-										standEntity.getSoundSource(), 1, 1, targetEntity, level.random.nextLong(), 
-										() -> this.isOver() || this.phase != ActionPhase.PERFORM || !this.getSynchedData(HEAL_RESULT).isHealing));
-							}
-						}
+		public void onHealResultUpdated(HealResult old, HealResult cur) {
+			Level level = level();
+			cur.target.resolveEntityId(level);
+			
+			if (old == null || cur.isHealing != old.isHealing) {
+				StandEntity standEntity = performer instanceof StandEntity __ ? __ : null;
+				if (cur.isHealing) {
+					if (standEntity != null) {
+						_setStandOffset(standEntity, new Vec3(0, standEntity.Y_OFFSET, 1.5), 
+								StandOffsetFromUser.Rotations.HEAD_XY, false);
 					}
-					else if (old == null || old.isHealing) {
-						if (standEntity != null) {
-							standEntity.offsetFromUser.resetToIdle();
-						}
-						if (level.isClientSide() && standEntity != null) {
-							Entity targetEntity = old != null ? old.target.getEntity() : null;
-							if (targetEntity != null) {
-								ClientsideSoundsHelper.playNonVanillaClassSound(new EntityLingeringSoundInstance(ClientsideSoundsHelper.withStandSkin(
-										ModSoundEvents.CRAZY_DIAMOND_FIX_ENDED.get(), standEntity), 
-										standEntity.getSoundSource(), 1, 1, targetEntity, level));
-							}
+					if (cur.barrageVisuals) {
+						// TODO !! (CD heal) barrage visuals
+					}
+					if (level.isClientSide() && standEntity != null) {
+						Entity targetEntity = cur.target.getEntity();
+						if (targetEntity != null) {
+							ClientsideSoundsHelper.playNonVanillaClassSound(new EntityLingeringSoundInstance(ClientsideSoundsHelper.withStandSkin(
+									ModSoundEvents.CRAZY_DIAMOND_FIX_STARTED.get(), standEntity), 
+									standEntity.getSoundSource(), 1, 1, targetEntity, level));
+							
+							ClientsideSoundsHelper.playNonVanillaClassSound(new EntityStoppableSoundInstance(ClientsideSoundsHelper.withStandSkin(
+									ModSoundEvents.CRAZY_DIAMOND_FIX_LOOP.get(), standEntity), 
+									standEntity.getSoundSource(), 1, 1, targetEntity, level.random.nextLong(), 
+									() -> this.isOver() || this.phase != ActionPhase.PERFORM || !this.getSynchedData(HEAL_RESULT).isHealing));
 						}
 					}
 				}
-
-				if (old == null || !cur.target.equals(old.target)) {
-					if (cur.target.getType() == TargetType.ENTITY) {
-						standRotationTarget = cur.target;
-						aimAs = AimingEntity.STAND;
-						
-						Entity targetEntity = cur.target.getEntity();
-						LivingEntity user = getPowerUser();
-						if (user == targetEntity && user != null && user.level().isClientSide() && user == ClientProxy.getClientPlayer()) {
-							ClientProxy.setOverlayMessage(ConditionCheck.message("cd_heal_self"), false);
+				else if (old == null || old.isHealing) {
+					if (standEntity != null) {
+						standEntity.offsetFromUser.resetToIdle();
+					}
+					if (level.isClientSide() && standEntity != null) {
+						Entity targetEntity = old != null ? old.target.getEntity() : null;
+						if (targetEntity != null) {
+							ClientsideSoundsHelper.playNonVanillaClassSound(new EntityLingeringSoundInstance(ClientsideSoundsHelper.withStandSkin(
+									ModSoundEvents.CRAZY_DIAMOND_FIX_ENDED.get(), standEntity), 
+									standEntity.getSoundSource(), 1, 1, targetEntity, level));
 						}
 					}
-					else {
-						standRotationTarget = ActionTarget.EMPTY;
-						aimAs = AimingEntity.CAMERA_ENTITY;
+				}
+			}
+
+			if (old == null || !cur.target.equals(old.target)) {
+				if (cur.target.getType() == TargetType.ENTITY) {
+					standRotationTarget = cur.target;
+					aimAs = AimingEntity.STAND;
+					
+					Entity targetEntity = cur.target.getEntity();
+					LivingEntity user = getPowerUser();
+					if (user == targetEntity && user != null && user.level().isClientSide() && user == ClientProxy.getClientPlayer()) {
+						ClientProxy.setOverlayMessage(ConditionCheck.message("cd_heal_self"), false);
 					}
+				}
+				else {
+					standRotationTarget = ActionTarget.EMPTY;
+					aimAs = AimingEntity.CAMERA_ENTITY;
 				}
 			}
 		}
@@ -330,6 +326,13 @@ public class CrazyDHealAbility extends StandEntityAbility {
 		@Override
 		public void defineSynchedData(SynchedEntityData.Builder builder) {
 			builder.define(HEAL_RESULT, new HealResult());
+		}
+		
+		@Override
+		public <T> void onSyncedDataUpdated(T oldValue, T newValue, EntityDataAccessor<T> dataKey) {
+			if (dataKey == HEAL_RESULT) {
+				onHealResultUpdated((HealResult) oldValue, (HealResult) newValue);
+			}
 		}
 		
 		

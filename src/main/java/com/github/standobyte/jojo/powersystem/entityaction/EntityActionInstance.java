@@ -43,7 +43,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 // TODO (entity action) test the phase lengths stuff (with partial lengths and lengths < 1)
-public class EntityActionInstance implements HeldInput, SyncedDataHolderExtended {
+public class EntityActionInstance implements HeldInput {
 	/** Is used in network code, to make sure server and client are on the same page when sending changes to the action's phases from server */
 	@ApiStatus.Internal public int id;
 	@Nonnull public final EntityActionType ability;
@@ -51,7 +51,7 @@ public class EntityActionInstance implements HeldInput, SyncedDataHolderExtended
 	@ApiStatus.Internal @Nullable public Object2FloatMap<ActionPhase> skippedWindupPhase = null;
 	
 	@Nullable protected SynchedDataExtended _synchedData;
-	protected boolean _emptySynchedData = false;
+	protected Boolean _hasSynchedData;
 	
 	@Nonnull protected ActionPhase phase;
 	protected int curPhaseTick;
@@ -153,47 +153,42 @@ public class EntityActionInstance implements HeldInput, SyncedDataHolderExtended
 	@Nullable
 	@ApiStatus.NonExtendable
 	public SynchedDataExtended getSynchedData(boolean clientSide) {
-		if (_synchedData == null && !_emptySynchedData) {
-			SynchedEntityData.Builder builder = new SynchedEntityData.Builder(this);
-			defineSynchedData(builder);
-			boolean isEmpty = builder.itemsById.length == 0;
-			if (isEmpty) {
-				_emptySynchedData = true;
+		if (_synchedData == null && _hasSynchedData == null) {
+			if (this instanceof SyncedDataHolderExtended withSynchedData) {
+				SynchedEntityData.Builder builder = new SynchedEntityData.Builder(withSynchedData);
+				withSynchedData.defineSynchedData(builder);
+				_synchedData = new SynchedDataExtended(builder, clientSide);
+				_hasSynchedData = true;
 			}
 			else {
-				_synchedData = new SynchedDataExtended(builder, clientSide);
+				_hasSynchedData = false;
 			}
 		}
 		return _synchedData;
 	}
 	
 	public <T> T getSynchedData(EntityDataAccessor<T> key) {
+		hasSynchedDataCheck();
 		return getSynchedData(level().isClientSide()).get(key);
 	}
 
 	public <T> void setSynchedData(EntityDataAccessor<T> key, T value) {
+		hasSynchedDataCheck();
 		setSynchedData(key, value, false);
 	}
 
 	public <T> void setSynchedData(EntityDataAccessor<T> key, T value, boolean forceUpdate) {
+		hasSynchedDataCheck();
 		getSynchedData(level().isClientSide()).set(key, value, forceUpdate);
 	}
-
-	@ApiStatus.OverrideOnly
-	public void defineSynchedData(SynchedEntityData.Builder builder) {}
 	
-	@Override
-	public <T> void onSyncedDataUpdated(T oldValue, T newValue, EntityDataAccessor<T> dataKey) {
-		onSyncedDataUpdated(dataKey);
+	protected void hasSynchedDataCheck() {
+		if (_hasSynchedData == Boolean.FALSE) {
+			throw new ClassCastException("Action of class " + this.getClass().getName() + " does not implement SyncedDataHolderExtended");
+		}
 	}
-	
-	@Override
-	public void onSyncedDataUpdated(EntityDataAccessor<?> dataKey) {}
 
-	@Override
-	public void onSyncedDataUpdated(List<SynchedEntityData.DataValue<?>> newData) {}
-	
-	
+
 	// Some helper methods to write less boilerplate in Stand abilities
 	
 	public void setStandOffset(double left, double front, StandOffsetFromUser.Rotations rotations, boolean changeOnlyIfIdle) {
