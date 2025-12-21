@@ -234,7 +234,14 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	@Nullable
 	public LivingEntity getUser() {
 		if (hasUser()) {
-			return userRef == null ? null : userRef.get();
+			LivingEntity user = userRef.get();
+			if (user == null) {
+				user = lookupUser(entityData.get(USER_ID));
+				if (user != null) {
+					userRef = new WeakReference<>(user);
+				}
+			}
+			return user;
 		}
 		return null;
 	}
@@ -255,9 +262,9 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 	// XXX left-side stand pos config
-	private void updateUserFromNetwork(int userId) {
-		userRef = lookupUser(userId);
-		LivingEntity user = getUser();
+	protected void updateUserFromNetwork(int userId) {
+		LivingEntity user = lookupUser(userId);
+		userRef = new WeakReference<>(user);
 		if (user != null) {
 //			if (user instanceof Player) {
 //				playerSettings = PlayerClientBroadcastedSettings.getPlayerSettings((Player) user);
@@ -272,12 +279,9 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 
 	@Nullable
-	private WeakReference<LivingEntity> lookupUser(int userId) {
+	protected LivingEntity lookupUser(int userId) {
 		Entity user = level().getEntity(userId);
-		if (user instanceof LivingEntity) {
-			return new WeakReference<LivingEntity>((LivingEntity) user);
-		}
-		return null;
+		return user instanceof LivingEntity living ? living : null;
 	}
 	
 	
@@ -444,7 +448,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		}
 	}
 
-	private void moveWithoutCollision(Vec3 moveVec) {
+	protected void moveWithoutCollision(Vec3 moveVec) {
 		AABB bb = getBoundingBox().move(moveVec);
 		setBoundingBox(bb);
 		setPosRaw((bb.minX + bb.maxX) / 2, bb.minY, (bb.minZ + bb.maxZ) / 2);
@@ -499,8 +503,8 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		BEING_RETRACTED(false),
 		NO_PHYSICS(true);
 
-		private final byte bit;
-		private final boolean defaultValue;
+		public final byte bit;
+		public final boolean defaultValue;
 		private StandFlag(boolean defaultValue) {
 			this.bit = (byte) (1 << ordinal());
 			this.defaultValue = defaultValue;
@@ -590,7 +594,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		}
 	}
 
-	private void startStandUnsummon() {
+	protected void startStandUnsummon() {
 		if (!level().isClientSide()) {
 			var unsummonAction = new StandEntityUnsummonAction.StandUnsummonInstance();
 			standAction.setAction(unsummonAction, getUser(), SyncType.TRACKING_AND_SELF);
@@ -998,11 +1002,11 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	@Deprecated
 	@Override
 	public boolean canAttack(LivingEntity entity) {
-		if (entity.is(this) || !super.canAttack(entity)) return false;
+		if (entity.is(this)) return false;
 
 		LivingEntity user = getUser();
 		if (user != null) {
-			boolean canHarm = DamageUtil.isNotFriendlyFire(user, entity);
+			boolean canHarm = DamageUtil.isNotFriendlyFire(user, StandUtil.getStandUser(entity));
 			if (canHarm && entity instanceof Animal) {
 				canHarm &= !entity.isPassengerOfSameVehicle(user);
 				if (canHarm && entity instanceof TamableAnimal tameable) {

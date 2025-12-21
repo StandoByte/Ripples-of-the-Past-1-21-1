@@ -19,6 +19,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -84,9 +85,11 @@ public class DamageUtil {
 		if (attacker.is(target)) {
 			return false;
 		}
-		if (!attacker.canAttack(target)) {
-			return false;
-		}
+		// they added some dogshit to this method after 1.16.5
+//		if (!attacker.canAttack(target)) {
+//			return false;
+//		}
+		if (attacker instanceof TamableAnimal tameable && tameable.isOwnedBy(target)) return false;
 
 		PlayerTeam team1 = attacker.getTeam();
 		PlayerTeam team2 = target.getTeam();

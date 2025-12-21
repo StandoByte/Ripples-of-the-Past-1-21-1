@@ -58,7 +58,7 @@ public class StandEntityUnsummonAction extends SpecialEntityActionType {
 		
 		@Override
 		protected void _incPhaseTick() {
-			if (performer instanceof StandEntity standEntity && standEntity.isCloseToUser()) {
+			if (performer instanceof StandEntity standEntity && (standEntity.isCloseToUser() || standEntity.isFollowingUser())) {
 				if (!performer.level().isClientSide() && !playedSound) {
 					LivingEntity user = getPowerUser();
 					if (user != null) {

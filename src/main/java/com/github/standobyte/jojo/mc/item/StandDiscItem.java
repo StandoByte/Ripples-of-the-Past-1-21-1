@@ -19,6 +19,7 @@ import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -57,6 +58,19 @@ public class StandDiscItem extends Item {
 			tooltip.add(CommonComponents.EMPTY);
 			tooltip.addAll(standType.discExtraTooltip);
 		}
+	}
+	
+	@Nullable
+	public String getCreatorModId(ItemStack itemStack) {
+		ResourceLocation id;
+		StandInstance stand = getStandInstance(itemStack);
+		if (stand != null) {
+			id = stand.getStandId();
+			if (id != null) {
+				return id.getNamespace();
+			}
+		}
+		return super.getCreatorModId(itemStack);
 	}
 
 	@Override

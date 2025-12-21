@@ -134,6 +134,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 			if (getPhase() == ActionPhase.PERFORM && performer instanceof StandEntity stand) {
 				hitsThisTick = (int) getHitsPerTick(stand);
 				
+				StandPower standPower = StandPower.get(getPowerUser());
 				Level level = performer.level();
 				if (level.isClientSide()) {
 					if (ClientGlobals.canHearStands) {
@@ -143,7 +144,6 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 					}
 				}
 				else {
-					StandPower standPower = StandPower.get(getPowerUser());
 					ActionTarget target = getPunchTarget(stand);
 
 					if (StandEntityPunchAbility.playHitSound(target, level)) {
@@ -163,7 +163,8 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 						case BLOCK -> mineBlock(target, level, stand);
 						default -> {}
 					}
-					
+				}
+				if (standPower != null) {
 					standPower.consumeStamina(4, true);
 				}
 			}

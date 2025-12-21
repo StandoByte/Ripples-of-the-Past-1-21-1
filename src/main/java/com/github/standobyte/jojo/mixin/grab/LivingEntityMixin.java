@@ -30,7 +30,7 @@ public abstract class LivingEntityMixin extends Entity {
 
 	@Inject(method = "doPush", at = @At("HEAD"), cancellable = true)
 	public void jojo_ripples$cancelPushGrabbedEntity(Entity entity, CallbackInfo ci) {
-		if (!entity.is(jojo_ripples$grabHandler.getGrabbedEntity())) {
+		if (entity.is(jojo_ripples$grabHandler.getGrabbedEntity())) {
 			ci.cancel();
 		}
 	}
