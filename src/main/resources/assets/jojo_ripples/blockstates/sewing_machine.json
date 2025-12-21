@@ -1,18 +1,18 @@
 {
   "variants": {
     "facing=east": {
-      "model": "jojo:block/sewing_machine",
+      "model": "jojo_ripples:block/sewing_machine",
       "y": 90
     },
     "facing=north": {
-      "model": "jojo:block/sewing_machine"
+      "model": "jojo_ripples:block/sewing_machine"
     },
     "facing=south": {
-      "model": "jojo:block/sewing_machine",
+      "model": "jojo_ripples:block/sewing_machine",
       "y": 180
     },
     "facing=west": {
-      "model": "jojo:block/sewing_machine",
+      "model": "jojo_ripples:block/sewing_machine",
       "y": 270
     }
   }
