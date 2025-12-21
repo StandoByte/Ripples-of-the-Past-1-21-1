@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "jojo_rotp_clothes:item/jotaro_p3_anime_feet"
+  }
+}
