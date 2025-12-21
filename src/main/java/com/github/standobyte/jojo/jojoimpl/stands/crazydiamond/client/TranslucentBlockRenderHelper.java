@@ -61,8 +61,7 @@ public class TranslucentBlockRenderHelper {
 		if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_LEVEL) {
 			Minecraft mc = Minecraft.getInstance();
 			AbilityHud hud = PowerHud.abilityHUDInstance;
-			// FIXME !!!!! only show if the action is selected in the HUD
-			if (true /*hud.showExtraActionHud(ModStandAbilities.CD_RESTORE_TERRAIN.get())*/) {
+			if (hud.isAbilitySelected("restore_terrain")) {
 				PoseStack poseStack = event.getPoseStack();
 				StandPower stand = ClientPowerCache.getPower(PowerClass.STAND);
 				Entity entity = CrazyDRestoreTerrainAbility.restorationCenterEntity(mc.player, stand);

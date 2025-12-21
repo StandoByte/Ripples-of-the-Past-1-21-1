@@ -11,6 +11,9 @@ import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.client.ui.powerhud.ControlsHudElement.AbilityBindUI;
+import com.github.standobyte.jojo.client.ui.powerhud.ControlsHudElement.BindUI;
+import com.github.standobyte.jojo.client.ui.powerhud.ControlsHudElement.HotbarUILine;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
@@ -90,7 +93,7 @@ public class PowerHud {
 	}
 	
 	@SubscribeEvent
-	public static void addDraggableToScreen(ScreenEvent.Init.Post event) {
+	public static void addDraggableToScreen(ScreenEvent.Init.Post event) {	
 		Screen screen = event.getScreen();
 		if (canDragElementsOn(screen)) {
 			for (HudElement element : abilityHUDInstance.elements.values()) {
@@ -108,7 +111,7 @@ public class PowerHud {
 	public static class AbilityHud implements LayeredDraw.Layer {
 		public Map<String, HudElement> elements = new HashMap<>();
 		
-		public HudElement addElement(HudElement element) {
+		public <T extends HudElement> T addElement(T element) {
 			element.hud = this;
 			elements.put(element.name, element);
 			return element;
@@ -130,13 +133,13 @@ public class PowerHud {
 		}
 
 	
-		public HudElement controls = addElement(new ControlsHudElement("controls", 4, 44, -1, -1));
-		public HudElement powerIcon = addElement(new PowerIcon("powerIcon", 11, 12, 16, 16));
-		public HudElement resolveBar = addElement(new Resolve("resolve_bar", 31, 12, 32, 16));
-		public HudElement staminaBar = addElement(new Stamina("stamina_bar", 81, 16, Bars.HORIZONTAL_LENGTH + 8, Bars.HORIZONTAL_WIDTH));
-		public HudElement standRange = addElement(new StandRange("stand_range", 
+		public ControlsHudElement controls = 	addElement(new ControlsHudElement("controls", 4, 44, -1, -1));
+		public PowerIcon powerIcon = 			addElement(new PowerIcon("powerIcon", 11, 12, 16, 16));
+		public Resolve resolveBar = 			addElement(new Resolve("resolve_bar", 31, 12, 32, 16));
+		public Stamina staminaBar = 			addElement(new Stamina("stamina_bar", 81, 16, Bars.HORIZONTAL_LENGTH + 8, Bars.HORIZONTAL_WIDTH));
+		public StandRange standRange = 			addElement(new StandRange("stand_range", 
 				(int) staminaBar.xOffsetL + staminaBar.getWidth() + 10, (int) staminaBar.yOffsetU, -1, -1));
-		public HudElement finisherBar = addElement(new Finisher("stand_finisher", 
+		public Finisher finisherBar = 			addElement(new Finisher("stand_finisher", 
 				HudElement.SnappingH.CENTER, HudElement.SnappingV.CENTER, -16, -16, 32, 32));
 		
 		@Override
@@ -180,6 +183,28 @@ public class PowerHud {
 				}
 			}
 			RenderSystem.disableBlend();
+		}
+		
+		public boolean isAbilitySelected(String abilityName) {
+			if (!canHaveHudOpen() || !controls.shouldRender()) return false;
+			
+			for (BindUI bind : controls.binds) {
+				for (AbilityBindUI bindAbility : bind.abilities.values()) {
+					if (abilityName.equals(bindAbility.ability.ability.abilityId.nameInMoveset())) {
+						return true;
+					}
+				}
+			}
+			for (HotbarUILine hotbar : controls.hotbars) {
+				if (hotbar.selected != null) {
+					for (AbilityBindUI bindAbility : hotbar.selected.abilities.values()) {
+						if (abilityName.equals(bindAbility.ability.ability.abilityId.nameInMoveset())) {
+							return true;
+						}
+					}
+				}
+			}
+			return false;
 		}
 		
 	}
