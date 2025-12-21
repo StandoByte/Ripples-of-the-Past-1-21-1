@@ -116,7 +116,8 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 					if (!stand.isArmsOnlyMode()) {
 						ClientsideSoundsHelper.playNonVanillaClassSound(new EntityStoppableSoundInstance(ClientsideSoundsHelper.withStandSkin(
 								ModSoundEvents.STAND_BARRAGE_CRY.get(), stand), 
-								stand.getSoundSource(), 1, 1, stand, level.random.nextLong(), () -> this.phase != ActionPhase.PERFORM));
+								stand.getSoundSource(), 1, 1, stand, level.random.nextLong(), 
+								() -> this.isOver() || this.phase != ActionPhase.PERFORM));
 					}
 				}
 				tossStandHeldItems(EquipmentSlot.OFFHAND, EquipmentSlot.MAINHAND);

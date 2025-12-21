@@ -287,7 +287,8 @@
   
   
   "stand.jojo_ripples.star_platinum": "Star Platinum",
-  "    перевести-stand.jojo_ripples.star_platinum.desc": "A power-type Stand with exceptionally high physical strength, speed and precision. Being the same type of Stand as The World, at one point Star Platinum also awakens an ability to stop time.",
+  "stand.jojo_ripples.star_platinum.desc": "Стенд силового типа с исключительно высокой силой, скоростью и точностью. Будучи Стендом того же типа, что и The World, в схватке с ним Star Platinum тоже пробуждает способность останавливать время.",
+  "stand.jojo_ripples.star_platinum.desc.no_ts_spoilers": "Стенд силового типа с исключительно высокой силой, скоростью и точностью.",
   
   "jojo_ripples.skill.uppercut": "(NYI) Добивающий апперкот",
   "jojo_ripples.skill.uppercut.desc": "Более быстрый тяжёлый удар, который пробивает защиту и подбрасывает цель вверх.",
@@ -342,7 +343,7 @@
   
   
   "stand.jojo_ripples.crazy_diamond": "Crazy Diamond",
-  "    перевести-stand.jojo_ripples.crazy_diamond.desc": "One of the more physically strong power-type Stands, Crazy Diamond's ability is fixing objects and people. This ability has a multitude of various uses and makes the Stand very versatile, however, Crazy Diamond cannot heal the user's own wounds or cure any diseases.",
+  "stand.jojo_ripples.crazy_diamond.desc": "Один из самых физически сильных Стендов. Способность Crazy Diamond - восстанавливать объекты и лечить раны. Эта способность имеет множество различных применений, но обладатель Crazy Diamond не может лечить самого себя и исцелять болезни.",
   
   "jojo_ripples.skill.disfiguring_punch": "(NYI) Деформирующий удар",
   "    перевести-jojo_ripples.skill.disfiguring_punch.desc": "After a finisher punch, incorrectly restore the attacked body part. This partially heals the injury, but leaves the target unable to correctly control that body part for a short period of time.",

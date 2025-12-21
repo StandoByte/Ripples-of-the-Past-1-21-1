@@ -26,6 +26,10 @@
   "key.keyboard.left.shortened": "←",
   "key.keyboard.right.shortened": "→",
   "key.keyboard.print.screen.shortened": "PrtSc",
+  "neoforge.controlsgui.shift.noplus": "SHIFT",
+  "neoforge.controlsgui.control.noplus": "CTRL",
+  "neoforge.controlsgui.control.mac.noplus": "CMD",
+  "neoforge.controlsgui.alt.noplus": "ALT",
   
   "key.categories.jojo_ripples": "JoJo: Ripples of the Past",
   "jojo_ripples.key.toggle_stand": "Summon/unsummon Stand",
@@ -302,7 +306,8 @@
   
   
   "stand.jojo_ripples.star_platinum": "Star Platinum",
-  "stand.jojo_ripples.star_platinum.desc": "A power-type Stand with exceptionally high physical strength, speed and precision. Being the same type of Stand as The World, at one point Star Platinum also awakens an ability to stop time.",
+  "stand.jojo_ripples.star_platinum.desc": "A power-type Stand with exceptionally high physical strength, speed and precision. Being the same type of Stand as The World, in a clash against it Star Platinum also awakens an ability to stop time.",
+  "stand.jojo_ripples.star_platinum.desc.no_ts_spoilers": "A power-type Stand with exceptionally high physical strength, speed and precision.",
   
   "jojo_ripples.skill.uppercut": "(NYI) Finisher Uppercut",
   "jojo_ripples.skill.uppercut.desc": "A faster heavy attack variation that breaks guard and knocks the enemy upwards.",

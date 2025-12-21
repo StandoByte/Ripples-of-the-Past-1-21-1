@@ -473,6 +473,7 @@ public class EntityActionInstance implements HeldInput, SyncedDataHolderExtended
 	@ApiStatus.Internal
 	public void _beforeActionRemoved(@Nullable EntityActionInstance newAction) {
 		onActionCleared(newAction);
+		this.phase = null;
 	}
 	
 	@ApiStatus.Internal
