@@ -55,11 +55,11 @@ public abstract class ClientEntityController {
 
 	public static void clientTickPre() {
 		if (instance != null) {
-			if (instance.entity == null || !instance.entity.isAlive()) {
+			Minecraft mc = instance.mc;
+			if (instance.entity == null || !instance.entity.isAlive() || mc.level == null) {
 				setInstance(null);
 			}
 			else {
-				Minecraft mc = instance.mc;
 				if (mc.cameraEntity == null || mc.cameraEntity == mc.player) {
 					ClientUtil.setCameraEntityPreventShaderSwitch(instance.entity);
 				}
