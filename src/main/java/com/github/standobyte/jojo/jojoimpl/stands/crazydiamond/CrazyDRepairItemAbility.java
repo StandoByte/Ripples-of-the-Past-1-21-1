@@ -235,7 +235,9 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 			damage += damageToRestore;
 			itemStack.setDamageValue(itemStack.getDamageValue() - damageToRestore);
 			itemStack.set(DataComponents.REPAIR_COST, 0);
-			result.isRepairing = true;
+			if (damageToRestore > 0) {
+				result.isRepairing = true;
+			}
 		}
 		boolean transformTick = isItemTransformationTick(taskTicks, standEntity);
 		
