@@ -21,8 +21,12 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
+import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
+import com.github.standobyte.jojo.client.sound.sounds.EntityLingeringSoundInstance;
+import com.github.standobyte.jojo.client.sound.sounds.EntityStoppableSoundInstance;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModParticles;
+import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.brokenblocks.BlockBreaking;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.brokenblocks.BrokenBlocksChunkData;
@@ -36,6 +40,7 @@ import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.entityaction.syncdata.SyncedDataHolderExtended;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -48,6 +53,10 @@ import com.github.standobyte.jojo.util.mc.XpFormulas;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.network.syncher.SynchedEntityData.Builder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -101,14 +110,14 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 	}
 	
 	
-	public static class TerrainRestoration extends EntityActionInstance {
+	public static class TerrainRestoration extends EntityActionInstance implements SyncedDataHolderExtended {
 		public boolean useOtherPlayersInventories = false;
 
 		public TerrainRestoration(EntityActionType ability) {
 			super(ability);
 		}
 
-		// FIXME try to mitigate the fps drops when lots of blocks are restored simultaneously
+		// FIXME (1.16.5) try to mitigate the fps drops when lots of blocks are restored simultaneously
 		@Override
 		public void actionTick() {
 			LivingEntity user = getPowerUser();
@@ -126,6 +135,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 				Vec3i eyePos = eyePos(cameraEntity);
 				Vec3 lookVec = cameraEntity.getLookAngle();
 				Vec3 eyePosD = cameraEntity.getEyePosition(1.0F);
+				// TODO terrain restoration stamina cost
 				float staminaPerBlock = 0; // getStaminaCostPerBlock(userPower);
 				
 				int blocksToRestore;
@@ -156,7 +166,10 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 						creative, resolveEffect && !onlyAimedAt, true, 
 						playerUser, itemsSource);
 				
-				userPower.consumeStamina(staminaPerBlock * result.blockForStaminaCost);
+				setSynchedData(IS_RESTORING, result.isRestoring);
+				if (result.blockForStaminaCost > 0) {
+					userPower.consumeStamina(staminaPerBlock * result.blockForStaminaCost);
+				}
 			}
 		}
 
@@ -170,6 +183,38 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 
 		protected int blocksPerTick(StandEntity standEntity) {
 			return MathUtil.fractionRandomInc(CrazyDHealAbility.crazyDRestorationSpeed(standEntity) * 3);
+		}
+
+
+		public static final EntityDataAccessor<Boolean> IS_RESTORING = SynchedEntityData.defineId(
+				TerrainRestoration.class, EntityDataSerializers.BOOLEAN);
+		@Override
+		public void defineSynchedData(Builder builder) {
+			builder.define(IS_RESTORING, false);
+		}
+
+		@Override
+		public <T> void onSyncedDataUpdated(T oldValue, T newValue, EntityDataAccessor<T> dataAccessor) {
+			if (dataAccessor == IS_RESTORING) {
+				Level level = level();
+				if (level.isClientSide() && performer instanceof StandEntity standEntity) {
+					if ((Boolean) newValue) {
+						ClientsideSoundsHelper.playNonVanillaClassSound(new EntityLingeringSoundInstance(ClientsideSoundsHelper.withStandSkin(
+								ModSoundEvents.CRAZY_DIAMOND_FIX_STARTED.get(), standEntity), 
+								standEntity.getSoundSource(), 1, 1, standEntity, level));
+						
+						ClientsideSoundsHelper.playNonVanillaClassSound(new EntityStoppableSoundInstance(ClientsideSoundsHelper.withStandSkin(
+								ModSoundEvents.CRAZY_DIAMOND_FIX_LOOP.get(), standEntity), 
+								standEntity.getSoundSource(), 1, 1, standEntity, level.random.nextLong(), 
+								() -> this.isOver() || this.phase != ActionPhase.PERFORM || !this.getSynchedData(IS_RESTORING)));
+					}
+					else {
+						ClientsideSoundsHelper.playNonVanillaClassSound(new EntityLingeringSoundInstance(ClientsideSoundsHelper.withStandSkin(
+								ModSoundEvents.CRAZY_DIAMOND_FIX_ENDED.get(), standEntity), 
+								standEntity.getSoundSource(), 1, 1, standEntity, level));
+					}
+				}
+			}
 		}
 	}
 
@@ -259,9 +304,10 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 //							result.blocksTried.add(block.pos);
 							if (tryPlaceBlock(level, block.pos, block.state, isCreative, randomizePos, 
 									block.drops, block.getDroppedXp(), playerWithXp, itemsSource)) {
+								result.blockForStaminaCost += blockToRestore;
 								result.blocksFixParticles.add(block.pos);
 								result.blocksToForget.add(block.pos);
-								result.blockForStaminaCost += blockToRestore;
+								result.isRestoring = true;
 							}
 						}
 					}
@@ -273,6 +319,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 						blockBeingBroken.setAndSyncProgress(curProgress - breakProgressToFix, blockPos, level);
 						result.blockForStaminaCost += breakProgressToFix;
 						result.blocksFixParticles.add(blockPos);
+						result.isRestoring = true;
 					}
 				}
 				default -> {}
@@ -288,6 +335,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 	}
 
 	public static class RestoreResult {
+		public boolean isRestoring = false;
 		public float blockForStaminaCost = 0;
 //		public final Set<BlockPos> blocksTried = new HashSet<>();
 		public final Set<BlockPos> blocksFixParticles = new HashSet<>();

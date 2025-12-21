@@ -14,6 +14,7 @@ import net.minecraft.world.entity.Entity;
 public class EntityStoppableSoundInstance extends AbstractTickableSoundInstance {
 	protected Entity entity;
 	protected BooleanSupplier stopWhen;
+	public boolean ITS_FUCKING_STOPPED_ALREADY = false;
 
 	public EntityStoppableSoundInstance(SoundEvent soundEvent, SoundSource source, float volume, float pitch, Entity entity, long seed, BooleanSupplier stopWhen) {
 		super(soundEvent, source, RandomSource.create(seed));
@@ -33,7 +34,8 @@ public class EntityStoppableSoundInstance extends AbstractTickableSoundInstance 
 
 	@Override
 	public void tick() {
-		if (entity.isRemoved() || stopWhen.getAsBoolean()) {
+		if (entity.isRemoved() || ITS_FUCKING_STOPPED_ALREADY || stopWhen.getAsBoolean()) {
+			ITS_FUCKING_STOPPED_ALREADY = true;
 			this.stop();
 		} else {
 			this.x = entity.getX();

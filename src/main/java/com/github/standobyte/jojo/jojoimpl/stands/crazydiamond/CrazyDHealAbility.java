@@ -83,37 +83,41 @@ public class CrazyDHealAbility extends StandEntityAbility {
 
 		@Override
 		public void actionTick() {
-			boolean isClientSide = level().isClientSide();
-			if (!isClientSide) {
+			Level level = level();
+			
+			HealResult curHealing;
+			if (!level.isClientSide()) {
 				ActionTarget aimTarget = LivingComponentAction.getAim(performer).getTarget();
 				StandEntity standEntity = performer instanceof StandEntity s ? s : null;
-				HealResult healingResult = restoreTarget(aimTarget, standEntity);
-				setSynchedData(HEAL_RESULT, healingResult);
+				curHealing = restoreTarget(aimTarget, standEntity);
+				setSynchedData(HEAL_RESULT, curHealing);
 			}
-			HealResult curHealing = getSynchedData(HEAL_RESULT);
-			userWalkSpeed = curHealing.isHealing ? 0.6f : 1;
 			
-			if (isClientSide && curHealing.isHealing && curHealing.target.getType() == TargetType.ENTITY) {
-				Entity targetEntity = curHealing.target.getEntity();
-				if (targetEntity != null) {
-					if (targetEntity instanceof LivingEntity targetLiving) {
-						StandAndUserEntity standAndUser = StandUtil.getStandAndUser(targetLiving);
-						
-						if (standAndUser.standUser != null) 
-							addParticlesAround(standAndUser.standUser);
-						if (standAndUser.standEntity != null) 
-							addParticlesAround(standAndUser.standEntity);
-						
-						if (curHealing.deathTime != HealResult.NO_DEATH_TIME_CHANGE) {
-							if (standAndUser.standUser != null) standAndUser.standUser.deathTime = curHealing.deathTime;
-							if (standAndUser.standEntity != null) standAndUser.standEntity.deathTime = curHealing.deathTime;
+			else {
+				curHealing = getSynchedData(HEAL_RESULT);
+				if (curHealing.isHealing && curHealing.target.getType() == TargetType.ENTITY) {
+					Entity targetEntity = curHealing.target.getEntity();
+					if (targetEntity != null) {
+						if (targetEntity instanceof LivingEntity targetLiving) {
+							StandAndUserEntity standAndUser = StandUtil.getStandAndUser(targetLiving);
+							
+							if (standAndUser.standUser != null) 
+								addParticlesAround(standAndUser.standUser);
+							if (standAndUser.standEntity != null) 
+								addParticlesAround(standAndUser.standEntity);
+							
+							if (curHealing.deathTime != HealResult.NO_DEATH_TIME_CHANGE) {
+								if (standAndUser.standUser != null) standAndUser.standUser.deathTime = curHealing.deathTime;
+								if (standAndUser.standEntity != null) standAndUser.standEntity.deathTime = curHealing.deathTime;
+							}
 						}
-					}
-					else {
-						addParticlesAround(targetEntity);
+						else {
+							addParticlesAround(targetEntity);
+						}
 					}
 				}
 			}
+			userWalkSpeed = curHealing.isHealing ? 0.6f : 1;
 		}
 		
 		public void onHealResultUpdated(HealResult old, HealResult cur) {
