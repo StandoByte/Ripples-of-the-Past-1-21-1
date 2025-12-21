@@ -64,32 +64,12 @@ public class StandInitCrazyDiamond {
 				.addAbility("blood_cutter", ModStandAbilities.CD_BLOOD_CUTTER)
 
 
-				.makeControlScheme("keybinds")
-					.bind("bearing_shot", InputMethod.HOLD, InputKey.RMB)
-					.bind("punch", InputMethod.CLICK, InputKey.LMB)
-					.bind("barrage", InputMethod.HOLD, InputKey.LMB)
-					.bind("heavy_punch", InputMethod.CLICK, InputKey.RMB)
-					.bind("heavy_charged", InputMethod.HOLD, InputKey.RMB)
-					.bind("grab", InputMethod.CLICK, InputKey.RMB.withModifier(InputKey.Modifier.CONTROL))
-	
-					.bind("repair_item", InputMethod.HOLD, InputKey.C)
-					.bind("uncraft", InputMethod.HOLD, InputKey.I)
-	
-					.bind("blood_cutter", InputMethod.CLICK, InputKey.Z)
-					.bind("block_bullet", InputMethod.CLICK, InputKey.X)
-					.bind("heal", InputMethod.HOLD, InputKey.C)
-					.bind("revert_state", InputMethod.HOLD, InputKey.C.withModifier(InputKey.Modifier.CONTROL))
-					.bind("restore_terrain", InputMethod.HOLD, InputKey.V)
-					.bind("create_wall", InputMethod.CLICK, InputKey.V.withModifier(InputKey.Modifier.CONTROL))
-				.finalizeControlScheme()
-
-
 				.makeControlScheme("hotbar")
 					.bind("bearing_shot", InputMethod.HOLD, InputKey.RMB)
 					.bind("punch", InputMethod.CLICK, InputKey.LMB)
 					.bind("barrage", InputMethod.HOLD, InputKey.LMB)
 					.bind("heavy_punch", InputMethod.CLICK, InputKey.RMB)
-					.bind("heavy_charged", InputMethod.HOLD, InputKey.RMB)
+//					.bind("heavy_charged", InputMethod.HOLD, InputKey.RMB)
 					.bind("grab", InputMethod.CLICK, InputKey.RMB.withModifier(InputKey.Modifier.CONTROL))
 	
 					.bind("repair_item", InputMethod.HOLD, InputKey.C)
@@ -99,9 +79,29 @@ public class StandInitCrazyDiamond {
 					.addToHotbar("blood_cutter", 0, InputMethod.CLICK)
 					.addToHotbar("block_bullet", 0, InputMethod.CLICK)
 					.addToHotbar("heal", 0, InputMethod.HOLD)
-					.addHotbarSlotVariation("revert_state", "heal", InputKey.Modifier.CONTROL, InputMethod.HOLD)
+//					.addHotbarSlotVariation("revert_state", "heal", InputKey.Modifier.CONTROL, InputMethod.HOLD)
 					.addToHotbar("restore_terrain", 0, InputMethod.HOLD)
-					.addHotbarSlotVariation("create_wall", "restore_terrain", InputKey.Modifier.CONTROL, InputMethod.CLICK)
+//					.addHotbarSlotVariation("create_wall", "restore_terrain", InputKey.Modifier.CONTROL, InputMethod.CLICK)
+				.finalizeControlScheme()
+
+
+				.makeControlScheme("keybinds")
+					.bind("bearing_shot", InputMethod.HOLD, InputKey.RMB)
+					.bind("punch", InputMethod.CLICK, InputKey.LMB)
+					.bind("barrage", InputMethod.HOLD, InputKey.LMB)
+					.bind("heavy_punch", InputMethod.CLICK, InputKey.RMB)
+//					.bind("heavy_charged", InputMethod.HOLD, InputKey.RMB)
+					.bind("grab", InputMethod.CLICK, InputKey.RMB.withModifier(InputKey.Modifier.CONTROL))
+	
+					.bind("repair_item", InputMethod.HOLD, InputKey.C)
+					.bind("uncraft", InputMethod.HOLD, InputKey.I)
+	
+					.bind("blood_cutter", InputMethod.CLICK, InputKey.Z)
+					.bind("block_bullet", InputMethod.CLICK, InputKey.X)
+					.bind("heal", InputMethod.HOLD, InputKey.C)
+//					.bind("revert_state", InputMethod.HOLD, InputKey.C.withModifier(InputKey.Modifier.CONTROL))
+					.bind("restore_terrain", InputMethod.HOLD, InputKey.V)
+//					.bind("create_wall", InputMethod.CLICK, InputKey.V.withModifier(InputKey.Modifier.CONTROL))
 				.finalizeControlScheme()
 
 
