@@ -13,7 +13,6 @@ import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.mechanics.clothes.ClothesItem;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesPiece;
-import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSet;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
 import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinItem;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
@@ -23,6 +22,7 @@ import com.github.standobyte.jojo.tmp.charactertest.CharacterTestItem;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.EventPriority;
@@ -42,6 +42,11 @@ public final class ModItems {
 	public static final DeferredItem<Item> CHARACTER_TEST = ITEMS.registerItem("character_test", CharacterTestItem::new, new Item.Properties());
 
 	public static final DeferredItem<Item> STAND_DISC = ITEMS.registerItem("stand_disc", StandDiscItem::new, new Item.Properties().stacksTo(1));
+
+	public static final DeferredItem<BlockItem> SEWING_MACHINE = ITEMS.registerSimpleBlockItem("sewing_machine", 
+			ModBlocks.SEWING_MACHINE, new Item.Properties());
+
+	public static final DeferredItem<Item> SEWING_NEEDLE = ITEMS.registerSimpleItem("sewing_needle");
 
 	public static final DeferredItem<Item> MANNEQUIN = ITEMS.registerItem("mannequin", props -> new MannequinItem(props, false), new Item.Properties().stacksTo(16));
 
@@ -74,6 +79,8 @@ public final class ModItems {
 	public static void addToModCreativeTabLast(BuildCreativeModeTabContentsEvent event) {
 		if (event.getTabKey() == MAIN_TAB.getKey()) {
 			// items related to clothes
+			event.accept(SEWING_MACHINE.get());
+			event.accept(SEWING_NEEDLE.get());
 			event.accept(MANNEQUIN.get());
 			event.accept(MANNEQUIN_SLIM.get());
 
@@ -86,10 +93,9 @@ public final class ModItems {
 					clothesSets -> clothesSets.listElements()
 					.flatMap(setHolder -> {
 						List<ClothesDataComponent> components = new ArrayList<>(ClothesSlotType.values().length);
-						ClothesSet set = setHolder.value();
 						for (ClothesSlotType slot : ClothesSlotType.values()) {
-							ClothesPiece piece = set.getPiece(slot);
-							if (piece != null) {
+							ClothesDataComponent component = ClothesItem.makeItemComponent(setHolder, slot);
+							if (component != null) {
 								components.add(new ClothesDataComponent(setHolder, slot, ClothesPiece.SubClothingPiece.FULL));
 							}
 						}

@@ -85,6 +85,10 @@
     "subtitle": "jojo_ripples.subtitle.liquid_splash",
     "sounds": [ "jojo_ripples:water_splash" ]
   },
+  "clothes_sewed": {
+    "subtitle": "jojo_ripples.subtitle.clothes_sewed",
+    "sounds": [ "jojo_ripples:sewing_machine" ]
+  },
   "walkman_rewind": {
     "sounds": [ "jojo_ripples:walkman_rewind" ]
   },

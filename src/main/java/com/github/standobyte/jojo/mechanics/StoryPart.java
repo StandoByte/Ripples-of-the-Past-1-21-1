@@ -105,11 +105,10 @@ public class StoryPart {
 		}
 		return null;
 	}
-	
-	public static final Comparator<Holder<StoryPart>> COMPARATOR = (part1, part2) -> {
-		ResourceLocation id2 = getId(part2);
+
+
+	public static final Comparator<ResourceLocation> ID_COMPARATOR = (id1, id2) -> {
 		if (id2 == null) return -1;
-		ResourceLocation id1 = getId(part1);
 		if (id1 == null) return 1;
 		return id1.compareTo(id2);
 	};
@@ -120,5 +119,7 @@ public class StoryPart {
 		var key = holder.getKey();
 		return key != null ? key.location() : null;
 	}
+	
+	public static final Comparator<Holder<StoryPart>> COMPARATOR = Comparator.comparing(StoryPart::getId, ID_COMPARATOR);
 	
 }

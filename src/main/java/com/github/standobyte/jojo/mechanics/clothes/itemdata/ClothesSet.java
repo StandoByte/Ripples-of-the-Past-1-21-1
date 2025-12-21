@@ -7,21 +7,37 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.mechanics.StoryPart;
+import com.github.standobyte.jojo.mechanics.clothes.sewing.client.SewingMachineScreen;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import net.minecraft.Util;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.RegistryFixedCodec;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLEnvironment;
 
 public class ClothesSet {
 	protected final Holder<StoryCharacter> character;
 	protected final Optional<Holder<StoryPart>> storyPart;
 	protected final Map<ClothesSlotType, ClothesPiece> pieces;
 	
+	protected Component name;
+	
 	public ClothesSet(Holder<StoryCharacter> character, Optional<Holder<StoryPart>> storyPart, Map<ClothesSlotType, ClothesPiece> clothesPieces) {
 		this.character = character;
 		this.storyPart = storyPart;
 		this.pieces = clothesPieces;
+	}
+	
+	public void initName(ResourceKey<ClothesSet> key) {
+		ResourceLocation id = key.location();
+		String tlKey = Util.makeDescriptionId("clothes", id);
+		this.name = Component.translatable(tlKey);
 	}
 	
 	public Holder<StoryCharacter> getCharacter() {
@@ -35,6 +51,22 @@ public class ClothesSet {
 	@Nullable
 	public ClothesPiece getPiece(ClothesSlotType slot) { 
 		return pieces.get(slot);
+	}
+
+	public Component getName() {
+		return name;
+	}
+	
+	
+	public static void onBake(Registry<ClothesSet> registry) {
+		registry.holders().forEach(holder -> {
+			ClothesSet clothes = holder.value();
+			ResourceLocation key = holder.getKey().location();
+			clothes.character.value().addClothesSet(key, holder);
+		});
+		if (FMLEnvironment.dist == Dist.CLIENT) {
+			SewingMachineScreen.onReload();
+		}
 	}
 	
 	

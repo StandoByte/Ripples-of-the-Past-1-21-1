@@ -28,6 +28,7 @@ public class ModSoundEvents {
 	public static final DeferredHolder<SoundEvent, SoundEvent> KNIVES_THROW = register("knives_throw");
 	public static final DeferredHolder<SoundEvent, SoundEvent> KNIFE_HIT = register("knife_hit");
 	public static final DeferredHolder<SoundEvent, SoundEvent> WATER_SPLASH = register("water_splash");
+	public static final DeferredHolder<SoundEvent, SoundEvent> CLOTHES_SEWED = register("clothes_sewed");
 
 	public static final DeferredHolder<SoundEvent, SoundEvent> WALKMAN_REWIND = register("walkman_rewind");
 
