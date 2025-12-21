@@ -994,11 +994,11 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	@Deprecated
 	@Override
 	public boolean canAttack(LivingEntity entity) {
-		if (entity.is(this) || !super.canAttack(entity)) return false;
+		if (entity.is(this)) return false;
 
 		LivingEntity user = getUser();
 		if (user != null) {
-			boolean canHarm = DamageUtil.isNotFriendlyFire(user, entity);
+			boolean canHarm = DamageUtil.isNotFriendlyFire(user, StandUtil.getStandUser(entity));
 			if (canHarm && entity instanceof Animal) {
 				canHarm &= !entity.isPassengerOfSameVehicle(user);
 				if (canHarm && entity instanceof TamableAnimal tameable) {

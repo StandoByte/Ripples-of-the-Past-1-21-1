@@ -183,7 +183,12 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 	}
 	
 	public static boolean canStandHit(StandEntity stand, Entity target) {
-		return _EntitySelector.CAN_BE_PICKED.test(target) && stand.canAttackEntity(target);
+		return canStandPick(stand, target) && stand.canAttackEntity(target);
+	}
+	
+	// TODO make stand entities not pickable, add a separate OR predicate to CAN_BE_PICKED
+	public static boolean canStandPick(StandEntity stand, Entity target) {
+		return _EntitySelector.CAN_BE_PICKED.test(target);
 	}
 	
 	public static boolean playHitSound(ActionTarget target, Level level) {

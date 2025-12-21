@@ -84,9 +84,10 @@ public class DamageUtil {
 		if (attacker.is(target)) {
 			return false;
 		}
-		if (!attacker.canAttack(target)) {
-			return false;
-		}
+		// they added some dogshit to this method after 1.16.5
+//		if (!attacker.canAttack(target)) {
+//			return false;
+//		}
 
 		PlayerTeam team1 = attacker.getTeam();
 		PlayerTeam team2 = target.getTeam();
