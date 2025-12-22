@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "jojo:sewing_machine"
+          "name": "jojo_ripples:sewing_machine"
         }
       ],
       "conditions": [
