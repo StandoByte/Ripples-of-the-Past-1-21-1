@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.client.standskin;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
@@ -12,6 +13,8 @@ import org.lwjgl.glfw.GLFW;
 
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.ClientUtil;
+import com.github.standobyte.jojo.client.entityanim.AnimFramePose;
+import com.github.standobyte.jojo.client.entityanim.AnimationSet;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.input.InputHandler;
@@ -453,22 +456,33 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		
 		// XXX set it to one of the stand summon poses
 		public void renderInStandInfo(GuiGraphics gui, int mouseX, int mouseY, float ticks, 
-				float windowX, float windowY, float scale) {
+				float windowX, float windowY, float scale, int rand) {
 			if (standType instanceof EntityStandType) {
 				PoseStack poseStack = gui.pose();
-				float angle = (float) -Math.PI / 12;
+//				float angle = (float) -Math.PI / 12;
+				float angle = 0;
 				
 				windowY += StandInfoScreen.spHairTmpCrutch(standType);
+				
 				poseStack.pushPose();
 				poseStack.translate(0, 0, -100);
 				renderStandModel(gui, windowX + 60, windowY + 150, scale, 1, 
 						(float) Math.PI + angle, 0, 0, 0, 
-						(EntityStandType) standType, skin, ticks, 0xFFB0B0B0);
+						(EntityStandType) standType, skin, 
+						(renderer, renderState) -> {
+							AnimationSet anims = skin.standEntityAnims;
+							List<AnimFramePose> poses = anims.coolPoses;
+							renderer.extractSkinMenuRenderState(renderState, skin, standType.getId(), 0, 0xFFB0B0B0);
+							if (poses != null && !poses.isEmpty()) {
+								renderState.action.staticPose = poses.get(rand % poses.size());
+							}
+						});
 				
 				poseStack.popPose();
 				renderStandModel(gui, windowX + 45, windowY + 150, scale, 1, 
 						angle, 0, 0, 0, 
-						(EntityStandType) standType, skin, ticks, 0xFFFFFFFF);
+						(EntityStandType) standType, skin, 
+						(renderer, renderState) -> renderState.tint = 0xFFFFFFFF);
 			}
 		}
 
@@ -577,6 +591,16 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 	public static <S extends StandEntityRenderState> void renderStandModel(GuiGraphics gui, float posX, float posY, 
 			float scale, float scaleZoom, float yRot, float xRot, float xOffsetRatio, float yOffsetRatio, 
 			EntityStandType standType, StandSkin standSkin, float ticks, int tint) {
+		renderStandModel(gui, posX, posY, 
+				scale, scaleZoom, yRot, xRot, xOffsetRatio, yOffsetRatio, 
+				standType, standSkin, 
+				(renderer, renderState) -> renderer.extractSkinMenuRenderState(renderState, standSkin, standType.getId(), ticks, tint));
+	}
+
+	public static <S extends StandEntityRenderState> void renderStandModel(GuiGraphics gui, float posX, float posY, 
+			float scale, float scaleZoom, float yRot, float xRot, float xOffsetRatio, float yOffsetRatio, 
+			EntityStandType standType, StandSkin standSkin, 
+			BiConsumer<StandEntityRenderer<?, S, ?>, S> extractRenderState) {
 		Quaternionf rotation = new Quaternionf()
 				.rotateX(-xRot)
 				.rotateY(-yRot);
@@ -599,8 +623,9 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 //		gui.drawSpecial(bufferSource -> renderer.renderWithRenderState(renderState -> {
 //			renderer.extractSkinMenuRenderState(renderState, standSkin, standType.getId(), ticks);
 //		}, gui.pose(), bufferSource, 0xF000F0));
-		RenderSystem.runAsFancy(() -> renderer.renderForStandSkinUI(standSkin, standType.getId(), ticks, 
-				gui.pose(), Minecraft.getInstance().renderBuffers().bufferSource(), tint));
+		RenderSystem.runAsFancy(() -> renderer.renderForStandSkinUI(
+				gui.pose(), Minecraft.getInstance().renderBuffers().bufferSource(), 
+				rs -> extractRenderState.accept(renderer, rs)));
 		
 		gui.flush();
 		renderManager.setRenderShadow(true);

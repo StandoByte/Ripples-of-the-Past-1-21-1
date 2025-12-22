@@ -31,6 +31,9 @@ import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
 import com.google.common.collect.Maps;
 
 import it.unimi.dsi.fastutil.floats.Float2ObjectMap;
+import it.unimi.dsi.fastutil.floats.FloatArrayList;
+import it.unimi.dsi.fastutil.floats.FloatList;
+import it.unimi.dsi.fastutil.floats.FloatListIterator;
 import net.minecraft.client.animation.AnimationChannel;
 import net.minecraft.client.animation.Keyframe;
 import net.minecraft.client.model.HumanoidModel;
@@ -44,16 +47,27 @@ public class RotpAnimDefinition {
 	protected final Map<String, List<AnimationChannel>> boneAnimations;
 	protected final List<KeyframeQuery> queries;
 	public final AnimInstructionTimelines instructionTimelines;
+	@Nullable public List<AnimFramePose> coolPoses;
 	
 //	public float animTime;
 	
 	public RotpAnimDefinition(float lengthInSeconds, OptionalFloat loopBackTo, Map<String, List<AnimationChannel>> boneAnimations, 
-			@Nullable List<KeyframeQuery> queries, AnimInstructionTimelines instructionTimelines) {
+			@Nullable List<KeyframeQuery> queries, AnimInstructionTimelines instructionTimelines, @Nullable FloatList coolPoseTimestamps) {
 		this.lengthInSeconds = lengthInSeconds;
 		this.loopBackTo = loopBackTo;
 		this.boneAnimations = boneAnimations;
 		this.queries = queries != null ? queries : Collections.emptyList();
 		this.instructionTimelines = instructionTimelines;
+		if (coolPoseTimestamps != null) {
+			this.coolPoses = new ArrayList<>(coolPoseTimestamps.size());
+			FloatListIterator iter = coolPoseTimestamps.iterator();
+			while (iter.hasNext()) {
+				float timestamp = iter.nextFloat();
+				AnimFramePose frame = calcAnimPose(null, timestamp, 1);
+				frame = frame.deepCopy();
+				coolPoses.add(frame);
+			}
+		}
 	}
 
 
@@ -237,8 +251,9 @@ public class RotpAnimDefinition {
 	}
 	
 	
-	private void evaluateQueries(LivingEntityRenderState renderState) {
-		AnimMolangQuery.instance.fillContext(renderState);
+	private void evaluateQueries(@Nullable LivingEntityRenderState renderState) {
+		if (renderState != null) 	AnimMolangQuery.instance.fillContext(renderState);
+		else						AnimMolangQuery.instance.reset();
 		queries.forEach(KeyframeQuery::evaluate);
 	}
 	
@@ -254,6 +269,7 @@ public class RotpAnimDefinition {
 		protected OptionalFloat loopBackTo = OptionalFloat.empty();
 		protected List<KeyframeQuery> queries = null;
 		protected final AnimInstructionTimelines instructions = new AnimInstructionTimelines();
+		protected FloatList coolPoses;
 		
 		public Builder(float lengthInSeconds) {
 			this.length = lengthInSeconds;
@@ -298,9 +314,17 @@ public class RotpAnimDefinition {
 			return this;
 		}
 		
+		public RotpAnimDefinition.Builder addCoolPoseTimestamp(float time) {
+			if (coolPoses == null) {
+				coolPoses = new FloatArrayList();
+			}
+			coolPoses.add(time);
+			return this;
+		}
+		
 		public RotpAnimDefinition build() {
 			instructions.onFinishedParsing();
-			RotpAnimDefinition anim = new RotpAnimDefinition(length, loopBackTo, animationByBone, queries, instructions);
+			RotpAnimDefinition anim = new RotpAnimDefinition(length, loopBackTo, animationByBone, queries, instructions, coolPoses);
 			return anim;
 		}
 	}

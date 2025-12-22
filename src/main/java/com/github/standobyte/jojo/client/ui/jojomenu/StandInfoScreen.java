@@ -19,6 +19,7 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
+import com.github.standobyte.jojo.util.UselessCrap;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.ChatFormatting;
@@ -42,12 +43,14 @@ public class StandInfoScreen extends Screen implements IJojoMenuScreen {
 	protected StandSkin standSkin;
 	protected StandSkinsScreen.SkinView standRender;
 	protected int tickCount = 0;
+	protected int rand;
 
 	public StandInfoScreen(TabCategory category, Tab tab) {
 		super(Component.empty());
 		this.category = category;
 		this.tab = tab;
 		this.texture = JojoMod.resLoc("textures/gui/paper_style/stand_stats.png");
+		this.rand = Math.abs(UselessCrap.RANDOM.nextInt());
 	}
 	
 	@Override
@@ -194,7 +197,7 @@ public class StandInfoScreen extends Screen implements IJojoMenuScreen {
 		// stand model
 		if (standRender != null) {
 			float partialTick = ClientUtil.partialTick(Minecraft.getInstance().getTimer(), true);
-			standRender.renderInStandInfo(guiGraphics, mouseX, mouseY, tickCount + partialTick, x, y, 35);
+			standRender.renderInStandInfo(guiGraphics, mouseX, mouseY, tickCount + partialTick, x, y, 35, rand);
 		}
 		
 		
