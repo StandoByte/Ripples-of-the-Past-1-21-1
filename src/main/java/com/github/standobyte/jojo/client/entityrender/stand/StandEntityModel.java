@@ -91,14 +91,19 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 
 		HumanoidPart.setPartsVisible(this, renderState.visibleParts);
 		
-		RotpAnimDefinition anim = renderState.action.anim;
-		float seconds = renderState.action.timeSeconds;
-		if (anim != null) {
-			anim.animate(this, renderState, seconds, 1);
+		if (renderState.action.staticPose != null) {
+			RotpAnimDefinition.animate(this, renderState.action.staticPose);
 		}
-		else if (head != null) {
-			head.xRot = renderState.xRot * MathUtil.DEG_TO_RAD;
-			head.yRot = renderState.yRot * MathUtil.DEG_TO_RAD;
+		else {
+			RotpAnimDefinition anim = renderState.action.anim;
+			float seconds = renderState.action.timeSeconds;
+			if (anim != null) {
+				anim.animate(this, renderState, seconds, 1);
+			}
+			else if (head != null) {
+				head.xRot = renderState.xRot * MathUtil.DEG_TO_RAD;
+				head.yRot = renderState.yRot * MathUtil.DEG_TO_RAD;
+			}
 		}
 	}
 	

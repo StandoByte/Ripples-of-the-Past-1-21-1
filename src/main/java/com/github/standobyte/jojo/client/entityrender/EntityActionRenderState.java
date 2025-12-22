@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.client.entityrender;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.entityanim.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.TimelineKeys;
 import com.github.standobyte.jojo.client.entityanim.barrage.BarrageSwings;
@@ -18,6 +19,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.LivingEntity;
 
 public class EntityActionRenderState {
+	@Nullable public AnimFramePose staticPose;
+	
 	@Nullable public ActionAnimIdentifier animId;
 	public float time = -1;
 	@Nullable public ActionPhase actionPhase;

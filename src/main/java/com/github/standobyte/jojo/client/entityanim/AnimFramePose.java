@@ -18,7 +18,9 @@ public class AnimFramePose {
 	public static AnimFramePose reused = new AnimFramePose();
 	
 	public ModelPartFrame getForModelPart(String modelPartName) {
-		return this.pose.computeIfAbsent(modelPartName, __ -> modelPartCache.computeIfAbsent(modelPartName, ___ -> new ModelPartFrame()));
+		// FIXME ConcurrentModificationError on F3+T
+		return this.pose.computeIfAbsent(modelPartName, __ -> modelPartCache
+				.computeIfAbsent(modelPartName, ___ -> new ModelPartFrame()));
 	}
 	
 	

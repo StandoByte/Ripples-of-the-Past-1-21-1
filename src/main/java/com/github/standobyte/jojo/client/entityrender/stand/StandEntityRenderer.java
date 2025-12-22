@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.client.entityrender.stand;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
@@ -84,6 +85,7 @@ public class StandEntityRenderer<
 	public static final ActionAnimIdentifier GRAB_IDLE_ANIM = ActionAnimIdentifier.getOrCreate("grab", true);
 //	@Override // 1.21.2+
 	public void extractRenderState(T entity, S renderState, float partialTick) {
+		renderState.action.staticPose = null;
 //		super.extractRenderState(entity, renderState, partialTick); // 1.21.2+
 		LivingEntityRenderState.extract(entity, renderState, this, entityRenderDispatcher, partialTick);
 		ArmedEntityRenderState.extractArmedEntityRenderState(entity, renderState/*, this.itemModelResolver*/);
@@ -134,6 +136,7 @@ public class StandEntityRenderer<
 	}
 	
 	public void extractSkinMenuRenderState(S renderState, StandSkin skin, ResourceLocation standId, float ticks, int tint) {
+		renderState.action.staticPose = null;
 		renderState.skin = skin;
 		renderState.visibleParts = HumanoidPart.ALL;
 		renderState.standId = standId;
@@ -199,10 +202,9 @@ public class StandEntityRenderer<
 	}
 	
 	
-	public void renderForStandSkinUI(StandSkin skin, ResourceLocation standId, float ticks, 
-			PoseStack poseStack, MultiBufferSource bufferSource, int tint) {
+	public void renderForStandSkinUI(PoseStack poseStack, MultiBufferSource bufferSource, Consumer<S> extractRenderState) {
 		S renderState = outOfLevelRenderState;
-		extractSkinMenuRenderState(renderState, skin, standId, ticks, tint);
+		extractRenderState.accept(renderState);
 		preRender(renderState);
 
 		M model = modelFrom(renderState);

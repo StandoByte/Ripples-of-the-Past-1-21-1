@@ -13,7 +13,9 @@ public class AnimMolangQuery implements ObjectValue {
 	public static final String NAMESPACE = "query";
 	public static AnimMolangQuery instance = new AnimMolangQuery();
 	
-	protected AnimMolangQuery() {}
+	protected AnimMolangQuery() {
+		reset();
+	}
 	
 	ObjectProperty head_x_rotation;
 	ObjectProperty head_y_rotation;
@@ -25,6 +27,12 @@ public class AnimMolangQuery implements ObjectValue {
         if (renderState instanceof StandEntityRenderState standState){
             extendablePartLength = ObjectProperty.property(Value.of(standState.extendablePartLength), false);
         }
+	}
+	
+	public void reset() {
+		head_x_rotation = ObjectProperty.property(Value.of(0), false);
+		head_y_rotation = ObjectProperty.property(Value.of(0), false);
+		extendablePartLength = ObjectProperty.property(Value.of(0), false);
 	}
 	
 	@Override

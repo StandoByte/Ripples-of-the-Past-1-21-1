@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.IntFunction;
@@ -73,18 +74,27 @@ public class ParseGeckoAnims {
 				float time = Float.parseFloat(keyframeEntry.getKey());
 				JsonElement value = keyframeEntry.getValue();
 				Iterable<JsonElement> instructions = value.isJsonArray() ? value.getAsJsonArray() : Collections.singleton(value);
-				Map<String, String> assignmentMap = Streams.stream(instructions)
+				
+				Map<Integer, List<String[]>> instructionsParsed = Streams.stream(instructions)
 						.filter(json -> json.isJsonPrimitive() && json.getAsJsonPrimitive().isString())
 						.map(JsonElement::getAsString)
 						.map(instruction -> instruction.split("[ ]*=[ ]*"))
-						.filter(assignment -> assignment.length == 2)
+						.filter(assignment -> assignment.length > 0)
 						.peek(assignment -> {
-							if (assignment[1].endsWith(";")) {
-								assignment[1] = assignment[1].substring(0, assignment[1].length() - 1);
+							int lastI = assignment.length - 1;
+							while (assignment[lastI].endsWith(";")) {
+								assignment[lastI] = assignment[lastI].substring(0, assignment[lastI].length() - 1);
 							}
 						})
+						.collect(Collectors.groupingBy(instruction -> instruction.length));
+
+				List<String> singleWordInstructions = instructionsParsed.getOrDefault(1, Collections.emptyList()).stream()
+						.map(array -> array[0])
+						.toList();
+				Map<String, String> assignmentMap = instructionsParsed.getOrDefault(2, Collections.emptyList()).stream()
 						.collect(Collectors.toMap(assignment -> assignment[0], assignment -> assignment[1], 
 								(u, v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); }, LinkedHashMap::new));
+				
 				while (!assignmentMap.isEmpty()) {
 					Map.Entry<String, String> assignment = assignmentMap.entrySet().iterator().next();
 					String field = assignment.getKey();
@@ -97,12 +107,20 @@ public class ParseGeckoAnims {
 							builder.addActionPhaseKeyframe(animPhase, time);
 						}
 						case "loopBack" -> {
-							builder.looping(Float.parseFloat(assignmentMap.get(field)));
+							builder.looping(Float.parseFloat(assignmentValue));
 						}
 						default -> builder.addFieldValueKeyframe(field, assignmentValue, time);
 					}
 					
 					assignmentMap.remove(assignment.getKey());
+				}
+				
+				for (String singleWord : singleWordInstructions) {
+					switch (singleWord) {
+						case "coolPoseHere" -> {
+							builder.addCoolPoseTimestamp(time);
+						}
+					}
 				}
 			}
 		}
@@ -200,6 +218,7 @@ public class ParseGeckoAnims {
 		AnimActionPhase.Mode mode = AnimActionPhase.Mode.FIT_PHASE_LENGTH;
 		if ("true".equals(assignmentMap.get("phase.constantLength"))) {
 			mode = AnimActionPhase.Mode.CONSTANT_LENGTH;
+			assignmentMap.remove("phase.constantLength");
 		}
 		return new AnimActionPhase(phase, mode);
 	}

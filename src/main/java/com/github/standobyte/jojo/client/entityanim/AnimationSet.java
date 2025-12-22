@@ -4,8 +4,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
@@ -19,21 +23,38 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
  * Has some stuff specific to Stands, but it can be used for other entities as well.
  */
 public class AnimationSet {
-	protected final Map<String, List<RotpAnimDefinition>> namedAnimations;
-	protected RotpAnimDefinition idleAnim;
+	public final Map<String, List<RotpAnimDefinition>> namedAnimations;
+	@Nullable public List<AnimFramePose> coolPoses;
+	@Nullable public RotpAnimDefinition idleAnim;
 //	@Nullable protected AnimWithExtras curAnim;
 	
 	protected AnimationSet(Map<String, List<RotpAnimDefinition>> namedAnimations) {
 		this.namedAnimations = namedAnimations;
 		this.idleAnim = getNamedAnim(StandEntityRenderer.IDLE_ANIM);
+		this.coolPoses = allAnims().map(anim -> anim.coolPoses).filter(Objects::nonNull).flatMap(List::stream).toList();
+	}
+	
+	protected Stream<RotpAnimDefinition> allAnims() {
+		return namedAnimations.values().stream().flatMap(List::stream);
 	}
 
+	@Nullable
 	public RotpAnimDefinition getNamedAnim(ActionAnimIdentifier animId) {
 		List<RotpAnimDefinition> anims = namedAnimations.get(animId.name());
 		if (anims == null || anims.isEmpty()) return null;
 		return anims.get(animId.index() % anims.size());
 	}
 	
+	@Nullable
+	public RotpAnimDefinition getSummonAnim(String name, int randomLargeNum) {
+		List<RotpAnimDefinition> summonAnims = namedAnimations.get("name");
+		if (summonAnims != null && !summonAnims.isEmpty()) {
+			return summonAnims.get(Math.abs(randomLargeNum) % summonAnims.size());
+		}
+		return null;
+	}
+	
+	@Nullable
 	public RotpAnimDefinition getStandIdleAnim() {
 		return idleAnim;
 	}
