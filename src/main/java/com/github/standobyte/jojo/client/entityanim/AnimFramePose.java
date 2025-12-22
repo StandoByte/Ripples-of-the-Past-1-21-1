@@ -86,7 +86,7 @@ public class AnimFramePose {
 		public ModelPartFrame deepCopy() {
 			ModelPartFrame copy = new ModelPartFrame();
 			copy.positionOffset.set(this.positionOffset);
-			copy.rotationOffset.set(this.positionOffset);
+			copy.rotationOffset.set(this.rotationOffset);
 			copy.scaleOffset.set(this.scaleOffset);
 			return copy;
 		}
