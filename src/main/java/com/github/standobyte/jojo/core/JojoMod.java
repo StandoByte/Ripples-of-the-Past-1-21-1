@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.core;
 import org.slf4j.Logger;
 
 import com.github.standobyte.jojo.core.command.argument.ModCommandArguments;
+import com.github.standobyte.jojo.init.ModBlockEntities;
 import com.github.standobyte.jojo.init.ModBlocks;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModEntityTypes;
@@ -53,6 +54,7 @@ public class JojoMod {
 		ModEntityAttributes.ATTRIBUTES.register(modEventBus);
 		ModEntityDataSerializers.SERIALIZERS.register(modEventBus);
 		ModStatusEffects.STATUS_EFFECTS.register(modEventBus);
+		ModBlockEntities.BLOCK_ENTITY_TYPES.register(modEventBus);
 		ModContainers.CONTAINERS.register(modEventBus);
 		
 		JojoRegistries.ABILITY_TYPES.register(modEventBus);
