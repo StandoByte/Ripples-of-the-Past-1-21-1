@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.mechanics.entity_like_player.useitem;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.init.ModSpecialActions;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -11,7 +12,12 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.UseAnim;
 
 /**
  * Lets the mod's action system know that the entity is in the middle of using an item via the vanilla system
@@ -30,9 +36,44 @@ public class VanillaItemUseAsAction extends SpecialEntityActionType {
 		return new ItemUsingInstance(this);
 	}
 
+	public ActionAnimIdentifier bowAnimLeft = ActionAnimIdentifier.getOrCreate("bow_shoot_left", false);
+	public ActionAnimIdentifier bowAnimRight = ActionAnimIdentifier.getOrCreate("bow_shoot_right", false);
+	@Override
+	public ActionAnimIdentifier getEntityAnim(EntityActionInstance _action) {
+		ItemUsingInstance action = (ItemUsingInstance) _action;
+		
+		LivingEntity stand = action.getPerformer();
+		if (stand.isUsingItem()) {
+			ItemStack usedItem = stand.getUseItem();
+			action.usedItem = usedItem;
+			action.vanillaAnim = usedItem.getUseAnimation();
+			action.useHand = getItemInHand(stand, HumanoidArm.LEFT) == usedItem ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
+		}
+		
+		if (action.vanillaAnim != null) {
+			return switch (action.vanillaAnim) {
+				case BOW -> switch (action.useHand) {
+					case LEFT -> bowAnimLeft;
+					case RIGHT -> bowAnimRight;
+				};
+				default -> super.getEntityAnim(action);
+			};
+		}
+		
+		return super.getEntityAnim(action);
+	}
+	
+	public static ItemStack getItemInHand(LivingEntity entity, HumanoidArm hand) {
+		return entity.getItemBySlot(hand == entity.getMainArm() ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
+	}
+
 	public static class ItemUsingInstance extends EntityActionInstance {
 		protected boolean isPlayerEntity;
 		protected ServerPlayer standUserPlayer;
+		
+		protected ItemStack usedItem;
+		UseAnim vanillaAnim;
+		HumanoidArm useHand;
 
 		public ItemUsingInstance() {
 			this(ModSpecialActions.RMB_USING_ITEM.get());

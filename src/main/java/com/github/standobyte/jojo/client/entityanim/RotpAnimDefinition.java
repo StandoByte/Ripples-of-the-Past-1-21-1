@@ -42,6 +42,7 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.HumanoidArm;
 
 public class RotpAnimDefinition {
 	public final float lengthInSeconds;
@@ -50,11 +51,12 @@ public class RotpAnimDefinition {
 	protected final List<KeyframeQuery> queries;
 	public final AnimInstructionTimelines instructionTimelines;
 	@Nullable public List<AnimFramePose> coolPoses;
+	@Nullable public AnimationMirror animationMirror;
 	
 //	public float animTime;
 	
 	public RotpAnimDefinition(float lengthInSeconds, OptionalFloat loopBackTo, Map<String, List<IAnimationChannel>> boneAnimations, 
-			AnimInstructionTimelines instructionTimelines, @Nullable FloatList coolPoseTimestamps) {
+			AnimInstructionTimelines instructionTimelines, @Nullable List<AnimFramePose> coolPoses) {
 		this.lengthInSeconds = lengthInSeconds;
 		this.loopBackTo = loopBackTo;
 		
@@ -66,10 +68,20 @@ public class RotpAnimDefinition {
 				.toList();
 		
 		this.instructionTimelines = instructionTimelines;
-		
-		if (coolPoseTimestamps != null) {
-			this.coolPoses = new ArrayList<>(coolPoseTimestamps.size());
-			FloatListIterator iter = coolPoseTimestamps.iterator();
+		this.coolPoses = coolPoses;
+	}
+	
+	public RotpAnimDefinition copyWithAnim(Map<String, List<IAnimationChannel>> boneAnimations) {
+		RotpAnimDefinition copy = new RotpAnimDefinition(lengthInSeconds, loopBackTo, boneAnimations, 
+				instructionTimelines, this.coolPoses);
+		return copy;
+	}
+	
+	public void initStaticPoses(FloatList poseTimestamps) {
+		List<AnimFramePose> coolPoses = null;
+		if (this.coolPoses != null) {
+			coolPoses = new ArrayList<>(this.coolPoses.size());
+			FloatListIterator iter = poseTimestamps.iterator();
 			while (iter.hasNext()) {
 				float timestamp = iter.nextFloat();
 				AnimFramePose frame = calcAnimPose(null, timestamp, 1);
@@ -78,16 +90,9 @@ public class RotpAnimDefinition {
 			}
 		}
 	}
-	
-	public RotpAnimDefinition copyWithAnims(Map<String, List<IAnimationChannel>> boneAnimations) {
-		RotpAnimDefinition copy = new RotpAnimDefinition(lengthInSeconds, loopBackTo, boneAnimations, 
-				instructionTimelines, null);
-		copy.coolPoses = this.coolPoses;
-		return copy;
-	}
 
 
-	public AnimFramePose calcAnimPose(LivingEntityRenderState renderState, float seconds, float animSpeed) {
+	public AnimFramePose calcAnimPose(@Nullable LivingEntityRenderState renderState, float seconds, float animSpeed) {
 		evaluateQueries(renderState);
 		AnimFramePose frame = AnimFramePose.reused.clear();
 		for (Map.Entry<String, List<IAnimationChannel>> entry : boneAnimations.entrySet()) {
@@ -286,8 +291,13 @@ public class RotpAnimDefinition {
 		protected final AnimInstructionTimelines instructions = new AnimInstructionTimelines();
 		protected FloatList coolPoses;
 		
+		@Nullable public HumanoidArm mirrorDefaultSide = null;
+		public float mirrorStart = 0;
+		public float mirrorEnd;
+		
 		public Builder(float lengthInSeconds) {
 			this.length = lengthInSeconds;
+			this.mirrorEnd = lengthInSeconds;
 		}
 
 		public RotpAnimDefinition.Builder looping() {
@@ -331,7 +341,14 @@ public class RotpAnimDefinition {
 		
 		public RotpAnimDefinition build() {
 			instructions.onFinishedParsing();
-			RotpAnimDefinition anim = new RotpAnimDefinition(length, loopBackTo, animationByBone, instructions, coolPoses);
+			RotpAnimDefinition anim = new RotpAnimDefinition(length, loopBackTo, animationByBone, instructions, null);
+			
+			anim.initStaticPoses(this.coolPoses);
+			
+			if (mirrorDefaultSide != null) {
+				anim.animationMirror = new AnimationMirror(mirrorDefaultSide, mirrorStart, mirrorEnd);
+			}
+			
 			return anim;
 		}
 	}
