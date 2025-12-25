@@ -319,7 +319,7 @@
   "jojo_ripples.ability.ground_slam": "Ground Slam",
 
   "jojo_ripples.skill.grab_terrain": "(NYI) Terrain Grab",
-  "jojo_ripples.skill.grab_terrain.desc": "Star Platinum's immense strength lets him grab a whole chunk of terrain and hurl it at an enemy.",
+  "jojo_ripples.skill.grab_terrain.desc": "Star Platinum's immense strength lets it grab a whole chunk of terrain and hurl it at an enemy.",
   "jojo_ripples.skill.grab_terrain.controls": "Ctrl + \uEAFEx2",
   "jojo_ripples.ability.grab_terrain": "Grab terrain",
 
@@ -334,12 +334,12 @@
   "jojo_ripples.ability.enhanced_eyesight": "Enhanced Vision",
   
   "jojo_ripples.skill.star_finger": "Star Finger",
-  "jojo_ripples.skill.star_finger.desc": "Star Platinum concentrates his strength in his middle and index fingers and extends them to a great length to deal damage at a higher distance. This can be performed even if Star Platinum is immobilized.",
+  "jojo_ripples.skill.star_finger.desc": "Star Platinum concentrates its strength in its middle and index fingers and extends them to a great length to deal damage at a higher distance. This can be performed even if Star Platinum is immobilized.",
   "jojo_ripples.skill.star_finger.controls": "Special ability",
   "jojo_ripples.ability.star_finger": "Star Finger",
   
   "jojo_ripples.skill.inhale": "Inhale",
-  "jojo_ripples.skill.inhale.desc": "By inhaling the air with superhuman lung capacity, Star Platinum can pull entities in front of him towards himself.",
+  "jojo_ripples.skill.inhale.desc": "By inhaling the air with superhuman lung capacity, Star Platinum can pull entities in front of it towards itself.",
   "jojo_ripples.skill.inhale.controls": "Special ability",
   "jojo_ripples.ability.inhale": "Inhale",
   "jojo_ripples.subtitle.inhale": "Inhale",
@@ -354,7 +354,7 @@
   "stand.jojo_ripples.hierophant_green.desc": "A long-range Stand with average physical strength, more suitable for reconnaissance than for close combat. Its body can unravel into tendrils, allowing the user to set up traps.",
   
   "jojo_ripples.skill.puppet": "(WIP) Puppet",
-  "jojo_ripples.skill.puppet.desc": "Hierophant Green uncoils his body and slides inside an entity, letting you mechanically control the target's movements.",
+  "jojo_ripples.skill.puppet.desc": "Hierophant Green uncoils its body and slides inside an entity, letting you mechanically control the target's movements.",
   "jojo_ripples.skill.puppet.controls": "Special ability",
   "jojo_ripples.ability.puppet": "Puppet",
   "jojo_ripples.ability.puppet.release": "Release Puppet",
