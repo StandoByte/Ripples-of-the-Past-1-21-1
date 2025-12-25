@@ -1,6 +1,5 @@
 package com.github.standobyte.jojo.client.entityanim.gecko;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -13,7 +12,8 @@ import java.util.stream.StreamSupport;
 
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.action.AnimActionPhase;
-import com.github.standobyte.jojo.client.entityanim.molang.KeyframeQuery;
+import com.github.standobyte.jojo.client.entityanim.molang.animelement.AnimationChannelQuery;
+import com.github.standobyte.jojo.client.entityanim.molang.animelement.KeyframeQuery;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.google.common.collect.Streams;
 import com.google.gson.JsonArray;
@@ -24,7 +24,6 @@ import it.unimi.dsi.fastutil.floats.Float2ObjectArrayMap;
 import it.unimi.dsi.fastutil.floats.Float2ObjectMap;
 import net.minecraft.client.animation.AnimationChannel;
 import net.minecraft.client.animation.AnimationChannel.Interpolation;
-import net.minecraft.client.animation.Keyframe;
 
 public class ParseGeckoAnims {
 	
@@ -156,13 +155,7 @@ public class ParseGeckoAnims {
 		}
 		
 		KeyframeQuery[] keyframeQueries = keyframesToArray(timeline, KeyframeQuery[]::new);
-		Keyframe[] vanillaKeyframes = Arrays.stream(keyframeQueries)
-				.map(KeyframeQuery::getKeyframe)
-				.toArray(size -> new Keyframe[keyframeQueries.length]);
-		anim.addAnimation(boneName, new AnimationChannel(target, vanillaKeyframes));
-		for (var query : keyframeQueries) {
-			anim.addExpressionQuery(query);
-		}
+		anim.addAnimation(boneName, new AnimationChannelQuery(target, keyframeQueries));
 	}
 	
 	private static void parseKeyframe(Float2ObjectMap<KeyframeQuery> keyframesTimeline, float time, JsonElement keyframeValue) {
@@ -194,7 +187,7 @@ public class ParseGeckoAnims {
 		
 		KeyframeQuery rotVec = KeyframeQuery.parseJsonVec(rotVecJson);
 		Interpolation lerp = MoarInterpolations.getLerpMode(easingName, easingArgs);
-		keyframesTimeline.put(time, rotVec.withKeyframe(time, lerp));
+		keyframesTimeline.put(time, rotVec.setKeyframe(time, lerp));
 	}
 	
 	public static <T> T[] keyframesToArray(Float2ObjectMap<T> parsedTimeline, IntFunction<T[]> arrayConstructor) {
