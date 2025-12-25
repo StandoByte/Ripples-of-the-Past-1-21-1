@@ -427,6 +427,7 @@ public class EntityActionInstance implements HeldInput {
 	
 	@ApiStatus.Internal
 	protected void _onTick() {
+		performer.yBodyRot = performer.getYRot();
 		actionTick();
 		if (phase == ActionPhase.PERFORM) {
 			if (getPhaseTick() < 1) {

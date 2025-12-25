@@ -174,6 +174,10 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			}
 			updateUserOffset(user);
 		}
+		this.xRotO = rotO.xRot;
+		this.yRotO = rotO.yRot;
+		this.yBodyRotO = rotO.yBodyRot;
+		
 		yHeadRot = getYRot();
 		yHeadRotO = yRotO;
 
@@ -374,10 +378,10 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 					this.setYHeadRot(this.getYRot());
 				}
 			}
-			this.xRotO = rotO.xRot;
-			this.yRotO = rotO.yRot;
-			this.yHeadRotO = rotO.yHeadRot;
-			this.yBodyRotO = rotO.yBodyRot;
+//			this.xRotO = rotO.xRot;
+//			this.yRotO = rotO.yRot;
+//			this.yHeadRotO = rotO.yHeadRot;
+//			this.yBodyRotO = rotO.yBodyRot;
 			return true;
 		}
 		return false;
