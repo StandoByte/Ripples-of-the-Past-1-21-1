@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.client.entityanim;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +17,9 @@ import com.github.standobyte.jojo.client.entityanim.action.AnimActionPhase;
 import com.github.standobyte.jojo.client.entityanim.action.AnimInstructionTimelines;
 import com.github.standobyte.jojo.client.entityanim.action.AnimObjTimeline;
 import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery;
-import com.github.standobyte.jojo.client.entityanim.molang.KeyframeQuery;
+import com.github.standobyte.jojo.client.entityanim.molang.animelement.AnimationChannelQuery;
+import com.github.standobyte.jojo.client.entityanim.molang.animelement.IAnimationChannel;
+import com.github.standobyte.jojo.client.entityanim.molang.animelement.KeyframeQuery;
 import com.github.standobyte.jojo.client.entityanim.playerbend.PlayerModelBends;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.client.entityrender.HiddenModelPartsUtil;
@@ -44,20 +46,27 @@ import net.minecraft.util.Mth;
 public class RotpAnimDefinition {
 	public final float lengthInSeconds;
 	public final OptionalFloat loopBackTo;
-	protected final Map<String, List<AnimationChannel>> boneAnimations;
+	protected final Map<String, List<IAnimationChannel>> boneAnimations;
 	protected final List<KeyframeQuery> queries;
 	public final AnimInstructionTimelines instructionTimelines;
 	@Nullable public List<AnimFramePose> coolPoses;
 	
 //	public float animTime;
 	
-	public RotpAnimDefinition(float lengthInSeconds, OptionalFloat loopBackTo, Map<String, List<AnimationChannel>> boneAnimations, 
-			@Nullable List<KeyframeQuery> queries, AnimInstructionTimelines instructionTimelines, @Nullable FloatList coolPoseTimestamps) {
+	public RotpAnimDefinition(float lengthInSeconds, OptionalFloat loopBackTo, Map<String, List<IAnimationChannel>> boneAnimations, 
+			AnimInstructionTimelines instructionTimelines, @Nullable FloatList coolPoseTimestamps) {
 		this.lengthInSeconds = lengthInSeconds;
 		this.loopBackTo = loopBackTo;
+		
 		this.boneAnimations = boneAnimations;
-		this.queries = queries != null ? queries : Collections.emptyList();
+		this.queries = boneAnimations.entrySet().stream().flatMap(entry -> entry.getValue().stream())
+				.map(channel -> (AnimationChannelQuery) channel)
+				.flatMap(channel -> Arrays.stream(channel.rotpKeyframes()))
+				.filter(keyframe -> !keyframe.isNumericLiteral())
+				.toList();
+		
 		this.instructionTimelines = instructionTimelines;
+		
 		if (coolPoseTimestamps != null) {
 			this.coolPoses = new ArrayList<>(coolPoseTimestamps.size());
 			FloatListIterator iter = coolPoseTimestamps.iterator();
@@ -69,14 +78,21 @@ public class RotpAnimDefinition {
 			}
 		}
 	}
+	
+	public RotpAnimDefinition copyWithAnims(Map<String, List<IAnimationChannel>> boneAnimations) {
+		RotpAnimDefinition copy = new RotpAnimDefinition(lengthInSeconds, loopBackTo, boneAnimations, 
+				instructionTimelines, null);
+		copy.coolPoses = this.coolPoses;
+		return copy;
+	}
 
 
 	public AnimFramePose calcAnimPose(LivingEntityRenderState renderState, float seconds, float animSpeed) {
 		evaluateQueries(renderState);
 		AnimFramePose frame = AnimFramePose.reused.clear();
-		for (Map.Entry<String, List<AnimationChannel>> entry : boneAnimations.entrySet()) {
+		for (Map.Entry<String, List<IAnimationChannel>> entry : boneAnimations.entrySet()) {
 			ModelPartFrame modelPartPose = frame.getForModelPart(entry.getKey());
-			for (AnimationChannel tf : entry.getValue()) {
+			for (IAnimationChannel tf : entry.getValue()) {
 				Vector3f vec = calcVec(this, tf, seconds, animSpeed);
 				modelPartPose.set(vec, tf.target());
 			}
@@ -224,7 +240,7 @@ public class RotpAnimDefinition {
 
 	protected static final Vector3f TEMP = new Vector3f();
 	
-	public static Vector3f calcVec(RotpAnimDefinition anim, AnimationChannel tf, float seconds, float animSpeed) {
+	public static Vector3f calcVec(RotpAnimDefinition anim, IAnimationChannel tf, float seconds, float animSpeed) {
 		Keyframe[] keyframes = tf.keyframes();
 		anim.lerpKeyframes(keyframes, seconds, animSpeed);
 		if (tf.target() == AnimationChannel.Targets.ROTATION) {
@@ -265,9 +281,8 @@ public class RotpAnimDefinition {
 	
 	public static class Builder {
 		protected float length;
-		protected final Map<String, List<AnimationChannel>> animationByBone = Maps.newHashMap();
+		protected final Map<String, List<IAnimationChannel>> animationByBone = Maps.newHashMap();
 		protected OptionalFloat loopBackTo = OptionalFloat.empty();
-		protected List<KeyframeQuery> queries = null;
 		protected final AnimInstructionTimelines instructions = new AnimInstructionTimelines();
 		protected FloatList coolPoses;
 		
@@ -284,16 +299,8 @@ public class RotpAnimDefinition {
 			return this;
 		}
 
-		public RotpAnimDefinition.Builder addAnimation(String bone, AnimationChannel animationChannel) {
+		public RotpAnimDefinition.Builder addAnimation(String bone, IAnimationChannel animationChannel) {
 			this.animationByBone.computeIfAbsent(bone, p_329694_ -> new ArrayList<>()).add(animationChannel);
-			return this;
-		}
-
-		public RotpAnimDefinition.Builder addExpressionQuery(KeyframeQuery query) {
-			if (queries == null) queries = new ArrayList<>();
-			if (!query.isNumericLiteral()) {
-				queries.add(query);
-			}
 			return this;
 		}
 		
@@ -324,7 +331,7 @@ public class RotpAnimDefinition {
 		
 		public RotpAnimDefinition build() {
 			instructions.onFinishedParsing();
-			RotpAnimDefinition anim = new RotpAnimDefinition(length, loopBackTo, animationByBone, queries, instructions, coolPoses);
+			RotpAnimDefinition anim = new RotpAnimDefinition(length, loopBackTo, animationByBone, instructions, coolPoses);
 			return anim;
 		}
 	}

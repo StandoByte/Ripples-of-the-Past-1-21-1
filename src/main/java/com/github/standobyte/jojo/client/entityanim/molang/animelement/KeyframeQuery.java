@@ -1,9 +1,10 @@
-package com.github.standobyte.jojo.client.entityanim.molang;
+package com.github.standobyte.jojo.client.entityanim.molang.animelement;
 
 import javax.annotation.Nullable;
 
 import org.joml.Vector3f;
 
+import com.github.standobyte.jojo.client.entityanim.molang.KeyframesMolangEngine;
 import com.github.standobyte.jojo.core.molang.MolangValue;
 import com.google.gson.JsonArray;
 
@@ -24,10 +25,19 @@ public class KeyframeQuery {
 		this.query = query;
 	}
 	
-	public KeyframeQuery withKeyframe(float timestamp, Interpolation interpolation) {
+	public KeyframeQuery copy() {
+		KeyframeQuery rotpKeyframe = new KeyframeQuery(new Vector3f(this.keyframeTarget), this.query);
+		if (this.keyframe != null) {
+			rotpKeyframe.keyframe = new Keyframe(keyframe.timestamp(), this.keyframeTarget, keyframe.interpolation());
+		}
+		return rotpKeyframe;
+	}
+	
+	public KeyframeQuery setKeyframe(float timestamp, Interpolation interpolation) {
 		keyframe = new Keyframe(timestamp, keyframeTarget, interpolation);
 		return this;
 	}
+	
 	
 	public Keyframe getKeyframe() {
 		return keyframe;
@@ -48,7 +58,7 @@ public class KeyframeQuery {
 		boolean isNumericLiteral = true;
 		MolangValue[] elements = new MolangValue[3];
 		for (int i = 0; i < elements.length; i++) {
-			elements[i] = MolangValue.fromJson(vecJson.get(i), KeyframesMolangEngine.get(), expr -> !expr.contains(AnimMolangQuery.NAMESPACE));
+			elements[i] = MolangValue.fromJson(vecJson.get(i), KeyframesMolangEngine.get());
 			isNumericLiteral &= elements[i].isNumericLiteral();
 		}
 		if (isNumericLiteral) {

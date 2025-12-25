@@ -5,6 +5,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.Predicate;
 
+import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
@@ -32,7 +33,7 @@ public sealed interface MolangValue extends DoubleSupplier, IntSupplier, Boolean
 		}
 	}
 	
-	public static MolangValue fromJson(JsonElement json, MochaEngine<?> molangEngine, Predicate<String> tryCompile) {
+	public static MolangValue fromJson(JsonElement json, MochaEngine<?> molangEngine) {
 		if (!json.isJsonPrimitive()) {
 			throw new IllegalArgumentException();
 		}
@@ -42,8 +43,9 @@ public sealed interface MolangValue extends DoubleSupplier, IntSupplier, Boolean
 		}
 		catch (NumberFormatException e1) {
 			String string = jsonPrimitive.getAsString();
+			boolean tryCompile = !string.contains(AnimMolangQuery.NAMESPACE);
 			try {
-				return new MolangValue.Molang(string, molangEngine, tryCompile != null ? tryCompile.test(string) : false);
+				return new MolangValue.Molang(string, molangEngine, tryCompile);
 			}
 			catch (Exception e2) {
 				return MolangValue.Literal.ZERO;
