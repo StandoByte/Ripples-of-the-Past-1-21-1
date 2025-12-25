@@ -43,6 +43,7 @@ public class VanillaItemUseAsAction extends SpecialEntityActionType {
 		ItemUsingInstance action = (ItemUsingInstance) _action;
 		
 		LivingEntity stand = action.getPerformer();
+		// FIXME isn't true for the first few frames
 		if (stand.isUsingItem()) {
 			ItemStack usedItem = stand.getUseItem();
 			action.usedItem = usedItem;
