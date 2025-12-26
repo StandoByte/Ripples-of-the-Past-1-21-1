@@ -24,6 +24,7 @@ import it.unimi.dsi.fastutil.floats.Float2ObjectArrayMap;
 import it.unimi.dsi.fastutil.floats.Float2ObjectMap;
 import net.minecraft.client.animation.AnimationChannel;
 import net.minecraft.client.animation.AnimationChannel.Interpolation;
+import net.minecraft.world.entity.HumanoidArm;
 
 public class ParseGeckoAnims {
 	
@@ -108,6 +109,10 @@ public class ParseGeckoAnims {
 						case "loopBack" -> {
 							builder.looping(Float.parseFloat(assignmentValue));
 						}
+						case "mirror.default" -> {
+							HumanoidArm side = Enum.valueOf(HumanoidArm.class, assignmentValue);
+							builder.mirrorDefaultSide = side;
+						}
 						default -> builder.addFieldValueKeyframe(field, assignmentValue, time);
 					}
 					
@@ -118,6 +123,12 @@ public class ParseGeckoAnims {
 					switch (singleWord) {
 						case "coolPoseHere" -> {
 							builder.addCoolPoseTimestamp(time);
+						}
+						case "mirror.start" -> {
+							builder.mirrorStart = time;
+						}
+						case "mirror.end" -> {
+							builder.mirrorEnd = time;
 						}
 					}
 				}

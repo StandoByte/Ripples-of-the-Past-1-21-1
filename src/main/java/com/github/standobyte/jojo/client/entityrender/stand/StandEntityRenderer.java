@@ -127,7 +127,7 @@ public class StandEntityRenderer<
 		renderState.alpha = (float) entity.rangeEfficiency * entity.modelAlpha.lerp(partialTick);
 		
 		Minecraft mc = Minecraft.getInstance();
-		renderState.mayObstructView = mc.options.getCameraType().isFirstPerson();
+		renderState.mayObstructView = mc.options.getCameraType().isFirstPerson() && entity.isFollowingUser();
 		if (renderState.mayObstructView) {
 			Entity cameraEntity = mc.getCameraEntity();
 			if (cameraEntity == null) cameraEntity = mc.player;

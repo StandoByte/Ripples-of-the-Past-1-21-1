@@ -28,7 +28,7 @@ public class KeyframeQuery {
 	public KeyframeQuery copy() {
 		KeyframeQuery rotpKeyframe = new KeyframeQuery(new Vector3f(this.keyframeTarget), this.query);
 		if (this.keyframe != null) {
-			rotpKeyframe.keyframe = new Keyframe(keyframe.timestamp(), this.keyframeTarget, keyframe.interpolation());
+			rotpKeyframe.keyframe = new Keyframe(keyframe.timestamp(), rotpKeyframe.keyframeTarget, keyframe.interpolation());
 		}
 		return rotpKeyframe;
 	}

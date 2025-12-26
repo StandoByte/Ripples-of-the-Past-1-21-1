@@ -30,6 +30,7 @@ public class AnimationSet {
 	
 	protected AnimationSet(Map<String, List<RotpAnimDefinition>> namedAnimations) {
 		this.namedAnimations = namedAnimations;
+		AnimationMirror.doMirroringOnAnimSet(this.namedAnimations);
 		this.idleAnim = getNamedAnim(StandEntityRenderer.IDLE_ANIM);
 		this.coolPoses = allAnims().map(anim -> anim.coolPoses).filter(Objects::nonNull).flatMap(List::stream).toList();
 	}
