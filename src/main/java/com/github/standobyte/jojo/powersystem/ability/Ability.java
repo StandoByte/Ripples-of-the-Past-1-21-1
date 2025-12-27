@@ -1,6 +1,5 @@
 package com.github.standobyte.jojo.powersystem.ability;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
