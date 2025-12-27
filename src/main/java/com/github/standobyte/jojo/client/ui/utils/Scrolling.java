@@ -10,25 +10,29 @@ import net.minecraft.util.Mth;
 
 public class Scrolling {
 	public int uiHeight;
-	public int fullHeight;
+	public int contentsHeight;
 	public float heightRatio;
 	public float scrollSpeed = 8;
 	
 	public float scrollOffset;
 	
-	public Scrolling(int uiHeight, int fullHeight) {
+	public Scrolling(int uiHeight) {
 		this.uiHeight = uiHeight;
-		setFullHeight(fullHeight);
 	}
 	
-	public void setFullHeight(int fullHeight) {
-		this.fullHeight = fullHeight;
-		this.heightRatio = (float) uiHeight / (float) fullHeight;
+	public Scrolling(int uiHeight, int contentsHeight) {
+		this.uiHeight = uiHeight;
+		setContentsHeight(contentsHeight);
+	}
+	
+	public void setContentsHeight(int contentsHeight) {
+		this.contentsHeight = contentsHeight;
+		this.heightRatio = contentsHeight > uiHeight ? (float) uiHeight / (float) contentsHeight : 1;
 		setScrollOffset(scrollOffset); // to clamp
 	}
 	
 	public int getMaxScrollOffset() {
-		return fullHeight - uiHeight;
+		return Math.max(contentsHeight - uiHeight, 0);
 	}
 	
 	public void scroll(double scrollDir) {
@@ -51,11 +55,6 @@ public class Scrolling {
 		guiGraphics.pose().popPose();
 	}
 	
-	@Nullable
-	public int[] getScrollBarBounds() {
-		return getScrollBarBounds(calcScrollBarHeight());
-	}
-	
 	public int calcScrollBarHeight() {
 		return (int) (uiHeight * heightRatio);
 	}
@@ -69,8 +68,8 @@ public class Scrolling {
 		return new int[] { barTop, barTop + barHeight };
 	}
 	
-	public void renderScrollBar(float x, float y, GuiGraphics guiGraphics, GuiIcon sprite, int usePixelsFromBottom) {
-		int barHeight = calcScrollBarHeight();
+	public void renderScrollBar(float x, float y, int barHeightOffset, GuiGraphics guiGraphics, GuiIcon sprite, int usePixelsFromBottom) {
+		int barHeight = calcScrollBarHeight() + barHeightOffset;
 		int[] bounds = getScrollBarBounds(barHeight);
 		if (bounds == null) return;
 		y += bounds[0];

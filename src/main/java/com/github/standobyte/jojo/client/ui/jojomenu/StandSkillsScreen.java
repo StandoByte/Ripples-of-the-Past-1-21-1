@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.client.text.IconSymbols;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.Scrolling;
+import com.github.standobyte.jojo.client.ui.utils.ScrollingText;
 import com.github.standobyte.jojo.client.ui.utils.TextUtil;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -65,9 +66,12 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 	protected StandPower standPower;
 	protected StandTypePersistentData levelingData;
 	protected StandSkin standSkin;
-	protected Scrolling skillListScrolling;
 	protected Iterable<UnlockableSkill> skills;
 	@Nullable protected UnlockableSkill selectedSkill;
+	
+	protected Scrolling skillListScrolling;
+	protected ScrollingText skillDescription;
+	protected ScrollingText skillControls;
 
 	public StandSkillsScreen(Component title, TabCategory category, Tab tab) {
 		super(title);
@@ -92,6 +96,12 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		skills = standPower.getPowerType().getUnlockableSkills();
 		skillListScrolling = new Scrolling(162, Iterables.size(skills) * 20 + 2);
 		standSkin = StandSkinsLoader.getInstance().getSkin(standPower);
+		
+		int x = getWindowX(this);
+		int y = getWindowY(this);
+		skillDescription = new ScrollingText(x + 86, y + 87, 124, 105);
+		skillControls = new ScrollingText(x + 100, y + 49, 117, 31);
+		setSelectedSkill(this.selectedSkill);
     }
 
 	protected static final int SKILL_LIST_X = 22;
@@ -136,23 +146,16 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			}
 			spriteY += 20;
 		}
-		
+
 		skillListScrolling.pop(guiGraphics);
-		skillListScrolling.renderScrollBar(skillListX - 8, skillListY + 1, guiGraphics, SCROLL_BAR, 1);
-		
+		skillListScrolling.renderScrollBar(skillListX - 8, skillListY + 1, 0, guiGraphics, SCROLL_BAR, 1);
+
 		if (selectedSkill != null) {
 			TextUtil.drawRightAlignedString(guiGraphics, font, selectedSkill.textName, 
 					x + getWindowWidth() - 10, y + 24, textColor, false);
 			
-			var description = font.split(selectedSkill.textDesc, 111);
-			for (int i = 0; i < description.size(); i++) {
-				guiGraphics.drawString(this.minecraft.font, description.get(i), x + 90, y + 91 + 9 * i, textColor, false);
-			}
-			
-			var controls = font.split(selectedSkill.textControls.copy(), 101);
-			for (int i = 0; i < controls.size(); i++) {
-				guiGraphics.drawString(this.minecraft.font, controls.get(i), x + 104, y + 52 + 9 * i, textColor, false);
-			}
+			skillDescription.draw(4, 3, guiGraphics, this.minecraft.font, textColor, false);
+			skillControls.draw(4, 3, guiGraphics, this.minecraft.font, textColor, false);
 		}
 		
 		Component levels = Component.literal(String.valueOf(levelingData.getResolveReached())).withStyle(ChatFormatting.BOLD);
@@ -191,15 +194,36 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (clickTab(mouseX, mouseY, button, this)) return true;
 		UnlockableSkill skill = getHoveredSkill(mouseX, mouseY);
-		this.selectedSkill = skill;
 		if (skill != null) {
+			setSelectedSkill(skill);
 			return true;
 		}
 		return super.mouseClicked(mouseX, mouseY, button);
 	}
+	
+	public void setSelectedSkill(UnlockableSkill skill) {
+		if (this.selectedSkill != skill) {
+			skillDescription.scrolling.setScrollOffset(0);
+			skillControls.scrolling.setScrollOffset(0);
+		}
+		this.selectedSkill = skill;
+		if (skill != null) {
+			skillDescription.setText(font.split(selectedSkill.textDesc, 111));
+			skillControls.setText(font.split(selectedSkill.textControls.copy(), 101));
+		}
+		else {
+			skillDescription.setText(null);
+			skillControls.setText(null);
+		}
+	}
 
 	@Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+		if (
+				skillDescription.mouseScrolled(mouseX, mouseY, scrollX, scrollY) || 
+				skillControls.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) {
+			return true;
+		}
     	skillListScrolling.scroll(scrollY);
     	return true;
     }
