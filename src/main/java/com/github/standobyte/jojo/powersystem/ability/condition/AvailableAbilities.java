@@ -27,10 +27,11 @@ public class AvailableAbilities {
 	public void update(Power<?> context, Moveset baseMoveset) {
 		_inMoveset.clear();
 		
-		for (var baseAbilityEntry : baseMoveset.abilities.entrySet()) {
+		Map<String, Ability> abilities = baseMoveset.abilities;
+		for (var baseAbilityEntry : abilities.entrySet()) {
 			Ability ability = baseAbilityEntry.getValue();
-			ability = Ability.tryReplaceWithSubAbility(ability, context);
-			if (ability.isAbilityAvailable(context)) {
+			ability = Ability.tryReplaceWithSubAbility(ability, context, this);
+			if (ability != null && ability.isAbilityAvailable(context)) {
 				AbilityConditionCheck container = getContainerFor(ability);
 				_inMoveset.put(baseAbilityEntry.getKey(), container);
 			}
@@ -51,6 +52,13 @@ public class AvailableAbilities {
 		}
 	}
 	
+	
+	public void replaceOtherAbilityWith(Power<?> context, String baseAbilityName, Ability subAbility) {
+		if (subAbility.isAbilityAvailable(context)) {
+			AbilityConditionCheck container = getContainerFor(subAbility);
+			_inMoveset.put(baseAbilityName, container);
+		}
+	}
 	
 	public void setConditionCheck(String baseAbilityName, ConditionCheck check) {
 		AbilityConditionCheck container = _inMoveset.get(baseAbilityName);
