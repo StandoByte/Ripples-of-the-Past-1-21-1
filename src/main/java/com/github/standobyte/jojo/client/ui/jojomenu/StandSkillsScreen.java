@@ -29,6 +29,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
@@ -72,6 +74,8 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 	protected Scrolling skillListScrolling;
 	protected ScrollingText skillDescription;
 	protected ScrollingText skillControls;
+	
+	protected Button learnSkillButton;
 
 	public StandSkillsScreen(Component title, TabCategory category, Tab tab) {
 		super(title);
@@ -91,25 +95,31 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 
 	@Override
     protected void init() {
+		int x = getWindowX(this);
+		int y = getWindowY(this);
+		
 		standPower = ClientPowerCache.getPower(PowerClass.STAND);
 		levelingData = standPower.getCurTypeData();
 		skills = standPower.getPowerType().getUnlockableSkills();
 		skillListScrolling = new Scrolling(162, Iterables.size(skills) * 20 + 2);
 		standSkin = StandSkinsLoader.getInstance().getSkin(standPower);
-		
-		int x = getWindowX(this);
-		int y = getWindowY(this);
+
+		this.learnSkillButton = this.addRenderableWidget(new PaperButton(x + 144, y + 201, 80, 20, 
+				Component.translatable("jojo_ripples.stand_skills.learn"), 
+				button -> {
+					
+				}));
 		skillDescription = new ScrollingText(x + 86, y + 87, 124, 105);
 		skillControls = new ScrollingText(x + 100, y + 49, 117, 31);
 		setSelectedSkill(this.selectedSkill);
-    }
+	}
 
 	protected static final int SKILL_LIST_X = 22;
 	protected static final int SKILL_LIST_Y = 57;
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float p_283123_) {
-		super.render(guiGraphics, mouseX, mouseY, p_283123_);
-
+		this.renderBackground(guiGraphics, mouseX, mouseY, p_283123_);
+		
 		int x = getWindowX(this);
 		int y = getWindowY(this);
 		int width = getWindowWidth();
@@ -171,6 +181,10 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		else {
 			renderTabTooltip(guiGraphics, this, mouseX, mouseY);
 		}
+
+		for (Renderable renderable : this.renderables) {
+			renderable.render(guiGraphics, mouseX, mouseY, p_283123_);
+		}
 	}
 	
 	@Nullable
@@ -215,6 +229,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			skillDescription.setText(null);
 			skillControls.setText(null);
 		}
+		learnSkillButton.visible = skill != null;
 	}
 
 	@Override
