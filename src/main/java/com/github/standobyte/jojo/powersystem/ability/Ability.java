@@ -1,6 +1,5 @@
 package com.github.standobyte.jojo.powersystem.ability;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
@@ -62,15 +61,6 @@ public class Ability {
 	@Deprecated
 	public Ability replaceWithSubAbility(Power<?> context) {
 		return replaceWithSubAbility(context, null);
-	}
-	
-	@Nonnull
-	public static Ability tryReplaceWithSubAbility(Ability baseAbility, Power<?> context, AvailableAbilities abilities) {
-		Ability subAbility = baseAbility.replaceWithSubAbility(context, abilities);
-		if (subAbility != null) {
-			return subAbility;
-		}
-		return baseAbility;
 	}
 	
 	/**

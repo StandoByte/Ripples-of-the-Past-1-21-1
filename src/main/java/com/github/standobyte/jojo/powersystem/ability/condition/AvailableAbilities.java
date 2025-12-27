@@ -30,7 +30,7 @@ public class AvailableAbilities {
 		Map<String, Ability> abilities = baseMoveset.abilities;
 		for (var baseAbilityEntry : abilities.entrySet()) {
 			Ability ability = baseAbilityEntry.getValue();
-			ability = Ability.tryReplaceWithSubAbility(ability, context, this);
+			ability = ability.replaceWithSubAbility(context, this);
 			if (ability != null && ability.isAbilityAvailable(context)) {
 				AbilityConditionCheck container = getContainerFor(ability);
 				_inMoveset.put(baseAbilityEntry.getKey(), container);
