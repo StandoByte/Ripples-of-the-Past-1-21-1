@@ -54,6 +54,14 @@ public class Ability {
 	
 	
 	// Most of the methods below are called in AvailableAbilities#update(Power, Moveset)
+
+	/**
+	 * @deprecated Override {@link Ability#replaceWithSubAbility(Power, AvailableAbilities)} instead, this one is not used.
+	 */
+	@Deprecated
+	public Ability replaceWithSubAbility(Power<?> context) {
+		return replaceWithSubAbility(context, null);
+	}
 	
 	/**
 	 * @return A variation of this ability depending on the context
@@ -62,8 +70,8 @@ public class Ability {
 	 * to make sure the ability shows up when and only when it is unlocked.
 	 */
 	@ApiStatus.OverrideOnly
-	@Nonnull
-	public Ability replaceWithSubAbility(Power<?> context) {
+	@Nullable
+	public Ability replaceWithSubAbility(Power<?> context, AvailableAbilities abilities) {
 		return this;
 	}
 	
@@ -75,6 +83,10 @@ public class Ability {
 	 */
 	@ApiStatus.OverrideOnly
 	public boolean isAbilityAvailable(Power<?> context) {
+		return isAbilityUnlocked(context);
+	}
+	
+	public boolean isAbilityUnlocked(Power<?> context) {
 		return true;
 	}
 	

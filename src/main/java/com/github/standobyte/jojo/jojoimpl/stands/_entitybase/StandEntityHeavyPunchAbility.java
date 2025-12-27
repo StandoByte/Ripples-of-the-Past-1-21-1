@@ -13,6 +13,7 @@ import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
+import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -48,7 +49,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 	}
 	
 	@Override
-	public Ability replaceWithSubAbility(Power<?> context) {
+	public Ability replaceWithSubAbility(Power<?> context, AvailableAbilities abilities) {
 		StandPower standPower = PowerClass.STAND.cast(context);
 		if (standPower != null) {
 			Moveset moveset = standPower.getMoveset();
@@ -61,7 +62,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 			}
 		}
 		
-		return super.replaceWithSubAbility(context);
+		return super.replaceWithSubAbility(context, abilities);
 	}
 	
 	
@@ -76,10 +77,10 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 	}
 	
 	public static class StandEntityHeavyPunch extends EntityActionInstance {
-		protected boolean verticalKnockback = false;
-		protected float finisherValue;
-		protected boolean playedSwingSound;
-		protected boolean playedStandCrySound;
+		public boolean verticalKnockback = false;
+		public float finisherValue;
+		public boolean playedSwingSound;
+		public boolean playedStandCrySound;
 
 		public StandEntityHeavyPunch(EntityActionType ability) {
 			super(ability);
