@@ -6,7 +6,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.JojoRegistries;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -38,23 +41,41 @@ public abstract class StandEffectInstance {
 	public boolean removeOnUserLogout = true;
 	public boolean removeOnStandChanged = true;
 	public boolean needsTarget = false;
+	
+	public boolean needsStandAction = false;
+	public EntityActionInstance standAction;
+	public boolean needsUserAction = false;
+	public EntityActionInstance userAction;
+	public boolean isPunchEffect = false;
 
 
 	public StandEffectInstance(@Nonnull StandEffectType<?> effectType) {
 		this.effectType = effectType;
 	}
+	
+	protected void initStandPower(StandPower userPower) {
+		this.userPower = userPower;
+		if (needsStandAction) {
+			StandEntity standEntity = userPower.getSummonedStandEntity();
+			if (standEntity != null) standAction = LivingComponentAction.getCurEntityAction(standEntity);
+		}
+		if (needsUserAction) {
+			LivingEntity user = userPower.getUser();
+			if (user != null) userAction = LivingComponentAction.getCurEntityAction(user);
+		}
+	}
 
 	public StandEffectInstance withUser(LivingEntity user) {
 		this.user = user;
 		this.level = user.level();
-		this.userPower = StandPower.get(user);
+		initStandPower(StandPower.get(user));
 		return this;
 	}
 
 	public StandEffectInstance withStand(StandPower stand) {
 		this.user = stand.getUser();
 		this.level = user.level();
-		this.userPower = stand;
+		initStandPower(stand);
 		return this;
 	}
 
@@ -116,8 +137,8 @@ public abstract class StandEffectInstance {
 
 			updateTarget(level);
 
-			if (!level.isClientSide() && targetUUID == null && needsTarget) {
-				remove();
+			if (targetUUID == null && needsTarget) {
+				if (!level.isClientSide()) remove();
 				return;
 			}
 

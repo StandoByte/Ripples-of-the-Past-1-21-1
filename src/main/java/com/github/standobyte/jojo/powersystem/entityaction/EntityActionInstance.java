@@ -221,6 +221,21 @@ public class EntityActionInstance implements HeldInput {
 				/*|| soundOffset > 0 && ... */;
 	}
 	
+	public float getActionTicksLeft() {
+		if (this.isOver()) return 0;
+		
+		float sum = 0;
+		for (ActionPhase phase : ActionPhase.values()) {
+			if (phase.ordinal() == this.phase.ordinal()) {
+				sum += phasesLength.getFloat(phase) - curPhaseLength;
+			}
+			else if (phase.ordinal() > this.phase.ordinal()) {
+				sum += phasesLength.getFloat(phase);
+			}
+		}
+		return sum;
+	}
+	
 	public final boolean isUserCreative() {
 		LivingEntity user = getPowerUser();
 		return user instanceof Player player && player.getAbilities().instabuild;

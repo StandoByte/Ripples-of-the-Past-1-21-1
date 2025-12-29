@@ -164,6 +164,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 						case BLOCK -> mineBlock(target, level, stand);
 						default -> {}
 					}
+					punchedTarget = target;
 				}
 				if (standPower != null) {
 					standPower.consumeStamina(4, true);

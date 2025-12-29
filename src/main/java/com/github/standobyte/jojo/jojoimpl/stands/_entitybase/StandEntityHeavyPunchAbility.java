@@ -153,7 +153,8 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 							standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
 						}
 					}
-					
+
+					punchedTarget = target;
 					standPower.consumeStamina(10);
 					stand.consumeFinisherMeter(1.0001f);
 				}
