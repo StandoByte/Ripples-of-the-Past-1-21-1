@@ -152,7 +152,8 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 							}
 						}
 					}
-					
+
+					punchedTarget = target;
 					standPower.consumeStamina(10);
 				}
 				/*

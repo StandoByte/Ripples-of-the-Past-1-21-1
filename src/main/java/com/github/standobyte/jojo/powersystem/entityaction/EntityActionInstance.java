@@ -1,6 +1,5 @@
 package com.github.standobyte.jojo.powersystem.entityaction;
 
-import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
@@ -267,6 +266,21 @@ public class EntityActionInstance implements HeldInput {
 		return ticksDiff == soundOffset
 				|| soundOffset < 0 && soundOffset < ticksDiff && (int) ticksPassed == 0
 				/*|| soundOffset > 0 && ... */;
+	}
+	
+	public float getActionTicksLeft() {
+		if (this.isOver()) return 0;
+		
+		float sum = 0;
+		for (ActionPhase phase : ActionPhase.values()) {
+			if (phase.ordinal() == this.phase.ordinal()) {
+				sum += phasesLength.getFloat(phase) - curPhaseLength;
+			}
+			else if (phase.ordinal() > this.phase.ordinal()) {
+				sum += phasesLength.getFloat(phase);
+			}
+		}
+		return sum;
 	}
 	
 	public final boolean isUserCreative() {

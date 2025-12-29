@@ -128,6 +128,7 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 						}
 					}
 					
+					punchedTarget = target;
 					standPower.consumeStamina(100);
 				}
 				if (target.getType() == TargetType.ENTITY) {
