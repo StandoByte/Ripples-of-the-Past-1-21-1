@@ -8,7 +8,6 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.mc.entity.util.LivingReactToNewAction;
-import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.SyncType;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionInstancePacket;
 import com.github.standobyte.jojo.powersystem.entityaction.syncdata.SyncActionInstanceData;
@@ -50,51 +49,6 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 		return action;
 	}
 	
-	
-	public HeldInput bufferOrSetAction(EntityActionInstance action, LivingEntity user, InputMethod inputMethod, float skipWindupTime) {
-		return bufferOrSetAction(action, user, inputMethod, SyncType.TRACKING_AND_SELF, skipWindupTime);
-	}
-	
-	public HeldInput bufferOrSetAction(EntityActionInstance action, LivingEntity user, InputMethod inputMethod, SyncType sync, float skipWindupTime) {
-		if (action != null && action.ability.shouldBufferInput(this) && user != null && inputMethod != null) {
-			HeldInput heldInputObj = null;
-			EntityActionInputState actionInput = user.getData(ModDataAttachmentTypes.ENTITY_ABILITY_INPUT.get());
-			if (actionInput != null) {
-				switch (inputMethod) {
-					case CLICK -> actionInput.bufferClickInput(entity, this, action.ability);
-					case HOLD -> heldInputObj = actionInput.bufferHeldInput(entity, this, action.ability);
-				}
-			}
-			return heldInputObj;
-		}
-		
-		if (skipWindupTime > 0) {
-			skipWindupTime(action, skipWindupTime);
-		}
-		return setAction(action, user, sync);
-	}
-	
-	public void skipWindupTime(EntityActionInstance action, float time) {
-		switch (action.phase) {
-			case BUTTON_CHARGE, WINDUP -> {
-				if (this.action != null) {
-					/* 
-					 * Skipping too much makes the light punch animations look too choppy.
-					 * On the other hand, this mechanic encourages timing the input clicking:
-					 * if the player spams clicks, the inputs get buffered and the punches not get any windup skip,
-					 * however if they click after the punch PERFORM phase is over, they still get some windup skipping.
-					 * So if they time the inputs just after the punch, the combo speed gets faster.
-					 * At the start of a combo (action == null) they get full windup skipping time, 
-					 * to not slow down the initial jab just because the silly dev felt like adding the click/hold input system.
-					 */
-					time = Math.min(time, action.curPhaseLength / 4);
-				}
-				time = Math.min(time, action.curPhaseLength - 1);
-				action.setSkipWindupPhase(action.phase, time);
-			}
-			default -> {}
-		}
-	}
 	
 	public HeldInput setAction(EntityActionInstance action, LivingEntity powerUser, SyncType sync) {
 		if (action != null) {

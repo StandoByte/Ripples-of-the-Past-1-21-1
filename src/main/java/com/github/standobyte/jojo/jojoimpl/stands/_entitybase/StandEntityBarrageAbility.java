@@ -73,7 +73,6 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 			
 			StandEntity standEntity = standPower.getSummonedStandEntity();
 			if (standEntity != null) {
-				// FIXME sometimes isn't replaced with the grab variation correctly (due to queueing probably)
 				if (LivingComponentGrab.getEntityGrabbedBy(standEntity) != null) {
 					return moveset.getAbility("grab_barrage");
 				}

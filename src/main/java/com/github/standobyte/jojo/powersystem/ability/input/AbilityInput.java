@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.powersystem.ability;
+package com.github.standobyte.jojo.powersystem.ability.input;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -9,9 +9,11 @@ import com.github.standobyte.jojo.core.event.RipplesAbilityKeyPressEvent;
 import com.github.standobyte.jojo.core.packet.fromserver.TrAbilityUsePacket;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.powersystem.Power;
+import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
+import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer.BufferingState;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState.HeldInputEntry;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
@@ -52,7 +54,8 @@ public class AbilityInput {
 	 */
 	@Nullable
 	public static HeldInputEntry keyPress(short keyId, Ability ability, 
-			LivingEntity user, FriendlyByteBuf extraClientInput, InputMethod inputMethod, float clickHoldResolveTime) {
+			LivingEntity user, FriendlyByteBuf extraClientInput, 
+			InputMethod inputMethod, float clickHoldResolveTime, BufferingState bufferingState) {
 		if (ability == null || user == null) return null;
 		
 		Level level = user.level();
@@ -64,7 +67,7 @@ public class AbilityInput {
 			action = event.newHeldInput;
 		}
 		else {
-			action = ability.onKeyPress(level, user, extraClientInput, inputMethod, clickHoldResolveTime);
+			action = ability.onKeyPress(level, user, extraClientInput, inputMethod, clickHoldResolveTime, bufferingState);
 		}
 		if (!level.isClientSide()) {
 			PacketDistributor.sendToPlayersTrackingEntity(user, 
@@ -105,7 +108,7 @@ public class AbilityInput {
 	@Nullable
 	public static HeldInputEntry keyPressMob(Ability ability, LivingEntity user, FriendlyByteBuf extraData, InputMethod inputMethod) {
 		short keyId = (short) pseudoKey.incrementAndGet();
-		return keyPress(keyId, ability, user, extraData, inputMethod, 0);
+		return keyPress(keyId, ability, user, extraData, inputMethod, 0, BufferingState.clickCanBuffer());
 	}
 	private static final AtomicInteger pseudoKey = new AtomicInteger();
 	
@@ -121,5 +124,5 @@ public class AbilityInput {
 			this.inputMethod = inputMethod;
 		}
 	}
-
+	
 }

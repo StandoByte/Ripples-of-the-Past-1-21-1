@@ -58,10 +58,12 @@ public abstract class StandEffectInstance {
 		if (needsStandAction) {
 			StandEntity standEntity = userPower.getSummonedStandEntity();
 			if (standEntity != null) standAction = LivingComponentAction.getCurEntityAction(standEntity);
+			if (standAction != null) standAction.getPunchModifiers().add(this);
 		}
 		if (needsUserAction) {
 			LivingEntity user = userPower.getUser();
 			if (user != null) userAction = LivingComponentAction.getCurEntityAction(user);
+			if (userAction != null) userAction.getPunchModifiers().add(this);
 		}
 	}
 
@@ -211,6 +213,7 @@ public abstract class StandEffectInstance {
 				targetEffects.removeEffectTargetedBy(this);
 			}
 		}
+		toBeRemoved = true;
 		stop();
 	}
 
@@ -230,7 +233,7 @@ public abstract class StandEffectInstance {
 		toBeRemoved = true;
 	}
 
-	public boolean toBeRemoved() {
+	public boolean isStopped() {
 		return toBeRemoved;
 	}
 

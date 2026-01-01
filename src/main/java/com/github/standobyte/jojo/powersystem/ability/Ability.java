@@ -13,6 +13,7 @@ import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbiliti
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
+import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer.BufferingState;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 import com.github.standobyte.jojo.util.StringUtil;
 import com.google.gson.JsonObject;
@@ -159,12 +160,12 @@ public class Ability {
 
 	
 	/**
-	 * Is called in {@link com.github.standobyte.jojo.powersystem.ability.AbilityInput}
+	 * Is called in {@link com.github.standobyte.jojo.powersystem.ability.input.AbilityInput}
 	 */
 	@ApiStatus.OverrideOnly
 	@Nullable
 	public HeldInput onKeyPress(Level level, LivingEntity user, FriendlyByteBuf extraClientInput, 
-			InputMethod inputMethod, float clickHoldResolveTime) {
+			InputMethod inputMethod, float clickHoldResolveTime, BufferingState bufferingState) {
 		onClick(level, user, extraClientInput);
 		return null;
 	}

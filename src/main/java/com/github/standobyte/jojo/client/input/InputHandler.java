@@ -33,11 +33,12 @@ import com.github.standobyte.jojo.core.packet.fromclient.ClAbilityInputPacket;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
-import com.github.standobyte.jojo.powersystem.ability.AbilityInput;
-import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputEventType;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
+import com.github.standobyte.jojo.powersystem.ability.input.AbilityInput;
+import com.github.standobyte.jojo.powersystem.ability.input.AbilityInput.InputEventType;
+import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer.BufferingState;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -290,7 +291,8 @@ public class InputHandler {
 
 				if (conditionCheck.isPositive()) {
 					ability.writeExtraInput(inputBuf, player, true);
-					AbilityInput.keyPress(keyId, ability, player, inputBuf, type.inputMethod, timeTookToResolve);
+					AbilityInput.keyPress(keyId, ability, player, inputBuf, 
+							type.inputMethod, timeTookToResolve, BufferingState.clickCanBuffer());
 				}
 				PacketDistributor.sendToServer(ClAbilityInputPacket.keyPress(keyId, player, ability, type, timeTookToResolve));
 			}

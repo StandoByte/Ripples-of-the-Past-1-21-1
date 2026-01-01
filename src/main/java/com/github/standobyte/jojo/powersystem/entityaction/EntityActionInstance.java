@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.powersystem.entityaction;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
@@ -13,6 +15,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActio
 import com.github.standobyte.jojo.powersystem.entityaction.syncdata.SyncedDataHolderExtended;
 import com.github.standobyte.jojo.powersystem.entityaction.syncdata.SynchedDataExtended;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
+import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 import com.github.standobyte.jojo.util.StandUtil;
@@ -66,6 +69,7 @@ public class EntityActionInstance implements HeldInput {
 	
 	/** Stores the target of the punch action, to be able to communicate with other internal systems, like Stand effects */
 	@Nullable public ActionTarget punchedTarget;
+	@Nullable protected List<StandEffectInstance> punchModifiers;
 	
 	public float userWalkSpeed = 1;
 	
@@ -85,6 +89,31 @@ public class EntityActionInstance implements HeldInput {
 		setPhaseStart(ActionPhase.values()[0]);
 	}
 	
+	public void skipWindupTime(LivingEntity performer, float time) {
+		if (time > 0) {
+			switch (phase) {
+				case BUTTON_CHARGE, WINDUP -> {
+					if (LivingComponentAction.getCurEntityAction(performer) != null) {
+						/* 
+						 * Skipping too much makes the light punch animations look too choppy.
+						 * On the other hand, this mechanic encourages timing the input clicking:
+						 * if the player spams clicks, the inputs get buffered and the punches not get any windup skip,
+						 * however if they click after the punch PERFORM phase is over, they still get some windup skipping.
+						 * So if they time the inputs just after the punch, the combo speed gets faster.
+						 * At the start of a combo (action == null) they get full windup skipping time, 
+						 * to not slow down the initial jab just because the silly dev felt like adding the click/hold input system.
+						 */
+						time = Math.min(time, curPhaseLength / 4);
+					}
+					time = Math.min(time, curPhaseLength - 1);
+					setSkipWindupPhase(phase, time);
+				}
+				default -> {}
+			}
+		}
+	}
+	
+	@ApiStatus.Internal
 	public void setSkipWindupPhase(ActionPhase phase, float time) {
 		skippedWindupPhase = new Object2FloatArrayMap<>();
 		skippedWindupPhase.put(phase, time);
@@ -185,6 +214,14 @@ public class EntityActionInstance implements HeldInput {
 		if (_hasSynchedData == Boolean.FALSE) {
 			throw new ClassCastException("Action of class " + this.getClass().getName() + " does not implement SyncedDataHolderExtended");
 		}
+	}
+	
+	
+	public List<StandEffectInstance> getPunchModifiers() {
+		if (punchModifiers == null) {
+			punchModifiers = new ArrayList<>(1);
+		}
+		return punchModifiers;
 	}
 
 

@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
+import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer.BufferingState;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -31,7 +32,7 @@ public class HierophantPuppetAbility extends StandEntityAbility {
 	
 	@Override
 	public HeldInput onKeyPress(Level level, LivingEntity user, FriendlyByteBuf extraClientInput, 
-			InputMethod inputMethod, float clickHoldResolveTime) {
+			InputMethod inputMethod, float clickHoldResolveTime, BufferingState bufferingState) {
 		if (!level.isClientSide()) {
 			StandPower power = PowerClass.STAND.get(user);
 			if (power != null) {
@@ -44,7 +45,7 @@ public class HierophantPuppetAbility extends StandEntityAbility {
 			}
 		}
 		
-		return super.onKeyPress(level, user, extraClientInput, inputMethod, clickHoldResolveTime);
+		return super.onKeyPress(level, user, extraClientInput, inputMethod, clickHoldResolveTime, bufferingState);
 	}
 	
 	

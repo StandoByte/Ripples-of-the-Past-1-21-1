@@ -4,6 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 
 import net.minecraft.world.entity.LivingEntity;
@@ -24,6 +26,7 @@ public class StandEffectsTarget {
 	}
 
 	
+	@ApiStatus.Internal
 	public static StandEffectsTarget getList(LivingEntity targetEntity) {
 		return targetEntity.getData(ModDataAttachmentTypes.STAND_EFFECTS_TARGET.get());
 	}
