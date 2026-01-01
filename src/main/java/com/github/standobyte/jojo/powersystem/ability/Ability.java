@@ -164,6 +164,7 @@ public class Ability {
 	@Nullable
 	public HeldInput onKeyPress(Level level, LivingEntity user, FriendlyByteBuf extraClientInput, 
 			InputMethod inputMethod, float clickHoldResolveTime, BufferingState bufferingState) {
+		bufferingState.isActionSuccess = true;
 		onClick(level, user, extraClientInput);
 		return null;
 	}

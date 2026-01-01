@@ -41,6 +41,7 @@ import com.github.standobyte.jojo.powersystem.ability.input.AbilityInput.InputEv
 import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer.BufferingState;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState.HeldInputEntry;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.CommonEnums.Direction2D;
@@ -58,6 +59,7 @@ import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.player.Input;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.phys.EntityHitResult;
@@ -192,7 +194,6 @@ public class InputHandler {
 	}
 	
 	
-	private FriendlyByteBuf inputBuf = new FriendlyByteBuf(Unpooled.buffer());
 	public PowerClass<?> curPowerClassToggle = null;
 	
 	public ClientControlScheme getActiveControlScheme() {
@@ -290,9 +291,7 @@ public class InputHandler {
 				if (ability == null || player == null) return;
 
 				if (conditionCheck.isPositive()) {
-					ability.writeExtraInput(inputBuf, player, true);
-					AbilityInput.keyPress(keyId, ability, player, inputBuf, 
-							type.inputMethod, timeTookToResolve, BufferingState.clickCanBuffer());
+					keyPress(keyId, ability, player, type.inputMethod, timeTookToResolve, BufferingState.clickCanBuffer());
 				}
 				PacketDistributor.sendToServer(ClAbilityInputPacket.keyPress(keyId, player, ability, type, timeTookToResolve));
 			}
@@ -301,6 +300,17 @@ public class InputHandler {
 				PacketDistributor.sendToServer(ClAbilityInputPacket.releaseHold(keyId));
 			}
 		}
+	}
+
+	private FriendlyByteBuf inputBuf = new FriendlyByteBuf(Unpooled.buffer());
+	@Nullable
+	public HeldInputEntry keyPress(short keyId, Ability ability, LivingEntity user, 
+			InputMethod inputMethod, float clickHoldResolveTime, BufferingState bufferingState) {
+		ability.writeExtraInput(inputBuf, user, true);
+		HeldInputEntry heldInput = AbilityInput.keyPress(keyId, ability, user, inputBuf, 
+				inputMethod, clickHoldResolveTime, BufferingState.clickCanBuffer());
+		inputBuf.clear();
+		return heldInput;
 	}
 	
 	
