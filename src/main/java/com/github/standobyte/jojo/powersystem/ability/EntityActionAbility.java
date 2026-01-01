@@ -10,11 +10,14 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.client.ui.powerhud.WindupIndicator;
 import com.github.standobyte.jojo.core.molang.MolangValue;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
+import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer;
+import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer.BufferingState;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
+import com.github.standobyte.jojo.powersystem.entityaction.netcode.SyncType;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 
 import net.minecraft.network.FriendlyByteBuf;
@@ -48,13 +51,43 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 	
 	@Override
 	public HeldInput onKeyPress(Level level, LivingEntity user, FriendlyByteBuf extraClientInput, 
-			InputMethod inputMethod, float clickHoldResolveTime) {
+			InputMethod inputMethod, float clickHoldResolveTime, BufferingState bufferingState) {
 		if (level.isClientSide()) return null;
-
-		LivingEntity performer = user;
+		return setOrBufferAction(level, user, user, inputMethod, extraClientInput, clickHoldResolveTime, bufferingState);
+	}
+	
+	@Nullable
+	public HeldInput setOrBufferAction(Level level, LivingEntity user, LivingEntity performer, 
+			InputMethod inputMethod, FriendlyByteBuf extraClientInput, 
+			float skipWindupTime, BufferingState bufferingState) {
+		if (user == null || inputMethod == null) return null;
 		EntityActionInstance action = initActionOnAbilityUse(level, user, performer, extraClientInput);
-		HeldInput actionOrQueue = LivingComponentAction.getComponent(performer)
-				.bufferOrSetAction(action, user, inputMethod, clickHoldResolveTime);
+		if (action == null) return null;
+		
+		LivingComponentAction actionComponent = LivingComponentAction.getComponent(performer);
+		boolean toBuffer = action.ability.shouldBufferInput(actionComponent);
+		
+		HeldInput actionOrQueue = null;
+		if (toBuffer) {
+			if (bufferingState.canBuffer()) {
+				HeldInput heldInputObj = null;
+				ActionInputBuffer actionInputBuffer = ActionInputBuffer.get(user);
+				if (actionInputBuffer != null) {
+					switch (inputMethod) {
+						case CLICK -> actionInputBuffer.bufferClickInput(performer, abilityId);
+						case HOLD -> heldInputObj = actionInputBuffer.bufferHeldInput(performer, abilityId);
+					}
+				}
+				actionOrQueue = heldInputObj;
+			}
+		}
+		else {
+			if (skipWindupTime > 0) {
+				action.skipWindupTime(performer, skipWindupTime);
+			}
+			actionOrQueue = actionComponent.setAction(action, user, SyncType.TRACKING_AND_SELF);
+			bufferingState.setActionSuccess();
+		}
 		return actionOrQueue;
 	}
 	

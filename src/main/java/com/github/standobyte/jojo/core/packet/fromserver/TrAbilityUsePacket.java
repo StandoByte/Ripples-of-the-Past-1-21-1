@@ -6,9 +6,10 @@ import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId.AbilityInputNetwork;
-import com.github.standobyte.jojo.powersystem.ability.AbilityInput;
-import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputEventType;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
+import com.github.standobyte.jojo.powersystem.ability.input.AbilityInput;
+import com.github.standobyte.jojo.powersystem.ability.input.AbilityInput.InputEventType;
+import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer.BufferingState;
 import com.github.standobyte.jojo.util.network.NetworkUtil;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -107,7 +108,8 @@ public class TrAbilityUsePacket implements CustomPacketPayload {
 				switch (payload.inputType) {
 					case PRESS_CLICK, PRESS_HOLD -> {
 						Ability ability = payload.abilityDecoded.getAbility(user, null);
-						AbilityInput.keyPress(payload.key, ability, user, payload.extraData, payload.inputType.inputMethod, payload.timeTookToResolve);
+						AbilityInput.keyPress(payload.key, ability, user, payload.extraData, 
+								payload.inputType.inputMethod, payload.timeTookToResolve, BufferingState.clickOnly());
 					}
 					case RELEASE -> {
 						AbilityInput.keyRelease(payload.key, user);

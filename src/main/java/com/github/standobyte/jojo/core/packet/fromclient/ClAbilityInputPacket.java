@@ -5,8 +5,9 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId.AbilityInputNetwork;
-import com.github.standobyte.jojo.powersystem.ability.AbilityInput;
-import com.github.standobyte.jojo.powersystem.ability.AbilityInput.InputEventType;
+import com.github.standobyte.jojo.powersystem.ability.input.AbilityInput;
+import com.github.standobyte.jojo.powersystem.ability.input.AbilityInput.InputEventType;
+import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer.BufferingState;
 import com.github.standobyte.jojo.util.network.NetworkUtil;
 
 import net.minecraft.network.FriendlyByteBuf;
@@ -99,8 +100,8 @@ public class ClAbilityInputPacket implements CustomPacketPayload {
 				case PRESS_CLICK, PRESS_HOLD -> {
 					Ability ability = payload.abilityDecoded != null ? payload.abilityDecoded.getAbility(player, null) : null;
 					if (AbilityInput.withConditionCheck(ability, player)) {
-						AbilityInput.keyPress(payload.key, ability, 
-								player, payload.extraData, payload.inputEvent.inputMethod, payload.timeTookToResolve);
+						AbilityInput.keyPress(payload.key, ability, player, payload.extraData, 
+								payload.inputEvent.inputMethod, payload.timeTookToResolve, BufferingState.clickCanBuffer());
 					}
 				}
 				case RELEASE -> AbilityInput.keyRelease(payload.key, player);

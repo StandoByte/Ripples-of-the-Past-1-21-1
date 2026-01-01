@@ -179,10 +179,10 @@ public class UserStandEffects {
 		var it = effects.int2ObjectEntrySet().iterator();
 		while (it.hasNext()) {
 			StandEffectInstance effect = it.next().getValue();
-			if (!effect.toBeRemoved()) {
+			if (!effect.isStopped()) {
 				effect.onTick();
 			}
-			if (effect.toBeRemoved()) {
+			if (effect.isStopped()) {
 				onEffectRemoved(effect);
 				it.remove();
 			}
@@ -263,7 +263,7 @@ public class UserStandEffects {
 		CompoundTag nbt = new CompoundTag();
 		ListTag effectsList = new ListTag();
 		effects.forEach((id, effect) -> {
-			if (!effect.toBeRemoved()) {
+			if (!effect.isStopped()) {
 				effectsList.add(effect.toNBT());
 			}
 		});

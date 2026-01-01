@@ -30,7 +30,7 @@ public class CrazyDMisshapingPunchInput extends Ability {
 		if (stand != null) {
 			EntityActionInstance curAction = stand.getCurStandAction();
 			if (curAction != null && curAction instanceof StandEntityHeavyPunch punch && punch.finisherValue >= 1
-					&& !alreadyHasStandPunchEffect(standPower)) {
+					&& punch.getPunchModifiers().isEmpty()) {
 				abilities.replaceOtherAbilityWith(context, "heavy_punch", this);
 			}
 		}
@@ -47,17 +47,13 @@ public class CrazyDMisshapingPunchInput extends Ability {
 				if (stand != null) {
 					EntityActionInstance curAction = stand.getCurStandAction();
 					if (curAction != null && curAction instanceof StandEntityHeavyPunch punch && punch.finisherValue >= 1
-							&& !alreadyHasStandPunchEffect(standPower)) {
+							&& punch.getPunchModifiers().isEmpty()) {
 						CrazyDMisshapingPunchEffect punchEffect = ModStandAbilities.EFFECT_CD_PUNCH_MISSHAPING.get().create(level);
 						standPower.userStandEffects.addEffect(punchEffect);
 					}
 				}
 			}
 		}
-	}
-	
-	public static boolean alreadyHasStandPunchEffect(StandPower standPower) {
-		return standPower.userStandEffects.getEffects().anyMatch(effect -> effect.isPunchEffect);
 	}
 
 }

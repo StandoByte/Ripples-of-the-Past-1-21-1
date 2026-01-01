@@ -7,6 +7,7 @@ import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.ability.EntityActionAbility;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
+import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer.BufferingState;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -36,24 +37,12 @@ public class StandEntityAbility extends EntityActionAbility {
 	
 	@Override
 	public HeldInput onKeyPress(Level level, LivingEntity user, FriendlyByteBuf extraClientInput, 
-			InputMethod inputMethod, float clickHoldResolveTime) {
+			InputMethod inputMethod, float clickHoldResolveTime, BufferingState bufferingState) {
 		if (level.isClientSide()) return null;
 		
 		StandPower power = PowerClass.STAND.get(user); if (power == null) return null;
 		StandEntity standEntity = power.getSummonedStandEntity(); if (standEntity == null) return null;
-		return setStandAction(this, level, user, 
-				power, standEntity, inputMethod, 
-				extraClientInput, clickHoldResolveTime);
-	}
-	
-	public static HeldInput setStandAction(StandEntityAbility ability, Level level, LivingEntity user, 
-			StandPower power, StandEntity standEntity, InputMethod inputMethod, 
-			FriendlyByteBuf extraClientInput, float skipWindupTime) {
-		if (level.isClientSide()) return null;
-
-		EntityActionInstance action = ability.initActionOnAbilityUse(level, user, standEntity, extraClientInput);
-		HeldInput actionOrQueue = standEntity.getStandActionComponent().bufferOrSetAction(action, user, inputMethod, skipWindupTime);
-		return actionOrQueue;
+		return setOrBufferAction(level, user, standEntity, inputMethod, extraClientInput, clickHoldResolveTime, bufferingState);
 	}
 	
 	
