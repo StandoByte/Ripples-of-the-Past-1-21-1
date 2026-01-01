@@ -11,6 +11,9 @@ import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbiliti
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState.HeldInputEntry;
+
+import io.netty.buffer.Unpooled;
+
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 
 import net.minecraft.network.FriendlyByteBuf;
@@ -33,7 +36,7 @@ public class ActionInputBuffer {
 		
 		protected boolean canBuffer;
 		protected boolean isAlreadyBuffered;
-		protected boolean isActionSuccess;
+		public boolean isActionSuccess;
 		
 		public static BufferingState clickCanBuffer() {
 			BufferingState obj = new BufferingState();
@@ -65,6 +68,7 @@ public class ActionInputBuffer {
 		}
 	}
 
+	private FriendlyByteBuf inputBuf = new FriendlyByteBuf(Unpooled.buffer());
 	public void tickInputBuffer(EntityActionInputState userInput) {
 		LivingEntity user = userInput.user;
 		if (user.level().isClientSide()) return;
@@ -86,11 +90,10 @@ public class ActionInputBuffer {
 						Ability ability = abilities.inMovesetAndCanBeUsed.get(abilityId.nameInMoveset());
 						if (ability != null) {
 							BufferingState bufferingState = BufferingState.buffered();
-							// FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-							FriendlyByteBuf extraClientInput = null;
-							HeldInput newAction = ability.onKeyPress(user.level(), user, extraClientInput, 
+							ability.writeExtraInput(inputBuf, user, false);
+							HeldInput newAction = ability.onKeyPress(user.level(), user, inputBuf, 
 									bufferedInput.inputMethod, 0, bufferingState);
-							// FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! also set this flag on non-action abilities (like special punch effects, otherwise they get inputted every tick)
+							inputBuf.clear();
 							if (bufferingState.isActionSuccess) {
 								for (HeldInputEntry heldKeyAction : userInput.heldKeys.values()) {
 									if (heldKeyAction.action == bufferedInput) {
