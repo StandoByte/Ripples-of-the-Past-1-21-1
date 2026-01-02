@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ClientUtil;
+import com.github.standobyte.jojo.client.rendertype.CustomMultiBufferSource;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
@@ -29,6 +30,7 @@ import com.mojang.math.Axis;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
@@ -156,13 +158,11 @@ public abstract class MarkerRenderer {
 		}
 	}
 
-	protected static void renderItem(PoseStack poseStack, ItemStack item, float partialTick) {
-//		// FIXME the item marker doesn't rendered behind blocks/entities
-		
+	public static MultiBufferSource.BufferSource noDepthBuffers = null;
+	public void renderItem(PoseStack poseStack, ItemStack item, float partialTick) {
 		Minecraft mc = Minecraft.getInstance();
 		MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
 		
-		RenderSystem.disableDepthTest();
 		BakedModel bakedmodel = mc.getItemRenderer().getModel(item, mc.level, null, 0);
 		poseStack.pushPose();
 		poseStack.translate(8, 8, 0);
@@ -173,12 +173,25 @@ public abstract class MarkerRenderer {
 		if (flag) {
 			Lighting.setupForFlatItems();
 		}
+		if (renderThroughBlocks) {
+			RenderSystem.disableDepthTest();
+			if (noDepthBuffers == null) {
+				RenderStateShard.OutputStateShard targetShard = new RenderStateShard.OutputStateShard(
+						"item_no_depth", 
+						() -> RenderSystem.disableDepthTest(), 
+						() -> RenderSystem.enableDepthTest());
+				noDepthBuffers = CustomMultiBufferSource.create(mc, targetShard);
+			}
+			bufferSource = noDepthBuffers;
+		}
 
 		mc.getItemRenderer().render(item, ItemDisplayContext.GUI, false, poseStack, bufferSource, 
 				ClientUtil.MAX_LIGHT, OverlayTexture.NO_OVERLAY, bakedmodel);
-		RenderSystem.disableDepthTest();
 		bufferSource.endBatch();
-		RenderSystem.enableDepthTest();
+		
+		if (!renderThroughBlocks) {
+			RenderSystem.enableDepthTest();
+		}
 		if (flag) {
 			if (mc.level.effects().constantAmbientLight()) {
 				Lighting.setupNetherLevel();
