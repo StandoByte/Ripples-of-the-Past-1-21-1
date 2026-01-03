@@ -165,7 +165,15 @@ public class Ability {
 	public HeldInput onKeyPress(Level level, LivingEntity user, FriendlyByteBuf extraClientInput, 
 			InputMethod inputMethod, float clickHoldResolveTime, BufferingState bufferingState) {
 		bufferingState.isActionSuccess = true;
+		onKeyPress(level, user, extraClientInput, inputMethod, clickHoldResolveTime);
 		onClick(level, user, extraClientInput);
+		return null;
+	}
+	
+	/** @deprecated Add a {@link BufferingState} argument to the end of this method's signature when overriding it. */
+	@Deprecated
+	public HeldInput onKeyPress(Level level, LivingEntity user, FriendlyByteBuf extraClientInput, 
+			InputMethod inputMethod, float clickHoldResolveTime) {
 		return null;
 	}
 
