@@ -125,7 +125,7 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	
 	@Override
 	public void onPlayerClone(Player newPlayer, boolean wasDeath) {
-		P newPower = getPowerClass().get(newPlayer);
+		P newPower = getPowerClass().attachGet(newPlayer);
 		onPlayerCloneData(newPower, wasDeath);
 	}
 	
