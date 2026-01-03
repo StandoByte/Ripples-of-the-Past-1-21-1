@@ -272,6 +272,8 @@
   "jojo_ripples.skill.grab.controls": "Ctrl + \uEAFE",
   "jojo_ripples.ability.grab": "Grab",
   "jojo_ripples.ability.grab_release": "Release",
+  "jojo.message.action_condition.grab_block.weird_drops": "Этот блок нельзя взять",
+  "jojo.message.action_condition.grab_block.too_hard": "Вашему Стенду недостаёт силы, чтобы взять этот блок",
   
   "jojo_ripples.skill.block_toss": "(NYI) Block Toss",
   "jojo_ripples.skill.block_toss.desc": "Throw the block held by your Stand as a makeshift ranged weapon.",

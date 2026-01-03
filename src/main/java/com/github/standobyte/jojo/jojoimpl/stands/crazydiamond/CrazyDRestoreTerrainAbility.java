@@ -34,6 +34,8 @@ import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.brokenblocks.CDBl
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.brokenblocks.EntityMadeFromBlock;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.brokenblocks.PrevBlockInfo;
 import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker;
+import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracker;
+import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracking;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
@@ -50,6 +52,8 @@ import com.github.standobyte.jojo.util.UselessCrap;
 import com.github.standobyte.jojo.util.entitycomponent.ComponentUtil;
 import com.github.standobyte.jojo.util.mc.XpFormulas;
 
+import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
@@ -65,6 +69,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -291,12 +296,50 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 					float blockToRestore = 1;
 					if (result.blockForStaminaCost + blockToRestore <= limit) {
 						boolean placeBlockNow = true;
-						if (block.blockShards != null) {
+						boolean didSmthElse = false;
+						if (block.blockShards != null && !block.blockShards.isEmpty()) {
+							didSmthElse |= true;
 							for (WeakReference<EntityMadeFromBlock> shardRef : block.blockShards) {
 								EntityMadeFromBlock shard = shardRef.get();
 								if (shard != null && shard.isEntityAlive()) {
-									placeBlockNow = shard.crazyDRestore(blockPos);
+									placeBlockNow &= shard.crazyDRestore(blockPos);
 								}
+							}
+						}
+						
+						for (ItemStack item : block.drops) {
+							// remote anchor block
+							ItemTracker itemTracker = ItemTracking.getItemTracker(item, level);
+							if (itemTracker != null) {
+								ItemStack actualItem = itemTracker.getItem();
+								if (actualItem != null) {
+									Entity entity = itemTracker.getAtEntity(level);
+									if (entity instanceof ItemFrame itemFrame) {
+										ItemStack itemInFrame = itemFrame.getItem();
+										itemFrame.setItem(ItemStack.EMPTY);
+										itemInFrame = itemInFrame.copy();
+										itemFrame.removeFramedMap(itemInFrame);
+										itemFrame.playSound(itemFrame.getRemoveItemSound(), 1.0F, 1.0F);
+										ItemEntity itemEntity = itemFrame.spawnAtLocation(itemInFrame);
+										entity = itemEntity;
+									}
+									if (entity != null && entity.isAlive()) {
+										entity = entity.getRootVehicle();
+										Vec3 posD = Vec3.atCenterOf(block.pos);
+						                boolean isCloseToAnchorPos = entity.distanceToSqr(posD) <= 16;
+						                if (!isCloseToAnchorPos) {
+						                	entity.setDeltaMovement(posD.subtract(entity.position()).normalize().scale(0.75));
+						                    entity.fallDistance = 0;
+						                    entity.hurtMarked = true;
+						                    didSmthElse |= true;
+						                }
+						                placeBlockNow &= isCloseToAnchorPos;
+										itemsSource.add(0, actualItem);
+										result.entitiesFixParticles.add(entity.getId());
+									}
+								}
+								
+								// XXX take out items from containers
 							}
 						}
 						
@@ -307,8 +350,13 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 								result.blockForStaminaCost += blockToRestore;
 								result.blocksFixParticles.add(block.pos);
 								result.blocksToForget.add(block.pos);
-								result.isRestoring = true;
+								result.isRestoring |= true;
 							}
+						}
+						else if (didSmthElse) {
+							result.blockForStaminaCost += blockToRestore;
+							result.blocksFixParticles.add(block.pos);
+							result.isRestoring |= true;
 						}
 					}
 				}
@@ -319,15 +367,16 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 						blockBeingBroken.setAndSyncProgress(curProgress - breakProgressToFix, blockPos, level);
 						result.blockForStaminaCost += breakProgressToFix;
 						result.blocksFixParticles.add(blockPos);
-						result.isRestoring = true;
+						result.isRestoring |= true;
 					}
 				}
 				default -> {}
 			}
 		});
 
-		if (!result.blocksFixParticles.isEmpty()) {
-			PacketDistributor.sendToPlayersTrackingEntityAndSelf(trackedEntity, new CDBlocksRestoredPacket(result.blocksFixParticles));
+		if (!result.blocksFixParticles.isEmpty() || !result.entitiesFixParticles.isEmpty()) {
+			PacketDistributor.sendToPlayersTrackingEntityAndSelf(trackedEntity, 
+					new CDBlocksRestoredPacket(result.blocksFixParticles, result.entitiesFixParticles));
 		}
 		forgetBrokenBlocks(level, result.blocksToForget);
 
@@ -339,6 +388,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 		public float blockForStaminaCost = 0;
 //		public final Set<BlockPos> blocksTried = new HashSet<>();
 		public final Set<BlockPos> blocksFixParticles = new HashSet<>();
+		public final IntSet entitiesFixParticles = new IntArraySet();
 		public final Set<BlockPos> blocksToForget = new HashSet<>();
 	}
 

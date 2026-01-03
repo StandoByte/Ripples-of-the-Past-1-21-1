@@ -253,6 +253,7 @@
   "jojo_ripples.skill.grab.controls": "Ctrl + \uEAFE",
   "jojo_ripples.ability.grab": "Захват",
   "jojo_ripples.ability.grab_release": "Отпустить",
+  "    перевести-jojo.message.action_condition.grab_block": "Your Stand is too weak to grab this block",
   
   "jojo_ripples.skill.block_toss": "(NYI) Бросок блока",
   "jojo_ripples.skill.block_toss.desc": "Киньте во врага блоком в руке вашего Стенда в качестве импровизированного оружия дальнего боя.",

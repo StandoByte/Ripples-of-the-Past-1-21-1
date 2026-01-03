@@ -228,4 +228,14 @@ public class StandStatFormulas {
 		return multStrength * multSpeed;
 	}
 	
+	public static boolean canGrabBlock(double strength, BlockState blockState, Level level, BlockPos blockPos) {
+		float hardness = blockState.getDestroySpeed(level, blockPos);
+		if (hardness < 0) {
+			return false;
+		}
+		BlockMiningTier harvestTier = getStandHarvestLevel(strength);
+		boolean canMineOnTier = harvestTier.canMine(blockState);
+		return canMineOnTier;
+	}
+	
 }

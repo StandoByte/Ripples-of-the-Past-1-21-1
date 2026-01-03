@@ -1,10 +1,14 @@
 package com.github.standobyte.jojo.util.mc;
 
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.mechanics.entity_like_player.playerwrapper.EntityAsPlayerWrapper;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -12,7 +16,14 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.providers.VanillaEnchantmentProviders;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.Vec3;
 
 public class ItemUtil {
 
@@ -91,4 +102,21 @@ public class ItemUtil {
 			return itementity;
 		}
 	}
+	
+	public static List<ItemStack> turnBlockToItem(BlockState blockState, ServerLevel level, BlockPos blockPos, @Nullable Entity entity) {
+		ItemStack itemstack = new ItemStack(Items.DIAMOND_AXE);
+		EnchantmentHelper.enchantItemFromProvider(
+				itemstack,
+				level.registryAccess(),
+				VanillaEnchantmentProviders.ENDERMAN_LOOT_DROP,
+				level.getCurrentDifficultyAt(blockPos),
+				level.random);
+		LootParams.Builder lootparams$builder = new LootParams.Builder(level)
+				.withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(blockPos))
+				.withParameter(LootContextParams.TOOL, itemstack)
+				.withOptionalParameter(LootContextParams.THIS_ENTITY, entity);
+		List<ItemStack> item = blockState.getDrops(lootparams$builder);
+		return item;
+	}
+
 }

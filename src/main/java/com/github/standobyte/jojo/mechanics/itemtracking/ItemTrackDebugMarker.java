@@ -43,7 +43,7 @@ public class ItemTrackDebugMarker extends MarkerRenderer {
 	}
 
 
-	private static class ItemMarkerInstance extends MarkerInstance {
+	public static class ItemMarkerInstance extends MarkerInstance {
 		final ItemStack item;
 
 		public ItemMarkerInstance(Vec3 pos, boolean outlined, ItemStack itemStack) {
