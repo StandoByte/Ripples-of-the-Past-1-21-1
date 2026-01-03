@@ -3,11 +3,14 @@ package com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.brokenblocks;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDRestoreTerrainAbility;
 
 import net.minecraft.core.BlockPos;
@@ -16,7 +19,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -29,16 +31,16 @@ public class PrevBlockInfo {
 	public final BlockState state;
 
 	public final List<ItemStack> drops;
+	public boolean hasAnchorDrop;
 	private int xp = 0;
 	public List<WeakReference<EntityMadeFromBlock>> blockShards;
 
-	public final boolean alwaysKeepNBT;
+	public boolean alwaysKeepNBT;
 //	private int tickCount = 0;
 
-	public PrevBlockInfo(BlockPos pos, BlockState state, List<ItemStack> drops, boolean alwaysKeepNBT) {
+	public PrevBlockInfo(BlockPos pos, BlockState state, List<ItemStack> drops) {
 		this.pos = pos;
 		this.state = state;
-		this.alwaysKeepNBT = alwaysKeepNBT;
 		
 		this.drops = new ArrayList<>(drops.size());
 		for (ItemStack droppedItem : drops) {
@@ -54,10 +56,9 @@ public class PrevBlockInfo {
 				this.drops.add(droppedItem.copy());
 			}
 		}
-	}
-
-	public static PrevBlockInfo clientInstance(BlockPos pos, BlockState state) {
-		return new PrevBlockInfo(pos, state, new ArrayList<>(), false);
+		this.hasAnchorDrop = this.drops.stream().anyMatch(item -> item.has(ModItemDataComponents.ORIGINAL_POS));
+		JojoMod.LOGGER.debug("{} {}", pos, hasAnchorDrop);
+		this.alwaysKeepNBT |= this.hasAnchorDrop;
 	}
 
 	public void setDroppedXp(int xp) {
@@ -123,7 +124,8 @@ public class PrevBlockInfo {
 		BlockState state = BlockState.CODEC.parse(NbtOps.INSTANCE, nbt.get("State")).result().orElse(null);
 		if (state == null) return null;
 
-		PrevBlockInfo block = new PrevBlockInfo(pos, state, drops, keepNBT);
+		PrevBlockInfo block = new PrevBlockInfo(pos, state, drops);
+		block.alwaysKeepNBT = keepNBT;
 		block.xp = nbt.getInt("Xp");
 		return block;
 	}
@@ -131,14 +133,12 @@ public class PrevBlockInfo {
 	public static final StreamCodec<RegistryFriendlyByteBuf, PrevBlockInfo> STREAM_CODEC = StreamCodec.composite(
 			BlockPos.STREAM_CODEC, block -> block.pos, 
 			ByteBufCodecs.idMapper(Block.BLOCK_STATE_REGISTRY), block -> block.state, 
-			PrevBlockInfo::clientInstance);
+//			ItemStack.LIST_STREAM_CODEC, block -> block.drops,
+			ByteBufCodecs.BOOL, block -> block.hasAnchorDrop, 
+			(BlockPos pos, BlockState state, Boolean hasAnchorDrop) -> {
+				PrevBlockInfo block = new PrevBlockInfo(pos, state, Collections.emptyList());
+				block.hasAnchorDrop = hasAnchorDrop;
+				return block;
+			});
 
-	public void toBuf(FriendlyByteBuf buf) {
-		buf.writeBlockPos(pos);
-		buf.writeVarInt(Block.getId(state));
-	}
-
-	public static PrevBlockInfo fromBuf(FriendlyByteBuf buf) {
-		return new PrevBlockInfo(buf.readBlockPos(), Block.stateById(buf.readVarInt()), new ArrayList<>(), false);
-	}
 }

@@ -34,6 +34,7 @@ import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.Entity;
@@ -235,8 +236,19 @@ public abstract class MarkerRenderer {
 		}
 	}
 	
-	protected static Vec3 entityMarkerPos(Entity entity, float partialTick) {
-		return entity.getPosition(partialTick).add(0, entity.getBbHeight() * 1.1, 0);
+	public static Vec3 entityMarkerPos(Entity entity, float partialTick) {
+		Vec3 position;
+		if (entity.level().isClientSide()) {
+			position = entity.getPosition(partialTick);
+		}
+		else {
+			position = entity.position();
+		}
+		return position.add(0, entity.getBbHeight() + 0.25, 0);
+	}
+	
+	public static Vec3 blockMarkerPos(BlockPos blockPos) {
+		return Vec3.upFromBottomCenterOf(blockPos, 1.0);
 	}
 	
 	protected int getColor() {

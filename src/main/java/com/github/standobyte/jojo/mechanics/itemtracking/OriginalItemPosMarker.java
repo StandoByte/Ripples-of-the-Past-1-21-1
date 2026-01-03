@@ -1,20 +1,20 @@
 package com.github.standobyte.jojo.mechanics.itemtracking;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.ui.hud.marker.MarkerRenderer;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.mechanics.itemtracking.ItemTrackDebugMarker.ItemMarkerInstance;
-import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
 
 public class OriginalItemPosMarker extends MarkerRenderer {
 
@@ -38,26 +38,25 @@ public class OriginalItemPosMarker extends MarkerRenderer {
 
 	@Override
 	protected void updatePositions(List<MarkerInstance> list, float partialTick) {
-		if (mc.player != null) {
-			for (InteractionHand hand : InteractionHand.values()) {
-				checkAddItemMarker(list, mc.player.getItemInHand(hand));
-			}
-		}
-		StandEntity stand = ClientGlobals.playerStandEntity;
-		if (stand != null) {
-			for (InteractionHand hand : InteractionHand.values()) {
-				checkAddItemMarker(list, stand.getItemInHand(hand));
-			}
-		}
+		iterateHeldItemsOriginalPos((BlockPos blockPos, ItemStack item) -> list.add(new ItemMarkerInstance(blockMarkerPos(blockPos), false, item)));
 	}
 	
-	protected void checkAddItemMarker(List<MarkerInstance> markers, ItemStack item) {
-		if (!item.isEmpty()) {
-			OriginalItemPosComponent originalPos = item.get(ModItemDataComponents.ORIGINAL_POS);
-			if (originalPos != null) {
-				BlockPos blockPos = originalPos.blockPos();
-				boolean outline = false;
-				markers.add(new ItemMarkerInstance(Vec3.upFromBottomCenterOf(blockPos, 1.0), outline, item));
+	public static void iterateHeldItemsOriginalPos(BiConsumer<BlockPos, ItemStack> action) {
+		 forEntityHeldItem(action, Minecraft.getInstance().player);
+		 forEntityHeldItem(action, ClientGlobals.playerStandEntity);
+	}
+	
+	public static void forEntityHeldItem(BiConsumer<BlockPos, ItemStack> action, LivingEntity entity) {
+		if (entity != null) {
+			for (InteractionHand hand : InteractionHand.values()) {
+				ItemStack item = entity.getItemInHand(hand);
+				if (!item.isEmpty()) {
+					OriginalItemPosComponent originalPos = item.get(ModItemDataComponents.ORIGINAL_POS);
+					if (originalPos != null) {
+						BlockPos blockPos = originalPos.blockPos();
+						action.accept(blockPos, item);
+					}
+				}
 			}
 		}
 	}

@@ -292,6 +292,7 @@ public class ItemTracker {
 //		this.clear();
 //	}
 
+	@Deprecated
 	public Vec3 markerPos(Level level, float partialTick) {
 		if (positionEntity.isPresent()) {
 			Entity entity = level.getEntity(positionEntity.getAsInt());

@@ -33,7 +33,7 @@ public class FireBlockMixin {
 	private static void cdRememberBurntBlock(Level world, BlockPos blockPos) {
 		BlockState blockState = world.getBlockState(blockPos);
 		CrazyDRestoreTerrainAbility.rememberBrokenBlock(world, blockPos, blockState, 
-				Optional.ofNullable(world.getBlockEntity(blockPos)), Collections.emptyList(), false);
+				Optional.ofNullable(world.getBlockEntity(blockPos)), Collections.emptyList());
 	}
 
 	// FIXME crossfire hurricane deleting blocks

@@ -26,6 +26,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -52,16 +53,16 @@ public class BrokenBlocksChunkData implements INBTSerializable<CompoundTag> {
 	}
 
 	@Nullable
-	public PrevBlockInfo saveBrokenBlock(BlockPos pos, BlockState state, Optional<BlockEntity> tileEntity, List<ItemStack> drops, boolean alwaysKeepNBT) {
+	public PrevBlockInfo saveBrokenBlock(BlockPos pos, BlockState state, Optional<BlockEntity> tileEntity, List<ItemStack> drops) {
 		// FIXME remember blocks with inventory
 		if (tileEntity.filter(te -> te instanceof Container || te.getType() == ModBlockEntities._PLACEHOLDER_STONE_MASK.get()).isPresent()) return null;
 
-		PrevBlockInfo blockInfo = new PrevBlockInfo(pos, state, drops, alwaysKeepNBT);
+		PrevBlockInfo blockInfo = new PrevBlockInfo(pos, state, drops);
 		saveBrokenBlock(blockInfo);
 		return blockInfo;
 	}
 
-	protected void saveBrokenBlock(PrevBlockInfo prevBlock) {
+	public void saveBrokenBlock(PrevBlockInfo prevBlock) {
 		brokenBlocks.put(prevBlock.pos, prevBlock);
 		if (!chunk.getLevel().isClientSide()) {
 			blocksToSync.add(prevBlock);
@@ -71,7 +72,7 @@ public class BrokenBlocksChunkData implements INBTSerializable<CompoundTag> {
 	public void removeBrokenBlock(BlockPos blockPos) {
 		brokenBlocks.remove(blockPos);
 		if (!chunk.getLevel().isClientSide()) {
-			blocksToSync.add(PrevBlockInfo.clientInstance(blockPos, Blocks.AIR.defaultBlockState()));
+			blocksToSync.add(new PrevBlockInfo(blockPos, Blocks.AIR.defaultBlockState(), Collections.emptyList()));
 		}
 	}
 
@@ -188,6 +189,15 @@ public class BrokenBlocksChunkData implements INBTSerializable<CompoundTag> {
 	@Nullable
 	public static BrokenBlocksChunkData getExistingData(Level level, BlockPos blockPos) {
 		ChunkAccess chunkAccess = level.getChunk(blockPos);
+		if (chunkAccess instanceof LevelChunk chunk) {
+			return ComponentUtil.getExistingDataOrNull(chunk, ModDataAttachmentTypes.BROKEN_BLOCKS);
+		}
+		return null;
+	}
+	
+	@Nullable
+	public static BrokenBlocksChunkData getExistingData(Level level, ChunkPos chunkPos) {
+		ChunkAccess chunkAccess = level.getChunk(chunkPos.x, chunkPos.z);
 		if (chunkAccess instanceof LevelChunk chunk) {
 			return ComponentUtil.getExistingDataOrNull(chunk, ModDataAttachmentTypes.BROKEN_BLOCKS);
 		}

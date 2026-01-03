@@ -60,7 +60,7 @@ public abstract class LevelDestroyBlockMixin {
 			CrazyDRestoreTerrainAbility.rememberBrokenBlock(level, pos, 
 					jojo_ripples$oldBlockState, 
 					Optional.ofNullable(jojo_ripples$oldBlockEntity), 
-					Collections.emptyList(), false);
+					Collections.emptyList());
 		}
 		jojo_ripples$oldBlockState = null;
 		jojo_ripples$oldBlockEntity = null;

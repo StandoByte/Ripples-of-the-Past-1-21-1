@@ -38,7 +38,7 @@ public class LootTableMixin {
 				BlockPos blockPos = BlockPos.containing(posCenter);
 				boolean blockLootGamerule = level.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS);
 				List<ItemStack> loot = blockLootGamerule ? ci.getReturnValue() : Collections.emptyList();
-				CrazyDRestoreTerrainAbility.rememberBrokenBlock(level, blockPos, blockState, tileEntity, loot, false);
+				CrazyDRestoreTerrainAbility.rememberBrokenBlock(level, blockPos, blockState, tileEntity, loot);
 			}
 		}
 	}

@@ -116,16 +116,14 @@ public class StandEntityGrabAbility extends StandEntityAbility {
 								else {
 									addOriginalPos(blockItem, blockPos, serverLevel);
 
-									// TODO track the item in the ITS
 									ItemTracker itemTracker = ItemTracking.getItemTracking(level).startTracking(blockItem, serverLevel);
 									if (itemTracker != null) {
 										itemTracker.context = "grabbed_block";
 									}
 									
-									// TODO remember the removed block for the terrain restoration ability (ALONG with the ITS tracker)
 									level.removeBlock(blockPos, false);
 									CrazyDRestoreTerrainAbility.rememberBrokenBlock(level, blockPos, blockState, 
-											Optional.ofNullable(level.getBlockEntity(blockPos)), Collections.singletonList(blockItem), true);
+											Optional.ofNullable(level.getBlockEntity(blockPos)), Collections.singletonList(blockItem));
 									
 									tossStandHeldItems(EquipmentSlot.OFFHAND);
 									standEntity.setItemInHand(InteractionHand.OFF_HAND, blockItem);

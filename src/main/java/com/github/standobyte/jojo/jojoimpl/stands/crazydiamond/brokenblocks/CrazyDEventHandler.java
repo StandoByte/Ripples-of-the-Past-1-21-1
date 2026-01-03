@@ -30,7 +30,7 @@ public class CrazyDEventHandler {
 			if (event.getPlayer().getAbilities().instabuild) {
 				CrazyDRestoreTerrainAbility.rememberBrokenBlock(world, 
 						pos, event.getState(), Optional.ofNullable(world.getBlockEntity(pos)), 
-						Collections.emptyList(), false);
+						Collections.emptyList());
 			}
 		}
 	}

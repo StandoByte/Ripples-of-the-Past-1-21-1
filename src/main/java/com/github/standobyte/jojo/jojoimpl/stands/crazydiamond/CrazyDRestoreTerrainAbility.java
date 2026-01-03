@@ -494,13 +494,13 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 
 	@Nullable
 	public static PrevBlockInfo rememberBrokenBlock(Level level, BlockPos pos, BlockState state, 
-			Optional<BlockEntity> tileEntity, List<ItemStack> drops, boolean keepNBT) {
+			Optional<BlockEntity> tileEntity, List<ItemStack> drops) {
 		Block block = state.getBlock();
 		if (block instanceof FireBlock) return null;
 
 		BrokenBlocksChunkData data = BrokenBlocksChunkData.getChunkData(level, pos);
 		if (data != null) {
-			return data.saveBrokenBlock(pos, state, tileEntity, drops, keepNBT);
+			return data.saveBrokenBlock(pos, state, tileEntity, drops);
 		}
 		return null;
 	}

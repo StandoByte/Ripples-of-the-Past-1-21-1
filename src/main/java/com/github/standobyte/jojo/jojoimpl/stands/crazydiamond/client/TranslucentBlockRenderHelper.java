@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.client;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -55,31 +57,35 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 @EventBusSubscriber(value = Dist.CLIENT, modid = JojoMod.MOD_ID)
 public class TranslucentBlockRenderHelper {
 	private static MultiBufferSource.BufferSource buffers = null;
+	
+	public static boolean willRender() {
+		AbilityHud hud = PowerHud.abilityHUDInstance;
+		return hud.isAbilitySelected("restore_terrain");
+	}
 
 	@SubscribeEvent(priority = EventPriority.HIGH)
 	public static void renderBlocksOverlay(RenderLevelStageEvent event) {
-		if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_LEVEL) {
+		if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_LEVEL && willRender()) {
 			Minecraft mc = Minecraft.getInstance();
-			AbilityHud hud = PowerHud.abilityHUDInstance;
-			if (hud.isAbilitySelected("restore_terrain")) {
-				PoseStack poseStack = event.getPoseStack();
-				StandPower stand = ClientPowerCache.getPower(PowerClass.STAND);
-				Entity entity = CrazyDRestoreTerrainAbility.restorationCenterEntity(mc.player, stand);
-				Vec3i pos = CrazyDRestoreTerrainAbility.eyePos(entity);
-				Vec3 lookVec = entity.getLookAngle();
-				Vec3 eyePosD = entity.getEyePosition(1.0F);
-				boolean resolveEffect = ModStatusEffects.isInResolveEffect(mc.player);
-				int manhattanRange = CrazyDRestoreTerrainAbility.restorationDistManhattan(resolveEffect);
-				Stream<Map.Entry<BlockPos, PrevBlockInfo>> allFixableBlocks = CrazyDRestoreTerrainAbility.getBrokenBlocksInRange(mc.level, mc.player, pos, 32, 
-								block -> CrazyDRestoreTerrainAbility.blockCanBePlaced(mc.level, block.pos, block.state));
-				Predicate<PrevBlockInfo> inAbilityRange = block -> CrazyDRestoreTerrainAbility.blockPosSelectedForRestoration(block.pos, entity, 
-						lookVec, eyePosD, pos, manhattanRange, 
-						resolveEffect, mc.player.isShiftKeyDown());
-				TranslucentBlockRenderHelper.renderCDRestorationTranslucentBlocks(poseStack, mc, 
-						allFixableBlocks, inAbilityRange);
-			}
+			PoseStack poseStack = event.getPoseStack();
+			StandPower stand = ClientPowerCache.getPower(PowerClass.STAND);
+			Entity entity = CrazyDRestoreTerrainAbility.restorationCenterEntity(mc.player, stand);
+			Vec3i pos = CrazyDRestoreTerrainAbility.eyePos(entity);
+			Vec3 lookVec = entity.getLookAngle();
+			Vec3 eyePosD = entity.getEyePosition(1.0F);
+			boolean resolveEffect = ModStatusEffects.isInResolveEffect(mc.player);
+			int manhattanRange = CrazyDRestoreTerrainAbility.restorationDistManhattan(resolveEffect);
+			Stream<Map.Entry<BlockPos, PrevBlockInfo>> allFixableBlocks = CrazyDRestoreTerrainAbility.getBrokenBlocksInRange(mc.level, mc.player, pos, 32, 
+							block -> CrazyDRestoreTerrainAbility.blockCanBePlaced(mc.level, block.pos, block.state));
+			Predicate<PrevBlockInfo> inAbilityRange = block -> CrazyDRestoreTerrainAbility.blockPosSelectedForRestoration(block.pos, entity, 
+					lookVec, eyePosD, pos, manhattanRange, 
+					resolveEffect, mc.player.isShiftKeyDown());
+			TranslucentBlockRenderHelper.renderCDRestorationTranslucentBlocks(poseStack, mc, 
+					allFixableBlocks, inAbilityRange);
 		}
 	}
+	
+	public static Collection<BlockPos> highlightedBlocks = new ArrayList<>();
 
 	public static void renderCDRestorationTranslucentBlocks(PoseStack poseStack, Minecraft mc, 
 			Stream<Map.Entry<BlockPos, PrevBlockInfo>> blocks, Predicate<PrevBlockInfo> inAbilityRange) {
@@ -119,6 +125,7 @@ public class TranslucentBlockRenderHelper {
 		BlockRenderDispatcher renderer = mc.getBlockRenderer();
 		int overlayFade = Math.abs((int) (Util.getMillis() % 2000) / 100 - 10);
 		int overlayTexture = OverlayTexture.pack(overlayFade, 10);
+		highlightedBlocks.clear();
 		blocks.forEach(blockEntry -> {
 			PrevBlockInfo block = blockEntry.getValue();
 			BlockPos pos = block.pos;
@@ -131,7 +138,8 @@ public class TranslucentBlockRenderHelper {
 					pos.getX(), 
 					pos.getY(), 
 					pos.getZ());
-			int overlay = inAbilityRange.test(block) ? overlayTexture : OverlayTexture.NO_OVERLAY;
+			boolean isHighlighted = inAbilityRange.test(block);
+			int overlay = isHighlighted ? overlayTexture : OverlayTexture.NO_OVERLAY;
 
 			RenderShape renderShape = blockState.getRenderShape();
 			if (renderShape == RenderShape.MODEL) {
@@ -142,6 +150,10 @@ public class TranslucentBlockRenderHelper {
 							ARGBUtil.red(color), ARGBUtil.green(color), ARGBUtil.blue(color), 
 							ClientUtil.MAX_LIGHT, overlay, model, null);
 				}
+			}
+			
+			if (isHighlighted) {
+				highlightedBlocks.add(pos);
 			}
 
 			poseStack.popPose();
