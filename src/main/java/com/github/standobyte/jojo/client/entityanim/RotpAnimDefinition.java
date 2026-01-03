@@ -78,9 +78,8 @@ public class RotpAnimDefinition {
 	}
 	
 	public void initStaticPoses(FloatList poseTimestamps) {
-		List<AnimFramePose> coolPoses = null;
-		if (this.coolPoses != null) {
-			coolPoses = new ArrayList<>(this.coolPoses.size());
+		if (poseTimestamps != null) {
+			coolPoses = new ArrayList<>(poseTimestamps.size());
 			FloatListIterator iter = poseTimestamps.iterator();
 			while (iter.hasNext()) {
 				float timestamp = iter.nextFloat();
