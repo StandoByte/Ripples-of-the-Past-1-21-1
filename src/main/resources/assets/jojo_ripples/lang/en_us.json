@@ -272,8 +272,8 @@
   "jojo_ripples.skill.grab.controls": "Ctrl + \uEAFE",
   "jojo_ripples.ability.grab": "Grab",
   "jojo_ripples.ability.grab_release": "Release",
-  "jojo.message.action_condition.grab_block.weird_drops": "Этот блок нельзя взять",
-  "jojo.message.action_condition.grab_block.too_hard": "Вашему Стенду недостаёт силы, чтобы взять этот блок",
+  "jojo.message.action_condition.grab_block.weird_drops": "This block can't be grabbed",
+  "jojo.message.action_condition.grab_block.too_hard": "Your Stand is not strong enough to grab this block",
   
   "jojo_ripples.skill.block_toss": "(NYI) Block Toss",
   "jojo_ripples.skill.block_toss.desc": "Throw the block held by your Stand as a makeshift ranged weapon.",
@@ -372,6 +372,11 @@
   "stand.jojo_ripples.crazy_diamond": "Crazy Diamond",
   "stand.jojo_ripples.crazy_diamond.desc": "One of the more physically strong power-type Stands, Crazy Diamond's ability is fixing objects and people. This ability has a multitude of various uses and makes the Stand very versatile, however, Crazy Diamond cannot heal the user's own wounds or cure any diseases.",
   
+  "jojo_ripples.skill.hit_armor_fix": "(NYI) Hit & Armor Fix",
+  "jojo_ripples.skill.hit_armor_fix.desc": "Crazy Diamond's heavy punch tears off a chunk of the target's armor, and fixes it back together to bring the target back to the melee range.",
+  "jojo_ripples.skill.hit_armor_fix.controls": "Heavy Punch + \uEAFE §lon an armored target",
+  "jojo_ripples.ability.hit_armor_fix": "Fix armor",
+  
   "jojo_ripples.skill.disfiguring_punch": "(NYI) Disfiguring Punch",
   "jojo_ripples.skill.disfiguring_punch.desc": "After a finisher punch, incorrectly restore the attacked body part. This partially heals the injury, but leaves the target unable to correctly control that body part for a short period of time.",
   "jojo_ripples.skill.disfiguring_punch.controls": "Finisher Punch + \uEAFE",
@@ -409,18 +414,18 @@
   "jojo_ripples.skill.restore_terrain.controls": "Special ability",
   "jojo_ripples.ability.restore_terrain": "Restore terrain",
   
-  "jojo_ripples.skill.block_anchor": "(NYI) Block Anchor",
+  "jojo_ripples.skill.block_anchor": "(WIP) Block Anchor",
   "jojo_ripples.skill.block_anchor.desc": "Blocks grabbed by Stands keep their original positions, so they can be used as \"anchors\": when fixing an anchor held by someone, the holder will be able to transport to the original position of the anchor.",
   "jojo_ripples.skill.block_anchor.controls": "Special ability",
-  "jojo_ripples.ability.anchor_move": "Move to block's original position",
+  "jojo_ripples.ability.block_anchor": "Move to block's original position",
   
   "jojo_ripples.skill.create_wall": "(NYI) Wall creation",
   "jojo_ripples.skill.create_wall.desc": "Rather than restoring the original terrain, use broken blocks to create a thin wall in your look direction.",
   "jojo_ripples.skill.create_wall.controls": "Ctrl + Restore terrain",
   "jojo_ripples.ability.create_wall": "Create wall",
   
-  "jojo_ripples.skill.fuse_with_rock": "(NYI) Fuse with rock",
-  "jojo_ripples.skill.fuse_with_rock.desc": "After punching a target with a finisher punch, if the impact from knockback breaks stone blocks, and the target is low on health, fuse the stone blocks with the target to turn them into a hideous rock resembling a face. The rock can be broken with a pickaxe.",
+  "jojo_ripples.skill.fuse_with_rock": "(NYI) Fuse with terrain",
+  "jojo_ripples.skill.fuse_with_rock.desc": "After punching a target with a finisher punch, if the impact from knockback breaks full blocks, and the target is low on health, fuse the blocks with the target to turn them into a hideous structure resembling a face. It can be broken with a fitting tool.",
   "jojo_ripples.skill.fuse_with_rock.controls": "Finisher Punch + Restore terrain",
   "jojo_ripples.ability.fuse_with_rock": "Fuse with rock",
   

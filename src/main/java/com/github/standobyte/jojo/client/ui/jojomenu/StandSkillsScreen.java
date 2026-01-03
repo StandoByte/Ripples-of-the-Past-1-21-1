@@ -51,13 +51,13 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 				"uppercut_ground_throw",
 				"enhanced_eyesight",
 				"time_stop",
-				
+
+				"hit_armor_fix",
 				"disfiguring_punch",
 				"leave_object",
 				"revert_state",
 				"create_wall",
-				"fuse_with_rock",
-				"block_anchor"
+				"fuse_with_rock"
 				);
 	});
 	
@@ -144,7 +144,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		
 		if (selectedSkill != null) {
 			TextUtil.drawRightAlignedString(guiGraphics, font, selectedSkill.textName, 
-					x + getWindowWidth() - 14, y + 24, textColor, false);
+					x + getWindowWidth() - 10, y + 24, textColor, false);
 			
 			var description = font.split(selectedSkill.textDesc, 111);
 			for (int i = 0; i < description.size(); i++) {

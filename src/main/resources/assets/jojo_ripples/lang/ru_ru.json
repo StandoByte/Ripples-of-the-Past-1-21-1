@@ -253,7 +253,8 @@
   "jojo_ripples.skill.grab.controls": "Ctrl + \uEAFE",
   "jojo_ripples.ability.grab": "Захват",
   "jojo_ripples.ability.grab_release": "Отпустить",
-  "    перевести-jojo.message.action_condition.grab_block": "Your Stand is too weak to grab this block",
+  "jojo.message.action_condition.grab_block.weird_drops": "Этот блок нельзя взять",
+  "jojo.message.action_condition.grab_block.too_hard": "Вашему Стенду недостаёт силы, чтобы взять этот блок",
   
   "jojo_ripples.skill.block_toss": "(NYI) Бросок блока",
   "jojo_ripples.skill.block_toss.desc": "Киньте во врага блоком в руке вашего Стенда в качестве импровизированного оружия дальнего боя.",
@@ -275,7 +276,7 @@
   "jojo_ripples.skill.manual_control.controls": "O",
   "jojo_ripples.ability.manual_control": "Ручное управление",
 
-  "jojo_ripples.skill.swap_items": "Поменяться предметами со Стендом",
+  "jojo_ripples.skill.swap_items": "Поменяться предметами",
   "jojo_ripples.skill.swap_items.desc": "Быстрый способ дать Стенду предметы в ваших руках, или положить предметы в руках Стенда в ваш инвентарь.",
   "jojo_ripples.skill.swap_items.controls": "Ctrl + F",
   "jojo_ripples.ability.items_swap_w_user": "Поменяться предметами",
@@ -352,6 +353,11 @@
   "stand.jojo_ripples.crazy_diamond": "Crazy Diamond",
   "stand.jojo_ripples.crazy_diamond.desc": "Один из самых физически сильных Стендов. Способность Crazy Diamond - восстанавливать объекты и лечить раны. Эта способность имеет множество различных применений, но обладатель Crazy Diamond не может лечить самого себя и исцелять болезни.",
   
+  "jojo_ripples.skill.hit_armor_fix": "(NYI) Удар + починка брони",
+  "    перевести-jojo_ripples.skill.hit_armor_fix.desc": "Crazy Diamond's heavy punch tears off a chunk of the target's armor, and fixes it back together to bring the target back to the melee range.",
+  "jojo_ripples.skill.hit_armor_fix.controls": "Тяжёлый удар + \uEAFE §lпо цели в броне",
+  "jojo_ripples.ability.hit_armor_fix": "Починить броню",
+  
   "jojo_ripples.skill.disfiguring_punch": "(NYI) Деформирующий удар",
   "    перевести-jojo_ripples.skill.disfiguring_punch.desc": "After a finisher punch, incorrectly restore the attacked body part. This partially heals the injury, but leaves the target unable to correctly control that body part for a short period of time.",
   "jojo_ripples.skill.disfiguring_punch.controls": "Добивающий удар + \uEAFE",
@@ -367,40 +373,40 @@
   "jojo_ripples.skill.repair_item.controls": "C на повреждённом предмете в инвентаре",
   "jojo_ripples.ability.repair_item": "Починить предмет",
   
-  "jojo_ripples.skill.heal": "(NYI) Лечение",
+  "jojo_ripples.skill.heal": "(WIP) Лечение",
   "    перевести-jojo_ripples.skill.heal.desc": "Fix the damage and injuries of a damaged entity.",
   "jojo_ripples.skill.heal.controls": "Особая способность",
   "jojo_ripples.ability.heal": "Лечение",
   "jojo.message.action_condition.cd_heal_self": "Вы не можете исцелить самого себя",
   "jojo.message.action_condition.heal_target": "Эту сущность нельзя исцелить",
   
-  "jojo_ripples.skill.revert_state": "(NYI) Вернуть исходное состояние",
+  "jojo_ripples.skill.revert_state": "(WIP) Вернуть исходное состояние",
   "    перевести-jojo_ripples.skill.revert_state.desc": "Revert the state of some entities and placed blocks. Examples include defusing TNTs and turning glass into sand.",
   "jojo_ripples.skill.revert_state.controls": "Ctrl + Лечение",
   "jojo_ripples.ability.revert_state": "Вернуть исходное состояние",
   
-  "jojo_ripples.skill.uncraft": "(NYI) Разборка до ингредиентов",
+  "jojo_ripples.skill.uncraft": "(WIP) Разборка до ингредиентов",
   "    перевести-jojo_ripples.skill.uncraft.desc": "Revert an item into the original component(s) it was crafted or smelted from.",
   "jojo_ripples.skill.uncraft.controls": "Z на предмете в инвентаре",
   "jojo_ripples.ability.uncraft": "Разобрать до ингредиентов",
   
-  "jojo_ripples.skill.restore_terrain": "(NYI) Восстановление местности",
+  "jojo_ripples.skill.restore_terrain": "(WIP) Восстановление местности",
   "    перевести-jojo_ripples.skill.restore_terrain.desc": "Fix blocks that were previously broken, as long as you have the items and experience that were dropped from the blocks.",
   "jojo_ripples.skill.restore_terrain.controls": "Особая способность",
   "jojo_ripples.ability.restore_terrain": "Восстановить местность",
   
-  "jojo_ripples.skill.block_anchor": "(NYI) Блок-якорь",
+  "jojo_ripples.skill.block_anchor": "(WIP) Блок-якорь",
   "    перевести-jojo_ripples.skill.block_anchor.desc": "Блоки, взятые Стендом, сохраняют свою исходную позицию, что позволяет использовать их как \"якоря\": при восстановлении блока-якоря игрок, который его держит, будет перемещаться в исходное положение якоря.",
   "jojo_ripples.skill.block_anchor.controls": "Особая способность",
-  "jojo_ripples.ability.anchor_move": "Переместиться к исходной точке блока",
+  "jojo_ripples.ability.block_anchor": "Переместиться к исходной точке блока",
   
   "jojo_ripples.skill.create_wall": "(NYI) Создание стен",
   "    перевести-jojo_ripples.skill.create_wall.desc": "Rather than restoring the original terrain, use broken blocks to create a thin wall in your look direction.",
   "jojo_ripples.skill.create_wall.controls": "Ctrl + Восстановить местность",
   "jojo_ripples.ability.create_wall": "Создать стену",
   
-  "jojo_ripples.skill.fuse_with_rock": "(NYI) Слить цель с камнем",
-  "jojo_ripples.skill.fuse_with_rock.desc": "После добивающего удара, если от отдачи цель проломила собой каменные блоки, и у цели мало здоровья, вы можете слить цель с блоками камня и превратить её в безобразный камень, напоминающий лицо. Камень может быть сломан киркой.",
+  "jojo_ripples.skill.fuse_with_rock": "(NYI) Слить цель с блоками",
+  "jojo_ripples.skill.fuse_with_rock.desc": "После добивающего удара, если от отдачи цель проломила собой полные блоки, и у цели мало здоровья, вы можете слить цель с блоками и превратить её в безобразную структуру, напоминающую лицо. Она может быть сломана подходящим инструментон.",
   "jojo_ripples.skill.fuse_with_rock.controls": "Добивающий удар + Восстановить местность",
   "jojo_ripples.ability.fuse_with_rock": "Слить цель с камнем",
   
