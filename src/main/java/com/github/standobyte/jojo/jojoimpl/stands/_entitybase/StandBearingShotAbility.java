@@ -90,7 +90,7 @@ public class StandBearingShotAbility extends StandEntityAbility {
 
 		@Override
 		public boolean canBeCancelledInto(EntityActionType cancellingAbility) {
-			return true;
+			return this.phase != ActionPhase.RECOVERY;
 		}
 		
 	}
