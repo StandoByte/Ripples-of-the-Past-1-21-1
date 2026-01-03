@@ -31,9 +31,6 @@ public class StandInitStarPlatinum {
 
 				new MovesetBuilder()
 
-				// has a higher priority than regular item usage (added in addHumanoidStandStuff()) or charged heavy
-				.addAbility("bearing_shot", ModStandAbilities.BEARING_SHOT)
-
 				.addHumanoidStandStuff()
 
 				.addAbility("punch", ModStandAbilities.PUNCH)
@@ -71,6 +68,7 @@ public class StandInitStarPlatinum {
 
 //				.addAbility("guard", ModStandAbilities.GUARD)
 //				.addAbility("leap", ModStandAbilities.STAND_LEAP)
+				.addAbility("bearing_shot", ModStandAbilities.BEARING_SHOT)
 
 //				.addAbility("enhanced_eyesight", ModStandAbilities.SP_EYESIGHT)
 				.addAbility("star_finger", ModStandAbilities.SP_STAR_FINGER)
@@ -80,13 +78,13 @@ public class StandInitStarPlatinum {
 
 
 				.makeControlScheme("hotbar")
-					.bind("bearing_shot", InputMethod.HOLD, InputKey.RMB)
 					.bind("punch", InputMethod.CLICK, InputKey.LMB)
 					.bind("barrage", InputMethod.HOLD, InputKey.LMB)
 					.bind("heavy_punch", InputMethod.CLICK, InputKey.RMB)
 					.bind("heavy_charged", InputMethod.HOLD, InputKey.RMB)
 					.bind("grab", InputMethod.CLICK, InputKey.RMB.withModifier(InputKey.Modifier.CONTROL))
 					.bind("grab_throw", InputMethod.HOLD, InputKey.RMB)
+					.bind("bearing_shot", InputMethod.HOLD, InputKey.RMB)
 	
 					.makeHotbar(0, USE_SPECIAL, SWITCH_SPECIAL)
 //					.addToHotbar("enhanced_eyesight", 0, InputMethod.CLICK)

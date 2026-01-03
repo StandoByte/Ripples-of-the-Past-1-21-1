@@ -77,6 +77,6 @@ public final class ModDataAttachmentTypes {
 	// Chunk
 	
 	public static final Supplier<AttachmentType<BrokenBlocksChunkData>> BROKEN_BLOCKS = ATTACHMENT_TYPES.register("broken_blocks", 
-			() -> AttachmentType.builder(obj -> obj instanceof LevelChunk chunk ? new BrokenBlocksChunkData(chunk) : null).build());
+			() -> AttachmentType.serializable(obj -> obj instanceof LevelChunk chunk ? new BrokenBlocksChunkData(chunk) : null).build());
 	
 }

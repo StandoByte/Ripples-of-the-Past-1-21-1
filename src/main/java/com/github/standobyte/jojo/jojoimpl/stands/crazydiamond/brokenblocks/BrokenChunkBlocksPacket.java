@@ -53,7 +53,7 @@ public record BrokenChunkBlocksPacket(Collection<PrevBlockInfo> blocks, boolean 
 						data.reset();
 					}
 					if (block.state != Blocks.AIR.defaultBlockState()) {
-						data.saveBrokenBlock(block.pos, block.state, Optional.empty(), Collections.emptyList());
+						data.saveBrokenBlock(block.pos, block.state, Optional.empty(), Collections.emptyList(), false);
 					}
 					else {
 						data.removeBrokenBlock(block.pos);

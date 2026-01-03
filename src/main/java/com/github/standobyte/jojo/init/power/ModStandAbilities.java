@@ -21,6 +21,7 @@ import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityPunchAb
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.item.SwapStandHandItemsAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.item.SwapUserStandItemsAbility;
 import com.github.standobyte.jojo.jojoimpl.stands._entitybase.item.TossStandItemAbility;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDAnchorBlockAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDAngeloRockPunchInput;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBlockBulletAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBloodCutterAbility;
@@ -136,6 +137,9 @@ public final class ModStandAbilities {
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDRestoreTerrainAbility>> CD_RESTORE_TERRAIN = ABILITY_TYPES.register(
 			"restore_terrain", key -> new AbilityType<>(key, CrazyDRestoreTerrainAbility::new));
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDAnchorBlockAbility>> CD_ANCHOR_MOVE = ABILITY_TYPES.register(
+			"anchor_move", key -> new AbilityType<>(key, CrazyDAnchorBlockAbility::new));
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDTerrainWallAbility>> CD_WALL_FROM_TERRAIN = ABILITY_TYPES.register(
 			"wall_from_terrain", key -> new AbilityType<>(key, CrazyDTerrainWallAbility::new));

@@ -122,6 +122,14 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 			super(ability);
 		}
 
+		@Override
+		public void onButtonStopHold() {
+			if (getPhase() != ActionPhase.RECOVERY) {
+				setPhaseStart(ActionPhase.RECOVERY);
+				syncPhaseChanges();
+			}
+		}
+
 		// FIXME (1.16.5) try to mitigate the fps drops when lots of blocks are restored simultaneously
 		@Override
 		public void actionTick() {
@@ -175,14 +183,6 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 				if (result.blockForStaminaCost > 0) {
 					userPower.consumeStamina(staminaPerBlock * result.blockForStaminaCost);
 				}
-			}
-		}
-
-		@Override
-		public void onButtonStopHold() {
-			if (getPhase() != ActionPhase.RECOVERY) {
-				setPhaseStart(ActionPhase.RECOVERY);
-				syncPhaseChanges();
 			}
 		}
 
@@ -323,18 +323,18 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 										ItemEntity itemEntity = itemFrame.spawnAtLocation(itemInFrame);
 										entity = itemEntity;
 									}
+									
 									if (entity != null && entity.isAlive()) {
-										entity = entity.getRootVehicle();
+										entity = CrazyDAnchorBlockAbility.entityToMove(entity);
 										Vec3 posD = Vec3.atCenterOf(block.pos);
-						                boolean isCloseToAnchorPos = entity.distanceToSqr(posD) <= 16;
+						                boolean isCloseToAnchorPos = CrazyDAnchorBlockAbility.isCloseToAnchorPos(entity, posD);
 						                if (!isCloseToAnchorPos) {
-						                	entity.setDeltaMovement(posD.subtract(entity.position()).normalize().scale(0.75));
-						                    entity.fallDistance = 0;
-						                    entity.hurtMarked = true;
+						                	CrazyDAnchorBlockAbility.moveWithAnchor(entity, posD);
 						                    didSmthElse |= true;
 						                }
 						                placeBlockNow &= isCloseToAnchorPos;
 										itemsSource.add(0, actualItem);
+										// TODO if it's a living entity, only add particles to the item itself
 										result.entitiesFixParticles.add(entity.getId());
 									}
 								}
@@ -493,13 +493,14 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 	// methods to be called from outside
 
 	@Nullable
-	public static PrevBlockInfo rememberBrokenBlock(Level level, BlockPos pos, BlockState state, Optional<BlockEntity> tileEntity, List<ItemStack> drops) {
+	public static PrevBlockInfo rememberBrokenBlock(Level level, BlockPos pos, BlockState state, 
+			Optional<BlockEntity> tileEntity, List<ItemStack> drops, boolean keepNBT) {
 		Block block = state.getBlock();
 		if (block instanceof FireBlock) return null;
 
 		BrokenBlocksChunkData data = BrokenBlocksChunkData.getChunkData(level, pos);
 		if (data != null) {
-			return data.saveBrokenBlock(pos, state, tileEntity, drops);
+			return data.saveBrokenBlock(pos, state, tileEntity, drops, keepNBT);
 		}
 		return null;
 	}

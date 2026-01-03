@@ -391,7 +391,8 @@
   
   "jojo_ripples.skill.block_anchor": "(NYI) Блок-якорь",
   "    перевести-jojo_ripples.skill.block_anchor.desc": "Блоки, взятые Стендом, сохраняют свою исходную позицию, что позволяет использовать их как \"якоря\": при восстановлении блока-якоря игрок, который его держит, будет перемещаться в исходное положение якоря.",
-  "jojo_ripples.skill.block_anchor.controls": "Пассивный навык",
+  "jojo_ripples.skill.block_anchor.controls": "Особая способность",
+  "jojo_ripples.ability.anchor_move": "Переместиться к исходной точке блока",
   
   "jojo_ripples.skill.create_wall": "(NYI) Создание стен",
   "    перевести-jojo_ripples.skill.create_wall.desc": "Rather than restoring the original terrain, use broken blocks to create a thin wall in your look direction.",

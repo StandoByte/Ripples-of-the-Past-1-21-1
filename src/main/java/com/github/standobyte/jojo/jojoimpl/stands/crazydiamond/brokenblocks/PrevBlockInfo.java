@@ -32,13 +32,13 @@ public class PrevBlockInfo {
 	private int xp = 0;
 	public List<WeakReference<EntityMadeFromBlock>> blockShards;
 
-	public final boolean keep;
-	private int tickCount = 0;
+	public final boolean alwaysKeepNBT;
+//	private int tickCount = 0;
 
-	public PrevBlockInfo(BlockPos pos, BlockState state, List<ItemStack> drops, boolean keep) {
+	public PrevBlockInfo(BlockPos pos, BlockState state, List<ItemStack> drops, boolean alwaysKeepNBT) {
 		this.pos = pos;
 		this.state = state;
-		this.keep = keep;
+		this.alwaysKeepNBT = alwaysKeepNBT;
 		
 		this.drops = new ArrayList<>(drops.size());
 		for (ItemStack droppedItem : drops) {
@@ -57,7 +57,7 @@ public class PrevBlockInfo {
 	}
 
 	public static PrevBlockInfo clientInstance(BlockPos pos, BlockState state) {
-		return new PrevBlockInfo(pos, state, new ArrayList<>(), true);
+		return new PrevBlockInfo(pos, state, new ArrayList<>(), false);
 	}
 
 	public void setDroppedXp(int xp) {
@@ -73,19 +73,19 @@ public class PrevBlockInfo {
 	}
 
 
-	boolean forget() {
-		return !keep && tickCount++ == 24000;
-	}
-
-	public CompoundTag toNBT(HolderLookup.Provider registries) {
+	@Nullable
+	public CompoundTag toNBT(HolderLookup.Provider registries, boolean keepEverything) {
+		if (!(keepEverything || this.alwaysKeepNBT)) {
+			return null;
+		}
+		
 		CompoundTag nbt = new CompoundTag();
 		BlockPos.CODEC.encodeStart(NbtOps.INSTANCE, pos).ifSuccess(
 				tag -> nbt.put("Pos", tag));
 		BlockState.CODEC.encodeStart(NbtOps.INSTANCE, state).ifSuccess(
 				tag -> nbt.put("State", tag));
-		nbt.putBoolean("Keep", keep);
-		nbt.putInt("TickCount", tickCount);
-
+		nbt.putBoolean("Keep", alwaysKeepNBT);
+		
 		ListTag itemsNBT = new ListTag();
 		for (ItemStack stack : drops) {
 			itemsNBT.add(stack.save(registries));
@@ -97,13 +97,16 @@ public class PrevBlockInfo {
 	}
 
 	@Nullable
-	public static PrevBlockInfo fromNBT(CompoundTag nbt, HolderLookup.Provider registries) {
+	public static PrevBlockInfo fromNBT(CompoundTag nbt, HolderLookup.Provider registries, boolean loadEverything) {
 		if (!(
-				nbt.contains("Pos", Tag.TAG_COMPOUND) &&
-				nbt.contains("State", Tag.TAG_COMPOUND) && 
+				nbt.contains("Pos") &&
+				nbt.contains("State") && 
 				nbt.contains("Drops", Tag.TAG_LIST))) {
 			return null;
 		}
+		
+		boolean keepNBT = nbt.getBoolean("Keep");
+		if (!(keepNBT || loadEverything)) return null;
 
 		List<ItemStack> drops = new ArrayList<>();
 		ListTag dropsNBT = nbt.getList("Drops", Tag.TAG_COMPOUND);
@@ -115,14 +118,12 @@ public class PrevBlockInfo {
 			}
 		}
 		
-		BlockPos pos = BlockPos.CODEC.parse(NbtOps.INSTANCE, nbt.getCompound("Pos")).result().orElse(null);
+		BlockPos pos = BlockPos.CODEC.parse(NbtOps.INSTANCE, nbt.get("Pos")).result().orElse(null);
 		if (pos == null) return null;
-		BlockState state = BlockState.CODEC.parse(NbtOps.INSTANCE, nbt.getCompound("State")).result().orElse(null);
+		BlockState state = BlockState.CODEC.parse(NbtOps.INSTANCE, nbt.get("State")).result().orElse(null);
 		if (state == null) return null;
-		boolean keep = nbt.getBoolean("Keep");
 
-		PrevBlockInfo block = new PrevBlockInfo(pos, state, drops, keep);
-		block.tickCount = nbt.getInt("TickCount");
+		PrevBlockInfo block = new PrevBlockInfo(pos, state, drops, keepNBT);
 		block.xp = nbt.getInt("Xp");
 		return block;
 	}
@@ -138,6 +139,6 @@ public class PrevBlockInfo {
 	}
 
 	public static PrevBlockInfo fromBuf(FriendlyByteBuf buf) {
-		return new PrevBlockInfo(buf.readBlockPos(), Block.stateById(buf.readVarInt()), new ArrayList<>(), true);
+		return new PrevBlockInfo(buf.readBlockPos(), Block.stateById(buf.readVarInt()), new ArrayList<>(), false);
 	}
 }

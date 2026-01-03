@@ -411,7 +411,8 @@
   
   "jojo_ripples.skill.block_anchor": "(NYI) Block Anchor",
   "jojo_ripples.skill.block_anchor.desc": "Blocks grabbed by Stands keep their original positions, so they can be used as \"anchors\": when fixing an anchor held by someone, the holder will be able to transport to the original position of the anchor.",
-  "jojo_ripples.skill.block_anchor.controls": "Passive skill",
+  "jojo_ripples.skill.block_anchor.controls": "Special ability",
+  "jojo_ripples.ability.anchor_move": "Move to block's original position",
   
   "jojo_ripples.skill.create_wall": "(NYI) Wall creation",
   "jojo_ripples.skill.create_wall.desc": "Rather than restoring the original terrain, use broken blocks to create a thin wall in your look direction.",

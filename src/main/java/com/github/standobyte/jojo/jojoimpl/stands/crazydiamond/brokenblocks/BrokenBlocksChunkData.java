@@ -34,11 +34,12 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID)
-public class BrokenBlocksChunkData {
+public class BrokenBlocksChunkData implements INBTSerializable<CompoundTag> {
 	public final LevelChunk chunk;
 
 	public boolean loadedNBT = false;
@@ -51,11 +52,11 @@ public class BrokenBlocksChunkData {
 	}
 
 	@Nullable
-	public PrevBlockInfo saveBrokenBlock(BlockPos pos, BlockState state, Optional<BlockEntity> tileEntity, List<ItemStack> drops) {
+	public PrevBlockInfo saveBrokenBlock(BlockPos pos, BlockState state, Optional<BlockEntity> tileEntity, List<ItemStack> drops, boolean alwaysKeepNBT) {
 		// FIXME remember blocks with inventory
 		if (tileEntity.filter(te -> te instanceof Container || te.getType() == ModBlockEntities._PLACEHOLDER_STONE_MASK.get()).isPresent()) return null;
 
-		PrevBlockInfo blockInfo = new PrevBlockInfo(pos, state, drops, false);
+		PrevBlockInfo blockInfo = new PrevBlockInfo(pos, state, drops, alwaysKeepNBT);
 		saveBrokenBlock(blockInfo);
 		return blockInfo;
 	}
@@ -140,25 +141,28 @@ public class BrokenBlocksChunkData {
 	}
 
 
-	public CompoundTag save(HolderLookup.Provider registries) {
+	@Nullable
+	@Override
+	public CompoundTag serializeNBT(HolderLookup.Provider registries) {
 		CompoundTag nbt = new CompoundTag();
-		boolean saveDataConfig = false; // JojoModConfig.getCommonConfigInstance(false).saveDestroyedBlocks.get();
-		if (saveDataConfig) {
-			ListTag blocksBroken = new ListTag();
-			for (PrevBlockInfo block : brokenBlocks.values()) {
-				blocksBroken.add(block.toNBT(registries));
+		boolean saveEverything = false; // JojoModConfig.getCommonConfigInstance(false).saveDestroyedBlocks.get();
+		ListTag blocksBroken = new ListTag();
+		for (PrevBlockInfo block : brokenBlocks.values()) {
+			CompoundTag blockNBT = block.toNBT(registries, saveEverything);
+			if (blockNBT != null) {
+				blocksBroken.add(blockNBT);
 			}
-			nbt.put("Blocks", blocksBroken);
 		}
-		return nbt;
+		if (!blocksBroken.isEmpty()) nbt.put("Blocks", blocksBroken);
+		return !nbt.isEmpty() ? nbt : null;
 	}
 
-	public void load(CompoundTag nbt, HolderLookup.Provider registries) {
-		boolean saveDataConfig = false; // JojoModConfig.getCommonConfigInstance(false).saveDestroyedBlocks.get();
-		if (saveDataConfig
-				&& nbt.contains("Blocks", Tag.TAG_LIST)) {
+	@Override
+	public void deserializeNBT(HolderLookup.Provider registries, CompoundTag nbt) {
+		boolean loadEverything = false; // JojoModConfig.getCommonConfigInstance(false).saveDestroyedBlocks.get();
+		if (nbt.contains("Blocks", Tag.TAG_LIST)) {
 			nbt.getList("Blocks", Tag.TAG_COMPOUND).forEach(blockNBT -> {
-				PrevBlockInfo block = PrevBlockInfo.fromNBT((CompoundTag) blockNBT, registries);
+				PrevBlockInfo block = PrevBlockInfo.fromNBT((CompoundTag) blockNBT, registries, loadEverything);
 				if (block != null) {
 					brokenBlocks.put(block.pos, block);
 				}

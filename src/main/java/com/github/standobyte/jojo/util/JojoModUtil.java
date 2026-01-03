@@ -55,7 +55,7 @@ public class JojoModUtil {
 		boolean blockGotRemoved = blockState.getBlock() instanceof TntBlock;
 		if (blockGotRemoved) {
 			CrazyDRestoreTerrainAbility.rememberBrokenBlock(level, blockPos, blockState, 
-					Optional.ofNullable(level.getBlockEntity(blockPos)), Collections.emptyList());
+					Optional.ofNullable(level.getBlockEntity(blockPos)), Collections.emptyList(), false);
 			level.removeBlock(blockPos, false);
 		}
 	}
