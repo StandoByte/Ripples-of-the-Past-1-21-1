@@ -2,14 +2,15 @@ package com.github.standobyte.jojo.client.entityrender.stand;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.barrage.BarrageSwings;
+import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityrender.HiddenModelPartsUtil;
-import com.github.standobyte.jojo.client.utils.ModelUtil;
+import com.github.standobyte.jojo.client.entityrender.ModelWithExtraFeatures;
+import com.github.standobyte.jojo.client.utils.ModelPartWithName;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.v1_21_4_stuff.Reminder;
@@ -39,7 +40,6 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 	public ModelPart left_leg;
 	public ModelPart right_leg_xrot;
 	public ModelPart right_leg;
-	protected Map<String, ModelPart[]> inheritanceChains = new HashMap<>();
 
 	public StandEntityModel(ModelPart root) {
 //		super(root, RenderType::entityTranslucent);
@@ -60,7 +60,6 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 		
 		addMissingItemHoldPoints();
 		HiddenModelPartsUtil.initHiddenParts(this);
-		inheritanceChains = ModelUtil.modelPartInheritanceChains("root", ((Model_1_21_2plus) this).jojo_ripples$root(), "left_item", "right_item");
 	}
 	
 	protected void addMissingItemHoldPoints() {
@@ -84,6 +83,7 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 		}
 	}
 
+	public AnimFramePose pose;
 //	@Override // 1.21.2+
 	public void setupAnim(S renderState) {
 //		super.setupAnim(renderState); // 1.21.2+
@@ -92,13 +92,14 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 		HumanoidPart.setPartsVisible(this, renderState.visibleParts);
 		
 		if (renderState.action.staticPose != null) {
+			pose = renderState.action.staticPose;
 			RotpAnimDefinition.animate(this, renderState.action.staticPose);
 		}
 		else {
 			RotpAnimDefinition anim = renderState.action.anim;
 			float seconds = renderState.action.timeSeconds;
 			if (anim != null) {
-				anim.animate(this, renderState, seconds, 1);
+				pose = anim.animate(this, renderState, seconds, 1);
 			}
 			else if (head != null) {
 				head.xRot = renderState.xRot * MathUtil.DEG_TO_RAD;
@@ -151,12 +152,12 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 	@Override
 	public void translateToHand(HumanoidArm side, PoseStack poseStack) {
 		var modelParts = switch (side) {
-			case LEFT -> inheritanceChains.get("left_item");
-			case RIGHT -> inheritanceChains.get("right_item");
+			case LEFT -> ((ModelWithExtraFeatures) this).jojo_ripples$getPathToModelPart("left_item");
+			case RIGHT -> ((ModelWithExtraFeatures) this).jojo_ripples$getPathToModelPart("right_item");
 		};
 		if (modelParts != null) {
-			for (ModelPart part : modelParts) {
-				part.translateAndRotate(poseStack);
+			for (ModelPartWithName part : modelParts) {
+				part.part().translateAndRotate(poseStack);
 			}
 			// counteract the vanilla transforms hardcoded in ItemInHandLayer
 			poseStack.translate((float)(side == HumanoidArm.LEFT ? -1 : 1) / 16.0F, -0.5F, 0.125F);

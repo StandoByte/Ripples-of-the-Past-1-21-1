@@ -9,6 +9,8 @@ import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.modcompat.ModInteractionUtil;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -16,6 +18,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderLivingEvent;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
@@ -55,13 +58,26 @@ public class ClientTickHandler {
 		LivingEntity entity = event.getEntity();
 		limitEntityRotation(entity);
 	}
+
+	@SubscribeEvent
+	public static void onRenderFrame(RenderLevelStageEvent event) {
+		RenderLevelStageEvent.Stage stage = event.getStage();
+		if (stage == RenderLevelStageEvent.Stage.AFTER_ENTITIES) {
+			ClientLevel level = Minecraft.getInstance().level;
+			var attachmentType = ModDataAttachmentTypes.LIVING_GRAB.get();
+			for (Entity entity : level.entitiesForRendering()) {
+				LivingComponentGrab grabComponent = entity.getData(attachmentType);
+				if (grabComponent != null) {
+					grabComponent.setGrabbedPos();
+				}
+			}
+		}
+	}
 	
 	protected static void limitEntityRotation(LivingEntity entity) {
-		AttachmentType<LivingComponentGrab> attType = ModDataAttachmentTypes.LIVING_GRAB.get();
-		if (entity.hasData(attType)) {
-			LivingComponentGrab grabComponent = entity.getData(attType);
-			grabComponent.onFrameRender();
-			grabComponent.setGrabbedPos();
+		LivingComponentGrab grabComponent = entity.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
+		if (grabComponent != null) {
+			grabComponent.applyRotationDiff();
 		}
 	}
 	

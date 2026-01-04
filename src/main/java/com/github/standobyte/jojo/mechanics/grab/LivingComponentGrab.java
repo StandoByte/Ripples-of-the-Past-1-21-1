@@ -6,7 +6,6 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.utils.ModelUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
@@ -15,7 +14,6 @@ import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.UtilFunctions;
 import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
 
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
@@ -156,22 +154,23 @@ public class LivingComponentGrab implements TickingEntityData {
 		this.yBodyRotDiffWhenGrabbed = thisEntity.yBodyRot - yRot;
 	}
 	
-	protected static Vec3 armChokeOffset = new Vec3(0, 0.125, 0);
+	protected static Vec3 armChokeOffset = new Vec3(0, -0.125, 0);
 	@ApiStatus.Internal
 	public void setGrabbedPos() {
 		if (grabbingEntity != null) {
 			HumanoidArm grabbingArm = HumanoidArm.LEFT;
-			Vec3 grabOffset = new Vec3(0, grabbingEntity.getEyeHeight() - thisEntity.getEyeHeight(), 0);
+			double headHeight = thisEntity.getBbHeight() * 0.75;
+			Vec3 grabOffset = new Vec3(0, grabbingEntity.getEyeHeight() - thisEntity.getEyeHeight() - headHeight, 0);
 			
 			boolean useModelArmPos = grabbingEntity.level().isClientSide();
+			float yRot = grabbingEntity.yBodyRot;
+			yRot = -yRot * MathUtil.DEG_TO_RAD;
 			if (useModelArmPos) {
-				armChokeOffset = new Vec3(0, 0.125, 0);
-				Vec3 animOffset = ModelUtil.getModelPartPos(grabbingEntity, 
+				Vec3 animOffset = ModelUtil.getModelPartPos(
+						grabbingEntity, 
 						grabbingArm == HumanoidArm.LEFT ? "left_item" : "right_item", armChokeOffset);
 				if (animOffset != null) {
-					float yBodyRot = (-Mth.lerp(ClientUtil.partialTick(), 
-							grabbingEntity.yBodyRotO, grabbingEntity.yBodyRot)) * MathUtil.DEG_TO_RAD;
-					animOffset = animOffset.yRot(yBodyRot);
+					animOffset = animOffset.yRot(yRot);
 					grabOffset = grabOffset.add(animOffset);
 					// TODO (grab) sync the offset to the server?
 				}
@@ -181,13 +180,13 @@ public class LivingComponentGrab implements TickingEntityData {
 			}
 			
 			if (!useModelArmPos) {
-				grabOffset = grabOffset.add(new Vec3(grabbingArm == HumanoidArm.LEFT ? 0.2 : -0.2, 0, 0.875)
+				grabOffset = grabOffset.add(new Vec3(grabbingArm == HumanoidArm.LEFT ? 0.2 : -0.2, headHeight, 0.875)
 						/* lifting the target up and down a bit from x rotation would be cool, 
 						 * but we'd have to also adjust the grab animations for this and it's a PITA, 
 						 * so unfortunately this goes into the "commented out" hell
 						 */
 						// .xRot(-grabbingEntity.getXRot() * MathUtil.DEG_TO_RAD)
-						.yRot(-grabbingEntity.yBodyRot * MathUtil.DEG_TO_RAD));
+						.yRot(yRot));
 			}
 			
 			Vec3 grabbedPos = grabbingEntity.position().add(grabOffset);
@@ -201,11 +200,6 @@ public class LivingComponentGrab implements TickingEntityData {
 				applyRotationDiff();
 			}
 		}
-	}
-	
-	@ApiStatus.Internal
-	public void onFrameRender() {
-		applyRotationDiff();
 	}
 
 	@ApiStatus.Internal
@@ -223,9 +217,11 @@ public class LivingComponentGrab implements TickingEntityData {
 	@SubscribeEvent
 	public static void onLevelTickPost(LevelTickEvent.Post event) {
 		Level level = event.getLevel();
+		var attachmentType = ModDataAttachmentTypes.LIVING_GRAB.get();
 		for (Entity entity : UtilFunctions.getEntities(level)) {
-			if (entity != null && entity.hasData(ModDataAttachmentTypes.LIVING_GRAB.get())) {
-				entity.getData(ModDataAttachmentTypes.LIVING_GRAB.get()).setGrabbedPos();
+			LivingComponentGrab grabComponent = entity.getData(attachmentType);
+			if (grabComponent != null) {
+				grabComponent.setGrabbedPos();
 			}
 		}
 	}

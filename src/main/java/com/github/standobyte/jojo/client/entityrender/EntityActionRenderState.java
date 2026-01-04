@@ -2,10 +2,10 @@ package com.github.standobyte.jojo.client.entityrender;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.entityanim.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.TimelineKeys;
 import com.github.standobyte.jojo.client.entityanim.barrage.BarrageSwings;
+import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;

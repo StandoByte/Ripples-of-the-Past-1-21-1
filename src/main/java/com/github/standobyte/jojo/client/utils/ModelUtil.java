@@ -1,28 +1,29 @@
 package com.github.standobyte.jojo.client.utils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+
+import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
+import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
+import com.github.standobyte.jojo.client.entityanim.pose.EntityKeepAnimPose;
+import com.github.standobyte.jojo.client.entityrender.ModelWithExtraFeatures;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
-import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._PartPose;
 
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -53,108 +54,89 @@ public class ModelUtil {
 	}
 	
 	
+	// common code friendly versions
 	@Nullable
-	public static Map<String, ModelPart[]> modelPartInheritanceChains(String rootName, ModelPart root, String... endPartNames) {
-		Stack<ModelPart> stack = new Stack<>();
-		Set<String> toFind = new HashSet<>(Arrays.asList(endPartNames));
-		Map<String, ModelPart[]> destination = new HashMap<>();
-		recursionMyBeloved(rootName, root, stack, toFind, destination);
-		return destination;
+	public static Vec3 getModelPartPos(Entity entity, 
+			String modelPartName, Vec3 modelPartOffset) {
+		AnimFramePose clientSavedPose = ((EntityKeepAnimPose) entity).jojo_ripples$getModelPose();
+		return clientSavedPose != null ? getModelPartPos(
+				entity, clientSavedPose, 
+				modelPartName, modelPartOffset) : null;
 	}
-	
-	private static void recursionMyBeloved(String partName, ModelPart part, Stack<ModelPart> stack, Collection<String> toFind, Map<String, ModelPart[]> destination) {
-		if (toFind.isEmpty()) return;
-		
-		stack.add(part);
-		if (toFind.remove(partName)) {
-			destination.put(partName, stack.toArray(ModelPart[]::new));
-		}
-		if (!toFind.isEmpty()) {
-			for (var child : part.children.entrySet()) {
-				recursionMyBeloved(child.getKey(), child.getValue(), stack, toFind, destination);
-			}
-		}
-		stack.pop();
-	}
-	
-	
-	// common code friendly version
-	// FIXME !!! make sure the animation is from the entity (if there are 2+ star platinums in render distance, this may not work correctly)
-	@Nullable
-	public static Vec3 getModelPartPos(Entity entity, String modelPartName, Vec3 finalOffset) {
-		EntityModel<?> model = getEntityModel(entity);
-		return model != null ? getModelPartPos(model, modelPartName, finalOffset) : null;
-	}
-	
-	public static final Map<Model, Map<String, ModelPart[]>> __cache = new IdentityHashMap<>();
-	@Nullable
-	// FIXME ModelUtil.getModelPartPos (this shit is still incorrect)
-	public static Vec3 getModelPartPos(Model model, String modelPartName, Vec3 finalOffset) {
-		ModelPart modelRoot = ((Model_1_21_2plus) model).jojo_ripples$root();
-		if (modelRoot == null) return null;
-		String rootName = "root";
-		
-		Map<String, ModelPart[]> modelParts = __cache.computeIfAbsent(model, _model -> {
-			return modelPartInheritanceChains(rootName, modelRoot, modelPartName);
-		});
 
-		ModelPart[] inheritanceChain;
-		if (!modelParts.containsKey(modelPartName)) {
-			recursionMyBeloved(rootName, modelRoot, new Stack<>(), 
-					Util.make(new ArrayList<>(), list -> list.add(modelPartName)), modelParts);
-			if (!modelParts.containsKey(modelPartName)) {
-				modelParts.put(modelPartName, null);
-			}
-		}
-		
-		inheritanceChain = modelParts.get(modelPartName);
+	@Nullable
+	public static Vec3 getModelPartPos(Entity entity, AnimFramePose clientSavedPose, 
+			String modelPartName, Vec3 modelPartOffset) {
+		EntityModel<?> model = getEntityModel(entity);
+		return model != null ? getModelPartPos(
+				model, clientSavedPose, 
+				modelPartName, modelPartOffset) : null;
+	}
+	
+	// NOT-common code friendly method
+	@Nullable
+	// FIXME !!! grab punches rotate the stand weirdly
+	// FIXME !!! IT'S NOT SAVING THE HEAD ROTATION WHAT THE FUCKKKKKKK
+	// FIXME !!! PoseStandsOutsideFrustum isn't working correctly with grab
+	// FIXME consider the entity scaling done in the renderer
+	static Vector3f offset = new Vector3f();
+	static Matrix4f pose = new Matrix4f();
+	public static Vec3 getModelPartPos(Model model, AnimFramePose savedPose, 
+			String finalModelPartName, Vec3 finalModelPartOffset) {
+		ModelPartWithName[] inheritanceChain = ((ModelWithExtraFeatures) model).jojo_ripples$getPathToModelPart(finalModelPartName);
 		if (inheritanceChain == null || inheritanceChain.length == 0) {
 			return null;
 		}
 		
-		Vec3 fullOffset = new Vec3(0, 0, 0);
+		offset.set(0);
+		pose.identity();
 		
-		float xRotAccum = 0;
-		float yRotAccum = 0;
-		float zRotAccum = 0;
-		double xScaleAccum = 1;
-		double yScaleAccum = 1;
-		double zScaleAccum = 1;
+		float x; float y; float z;
+		float xRot; float yRot; float zRot;
+		float xScale; float yScale; float zScale;
 		
-		for (ModelPart modelPart : inheritanceChain) {
-			Vec3 offset = new Vec3(modelPart.x / 16, modelPart.y / 16, modelPart.z / 16);
-
-			if (xRotAccum != 0) offset = offset.xRot(-xRotAccum);
-			if (zRotAccum != 0) offset = offset.zRot(-zRotAccum);
-			if (yRotAccum != 0) offset = offset.yRot(yRotAccum);
-			if (xScaleAccum != 1.0F || yScaleAccum != 1.0F || zScaleAccum != 1.0F)
-				offset = offset.multiply(xScaleAccum, yScaleAccum, zScaleAccum);
-			fullOffset = fullOffset.add(offset);
+		for (ModelPartWithName modelPartEntry : inheritanceChain) {
+			String modelPartName = modelPartEntry.partName();
+			PartPose initialPose = modelPartEntry.part().getInitialPose();
+			ModelPartFrame animPose = savedPose.getForModelPart(modelPartName);
 			
-			xRotAccum += modelPart.xRot;
-			yRotAccum += modelPart.yRot;
-			zRotAccum += modelPart.zRot;
-			xScaleAccum *= modelPart.xScale;
-			yScaleAccum *= modelPart.yScale;
-			zScaleAccum *= modelPart.zScale;
+			x = (initialPose.x + animPose.positionOffset.x) / 16;
+			y = (initialPose.y + animPose.positionOffset.y) / 16;
+			z = (initialPose.z + animPose.positionOffset.z) / 16;
+			xRot = initialPose.xRot + animPose.rotationOffset.x;
+			yRot = initialPose.yRot + animPose.rotationOffset.y;
+			zRot = initialPose.zRot + animPose.rotationOffset.z;
+			xScale = _PartPose.xScale(initialPose) + animPose.scaleOffset.x;
+			yScale = _PartPose.yScale(initialPose) + animPose.scaleOffset.y;
+			zScale = _PartPose.zScale(initialPose) + animPose.scaleOffset.z;
+
+			pose.translate(x, y, z);
+			if (xRot != 0.0F || yRot != 0.0F || zRot != 0.0F) {
+				pose.rotate(new Quaternionf().rotationZYX(zRot, yRot, xRot));
+			}
+			if (xScale != 1.0F || yScale != 1.0F || zScale != 1.0F) {
+				pose.scale(xScale, yScale, zScale);
+			}
 		}
 
-		if (xRotAccum != 0) finalOffset = finalOffset.xRot(-xRotAccum);
-		if (zRotAccum != 0) finalOffset = finalOffset.zRot(-zRotAccum);
-		if (yRotAccum != 0) finalOffset = finalOffset.yRot(yRotAccum);
-		if (xScaleAccum != 1.0F || yScaleAccum != 1.0F || zScaleAccum != 1.0F)
-			finalOffset = finalOffset.multiply(xScaleAccum, yScaleAccum, zScaleAccum);
-		fullOffset = fullOffset.add(finalOffset);
-		
-		
-		fullOffset = fullOffset.multiply(1, -1, -1);
-		return fullOffset;
+		pose.transformPosition(
+				(float) finalModelPartOffset.x, 
+				(float) -finalModelPartOffset.y, 
+				(float) -finalModelPartOffset.z, 
+				offset);
+
+		offset = offset.mul(1, -1, -1).add(0, 1.501f, 0);
+		return new Vec3(offset.x, offset.y, offset.z);
 	}
 	
 	
+	public static EntityRenderer<?> getEntityRenderer(Entity entity) {
+		return Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entity);
+	}
+	
 	@SuppressWarnings("unchecked")
 	public static EntityModel<?> getEntityModel(Entity entity) {
-		EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entity);
+		EntityRenderer<?> renderer = getEntityRenderer(entity);
 		if (renderer instanceof LivingEntityRenderer livingRenderer) {
 			if (renderer instanceof StandEntityRenderer standRenderer) {
 				return standRenderer.getEntityModel((StandEntity) entity);

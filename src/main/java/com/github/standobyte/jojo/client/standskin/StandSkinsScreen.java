@@ -13,8 +13,8 @@ import org.lwjgl.glfw.GLFW;
 
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.ClientUtil;
-import com.github.standobyte.jojo.client.entityanim.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.AnimationSet;
+import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.input.InputHandler;
