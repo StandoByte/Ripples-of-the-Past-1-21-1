@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
+import com.github.standobyte.jojo.client.entityanim.pose.EntityKeepAnimPose;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
 import com.github.standobyte.jojo.client.shader.EntityShaders;
@@ -151,6 +152,9 @@ public class StandEntityRenderer<
 			EntityActionRenderState action = renderState.action;
 			if (action.animId != null) {
 				RotpAnimDefinition anim = renderState.skin.getStandAnimation(anims -> anims.getNamedAnim(action.animId));
+				if (anim == null) {
+					anim = renderState.skin.getStandAnimation(anims -> anims.getNamedAnim(StandEntityRenderer.IDLE_ANIM));
+				}
 				return anim;
 			}
 		}
@@ -294,7 +298,23 @@ public class StandEntityRenderer<
 		}
 		
 		if (this.model != null) {
+			model.pose = null;
 			this.doRender(entity, entityYaw, partialTicks, poseStack, bufferSource, light);
+			if (model.pose != null) ((EntityKeepAnimPose) entity).jojo_ripples$keepModelPose(model.pose);
+		}
+		postRender();
+	}
+	
+	public void pose(T entity, float partialTicks) {
+		S renderState = this.createRenderState(entity, partialTicks);
+		preRender(renderState);
+
+		this.model = modelFrom(renderState);
+		
+		if (this.model != null) {
+			model.pose = null;
+			model.setupAnim(renderState);
+			if (model.pose != null) ((EntityKeepAnimPose) entity).jojo_ripples$keepModelPose(model.pose);
 		}
 		postRender();
 	}

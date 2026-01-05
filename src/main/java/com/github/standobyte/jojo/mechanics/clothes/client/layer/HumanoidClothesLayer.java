@@ -68,16 +68,19 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 			ItemStack clothesItem = clothesRS.items.get(piece); if (clothesItem.isEmpty()) continue;
 			var clothesComponent = clothesItem.get(ModItemDataComponents.CLOTHES_PIECE.get()); if (clothesComponent == null) continue;
 			var clothesPiece = clothesComponent.getPiece(); if (clothesPiece == null) continue;
-			var assetId = clothesPiece.assetId; if (assetId == null) continue;
-			var assetPath = assetId.location();
-			ClothesModelEntry modelEntry = clothesModels.getClothesModelEntry(assetPath); if (modelEntry == null) continue;
+			var modelId = clothesPiece.modelId; if (modelId == null) continue;
+			var textureId = clothesPiece.textureId; if (textureId == null) continue;
+
+			ResourceLocation modelPath = modelId.location();
+			// FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! cache this
+			ResourceLocation texturePath = textureId.location().withPath(p -> "textures/clothes/" + p + ".png");
+			ClothesModelEntry modelEntry = clothesModels.getClothesModelEntry(modelPath); if (modelEntry == null) continue;
 			
 			HumanoidClothesModel clothesModel = modelEntry.getModel();
-			ResourceLocation clothesTexture = modelEntry.texPath;
 			parentModel.copyPropertiesTo((M) clothesModel);
 			clothesModel.setClothesPartsVisibility(clothesRS.slimModel, piece);
 			clothesModel.poseClothes(parentModel);
-			VertexConsumer ivertexbuilder = bufferSource.getBuffer(RenderType.entityCutoutNoCull(clothesTexture));
+			VertexConsumer ivertexbuilder = bufferSource.getBuffer(RenderType.entityCutoutNoCull(texturePath));
 			clothesModel.renderToBuffer(poseStack, ivertexbuilder, packedLight, overlay);
 		}
 	}
@@ -130,16 +133,19 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 			ItemStack clothesItem = clothes.items.get(piece); if (clothesItem.isEmpty()) continue;
 			var clothesComponent = clothesItem.get(ModItemDataComponents.CLOTHES_PIECE.get()); if (clothesComponent == null) continue;
 			var clothesPiece = clothesComponent.getPiece(); if (clothesPiece == null) continue;
-			var assetId = clothesPiece.assetId; if (assetId == null) continue;
-			var assetPath = assetId.location();
-			ClothesModelEntry modelEntry = clothesModels.getClothesModelEntry(assetPath); if (modelEntry == null) continue;
+			var modelId = clothesPiece.modelId; if (modelId == null) continue;
+			var textureId = clothesPiece.textureId; if (textureId == null) continue;
+			
+			ResourceLocation modelPath = modelId.location();
+			// FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! cache this
+			ResourceLocation texturePath = textureId.location().withPath(p -> "textures/clothes/" + p + ".png");
+			ClothesModelEntry modelEntry = clothesModels.getClothesModelEntry(modelPath); if (modelEntry == null) continue;
 			
 			HumanoidClothesModel clothesModel = modelEntry.getModel();
-			ResourceLocation clothesTexture = modelEntry.texPath;
 			parentModel.copyPropertiesTo((M) clothesModel);
 			clothesModel.setClothesPartsVisibility(clothes.slimModel, piece);
 			clothesModel.poseClothes(parentModel);
-			VertexConsumer vertexBuilder = buffer.getBuffer(RenderType.entityCutoutNoCull(clothesTexture));
+			VertexConsumer vertexBuilder = buffer.getBuffer(RenderType.entityCutoutNoCull(texturePath));
 			
 			clothesModel.head.visible = false;
 			clothesModel.body.visible = false;

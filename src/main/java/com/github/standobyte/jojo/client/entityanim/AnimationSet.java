@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.util.StringUtil;

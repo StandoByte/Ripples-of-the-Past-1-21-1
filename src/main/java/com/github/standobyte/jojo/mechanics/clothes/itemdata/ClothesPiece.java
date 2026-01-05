@@ -27,7 +27,8 @@ import net.minecraft.util.StringRepresentable;
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
 public class ClothesPiece {
-	public final ResourceKey<EquipmentAsset> assetId;
+	public final ResourceKey<EquipmentAsset> modelId;
+	public final ResourceKey<EquipmentAsset> textureId;
 	public final ResourceLocation itemModel;
 	public final Component itemName;
 	public final Holder<SoundEvent> equipSound;
@@ -36,10 +37,11 @@ public class ClothesPiece {
 	private Optional<Map<SubClothingPiece, ClothesPiece>> allSplitPieces;
 	private SubClothingPiece subPieceType;
 	
-	public ClothesPiece(ResourceKey<EquipmentAsset> assetId, 
+	public ClothesPiece(ResourceKey<EquipmentAsset> assetId, Optional<ResourceKey<EquipmentAsset>> textureId, 
 			ResourceLocation itemModel, Component itemName,
 			Holder<SoundEvent> equipSound, Optional<Map<SubClothingPiece, ClothesPiece>> splitInto) {
-		this.assetId = assetId;
+		this.modelId = assetId;
+		this.textureId = textureId.orElse(assetId);
 		this.itemModel = itemModel;
 		this.itemName = itemName;
 		this.equipSound = equipSound;
@@ -103,7 +105,8 @@ public class ClothesPiece {
 	@ApiStatus.Internal
 	public static final Codec<ClothesPiece> CODEC_NO_SPLIT_PARTS = RecordCodecBuilder.create(
 			builder -> builder.group(
-					ResourceKey.codec(EquipmentAssets.ROOT_ID).fieldOf("asset_id").forGetter(piece -> piece.assetId),
+					ResourceKey.codec(EquipmentAssets.ROOT_ID).fieldOf("asset_id").forGetter(piece -> piece.modelId),
+					ResourceKey.codec(EquipmentAssets.ROOT_ID).optionalFieldOf("texture_id").forGetter(piece -> piece.textureId.equals(piece.modelId) ? Optional.empty() : Optional.of(piece.textureId)),
 					ResourceLocation.CODEC.fieldOf("item_model").forGetter(piece -> piece.itemModel),
 					ComponentSerialization.CODEC.fieldOf("item_name").forGetter(piece -> piece.itemName),
 					SoundEvent.CODEC.optionalFieldOf("equip_sound", SoundEvents.ARMOR_EQUIP_GENERIC).forGetter(piece -> piece.equipSound),
@@ -112,7 +115,8 @@ public class ClothesPiece {
 	
 	public static final Codec<ClothesPiece> CODEC = RecordCodecBuilder.create(
 			builder -> builder.group(
-					ResourceKey.codec(EquipmentAssets.ROOT_ID).fieldOf("asset_id").forGetter(piece -> piece.assetId),
+					ResourceKey.codec(EquipmentAssets.ROOT_ID).fieldOf("asset_id").forGetter(piece -> piece.modelId),
+					ResourceKey.codec(EquipmentAssets.ROOT_ID).optionalFieldOf("texture_id").forGetter(piece -> piece.textureId.equals(piece.modelId) ? Optional.empty() : Optional.of(piece.textureId)),
 					ResourceLocation.CODEC.fieldOf("item_model").forGetter(piece -> piece.itemModel),
 					ComponentSerialization.CODEC.fieldOf("item_name").forGetter(piece -> piece.itemName),
 					SoundEvent.CODEC.optionalFieldOf("equip_sound", SoundEvents.ARMOR_EQUIP_GENERIC).forGetter(piece -> piece.equipSound),

@@ -75,6 +75,7 @@
 	
     "client.model.ModelAnimOptimization",
     "client.model.ModelExtraFeatures",
+    "client.model.EntityKeepAnimPoseMixin",
     "client.model.playeranim.ModelPartMixin",
     
 	"client.controls.KeyboardHandlerMixin",

@@ -5,9 +5,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.TickRateManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.PlayerModelPart;
@@ -36,8 +38,15 @@ public class ClientUtil {
 				default -> 0;
 			};
 		}
-		boolean runsNormally = false; // ????????????????
+		ClientLevel level = Minecraft.getInstance().level;
+		TickRateManager tickRateManager = level != null ? level.tickRateManager() : null;
+		boolean runsNormally = tickRateManager == null || tickRateManager.runsNormally();
 		return deltaTracker.getGameTimeDeltaPartialTick(runsNormally);
+	}
+	
+	public static float partialTick(DeltaTracker deltaTracker, Entity entity) {
+		TickRateManager tickRateManager = Minecraft.getInstance().level.tickRateManager();
+		return deltaTracker.getGameTimeDeltaPartialTick(!tickRateManager.isEntityFrozen(entity));
 	}
 
 	public static int getScreenMouseX() {

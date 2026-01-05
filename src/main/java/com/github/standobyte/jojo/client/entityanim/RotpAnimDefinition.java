@@ -12,7 +12,6 @@ import javax.annotation.Nullable;
 
 import org.joml.Vector3f;
 
-import com.github.standobyte.jojo.client.entityanim.AnimFramePose.ModelPartFrame;
 import com.github.standobyte.jojo.client.entityanim.action.AnimActionPhase;
 import com.github.standobyte.jojo.client.entityanim.action.AnimInstructionTimelines;
 import com.github.standobyte.jojo.client.entityanim.action.AnimObjTimeline;
@@ -21,6 +20,8 @@ import com.github.standobyte.jojo.client.entityanim.molang.animelement.Animation
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.IAnimationChannel;
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.KeyframeQuery;
 import com.github.standobyte.jojo.client.entityanim.playerbend.PlayerModelBends;
+import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
+import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.client.entityrender.HiddenModelPartsUtil;
 import com.github.standobyte.jojo.client.entityrender.ModelWithExtraFeatures;
@@ -139,9 +140,10 @@ public class RotpAnimDefinition {
 	}
 	
 
-	public void animate(Model model, LivingEntityRenderState renderState, float seconds, float animSpeed) {
+	public AnimFramePose animate(Model model, LivingEntityRenderState renderState, float seconds, float animSpeed) {
 		AnimFramePose frame = calcAnimPose(renderState, seconds, animSpeed);
 		animate(model, frame);
+		return frame;
 	}
 
 	@Deprecated
