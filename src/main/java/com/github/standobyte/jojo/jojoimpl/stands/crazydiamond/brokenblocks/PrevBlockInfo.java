@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDRestoreTerrainAbility;
 
@@ -57,7 +56,6 @@ public class PrevBlockInfo {
 			}
 		}
 		this.hasAnchorDrop = this.drops.stream().anyMatch(item -> item.has(ModItemDataComponents.ORIGINAL_POS));
-		JojoMod.LOGGER.debug("{} {}", pos, hasAnchorDrop);
 		this.alwaysKeepNBT |= this.hasAnchorDrop;
 	}
 
