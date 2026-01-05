@@ -12,7 +12,6 @@ public class ClothesModelEntry {
 	public final HumanoidClothesModel model;
 //	public final HumanoidClothesModel adultModel;
 //	public final HumanoidClothesModel babyModel;
-	public final ResourceLocation texPath;
 	
 	public ClothesModelEntry(ResourceLocation path, LayerDefinition modelDefinition) {
 		this.path = path;
@@ -20,7 +19,6 @@ public class ClothesModelEntry {
 //		this.adultModel = new HumanoidClothesModel(modelDefinition.bakeRoot());
 //		this.babyModel = new HumanoidClothesModel(modelDefinition.apply(HumanoidModel.BABY_TRANSFORMER).bakeRoot());
 		this.model = new HumanoidClothesModel(modelDefinition.bakeRoot());
-		this.texPath = path.withPath(p -> "textures/clothes/" + p + ".png");
 	}
 	
 	@Nonnull
