@@ -1,0 +1,45 @@
+{
+	"character": "jojo_ripples:jotaro",
+	"story_part": "jojo_ripples:p3",
+	"pieces": {
+		"head": {
+			"asset_id": "jojo_rotp_clothes:jotaro_p3_anime",
+			"texture_id": "jojo_rotp_clothes:jotaro_p3_manga",
+			"item_model": "jojo_rotp_clothes:jotaro_p3_manga_head",
+			"item_name": {
+				"translate": "item.jojo_rotp_clothes.jotaro_p3_anime_head"
+			},
+			"equip_sound": "item.armor.equip_generic"
+		},
+
+		"chest": {
+			"asset_id": "jojo_rotp_clothes:jotaro_p3_anime",
+			"texture_id": "jojo_rotp_clothes:jotaro_p3_manga",
+			"item_model": "jojo_rotp_clothes:jotaro_p3_manga_chest",
+			"item_name": {
+				"translate": "item.jojo_rotp_clothes.jotaro_p3_anime_chest"
+			},
+			"equip_sound": "item.armor.equip_generic"
+		},
+
+		"legs": {
+			"asset_id": "jojo_rotp_clothes:jotaro_p3_anime",
+			"texture_id": "jojo_rotp_clothes:jotaro_p3_manga",
+			"item_model": "jojo_rotp_clothes:jotaro_p3_manga_legs",
+			"item_name": {
+				"translate": "item.jojo_rotp_clothes.jotaro_p3_anime_legs"
+			},
+			"equip_sound": "item.armor.equip_generic"
+		},
+
+		"feet": {
+			"asset_id": "jojo_rotp_clothes:jotaro_p3_anime",
+			"texture_id": "jojo_rotp_clothes:jotaro_p3_manga",
+			"item_model": "jojo_rotp_clothes:jotaro_p3_manga_feet",
+			"item_name": {
+				"translate": "item.jojo_rotp_clothes.jotaro_p3_anime_feet"
+			},
+			"equip_sound": "item.armor.equip_generic"
+		}
+	}
+}

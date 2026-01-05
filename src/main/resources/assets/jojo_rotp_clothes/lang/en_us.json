@@ -2,9 +2,10 @@
   "character.jojo_ripples.jotaro": "Jotaro Kujo",
   "character.jojo_ripples.jotaro.short": "Jotaro",
   
-  "clothes.jojo_ripples.jotaro_p3_anime": "Stardust Crusaders",
+  "clothes.jojo_ripples.jotaro_p3_anime": "Stardust Crusaders (anime)",
   "item.jojo_rotp_clothes.jotaro_p3_anime_head": "Jotaro's Cap",
   "item.jojo_rotp_clothes.jotaro_p3_anime_chest": "Jotaro's Coat",
   "item.jojo_rotp_clothes.jotaro_p3_anime_legs": "Jotaro's Pants",
-  "item.jojo_rotp_clothes.jotaro_p3_anime_feet": "Jotaro's Shoes"
+  "item.jojo_rotp_clothes.jotaro_p3_anime_feet": "Jotaro's Shoes",
+  "clothes.jojo_ripples.jotaro_p3_manga": "Stardust Crusaders (manga)"
 }
