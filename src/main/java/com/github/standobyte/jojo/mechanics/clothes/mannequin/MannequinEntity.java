@@ -82,7 +82,8 @@ public class MannequinEntity extends ArmorStand {
 					if (!wornClothes.isEmpty()) {
 						clothes.setItemSlot(clickedSlot, ItemStack.EMPTY);
 						player.setItemInHand(hand, wornClothes);
-						return InteractionResult.sidedSuccess(level().isClientSide); 
+						player.swing(hand, true);
+						return InteractionResult.SUCCESS;
 					}
 				}
 			}
@@ -101,15 +102,20 @@ public class MannequinEntity extends ArmorStand {
 						ItemStack fullItem = ClothesItem.combineIntoFullPiece(heldItem, wornClothes);
 						if (fullItem != null) {
 							clothes.setItemSlot(clothesSlot, fullItem);
-							player.setItemInHand(hand, ItemStack.EMPTY);
-							return InteractionResult.sidedSuccess(level().isClientSide); 
+							if (!player.isCreative()) {
+								player.setItemInHand(hand, ItemStack.EMPTY);
+							}
+							player.swing(hand, true);
+							return InteractionResult.SUCCESS;
 						}
 					}
 					
 					// Swap the worn item and the item in hand
 					clothes.setItemSlot(clothesSlot, heldItem);
-					player.setItemInHand(hand, wornClothes);
-					return InteractionResult.sidedSuccess(level().isClientSide); 
+					if (!(player.isCreative() && wornClothes.isEmpty())) {
+						player.setItemInHand(hand, wornClothes);
+					}
+					return InteractionResult.SUCCESS;
 				}
 			}
 		}
