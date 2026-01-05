@@ -33,6 +33,8 @@ public class ClothesPiece {
 	public final Component itemName;
 	public final Holder<SoundEvent> equipSound;
 
+	public final ResourceLocation textureActualPath;
+	
 	private final Optional<Map<SubClothingPiece, ClothesPiece>> splitInto;
 	private Optional<Map<SubClothingPiece, ClothesPiece>> allSplitPieces;
 	private SubClothingPiece subPieceType;
@@ -45,6 +47,8 @@ public class ClothesPiece {
 		this.itemModel = itemModel;
 		this.itemName = itemName;
 		this.equipSound = equipSound;
+		
+		this.textureActualPath = this.textureId.location().withPath(p -> "textures/clothes/" + p + ".png");;
 		
 		this.subPieceType = SubClothingPiece.FULL;
 		this.splitInto = splitInto;

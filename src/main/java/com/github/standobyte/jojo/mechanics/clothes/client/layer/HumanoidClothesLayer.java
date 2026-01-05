@@ -61,12 +61,9 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 			ItemStack clothesItem = clothesRS.items.get(piece); if (clothesItem.isEmpty()) continue;
 			var clothesComponent = clothesItem.get(ModItemDataComponents.CLOTHES_PIECE.get()); if (clothesComponent == null) continue;
 			var clothesPiece = clothesComponent.getPiece(); if (clothesPiece == null) continue;
-			var modelId = clothesPiece.modelId; if (modelId == null) continue;
-			var textureId = clothesPiece.textureId; if (textureId == null) continue;
 
-			ResourceLocation modelPath = modelId.location();
-			// FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! cache this
-			ResourceLocation texturePath = textureId.location().withPath(p -> "textures/clothes/" + p + ".png");
+			ResourceLocation texturePath = clothesPiece.textureActualPath;
+			ResourceLocation modelPath = clothesPiece.modelId.location();
 			ClothesModelEntry modelEntry = clothesModels.getClothesModelEntry(modelPath); if (modelEntry == null) continue;
 			
 			HumanoidClothesModel clothesModel = modelEntry.getModel();
@@ -128,12 +125,9 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 			ItemStack clothesItem = clothes.items.get(piece); if (clothesItem.isEmpty()) continue;
 			var clothesComponent = clothesItem.get(ModItemDataComponents.CLOTHES_PIECE.get()); if (clothesComponent == null) continue;
 			var clothesPiece = clothesComponent.getPiece(); if (clothesPiece == null) continue;
-			var modelId = clothesPiece.modelId; if (modelId == null) continue;
-			var textureId = clothesPiece.textureId; if (textureId == null) continue;
 			
-			ResourceLocation modelPath = modelId.location();
-			// FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! cache this
-			ResourceLocation texturePath = textureId.location().withPath(p -> "textures/clothes/" + p + ".png");
+			ResourceLocation texturePath = clothesPiece.textureActualPath;
+			ResourceLocation modelPath = clothesPiece.modelId.location();
 			ClothesModelEntry modelEntry = clothesModels.getClothesModelEntry(modelPath); if (modelEntry == null) continue;
 			
 			HumanoidClothesModel clothesModel = modelEntry.getModel();
