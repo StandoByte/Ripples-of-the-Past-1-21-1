@@ -51,7 +51,7 @@ import net.minecraft.world.inventory.Slot;
 
 @SuppressWarnings("deprecation")
 public class SewingMachineScreen extends AbstractContainerScreen<SewingMachineContainer> {
-	protected static SewingMachineScreenSettings settingsInstance = null;
+	public static SewingMachineScreenSettings settingsInstance = null;
 	public static final ResourceLocation TEXTURE = JojoMod.resLoc("textures/gui/container/sewing_machine.png");
 	protected static final int WINDOW_WIDTH = 331;
 	protected static final int WINDOW_HEIGHT = 258;

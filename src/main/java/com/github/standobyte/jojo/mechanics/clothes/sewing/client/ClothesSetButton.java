@@ -38,8 +38,7 @@ public class ClothesSetButton extends Button {
 		PoseStack poseStack = guiGraphics.pose();
 		int x = getX();
 		int y = getY();
-//		int i = this.getYImage(this.isHovered());
-		int i = 0;
+		int i = !this.active ? 0 : this.isHovered() ? 2 : 1;
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
 		RenderSystem.enableDepthTest();
@@ -48,12 +47,27 @@ public class ClothesSetButton extends Button {
 				352, 106 + i * height, width, height, 512, 512, 
 				ARGB.white(this.alpha));
 		int j = getFGColor();
+		
+		if (SewingMachineScreen.settingsInstance != null) {
+			var holder = SewingMachineScreen.settingsInstance.getSelectedSet();
+			if (holder != null && holder.value() == this.clothesSet) {
+				BlitFloat.blit(poseStack, minecraft, SewingMachineScreen.TEXTURE, 
+						x - 9, y, 4, height, 0, 
+						349, 106 + 3 * height, 4, height, 512, 512, 
+						ARGB.white(this.alpha));
+			}
+		}
 
 		Component message = getMessage();
-		int textX = x + this.width / 2;
-		int textY = y + (this.height - 8) / 2;
 
-		guiGraphics.drawCenteredString(fontrenderer, message, textX, textY, j | Mth.ceil(this.alpha * 255.0F) << 24);
+		renderScrollingString(guiGraphics, fontrenderer, message, 
+				x + 2, y, 
+				x + this.width - 2, y + this.height, 
+				j | Mth.ceil(this.alpha * 255.0F) << 24);
+		
+//		int textX = x + this.width / 2;
+//		int textY = y + (this.height - 8) / 2;
+//		guiGraphics.drawCenteredString(fontrenderer, message, textX, textY, j | Mth.ceil(this.alpha * 255.0F) << 24);
 	}
 
 }
