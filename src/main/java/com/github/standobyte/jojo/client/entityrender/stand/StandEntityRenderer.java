@@ -152,6 +152,9 @@ public class StandEntityRenderer<
 			EntityActionRenderState action = renderState.action;
 			if (action.animId != null) {
 				RotpAnimDefinition anim = renderState.skin.getStandAnimation(anims -> anims.getNamedAnim(action.animId));
+				if (anim == null) {
+					anim = renderState.skin.getStandAnimation(anims -> anims.getNamedAnim(StandEntityRenderer.IDLE_ANIM));
+				}
 				return anim;
 			}
 		}
