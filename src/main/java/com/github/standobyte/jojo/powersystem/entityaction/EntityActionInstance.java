@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
+import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.mc.entity.projectile.DamagingEntity;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionPhaseTimePacket;
 import com.github.standobyte.jojo.powersystem.entityaction.syncdata.SyncedDataHolderExtended;
@@ -19,6 +20,7 @@ import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInsta
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 import com.github.standobyte.jojo.util.StandUtil;
+import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mc.EntityResolver;
 import com.github.standobyte.jojo.util.network.NetworkUtil;
 import com.github.standobyte.jojo.util.target.ActionTarget;
@@ -269,6 +271,12 @@ public class EntityActionInstance implements HeldInput {
             EnchantmentHelper.doPostAttackEffects(level, target, dmgSource);
 		}
 		return hurt;
+	}
+	
+	public DamageSource makePunchDamageSource() {
+		var damageType = DamageUtil.type(performer.level(), ModDamageTypes.STAND_ATTACK);
+		DamageSource dmgSource = new DamageSource(damageType, performer);
+		return dmgSource;
 	}
 	
 	public void keepStandAimedAtTarget() {

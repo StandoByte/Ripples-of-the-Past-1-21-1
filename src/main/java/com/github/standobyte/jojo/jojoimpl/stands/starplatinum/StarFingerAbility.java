@@ -1,25 +1,26 @@
 package com.github.standobyte.jojo.jojoimpl.stands.starplatinum;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
-import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
-import com.github.standobyte.jojo.powersystem.entityaction.ActionOBB;
-import com.github.standobyte.jojo.powersystem.standpower.StandPower;
-import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
-import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
-import com.github.standobyte.jojo.util.damage.DamageUtil;
-import com.github.standobyte.jojo.util.hitboxes.OBBCollisionUtil;
-import com.github.standobyte.jojo.util.hitboxes.ExtendableOBB;
-import com.github.standobyte.jojo.util.hitboxes.OrientedBoundingBox;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionOBB;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
 import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.jojo.util.hitboxes.ExtendableOBB;
+import com.github.standobyte.jojo.util.hitboxes.OBBCollisionUtil;
+import com.github.standobyte.jojo.util.hitboxes.OrientedBoundingBox;
+
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ClipContext;
@@ -29,7 +30,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import org.jetbrains.annotations.Nullable;
 
 public class StarFingerAbility extends StandEntityAbility {
 
@@ -73,8 +73,7 @@ public class StarFingerAbility extends StandEntityAbility {
                     Vec3 endPos = this.extendableOBB().rotatableHitbox().center.add(getPerformer().getLookAngle().scale(extendableOBB().rotatableHitbox().extent.length()));
                     OBBCollisionUtil.getEntitiesInOBB(level(), this.extendableOBB().rotatableHitbox(), entity -> entity != getPerformer() && entity != getPowerUser()).forEach(entity -> {
                         if (performer instanceof StandEntity stand) {
-                            var damageType = DamageUtil.type(level(), ModDamageTypes.STAND_ATTACK);
-                            DamageSource dmgSource = new DamageSource(damageType, performer);
+                            DamageSource dmgSource = makePunchDamageSource();
                             float dmgAmount = StandStatFormulas.getLightAttackDamage(stand.getAttackDamage());
                             if (standEntityAttack(stand, entity, dmgSource, dmgAmount)) {
                                 this.extendableOBB().forceRetract(level(), getPerformer(), this.id);

@@ -5,7 +5,6 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityStoppableSoundInstance;
-import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
@@ -28,7 +27,6 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromU
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
 import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.StandUtil.StandStat;
-import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.AimingEntity;
@@ -198,8 +196,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 		protected void dealDamage(ActionTarget target, Level level, StandEntity stand) {
 			Entity targetEntity = target.getMainEntity();
 			if (targetEntity != null) {
-				var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
-				DamageSource dmgSource = new DamageSource(damageType, performer);
+				DamageSource dmgSource = makePunchDamageSource();
 				((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(0, 0.1f);
 				float dmgAmount = StandStatFormulas.getBarrageHitDamage(stand.getAttackDamage()) * hitsThisTick;
 				standEntityAttack(stand, targetEntity, dmgSource, dmgAmount);

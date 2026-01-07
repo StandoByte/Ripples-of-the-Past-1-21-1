@@ -3,7 +3,6 @@ package com.github.standobyte.jojo.jojoimpl.stands._entitybase;
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityLingeringSoundInstance;
-import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
@@ -17,7 +16,6 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 import com.github.standobyte.jojo.util.StandUtil;
-import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
@@ -120,8 +118,7 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 					if (target.getType() == TargetType.ENTITY) {
 						Entity targetEntity = target.getMainEntity();
 						if (targetEntity instanceof LivingEntity targetLiving) {
-							var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
-							DamageSource dmgSource = new DamageSource(damageType, performer);
+                            DamageSource dmgSource = makePunchDamageSource();
 							((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(2.5f, 1);
 							float dmgAmount = 27.75f;
 							standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);

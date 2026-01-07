@@ -6,7 +6,6 @@ import java.util.List;
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityLingeringSoundInstance;
-import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.Moveset;
@@ -27,7 +26,6 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbili
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
 import com.github.standobyte.jojo.util.StandUtil;
-import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.target.AimingEntity;
@@ -144,8 +142,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 					if (target.getType() == TargetType.ENTITY) {
 						Entity targetEntity = target.getMainEntity();
 						if (targetEntity instanceof LivingEntity targetLiving) {
-							var damageType = DamageUtil.type(level, ModDamageTypes.STAND_ATTACK);
-							DamageSource dmgSource = new DamageSource(damageType, performer);
+                            DamageSource dmgSource = makePunchDamageSource();
 							float dmgAmount = StandStatFormulas.getLightAttackDamage(stand.getAttackDamage());
 							if (standEntityAttack(stand, targetLiving, dmgSource, dmgAmount)) {
 								stand.addFinisherMeter(0.2f);
