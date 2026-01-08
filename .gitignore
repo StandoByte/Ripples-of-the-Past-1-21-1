@@ -17,6 +17,9 @@ out
 build
 .gradle
 
+# datagen
+src/generated/resources/.cache
+
 # other
 eclipse
 run
@@ -24,3 +27,4 @@ runs
 run-data
 
 repo
+/1.21.1/
