@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.entityrender.entities.SimpleEntityRenderer;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBlockBulletEntity;
-import com.github.standobyte.jojo.util.UselessCrap;
+import com.github.standobyte.jojo.util.OOPMoment;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -46,7 +46,7 @@ public class CrazyDBlockBulletRenderer extends SimpleEntityRenderer<CrazyDBlockB
 	@Nullable
 	public static ResourceLocation getBlockTexture(BlockState blockState) {
 		BakedModel blockModel = Minecraft.getInstance().getBlockRenderer().getBlockModel(blockState);
-		List<BakedQuad> quads = blockModel.getQuads(blockState, Direction.NORTH, UselessCrap.RANDOM, ModelData.EMPTY, null);
+		List<BakedQuad> quads = blockModel.getQuads(blockState, Direction.NORTH, OOPMoment.RANDOM, ModelData.EMPTY, null);
 		if (!quads.isEmpty()) {
 			TextureAtlasSprite sprite = quads.get(0).getSprite();
 			return getSpriteTexture(sprite);

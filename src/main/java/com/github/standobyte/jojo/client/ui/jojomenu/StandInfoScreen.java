@@ -19,7 +19,7 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
-import com.github.standobyte.jojo.util.UselessCrap;
+import com.github.standobyte.jojo.util.OOPMoment;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.ChatFormatting;
@@ -50,7 +50,7 @@ public class StandInfoScreen extends Screen implements IJojoMenuScreen {
 		this.category = category;
 		this.tab = tab;
 		this.texture = JojoMod.resLoc("textures/gui/paper_style/stand_stats.png");
-		this.rand = Math.abs(UselessCrap.RANDOM.nextInt());
+		this.rand = Math.abs(OOPMoment.RANDOM.nextInt());
 	}
 	
 	@Override

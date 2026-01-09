@@ -48,7 +48,7 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.util.MathUtil;
-import com.github.standobyte.jojo.util.UselessCrap;
+import com.github.standobyte.jojo.util.OOPMoment;
 import com.github.standobyte.jojo.util.entitycomponent.ComponentUtil;
 import com.github.standobyte.jojo.util.mc.XpFormulas;
 
@@ -455,7 +455,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 			return false;
 		}
 		if (randomizePos) {
-			RandomSource RANDOM = UselessCrap.RANDOM;
+			RandomSource RANDOM = OOPMoment.RANDOM;
 			BlockPos randomPos = blockPos = blockPos.offset(
 					RANDOM.nextBoolean() ? RANDOM.nextInt(3) - 1 : 0, 
 					RANDOM.nextInt(2) + 1,
