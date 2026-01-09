@@ -24,6 +24,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.neoforged.neoforge.common.damagesource.DamageContainer;
 import net.neoforged.neoforge.event.entity.living.LivingShieldBlockEvent;
@@ -33,6 +34,12 @@ public class DamageUtil {
 	public static Holder<DamageType> type(Level level, ResourceKey<DamageType> resourceKey) {
 //		return level.damageSources().damageTypes.getOrThrow(resourceKey);
 		return level.damageSources().damageTypes.getHolderOrThrow(resourceKey); // i ain't typin' allat
+	}
+	
+	public static DamageSource make(Level level, ResourceKey<DamageType> damageType, 
+			@Nullable Entity directEntity, @Nullable Entity causingEntity, @Nullable Vec3 sourcePosition) {
+		Holder<DamageType> type = type(level, damageType);
+		return new DamageSource(type, directEntity, causingEntity, sourcePosition);
 	}
 
 	public static boolean dealDamageAndSetOnFire(Entity entity, Predicate<Entity> hurtEntity, int fireTicks, boolean canSetStandOnFire) {

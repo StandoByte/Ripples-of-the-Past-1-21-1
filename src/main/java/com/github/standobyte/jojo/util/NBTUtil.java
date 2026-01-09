@@ -5,6 +5,9 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableMap;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Decoder;
+import com.mojang.serialization.Encoder;
 
 import net.minecraft.nbt.ByteArrayTag;
 import net.minecraft.nbt.ByteTag;
@@ -17,6 +20,7 @@ import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.LongArrayTag;
 import net.minecraft.nbt.LongTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.ShortTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
@@ -43,6 +47,19 @@ public class NBTUtil {
 		return getElementOptional(nbt, key, StringTag.class)
 				.map(Tag::getAsString)
 				.map(ResourceLocation::parse);
+	}
+	
+	public static <T> void put(CompoundTag nbt, String key, @Nullable T value, Encoder<T> codec) {
+		if (value != null) {
+			codec.encodeStart(NbtOps.INSTANCE, value).result().ifPresent(valueNbt -> nbt.put(key, valueNbt));
+		}
+	}
+	
+	public static <T> Optional<T> getOptional(CompoundTag nbt, String key, Decoder<T> codec) {
+		Tag valueNbt = nbt.get(key);
+		if (valueNbt == null) return Optional.empty();
+		
+		return codec.decode(NbtOps.INSTANCE, valueNbt).result().map(Pair::getFirst);
 	}
 	
 	public static <T extends Enum<T>> void putEnum(CompoundTag nbt, String key, T enumVal) {
