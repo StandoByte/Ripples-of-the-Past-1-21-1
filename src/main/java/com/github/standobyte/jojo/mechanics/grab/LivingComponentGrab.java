@@ -159,8 +159,8 @@ public class LivingComponentGrab implements TickingEntityData {
 	public void setGrabbedPos() {
 		if (grabbingEntity != null) {
 			HumanoidArm grabbingArm = HumanoidArm.LEFT;
-			double headHeight = thisEntity.getBbHeight() * 0.75;
-			Vec3 grabOffset = new Vec3(0, grabbingEntity.getEyeHeight() - thisEntity.getEyeHeight() - headHeight, 0);
+			double neckY = -thisEntity.getBbHeight() * 0.8 - 0.125;
+			Vec3 grabOffset = new Vec3(0, neckY, 0);
 			
 			boolean useModelArmPos = grabbingEntity.level().isClientSide();
 			float yRot = grabbingEntity.yBodyRot;
@@ -180,7 +180,7 @@ public class LivingComponentGrab implements TickingEntityData {
 			}
 			
 			if (!useModelArmPos) {
-				grabOffset = grabOffset.add(new Vec3(grabbingArm == HumanoidArm.LEFT ? 0.2 : -0.2, headHeight, 0.875)
+				grabOffset = grabOffset.add(new Vec3(grabbingArm == HumanoidArm.LEFT ? 0.2 : -0.2, 1.5, 0.875)
 						/* lifting the target up and down a bit from x rotation would be cool, 
 						 * but we'd have to also adjust the grab animations for this and it's a PITA, 
 						 * so unfortunately this goes into the "commented out" hell
