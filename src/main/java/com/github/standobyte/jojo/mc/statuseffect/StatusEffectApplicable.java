@@ -16,29 +16,32 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 
-@EventBusSubscriber(modid = JojoMod.MOD_ID)
 public interface StatusEffectApplicable {
 	boolean isApplicable(LivingEntity entity);
 
-	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public static void onPotionApply(MobEffectEvent.Applicable event) {
-		LivingEntity entity = event.getEntity();
-		MobEffectInstance effect = event.getEffectInstance();
-		if (JojoModLivingVariables.get(entity).isDyingBody) {
-			if (effect.is(MobEffects.HUNGER) || effect.is(MobEffects.POISON) || effect.is(MobEffects.REGENERATION)) {
-				event.setResult(MobEffectEvent.Applicable.Result.DO_NOT_APPLY);
+	@EventBusSubscriber(modid = JojoMod.MOD_ID)
+	public static class EventHandler {
+		
+		@SubscribeEvent(priority = EventPriority.LOWEST)
+		public static void onPotionApply(MobEffectEvent.Applicable event) {
+			LivingEntity entity = event.getEntity();
+			MobEffectInstance effect = event.getEffectInstance();
+			if (JojoModLivingVariables.get(entity).isDyingBody) {
+				if (effect.is(MobEffects.HUNGER) || effect.is(MobEffects.POISON) || effect.is(MobEffects.REGENERATION)) {
+					event.setResult(MobEffectEvent.Applicable.Result.DO_NOT_APPLY);
+				}
 			}
-		}
-		if (entity instanceof Player player && JojoDefinitions.isPlayerJojoVampiric(player)) {
-			if (effect.is(MobEffects.HUNGER)/* || effect.is(Effects.POISON) */) {
+			if (entity instanceof Player player && JojoDefinitions.isPlayerJojoVampiric(player)) {
+				if (effect.is(MobEffects.HUNGER)/* || effect.is(Effects.POISON) */) {
+					event.setResult(DO_NOT_APPLY);
+				}
+				else if (effect.is(MobEffects.REGENERATION)) {
+					event.setResult(APPLY);
+				}
+			}
+			if (effect.getEffect().value() instanceof StatusEffectApplicable _effect && !_effect.isApplicable(entity)) {
 				event.setResult(DO_NOT_APPLY);
 			}
-			else if (effect.is(MobEffects.REGENERATION)) {
-				event.setResult(APPLY);
-			}
-		}
-		if (effect instanceof StatusEffectApplicable _effect && !_effect.isApplicable(entity)) {
-			event.setResult(DO_NOT_APPLY);
 		}
 	}
 }

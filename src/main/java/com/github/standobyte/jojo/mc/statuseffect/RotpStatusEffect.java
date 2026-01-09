@@ -22,9 +22,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.EffectCure;
 import net.neoforged.neoforge.event.level.ExplosionEvent;
 
-@EventBusSubscriber(modid = JojoMod.MOD_ID)
 public class RotpStatusEffect extends MobEffect {
 	public boolean isUncurable;
+	public boolean disableCreeperLinger;
 
 	public RotpStatusEffect(MobEffectCategory category, int color) {
 		super(category, color);
@@ -42,6 +42,7 @@ public class RotpStatusEffect extends MobEffect {
 	public void onRemoved(LivingEntity entity, MobEffectInstance instance) {}
 	
 
+	@Deprecated
 	@SuppressWarnings("unchecked")
 	public <T extends RotpStatusEffect> T setUncurable() {
 		this.isUncurable = true;
@@ -56,17 +57,20 @@ public class RotpStatusEffect extends MobEffect {
 	}
 
 
-	@SubscribeEvent
-	public static void disableCreeperLingeringClouds(ExplosionEvent.Detonate event) {
-		Explosion explosion = event.getExplosion();
-		if (explosion.getDirectSourceEntity() instanceof Creeper creeper) {
-			Collection<Holder<MobEffect>> effects = new ArrayList<>(creeper.getActiveEffectsMap().keySet());
-			effects.forEach(effect -> {
-				if (/*effect == ModStatusEffects.BLEEDING.get() || */
-						effect instanceof RotpStatusEffect modEffect && modEffect.isUncurable) {
-					creeper.removeEffect(effect);
-				}
-			});
+	@EventBusSubscriber(modid = JojoMod.MOD_ID)
+	public static class EventHandler {
+	
+		@SubscribeEvent
+		public static void disableCreeperLingeringClouds(ExplosionEvent.Detonate event) {
+			Explosion explosion = event.getExplosion();
+			if (explosion.getDirectSourceEntity() instanceof Creeper creeper) {
+				Collection<Holder<MobEffect>> effects = new ArrayList<>(creeper.getActiveEffectsMap().keySet());
+				effects.forEach(effect -> {
+					if (effect.value() instanceof RotpStatusEffect modEffect && modEffect.disableCreeperLinger) {
+						creeper.removeEffect(effect);
+					}
+				});
+			}
 		}
 	}
 

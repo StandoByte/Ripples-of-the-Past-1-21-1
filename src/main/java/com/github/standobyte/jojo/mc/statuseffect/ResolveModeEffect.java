@@ -13,6 +13,8 @@ public class ResolveModeEffect extends RotpStatusEffect {
 
 	public ResolveModeEffect(MobEffectCategory category, int color) {
 		super(category, color);
+		isUncurable = true;
+		disableCreeperLinger = true;
 	}
 
 	@Override
