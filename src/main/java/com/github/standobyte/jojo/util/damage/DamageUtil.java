@@ -35,23 +35,27 @@ public class DamageUtil {
 		return level.damageSources().damageTypes.getHolderOrThrow(resourceKey); // i ain't typin' allat
 	}
 
-	public static boolean dealDamageAndSetOnFire(Entity entity, Predicate<Entity> hurtEntity, float fireSeconds, boolean canSetStandOnFire) {
-		int fireTicks = entity.getRemainingFireTicks();
-		setOnFire(entity, fireSeconds, canSetStandOnFire);
+	public static boolean dealDamageAndSetOnFire(Entity entity, Predicate<Entity> hurtEntity, int fireTicks, boolean canSetStandOnFire) {
+		int prevFireTicks = entity.getRemainingFireTicks();
+		if (fireTicks <= 0 || fireTicks <= prevFireTicks) {
+			return hurtEntity.test(entity);
+		}
+		
+		setOnFire(entity, fireTicks, canSetStandOnFire);
 		boolean dealtDamage = hurtEntity.test(entity);
 		if (!dealtDamage) {
-			entity.setRemainingFireTicks(fireTicks);
+			entity.setRemainingFireTicks(prevFireTicks);
 		}
 		return dealtDamage;
 	}
 
 	// TODO canSetStandOnFire parameter
-	public static void setOnFire(Entity entity, float fireSeconds, boolean canSetStandOnFire) {
+	public static void setOnFire(Entity entity, int fireTicks, boolean canSetStandOnFire) {
 //		if (canSetStandOnFire && entity instanceof StandEntity standEntity) {
 //			standEntity.setFireFromStand(fireSeconds);
 //		}
 //		else {
-			entity.igniteForSeconds(fireSeconds);
+			entity.igniteForTicks(fireTicks);
 //		}
 	}
 

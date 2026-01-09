@@ -131,7 +131,7 @@ public class CrazyDBlockBulletEntity extends ModdedProjectileEntity {
 	protected boolean hurtTarget(Entity target, LivingEntity owner) {
 		if (block == Blocks.MAGMA_BLOCK) {
 			return DamageUtil.dealDamageAndSetOnFire(target, 
-					entity -> super.hurtTarget(target, owner), 4, true);
+					entity -> super.hurtTarget(target, owner), 80, true);
 		}
 		boolean hurt = super.hurtTarget(target, owner);
 
