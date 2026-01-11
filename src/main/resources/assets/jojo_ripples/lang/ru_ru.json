@@ -37,13 +37,10 @@
   "jojo_ripples.subtitle.liquid_splash": "Брызг жидкости",
   "jojo_ripples.subtitle.clothes_sewed": "Одежда сшита",
   
-  "death.attack.rotp_suffocation": "%s задохнулся",
-  "death.attack.rotp_suffocation.player": "%s задохнулся, пока боролся с %s",
-  "death.attack.rotp_suffocation.entity": "%s был задушен %s",
-  "death.attack.rotp_suffocation.entity.item": "%s был задушен %s с помощью %s",
-  "death.attack.rotp_entityFlewInto": "%s преобразовал чью-то кинетическую энергию во внутреннюю",
-  "death.attack.rotp_entityFlewInto.entity": "%s преобразовал кинетическую энергию %s во внутреннюю",
-  "death.attack.rotp_entityFlewInto.entity.item": "%s преобразовал кинетическую энергию %s во внутреннюю",
+  "death.attack.rotp_suffocation": "%s был задушен %s",
+  "death.attack.rotp_suffocation.item": "%s был задушен %s с помощью %s",
+  "death.attack.rotp_entityFlewInto": "%s преобразовал кинетическую энергию %s во внутреннюю",
+  "death.attack.rotp_entityFlewInto.item": "%s преобразовал кинетическую энергию %s во внутреннюю",
   "death.attack.rotp_bleeding": "%s истёк кровью",
   "death.attack.rotp_bleeding.player": "%s истёк кровью, пока боролся с %s",
   

@@ -55,13 +55,11 @@
   "jojo_ripples.subtitle.liquid_splash": "Liquid splashes",
   "jojo_ripples.subtitle.clothes_sewed": "Clothes sewed",
   
-  "death.attack.rotp_suffocation": "%s suffocated",
+  "death.attack.rotp_suffocation": "%s was suffocated by %s",
   "death.attack.rotp_suffocation.player": "%s suffocated while fighting %s",
-  "death.attack.rotp_suffocation.entity": "%s was suffocated by %s",
-  "death.attack.rotp_suffocation.entity.item": "%s was suffocated by %s using %s",
-  "death.attack.rotp_entityFlewInto": "%s experienced someone's kinetic energy",
-  "death.attack.rotp_entityFlewInto.entity": "%s experienced %s's kinetic energy",
-  "death.attack.rotp_entityFlewInto.entity.item": "%s experienced %s's kinetic energy",
+  "death.attack.rotp_suffocation.item": "%s was suffocated by %s using %s",
+  "death.attack.rotp_entityFlewInto": "%s experienced %s's kinetic energy",
+  "death.attack.rotp_entityFlewInto.item": "%s experienced %s's kinetic energy",
   "death.attack.rotp_bleeding": "%s bled out",
   "death.attack.rotp_bleeding.player": "%s bled out while fighting %s",
   
