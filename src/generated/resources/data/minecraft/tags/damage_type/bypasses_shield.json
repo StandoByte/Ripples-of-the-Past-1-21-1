@@ -1,5 +1,7 @@
 {
   "values": [
-    "jojo_ripples:stand_health_link"
+    "jojo_ripples:stand_health_link",
+    "jojo_ripples:bleeding",
+    "jojo_ripples:suffocation"
   ]
 }

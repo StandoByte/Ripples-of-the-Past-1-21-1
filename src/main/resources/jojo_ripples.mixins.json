@@ -55,6 +55,7 @@
     "stand.crazyd.LevelDestroyBlockMixin",
     "stand.crazyd.FireBlockMixin",
 	
+	"KnockbackEntityCollision",
 	"ProjectileHighSpeedSync",
 	"attributes.EntityMixin",
 	"modcompat.MthInitBeforeLithium",

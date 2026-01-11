@@ -215,7 +215,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 			float blockHardnessForStand = StandStatFormulas.getBlockHardness(standStrength, blockState, level, blockPos);
 			if (blockHardnessForStand >= 0) {
 				float standEfficiency = StandStatFormulas.getBarrageBlockMiningEfficiency(standStrength, standSpeed);
-				float destroyProgress = standEfficiency / blockHardnessForStand;
+				float destroyProgress = standEfficiency / (blockHardnessForStand * 100);
 				
 				boolean brokenBlock = ServerBlockDestroyTracker.addBlockDestroyProgress((ServerLevel) level, stand, blockPos, destroyProgress);
 				if (brokenBlock) {

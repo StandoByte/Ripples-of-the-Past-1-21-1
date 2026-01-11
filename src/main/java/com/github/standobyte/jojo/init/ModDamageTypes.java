@@ -66,10 +66,29 @@ public class ModDamageTypes {
 			DamageTypeTags.BYPASSES_EFFECTS,
 			DamageTypeTags.NO_KNOCKBACK,
 			Tags.DamageTypes.IS_TECHNICAL);
+	
+	public static final ResourceKey<DamageType> ENTITY_FLEW_INTO = DAMAGE_TYPES.withTags(JojoMod.resLoc("entity_flew_into"), 
+			ADDS_RESOLVE,
+			DamageTypeTags.BYPASSES_ARMOR,
+			DamageTypeTags.BYPASSES_WOLF_ARMOR,
+			DamageTypeTags.PANIC_CAUSES,
+			Tags.DamageTypes.IS_PHYSICAL);
+
+	public static final ResourceKey<DamageType> BLEED_OUT_DEATH = DAMAGE_TYPES.withTags(JojoMod.resLoc("bleeding"),
+			DamageTypeTags.BYPASSES_ARMOR,
+			DamageTypeTags.BYPASSES_WOLF_ARMOR,
+			DamageTypeTags.BYPASSES_SHIELD,
+			DamageTypeTags.BYPASSES_COOLDOWN,
+			DamageTypeTags.BYPASSES_EFFECTS,
+			DamageTypeTags.NO_IMPACT,
+			DamageTypeTags.NO_KNOCKBACK,
+			DamageTypeTags.WITHER_IMMUNE_TO,
+			Tags.DamageTypes.IS_ENVIRONMENT);
 
 	public static final ResourceKey<DamageType> SUFFOCATION = DAMAGE_TYPES.withTags(JojoMod.resLoc("suffocation"),
 			DamageTypeTags.BYPASSES_ARMOR,
 			DamageTypeTags.BYPASSES_WOLF_ARMOR,
+			DamageTypeTags.BYPASSES_SHIELD,
 			DamageTypeTags.PANIC_CAUSES,
 			DamageTypeTags.NO_IMPACT,
 			DamageTypeTags.NO_KNOCKBACK,

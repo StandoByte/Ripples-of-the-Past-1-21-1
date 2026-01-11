@@ -15,6 +15,8 @@
   "key.keyboard.right.shift.shortened": "П.Shift",
   "key.keyboard.right.win.shortened": "П.Win",
   
+  "entity.jojo.block_shard": "Осколок блока",
+  
   "itemGroup.jojo_ripples_main": "ДжоДжо: Ripples of the Past",
   "jojo_ripples.key.toggle_stand": "Призвать/отозвать Стенд",
   "jojo_ripples.key.toggle_stand.desc": "Также включает режим управления Стендом.",
@@ -35,10 +37,15 @@
   "jojo_ripples.subtitle.liquid_splash": "Брызг жидкости",
   "jojo_ripples.subtitle.clothes_sewed": "Одежда сшита",
   
-  "death.attack.suffocation": "%s задохнулся",
-  "death.attack.suffocation.player": "%s задохнулся, пока боролся с %s",
-  "death.attack.suffocation.entity": "%s был задушен %s",
-  "death.attack.suffocation.entity.item": "%s был задушен %s с помощью %s",
+  "death.attack.rotp_suffocation": "%s задохнулся",
+  "death.attack.rotp_suffocation.player": "%s задохнулся, пока боролся с %s",
+  "death.attack.rotp_suffocation.entity": "%s был задушен %s",
+  "death.attack.rotp_suffocation.entity.item": "%s был задушен %s с помощью %s",
+  "death.attack.rotp_entityFlewInto": "%s преобразовал чью-то кинетическую энергию во внутреннюю",
+  "death.attack.rotp_entityFlewInto.entity": "%s преобразовал кинетическую энергию %s во внутреннюю",
+  "death.attack.rotp_entityFlewInto.entity.item": "%s преобразовал кинетическую энергию %s во внутреннюю",
+  "death.attack.rotp_bleeding": "%s истёк кровью",
+  "death.attack.rotp_bleeding.player": "%s истёк кровью, пока боролся с %s",
   
   "jojo_ripples.options.client.title": "Клиентские настройки Ripples of the Past",
   "jojo_ripples.options.client.hud": "Интерфейс",

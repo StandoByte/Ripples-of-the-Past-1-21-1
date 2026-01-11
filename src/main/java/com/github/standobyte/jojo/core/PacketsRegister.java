@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.core.packet.fromserver.BloodParticlesPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.DatapackStandsPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.DeflectedBulletPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.EntitySyncMotionBypassingPacket;
+import com.github.standobyte.jojo.core.packet.fromserver.BrokenBlocksParticlesAndSoundsPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.StandEntitySoundPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.StandSkinSoundPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrAbilityUsePacket;
@@ -30,6 +31,7 @@ import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.cli
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.mob.ClMobControlMovementPacket;
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.stand.ClStandManualMovementPacket;
 import com.github.standobyte.jojo.mechanics.entity_like_player.useitem.ClStandClickPacket;
+import com.github.standobyte.jojo.mechanics.explosion.CustomExplosionPacket;
 import com.github.standobyte.jojo.mechanics.grab.TrSetGrabbedEntityPacket;
 import com.github.standobyte.jojo.mechanics.itemtracking.TrackedItemPacket;
 import com.github.standobyte.jojo.mechanics.possessionv2.TrPossessEntityPacket;
@@ -87,6 +89,8 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrSyncStandOffsetPacket.Handler(JojoMod.resLoc("standoffset")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new SetClientControllerPacket.Handler(JojoMod.resLoc("ctrltarget")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrPossessEntityPacket.Handler(JojoMod.resLoc("possess")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new CustomExplosionPacket.Handler(JojoMod.resLoc("expl")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new BrokenBlocksParticlesAndSoundsPacket.Handler(JojoMod.resLoc("blbreak")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrackedItemPacket.Handler(JojoMod.resLoc("itemtrack")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrClothesItemsPacket.Handler(JojoMod.resLoc("clothes")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrSetGrabbedEntityPacket.Handler(JojoMod.resLoc("grab")));

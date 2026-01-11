@@ -3,80 +3,114 @@ package com.github.standobyte.jojo.mc.statuseffect;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalInt;
-import java.util.UUID;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.packet.fromserver.BloodParticlesPacket;
+import com.github.standobyte.jojo.init.ModDamageTypes;
+import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.jojoimpl.JojoDefinitions;
 import com.github.standobyte.jojo.jojoimpl.JojoModLivingVariables;
+import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBloodCutterAbility;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.DriedBloodDropsEffect;
+import com.github.standobyte.jojo.util.damage.DamageUtil;
+import com.github.standobyte.jojo.util.mc.AttributeUtil;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class BleedingEffect extends RotpStatusEffect implements StatusEffectApplicable {
-	public static final float HP_REDUCTION = 4;
-	public static final UUID ATTRIBUTE_MODIFIER_ID = UUID.fromString("1588be77-b81b-4eb0-a745-a8912de51e72");
+	public static final float HP_REDUCTION_PER_LVL = 4;
+	public static final ResourceLocation ATTRIBUTE_MODIFIER_ID = JojoMod.resLoc("effect.bleeding");
 
 	public BleedingEffect(MobEffectCategory type, int liquidColor) {
 		super(type, liquidColor);
-//		getAttributeModifiers().put(Attributes.MAX_HEALTH, new AttributeModifier(ATTRIBUTE_MODIFIER_ID, 
-//				this::getDescriptionId, -HP_REDUCTION, AttributeModifier.Operation.ADDITION));
+		addAttributeModifier(Attributes.MAX_HEALTH, ATTRIBUTE_MODIFIER_ID, -HP_REDUCTION_PER_LVL, AttributeModifier.Operation.ADD_VALUE);
+		disableCreeperLinger = true;
 	}
 
-	// TODO bleeding effect
 //	@Override
-//	public void addAttributeModifiers(LivingEntity entity, AttributeModifierManager pAttributeMap, int pAmplifier) {
-//		super.addAttributeModifiers(entity, pAttributeMap, pAmplifier);
-//		if (entity.getHealth() > entity.getMaxHealth()) {
-//			entity.setHealth(entity.getMaxHealth());
-//		}
-//	}
-//
-//	public static void onAddedBleeding(LivingEntity entity, int pAmplifier) {
-//		Level level = entity.level();
-//		if (!level.isClientSide()) {
-//			IStandPower.getStandPowerOptional(entity).ifPresent(power -> {
-//				if (ModStandsInit.CRAZY_DIAMOND_BLOOD_CUTTER.get().isUnlocked(power)) {
-//					power.setCooldownTimer(ModStandsInit.CRAZY_DIAMOND_BLOOD_CUTTER.get(), 0);
-//				}
-//			});
-//
-//			level.broadcastEntityEvent(entity, (byte) MCUtil.EntityEvents.HURT);
-//
-//			Vec3 particlesPos = JojoModLivingVariables.get(entity).bleedingParticlesPos;
-//			if (particlesPos == null) {
-//				particlesPos = entity.getBoundingBox().getCenter();
-//			}
-//			splashBlood(entity.level(), particlesPos, pAmplifier + 1, HP_REDUCTION * (pAmplifier + 1), 
-//					OptionalInt.of(pAmplifier), Optional.of(entity));
-//		}
-//	}
-//
-//	public static int limitAmplifier(LivingEntity entity, int amplifier) {
-//		return Math.min(amplifier, Math.max(
-//				(int) (entity.getAttributeBaseValue(Attributes.MAX_HEALTH) / HP_REDUCTION) - 2, 
-//				(int) (getMaxHealthWithoutBleeding(entity) / HP_REDUCTION) - 2));
-//	}
-//
-//	public static float getMaxHealthWithoutBleeding(LivingEntity entity) {
-//		return (float) AttributeUtil.calcValueWithoutModifiers(entity.getAttribute(Attributes.MAX_HEALTH), ATTRIBUTE_MODIFIER_ID);
+//	public void onAdded(LivingEntity entity, MobEffectInstance instance, @Nullable Entity source) {
+//		super.onAdded(entity, instance, source);
 //	}
 
 	@Override
 	public boolean isApplicable(LivingEntity entity) {
 		return JojoDefinitions.canBleed(entity);
+	}
+
+
+	@EventBusSubscriber(modid = JojoMod.MOD_ID)
+	public static class EventHandler {
+		
+		@SubscribeEvent(priority = EventPriority.HIGHEST)
+		public static void changePotionAmplifier(MobEffectEvent.Added event) {
+			MobEffectInstance effectInstance = event.getEffectInstance();
+			if (effectInstance.getEffect().is(ModStatusEffects.BLEEDING)) {
+				int amplifier = BleedingEffect.limitAmplifier(event.getEntity(), effectInstance.getAmplifier());
+				if (amplifier != effectInstance.getAmplifier() && amplifier >= 0) {
+					effectInstance.amplifier = amplifier;
+				}
+			}
+		}
+		
+		// can't use onAdded for this, as we need the previous effect instance as part of the context
+		@SubscribeEvent(priority = EventPriority.LOWEST)
+		public static void onPotionAdded(MobEffectEvent.Added event) {
+			LivingEntity entity = event.getEntity();
+			Level level = entity.level();
+			
+			if (!level.isClientSide()) {
+				MobEffectInstance effectInstance = event.getEffectInstance();
+				if (effectInstance.getEffect().is(ModStatusEffects.BLEEDING)) {
+					int effectLvl = effectInstance.getAmplifier();
+					MobEffectInstance prevEffect = event.getOldEffectInstance();
+					if (prevEffect == null || prevEffect.getAmplifier() < effectLvl) {
+						CrazyDBloodCutterAbility.onBleedingAdded(entity);
+
+						level.broadcastDamageEvent(entity, DamageUtil.make(level, ModDamageTypes.BLEED_OUT_DEATH));
+
+						Vec3 particlesPos = JojoModLivingVariables.get(entity).bleedingParticlesPos;
+						if (particlesPos == null) {
+							particlesPos = entity.getBoundingBox().getCenter();
+						}
+						splashBlood(entity.level(), particlesPos, effectLvl + 1, 
+								HP_REDUCTION_PER_LVL * (effectLvl + 1), 
+								OptionalInt.of(effectLvl), entity);
+					}
+				}
+			}
+		}
+	}
+
+
+	public static int limitAmplifier(LivingEntity entity, int amplifier) {
+		return Math.min(amplifier, Math.max(
+				(int) (entity.getAttributeBaseValue(Attributes.MAX_HEALTH) / HP_REDUCTION_PER_LVL) - 2, 
+				(int) (getMaxHealthWithoutBleeding(entity) / HP_REDUCTION_PER_LVL) - 2));
+	}
+
+	public static float getMaxHealthWithoutBleeding(LivingEntity entity) {
+		return (float) AttributeUtil.calcValueWithoutModifiers(entity.getAttribute(Attributes.MAX_HEALTH), ATTRIBUTE_MODIFIER_ID);
 	}
 
 
@@ -142,7 +176,8 @@ public class BleedingEffect extends RotpStatusEffect implements StatusEffectAppl
 		else {
 			bleedingEffectLvl.ifPresent(effectLvl -> {
 				float speed = (Math.min(effectLvl, 3) + 1) * 0.09375f;
-				int count = 10 * (effectLvl + 1) * (effectLvl + 1);
+				int lvl = (effectLvl + 1);
+				int count = 10 * lvl * lvl * lvl;
 				PacketDistributor.sendToPlayersTrackingChunk(serverLevel, chunkPos, 
 						new BloodParticlesPacket(splashPos, speed, count, ownerEntity != null ? ownerEntity.getId() : -1));
 			});
@@ -234,4 +269,15 @@ public class BleedingEffect extends RotpStatusEffect implements StatusEffectAppl
 //		StoneMaskItem.setActivatedArmorTexture(headStack); // note: add light beams on stone mask activation
 //		headStack.hurtAndBreak(1, entity, stack -> {});
 //	}
+	
+	public static final double[] bleedOutPerTick = new double[] {
+			1.0 / 25600, 
+			1.0 / 6400, 
+			1.0 / 1600, 
+			1.0 / 400
+	};
+	public static double bleedOutPerTick(int effectLvl) {
+		return bleedOutPerTick[Math.min(effectLvl, 3)];
+	}
+	public static double bloodRegainPerTick = 1.0 / 5000;
 }

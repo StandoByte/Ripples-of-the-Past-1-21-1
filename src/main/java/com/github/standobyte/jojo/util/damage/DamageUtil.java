@@ -36,6 +36,11 @@ public class DamageUtil {
 		return level.damageSources().damageTypes.getHolderOrThrow(resourceKey); // i ain't typin' allat
 	}
 	
+	public static DamageSource make(Level level, ResourceKey<DamageType> damageType) { return make(level, damageType, null, null, null); }
+	public static DamageSource make(Level level, ResourceKey<DamageType> damageType, Entity entity) { return make(level, damageType, entity, entity, null); }
+	public static DamageSource make(Level level, ResourceKey<DamageType> damageType, Entity directEntity, Entity causingEntity) { return make(level, damageType, directEntity, causingEntity, null); }
+	public static DamageSource make(Level level, ResourceKey<DamageType> damageType, Vec3 sourcePosition) { return make(level, damageType, null, null, sourcePosition); }
+	
 	public static DamageSource make(Level level, ResourceKey<DamageType> damageType, 
 			@Nullable Entity directEntity, @Nullable Entity causingEntity, @Nullable Vec3 sourcePosition) {
 		Holder<DamageType> type = type(level, damageType);

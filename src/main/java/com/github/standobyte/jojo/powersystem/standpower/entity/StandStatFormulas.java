@@ -163,14 +163,14 @@ public class StandStatFormulas {
 //	}
 	
 	
-	private static BlockMiningTier[] miningTiers = new BlockMiningTier[] {
-			new BlockMiningTier.EmptyArms(), 
+	public static BlockMiningTier[] miningTiers = new BlockMiningTier[] {
+			BlockMiningTier.EMPTY_ARMS, 
 			new BlockMiningTier.VanillaTierWrapper(Tiers.WOOD), 
 			new BlockMiningTier.VanillaTierWrapper(Tiers.STONE), 
 			new BlockMiningTier.VanillaTierWrapper(Tiers.IRON), 
 			new BlockMiningTier.VanillaTierWrapper(Tiers.DIAMOND), 
 			new BlockMiningTier.VanillaTierWrapper(Tiers.NETHERITE),
-			new BlockMiningTier.Any()
+			BlockMiningTier.ANY_BLOCK
 	};
 	
 	@Nullable
@@ -189,6 +189,9 @@ public class StandStatFormulas {
 	
 	public static interface BlockMiningTier {
 		boolean canMine(BlockState blockState);
+		
+		public static final BlockMiningTier EMPTY_ARMS = new BlockMiningTier.EmptyArms();
+		public static final BlockMiningTier ANY_BLOCK = new BlockMiningTier.Any();
 		
 		public static class EmptyArms implements BlockMiningTier {
 			@Override public boolean canMine(BlockState blockState) {
@@ -210,14 +213,22 @@ public class StandStatFormulas {
 	}
 	
 	public static float getBlockHardness(double strength, BlockState blockState, Level level, BlockPos blockPos) {
+		return getBlockHardness(getStandHarvestLevel(strength), blockState, level, blockPos);
+	}
+	
+	public static float getBlockHardness(@Nullable BlockMiningTier harvestTier, BlockState blockState, Level level, BlockPos blockPos) {
 		float hardness = blockState.getDestroySpeed(level, blockPos);
 		if (hardness < 0) {
 			return -1;
 		}
-		BlockMiningTier harvestTier = getStandHarvestLevel(strength);
-		boolean canMineOnTier = harvestTier.canMine(blockState);
 		
-		hardness *= canMineOnTier ? 30 : 100;
+		if (harvestTier != null) {
+			boolean canMineOnTier = harvestTier.canMine(blockState);
+			
+			if (canMineOnTier) {
+				hardness *= 0.3f;
+			}
+		}
 		
 		return hardness;
 	}

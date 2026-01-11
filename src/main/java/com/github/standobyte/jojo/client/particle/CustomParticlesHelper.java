@@ -13,12 +13,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.ParticleStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.TerrainParticle;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 public abstract class CustomParticlesHelper {
@@ -75,7 +79,7 @@ public abstract class CustomParticlesHelper {
 		return addParticle(particle, new Vec3(x, y, z), false, false);
 	}
 
-//	public static void createHamonAuraParticle(IParticleData type, 
+//	public static void createHamonAuraParticle(ParticleOptions type, 
 //			LivingEntity user, double x, double y, double z) {
 //		SpriteSet sprite = getSavedSpriteSet(type.getType());
 //		if (sprite != null) {
@@ -88,7 +92,7 @@ public abstract class CustomParticlesHelper {
 //		}
 //	}
 //
-//	public static void summonHamonAuraParticlesFirstPerson(IParticleData type, LivingEntity user, float particlesPerTick) {
+//	public static void summonHamonAuraParticlesFirstPerson(ParticleOptions type, LivingEntity user, float particlesPerTick) {
 //		SpriteSet sprite = getSavedSpriteSet(type.getType());
 //		if (sprite != null) {
 //			Random random = user.getRandom();
@@ -109,7 +113,7 @@ public abstract class CustomParticlesHelper {
 //		}
 //	}
 //
-//	public static void addSendoHamonOverdriveParticle(World level, IParticleData pParticleData, Direction.Axis blockAxis, 
+//	public static void addSendoHamonOverdriveParticle(World level, ParticleOptions pParticleData, Direction.Axis blockAxis, 
 //			double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed, int lifeTime) {
 //		TextureSheetParticle particle = new SendoHamonOverdriveParticle(
 //				(ClientWorld) level, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed, blockAxis);
@@ -135,7 +139,7 @@ public abstract class CustomParticlesHelper {
 //	private static final double SPARK_PARTICLE_SPEED = 0.25;
 //	public static void createHamonSparkParticles(@Nullable Entity entityToFollow, double x, double y, double z, int particlesCount) {
 //		Minecraft mc = Minecraft.getInstance();
-//		IParticleData particleData = ModParticles.HAMON_SPARK.get();
+//		ParticleOptions particleData = ModParticles.HAMON_SPARK.get();
 //		for (int i = 0; i < particlesCount; ++i) {
 //			double xOffset = RANDOM.nextGaussian() * SPARK_PARTICLE_DIST;
 //			double yOffset = RANDOM.nextGaussian() * SPARK_PARTICLE_DIST;
@@ -154,7 +158,7 @@ public abstract class CustomParticlesHelper {
 //			}
 //		}
 //	}
-
+//
 //	// note: use chariot's armor layer if it is on
 //	public static <T extends StandEntity> void addStandCrumbleParticles(T standEntity, Vec3 pos, TargetHitPart humanoidPart) {
 //		EntityRenderer<? super T> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(standEntity);
@@ -187,27 +191,27 @@ public abstract class CustomParticlesHelper {
 //		}
 //	}
 
-//	public static void addBlockBreakParticles(BlockPos blockPos, BlockState blockState) {
-//		Minecraft.getInstance().particleEngine.destroy(blockPos, blockState);
-//	}
-//
-//	public static void addBlockShardBreakParticles(Vec3 pos, BlockState blockState) {
-//		Minecraft mc = Minecraft.getInstance();
-//		ParticleEngine particleManager = mc.particleEngine;
-//		ClientLevel level = mc.level;
-//		BlockPos blockPos = new BlockPos(pos);
-//		if (!blockState.isAir(level, blockPos)) {
-//			for (int i = 0; i < 4; i++) {
-//				double x = (Math.random() - 0.5) * 0.2;
-//				double y = (Math.random() - 0.5) * 0.2;
-//				double z = (Math.random() - 0.5) * 0.2;
-//				particleManager.add(new DiggingParticle(level, pos.x + x, pos.y + y, pos.z + z, 
-//						x * 0.25, y * 0.25, z * 0.25, blockState).init(blockPos));
-//			}
-//		}
-//	}
-//
-//	public static void createParticlesEmitter(Entity entity, IParticleData type, int ticks) {
+	public static void addBlockBreakParticles(BlockPos blockPos, BlockState blockState) {
+		Minecraft.getInstance().particleEngine.destroy(blockPos, blockState);
+	}
+
+	public static void addBlockShardBreakParticles(Vec3 pos, BlockState blockState) {
+		Minecraft mc = Minecraft.getInstance();
+		ParticleEngine particleManager = mc.particleEngine;
+		ClientLevel level = mc.level;
+		BlockPos blockPos = BlockPos.containing(pos);
+		if (!blockState.isAir()) {
+			for (int i = 0; i < 4; i++) {
+				double x = (Math.random() - 0.5) * 0.2;
+				double y = (Math.random() - 0.5) * 0.2;
+				double z = (Math.random() - 0.5) * 0.2;
+				particleManager.add(new TerrainParticle(level, pos.x + x, pos.y + y, pos.z + z, 
+						x * 0.25, y * 0.25, z * 0.25, blockState).updateSprite(blockState, blockPos));
+			}
+		}
+	}
+
+//	public static void createParticlesEmitter(Entity entity, ParticleOptions type, int ticks) {
 //		Minecraft.getInstance().particleEngine.createTrackingEmitter(entity, type, ticks);
 //	}
 //
@@ -234,5 +238,9 @@ public abstract class CustomParticlesHelper {
 		}
 
 		return status;
+	}
+
+	public static int particlesSetting() {
+		return Minecraft.getInstance().options.particles().get().getId();
 	}
 }

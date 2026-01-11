@@ -192,6 +192,24 @@ public final class MathUtil {
 	public static record AABBDist(Vec3 posBB1, Vec3 posBB2, double distance) {}
 	
 	
+	public static double getManhattanDist(AABB aabb1, AABB aabb2) {
+		double xDist = 0;
+		double yDist = 0;
+		double zDist = 0;
+
+		if      (aabb1.maxX < aabb2.minX) xDist = aabb2.minX - aabb1.maxX;
+		else if (aabb2.maxX < aabb1.minX) xDist = aabb1.minX - aabb2.maxX;
+
+		if      (aabb1.maxY < aabb2.minY) yDist = aabb2.minY - aabb1.maxY;
+		else if (aabb2.maxY < aabb1.minY) yDist = aabb1.minY - aabb2.maxY;
+
+		if      (aabb1.maxZ < aabb2.minZ) zDist = aabb2.minZ - aabb1.maxZ;
+		else if (aabb2.maxZ < aabb1.minZ) zDist = aabb1.minZ - aabb2.maxZ;
+
+		return xDist + yDist + zDist;
+	}
+	
+	
 	public static int min(int num1, int num2, int... nums) {
 		int min = (num1 <= num2) ? num1 : num2;
 		for (int num : nums) {

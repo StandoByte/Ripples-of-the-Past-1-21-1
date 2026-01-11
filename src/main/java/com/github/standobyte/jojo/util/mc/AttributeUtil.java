@@ -1,12 +1,20 @@
 package com.github.standobyte.jojo.util.mc;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
@@ -30,17 +38,17 @@ public class AttributeUtil {
 		if (instance != null) instance.setBaseValue(baseValue);
 	}
 	
+	
 	static Collection<AttributeModifier> add = new ArrayList<>();
 	static Collection<AttributeModifier> multBase = new ArrayList<>();
 	static Collection<AttributeModifier> multTotal = new ArrayList<>();
-	public static double calculateValue(ItemAttributeModifiers itemModifiers, Holder<Attribute> attribute, EquipmentSlot equipmentSlot, double baseValue) {
+	static <T> void groupMultipliers(Collection<T> modifiers, Predicate<T> filter, Function<T, AttributeModifier> getModifier) {
 		add.clear();
 		multBase.clear();
 		multTotal.clear();
-		
-		for (var modifierEntry : itemModifiers.modifiers()) {
-			if (modifierEntry.attribute().is(attribute) && modifierEntry.slot().test(equipmentSlot)) {
-				AttributeModifier modifier = modifierEntry.modifier();
+		for (T modifierEntry : modifiers) {
+			if (filter == null || filter.test(modifierEntry)) {
+				AttributeModifier modifier = getModifier.apply(modifierEntry);
 				switch (modifier.operation()) {
 					case ADD_VALUE -> add.add(modifier);
 					case ADD_MULTIPLIED_BASE -> multBase.add(modifier);
@@ -48,22 +56,56 @@ public class AttributeUtil {
 				}
 			}
 		}
-		
+	}
+	
+	static double calc(double baseValue, 
+			Collection<AttributeModifier> add,
+			Collection<AttributeModifier> multBase,
+			Collection<AttributeModifier> multTotal,
+			Predicate<AttributeModifier> filter, Attribute sanitize) {
 		for (AttributeModifier modifier : add) {
-			baseValue += modifier.amount();
+			if (filter == null || filter.test(modifier)) 
+				baseValue += modifier.amount();
 		}
 
 		double value = baseValue;
 
 		for (AttributeModifier modifier : multBase) {
-			value += baseValue * modifier.amount();
+			if (filter == null || filter.test(modifier)) 
+				value += baseValue * modifier.amount();
 		}
 
 		for (AttributeModifier modifier : multTotal) {
-			value *= 1.0 + modifier.amount();
+			if (filter == null || filter.test(modifier)) 
+				value *= 1 + modifier.amount();
 		}
 
-		return attribute.value().sanitizeValue(value);
+		value = sanitize.sanitizeValue(value);
+		return value;
+	}
+	
+	public static double calculateValue(ItemAttributeModifiers itemModifiers, Holder<Attribute> attribute, EquipmentSlot equipmentSlot, double baseValue) {
+		groupMultipliers(itemModifiers.modifiers(),
+				modifierEntry -> modifierEntry.attribute().is(attribute) && modifierEntry.slot().test(equipmentSlot),
+				ItemAttributeModifiers.Entry::modifier);
+		return calc(baseValue, add, multBase, multTotal, modifier -> true, attribute.value());
+	}
+
+
+	public static double calcValueWithoutModifiers(AttributeInstance attribute, ResourceLocation... modifierIds) {
+		return calcValueWithoutModifiers(attribute, Arrays.stream(modifierIds));
+	}
+
+	public static double calcValueWithoutModifiers(AttributeInstance attribute, Stream<ResourceLocation> modifierIds) {
+		Collection<ResourceLocation> exclude = modifierIds.collect(Collectors.toCollection(HashSet::new));
+		if (exclude.isEmpty()) return attribute.getValue();
+
+		double baseValue = attribute.getBaseValue();
+		return calc(baseValue, 
+				attribute.getModifiers(AttributeModifier.Operation.ADD_VALUE).values(), 
+				attribute.getModifiers(AttributeModifier.Operation.ADD_MULTIPLIED_BASE).values(), 
+				attribute.getModifiers(AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL).values(), 
+				modifier -> !exclude.contains(modifier.id()), attribute.getAttribute().value());
 	}
 
 }

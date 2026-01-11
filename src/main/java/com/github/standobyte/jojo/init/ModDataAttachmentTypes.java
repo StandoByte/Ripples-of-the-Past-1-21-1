@@ -6,6 +6,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.brokenblocks.BrokenBlocksChunkData;
+import com.github.standobyte.jojo.mechanics.KnockbackCollisionImpact;
 import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.EntityComponentController;
@@ -48,14 +49,17 @@ public final class ModDataAttachmentTypes {
 
 	@ApiStatus.Internal
 	public static final Supplier<AttachmentType<EntityActionInputState>> ENTITY_ABILITY_INPUT = ATTACHMENT_TYPES.register("player_ability_input", 
-			() -> AttachmentType.builder(obj -> obj instanceof LivingEntity living ? new EntityActionInputState(living) : null).build());
+			() -> AttachmentType.builder(obj -> obj instanceof LivingEntity entity ? new EntityActionInputState(entity) : null).build());
 	
 	public static final Supplier<AttachmentType<EntityClothesInventory>> HUMANOID_CLOTHES = ATTACHMENT_TYPES.register("humanoid_clothes", 
-			() -> AttachmentType.serializable(obj -> obj instanceof LivingEntity living ? new EntityClothesInventory(living) : null).build());
+			() -> AttachmentType.serializable(obj -> obj instanceof LivingEntity entity ? new EntityClothesInventory(entity) : null).build());
 	
 	
 	public static final Supplier<AttachmentType<LivingComponentGrab>> LIVING_GRAB = ATTACHMENT_TYPES.register("living_grab", 
-			() -> AttachmentType.builder(entity -> entity instanceof LivingEntity living ? new LivingComponentGrab(living) : null).build());
+			() -> AttachmentType.builder(obj -> obj instanceof LivingEntity entity ? new LivingComponentGrab(entity) : null).build());
+	
+	public static final Supplier<AttachmentType<KnockbackCollisionImpact>> KB_IMPACT = ATTACHMENT_TYPES.register("kb_impact", 
+			() -> AttachmentType.builder(obj -> obj instanceof Entity entity ? new KnockbackCollisionImpact(entity) : null).build());
 
 	public static final Supplier<AttachmentType<EntityComponentController>> CONTROLLER = ATTACHMENT_TYPES.register("controller_player", 
 			() -> AttachmentType.builder(obj -> obj instanceof Entity entity ? new EntityComponentController(entity) : null).build());
@@ -65,7 +69,7 @@ public final class ModDataAttachmentTypes {
 	
 	
 	public static final Supplier<AttachmentType<StandEffectsTarget>> STAND_EFFECTS_TARGET = ATTACHMENT_TYPES.register("stand_effects_target", 
-			() -> AttachmentType.builder(entity -> entity instanceof LivingEntity living ? new StandEffectsTarget(living) : null).build());
+			() -> AttachmentType.builder(obj -> obj instanceof LivingEntity entity ? new StandEffectsTarget(entity) : null).build());
 	
 	
 	// Level

@@ -141,7 +141,7 @@ public abstract class ModdedProjectileEntity extends DamagingEntity {
 		zOld = z;
 		setPos(nextX, nextY, nextZ);
 
-//		IParticleData particle = getParticle();
+//		ParticleOptions particle = getParticle();
 //		if (particle != null) {
 //			level.addParticle(particle, nextX, nextY, nextZ, 0.0D, 0.0D, 0.0D);
 //		}
@@ -283,12 +283,12 @@ public abstract class ModdedProjectileEntity extends DamagingEntity {
 	}
 
 //	@Nullable
-//	protected IParticleData getParticle() {
+//	protected ParticleOptions getParticle() {
 //		return null;
 //	}
 //
 //	@Nullable
-//	protected IParticleData getTrailParticle() {
+//	protected ParticleOptions getTrailParticle() {
 //		return null;
 //	}
 

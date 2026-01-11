@@ -250,7 +250,7 @@ public class EntityActionInstance implements HeldInput {
 		}
 	}
 	
-	public boolean standEntityAttack(StandEntity stand, Entity target, DamageSource dmgSource, float dmgAmount) {
+	public static boolean standEntityAttack(StandEntity stand, Entity target, DamageSource dmgSource, float dmgAmount) {
 		ServerLevel level = (ServerLevel) target.level();
 		boolean hurt = target.hurt(dmgSource, dmgAmount);
 		if (hurt) {

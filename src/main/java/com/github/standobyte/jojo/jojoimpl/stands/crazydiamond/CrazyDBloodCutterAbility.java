@@ -106,5 +106,13 @@ public class CrazyDBloodCutterAbility extends StandEntityAbility {
 		}
 
 	}
+	
+	public static void onBleedingAdded(LivingEntity entity) {
+//		IStandPower.getStandPowerOptional(entity).ifPresent(power -> {
+//			if (ModStandsInit.CRAZY_DIAMOND_BLOOD_CUTTER.get().isUnlocked(power)) {
+//				power.setCooldownTimer(ModStandsInit.CRAZY_DIAMOND_BLOOD_CUTTER.get(), 0);
+//			}
+//		});
+	}
 
 }

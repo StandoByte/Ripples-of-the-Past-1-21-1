@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.jojoimpl.stands.crazydiamond;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.particle.CustomParticlesHelper;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
@@ -21,6 +23,7 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
@@ -30,6 +33,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
@@ -154,11 +158,6 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 
 	public static final double PLAYER_TRACKING_RANGE = 64;
 
-	// FIXME add wood and glass blocks to the tag
-	public static boolean hardMaterial(BlockState blockState) {
-		return blockState.is(ModUtilTags.Blocks.CRAZY_D_CAN_MAKE_BULLET);
-	}
-
 	
 	public static boolean disableHoming(LivingEntity user) {
 		return user.isShiftKeyDown();
@@ -195,5 +194,21 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 		}
 		return name;
 	}
+
+
+	// FIXME add wood and glass blocks to the tag
+	public static boolean hardMaterial(BlockState blockState) {
+//        material == Material.WOOD || 
+//        material == Material.NETHER_WOOD || 
+//        material == Material.GLASS || 			// beacon, conduit, stained glass pane, glass pane, glass, sea lantern
+//        material == Material.BUILDABLE_GLASS ||	// redstone lamp
+		
+		return blockState.is(ModUtilTags.Blocks.CRAZY_D_CAN_MAKE_BULLET);
+	}
+    
+    public static boolean isGlassBlock(BlockState blockState, Level level, @Nullable BlockPos blockPos) {
+    	SoundType soundType = blockPos != null ? blockState.getSoundType() : blockState.getSoundType(level, blockPos, null);
+    	return soundType == SoundType.GLASS;
+    }
 
 }

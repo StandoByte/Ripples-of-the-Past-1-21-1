@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.init;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBlockBulletEntity;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBloodCutterEntity;
+import com.github.standobyte.jojo.mc.entity.BlockShardEntity;
 import com.github.standobyte.jojo.mc.entity.projectile.ThrownNuggetBearingEntity;
 import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinEntity;
 import com.github.standobyte.jojo.mechanics.entity_like_player.npc.PowerUserMobEntity;
@@ -59,7 +60,12 @@ public final class ModEntityTypes {
 			.eyeHeight(1.7775F)
 			.clientTrackingRange(10)
 			.build(createIDFor(key)));
-	
+
+	public static final DeferredHolder<EntityType<?>, EntityType<BlockShardEntity>> BLOCK_SHARD = ENTITY_TYPES.register("block_shard", key ->
+			EntityType.Builder.<BlockShardEntity>of(BlockShardEntity::new, MobCategory.MISC)
+			.sized(0.5F, 0.5F)
+			.build(createIDFor(key)));
+
 	public static final DeferredHolder<EntityType<?>, EntityType<ThrownNuggetBearingEntity>> NUGGET_BEARING = ENTITY_TYPES.register("nugget_bearing", key -> 
 			EntityType.Builder.<ThrownNuggetBearingEntity>of(ThrownNuggetBearingEntity::new, MobCategory.MISC)
 //			.noLootTable()

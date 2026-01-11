@@ -428,7 +428,7 @@ public class ResolveHandler {
 	}
     
 
-	public static void addResolve(StandPower attackerStand, LivingEntity attackTarget, float points) {
+	public static void addResolve(StandPower attackerStand, LivingEntity attackTarget, float dmgAmount) {
 		if (attackerStand == null) return;
 		attackTarget = StandUtil.getStandUser(attackTarget);
 		boolean hitSelf = attackTarget != null && attackerStand.getUser() != null && attackTarget.is(attackerStand.getUser());
@@ -442,10 +442,10 @@ public class ResolveHandler {
 //				}).orElse(1F);
 //			}
 			if (ModStatusEffects.isInResolveEffect(attackTarget)) {
-				points *= Math.max(1 / (attackerStand.getResolveRatio() + 0.2F), 1);
+				dmgAmount *= Math.max(1 / (attackerStand.getResolveRatio() + 0.2F), 1);
 			}
 
-			attackerStand.resolveHandler.addResolveOnAttack(attackerStand, points);
+			attackerStand.resolveHandler.addResolveOnAttack(attackerStand, dmgAmount);
 		}
 	}
 

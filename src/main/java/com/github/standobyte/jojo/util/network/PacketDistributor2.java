@@ -18,7 +18,7 @@ import net.minecraft.world.entity.Entity;
 
 public class PacketDistributor2 {
 
-	public static void sendToPlayersTrackingEntityBuuuuuut(Entity entity, Predicate<ServerPlayer> filter, boolean sendToSelf, 
+	public static void sendToPlayersTrackingEntity(Entity entity, Predicate<ServerPlayer> filter, boolean sendToSelf, 
 			CustomPacketPayload payload, CustomPacketPayload... payloads) {
 		if (entity.level().isClientSide()) {
 			throw new IllegalStateException("Cannot send clientbound payloads on the client");
@@ -55,9 +55,8 @@ public class PacketDistributor2 {
 	
 	/**
 	 * Copy-paste of the private {@link net.neoforged.neoforge.network.PacketDistributor#makeClientboundPacket} method.
-	 * :(
 	 */
-	private static Packet<?> makeClientboundPacket(CustomPacketPayload payload, CustomPacketPayload... payloads) {
+	public static Packet<?> makeClientboundPacket(CustomPacketPayload payload, CustomPacketPayload... payloads) {
 		if (payloads.length > 0) {
 			final List<Packet<? super ClientGamePacketListener>> packets = new ArrayList<>();
 			packets.add(new ClientboundCustomPayloadPacket(payload));

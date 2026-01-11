@@ -5,6 +5,7 @@ import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityLingeringSoundInstance;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
+import com.github.standobyte.jojo.mechanics.KnockbackCollisionImpact;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
@@ -99,6 +100,15 @@ public class StandEntityGrabThrowAbility extends StandEntityAbility {
 //					}
 					grabbedEntity.setDeltaMovement(throwVec);
 					grabbedEntity.hurtMarked = true;
+
+					StandEntity stand = (StandEntity) performer;
+					float explRadius = Math.min((float) stand.getAttackDamage() * 0.175f, 10);
+					KnockbackCollisionImpact kbImpact = KnockbackCollisionImpact.getHandler(grabbedEntity);
+					if (kbImpact != null) {
+						kbImpact
+						.onPunchSetKnockbackImpact(grabbedEntity.getDeltaMovement(), stand)
+						.withImpactExplosion(Math.max(explRadius - 0.5f, 0), null, 0);
+					}
 				}
 				StandPower standPower = StandPower.get(getPowerUser());
 				standPower.consumeStamina(50);
