@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -47,8 +46,8 @@ import com.github.standobyte.jojo.util.network.StreamCodecs;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.target.AimingEntity;
-import com.google.common.collect.Sets;
 
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
@@ -417,55 +416,12 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 			}
 		}
 
-		// same function, but adjusted to only break blocks in the direction of the punch
 		@Override
-		public Set<BlockPos> calculateBlocksToBlow() {
-			Set<BlockPos> blocksToBlow = Sets.newHashSet();
-
-			for (int xStep = 0; xStep < 16; ++xStep) {
-				for (int yStep = 0; yStep < 16; ++yStep) {
-					for (int zStep = 0; zStep < 16; ++zStep) {
-						if (xStep == 0 || xStep == 15 || yStep == 0 || yStep == 15 || zStep == 0 || zStep == 15) {
-							double xd = (xStep / 15.0F * 2.0F - 1.0F);
-							double yd = (yStep / 15.0F * 2.0F - 1.0F);
-							double zd = (zStep / 15.0F * 2.0F - 1.0F);
-							double len = Math.sqrt(xd * xd + yd * yd + zd * zd);
-							xd = xd / len;
-							yd = yd / len;
-							zd = zd / len;
-							if (xd * explosionDirection.x + yd * explosionDirection.y + zd * explosionDirection.z < 0) {
-								continue;
-							}
-
-							float power = radius * (0.7F + level.random.nextFloat() * 0.6F);
-							Vec3 pos = center();
-							double x = pos.x;
-							double y = pos.y;
-							double z = pos.z;
-
-							for (; power > 0.0F; power -= 0.225F) {
-								BlockPos blockPos = BlockPos.containing(x, y, z);
-								BlockState blockState = level.getBlockState(blockPos);
-								FluidState fluidState = level.getFluidState(blockPos);
-								Optional<Float> resistance = damageCalculator.getBlockExplosionResistance(this, level, blockPos, blockState, fluidState);
-								if (resistance.isPresent()) {
-									power -= (resistance.get() + 0.3F) * 0.3F;
-								}
-
-								if (power > 0.0F && damageCalculator.shouldBlockExplode(this, level, blockPos, blockState, power)) {
-									blocksToBlow.add(blockPos);
-								}
-
-								x += xd * 0.3;
-								y += yd * 0.3;
-								z += zd * 0.3;
-							}
-						}
-					}
-				}
+		protected void lithiumPerformRayCast(RandomSource random, double vecX, double vecY, double vecZ, LongOpenHashSet touched) {
+			// only break blocks in the direction of the punch, not behind the stand
+			if (vecX * explosionDirection.x + vecY * explosionDirection.y + vecZ * explosionDirection.z >= 0) {
+				super.lithiumPerformRayCast(random, vecX, vecY, vecZ, touched);
 			}
-
-			return blocksToBlow;
 		}
 
 		protected void remainingBlocksShockWave() {
