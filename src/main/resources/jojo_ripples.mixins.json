@@ -101,6 +101,7 @@
 	"client.text.icon.FontStrintRenderOutputMixin",
 	"client.text.tooltip.GuiGraphicsMixin",
 	"client.text.tooltip.ClientTextTooltipMixin",
+	"client.BleedingHealthGui",
 	"client.modcompat.WoRStandRendering",
 	"client.CloseResources",
 	"client.keybindui.KeyEntryMixin",

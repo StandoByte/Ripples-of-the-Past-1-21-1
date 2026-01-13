@@ -2,17 +2,17 @@ package com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.cl
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.ui.hud.VanillaGuiHelper;
 import com.github.standobyte.jojo.client.ui.hud.VanillaHudSprites;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.ClientEntityController;
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.ItemNameAboveHotbarTimer;
-import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.stand.StandHudElements;
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.stand.StandHudElements.HealthHudTracker;
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.mob.HardcodedMobControlCommands;
-import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.mob.MobControlUtil;
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.mob.HardcodedMobControlCommands.WitchPotionMode;
+import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.mob.MobControlUtil;
 import com.github.standobyte.jojo.mixin.entity_like_player.puppetcontrol.client.GuiAccessor;
 import com.github.standobyte.jojo.util.UtilFunctions;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -201,19 +201,19 @@ public class ClientMobController extends ClientEntityController {
 		GuiAccessor gui = (GuiAccessor) mc.gui;
 		VanillaHudSprites.cacheSpritePaths(gui);
 		if (layerName.equals(VanillaGuiLayers.PLAYER_HEALTH)) {
-			StandHudElements.renderHealth(entityAsLiving, entityAsLiving, guiGraphics, gui, mc, healthHudTracker);
+			VanillaGuiHelper.renderHealth(entityAsLiving, entityAsLiving, guiGraphics, gui, mc, healthHudTracker);
 		}
 		if (layerName.equals(VanillaGuiLayers.VEHICLE_HEALTH)) {
-			renderVehicleHealth(entityAsLiving, guiGraphics, gui, mc);
+			VanillaGuiHelper.renderVehicleHealth(entityAsLiving, guiGraphics, gui, mc);
 		}
 		else if (layerName.equals(VanillaGuiLayers.ARMOR_LEVEL)) {
-			StandHudElements.renderArmor(entityAsLiving, guiGraphics, gui, mc);
+			VanillaGuiHelper.renderArmor(entityAsLiving, guiGraphics, gui, mc);
 		}
 		else if (layerName.equals(VanillaGuiLayers.AIR_LEVEL)) {
-			StandHudElements.renderAir(entityAsLiving, guiGraphics, gui, mc);
+			VanillaGuiHelper.renderAir(entityAsLiving, guiGraphics, gui, mc);
 		}
 		else if (layerName.equals(VanillaGuiLayers.EFFECTS)) {
-			StandHudElements.renderStatusEffects(entityAsLiving, guiGraphics, gui, mc, false);
+			VanillaGuiHelper.renderStatusEffects(entityAsLiving, guiGraphics, gui, mc, 0xFFFFFFFF);
 		}
 		else if (layerName.equals(VanillaGuiLayers.HOTBAR)) {
 			int center = guiGraphics.guiWidth() / 2;
@@ -223,7 +223,7 @@ public class ClientMobController extends ClientEntityController {
 			else {
 				int xLeft = center;
 				int xRight = center;
-				StandHudElements.renderLivingHeldItems(entityAsLiving, guiGraphics, gui, deltaTracker, mc, xLeft, xRight, true);
+				VanillaGuiHelper.renderLivingHeldItems(entityAsLiving, guiGraphics, gui, deltaTracker, mc, xLeft, xRight, true);
 			}
 		}
 		else if (layerName.equals(VanillaGuiLayers.SELECTED_ITEM_NAME)) {
@@ -235,54 +235,6 @@ public class ClientMobController extends ClientEntityController {
 //		else if (layerName.equals(VanillaGuiLayers.CROSSHAIR)) {
 //			
 //		}
-	}
-
-	public static void renderVehicleHealth(LivingEntity entity, GuiGraphics guiGraphics, GuiAccessor gui, Minecraft mc) {
-		LivingEntity vehicle = getVehicleWithHealth(entity);
-		if (vehicle != null) {
-			int maxHealth = (int)(vehicle.getMaxHealth() + 0.5F) / 2;
-			if (maxHealth > 30) {
-				maxHealth = 30;
-			}
-
-			if (maxHealth != 0) {
-				int j = (int)Math.ceil((double)vehicle.getHealth());
-				mc.getProfiler().popPush("mountHealth");
-				int k = guiGraphics.guiHeight() - mc.gui.rightHeight;
-				int l = guiGraphics.guiWidth() / 2 + 91;
-				int i1 = k;
-				int j1 = 0;
-				RenderSystem.enableBlend();
-
-				while (maxHealth > 0) {
-					int k1 = Math.min(maxHealth, 10);
-					maxHealth -= k1;
-
-					for (int l1 = 0; l1 < k1; l1++) {
-						int i2 = l - l1 * 8 - 9;
-						guiGraphics.blitSprite(VanillaHudSprites.HEART_VEHICLE_CONTAINER_SPRITE, i2, i1, 9, 9);
-						if (l1 * 2 + 1 + j1 < j) {
-							guiGraphics.blitSprite(VanillaHudSprites.HEART_VEHICLE_FULL_SPRITE, i2, i1, 9, 9);
-						}
-
-						if (l1 * 2 + 1 + j1 == j) {
-							guiGraphics.blitSprite(VanillaHudSprites.HEART_VEHICLE_HALF_SPRITE, i2, i1, 9, 9);
-						}
-					}
-
-					i1 -= 10;
-					mc.gui.rightHeight += 10;
-					j1 += 20;
-				}
-
-				RenderSystem.disableBlend();
-			}
-		}
-	}
-
-	@Nullable
-	public static LivingEntity getVehicleWithHealth(LivingEntity entity) {
-		return entity.getVehicle() instanceof LivingEntity vehicle && vehicle.showVehicleHealth() ? vehicle : null;
 	}
 	
 	
@@ -379,7 +331,7 @@ public class ClientMobController extends ClientEntityController {
 			for (int i = 0; i < potions.length; i++) {
 				int x = center - halfWidth + 1 + i * 20 + 2;
 				ItemStack item = potions[i];
-				StandHudElements.renderSlot(guiGraphics, x, y, deltaTracker, witch, item, mc, seed++);
+				VanillaGuiHelper.renderSlot(guiGraphics, x, y, deltaTracker, witch, item, mc, seed++);
 			}
 
 			GuiIcon modeSwitcherSprite = switch (witchPotionMode) {
