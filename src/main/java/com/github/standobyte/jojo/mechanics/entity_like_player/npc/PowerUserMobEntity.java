@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.core.ModEntityDataSerializers;
+import com.github.standobyte.jojo.mechanics.entity_like_player.npc.ai.ItemManageAI;
 import com.github.standobyte.jojo.mechanics.entity_like_player.playerwrapper.EntityAsPlayerWrapper;
 import com.github.standobyte.jojo.mechanics.entity_like_player.playerwrapper.RemoteClientPlayerLivingWrapper;
 import com.github.standobyte.jojo.mechanics.entity_like_player.playerwrapper.ServerPlayerLivingWrapper;
@@ -221,7 +222,7 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 	
 	// Some pseudo AI, just for testing
 	
-	protected MobItemManageAI foo = new MobItemManageAI();
+	protected ItemManageAI foo = new ItemManageAI();
 	
 	@Override
 	protected void customServerAiStep() {
