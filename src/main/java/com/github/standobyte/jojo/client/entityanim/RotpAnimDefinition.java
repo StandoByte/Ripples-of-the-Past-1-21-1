@@ -84,7 +84,7 @@ public class RotpAnimDefinition {
 			FloatListIterator iter = poseTimestamps.iterator();
 			while (iter.hasNext()) {
 				float timestamp = iter.nextFloat();
-				AnimFramePose frame = calcAnimPose(null, timestamp, 1);
+				AnimFramePose frame = calcAnimPose(null, null, timestamp, 1);
 				frame = frame.deepCopy();
 				coolPoses.add(frame);
 			}
@@ -92,10 +92,14 @@ public class RotpAnimDefinition {
 	}
 
 
-	public AnimFramePose calcAnimPose(@Nullable LivingEntityRenderState renderState, float seconds, float animSpeed) {
+	public AnimFramePose calcAnimPose(@Nullable LivingEntityRenderState renderState, 
+			@Nullable EntityActionRenderState modRenderState, float seconds, float animSpeed) {
 		evaluateQueries(renderState);
 		AnimFramePose frame = AnimFramePose.reused.clear();
-		for (Map.Entry<String, List<IAnimationChannel>> entry : boneAnimations.entrySet()) {
+
+		Map<String, List<IAnimationChannel>> anim = SmoothPunchComboAnimTransition.transition(
+				boneAnimations, modRenderState != null ? modRenderState.prevPunchPose : null);
+		for (Map.Entry<String, List<IAnimationChannel>> entry : anim.entrySet()) {
 			ModelPartFrame modelPartPose = frame.getForModelPart(entry.getKey());
 			for (IAnimationChannel tf : entry.getValue()) {
 				Vector3f vec = calcVec(this, tf, seconds, animSpeed);
@@ -140,15 +144,17 @@ public class RotpAnimDefinition {
 	}
 	
 
-	public AnimFramePose animate(Model model, LivingEntityRenderState renderState, float seconds, float animSpeed) {
-		AnimFramePose frame = calcAnimPose(renderState, seconds, animSpeed);
+	public AnimFramePose animate(Model model, LivingEntityRenderState renderState, 
+			EntityActionRenderState modRenderState, float seconds, float animSpeed) {
+		AnimFramePose frame = calcAnimPose(renderState, modRenderState, seconds, animSpeed);
 		animate(model, frame);
 		return frame;
 	}
 
 	@Deprecated
-	public void animateVanillaPlayer(HumanoidModel<?> humanoidModel, LivingEntityRenderState renderState, float seconds, float animSpeed) {
-		animate(humanoidModel, renderState, seconds, animSpeed);
+	public void animateVanillaPlayer(HumanoidModel<?> humanoidModel, LivingEntityRenderState renderState, 
+			EntityActionRenderState modRenderState, float seconds, float animSpeed) {
+		animate(humanoidModel, renderState, modRenderState, seconds, animSpeed);
 	}
 	
 	
@@ -244,21 +250,26 @@ public class RotpAnimDefinition {
 	}
 	
 
-	protected static final Vector3f TEMP = new Vector3f();
+	protected static final Vector3f TARGET = new Vector3f();
 	
 	public static Vector3f calcVec(RotpAnimDefinition anim, IAnimationChannel tf, float seconds, float animSpeed) {
 		Keyframe[] keyframes = tf.keyframes();
-		anim.lerpKeyframes(keyframes, seconds, animSpeed);
-		if (tf.target() == AnimationChannel.Targets.ROTATION) {
-			TEMP.mul(MathUtil.DEG_TO_RAD);
+		Vector3f vec = anim.lerpKeyframes(keyframes, seconds, animSpeed);
+		adjustBlockbenchVec(tf.target(), vec);
+		return vec;
+	}
+	
+	// can't move this to parsing because of Molang
+	public static void adjustBlockbenchVec(AnimationChannel.Target target, Vector3f vec) {
+		if (target == AnimationChannel.Targets.ROTATION) {
+			vec.mul(MathUtil.DEG_TO_RAD);
 		}
-		else if (tf.target() == AnimationChannel.Targets.POSITION) {
-			TEMP.mul(1, -1, 1);
+		else if (target == AnimationChannel.Targets.POSITION) {
+			vec.mul(1, -1, 1);
 		}
-		else if (tf.target() == AnimationChannel.Targets.SCALE) {
-			TEMP.add(-1, -1, -1);
+		else if (target == AnimationChannel.Targets.SCALE) {
+			vec.add(-1, -1, -1);
 		}
-		return TEMP;
 	}
 	
 	public Vector3f lerpKeyframes(Keyframe[] keyframes, float seconds, float animSpeed) {
@@ -268,8 +279,8 @@ public class RotpAnimDefinition {
 		Keyframe keyframe2 = keyframes[j];
 		float h = seconds - keyframe.timestamp();
 		float k = j != i ? Mth.clamp(h / (keyframe2.timestamp() - keyframe.timestamp()), 0.0f, 1.0f) : 0.0f;
-		keyframe2.interpolation().apply(TEMP, k, keyframes, i, j, animSpeed);
-		return TEMP;
+		keyframe2.interpolation().apply(TARGET, k, keyframes, i, j, animSpeed);
+		return TARGET;
 	}
 	
 	

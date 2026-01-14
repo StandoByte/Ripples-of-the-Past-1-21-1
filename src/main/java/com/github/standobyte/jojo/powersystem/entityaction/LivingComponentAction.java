@@ -6,6 +6,8 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
+import com.github.standobyte.jojo.client.entityanim.pose.EntityKeepAnimPose;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.mc.entity.util.LivingReactToNewAction;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.SyncType;
@@ -32,6 +34,8 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 	@Nullable private EntityActionInstance action;
 	
 	public ActionComboStringTracker comboString = new ActionComboStringTracker();
+	
+	@Nullable public AnimFramePose clPrevPunchPose;
 	
 	// TODO move aim to a separate component
 	@Deprecated
@@ -80,6 +84,16 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 		assignAction(action);
 		if (action != null) {
 			action._onActionStarted(prevAction);
+		}
+		
+		if (entity.level().isClientSide()) {
+			clPrevPunchPose = null;
+			if (action != null && action.savePrevPoseForAnimTransition(prevAction) && entity instanceof EntityKeepAnimPose entity) {
+				AnimFramePose clientSavedPose = entity.jojo_ripples$getModelPose();
+				if (clientSavedPose != null) {
+					clPrevPunchPose = clientSavedPose.deepCopy();
+				}
+			}
 		}
 		
 		// Sync to players

@@ -451,6 +451,10 @@ public class EntityActionInstance implements HeldInput {
 		return ability.getEntityAnim(this);
 	}
 	
+	public boolean savePrevPoseForAnimTransition(EntityActionInstance prevAction) {
+		return true;
+	}
+	
 
 	@ApiStatus.NonExtendable
 	public void forceStop() {

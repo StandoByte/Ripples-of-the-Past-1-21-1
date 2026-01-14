@@ -196,9 +196,9 @@ public class ParseGeckoAnims {
 				})
 				.orElse(new double[0]);
 		
-		KeyframeQuery rotVec = KeyframeQuery.parseJsonVec(rotVecJson);
 		Interpolation lerp = MoarInterpolations.getLerpMode(easingName, easingArgs);
-		keyframesTimeline.put(time, rotVec.setKeyframe(time, lerp));
+		KeyframeQuery rotVec = KeyframeQuery.parseJsonVec(rotVecJson, time, lerp);
+		keyframesTimeline.put(time, rotVec);
 	}
 	
 	public static <T> T[] keyframesToArray(Float2ObjectMap<T> parsedTimeline, IntFunction<T[]> arrayConstructor) {

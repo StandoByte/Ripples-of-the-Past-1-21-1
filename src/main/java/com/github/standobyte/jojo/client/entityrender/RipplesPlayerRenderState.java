@@ -20,8 +20,9 @@ public class RipplesPlayerRenderState {
 
 	public static void extract(LivingEntity entity, HumanoidRenderState vanillaRenderState, RipplesPlayerRenderState modRenderState, 
 			float partialTick/*, ItemModelResolver itemModelResolver*/) {
-		EntityActionInstance action = LivingComponentAction.getCurEntityAction(entity);
-		EntityActionRenderState.extract(modRenderState.entityAction, entity, action, partialTick);
+		LivingComponentAction actionComponent = LivingComponentAction.getExistingComponent(entity);
+		EntityActionInstance action = actionComponent != null ? actionComponent.getAction() : null;
+		EntityActionRenderState.extract(modRenderState.entityAction, entity, actionComponent, action, partialTick);
 		
 		modRenderState.animSet = null;
 		if (action != null) {
@@ -44,7 +45,7 @@ public class RipplesPlayerRenderState {
 //		}
 		
 		if (anim != null) {
-			anim.animate(model, vanillaRenderState, seconds, 1);
+			anim.animate(model, vanillaRenderState, modRenderState.entityAction, seconds, 1);
 			return true;
 		}
 		

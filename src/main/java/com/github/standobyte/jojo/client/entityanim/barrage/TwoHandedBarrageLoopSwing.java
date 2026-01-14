@@ -90,7 +90,7 @@ public class TwoHandedBarrageLoopSwing extends BarrageSwing {
 		sharedRenderState.yRot = 0;
 		
 		float seconds = barrageAnim.getAnimTime(sharedActionRenderState);
-		barrageAnim.animate(model, sharedRenderState, seconds, 1);
+		barrageAnim.animate(model, sharedRenderState, sharedActionRenderState, seconds, 1);
 		ModelPart arm = BarrageSwings.getNoXRotArm(model, side);
 		
 		arm.zRot = Mth.lerp(swingAmount, arm.zRot, arm.zRot + zRot * 1.25f);

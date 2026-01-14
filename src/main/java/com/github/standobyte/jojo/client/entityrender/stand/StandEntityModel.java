@@ -99,7 +99,7 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 			RotpAnimDefinition anim = renderState.action.anim;
 			float seconds = renderState.action.timeSeconds;
 			if (anim != null) {
-				pose = anim.animate(this, renderState, seconds, 1);
+				pose = anim.animate(this, renderState, renderState.action, seconds, 1);
 			}
 			else if (head != null) {
 				head.xRot = renderState.xRot * MathUtil.DEG_TO_RAD;

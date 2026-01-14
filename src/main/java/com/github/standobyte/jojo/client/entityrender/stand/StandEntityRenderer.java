@@ -16,6 +16,7 @@ import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.java.LazyNullable;
 import com.github.standobyte.v1_21_4_stuff.renderstate.ArmedEntityRenderState;
@@ -102,8 +103,9 @@ public class StandEntityRenderer<
 
 		renderState.visibleParts = HumanoidPart.ALL;
 		
+		LivingComponentAction actionComponent = entity.getStandActionComponent();
 		EntityActionInstance action = entity.getCurStandAction();
-		EntityActionRenderState.extract(renderState.action, entity, action, partialTick);
+		EntityActionRenderState.extract(renderState.action, entity, actionComponent, action, partialTick);
 		if (renderState.action.animId == null) {
 			float idleTime = entity.tickCount - entity.nonIdlePoseTimeStamp + partialTick;
 			// FIXME for a bit after grabbing, the grabbed entity is not yet synced to the client, causing it to use regular idle anim for a few frames

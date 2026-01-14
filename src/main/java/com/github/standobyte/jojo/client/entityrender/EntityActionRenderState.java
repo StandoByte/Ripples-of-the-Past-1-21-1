@@ -11,6 +11,7 @@ import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderSta
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
 import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
@@ -20,6 +21,7 @@ import net.minecraft.world.entity.LivingEntity;
 
 public class EntityActionRenderState {
 	@Nullable public AnimFramePose staticPose;
+	@Nullable public AnimFramePose prevPunchPose;
 	
 	@Nullable public ActionAnimIdentifier animId;
 	public float time = -1;
@@ -36,7 +38,11 @@ public class EntityActionRenderState {
 	@Nullable public BarrageSwings barrageSwings;
 
 
-	public static void extract(EntityActionRenderState renderState, LivingEntity performerEntity, @Nullable EntityActionInstance action, float partialTick) {
+	public static void extract(EntityActionRenderState renderState, LivingEntity performerEntity, 
+			LivingComponentAction actionComponent, @Nullable EntityActionInstance action, float partialTick) {
+		if (actionComponent != null) {
+			renderState.prevPunchPose = actionComponent.clPrevPunchPose;
+		}
 		if (action != null) {
 			action.extractAnim(renderState, partialTick);
 			renderState.disableCrouch = true;

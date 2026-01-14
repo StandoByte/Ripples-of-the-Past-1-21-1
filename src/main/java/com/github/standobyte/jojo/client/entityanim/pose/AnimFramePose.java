@@ -90,5 +90,13 @@ public class AnimFramePose {
 			copy.scaleOffset.set(this.scaleOffset);
 			return copy;
 		}
+		
+		public Vector3f getForTarget(AnimationChannel.Target target) {
+			if (target == AnimationChannel.Targets.ROTATION)		return rotationOffset;
+			else if (target == AnimationChannel.Targets.POSITION) 	return positionOffset;
+			else if (target == AnimationChannel.Targets.SCALE) 		return scaleOffset;
+			throw new IllegalStateException();
+		}
+		
 	}
 }

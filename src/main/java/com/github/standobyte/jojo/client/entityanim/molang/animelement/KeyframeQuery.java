@@ -16,11 +16,13 @@ public class KeyframeQuery {
 	private final Vector3f keyframeTarget;
 	@Nullable private final MolangValue[] query;
 	
-	public static KeyframeQuery constant(Vector3f vec) {
-		return new KeyframeQuery(vec, null);
+	public static KeyframeQuery constant(Vector3f vec, float timestamp, Interpolation interpolation) {
+		KeyframeQuery keyframe = new KeyframeQuery(vec, null);
+		keyframe.setKeyframe(timestamp, interpolation);
+		return keyframe;
 	}
 	
-	private KeyframeQuery(Vector3f keyframeTarget, @Nullable MolangValue[] query) {
+	protected KeyframeQuery(Vector3f keyframeTarget, @Nullable MolangValue[] query) {
 		this.keyframeTarget = keyframeTarget;
 		this.query = query;
 	}
@@ -33,7 +35,7 @@ public class KeyframeQuery {
 		return rotpKeyframe;
 	}
 	
-	public KeyframeQuery setKeyframe(float timestamp, Interpolation interpolation) {
+	protected KeyframeQuery setKeyframe(float timestamp, Interpolation interpolation) {
 		keyframe = new Keyframe(timestamp, keyframeTarget, interpolation);
 		return this;
 	}
@@ -54,19 +56,22 @@ public class KeyframeQuery {
 	}
 	
 	
-	public static KeyframeQuery parseJsonVec(JsonArray vecJson) {
+	public static KeyframeQuery parseJsonVec(JsonArray vecJson, float timestamp, Interpolation interpolation) {
 		boolean isNumericLiteral = true;
 		MolangValue[] elements = new MolangValue[3];
 		for (int i = 0; i < elements.length; i++) {
 			elements[i] = MolangValue.fromJson(vecJson.get(i), KeyframesMolangEngine.get());
 			isNumericLiteral &= elements[i].isNumericLiteral();
 		}
+		KeyframeQuery keyframe;
 		if (isNumericLiteral) {
-			return KeyframeQuery.constant(new Vector3f(elements[0].getAsFloat(), elements[1].getAsFloat(), elements[2].getAsFloat()));
+			keyframe = new KeyframeQuery(new Vector3f(elements[0].getAsFloat(), elements[1].getAsFloat(), elements[2].getAsFloat()), null);
 		}
 		else {
-			return new KeyframeQuery(new Vector3f(0, 0, 0), new MolangValue[] { elements[0], elements[1], elements[2] });
+			keyframe = new KeyframeQuery(new Vector3f(0, 0, 0), new MolangValue[] { elements[0], elements[1], elements[2] });
 		}
+		keyframe.setKeyframe(timestamp, interpolation);
+		return keyframe;
 	}
 	
 }
