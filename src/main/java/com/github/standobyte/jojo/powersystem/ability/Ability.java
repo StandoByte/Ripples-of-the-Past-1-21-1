@@ -38,6 +38,8 @@ public class Ability {
 		this.abilityId = abilityId;
 		this.spriteName = StringUtil.splitIntAtTheEnd(abilityId.nameInMoveset()).getFirst();
 		this.name = abilityName(abilityId, "");
+		String abilityName = abilityId.nameInMoveset();
+		this.isSubAbility = !abilityName.isEmpty() && Character.isDigit(abilityName.charAt(abilityName.length() - 1));
 	}
 	
 	protected static Component abilityName(AbilityId abilityId, String postfix) {

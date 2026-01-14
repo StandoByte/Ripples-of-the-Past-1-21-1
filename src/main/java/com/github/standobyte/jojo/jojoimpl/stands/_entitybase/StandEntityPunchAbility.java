@@ -34,7 +34,6 @@ import com.github.standobyte.jojo.util.target.AimingEntity;
 import com.github.standobyte.jojo.util.target.HitResultUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._EntitySelector;
 
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
@@ -68,7 +67,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 				}
 			}
 			
-			Ability punch = getComboPunch(standEntity, moveset);
+			Ability punch = getComboPunch(standEntity, standPower, moveset);
 			if (punch != null) return punch;
 		}
 		return super.replaceWithSubAbility(context, abilities);
@@ -211,30 +210,28 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 	
 	// 
 	
-	@Deprecated
-	protected List<String> punchNames = Util.make(new ArrayList<>(), list -> {
-		list.add("punch");
-		list.add("punch2");
-		list.add("punch3");
-		list.add("punch4");
-	});
-	
-	@Deprecated
-	protected Ability getComboPunch(StandEntity standEntity, Moveset moveset) {
-		int startFromPunch = 0;
+	protected static List<String> punchNamesBuffer = new ArrayList<>();
+	protected Ability getComboPunch(StandEntity standEntity, StandPower standPower, Moveset moveset) {
+		if (this.isSubAbility) return null;
 		
-		if (standEntity != null) {
-			if (LivingComponentGrab.getEntityGrabbedBy(standEntity) != null) {
-				return moveset.getAbility("grab_punch");
+		punchNamesBuffer.clear();
+		String baseName = this.abilityId.nameInMoveset();
+		punchNamesBuffer.add(baseName);
+		for (int i = 2; ; i++) {
+			String comboPunchName = baseName + i;
+			if (moveset.getAbility(comboPunchName) != null) {
+				punchNamesBuffer.add(comboPunchName);
 			}
-			
-			
+			else break;
+		}
+		
+		int startFromPunch = 0;
+		if (standEntity != null) {
 			AbilityId curAbility = LivingComponentAction.getComponent(standEntity).comboString.getLast();
-			
 			if (curAbility != null) {
 				String actionName = curAbility.nameInMoveset();
-				for (int i = 0; i < punchNames.size(); i++) {
-					if (punchNames.get(i).equals(actionName)) {
+				for (int i = 0; i < punchNamesBuffer.size(); i++) {
+					if (punchNamesBuffer.get(i).equals(actionName)) {
 						startFromPunch = i + 1;
 						break;
 					}
@@ -242,12 +239,12 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 			}
 		}
 		
-		int size = punchNames.size();
+		int size = punchNamesBuffer.size();
 		for (int i = 0; i < size; i++) {
 			int index = (startFromPunch + i) % size;
-			String nextPunchName = punchNames.get(index);
+			String nextPunchName = punchNamesBuffer.get(index);
 			Ability nextPunch = moveset.getAbility(nextPunchName);
-			if (nextPunch != null) {
+			if (nextPunch != null && nextPunch.isAbilityAvailable(standPower)) {
 				return nextPunch;
 			}
 		}
