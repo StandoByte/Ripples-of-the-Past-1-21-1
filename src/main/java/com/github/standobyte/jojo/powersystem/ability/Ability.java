@@ -40,6 +40,7 @@ public class Ability {
 		this.name = abilityName(abilityId, "");
 		String abilityName = abilityId.nameInMoveset();
 		this.isSubAbility = !abilityName.isEmpty() && Character.isDigit(abilityName.charAt(abilityName.length() - 1));
+		initVariationAssets();
 	}
 	
 	protected static Component abilityName(AbilityId abilityId, String postfix) {
@@ -195,5 +196,8 @@ public class Ability {
 	public void applyConfig(JsonObject config) {
 		// TODO (ability config) reflection to edit field values?
 	}
+	
+	
+	protected void initVariationAssets() {}
 	
 }
