@@ -165,8 +165,8 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 	}
 
 	@Override
-	public void addAdditionalSaveData(CompoundTag compound) {
-		super.addAdditionalSaveData(compound);
+	public void addAdditionalSaveData(CompoundTag nbt) {
+		super.addAdditionalSaveData(nbt);
 		
 		if (playerWrapper != null) {
 			Player player = playerWrapper.asPlayer();
@@ -180,26 +180,26 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 			ListTag inventoryNbt = player.getInventory().save(new ListTag());
 			playerData.put("Inventory", inventoryNbt);
 			
-			compound.put("Player", playerData);
+			nbt.put("Player", playerData);
 		}
 		
 		entityData.get(DATA_PROFILE).ifPresent(profile -> {
 			ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, profile).ifSuccess(profileNbt -> {
-				compound.put("Skin", profileNbt);
+				nbt.put("Skin", profileNbt);
 			});
 		});
 		
-		setDummyFlag(this.getSpawnType());
+		nbt.putBoolean("Dummy", entityData.get(IS_DEBUG_DUMMY));
 	}
 
 	@Override
-	public void readAdditionalSaveData(CompoundTag compound) {
-		super.readAdditionalSaveData(compound);
+	public void readAdditionalSaveData(CompoundTag nbt) {
+		super.readAdditionalSaveData(nbt);
 		
 		if (playerWrapper != null) {
 			Player player = playerWrapper.asPlayer();
 			
-			CompoundTag playerData = NBTUtil.getCompoundOptional(compound, "Player").orElse(null);
+			CompoundTag playerData = NBTUtil.getCompoundOptional(nbt, "Player").orElse(null);
 			if (playerData != null) {
 				player.experienceProgress = playerData.getFloat("XpP");
 				player.experienceLevel = playerData.getInt("XpLevel");
@@ -213,11 +213,13 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 			}
 		}
 		
-		NBTUtil.getCompoundOptional(compound, "Skin").ifPresent(profileNbt -> {
+		NBTUtil.getCompoundOptional(nbt, "Skin").ifPresent(profileNbt -> {
 			ResolvableProfile.CODEC.parse(NbtOps.INSTANCE, profileNbt).ifSuccess(profile -> {
 				entityData.set(DATA_PROFILE, Optional.of(profile));
 			});
 		});
+		
+		entityData.set(IS_DEBUG_DUMMY, nbt.getBoolean("Dummy"));
 	}
 	
 	// Some pseudo AI, just for testing

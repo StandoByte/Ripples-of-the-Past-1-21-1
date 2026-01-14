@@ -470,11 +470,15 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 						(float) Math.PI + angle, 0, 0, 0, 
 						(EntityStandType) standType, skin, 
 						(renderer, renderState) -> {
-							AnimationSet anims = skin.standEntityAnims;
-							List<AnimFramePose> poses = anims.coolPoses;
 							renderer.extractSkinMenuRenderState(renderState, skin, standType.getId(), 0, 0xFFB0B0B0);
-							if (poses != null && !poses.isEmpty()) {
-								renderState.action.staticPose = poses.get(rand % poses.size());
+							if (skin != null) {
+								AnimationSet anims = skin.standEntityAnims;
+								if (anims != null) {
+									List<AnimFramePose> poses = anims.coolPoses;
+									if (poses != null && !poses.isEmpty()) {
+										renderState.action.staticPose = poses.get(rand % poses.size());
+									}
+								}
 							}
 						});
 				
