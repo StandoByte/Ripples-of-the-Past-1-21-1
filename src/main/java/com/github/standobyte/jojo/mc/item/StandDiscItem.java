@@ -54,7 +54,7 @@ public class StandDiscItem extends Item {
 			}
 		}
 		
-		if (!standType.discExtraTooltip.isEmpty()) {
+		if (standType != null && !standType.discExtraTooltip.isEmpty()) {
 			tooltip.add(CommonComponents.EMPTY);
 			tooltip.addAll(standType.discExtraTooltip);
 		}
