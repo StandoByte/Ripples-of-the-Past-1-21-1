@@ -39,9 +39,9 @@ import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.ability.input.AbilityInput;
 import com.github.standobyte.jojo.powersystem.ability.input.AbilityInput.InputEventType;
 import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer.BufferingState;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState.HeldInputEntry;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
-import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState.HeldInputEntry;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.CommonEnums.Direction2D;
@@ -55,7 +55,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.player.Input;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
@@ -147,10 +146,7 @@ public class InputHandler {
 	}
 	
 	public void handleInputEvent(ClientKey key, int action, int modifiers, ICancellableEvent event) {
-		if (action == InputConstants.RELEASE && mc.screen instanceof ChatScreen) {
-			keyReleaseEventQueue.add(new DelayedInput(key, action, modifiers));
-		}
-		else if (input(key, action, modifiers)) {
+		if (input(key, action, modifiers)) {
 			event.setCanceled(true);
 		}
 		
@@ -224,6 +220,13 @@ public class InputHandler {
 	public boolean input(ClientKey key, int inputType, int modifiers) {
 		boolean cancelVanilla = false;
 		short keyId = key.keyId();
+		
+		if (mc.screen != null && !PowerHud.isInContainerScreen()) {
+			if (inputType == InputConstants.RELEASE) {
+				keyReleaseEventQueue.add(new DelayedInput(key, inputType, modifiers));
+			}
+			return false;
+		}
 		
 		switch (inputType) {
 			case InputConstants.PRESS -> {
