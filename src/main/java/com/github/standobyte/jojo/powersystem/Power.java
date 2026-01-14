@@ -39,7 +39,7 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	
 	@Override
 	public void tick() {
-		
+		cachedMovesThisTick = false;
 	}
 	
 	public boolean canUsePower() {
@@ -84,8 +84,12 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	
 	@ApiStatus.Internal
 	public AvailableAbilities _curAvailableMoves = new AvailableAbilities(getPowerClass());
+	protected boolean cachedMovesThisTick;
 	public AvailableAbilities updateAvailableMoves() {
-		_curAvailableMoves.update(this, getMoveset());
+		if (!cachedMovesThisTick) {
+			_curAvailableMoves.update(this, getMoveset());
+			cachedMovesThisTick = true;
+		}
 		return _curAvailableMoves;
 	}
 	

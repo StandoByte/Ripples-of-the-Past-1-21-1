@@ -34,12 +34,9 @@ public class StandInitStarPlatinum {
 				.addHumanoidStandStuff()
 
 				.addAbility("punch", ModStandAbilities.PUNCH)
-
-				// FIXME refactor sub-punches initialization
-				.addAbility("punch2", ModStandAbilities.PUNCH, punch -> punch.isSubAbility = true)
-				.addAbility("punch3", ModStandAbilities.PUNCH, punch -> punch.isSubAbility = true)
+				.addAbility("punch2", ModStandAbilities.PUNCH)
+				.addAbility("punch3", ModStandAbilities.PUNCH)
 				.addAbility("punch4", ModStandAbilities.PUNCH, punch -> {
-					punch.isSubAbility = true;
 					punch.setDefaultPhaseLength(ActionPhase.WINDUP, 5);
 				})
 

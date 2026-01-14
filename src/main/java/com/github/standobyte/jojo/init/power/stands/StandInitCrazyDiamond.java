@@ -33,6 +33,9 @@ public class StandInitCrazyDiamond {
 				.addHumanoidStandStuff()
 
 				.addAbility("punch", ModStandAbilities.PUNCH)
+				.addAbility("punch2", ModStandAbilities.PUNCH)
+				.addAbility("punch3", ModStandAbilities.PUNCH)
+				.addAbility("punch4", ModStandAbilities.PUNCH)
 				.addAbility("barrage", ModStandAbilities.BARRAGE)
 				.addAbility("heavy_punch", ModStandAbilities.HEAVY_PUNCH)
 				.addAbility("finisher", ModStandAbilities.HEAVY_PUNCH, punch -> punch.isSubAbility = true)
