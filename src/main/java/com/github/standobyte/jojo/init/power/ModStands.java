@@ -2,12 +2,12 @@ package com.github.standobyte.jojo.init.power;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
-import com.github.standobyte.jojo.init.power.stands.StandInitCrazyDiamond;
-import com.github.standobyte.jojo.init.power.stands.StandInitHierophantGreen;
-import com.github.standobyte.jojo.init.power.stands.StandInitStarPlatinum;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputUseVanillaMapping;
 import com.github.standobyte.jojo.powersystem.standpower.entity.EntityStandType;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
+import com.github.standobyte.jojoimpl.stands.StandInitCrazyDiamond;
+import com.github.standobyte.jojoimpl.stands.StandInitHierophantGreen;
+import com.github.standobyte.jojoimpl.stands.StandInitStarPlatinum;
 
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;

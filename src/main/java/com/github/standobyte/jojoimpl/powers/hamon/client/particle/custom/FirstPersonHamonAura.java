@@ -1,0 +1,474 @@
+package com.github.standobyte.jojoimpl.powers.hamon.client.particle.custom;
+
+public class FirstPersonHamonAura {
+//	private final Queue<FirstPersonPseudoParticle> particlesToAdd = Queues.newArrayDeque();
+//	private final Map<ParticleRenderType, Map<HumanoidArm, Queue<FirstPersonPseudoParticle>>> particles = Maps.newIdentityHashMap();
+//
+//	private FirstPersonHamonAura() {}
+//
+//	private static FirstPersonHamonAura instance;
+//	public static void init() {
+//		instance = new FirstPersonHamonAura();
+//	}
+//
+//	public static FirstPersonHamonAura getInstance() {
+//		return instance;
+//	}
+//
+//
+//
+//	public void add(FirstPersonPseudoParticle pEffect) {
+//		this.particlesToAdd.add(pEffect);
+//	}
+//
+//	public void tick() {
+//		for (Map<HumanoidArm, Queue<FirstPersonPseudoParticle>> particles : this.particles.values()) {
+//			tickParticles(particles.get(HumanoidArm.LEFT));
+//			tickParticles(particles.get(HumanoidArm.RIGHT));
+//		}
+//
+//		FirstPersonPseudoParticle particle;
+//		if (!particlesToAdd.isEmpty()) {
+//			while((particle = particlesToAdd.poll()) != null) {
+//				Map<HumanoidArm, Queue<FirstPersonPseudoParticle>> particlesByRenderType = this.particles.computeIfAbsent(particle.getRenderType(), 
+//						t -> Util.make(new EnumMap<>(HumanoidArm.class), map -> {
+//							map.put(HumanoidArm.LEFT, EvictingQueue.create(16384));
+//							map.put(HumanoidArm.RIGHT, EvictingQueue.create(16384));
+//						}));
+//				particlesByRenderType.get(particle.handSide).add(particle);
+//			}
+//		}
+//
+//	}
+//
+//	private void tickParticles(Queue<FirstPersonPseudoParticle> particles) {
+//		if (!particles.isEmpty()) {
+//			Iterator<FirstPersonPseudoParticle> iterator = particles.iterator();
+//
+//			while(iterator.hasNext()) {
+//				FirstPersonPseudoParticle particle = iterator.next();
+//				try {
+//					particle.tick();
+//				} catch (Throwable throwable) {
+//					CrashReport crashreport = CrashReport.forThrowable(throwable, "Ticking Particle");
+//					CrashReportCategory crashreportcategory = crashreport.addCategory("Particle being ticked");
+//					crashreportcategory.setDetail("Particle", particle::toString);
+//					crashreportcategory.setDetail("Particle Type", particle.getRenderType()::toString);
+//					throw new ReportedException(crashreport);
+//				}
+//				if (!particle.isAlive()) {
+//					iterator.remove();
+//				}
+//			}
+//		}
+//	}
+//
+//	public static boolean auraRendersAtItem(ItemStack itemStack, HumanoidArm handSide) {
+////		if (MCUtil.itemHandFree(itemStack)) {
+////			return true;
+////		}
+////
+////		Entity cameraEntity = Minecraft.getInstance().getCameraEntity();
+////		if (cameraEntity instanceof LivingEntity) {
+////			LivingEntity entity = (LivingEntity) cameraEntity;
+////			PlayerPower power = PlayerPower.get(entity);
+////			if (power != null) {
+////				HamonData hamon = power.getData(ModPlayerPowers.HAMON.get()).orElse(null);
+////				if (hamon != null) {
+////					Item item = itemStack.getItem();
+////					return entity.getMainArm() == handSide && (hamon.isSkillLearned(ModHamonSkills.METAL_SILVER_OVERDRIVE.get()) || OilItem.remainingOiledUses(itemStack).isPresent()) && MCUtil.isItemWeapon(itemStack)
+////							|| hamon.isSkillLearned(ModHamonSkills.PLANT_ITEM_INFUSION.get()) && HamonUtil.isItemLivingMatter(itemStack)
+////							|| hamon.isSkillLearned(ModHamonSkills.THROWABLES_INFUSION.get()) && (item == Items.EGG || item == Items.SNOWBALL || item == ModItems.MOLOTOV.get() || ((item == Items.SPLASH_POTION || item == Items.LINGERING_POTION) && PotionUtils.getPotion(itemStack) == Potions.WATER))
+////							|| hamon.isSkillLearned(ModHamonSkills.ARROW_INFUSION.get()) && (item instanceof ShootableItem || item instanceof TridentItem || item == ModItems.KNIFE.get() || item == ModItems.BLADE_HAT.get())
+////							|| hamon.isSkillLearned(ModHamonSkills.CLACKER_VOLLEY.get()) && item == ModItems.CLACKERS.get()
+////							|| hamon.isSkillLearned(ModHamonSkills.AJA_STONE_KEEPER.get()) && item instanceof AjaStoneItem
+////							|| hamon.isSkillLearned(ModHamonSkills.SATIPOROJA_SCARF.get()) && item == ModItems.SATIPOROJA_SCARF.get()
+////							|| Streams.stream(hamon.getLearnedSkills())
+////							.flatMap(AbstractHamonSkill::getRewardActions)
+////							.anyMatch(action -> action.renderHamonAuraOnItem(itemStack, handSide));
+////				}
+////			}
+////		}
+//
+//		return false;
+//	}
+//
+//	public static void itemMatrixTransform(PoseStack poseStack, HumanoidArm handSide, ItemStack itemStack) {
+//		boolean flag = handSide != HumanoidArm.LEFT;
+//		float f = flag ? 1.0F : -1.0F;
+//		poseStack.translate(f * 0.64, -0.6, -0.712);
+//		poseStack.mulPose(Vector3f.YP.rotationDegrees(f * 45.0F));
+//		poseStack.translate(-f, 3.6, 3.5);
+//		poseStack.mulPose(Vector3f.ZP.rotationDegrees(f * 120.0F));
+//		poseStack.mulPose(Vector3f.XP.rotationDegrees(200.0F));
+//		poseStack.mulPose(Vector3f.YP.rotationDegrees(f * -135.0F));
+//		poseStack.translate(f * 5.3, 0, 0);
+//	}
+//
+//
+//	@SuppressWarnings("deprecation")
+//	public void renderParticles(PoseStack pMatrixStack, IRenderTypeBuffer pBuffer, HumanoidArm handSide) {
+//		Minecraft mc = Minecraft.getInstance();
+//		LightTexture lightTexture = mc.gameRenderer.lightTexture();
+//		float partialTick = ClientUtil.getPartialTick();
+//
+//		lightTexture.turnOnLightLayer();
+//		Runnable enable = () -> {
+//			RenderSystem.enableAlphaTest();
+//			RenderSystem.defaultAlphaFunc();
+//			RenderSystem.enableDepthTest();
+//			RenderSystem.enableFog();
+//			RenderSystem.activeTexture(org.lwjgl.opengl.GL13.GL_TEXTURE2);
+//			RenderSystem.enableTexture();
+//			RenderSystem.activeTexture(org.lwjgl.opengl.GL13.GL_TEXTURE0);
+//		};
+//		RenderSystem.pushMatrix();
+//		RenderSystem.multMatrix(pMatrixStack.last().pose());
+//
+//		enable.run();
+//		RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+//		Tessellator tessellator = Tessellator.getInstance();
+//		BufferBuilder bufferbuilder = tessellator.getBuilder();
+//
+//		for (Map.Entry<ParticleRenderType, Map<HumanoidArm, Queue<FirstPersonPseudoParticle>>> particlesByRenderType : particles.entrySet()) {
+//			ParticleRenderType renderType = particlesByRenderType.getKey();
+//			if (renderType == ParticleRenderType.NO_RENDER || 
+//					renderType == HamonAuraParticleRenderType.HAMON_AURA && !ClientModSettings.getSettingsReadOnly().firstPersonHamonAura) {
+//				continue;
+//			}
+//			Queue<FirstPersonPseudoParticle> particles = particlesByRenderType.getValue().get(handSide);
+//			if (particles == null || particles.isEmpty() || 
+//					renderType == HamonAuraParticleRenderType.HAMON_AURA && !auraRendersAtItem(mc.player.getItemInHand(MCUtil.getHand(mc.player, handSide)), handSide)) {
+//				continue;
+//			}
+//			renderType.begin(bufferbuilder, Minecraft.getInstance().textureManager);
+//
+//			for (FirstPersonPseudoParticle particle : particles) {
+//				try {
+//					float x = Mth.lerp(partialTick, (float) particle.xo, (float) particle.x);
+//					float y = Mth.lerp(partialTick, (float) particle.yo, (float) particle.y);
+//					float z = Mth.lerp(partialTick, (float) particle.zo, (float) particle.z);
+//					float scale = particle.getQuadSize(partialTick);
+//					int light = particle.getLightColor(partialTick);
+//					renderParticle(particle, bufferbuilder, x, y, z, 
+//							scale, light, partialTick, particle.renderRot);
+//				} catch (Throwable throwable) {
+//					CrashReport crashreport = CrashReport.forThrowable(throwable, "Rendering Particle");
+//					CrashReportCategory crashreportcategory = crashreport.addCategory("Particle being rendered");
+//					crashreportcategory.setDetail("Particle", particle::toString);
+//					crashreportcategory.setDetail("Particle Type", renderType::toString);
+//					throw new ReportedException(crashreport);
+//				}
+//			}
+//
+//			renderType.end(tessellator);
+//		}
+//
+//		Collection<HamonEnergyRippleHandler.SparkPseudoParticle> hamonSparks = EnergyRippleLayer.getSparksToRenderFirstPerson(mc.player, handSide);
+//		if (hamonSparks != null && !hamonSparks.isEmpty()) {
+//			ParticleRenderType renderType = HamonEnergyRippleHandler.SparkPseudoParticle.RENDER_TYPE;
+//			renderType.begin(bufferbuilder, Minecraft.getInstance().textureManager);
+//
+//			float xOffset = handSide == HumanoidArm.LEFT ? 0.35f : -0.35f;
+//			for (HamonEnergyRippleHandler.SparkPseudoParticle particle : hamonSparks) {
+//				try {
+//					float x = (float) particle.x + xOffset;
+//					float y = (float) -particle.y + 0.125f;
+//					float z = (float) particle.z;
+//					Quaternion renderRot = handSide == HumanoidArm.LEFT ? FirstPersonPseudoParticle.LEFT_ROT : FirstPersonPseudoParticle.RIGHT_ROT;
+//					renderParticle(particle, bufferbuilder, x, y, z, 
+//							particle.scale, HamonEnergyRippleHandler.SparkPseudoParticle.PARTICLE_LIGHT, partialTick, renderRot);
+//				} catch (Throwable throwable) {
+//					CrashReport crashreport = CrashReport.forThrowable(throwable, "Rendering Particle");
+//					CrashReportCategory crashreportcategory = crashreport.addCategory("Particle being rendered");
+//					crashreportcategory.setDetail("Particle", particle::toString);
+//					crashreportcategory.setDetail("Particle Type", renderType::toString);
+//					throw new ReportedException(crashreport);
+//				}
+//			}
+//
+//			renderType.end(tessellator);
+//		}
+//
+//		RenderSystem.popMatrix();
+//		RenderSystem.depthMask(true);
+//		RenderSystem.depthFunc(515);
+//		RenderSystem.disableBlend();
+//		RenderSystem.defaultAlphaFunc();
+//		lightTexture.turnOffLightLayer();
+//		RenderSystem.disableFog();
+//	}
+//
+//	private static void renderParticle(IFirstPersonParticle particle, VertexConsumer buffer, 
+//			float x, float y, float z, float scale, int light, float partialTick, Quaternion renderRot) {
+////		Vector3f vector3f1 = new Vector3f(-1.0F, -1.0F, 0.0F);
+////		vector3f1.transform(renderRot);
+//
+//		Vector3f[] avector3f = new Vector3f[]{
+//				new Vector3f(-1.0F, -1.0F, 0.0F), 
+//				new Vector3f(-1.0F, 1.0F, 0.0F), 
+//				new Vector3f(1.0F, 1.0F, 0.0F), 
+//				new Vector3f(1.0F, -1.0F, 0.0F)};
+//
+//		for(int i = 0; i < 4; ++i) {
+//			Vector3f vector3f = avector3f[i];
+//			vector3f.transform(renderRot);
+//			vector3f.mul(scale);
+//			vector3f.add(x, y, z);
+//		}
+//
+//		particle.renderSprite(IDENTITY_MATRIX, buffer, light, partialTick, avector3f);
+//	}
+//	private static final Matrix4f IDENTITY_MATRIX = Util.make(new Matrix4f(), Matrix4f::setIdentity);
+//
+//
+//
+//	public static abstract class FirstPersonPseudoParticle implements IFirstPersonParticle {
+//		protected static final Random RANDOM = new Random();
+//		protected double xo;
+//		protected double yo;
+//		protected double zo;
+//		protected double x;
+//		protected double y;
+//		protected double z;
+//		protected double xd;
+//		protected double yd;
+//		protected double zd;
+//		protected boolean removed;
+//		protected int age;
+//		protected int lifetime = (int)(4.0F / (RANDOM.nextFloat() * 0.9F + 0.1F));
+//		protected float rCol = 1;
+//		protected float gCol = 1;
+//		protected float bCol = 1;
+//		protected float alpha = 1;
+//		protected float quadSize = 0.1F * (RANDOM.nextFloat() * 0.5F + 0.5F) * 2.0F;
+//		protected TextureAtlasSprite sprite;
+//		protected final SpriteSet sprites;
+//
+//		protected Quaternion renderRot = new Quaternion(Quaternion.ONE);
+//		protected final HumanoidArm handSide;
+//		protected float yRot;
+//		protected float xRot;
+//
+//		protected static final float RIGHT_Y_ROT = 57.5f * MathUtil.DEG_TO_RAD;
+//		protected static final float RIGHT_X_ROT = -62.5f * MathUtil.DEG_TO_RAD;
+//		protected static final float LEFT_Y_ROT = -RIGHT_Y_ROT;
+//		protected static final float LEFT_X_ROT = RIGHT_X_ROT;
+//		protected static final Quaternion RIGHT_ROT;
+//		protected static final Quaternion LEFT_ROT;
+//		static {
+//			RIGHT_ROT = new Quaternion(Quaternion.ONE);
+//			RIGHT_ROT.mul(Vector3f.YP.rotation(RIGHT_Y_ROT));
+//			RIGHT_ROT.mul(Vector3f.XP.rotation(RIGHT_X_ROT));
+//			LEFT_ROT = new Quaternion(Quaternion.ONE);
+//			LEFT_ROT.mul(Vector3f.YP.rotation(LEFT_Y_ROT));
+//			LEFT_ROT.mul(Vector3f.XP.rotation(LEFT_X_ROT));
+//		}
+//
+//		public FirstPersonPseudoParticle(double x, double y, double z, 
+//				SpriteSet sprites, HumanoidArm handSide) {
+//			this.setPos(x, y, z);
+//			this.xo = x;
+//			this.yo = y;
+//			this.zo = z;
+//			this.sprites = sprites;
+//
+//			this.handSide = handSide;
+//			switch (handSide) {
+//			case LEFT:
+//				yRot = LEFT_Y_ROT;
+//				xRot = LEFT_X_ROT;
+//				renderRot = LEFT_ROT;
+//				break;
+//			case RIGHT:
+//				yRot = RIGHT_Y_ROT;
+//				xRot = RIGHT_X_ROT;
+//				renderRot = RIGHT_ROT;
+//				break;
+//			}
+//		}
+//
+//		public abstract ParticleRenderType getRenderType();
+//
+//		protected void remove() {
+//			this.removed = true;
+//		}
+//
+//		public boolean isAlive() {
+//			return !this.removed;
+//		}
+//
+//		protected void setPos(double pX, double pY, double pZ) {
+//			this.x = pX;
+//			this.y = pY;
+//			this.z = pZ;
+//		}
+//
+//		protected void move(double pX, double pY, double pZ) {
+//			if (pX != 0.0 || pY != 0.0 || pZ != 0.0) {
+//				Vec3 moveVec = new Vec3(pX, pY, pZ);
+//				moveVec = moveVec.xRot(-xRot);
+//				moveVec = moveVec.yRot(yRot);
+//				this.x += moveVec.x;
+//				this.y += moveVec.y;
+//				this.z += moveVec.z;
+//			}
+//		}
+//
+////		public void render(VertexConsumer buffer, float partialTick) {
+////			float x = (float)(Mth.lerp((double)partialTick, this.xo, this.x));
+////			float y = (float)(Mth.lerp((double)partialTick, this.yo, this.y));
+////			float z = (float)(Mth.lerp((double)partialTick, this.zo, this.z));
+////			Quaternion quaternion = renderRot;
+////
+//////			Vector3f vector3f1 = new Vector3f(-1.0F, -1.0F, 0.0F);
+//////			vector3f1.transform(quaternion);
+////			float scale = this.getQuadSize(partialTick);
+////
+////			Vector3f[] avector3f = new Vector3f[]{
+////					new Vector3f(-1.0F, -1.0F, 0.0F), 
+////					new Vector3f(-1.0F, 1.0F, 0.0F), 
+////					new Vector3f(1.0F, 1.0F, 0.0F), 
+////					new Vector3f(1.0F, -1.0F, 0.0F)};
+////
+////			for(int i = 0; i < 4; ++i) {
+////				Vector3f vector3f = avector3f[i];
+////				vector3f.transform(quaternion);
+////				vector3f.mul(scale);
+////				vector3f.add(x, y, z);
+////			}
+////
+////			renderSprite(IDENTITY, buffer, partialTick, avector3f);
+////		}
+//
+//		@Override
+//		public void renderSprite(Matrix4f matrixEntry, VertexConsumer buffer, int light, float partialTick, Vector3f[] avector3f) {
+//			float u0 = sprite.getU0();
+//			float u1 = sprite.getU1();
+//			float v0 = sprite.getV0();
+//			float v1 = sprite.getV1();
+//			buffer.vertex(avector3f[0].x(), avector3f[0].y(), avector3f[0].z())
+//			.uv(u1, v1).color(rCol, gCol, bCol, alpha).uv2(light).endVertex();
+//			buffer.vertex(avector3f[1].x(), avector3f[1].y(), avector3f[1].z())
+//			.uv(u1, v0).color(rCol, gCol, bCol, alpha).uv2(light).endVertex();
+//			buffer.vertex(avector3f[2].x(), avector3f[2].y(), avector3f[2].z())
+//			.uv(u0, v0).color(rCol, gCol, bCol, alpha).uv2(light).endVertex();
+//			buffer.vertex(avector3f[3].x(), avector3f[3].y(), avector3f[3].z())
+//			.uv(u0, v1).color(rCol, gCol, bCol, alpha).uv2(light).endVertex();
+//		}
+//
+//		protected float getQuadSize(float pScaleFactor) {
+//			return quadSize;
+//		}
+//
+//		protected int getLightColor(float partialTick) {
+//			Minecraft mc = Minecraft.getInstance();
+//			return mc.getEntityRenderDispatcher().getPackedLightCoords(mc.player, partialTick);
+//		}
+//
+//		public void tick() {
+//			xo = x;
+//			yo = y;
+//			zo = z;
+//			if (age++ >= lifetime) {
+//				remove();
+//			}
+//		}
+//
+//
+//		@Override
+//		public String toString() {
+//			return this.getClass().getSimpleName() + ", Pos (" + this.x + "," + this.y + "," + this.z + "), RGBA (" + this.rCol + "," + this.gCol + "," + this.bCol + "," + this.alpha + "), Age " + this.age;
+//		}
+//	}
+//
+//
+//
+//	public static class HamonAuraPseudoParticle extends FirstPersonPseudoParticle {
+//		protected final double fallSpeed;
+//		protected final int startingSpriteRandom;
+//
+//		public HamonAuraPseudoParticle(double x, double y, double z, 
+//				SpriteSet sprites, HumanoidArm handSide) {
+//			super(x, y, z, sprites, handSide);
+//
+//			this.lifetime = (int)(4.0F / (RANDOM.nextFloat() * 0.9F + 0.1F));
+//
+//			this.xd = (Math.random() * 2.0 - 1.0) * 0.4;
+//			this.yd = (Math.random() * 2.0 - 1.0) * 0.4;
+//			this.zd = (Math.random() * 2.0 - 1.0) * 0.4;
+//			double f = (Math.random() + Math.random() + 1.0) * 0.15;
+//			double f1 = Mth.sqrt(xd * xd + yd * yd + zd * zd);
+//			this.xd = xd / f1 * f * 0.4;
+//			this.yd = yd / f1 * f * 0.4 + 0.1;
+//			this.zd = zd / f1 * f * 0.4;
+//
+//			this.fallSpeed = 0.0005;
+//			this.xd *= 0.05;
+//			this.yd *= 0.1;
+//			this.zd *= 0.05;
+//			float f3 = 1.2F + 0.6F * RANDOM.nextFloat();
+//			this.quadSize *= 0.75F * f3;
+////			this.lifetime = (int)(8 / (RANDOM.nextDouble() * 0.8 + 0.2));
+////			this.lifetime = (int)((float) lifetime * f3);
+////			this.lifetime = Math.max(lifetime, 1);
+//
+//			lifetime = 25 + RANDOM.nextInt(10);
+//			startingSpriteRandom = RANDOM.nextInt(lifetime);
+//			setSpriteFromAge(sprites);
+//			alpha = 0.25F;
+//		}
+//
+//		@Override
+//		public ParticleRenderType getRenderType() {
+//			return HamonAuraParticleRenderType.HAMON_AURA;
+//		}
+//
+//		@Override
+//		protected int getLightColor(float partialTick) {
+//			return 0xF000F0;
+//		}
+//
+//		@Override
+//		public void tick() {
+//			super.tick();
+//			if (!removed) {
+//				setSpriteFromAge(sprites);
+//				yd += fallSpeed;
+//				move(xd, yd, zd);
+//				if (y == yo) {
+//					xd *= 1.1D;
+//					zd *= 1.1D;
+//				}
+//
+//				xd *= 0.96;
+//				yd *= 0.96;
+//				zd *= 0.96;
+//			}
+//		}
+//
+//		protected static final float ALPHA_MIN = 0.05F;
+//		protected static final float ALPHA_DIFF = 0.3F;
+//		@Override
+//		public void renderSprite(Matrix4f matrixEntry, VertexConsumer buffer, int light, float partialTick, Vector3f[] avector3f) {
+//			float ageF = ((float) age + partialTick) / (float) lifetime;
+//			float alphaFunc = ageF <= 0.5F ? ageF * 2 : (1 - ageF) * 2;
+//			this.alpha = ALPHA_MIN + alphaFunc * ALPHA_DIFF;
+//			super.renderSprite(matrixEntry, buffer, light, partialTick, avector3f);
+//		}
+//
+//		protected void setSpriteFromAge(SpriteSet pSprite) {
+//			setSprite(pSprite.get((age + startingSpriteRandom) % lifetime, lifetime));
+//		}
+//
+//		protected void setSprite(TextureAtlasSprite pSprite) {
+//			this.sprite = pSprite;
+//		}
+//
+//		@Override
+//		protected float getQuadSize(float pScaleFactor) {
+//			return quadSize * Mth.clamp(((float)age + pScaleFactor) / (float)lifetime * 32.0F, 0.0F, 1.0F);
+//		}
+//
+//	}
+}

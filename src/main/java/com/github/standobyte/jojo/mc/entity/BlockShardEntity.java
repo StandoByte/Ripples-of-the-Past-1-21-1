@@ -8,13 +8,13 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.particle.CustomParticlesHelper;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModStatusEffects;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBlockBulletAbility;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDHealAbility;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.brokenblocks.EntityMadeFromBlock;
 import com.github.standobyte.jojo.mc.entity.projectile.ModdedProjectileEntity;
 import com.github.standobyte.jojo.util.NBTUtil;
 import com.github.standobyte.jojo.util.network.NetworkUtil;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDBlockBulletAbility;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDHealAbility;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.EntityMadeFromBlock;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;

@@ -4,10 +4,10 @@ import java.util.function.Supplier;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityUnsummonAction;
 import com.github.standobyte.jojo.mechanics.entity_like_player.useitem.VanillaItemClickAsAction;
 import com.github.standobyte.jojo.mechanics.entity_like_player.useitem.VanillaItemUseAsAction;
 import com.github.standobyte.jojo.powersystem.entityaction.type.SpecialEntityActionType;
+import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityUnsummonAction;
 
 import net.neoforged.neoforge.registries.DeferredRegister;
 

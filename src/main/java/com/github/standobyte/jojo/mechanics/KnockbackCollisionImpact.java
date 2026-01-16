@@ -12,8 +12,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityHeavyPunchAbility.HeavyPunchExplosion;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBlockBulletAbility;
 import com.github.standobyte.jojo.mc.entity.BlockShardEntity;
 import com.github.standobyte.jojo.mechanics.CollisionHelper.BlockCollisionResult;
 import com.github.standobyte.jojo.mechanics.explosion.CustomExplosion;
@@ -31,6 +29,8 @@ import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
 import com.github.standobyte.jojo.util.java.ReuseableStream;
 import com.github.standobyte.jojo.util.mc.AttributeUtil;
 import com.github.standobyte.jojo.util.target.ActionTarget;
+import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityHeavyPunchAbility.HeavyPunchExplosion;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDBlockBulletAbility;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

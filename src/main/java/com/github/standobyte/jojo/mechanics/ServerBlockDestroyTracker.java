@@ -10,7 +10,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.brokenblocks.BlockBreaking;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.BlockBreaking;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
