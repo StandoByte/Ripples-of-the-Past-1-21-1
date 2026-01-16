@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -75,17 +76,31 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 		}
 	}
 
+	public ActionAnimIdentifier animLeft = ActionAnimIdentifier.getOrCreate(abilityId.nameInMoveset() + "_left", false);
+	public ActionAnimIdentifier animRight = ActionAnimIdentifier.getOrCreate(abilityId.nameInMoveset() + "_right", false);
+	@Override
+	public ActionAnimIdentifier getEntityAnim(EntityActionInstance action) {
+		HumanoidArm side = ((BlockBulletShot) action).side;
+		if (side != null) return switch (side) {
+			case LEFT -> animLeft;
+			case RIGHT -> animRight;
+		};
+		
+		return super.getEntityAnim(action);
+	}
+
 	public static class BlockBulletShot extends EntityActionInstance {
 		protected boolean isHomingDisabled = false;
+		protected HumanoidArm side;
 
 		public BlockBulletShot(EntityActionType ability) {
 			super(ability);
 		}
 
-		// TODO mirror the animation for right-handed player
 		@Override
 		public void onActionSet(EntityActionInstance prevAction) {
-			boolean offHandIsRight = getPowerUser().getMainArm() == HumanoidArm.LEFT;
+			side = getPowerUser().getMainArm().getOpposite();
+			boolean offHandIsRight = side == HumanoidArm.RIGHT;
 			setStandOffset(new Vec3(offHandIsRight ? -0.1 : 0.1, -0.25, -0.4), StandOffsetFromUser.Rotations.BODY, false);
 		}
 
