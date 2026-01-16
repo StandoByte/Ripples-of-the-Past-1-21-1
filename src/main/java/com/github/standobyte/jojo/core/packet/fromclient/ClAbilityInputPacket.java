@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.core.packet.fromclient;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.PacketsRegister;
+import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId.AbilityInputNetwork;
 import com.github.standobyte.jojo.powersystem.ability.input.AbilityInput;
@@ -30,8 +31,8 @@ public class ClAbilityInputPacket implements CustomPacketPayload {
 	private FriendlyByteBuf extraData;
 	
 	public static ClAbilityInputPacket keyPress(short key, LivingEntity user, 
-			Ability ability, InputEventType inputEvent, float timeTookToResolve) {
-		return new ClAbilityInputPacket(key, inputEvent, user, ability, null, timeTookToResolve);
+			Ability baseAbility, InputEventType inputEvent, float timeTookToResolve) {
+		return new ClAbilityInputPacket(key, inputEvent, user, baseAbility, null, timeTookToResolve);
 	}
 	
 	public static ClAbilityInputPacket releaseHold(short key) {
@@ -98,10 +99,16 @@ public class ClAbilityInputPacket implements CustomPacketPayload {
 			Player player = context.player();
 			switch (payload.inputEvent) {
 				case PRESS_CLICK, PRESS_HOLD -> {
-					Ability ability = payload.abilityDecoded != null ? payload.abilityDecoded.getAbility(player, null) : null;
-					if (AbilityInput.withConditionCheck(ability, player)) {
-						AbilityInput.keyPress(payload.key, ability, player, payload.extraData, 
-								payload.inputEvent.inputMethod, payload.timeTookToResolve, BufferingState.clickCanBuffer());
+					Ability baseAbility = payload.abilityDecoded != null ? payload.abilityDecoded.getAbility(player, null) : null;
+					if (baseAbility != null) {
+						Power<?> power = baseAbility.getUserPower(player);
+						if (power != null) {
+							Ability ability = baseAbility.replaceWithSubAbility(power, power.updateAvailableMoves());
+							if (AbilityInput.withConditionCheck(ability, player)) {
+								AbilityInput.keyPress(payload.key, ability, player, payload.extraData, 
+										payload.inputEvent.inputMethod, payload.timeTookToResolve, BufferingState.clickCanBuffer(), baseAbility.abilityId);
+							}
+						}
 					}
 				}
 				case RELEASE -> AbilityInput.keyRelease(payload.key, player);

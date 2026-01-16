@@ -109,7 +109,7 @@ public class TrAbilityUsePacket implements CustomPacketPayload {
 					case PRESS_CLICK, PRESS_HOLD -> {
 						Ability ability = payload.abilityDecoded.getAbility(user, null);
 						AbilityInput.keyPress(payload.key, ability, user, payload.extraData, 
-								payload.inputType.inputMethod, payload.timeTookToResolve, BufferingState.clickOnly());
+								payload.inputType.inputMethod, payload.timeTookToResolve, BufferingState.clickOnly(), null);
 					}
 					case RELEASE -> {
 						AbilityInput.keyRelease(payload.key, user);

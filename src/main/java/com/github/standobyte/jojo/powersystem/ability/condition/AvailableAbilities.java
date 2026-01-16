@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
@@ -76,6 +77,18 @@ public class AvailableAbilities {
 	public ConditionCheck getConditionCheck(String baseAbilityName) {
 		AbilityConditionCheck container = _inMoveset.get(baseAbilityName);
 		return container != null ? container.conditionCheck : ConditionCheck.NEGATIVE;
+	}
+	
+	@ApiStatus.Internal
+	@Nullable
+	public AbilityConditionCheck getAbilityResolved(Ability baseAbility) {
+		return _inMoveset.get(baseAbility.abilityId.nameInMoveset());
+	}
+	
+	@ApiStatus.Internal
+	@Nullable
+	public AbilityConditionCheck getAbilityResolved(String baseAbilityName) {
+		return _inMoveset.get(baseAbilityName);
 	}
 
 	

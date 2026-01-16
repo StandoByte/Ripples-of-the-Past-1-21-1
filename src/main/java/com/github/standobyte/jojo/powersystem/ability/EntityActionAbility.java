@@ -10,7 +10,6 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.client.ui.powerhud.WindupIndicator;
 import com.github.standobyte.jojo.core.molang.MolangValue;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
-import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer;
 import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer.BufferingState;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
@@ -70,15 +69,7 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 		HeldInput actionOrQueue = null;
 		if (toBuffer) {
 			if (bufferingState.canBuffer()) {
-				HeldInput heldInputObj = null;
-				ActionInputBuffer actionInputBuffer = ActionInputBuffer.get(user);
-				if (actionInputBuffer != null) {
-					switch (inputMethod) {
-						case CLICK -> actionInputBuffer.bufferClickInput(performer, abilityId);
-						case HOLD -> heldInputObj = actionInputBuffer.bufferHeldInput(performer, abilityId);
-					}
-				}
-				actionOrQueue = heldInputObj;
+				bufferingState.setToBuffer();
 			}
 		}
 		else {

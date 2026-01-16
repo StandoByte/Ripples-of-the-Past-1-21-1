@@ -34,6 +34,7 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
+import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
@@ -295,10 +296,12 @@ public class ControlsHudElement extends HudElement {
 					slotUI.bind.fullKeybind = getKeyName(key, slotUI.bind.mainKey, input.getKeyModifier());
 					
 					for (InputMethod inputMethod : InputMethod.values()) {
-						AbilityControlsEntry ability = slot.getBinds().getFirst(modifier, inputMethod);
-						if (ability != null) {
+						AbilityControlsEntry abilityEntry = slot.getBinds().getFirst(modifier, inputMethod);
+						if (abilityEntry != null) {
+							AvailableAbilities allAbilities = ClientPowerCache.getAvailableAbilities(abilityEntry.powerClass());
+							AbilityConditionCheck ability = allAbilities.getAbilityResolved(abilityEntry.abilityName());
 							AbilityBindUI bind = makeAbilityBindUI(key, null, 
-									inputMethod, ability.getClientAbility(), 
+									inputMethod, ability, 
 									abilityIconSprites, standSkin, 
 									font, hud.forContainerMenu);
 							if (bind != null) {

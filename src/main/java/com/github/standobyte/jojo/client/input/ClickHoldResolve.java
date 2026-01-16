@@ -12,12 +12,12 @@ public class ClickHoldResolve {
 	private InputState curState = null;
 	private float timeHeld;
 	
-	public final Ability clickAbility;
-	public final Ability heldAbility;
+	public final Ability clickBaseAbility;
+	public final Ability heldBaseAbility;
 	
-	public ClickHoldResolve(Ability heldAbility, Ability clickAbility) {
-		this.clickAbility = clickAbility;
-		this.heldAbility = heldAbility;
+	public ClickHoldResolve(Ability heldBaseAbility, Ability clickBaseAbility) {
+		this.clickBaseAbility = clickBaseAbility;
+		this.heldBaseAbility = heldBaseAbility;
 	}
 	
 	@Nullable
