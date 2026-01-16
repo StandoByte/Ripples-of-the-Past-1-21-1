@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.config.ClientModSettings;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.barrage.BarrageSwings;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
@@ -122,9 +123,9 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 			}
 		}
 
-//		if (ClientModSettings.getSettingsReadOnly().standMotionTilt) {
+		if (ClientModSettings.getSettingsReadOnly().standMotionTilt) {
 			doMotionTilt(renderState);
-//		}
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
