@@ -4,11 +4,11 @@ import java.util.function.Supplier;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
-import com.github.standobyte.jojo.jojoimpl.hamon.HamonPowerType;
-import com.github.standobyte.jojo.jojoimpl.pillarman.PillarmanPowerType;
-import com.github.standobyte.jojo.jojoimpl.vampirism.VampirismPowerType;
-import com.github.standobyte.jojo.jojoimpl.zombie.ZombiePowerType;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
+import com.github.standobyte.jojoimpl.powers.hamon.HamonPowerType;
+import com.github.standobyte.jojoimpl.powers.pillarman.PillarmanPowerType;
+import com.github.standobyte.jojoimpl.powers.vampirism.VampirismPowerType;
+import com.github.standobyte.jojoimpl.powers.zombie.ZombiePowerType;
 
 import net.neoforged.neoforge.registries.DeferredRegister;
 

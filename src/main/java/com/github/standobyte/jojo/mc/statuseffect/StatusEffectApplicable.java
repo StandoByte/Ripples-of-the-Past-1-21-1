@@ -4,8 +4,8 @@ import static net.neoforged.neoforge.event.entity.living.MobEffectEvent.Applicab
 import static net.neoforged.neoforge.event.entity.living.MobEffectEvent.Applicable.Result.DO_NOT_APPLY;
 
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.jojoimpl.JojoDefinitions;
-import com.github.standobyte.jojo.jojoimpl.JojoModLivingVariables;
+import com.github.standobyte.jojoimpl.JojoDefinitions;
+import com.github.standobyte.jojoimpl.JojoModLivingVariables;
 
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;

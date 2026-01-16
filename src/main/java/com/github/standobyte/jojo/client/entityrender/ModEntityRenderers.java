@@ -9,9 +9,9 @@ import com.github.standobyte.jojo.client.entityrender.entities.v1_21_2plus.Manne
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModEntityTypes;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.client.CrazyDBlockBulletRenderer;
 import com.github.standobyte.jojo.mechanics.clothes.client.layer.HumanoidClothesLayer;
 import com.github.standobyte.jojo.mechanics.entity_like_player.npc.client.CharacterMobRenderer;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.client.CrazyDBlockBulletRenderer;
 import com.github.standobyte.v1_21_4_stuff.Reminder;
 
 import net.minecraft.client.Minecraft;

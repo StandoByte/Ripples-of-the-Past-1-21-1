@@ -16,7 +16,6 @@ import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.init.ModSpecialActions;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.init.core.ModEntityAttributes;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityUnsummonAction;
 import com.github.standobyte.jojo.mc.entity.projectile.DamagingEntity;
 import com.github.standobyte.jojo.mc.entity.util.EntityStandVisibility;
 import com.github.standobyte.jojo.mc.entity.util.EntityWithStandSkin;
@@ -43,6 +42,7 @@ import com.github.standobyte.jojo.util.mc.AttributeUtil;
 import com.github.standobyte.jojo.util.mc.PrevRotations;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
+import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityUnsummonAction;
 
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.NonNullList;

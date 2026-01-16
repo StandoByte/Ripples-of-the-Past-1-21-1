@@ -8,9 +8,9 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.packet.fromserver.BloodParticlesPacket;
-import com.github.standobyte.jojo.jojoimpl.JojoDefinitions;
-import com.github.standobyte.jojo.jojoimpl.JojoModLivingVariables;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.DriedBloodDropsEffect;
+import com.github.standobyte.jojoimpl.JojoDefinitions;
+import com.github.standobyte.jojoimpl.JojoModLivingVariables;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.DriedBloodDropsEffect;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
