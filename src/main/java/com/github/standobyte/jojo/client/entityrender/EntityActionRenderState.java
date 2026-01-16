@@ -62,7 +62,8 @@ public class EntityActionRenderState {
 	}
 	
 	public static void setAnim(EntityActionRenderState renderState, LivingEntityRenderState vanillaRenderState, @Nullable LivingEntity entity, 
-			RotpAnimDefinition anim, @Nullable BarrageSwings barrageSwings) {
+			ActionAnimIdentifier animId, RotpAnimDefinition anim, @Nullable BarrageSwings barrageSwings) {
+		renderState.animId = animId;
 		renderState.anim = anim;
 		renderState.timeSeconds = 0;
 		renderState.barrageSwings = barrageSwings;

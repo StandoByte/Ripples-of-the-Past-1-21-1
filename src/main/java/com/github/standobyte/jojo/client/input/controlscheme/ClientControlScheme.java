@@ -21,9 +21,11 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.input.InputHandler;
+import com.github.standobyte.jojo.client.input.InputHandler.BaseAndActiveAbility;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerType;
+import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.ControlSchemeTemplate;
@@ -87,13 +89,7 @@ public class ClientControlScheme {
 		}
 	}
 	
-	public static record AbilityControlsEntry(PowerClass<?> powerClass, String abilityName) {
-		
-		public AbilityConditionCheck getClientAbility() {
-			AvailableAbilities allAbilities = ClientPowerCache.getAvailableAbilities(powerClass);
-			return allAbilities._inMoveset.get(abilityName);
-		}
-	}
+	public static record AbilityControlsEntry(PowerClass<?> powerClass, String abilityName) {}
 	
 	public static class Bind {
 		public ClientInputBind input;
@@ -208,18 +204,36 @@ public class ClientControlScheme {
 		return Collections.emptyList();
 	}
 	
-	@Nullable
-	public static AbilityConditionCheck prioritizedAbility(List<AbilityControlsEntry> abilityNames, @Nullable Predicate<AbilityInputState> filter) {
-		Stream<AbilityConditionCheck> stream = abilityNames.stream()
-				.map(abilityName -> abilityName.getClientAbility())
+	public static void setPrioritizedAbility(BaseAndActiveAbility dest, 
+			List<AbilityControlsEntry> abilityNames, @Nullable Predicate<AbilityInputState> filter) {
+		dest.reset();
+		// FIXME shit code
+		Stream<Pair<Ability, AbilityConditionCheck>> stream = abilityNames.stream()
+				.map(abilityName -> {
+					AvailableAbilities allAbilities = ClientPowerCache.getAvailableAbilities(abilityName.powerClass);
+					Ability baseAbility = ClientPowerCache.getPower(abilityName.powerClass).getMoveset().getAbility(abilityName.abilityName);
+					AbilityConditionCheck resolvedAbility = allAbilities._inMoveset.get(abilityName.abilityName);
+					return baseAbility != null && resolvedAbility != null ? Pair.of(baseAbility, resolvedAbility) : null;
+				})
 				.filter(Objects::nonNull);
 		if (filter != null) {
-			stream = stream.filter(a -> filter.test(AbilityInputState.withValue(a.clientInputState)));
+			stream = stream.filter(a -> filter.test(AbilityInputState.withValue(a.getSecond().clientInputState)));
 		}
 		
-		return stream
-				.sorted(Comparator.comparingInt(a -> abilityPriority(a, ClientPowerCache.getPower(a.ability.abilityId.powerClass()))))
+		Pair<Ability, AbilityConditionCheck> ability = stream
+				.sorted(Comparator.comparingInt(a -> abilityPriority(a.getSecond(), ClientPowerCache.getPower(a.getFirst().abilityId.powerClass()))))
 				.findFirst().orElse(null);
+		if (ability != null) {
+			dest.set(ability.getFirst(), ability.getSecond());
+		}
+	}
+
+	static BaseAndActiveAbility target = new BaseAndActiveAbility();
+	@Nullable
+	public static AbilityConditionCheck prioritizedAbility(
+			List<AbilityControlsEntry> abilityNames, @Nullable Predicate<AbilityInputState> filter) {
+		setPrioritizedAbility(target, abilityNames, filter);
+		return target.curActiveAbility;
 	}
 	
 	protected static int abilityPriority(AbilityConditionCheck ability, Power<?> abilityCtx) {

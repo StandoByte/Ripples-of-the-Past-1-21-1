@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.core.packet.fromserver.TrAbilityUsePacket;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
+import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
@@ -55,7 +56,8 @@ public class AbilityInput {
 	@Nullable
 	public static HeldInputEntry keyPress(short keyId, Ability ability, 
 			LivingEntity user, FriendlyByteBuf extraClientInput, 
-			InputMethod inputMethod, float clickHoldResolveTime, BufferingState bufferingState) {
+			InputMethod inputMethod, float clickHoldResolveTime, 
+			BufferingState bufferingState, AbilityId baseAbilityForBuffering) {
 		if (ability == null || user == null) return null;
 		
 		Level level = user.level();
@@ -68,6 +70,18 @@ public class AbilityInput {
 		}
 		else {
 			action = ability.onKeyPress(level, user, extraClientInput, inputMethod, clickHoldResolveTime, bufferingState);
+			if (bufferingState.canBuffer() && bufferingState.shouldBuffer) {
+				HeldInput heldInputObj = null;
+				ActionInputBuffer actionInputBuffer = ActionInputBuffer.get(user);
+				if (actionInputBuffer != null) {
+					if (baseAbilityForBuffering == null) baseAbilityForBuffering = ability.abilityId;
+					switch (inputMethod) {
+						case CLICK -> actionInputBuffer.bufferClickInput(baseAbilityForBuffering);
+						case HOLD -> heldInputObj = actionInputBuffer.bufferHeldInput(baseAbilityForBuffering);
+					}
+				}
+				action = heldInputObj;
+			}
 		}
 		if (!level.isClientSide()) {
 			PacketDistributor.sendToPlayersTrackingEntity(user, 
@@ -108,7 +122,7 @@ public class AbilityInput {
 	@Nullable
 	public static HeldInputEntry keyPressMob(Ability ability, LivingEntity user, FriendlyByteBuf extraData, InputMethod inputMethod) {
 		short keyId = (short) pseudoKey.incrementAndGet();
-		return keyPress(keyId, ability, user, extraData, inputMethod, 0, BufferingState.clickCanBuffer());
+		return keyPress(keyId, ability, user, extraData, inputMethod, 0, BufferingState.clickOnly(), null);
 	}
 	private static final AtomicInteger pseudoKey = new AtomicInteger();
 	

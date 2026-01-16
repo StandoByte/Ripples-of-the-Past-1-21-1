@@ -33,15 +33,16 @@ import com.github.standobyte.jojo.core.packet.fromclient.ClAbilityInputPacket;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
+import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.ability.input.AbilityInput;
 import com.github.standobyte.jojo.powersystem.ability.input.AbilityInput.InputEventType;
 import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer.BufferingState;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState.HeldInputEntry;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
-import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState.HeldInputEntry;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.CommonEnums.Direction2D;
@@ -55,7 +56,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.player.Input;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
@@ -147,10 +147,7 @@ public class InputHandler {
 	}
 	
 	public void handleInputEvent(ClientKey key, int action, int modifiers, ICancellableEvent event) {
-		if (action == InputConstants.RELEASE && mc.screen instanceof ChatScreen) {
-			keyReleaseEventQueue.add(new DelayedInput(key, action, modifiers));
-		}
-		else if (input(key, action, modifiers)) {
+		if (input(key, action, modifiers)) {
 			event.setCanceled(true);
 		}
 		
@@ -225,6 +222,13 @@ public class InputHandler {
 		boolean cancelVanilla = false;
 		short keyId = key.keyId();
 		
+		if (mc.screen != null && !PowerHud.isInContainerScreen()) {
+			if (inputType == InputConstants.RELEASE) {
+				keyReleaseEventQueue.add(new DelayedInput(key, inputType, modifiers));
+			}
+			return false;
+		}
+		
 		switch (inputType) {
 			case InputConstants.PRESS -> {
 				ClientControlScheme controlScheme = getActiveControlScheme();
@@ -235,8 +239,8 @@ public class InputHandler {
 				KeyModifier keyModifier = getCurModifier();
 				
 				CurInput input = getInputAbilitiesOnClick(controlScheme, key, keyModifier);
-				@Nullable Ability heldAbility = input.heldAbility != null ? input.heldAbility.ability : null;
-				@Nullable Ability clickAbility = input.clickAbility != null ? input.clickAbility.ability : null;
+				@Nullable BaseAndActiveAbility heldAbility = input.heldAbility.curActiveAbility != null ? input.heldAbility : null;
+				@Nullable BaseAndActiveAbility clickAbility = input.clickAbility.curActiveAbility != null ? input.clickAbility : null;
 				
 				boolean ambiguousClickOrHold = heldAbility != null && clickAbility != null;
 				InputMethod inputMethod = 
@@ -250,13 +254,13 @@ public class InputHandler {
 				if (ambiguousClickOrHold) {
 					// TODO (!!!!) only do this if both abilities have a windup (if not, then idfk, it's 2AM rn)
 					// also consider that the windup might be shorted than 4 ticks
-					heldKeyTimer.setResolveInputMethod(new ClickHoldResolve(heldAbility, clickAbility));
+					heldKeyTimer.setResolveInputMethod(new ClickHoldResolve(heldAbility.baseAbility, clickAbility.baseAbility));
 				}
 				else if (inputMethod != null) {
 					heldKeyTimer.setInputMethod(inputMethod);
 					switch (inputMethod) {
-						case HOLD -> doInput(InputEventType.PRESS_HOLD, keyId, heldAbility, input.heldAbility.conditionCheck, 0);
-						case CLICK -> doInput(InputEventType.PRESS_CLICK, keyId, clickAbility, input.clickAbility.conditionCheck, 0);
+						case HOLD -> doClickInput(InputEventType.PRESS_HOLD, keyId, heldAbility.baseAbility, heldAbility.curActiveAbility, 0);
+						case CLICK -> doClickInput(InputEventType.PRESS_CLICK, keyId, clickAbility.baseAbility, input.clickAbility.curActiveAbility, 0);
 					}
 				}
 				
@@ -270,7 +274,7 @@ public class InputHandler {
 				HeldKeyTimer heldTicks = getHeldKeyTimer(key);
 				if (heldTicks != null) {
 					clickHeldOnRelease(heldTicks, keyId);
-					doInput(InputEventType.RELEASE, keyId, null, ConditionCheck.POSITIVE, 0);
+					doReleaseInput(keyId);
 					removeHeldKeyTimer(key);
 				}
 
@@ -284,33 +288,30 @@ public class InputHandler {
 		return cancelVanilla;
 	}
 	
-	private void doInput(InputEventType type, short keyId, Ability ability, ConditionCheck conditionCheck, float timeTookToResolve) {
+	private FriendlyByteBuf extraInputBuf = new FriendlyByteBuf(Unpooled.buffer());
+	private void doClickInput(InputEventType type, short keyId, 
+			Ability baseAbility, AbilityConditionCheck abilityResolved, 
+			float clickHoldResolveTime) {
 		Player player = mc.player;
-		switch (type) {
-			case PRESS_CLICK, PRESS_HOLD -> {
-				if (ability == null || player == null) return;
+		if (abilityResolved == null || player == null) return;
 
-				if (conditionCheck.isPositive()) {
-					keyPress(keyId, ability, player, type.inputMethod, timeTookToResolve, BufferingState.clickCanBuffer());
-				}
-				PacketDistributor.sendToServer(ClAbilityInputPacket.keyPress(keyId, player, ability, type, timeTookToResolve));
-			}
-			case RELEASE -> {
-				AbilityInput.keyRelease(keyId, player);
-				PacketDistributor.sendToServer(ClAbilityInputPacket.releaseHold(keyId));
-			}
+		ConditionCheck conditionCheck = abilityResolved.conditionCheck;
+		if (conditionCheck.isPositive()) {
+			BufferingState bufferingState = BufferingState.clickCanBuffer();
+			InputMethod inputMethod = type.inputMethod;
+			Ability ability = abilityResolved.ability;
+			ability.writeExtraInput(extraInputBuf, player, true);
+			AbilityInput.keyPress(keyId, ability, player, extraInputBuf, 
+					inputMethod, clickHoldResolveTime, bufferingState, baseAbility.abilityId);
+			extraInputBuf.clear();
 		}
+		PacketDistributor.sendToServer(ClAbilityInputPacket.keyPress(keyId, player, baseAbility, type, clickHoldResolveTime));
 	}
-
-	private FriendlyByteBuf inputBuf = new FriendlyByteBuf(Unpooled.buffer());
-	@Nullable
-	public HeldInputEntry keyPress(short keyId, Ability ability, LivingEntity user, 
-			InputMethod inputMethod, float clickHoldResolveTime, BufferingState bufferingState) {
-		ability.writeExtraInput(inputBuf, user, true);
-		HeldInputEntry heldInput = AbilityInput.keyPress(keyId, ability, user, inputBuf, 
-				inputMethod, clickHoldResolveTime, BufferingState.clickCanBuffer());
-		inputBuf.clear();
-		return heldInput;
+	
+	private void doReleaseInput(short keyId) {
+		Player player = mc.player;
+		AbilityInput.keyRelease(keyId, player);
+		PacketDistributor.sendToServer(ClAbilityInputPacket.releaseHold(keyId));
 	}
 	
 	
@@ -371,10 +372,11 @@ public class InputHandler {
 		if (keyResolution != null) {
 			ClickHoldResolve.Result wasItClick = keyResolution.keyReleased();
 			if (wasItClick != null && wasItClick.input() == ClickHoldResolve.InputState.CLICK) {
-				Ability ability = keyResolution.clickAbility;
-				ConditionCheck conditionCheck = ClientPowerCache.getAvailableAbilities(ability.abilityId.powerClass()).getConditionCheck(ability);
+				Ability baseAbility = keyResolution.clickBaseAbility;
+				AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(baseAbility.abilityId.powerClass());
+				AbilityConditionCheck abilityResolved = curAbilities.getAbilityResolved(baseAbility);
 				float ticksToResolveClick = wasItClick.timeTook();
-				doInput(InputEventType.PRESS_CLICK, keyId, ability, conditionCheck, ticksToResolveClick);
+				doClickInput(InputEventType.PRESS_CLICK, keyId, baseAbility, abilityResolved, ticksToResolveClick);
 				heldKeyTimer.setInputMethod(InputMethod.CLICK);
 			}
 		}
@@ -389,10 +391,11 @@ public class InputHandler {
 					switch (changedState.input()) {
 						case ASSUME_HOLD -> {}
 						case HOLD -> {
-							Ability ability = keyResolution.heldAbility;
-							ConditionCheck conditionCheck = ClientPowerCache.getAvailableAbilities(ability.getAbilityId().powerClass()).getConditionCheck(ability);
+							Ability baseAbility = keyResolution.heldBaseAbility;
+							AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(baseAbility.abilityId.powerClass());
+							AbilityConditionCheck abilityResolved = curAbilities.getAbilityResolved(baseAbility);
 							float ticksToResolveHeld = changedState.timeTook();
-							doInput(InputEventType.PRESS_HOLD, timer.key.keyId(), ability, conditionCheck, ticksToResolveHeld);
+							doClickInput(InputEventType.PRESS_HOLD, timer.key.keyId(), baseAbility, abilityResolved, ticksToResolveHeld);
 							timer.setInputMethod(InputMethod.HOLD);
 						}
 						default -> {}
@@ -431,8 +434,7 @@ public class InputHandler {
 	
 	private CurInput getInputAbilitiesOnClick(ClientControlScheme controlScheme, ClientKey key, KeyModifier keyModifier) {
 		CurInput input = CurInput.instance;
-		input.heldAbility = null;
-		input.clickAbility = null;
+		input.reset();
 		
 		if (controlScheme != null) {
 			List<AbilityControlsEntry> heldBound = controlScheme.getBindsWithModifier(InputMethod.HOLD, key, keyModifier);
@@ -440,8 +442,8 @@ public class InputHandler {
 			
 			if (!(heldBound.isEmpty() && clickBound.isEmpty())) {
 				Predicate<AbilityInputState> filter = inputState -> AbilityInputState.isInputActive(inputState, PowerHud.isInContainerScreen());
-				input.heldAbility = ClientControlScheme.prioritizedAbility(heldBound, filter);
-				input.clickAbility = ClientControlScheme.prioritizedAbility(clickBound, filter);
+				ClientControlScheme.setPrioritizedAbility(input.heldAbility, heldBound, filter);
+				ClientControlScheme.setPrioritizedAbility(input.clickAbility, clickBound, filter);
 			}
 		}
 		
@@ -459,8 +461,28 @@ public class InputHandler {
 	static class CurInput {
 		private static CurInput instance = new CurInput();
 		
-		public AbilityConditionCheck heldAbility;
-		public AbilityConditionCheck clickAbility;
+		public final BaseAndActiveAbility heldAbility = new BaseAndActiveAbility();
+		public final BaseAndActiveAbility clickAbility = new BaseAndActiveAbility();
+		
+		public void reset() {
+			heldAbility.reset();
+			clickAbility.reset();
+		}
+	}
+	
+	public static class BaseAndActiveAbility {
+		public Ability baseAbility;
+		public AbilityConditionCheck curActiveAbility;
+		
+		public void set(Ability baseAbility, AbilityConditionCheck curActiveAbility) {
+			this.baseAbility = baseAbility;
+			this.curActiveAbility = curActiveAbility;
+		}
+		
+		public void reset() {
+			this.baseAbility = null;
+			this.curActiveAbility = null;
+		}
 	}
 	
 	

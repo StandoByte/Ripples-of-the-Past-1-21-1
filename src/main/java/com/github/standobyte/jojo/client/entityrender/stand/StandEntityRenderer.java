@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
+import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.AnimWithIdReturn;
 import com.github.standobyte.jojo.client.entityanim.pose.EntityKeepAnimPose;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
@@ -38,6 +39,7 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 
 public class StandEntityRenderer<
 				T extends StandEntity, 
@@ -123,8 +125,9 @@ public class StandEntityRenderer<
 		if (!renderState.action.animId.isIdle()) {
 			entity.nonIdlePoseTimeStamp = entity.tickCount;
 		}
+		AnimWithIdReturn anim = this.getStandAnim(renderState);
 		EntityActionRenderState.setAnim(renderState.action, renderState, entity, 
-				getStandAnim(renderState), entity.clientStuff.barrageSwings);
+				anim.animId, anim.anim, entity.clientStuff.barrageSwings);
 		
 		renderState.tint = -1;
 		renderState.alpha = (float) entity.rangeEfficiency * entity.modelAlpha.lerp(partialTick);
@@ -136,6 +139,8 @@ public class StandEntityRenderer<
 			if (cameraEntity == null) cameraEntity = mc.player;
 			renderState.mayObstructView &= cameraEntity != null && entity.getUser() == cameraEntity;
 		}
+		
+		renderState.motionTiltVec = Vec3.ZERO;
 	}
 	
 	public void extractSkinMenuRenderState(S renderState, StandSkin skin, ResourceLocation standId, float ticks, int tint) {
@@ -145,22 +150,26 @@ public class StandEntityRenderer<
 		renderState.standId = standId;
 		renderState.action.animId = StandEntityRenderer.IDLE_ANIM;
 		renderState.action.time = ticks;
-		EntityActionRenderState.setAnim(renderState.action, renderState, null, this.getStandAnim(renderState), null);
+		AnimWithIdReturn anim = this.getStandAnim(renderState);
+		EntityActionRenderState.setAnim(renderState.action, renderState, null, anim.animId, anim.anim, null);
 		renderState.tint = tint;
 	}
 	
-	public RotpAnimDefinition getStandAnim(S renderState) {
+	public AnimWithIdReturn getStandAnim(S renderState) {
 		if (renderState.skin != null) {
 			EntityActionRenderState action = renderState.action;
 			if (action.animId != null) {
 				RotpAnimDefinition anim = renderState.skin.getStandAnimation(anims -> anims.getNamedAnim(action.animId));
 				if (anim == null) {
 					anim = renderState.skin.getStandAnimation(anims -> anims.getNamedAnim(StandEntityRenderer.IDLE_ANIM));
+					if (anim != null) {
+						return AnimWithIdReturn.with(StandEntityRenderer.IDLE_ANIM, anim);
+					}
 				}
-				return anim;
+				return AnimWithIdReturn.with(action.animId, anim);
 			}
 		}
-		return null;
+		return AnimWithIdReturn.with(null, null);
 	}
 	
 	
@@ -300,6 +309,7 @@ public class StandEntityRenderer<
 		}
 		
 		if (this.model != null) {
+			model.prepareMotionTilt(renderState, entity);
 			model.pose = null;
 			this.doRender(entity, entityYaw, partialTicks, poseStack, bufferSource, light);
 			if (model.pose != null) ((EntityKeepAnimPose) entity).jojo_ripples$keepModelPose(model.pose);

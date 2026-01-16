@@ -169,9 +169,7 @@ public class ClientModSettingsScreen extends Screen {
 				Component.translatable("jojo_ripples.config.client.abilitySelectionWheel.tooltip")
 				) {
 			@Override public Boolean get() { return settingsValues.abilitySelectionWheel; }
-			@Override public void set(Boolean value) { 
-				settingsValues.abilitySelectionWheel = value;
-			}
+			@Override public void set(Boolean value) {  settingsValues.abilitySelectionWheel = value; }
 		}.withIcon(toIconPath("ability_selection_wheel"));
 		addRenderableWidget(abilitySelectionWheel.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
 
@@ -188,9 +186,7 @@ public class ClientModSettingsScreen extends Screen {
 				Component.translatable("jojo_ripples.config.client.standAimMarker.tooltip")
 				) {
 			@Override public Boolean get() { return settingsValues.standAimMarker; }
-			@Override public void set(Boolean value) { 
-				settingsValues.standAimMarker = value;
-			}
+			@Override public void set(Boolean value) {  settingsValues.standAimMarker = value; }
 		}.withIcon(toIconPath("stand_aim_marker"), iconPath -> new IconGlyphInfo(new GuiIcon(iconPath, 17, 17), 17, 17, 0, -5, 5));
 		addRenderableWidget(standAimMarker.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
 
@@ -228,14 +224,14 @@ public class ClientModSettingsScreen extends Screen {
 //		.setBroadcasted();
 //		addRenderableWidget(standSide.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
 //
-//		BooleanSetting standMotionTilt = new BooleanSetting(settings, 
-//				Component.translatable("jojo_ripples.config.client.standMotionTilt"), 
-//				Component.translatable("jojo_ripples.config.client.standMotionTilt.tooltip")
-//				) {
-//			@Override public Boolean get() { return settingsValues.standMotionTilt; }
-//			@Override public void set(Boolean value) { settingsValues.standMotionTilt = value; }
-//		};
-//		addRenderableWidget(standMotionTilt.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
+		Setting<Boolean> standMotionTilt = new BooleanSetting(settings, 
+				Component.translatable("jojo_ripples.config.client.standMotionTilt"), 
+				Component.translatable("jojo_ripples.config.client.standMotionTilt.tooltip")
+				) {
+			@Override public Boolean get() { return settingsValues.standMotionTilt; }
+			@Override public void set(Boolean value) { settingsValues.standMotionTilt = value; }
+		};
+		addRenderableWidget(standMotionTilt.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
 //
 //		BooleanSetting standOutline = new BooleanSetting(settings, 
 //				Component.translatable("jojo_ripples.config.client.standOutline"), 

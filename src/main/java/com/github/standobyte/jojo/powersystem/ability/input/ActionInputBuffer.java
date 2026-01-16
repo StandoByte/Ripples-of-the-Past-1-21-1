@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.powersystem.ability.input;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
@@ -11,31 +12,30 @@ import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbiliti
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState.HeldInputEntry;
-
-import io.netty.buffer.Unpooled;
-
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 
+import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.LivingEntity;
 
 public class ActionInputBuffer {
-	protected Map<LivingEntity, BufferedInputEntry> bufferPerPerformer = new HashMap<>();
+	protected BufferedInputEntry buffered;
 
-	public void bufferClickInput(LivingEntity performer, AbilityId abilityToBuffer) {
-		bufferPerPerformer.put(performer, new BufferedInputEntry(abilityToBuffer, InputMethod.CLICK));
+	public void bufferClickInput(AbilityId abilityToBuffer) {
+		JojoMod.LOGGER.debug("buffer click {}", abilityToBuffer);
+		this.buffered = new BufferedInputEntry(abilityToBuffer, InputMethod.CLICK);
 	}
 
-	public HeldInput bufferHeldInput(LivingEntity performer, AbilityId abilityToBuffer) {
-		BufferedInputEntry inputBuffer = new BufferedInputEntry(abilityToBuffer, InputMethod.HOLD);
-		bufferPerPerformer.put(performer, inputBuffer);
-		return inputBuffer;
+	public HeldInput bufferHeldInput(AbilityId abilityToBuffer) {
+		JojoMod.LOGGER.debug("buffer hold {}", abilityToBuffer);
+		this.buffered = new BufferedInputEntry(abilityToBuffer, InputMethod.HOLD);
+		return buffered;
 	}
 	
 	public static class BufferingState {
-		
 		protected boolean canBuffer;
 		protected boolean isAlreadyBuffered;
+		public boolean shouldBuffer;
 		public boolean isActionSuccess;
 		
 		public static BufferingState clickCanBuffer() {
@@ -63,6 +63,10 @@ public class ActionInputBuffer {
 			return isAlreadyBuffered;
 		}
 		
+		public void setToBuffer() {
+			this.shouldBuffer = true;
+		}
+		
 		public void setActionSuccess() {
 			this.isActionSuccess = true;
 		}
@@ -72,44 +76,33 @@ public class ActionInputBuffer {
 	public void tickInputBuffer(EntityActionInputState userInput) {
 		LivingEntity user = userInput.user;
 		if (user.level().isClientSide()) return;
-		
-		var entryIter = bufferPerPerformer.entrySet().iterator();
-		while (entryIter.hasNext()) {
-			var entry = entryIter.next();
-			LivingEntity performer = entry.getKey();
-			if (performer == null || !performer.isAlive()) {
-				entryIter.remove();
-			}
-			else {
-				BufferedInputEntry bufferedInput = entry.getValue();
-				if (bufferedInput != null) {
-					AbilityId abilityId = bufferedInput.abilityId;
-					Power<?> power = abilityId.powerClass().get(user);
-					if (power != null && power.hasPower() && abilityId.powerTypeId().equals(power.getPowerType().getId())) {
-						AvailableAbilities abilities = power.updateAvailableMoves();
-						Ability ability = abilities.inMovesetAndCanBeUsed.get(abilityId.nameInMoveset());
-						if (ability != null) {
-							BufferingState bufferingState = BufferingState.buffered();
-							ability.writeExtraInput(inputBuf, user, false);
-							HeldInput newAction = ability.onKeyPress(user.level(), user, inputBuf, 
-									bufferedInput.inputMethod, 0, bufferingState);
-							inputBuf.clear();
-							if (bufferingState.isActionSuccess) {
-								for (HeldInputEntry heldKeyAction : userInput.heldKeys.values()) {
-									if (heldKeyAction.action == bufferedInput) {
-										// Update the held key callback, to be able to stop the new action when the key is released by the player
-										heldKeyAction.action = newAction;
-										break;
-									}
-								}
-								entryIter.remove();
+
+		if (buffered != null) {
+			AbilityId baseAbilityId = buffered.baseAbilityId;
+			Power<?> power = baseAbilityId.powerClass().get(user);
+			if (power != null && power.hasPower() && baseAbilityId.powerTypeId().equals(power.getPowerType().getId())) {
+				AvailableAbilities abilities = power.updateAvailableMoves();
+				Ability ability = abilities.inMovesetAndCanBeUsed.get(baseAbilityId.nameInMoveset());
+				if (ability != null) {
+					BufferingState bufferingState = BufferingState.buffered();
+					ability.writeExtraInput(inputBuf, user, false);
+					HeldInput newAction = ability.onKeyPress(user.level(), user, inputBuf, 
+							buffered.inputMethod, 0, bufferingState);
+					inputBuf.clear();
+					if (bufferingState.isActionSuccess) {
+						for (HeldInputEntry heldKeyAction : userInput.heldKeys.values()) {
+							if (heldKeyAction.action == buffered) {
+								// Update the held key callback, to be able to stop the new action when the key is released by the player
+								heldKeyAction.action = newAction;
+								break;
 							}
 						}
-					}
-					else {
-						entryIter.remove();
+						buffered = null;
 					}
 				}
+			}
+			else {
+				buffered = null;
 			}
 		}
 	}
@@ -120,7 +113,7 @@ public class ActionInputBuffer {
 	}
 
 
-	public static record BufferedInputEntry(AbilityId abilityId, InputMethod inputMethod) implements HeldInput {
+	public static record BufferedInputEntry(AbilityId baseAbilityId, InputMethod inputMethod) implements HeldInput {
 
 		@Override
 		public void onKeyRelease(LivingEntity user) {
@@ -132,13 +125,8 @@ public class ActionInputBuffer {
 			if (inputMethod == InputMethod.HOLD) {
 				EntityActionInputState inputState = user.getData(ModDataAttachmentTypes.ENTITY_ABILITY_INPUT.get());
 				if (inputState != null) {
-					var entryIter = inputBuffer.bufferPerPerformer.entrySet().iterator();
-					while (entryIter.hasNext()) {
-						var entry = entryIter.next();
-						if (entry.getValue() == this) {
-							entryIter.remove();
-							break;
-						}
+					if (inputState.inputBuffer.buffered == this) {
+						inputState.inputBuffer.buffered = null;
 					}
 				}
 			}
