@@ -7,6 +7,7 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.v1_21_4_stuff.renderstate.HumanoidRenderState;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 
 public class StandEntityRenderState extends HumanoidRenderState {
 	public ResourceLocation standId;
@@ -17,6 +18,7 @@ public class StandEntityRenderState extends HumanoidRenderState {
 	public HumanoidPart[] visibleParts = HumanoidPart.ALL;
 	public boolean mayObstructView;
     public double extendablePartLength = 0;
+    public Vec3 motionTiltVec = Vec3.ZERO;
 
     public static void extractStandRenderState(StandEntity entity, StandEntityRenderState reusedState, float partialTick) {
         if (entity.getCurStandAction() instanceof ActionOBB obbToRender && obbToRender.extendableOBB() != null){

@@ -25,6 +25,7 @@ import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPart
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.client.entityrender.HiddenModelPartsUtil;
 import com.github.standobyte.jojo.client.entityrender.ModelWithExtraFeatures;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.java.OptionalFloat;
@@ -352,6 +353,22 @@ public class RotpAnimDefinition {
 			
 			return anim;
 		}
+	}
+	
+	
+	public static class AnimWithIdReturn {
+		public static AnimWithIdReturn instance = new AnimWithIdReturn();
+		
+		public ActionAnimIdentifier animId;
+		public RotpAnimDefinition anim;
+		
+		public static AnimWithIdReturn with(ActionAnimIdentifier animId, RotpAnimDefinition anim) {
+			instance.animId = animId;
+			instance.anim = anim;
+			return instance;
+		}
+		
+		private AnimWithIdReturn() {}
 	}
 	
 }

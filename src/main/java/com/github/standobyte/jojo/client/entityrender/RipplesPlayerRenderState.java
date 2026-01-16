@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.client.entityanim.AnimationLoader;
 import com.github.standobyte.jojo.client.entityanim.AnimationSet;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
+import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.AnimWithIdReturn;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.v1_21_4_stuff.renderstate.HumanoidRenderState;
@@ -27,8 +28,9 @@ public class RipplesPlayerRenderState {
 		if (action != null) {
 			modRenderState.animSet = action.ability.getEntityAnimSet(entity);
 		}
+		AnimWithIdReturn anim = getPlayerAnim(modRenderState);
 		EntityActionRenderState.setAnim(modRenderState.entityAction, vanillaRenderState, entity, 
-				getPlayerAnim(modRenderState), null);
+				anim.animId, anim.anim, null);
 		
 		if (modRenderState.entityAction.disableCrouch) vanillaRenderState.isCrouching = false;
 	}
@@ -51,18 +53,18 @@ public class RipplesPlayerRenderState {
 		return false;
 	}
 	
-	public static RotpAnimDefinition getPlayerAnim(RipplesPlayerRenderState modRenderState) {
+	public static AnimWithIdReturn getPlayerAnim(RipplesPlayerRenderState modRenderState) {
 		if (modRenderState.animSet != null) {
 			EntityActionRenderState action = modRenderState.entityAction;
 			if (action.animId != null) {
 				AnimationSet animSet = AnimationLoader.getInstance().getAnimSet(modRenderState.animSet);
 				if (animSet != null) {
 					RotpAnimDefinition anim = animSet.getNamedAnim(action.animId);
-					return anim;
+					return AnimWithIdReturn.with(action.animId, anim);
 				}
 			}
 		}
-		return null;
+		return AnimWithIdReturn.with(null, null);
 	}
 	
 	public static interface RipplesRenderStateExtensionMixin {
