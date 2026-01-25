@@ -1,7 +1,11 @@
 package com.github.standobyte.jojo.mc.item;
 
 import com.github.standobyte.jojo.client.ClientUtil;
+import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.mc.entity.projectile.StandArrowEntity;
+import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,6 +21,9 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.stream.Stream;
+
+import static com.github.standobyte.jojo.init.ModItems.discsOrder;
 
 public class StandArrowItem extends ArrowItem {
     // dur: 25 | 250; ench: 10 | 25
@@ -48,7 +55,15 @@ public class StandArrowItem extends ArrowItem {
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         Player player = ClientUtil.getClientPlayer();
         if (player != null) {
-
+            Stream<StandType> stands = StandType.getAllEnabledStands();
+            stands.map(StandInstance::new)
+            .sorted(discsOrder(context.registries())) // <- It's not a bug when experimental stands are shown at the bottom of the list
+            .forEach(stand -> {
+                Component partIconAndName = Component.literal(
+                        Character.toString(StandSkinsLoader.getInstance().getSkin(stand).getStoryPart(context.registries()).value().getPartName().getString().charAt(0)))
+                        .append(stand.getStandName(true).plainCopy().withStyle(ChatFormatting.GRAY));
+                tooltipComponents.add(partIconAndName);
+            });
         }
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
     }

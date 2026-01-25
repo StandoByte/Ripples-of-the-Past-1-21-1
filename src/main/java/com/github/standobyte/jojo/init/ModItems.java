@@ -71,6 +71,8 @@ public final class ModItems {
 			.icon(() -> DEBUG_ITEM.value().getDefaultInstance())
 			.displayItems((CreativeModeTab.ItemDisplayParameters parameters, CreativeModeTab.Output output) -> {
 				// most of the mod's items
+				output.accept(STAND_ARROW.get());
+
 				Stream<StandType> stands = StandType.getAllEnabledStands();
 				stands
 				.map(StandInstance::new)

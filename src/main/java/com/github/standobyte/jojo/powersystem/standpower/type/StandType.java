@@ -279,6 +279,11 @@ public class StandType extends PowerType {
 				JojoRegistries.DEFAULT_STANDS_REG.entrySet().stream().map(Map.Entry::getValue).filter(StandType::isEnabled), 
 				DataDrivenStandsLoader.getAllDatapackStands());
 	}
+
+	public static Stream<StandType> getAllPlayableStands() {
+		return getAllEnabledStands().filter(stand -> !stand.discExtraTooltip.contains(Component.translatable("item.jojo_ripples.stand_disc.experimental")
+				.withStyle(ChatFormatting.ITALIC).withColor(0x800000)));
+	}
 	
 //	public static final StreamCodec<ByteBuf, StandType> SYNC_VIA_ID = 
 //			ResourceLocation.STREAM_CODEC.map(StandType::fromId, StandType::getId);
