@@ -113,7 +113,9 @@
   "jojo_ripples.config.client.hamonAuraBlur.tooltip": "Blur Hamon aura particles",
   "jojo_ripples.config.client.vampireGlowingEyes": "Glowing eyes",
   "jojo_ripples.config.client.vampireGlowingEyes.tooltip": "Red eyes glowing in the dark in 3rd person when you have 80% or more energy",
-  
+
+  "item.jojo_ripples.stand_arrow": "Stand Arrow",
+
   "jojo_ripples.ui.story": "Story (NYI)",
   "jojo_ripples.menu.player.profile": "Character Profile: %s (NYI)",
   "jojo_ripples.menu.player.group": "Group (NYI)",
