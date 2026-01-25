@@ -4,6 +4,7 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBlockBulletEntity;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBloodCutterEntity;
 import com.github.standobyte.jojo.mc.entity.BlockShardEntity;
+import com.github.standobyte.jojo.mc.entity.projectile.StandArrowEntity;
 import com.github.standobyte.jojo.mc.entity.projectile.ThrownNuggetBearingEntity;
 import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinEntity;
 import com.github.standobyte.jojo.mechanics.entity_like_player.npc.PowerUserMobEntity;
@@ -86,6 +87,13 @@ public final class ModEntityTypes {
 			.sized(0.5F, 0.5F)
 //			.noSummon()
 			.setUpdateInterval(10)
+			.build(createIDFor(key)));
+
+	public static final DeferredHolder<EntityType<?>, EntityType<StandArrowEntity>> STAND_ARROW = ENTITY_TYPES.register("stand_arrow", key ->
+			EntityType.Builder.<StandArrowEntity>of(StandArrowEntity::new, MobCategory.MISC)
+			.sized(0.75F, 0.75F)
+			.clientTrackingRange(4)
+			.updateInterval(20)
 			.build(createIDFor(key)));
 
 

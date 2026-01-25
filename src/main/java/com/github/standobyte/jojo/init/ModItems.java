@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.mc.item.DebugItem;
+import com.github.standobyte.jojo.mc.item.StandArrowItem;
 import com.github.standobyte.jojo.mc.item.StandDiscItem;
 import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.mechanics.clothes.ClothesItem;
@@ -25,6 +26,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -53,6 +55,8 @@ public final class ModItems {
 	public static final DeferredItem<Item> MANNEQUIN_SLIM = ITEMS.registerItem("mannequin_slim", props -> new MannequinItem(props, true), new Item.Properties().stacksTo(16));
 
 	public static final DeferredItem<ClothesItem> CLOTHES_BASE_ITEM = ITEMS.registerItem("clothes", props -> new ClothesItem(props));
+
+	public static final DeferredItem<Item> STAND_ARROW = ITEMS.registerItem("stand_arrow", props -> new StandArrowItem(props), new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON).durability(32));
 
 	
 	public static Comparator<StandInstance> discsOrder(HolderLookup.Provider registries) {

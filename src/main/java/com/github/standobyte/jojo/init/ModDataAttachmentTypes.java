@@ -1,9 +1,5 @@
 package com.github.standobyte.jojo.init;
 
-import java.util.function.Supplier;
-
-import org.jetbrains.annotations.ApiStatus;
-
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.brokenblocks.BrokenBlocksChunkData;
 import com.github.standobyte.jojo.mechanics.KnockbackCollisionImpact;
@@ -19,7 +15,6 @@ import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectsTarget;
 import com.github.standobyte.jojo.util.entitycomponent.DataEventListeners;
-
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -27,6 +22,9 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import org.jetbrains.annotations.ApiStatus;
+
+import java.util.function.Supplier;
 
 public final class ModDataAttachmentTypes {
 	public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, JojoMod.MOD_ID);
