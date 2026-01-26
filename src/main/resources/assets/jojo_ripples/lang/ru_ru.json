@@ -212,6 +212,7 @@
   "stand.unknown": "Неизвестный Стенд: %s",
   "effect.jojo_ripples.resolve": "Решимость",
   "effect.jojo_ripples.bleeding": "Кровотечение",
+  "effect.jojo_ripples.stand_virus": "Вирус из метеорита",
 
   "jojo.message.action_condition.stand_user_too_far": "Вы и ваш Стенд слишком далеко друг от друга",
   "jojo.message.action_condition.stand_too_slow": "Ваш Стенд слишком медленный",

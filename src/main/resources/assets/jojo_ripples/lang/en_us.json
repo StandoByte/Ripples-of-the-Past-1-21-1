@@ -232,6 +232,7 @@
   "stand.unknown": "Unknown Stand: %s",
   "effect.jojo_ripples.resolve": "Resolve",
   "effect.jojo_ripples.bleeding": "Bleeding",
+  "effect.jojo_ripples.stand_virus": "Meteorite Virus",
 
   "jojo.message.action_condition.stand_user_too_far": "You and your Stand are too far away from each other",
   "jojo.message.action_condition.stand_too_slow": "Your Stand is too slow to do this",
