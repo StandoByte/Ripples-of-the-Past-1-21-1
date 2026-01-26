@@ -25,4 +25,6 @@ public class StandArrowEntity extends AbstractArrow {
     protected ItemStack getDefaultPickupItem() {
         return new ItemStack(ModItems.STAND_ARROW.get());
     }
+
+    // todo Stand arrow anti-disappear on hitting an entity
 }
