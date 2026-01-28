@@ -282,7 +282,7 @@ public class KnockbackCollisionImpact implements TickingEntityData, INBTSerializ
 		if (collideBlocks) {
 			BlockCollisionResult collision = CollisionHelper.collideBoundingBox(movementVec, aabb, serverWorld, selectionContext);
 			
-			MutableFloat impactStrengthMutable = new MutableFloat(knockbackImpactStrength);
+			MutableFloat impactStrengthNew = new MutableFloat(knockbackImpactStrength);
 			if (collision.blocks.size() > 0) {
 				collision.blocks.stream()
 				.distinct()
@@ -327,10 +327,10 @@ public class KnockbackCollisionImpact implements TickingEntityData, INBTSerializ
 							JojoModUtil.blockCatchFire(level, blockPos, blockState, null, asLiving);
 						}
 
-						impactStrengthMutable.setValue(impactStrengthMutable.floatValue() - Math.max(useImpactStrength, 0.05f));
+						impactStrengthNew.setValue(impactStrengthNew.floatValue() - Math.max(useImpactStrength, 0.05f));
 					}
 
-					return impactStrengthMutable.floatValue() > 0;
+					return impactStrengthNew.floatValue() > 0;
 				});
 
 				Vec3 collisionDir = new Vec3(collision.movementX - collision.x, collision.movementY - collision.y, collision.movementZ - collision.z);
@@ -363,7 +363,7 @@ public class KnockbackCollisionImpact implements TickingEntityData, INBTSerializ
 					hurtTarget(entity, level.damageSources().flyIntoWall(), wallDamage.floatValue());
 				}
 
-//				setKnockbackImpactStrength(impactStrength.floatValue());
+//				setKnockbackImpactStrength(impactStrengthNew.floatValue());
 				reset();
 			}
 		}
