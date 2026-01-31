@@ -11,7 +11,6 @@ import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.cli
 import com.github.standobyte.jojo.mechanics.possessionv2.LivingComponentPossession;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
-import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectType;
@@ -125,8 +124,7 @@ public class HierophantPuppetEffect extends StandEffectInstance {
 	@SubscribeEvent
 	public static void onManualControlToggle(RipplesAbilityKeyPressEvent event) {
 		Ability ability = event.getAbility();
-		AbilityId abilityId = ability.abilityId;
-		if (abilityId.powerClass() == PowerClass.STAND && abilityId.nameInMoveset().equals("manual_control")) {
+		if (ability.abilityId.powerClass() == PowerClass.STAND && ability.name().equals("manual_control")) {
 			LivingEntity user = event.getEntity();
 			StandPower standPower = StandPower.get(user);
 			if (standPower != null) {

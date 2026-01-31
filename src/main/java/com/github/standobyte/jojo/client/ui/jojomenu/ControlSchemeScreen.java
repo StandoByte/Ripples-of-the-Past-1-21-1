@@ -147,7 +147,7 @@ public class ControlSchemeScreen extends Screen implements IJojoMenuScreen {
 		StandSkin standSkin = StandSkinsLoader.getCurSkin();
 		
 		for (AbilityEntry ability : mainAbilities) {
-			TextureAtlasSprite abilitySprite = abilityIconSprites.getAbilityIcon(ability.ability.abilityId.nameInMoveset(), standSkin);
+			TextureAtlasSprite abilitySprite = abilityIconSprites.getAbilityIcon(ability.ability.name(), standSkin);
 			int abilityX = ability.x + x;
 			int abilityY = ability.y + y;
 			

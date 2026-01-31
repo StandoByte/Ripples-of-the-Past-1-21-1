@@ -70,7 +70,7 @@ public class AvailableAbilities {
 	
 	@Nonnull
 	public ConditionCheck getConditionCheck(Ability ability) {
-		return getConditionCheck(ability.abilityId.nameInMoveset());
+		return getConditionCheck(ability.name());
 	}
 
 	@Nonnull
@@ -82,7 +82,7 @@ public class AvailableAbilities {
 	@ApiStatus.Internal
 	@Nullable
 	public AbilityConditionCheck getAbilityResolved(Ability baseAbility) {
-		return _inMoveset.get(baseAbility.abilityId.nameInMoveset());
+		return _inMoveset.get(baseAbility.name());
 	}
 	
 	@ApiStatus.Internal

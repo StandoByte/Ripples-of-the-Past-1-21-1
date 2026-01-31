@@ -17,7 +17,7 @@ public class StandEntityGrabPunch extends StandEntityPunchAbility {
 		super(abilityType, abilityId);
 		usageGroup = AbilityUsageGroup.GRAB;
 		isSubAbility = true;
-		this.spriteName = abilityId.nameInMoveset().replace("grab_", "");
+		this.spriteName = this.name().replace("grab_", "");
 		this.name = Component.translatable("jojo_ripples.ability." + spriteName);
 	}
 	

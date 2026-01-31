@@ -51,6 +51,10 @@ public class Ability {
 		return abilityId;
 	}
 	
+	public final String name() {
+		return abilityId.nameInMoveset();
+	}
+	
 	public Power<?> getUserPower(LivingEntity user) {
 		return this.abilityId.powerClass().get(user);
 	}

@@ -76,8 +76,8 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 		}
 	}
 
-	public ActionAnimIdentifier animLeft = ActionAnimIdentifier.getOrCreate(abilityId.nameInMoveset() + "_left", false);
-	public ActionAnimIdentifier animRight = ActionAnimIdentifier.getOrCreate(abilityId.nameInMoveset() + "_right", false);
+	public ActionAnimIdentifier animLeft = ActionAnimIdentifier.getOrCreate(this.name() + "_left", false);
+	public ActionAnimIdentifier animRight = ActionAnimIdentifier.getOrCreate(this.name() + "_right", false);
 	@Override
 	public ActionAnimIdentifier getEntityAnim(EntityActionInstance action) {
 		HumanoidArm side = ((BlockBulletShot) action).side;

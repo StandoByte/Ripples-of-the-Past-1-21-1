@@ -1,8 +1,5 @@
 package com.github.standobyte.jojo.powersystem.ability.input;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.powersystem.Power;
