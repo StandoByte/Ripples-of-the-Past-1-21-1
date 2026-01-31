@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId.AbilityInputNetwork;
+import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.input.AbilityInput;
 import com.github.standobyte.jojo.powersystem.ability.input.AbilityInput.InputEventType;
 import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer.BufferingState;
@@ -103,9 +104,9 @@ public class ClAbilityInputPacket implements CustomPacketPayload {
 					if (baseAbility != null) {
 						Power<?> power = baseAbility.getUserPower(player);
 						if (power != null) {
-							Ability ability = baseAbility.replaceWithSubAbility(power, power.updateAvailableMoves());
+							AbilityConditionCheck ability = power.updateAvailableMoves().getAbilityResolved(baseAbility);
 							if (AbilityInput.withConditionCheck(ability, player)) {
-								AbilityInput.keyPress(payload.key, ability, player, payload.extraData, 
+								AbilityInput.keyPress(payload.key, ability.ability, player, payload.extraData, 
 										payload.inputEvent.inputMethod, payload.timeTookToResolve, BufferingState.clickCanBuffer(), baseAbility.abilityId);
 							}
 						}
