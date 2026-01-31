@@ -43,6 +43,7 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 	public ModelPart head_rot;
 	public ModelPart torso_no_arms;
 	public ModelPart torso_lower;
+	public ModelPart torso_bend;
 	public ModelPart left_leg_xrot;
 	public ModelPart left_leg;
 	public ModelPart left_leg_bend;
@@ -66,6 +67,7 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 		head_rot = _this.jojo_ripples$getAnyDescendantWithName("head_rot").orElse(null);
 		torso_no_arms = _this.jojo_ripples$getAnyDescendantWithName("torso_no_arms").orElse(null);
 		torso_lower = _this.jojo_ripples$getAnyDescendantWithName("torso_lower").orElse(null);
+		torso_bend = _this.jojo_ripples$getAnyDescendantWithName("torso_bend").orElse(null);
 		left_leg_xrot = _this.jojo_ripples$getAnyDescendantWithName("left_leg_xrot").orElse(null);
 		left_leg = _this.jojo_ripples$getAnyDescendantWithName("left_leg").orElse(null);
 		left_leg_bend = _this.jojo_ripples$getAnyDescendantWithName("left_leg_bend").orElse(null);
@@ -238,8 +240,8 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 
 				if (this.body_rot != null) {
 					this.body_rot.xRot += bodyTiltX;
-					if (this.head != null) {
-						this.head.xRot -= bodyTiltX;
+					if (this.head_rot != null) {
+						this.head_rot.xRot -= bodyTiltX;
 					}
 					if (idlePose) {
 						this.body_rot.zRot += tiltVec.z;
@@ -262,6 +264,15 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 					this.right_leg_bend.xRot *= d;
 					this.right_leg_bend.yRot *= d;
 					this.right_leg_bend.zRot *= d;
+				}
+				if (this.torso_bend != null) {
+					double movementFront = Mth.clamp(tiltVec.x, -1, 1);
+					if (movementFront > 0 && torso_bend.xRot > 0) {
+						torso_bend.xRot *= 1 - movementFront;
+					}
+					else if (movementFront < 0 && torso_bend.xRot < 0) {
+						torso_bend.xRot *= 1 + movementFront;
+					}
 				}
 				if (idlePose) {
 					if (this.left_arm_bend != null) {
