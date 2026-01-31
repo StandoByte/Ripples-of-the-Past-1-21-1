@@ -43,7 +43,10 @@ public class StandInitStarPlatinum {
 				.addAbility("barrage", ModStandAbilities.BARRAGE)
 
 				.addAbility("heavy_punch", ModStandAbilities.HEAVY_PUNCH)
-				.addAbility("finisher_uppercut", ModStandAbilities.HEAVY_PUNCH, punch -> punch.isSubAbility = true)
+				.addAbility("finisher_uppercut", ModStandAbilities.HEAVY_PUNCH, punch -> {
+					punch.initIsFinisher();
+					punch.verticalKnockback = true;
+				})
 				.addAbility("heavy_charged", ModStandAbilities.HEAVY_CHARGED)
 //				.addAbility("ground_slam", ModStandAbilities.HEAVY_PUNCH)
 
@@ -52,9 +55,9 @@ public class StandInitStarPlatinum {
 				.addAbility("grab_throw", ModStandAbilities.GRAB_THROW)
 				.addAbility("grab_punch", ModStandAbilities.GRAB_PUNCH, punch -> punch.isSubAbility = true)
 				.addAbility("grab_barrage", ModStandAbilities.GRAB_BARRAGE, punch -> punch.isSubAbility = true)
-//				.addAbility("grab_heavy_punch", ModStandAbilities.GRAB_HEAVY_PUNCH, punch -> punch.isSubAbility = true)
+				.addAbility("grab_heavy_punch", ModStandAbilities.GRAB_HEAVY_PUNCH, punch -> punch.isSubAbility = true)
 				.addAbility("grab_uppercut", ModStandAbilities.GRAB_HEAVY_PUNCH, punch -> {
-					punch.isSubAbility = true;
+					punch.initIsFinisher("grab_heavy_punch");
 					punch.verticalKnockback = true;
 				})
 //				.addAbility("grab_ground_slam", ModStandAbilities.HEAVY_PUNCH)

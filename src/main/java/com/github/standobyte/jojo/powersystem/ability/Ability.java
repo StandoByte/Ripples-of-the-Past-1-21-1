@@ -13,6 +13,7 @@ import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbiliti
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
+import com.github.standobyte.jojo.powersystem.ability.finisher.AbilityStandFinisherData;
 import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer.BufferingState;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 import com.github.standobyte.jojo.util.StringUtil;
@@ -32,6 +33,8 @@ public class Ability {
 	
 	public AbilityUsageGroup usageGroup = AbilityUsageGroup.SPECIAL;
 	public boolean isSubAbility = false;
+	
+	@Nullable public AbilityStandFinisherData isStandFinisherOf = null;
 
 	public Ability(AbilityType<?> abilityType, AbilityId abilityId) {
 		this.abilityType = abilityType;
@@ -57,6 +60,15 @@ public class Ability {
 	
 	public Power<?> getUserPower(LivingEntity user) {
 		return this.abilityId.powerClass().get(user);
+	}
+	
+	
+	public void initIsFinisher(String basePunchName) { initIsFinisher(basePunchName, 1); }
+	public void initIsFinisher(float finisherValue) { initIsFinisher("heavy_punch", finisherValue); }
+	public void initIsFinisher() { initIsFinisher("heavy_punch", 1); }
+	public void initIsFinisher(String basePunchName, float finisherValue) {
+		this.isStandFinisherOf = new AbilityStandFinisherData(basePunchName, finisherValue);
+		this.isSubAbility = true;
 	}
 	
 	

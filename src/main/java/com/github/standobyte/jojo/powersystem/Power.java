@@ -83,7 +83,7 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	}
 	
 	@ApiStatus.Internal
-	public AvailableAbilities _curAvailableMoves = new AvailableAbilities(getPowerClass());
+	public AvailableAbilities _curAvailableMoves = new AvailableAbilities();
 	protected boolean cachedMovesThisTick;
 	public AvailableAbilities updateAvailableMoves() {
 		if (!cachedMovesThisTick) {

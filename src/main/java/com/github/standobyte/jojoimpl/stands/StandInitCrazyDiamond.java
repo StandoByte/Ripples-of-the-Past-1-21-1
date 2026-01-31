@@ -38,7 +38,9 @@ public class StandInitCrazyDiamond {
 				.addAbility("punch4", ModStandAbilities.PUNCH)
 				.addAbility("barrage", ModStandAbilities.BARRAGE)
 				.addAbility("heavy_punch", ModStandAbilities.HEAVY_PUNCH)
-				.addAbility("finisher", ModStandAbilities.HEAVY_PUNCH, punch -> punch.isSubAbility = true)
+				.addAbility("finisher", ModStandAbilities.HEAVY_PUNCH, punch -> {
+					punch.initIsFinisher();
+				})
 				.addAbility("heavy_charged", ModStandAbilities.HEAVY_CHARGED)
 
 				.addAbility("grab", ModStandAbilities.GRAB)

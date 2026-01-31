@@ -19,7 +19,6 @@ import com.github.standobyte.jojo.mc.entity.BlockShardEntity;
 import com.github.standobyte.jojo.mechanics.KnockbackCollisionImpact;
 import com.github.standobyte.jojo.mechanics.explosion.CustomExplosion;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
-import com.github.standobyte.jojo.powersystem.Moveset;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
@@ -42,10 +41,10 @@ import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
 import com.github.standobyte.jojo.util.network.StreamCodecs;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
+import com.github.standobyte.jojo.util.target.AimingEntity;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDBlockBulletAbility;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.BrokenBlocksChunkData;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.PrevBlockInfo;
-import com.github.standobyte.jojo.util.target.AimingEntity;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.core.BlockPos;
@@ -84,12 +83,10 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 	public Ability replaceWithSubAbility(Power<?> context, AvailableAbilities abilities) {
 		StandPower standPower = PowerClass.STAND.cast(context);
 		if (standPower != null) {
-			Moveset moveset = standPower.getMoveset();
-
 			StandEntity standEntity = standPower.getSummonedStandEntity();
 			if (standEntity != null) {
 				if (LivingComponentGrab.getEntityGrabbedBy(standEntity) != null) {
-					return moveset.getAbility("grab_uppercut");
+					return abilities.getContextVariation("grab_heavy_punch");
 				}
 			}
 		}

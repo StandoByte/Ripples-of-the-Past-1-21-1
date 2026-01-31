@@ -8,7 +8,6 @@ import com.github.standobyte.jojo.client.sound.sounds.EntityStoppableSoundInstan
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
-import com.github.standobyte.jojo.powersystem.Moveset;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
@@ -67,12 +66,10 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 	public Ability replaceWithSubAbility(Power<?> context, AvailableAbilities abilities) {
 		StandPower standPower = PowerClass.STAND.cast(context);
 		if (standPower != null) {
-			Moveset moveset = standPower.getMoveset();
-			
 			StandEntity standEntity = standPower.getSummonedStandEntity();
 			if (standEntity != null) {
 				if (LivingComponentGrab.getEntityGrabbedBy(standEntity) != null) {
-					return moveset.getAbility("grab_barrage");
+					return abilities.getContextVariation("grab_barrage");
 				}
 			}
 		}

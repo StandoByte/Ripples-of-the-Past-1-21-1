@@ -3,6 +3,8 @@ package com.github.standobyte.jojoimpl.stands._entitybase;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityLingeringSoundInstance;
@@ -55,19 +57,19 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 	@Override
 	public Ability replaceWithSubAbility(Power<?> context, AvailableAbilities abilities) {
 		StandPower standPower = PowerClass.STAND.cast(context);
+		
 		if (standPower != null) {
-			Moveset moveset = standPower.getMoveset();
-			
 			StandEntity standEntity = standPower.getSummonedStandEntity();
 			if (standEntity != null) {
 				if (LivingComponentGrab.getEntityGrabbedBy(standEntity) != null) {
-					return moveset.getAbility("grab_punch");
+					return abilities.getContextVariation("grab_punch");
 				}
 			}
-			
-			Ability punch = getComboPunch(standEntity, standPower, moveset);
-			if (punch != null) return punch;
 		}
+		
+		Ability punch = getComboPunch(standPower);
+		if (punch != null) return punch;
+		
 		return super.replaceWithSubAbility(context, abilities);
 	}
 	
@@ -208,11 +210,17 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 	// 
 	
 	protected static List<String> punchNamesBuffer = new ArrayList<>();
-	protected Ability getComboPunch(StandEntity standEntity, StandPower standPower, Moveset moveset) {
+	@Nullable
+	protected Ability getComboPunch(StandPower standPower) {
+		if (standPower == null) return null;
+		
+		Moveset moveset = standPower.getMoveset();
+		StandEntity standEntity = standPower.getSummonedStandEntity();
+		
 		if (this.isSubAbility) return null;
 		
 		punchNamesBuffer.clear();
-		String baseName = this.abilityId.nameInMoveset();
+		String baseName = this.name();
 		punchNamesBuffer.add(baseName);
 		for (int i = 2; ; i++) {
 			String comboPunchName = baseName + i;

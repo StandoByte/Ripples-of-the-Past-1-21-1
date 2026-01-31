@@ -35,7 +35,7 @@ public class CrazyDMisshapingPunchInput extends Ability {
 			}
 		}
 		
-		return super.replaceWithSubAbility(context, abilities);
+		return null;
 	}
 	
 	@Override
