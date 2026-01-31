@@ -62,6 +62,10 @@ public class Ability {
 		return this.abilityId.powerClass().get(user);
 	}
 	
+	public AbilityUsageGroup getAbilityUsageCategory() {
+		return usageGroup;
+	}
+	
 	
 	public void initIsFinisher(String basePunchName) { initIsFinisher(basePunchName, 1); }
 	public void initIsFinisher(float finisherValue) { initIsFinisher("heavy_punch", finisherValue); }
@@ -69,6 +73,14 @@ public class Ability {
 	public void initIsFinisher(String basePunchName, float finisherValue) {
 		this.isStandFinisherOf = new AbilityStandFinisherData(basePunchName, finisherValue);
 		this.isSubAbility = true;
+	}
+	
+	
+	public void initIsGrabVariation() {
+		usageGroup = AbilityUsageGroup.GRAB;
+		isSubAbility = true;
+		this.spriteName = abilityId.nameInMoveset().replace("grab_", "");
+		this.name = Component.translatable("jojo_ripples.ability." + spriteName);
 	}
 	
 	

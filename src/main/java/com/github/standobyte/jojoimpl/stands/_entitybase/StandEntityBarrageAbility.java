@@ -126,11 +126,21 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 
 		@Override
 		public void actionTick() {
+			Level level = performer.level();
+			
+			if (isGrabVariation() && !level.isClientSide() && getPhase() == ActionPhase.PERFORM) {
+				LivingEntity grabbedEntity = LivingComponentGrab.getEntityGrabbedBy(performer);
+				if (grabbedEntity == null || !grabbedEntity.isAlive()) {
+					setPhaseStart(ActionPhase.RECOVERY);
+					syncPhaseChanges();
+					return;
+				}
+			}
+			
 			if (getPhase() == ActionPhase.PERFORM && performer instanceof StandEntity stand) {
 				hitsThisTick = (int) getHitsPerTick(stand);
 				
 				StandPower standPower = StandPower.get(getPowerUser());
-				Level level = performer.level();
 				if (level.isClientSide()) {
 					if (ClientGlobals.canHearStands) {
 						level.playLocalSound(stand.getX(), stand.getEyeY(), stand.getZ(), ClientsideSoundsHelper.withStandSkin(
@@ -183,10 +193,17 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 			float hitsPerSec = StandStatFormulas.getBarrageHitsPerSecond(stand.getAttackSpeed());
 			float hitsPerTick = hitsPerSec / 20;
 			int curTick = (curPhaseTick - 1) % 20 + 1; // 1~20
-			return (hitsPerTick * curTick) - (int) (hitsPerTick * (curTick - 1));
+			float value = (hitsPerTick * curTick) - (int) (hitsPerTick * (curTick - 1));
+			if (isGrabVariation()) {
+				value *= 0.5f; // the left arm is busy, duh
+			}
+			return value;
 		}
 		
 		protected ActionTarget getPunchTarget(StandEntity stand) {
+			if (isGrabVariation()) {
+				return new ActionTarget(LivingComponentGrab.getEntityGrabbedBy(stand));
+			}
 			return StandEntityPunchAbility.aimAtPunchTarget(stand);
 		}
 		

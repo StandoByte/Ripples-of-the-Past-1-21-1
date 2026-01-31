@@ -53,10 +53,17 @@ public class StandInitStarPlatinum {
 				.addAbility("grab",ModStandAbilities.GRAB)
 
 				.addAbility("grab_throw", ModStandAbilities.GRAB_THROW)
-				.addAbility("grab_punch", ModStandAbilities.GRAB_PUNCH, punch -> punch.isSubAbility = true)
-				.addAbility("grab_barrage", ModStandAbilities.GRAB_BARRAGE, punch -> punch.isSubAbility = true)
-				.addAbility("grab_heavy_punch", ModStandAbilities.GRAB_HEAVY_PUNCH, punch -> punch.isSubAbility = true)
-				.addAbility("grab_uppercut", ModStandAbilities.GRAB_HEAVY_PUNCH, punch -> {
+				.addAbility("grab_punch", ModStandAbilities.PUNCH, punch -> {
+					punch.initIsGrabVariation();
+				})
+				.addAbility("grab_barrage", ModStandAbilities.BARRAGE, punch -> {
+					punch.initIsGrabVariation();
+				})
+				.addAbility("grab_heavy_punch", ModStandAbilities.HEAVY_PUNCH, punch -> {
+					punch.initIsGrabVariation();
+				})
+				.addAbility("grab_uppercut", ModStandAbilities.HEAVY_PUNCH, punch -> {
+					punch.initIsGrabVariation();
 					punch.initIsFinisher("grab_heavy_punch");
 					punch.verticalKnockback = true;
 				})

@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
+import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 
@@ -38,6 +39,11 @@ public abstract class SpecialEntityActionType implements EntityActionType {
 	@Override
 	public AbilityId getAbilityId() {
 		return abilityId;
+	}
+	
+	@Override
+	public AbilityUsageGroup getAbilityUsageCategory() {
+		return AbilityUsageGroup.SPECIAL;
 	}
 
 

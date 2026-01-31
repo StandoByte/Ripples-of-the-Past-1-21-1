@@ -172,6 +172,9 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 		}
 		
 		protected ActionTarget getPunchTarget(StandEntity stand) {
+			if (isGrabVariation()) {
+				return new ActionTarget(LivingComponentGrab.getEntityGrabbedBy(stand));
+			}
 			return StandEntityPunchAbility.aimAtPunchTarget(stand);
 		}
 		

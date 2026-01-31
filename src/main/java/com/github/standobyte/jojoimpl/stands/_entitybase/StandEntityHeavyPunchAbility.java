@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityLingeringSoundInstance;
 import com.github.standobyte.jojo.core.packet.fromserver.BrokenBlocksParticlesAndSoundsPacket;
 import com.github.standobyte.jojo.init.ModCustomExplosions;
+import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.mc.entity.BlockShardEntity;
 import com.github.standobyte.jojo.mechanics.KnockbackCollisionImpact;
@@ -106,6 +107,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 	}
 
 	public static class StandEntityHeavyPunch extends EntityActionInstance {
+		protected LivingEntity punchTarget;
 		public boolean verticalKnockback = false;
 		public float finisherValue;
 		public boolean playedSwingSound;
@@ -122,6 +124,11 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 			aimAs = AimingEntity.STAND;
 			if (performer instanceof StandEntity stand) {
 				finisherValue = stand.getFinisherMeter();
+				if (isGrabVariation() && stand.offsetFromUser.grabIdleOffset != null) {
+					stand.offsetFromUser.setOffset(
+							stand.offsetFromUser.grabIdleOffset, 
+							StandOffsetFromUser.Rotations.HEAD);
+				}
 			}
 			tossStandHeldItems(EquipmentSlot.OFFHAND, EquipmentSlot.MAINHAND);
 		}
@@ -148,6 +155,25 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 								stand.getSoundSource(), 1, 1, stand, stand.level()));
 					}
 					playedStandCrySound = true;
+				}
+			}
+			
+			if (isGrabVariation() && punchTarget == null) {
+				int ticksDiff = (int) (calcFullTicks(ActionPhase.PERFORM, 0) - getFullTicksPassed());
+				if (ticksDiff <= 4) {
+					LivingComponentGrab standGrab = performer.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
+					if (standGrab != null) {
+						LivingEntity grabbed = standGrab.getGrabbedEntity();
+						if (grabbed != null) {
+							punchTarget = grabbed;
+							
+							if (!level.isClientSide()) {
+								standGrab.setGrabTarget(null);
+								grabbed.setDeltaMovement(0, 0.75, 0);
+								grabbed.hurtMarked = true;
+							}
+						}
+					}
 				}
 			}
 		}
@@ -243,6 +269,9 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 		}
 
 		protected ActionTarget getPunchTarget(StandEntity stand) {
+			if (isGrabVariation()) {
+				return new ActionTarget(punchTarget);
+			}
 			return StandEntityPunchAbility.aimAtPunchTarget(stand);
 		}
 

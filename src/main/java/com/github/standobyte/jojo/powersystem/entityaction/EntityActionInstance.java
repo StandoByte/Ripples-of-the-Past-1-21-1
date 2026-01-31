@@ -12,6 +12,7 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.mc.entity.projectile.DamagingEntity;
+import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionPhaseTimePacket;
 import com.github.standobyte.jojo.powersystem.entityaction.syncdata.SyncedDataHolderExtended;
 import com.github.standobyte.jojo.powersystem.entityaction.syncdata.SynchedDataExtended;
@@ -355,6 +356,10 @@ public class EntityActionInstance implements HeldInput {
 	
 	protected Level level() {
 		return performer.level();
+	}
+	
+	protected boolean isGrabVariation() {
+		return ability.getAbilityUsageCategory() == AbilityUsageGroup.GRAB;
 	}
 	
 	
