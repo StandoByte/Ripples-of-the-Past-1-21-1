@@ -55,6 +55,10 @@ public class Ability {
 		return this.abilityId.powerClass().get(user);
 	}
 	
+	public boolean addToControlSchemeEditing() {
+		return !isSubAbility;
+	}
+	
 	
 	// Most of the methods below are called in AvailableAbilities#update(Power, Moveset)
 
