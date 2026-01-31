@@ -43,9 +43,8 @@ public class StandInitStarPlatinum {
 				.addAbility("barrage", ModStandAbilities.BARRAGE)
 
 				.addAbility("heavy_punch", ModStandAbilities.HEAVY_PUNCH)
-				.addAbility("finisher_uppercut", ModStandAbilities.HEAVY_PUNCH, punch -> {
+				.addAbility("finisher_uppercut", ModStandAbilities.HEAVY_UPPERCUT, punch -> {
 					punch.initIsFinisher();
-					punch.verticalKnockback = true;
 				})
 				.addAbility("heavy_charged", ModStandAbilities.HEAVY_CHARGED)
 //				.addAbility("ground_slam", ModStandAbilities.HEAVY_PUNCH)
@@ -62,10 +61,9 @@ public class StandInitStarPlatinum {
 				.addAbility("grab_heavy_punch", ModStandAbilities.HEAVY_PUNCH, punch -> {
 					punch.initIsGrabVariation();
 				})
-				.addAbility("grab_uppercut", ModStandAbilities.HEAVY_PUNCH, punch -> {
+				.addAbility("grab_uppercut", ModStandAbilities.HEAVY_UPPERCUT, punch -> {
 					punch.initIsGrabVariation();
 					punch.initIsFinisher("grab_heavy_punch");
-					punch.verticalKnockback = true;
 				})
 //				.addAbility("grab_ground_slam", ModStandAbilities.HEAVY_PUNCH)
 

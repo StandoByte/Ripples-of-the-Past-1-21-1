@@ -69,7 +69,6 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 
 public class StandEntityHeavyPunchAbility extends StandEntityAbility {
-	public boolean verticalKnockback = false;
 
 	public StandEntityHeavyPunchAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId, StandEntityHeavyPunch::new);
@@ -100,7 +99,6 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 	public void initActionFromConfig(EntityActionInstance action, Level level, 
 			LivingEntity powerUser, LivingEntity performer) {
 		super.initActionFromConfig(action, level, powerUser, performer);
-		((StandEntityHeavyPunch) action).verticalKnockback = this.verticalKnockback;
 		if (!level.isClientSide() && performer instanceof StandEntity stand) {
 			action.phasesLength.put(ActionPhase.WINDUP, StandStatFormulas.getHeavyAttackWindup(stand.getAttackSpeed(), stand.getFinisherMeter()));
 		}
@@ -108,7 +106,6 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 
 	public static class StandEntityHeavyPunch extends EntityActionInstance {
 		protected LivingEntity punchTarget;
-		public boolean verticalKnockback = false;
 		public float finisherValue;
 		public boolean playedSwingSound;
 		public boolean playedStandCrySound;
@@ -199,13 +196,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 						case ENTITY -> {
 							Entity targetEntity = target.getMainEntity();
 							if (targetEntity instanceof LivingEntity targetLiving) {
-								RipplesModifiedDamageSource knockback = (RipplesModifiedDamageSource) dmgSource;
-								if (verticalKnockback) {
-									knockback.jojo_ripples$verticalKnockback(1, 0.8f);
-								}
-								else {
-									knockback.jojo_ripples$modifyKnockback(1f, 1);
-								}
+								addKnockback(dmgSource);
 								boolean hurt = standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
 
 								if (hurt) {
@@ -266,6 +257,11 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 					aimAs = AimingEntity.CAMERA_ENTITY;
 				}
 			}
+		}
+		
+		protected void addKnockback(DamageSource dmgSource) {
+			RipplesModifiedDamageSource knockback = (RipplesModifiedDamageSource) dmgSource;
+			knockback.jojo_ripples$modifyKnockback(1f, 1);
 		}
 
 		protected ActionTarget getPunchTarget(StandEntity stand) {

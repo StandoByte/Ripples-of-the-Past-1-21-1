@@ -37,6 +37,7 @@ import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDUncraftItemAbili
 import com.github.standobyte.jojoimpl.stands.crazydiamond.DriedBloodDropsEffect;
 import com.github.standobyte.jojoimpl.stands.hierophant.HierophantPuppetAbility;
 import com.github.standobyte.jojoimpl.stands.hierophant.HierophantPuppetEffect;
+import com.github.standobyte.jojoimpl.stands.starplatinum.HeavyPunchUppercutAbility;
 import com.github.standobyte.jojoimpl.stands.starplatinum.StarFingerAbility;
 import com.github.standobyte.jojoimpl.stands.starplatinum.StarFingerSwipeAbility;
 import com.github.standobyte.jojoimpl.stands.starplatinum.StarInhaleAbility;
@@ -87,6 +88,9 @@ public final class ModStandAbilities {
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityGrabThrowAbility>> GRAB_THROW = ABILITY_TYPES.register(
 			"stand_grab_throw", key -> new AbilityType<>(key, StandEntityGrabThrowAbility::new));
 
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<HeavyPunchUppercutAbility>> HEAVY_UPPERCUT = ABILITY_TYPES.register(
+			"stand_heavy_uppercut", key -> new AbilityType<>(key, HeavyPunchUppercutAbility::new));
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StarFingerAbility>> SP_STAR_FINGER = ABILITY_TYPES.register(
 			"star_finger", key -> new AbilityType<>(key, StarFingerAbility::new));
