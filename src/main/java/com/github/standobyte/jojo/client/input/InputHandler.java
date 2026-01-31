@@ -40,7 +40,6 @@ import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.ability.input.AbilityInput;
 import com.github.standobyte.jojo.powersystem.ability.input.AbilityInput.InputEventType;
 import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer.BufferingState;
-import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState.HeldInputEntry;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -59,7 +58,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.Input;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.phys.EntityHitResult;
@@ -160,8 +158,13 @@ public class InputHandler {
 		}
 	}
 	
+	
+	protected boolean shouldQueueInput() {
+		return !(mc.screen == null || PowerHud.isInContainerScreen() || mc.screen instanceof AbilitySelectionWheel);
+	}
+	
 	protected void tickReleaseEventQueue() {
-		if (!keyReleaseEventQueue.isEmpty() && mc.getConnection() != null && mc.screen == null) {
+		if (!keyReleaseEventQueue.isEmpty() && mc.getConnection() != null && !shouldQueueInput()) {
 			for (DelayedInput keyRelease : keyReleaseEventQueue) {
 				input(keyRelease.key, keyRelease.action, keyRelease.modifiers);
 			}
@@ -222,7 +225,7 @@ public class InputHandler {
 		boolean cancelVanilla = false;
 		short keyId = key.keyId();
 		
-		if (mc.screen != null && !PowerHud.isInContainerScreen()) {
+		if (shouldQueueInput()) {
 			if (inputType == InputConstants.RELEASE) {
 				keyReleaseEventQueue.add(new DelayedInput(key, inputType, modifiers));
 			}
