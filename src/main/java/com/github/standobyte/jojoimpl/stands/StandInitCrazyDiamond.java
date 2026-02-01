@@ -45,11 +45,20 @@ public class StandInitCrazyDiamond {
 
 				.addAbility("grab", ModStandAbilities.GRAB)
 
-//				.addAbility("grab_punch", ModStandAbilities.GRAB_PUNCH, punch -> punch.isSubAbility = true)
-//				.addAbility("grab_barrage", ModStandAbilities.GRAB_BARRAGE, punch -> punch.isSubAbility = true)
-//				.addAbility("grab_heavy_punch", ModStandAbilities.GRAB_HEAVY_PUNCH, punch -> punch.isSubAbility = true)
-//				.addAbility("grab_finisher", ModStandAbilities.GRAB_HEAVY_PUNCH, punch -> punch.isSubAbility = true)
-//
+				.addAbility("grab_punch", ModStandAbilities.PUNCH, punch -> {
+					punch.initIsGrabVariation();
+				})
+				.addAbility("grab_barrage", ModStandAbilities.BARRAGE, punch -> {
+					punch.initIsGrabVariation();
+				})
+				.addAbility("grab_heavy_punch", ModStandAbilities.HEAVY_PUNCH, punch -> {
+					punch.initIsGrabVariation();
+				})
+				.addAbility("grab_finisher", ModStandAbilities.HEAVY_PUNCH, punch -> {
+					punch.initIsGrabVariation();
+					punch.initIsFinisher("grab_heavy_punch");
+				})
+
 //				.addAbility("guard", ModStandAbilities.GUARD)
 //				.addAbility("leap", ModStandAbilities.STAND_LEAP)
 				.addAbility("bearing_shot", ModStandAbilities.BEARING_SHOT)

@@ -466,7 +466,7 @@ public class EntityActionInstance implements HeldInput {
 	}
 	
 	public boolean savePrevPoseForAnimTransition(EntityActionInstance prevAction) {
-		return true;
+		return false;
 	}
 	
 

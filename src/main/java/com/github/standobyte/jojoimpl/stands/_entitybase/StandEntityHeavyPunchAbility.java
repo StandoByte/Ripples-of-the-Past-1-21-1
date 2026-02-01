@@ -73,7 +73,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 	public StandEntityHeavyPunchAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId, StandEntityHeavyPunch::new);
 		usageGroup = AbilityUsageGroup.COMBAT;
-		setDefaultPhaseLength(ActionPhase.WINDUP, StandStatFormulas.getHeavyAttackWindup(8, 0));
+		setDefaultPhaseLength(ActionPhase.WINDUP, StandStatFormulas.getHeavyAttackWindup(8, 0) /* 16 */);
 		setDefaultPhaseLength(ActionPhase.PERFORM, 6);
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 12);
 		noFinisherBarDecay = true;
@@ -166,7 +166,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 							
 							if (!level.isClientSide()) {
 								standGrab.setGrabTarget(null);
-								grabbed.setDeltaMovement(0, 0.75, 0);
+								grabbed.setDeltaMovement(0, 0.4, 0);
 								grabbed.hurtMarked = true;
 							}
 						}

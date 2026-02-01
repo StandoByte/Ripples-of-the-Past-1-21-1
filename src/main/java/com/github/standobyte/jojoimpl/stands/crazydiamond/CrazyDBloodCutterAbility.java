@@ -27,6 +27,7 @@ public class CrazyDBloodCutterAbility extends StandEntityAbility {
 	public CrazyDBloodCutterAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId, CutterShot::new);
 		setDefaultPhaseLength(ActionPhase.WINDUP, 5);
+		setDefaultPhaseLength(ActionPhase.RECOVERY, 5);
 	}
 
 	@Override
@@ -48,7 +49,7 @@ public class CrazyDBloodCutterAbility extends StandEntityAbility {
 
 		@Override
 		public void onActionSet(EntityActionInstance prevAction) {
-			setStandOffset(-0.1, -0.5, StandOffsetFromUser.Rotations.HEAD_XY, false);
+			setStandOffset(-0.1, -0.75, StandOffsetFromUser.Rotations.HEAD_XY, false);
 		}
 
 		@Override

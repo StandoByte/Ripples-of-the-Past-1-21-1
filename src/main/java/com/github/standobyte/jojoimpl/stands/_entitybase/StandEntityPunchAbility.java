@@ -178,6 +178,12 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 			return StandEntityPunchAbility.aimAtPunchTarget(stand);
 		}
 		
+		
+		@Override
+		public boolean savePrevPoseForAnimTransition(EntityActionInstance prevAction) {
+			return prevAction instanceof StandEntityPunch;
+		}
+		
 	}
 	
 	
