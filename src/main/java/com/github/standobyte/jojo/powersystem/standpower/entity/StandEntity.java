@@ -1354,7 +1354,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			}
 		}
 		lastTickFinisherVal = finisherVal;
-		finisherVal = entityData.get(FINISHER_VALUE);
+		finisherVal = getFinisherMeter();
 	}
 
 	

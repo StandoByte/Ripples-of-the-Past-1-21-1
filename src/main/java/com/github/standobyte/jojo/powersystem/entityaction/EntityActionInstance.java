@@ -405,10 +405,19 @@ public class EntityActionInstance implements HeldInput {
 	 * In the animations, the skipped time is deducted from the phase length
 	 *   (the windup animation will start at tick 0/16).
 	 */
-	
+
+	ActionPhase prevFramePhase = null;
+	float subtractFramePartialTick;
 	@ApiStatus.NonExtendable
 	public float getAnimPhaseTick(float partialTick) {
-		float phaseTick = curPhaseTick + phasePartialTick;
+		// it just works
+		if (prevFramePhase != this.phase) {
+			if (prevFramePhase == null && this.phase != null)	subtractFramePartialTick = this.phasePartialTick;
+			else												subtractFramePartialTick = 0;
+			prevFramePhase = this.phase;
+		}
+		
+		float phaseTick = curPhaseTick - subtractFramePartialTick;
 		if (skippedWindupPhase != null) {
 			phaseTick -= skippedWindupPhase.getOrDefault(this.phase, 0);
 		}
