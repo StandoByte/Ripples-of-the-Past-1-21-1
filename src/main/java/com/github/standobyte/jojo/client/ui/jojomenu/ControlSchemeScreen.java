@@ -64,7 +64,7 @@ public class ControlSchemeScreen extends Screen implements IJojoMenuScreen {
 				var abilities = power.getMoveset().abilities.values();
 				int column = 0;
 				for (Ability ability : abilities) {
-					if (!ability.isSubAbility) {
+					if (ability.addToControlSchemeEditing()) {
 						int x = SLOTS_X_OFFSET + column * SLOT_WIDTH;
 						int y = SLOTS_Y_OFFSET + row * SLOT_HEIGHT + powerClassI * POWER_NAME_HEIGHT;
 						mainAbilities.add(new AbilityEntry(ability, x, y));

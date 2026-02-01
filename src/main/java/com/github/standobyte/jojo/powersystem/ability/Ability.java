@@ -62,6 +62,11 @@ public class Ability {
 		return this.abilityId.powerClass().get(user);
 	}
 	
+	public boolean addToControlSchemeEditing() {
+		return !isSubAbility;
+	}
+	
+	
 	public AbilityUsageGroup getAbilityUsageCategory() {
 		return usageGroup;
 	}
