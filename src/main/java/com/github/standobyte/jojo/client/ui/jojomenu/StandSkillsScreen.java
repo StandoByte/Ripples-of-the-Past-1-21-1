@@ -62,6 +62,8 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 				);
 	});
 	
+	public static final int STAND_EXP_NUMBER_COLOR = 0x00A000;
+	
 	protected TabCategory category;
 	protected Tab tab;
 
@@ -135,7 +137,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		int skillListY = y + SKILL_LIST_Y;
 		skillListScrolling.pushOffsetScissor(guiGraphics, skillListY + 1, skillListX + 1, skillListX + 60);
 		
-		int spriteX = skillListX + 4;
+		int spriteX = skillListX + 2;
 		int spriteY = skillListY + 4;
 		AbilityIconSprites abilityIconSprites = StandSkinsLoader.getInstance().abilityIcons;
 		UnlockableSkill hovered = getHoveredSkill(mouseX, mouseY);
@@ -145,13 +147,13 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 					spriteX, spriteY, 16, 16, 0, BlitFloat.NO_TINT);
 			
 			if (!NOT_YET_IMPLEMENTED.contains(skill.skillName)) {
-				boolean isUnlocked = true;
+				boolean isUnlocked = levelingData.isSkillUnlocked(skill.skillName);
 				if (isUnlocked) {
 					guiGraphics.drawString(font, String.valueOf(IconSymbols.CHECKMARK), spriteX + 18, spriteY + 4, 0xFFFFFFFF);
 				}
 				else {
-					int skillPoints = ((StandUnlockableSkill) skill).pointsToUnlock;
-					guiGraphics.drawString(font, "(" + String.valueOf(skillPoints) + ")", spriteX + 19, spriteY + 4, textColor);
+					int expToUnlock = ((StandUnlockableSkill) skill).expToUnlock;
+					guiGraphics.drawString(font, String.valueOf(expToUnlock), spriteX + 18, spriteY + 4, STAND_EXP_NUMBER_COLOR, false);
 				}
 			}
 			spriteY += 20;
@@ -170,9 +172,8 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			skillControls.drawSmallScrollBar(guiGraphics);
 		}
 		
-		Component levels = Component.literal(String.valueOf(levelingData.getResolveReached())).withStyle(ChatFormatting.BOLD);
-		guiGraphics.drawString(font, levels, 
-				x + 41 - font.width(levels) / 2, y + 32, standSkin.getColor(), false);
+		Component exp = Component.literal(IconSymbols.STAND_EXP + " " + String.valueOf(levelingData.getExp()));
+		guiGraphics.drawString(font, exp, x + 41 - font.width(exp) / 2, y + 32, STAND_EXP_NUMBER_COLOR, false);
 		
 		renderTabs(guiGraphics, this);
 		

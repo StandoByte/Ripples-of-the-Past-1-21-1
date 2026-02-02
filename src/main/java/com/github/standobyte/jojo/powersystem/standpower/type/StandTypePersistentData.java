@@ -19,6 +19,9 @@ import net.minecraft.world.entity.LivingEntity;
 
 public class StandTypePersistentData extends PowerData {
 	public Set<String> unlockedSkills = new HashSet<>();
+	protected float exp;
+	
+	// I guess I'll keep this just as a stat
 	protected int resolveReached;
 	
 	
@@ -36,6 +39,24 @@ public class StandTypePersistentData extends PowerData {
 	}
 	
 	
+	public int getExp() {
+		return (int) exp;
+	}
+	
+	public int addExp(float exp, LivingEntity standUser) {
+		int prevInt = (int) this.exp;
+		this.exp += exp;
+		int newInt = (int) this.exp;
+		syncOnUpdate(standUser);
+		return newInt - prevInt;
+	}
+	
+	public void setExp(float exp, LivingEntity standUser) {
+		this.exp = exp;
+		syncOnUpdate(standUser);
+	}
+	
+	
 	public void incResolveReached(LivingEntity standUser) {
 		++resolveReached;
 		syncOnUpdate(standUser);
@@ -49,6 +70,7 @@ public class StandTypePersistentData extends PowerData {
 		unlockedSkills.forEach(skillName -> skillsNbt.add(StringTag.valueOf(skillName)));
 		nbt.put("skills", skillsNbt);
 
+		nbt.putFloat("exp", exp);
 		nbt.putInt("resolveReached", resolveReached);
 		return nbt;
 	}
@@ -64,12 +86,14 @@ public class StandTypePersistentData extends PowerData {
 			}
 		});
 		
+		this.exp = nbt.getFloat("exp");
 		this.resolveReached = nbt.getInt("resolveReached");
 	}
 	
 	@Override
 	public void toBuf(FriendlyByteBuf buf, boolean isSentToTracking) {
 		if (!isSentToTracking) {
+			buf.writeFloat(exp);
 			buf.writeVarInt(resolveReached);
 			NetworkUtil.writeCollection(buf, unlockedSkills, FriendlyByteBuf::writeUtf);
 		}
@@ -78,6 +102,7 @@ public class StandTypePersistentData extends PowerData {
 	@Override
 	public void fromBuf(FriendlyByteBuf buf, boolean isSentToTracking) {
 		if (!isSentToTracking) {
+			exp = buf.readFloat();
 			resolveReached = buf.readVarInt();
 			this.unlockedSkills.clear();
 			this.unlockedSkills.addAll(NetworkUtil.readCollection(buf, FriendlyByteBuf::readUtf));

@@ -5,26 +5,31 @@ import java.util.Optional;
 import com.github.standobyte.jojo.powersystem.skill.UnlockableSkill;
 
 public class StandUnlockableSkill extends UnlockableSkill {
-	public int pointsToUnlock;
+	public int expToUnlock;
 
 	public StandUnlockableSkill(String name) {
 		super(name);
 	}
 	
+	@Deprecated
 	public StandUnlockableSkill setPointsToUnlock(int skillPoints) {
-		this.pointsToUnlock = skillPoints;
+		return this;
+	}
+	
+	public StandUnlockableSkill setExpToUnlock(int exp) {
+		this.expToUnlock = exp;
 		return this;
 	}
 	
 	public StandUnlockableSkill setIsStartingSkill() {
-		setPointsToUnlock(0);
+		setExpToUnlock(0);
 		return this;
 	}
 	
-	public static StandUnlockableSkill unlockableAbility(String name, int skillPoints) {
+	public static StandUnlockableSkill unlockableAbility(String name, int exp) {
 		StandUnlockableSkill skill = new StandUnlockableSkill(name);
 		skill.withAbility(name);
-		skill.setPointsToUnlock(skillPoints);
+		skill.setExpToUnlock(exp);
 		return skill;
 	}
 	

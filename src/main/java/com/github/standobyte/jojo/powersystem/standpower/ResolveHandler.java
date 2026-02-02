@@ -9,7 +9,6 @@ import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.packet.ResolveBoostsPacket;
 import com.github.standobyte.jojo.powersystem.standpower.packet.TrResolvePacket;
-import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData;
 import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.java.Lerp;
 import com.github.standobyte.jojo.util.java.OptionalFloat;
@@ -37,10 +36,14 @@ import net.neoforged.neoforge.network.PacketDistributor;
 @EventBusSubscriber(modid = JojoMod.MOD_ID)
 public class ResolveHandler {
 	public static final float RESOLVE_DMG_REDUCTION = 0.6F;
-	public static final Double[] DEFAULT_MAX_RESOLVE_VALUES = { 5000.0, 10000.0, 20000.0, 30000.0 };
+//	public static final Double[] DEFAULT_MAX_RESOLVE_VALUES = { 5000.0, 10000.0, 20000.0, 30000.0 };
 	public static final float RESOLVE_FOR_DMG_POINT = 1F;
-	public static final int[] RESOLVE_EFFECT_MIN = { 300, 400, 500, 600, 600 };
-	public static final int[] RESOLVE_EFFECT_MAX = { 600, 1200, 1500, 1800, 2400 };
+//	public static final int[] RESOLVE_EFFECT_MIN = { 300, 400, 500, 600, 600 };
+//	public static final int[] RESOLVE_EFFECT_MAX = { 600, 1200, 1500, 1800, 2400 };
+	
+	public static final float DEFAULT_MAX_RESOLVE_VALUE = 30000;
+	public static final int RESOLVE_EFFECT_MIN = 600;
+	public static final int RESOLVE_EFFECT_MAX = 2400;
 
 
 	public static final float BOOST_ATTACK_MAX = 5F;
@@ -135,10 +138,11 @@ public class ResolveHandler {
 	}
 	
 	public float getMaxResolveValue(StandPower stand) {
-		StandTypePersistentData data = stand.getCurTypeData();
-		int alreadyHadResolveWithThisStand = data != null ? data.getResolveReached() : 0;
-		int index = Mth.clamp(alreadyHadResolveWithThisStand, 0, DEFAULT_MAX_RESOLVE_VALUES.length - 1);
-		return DEFAULT_MAX_RESOLVE_VALUES[index].floatValue();
+//		StandTypePersistentData data = stand.getCurTypeData();
+//		int alreadyHadResolveWithThisStand = data != null ? data.getResolveReached() : 0;
+//		int index = Mth.clamp(alreadyHadResolveWithThisStand, 0, DEFAULT_MAX_RESOLVE_VALUES.length - 1);
+//		return DEFAULT_MAX_RESOLVE_VALUES[index].floatValue();
+		return DEFAULT_MAX_RESOLVE_VALUE;
 	}
 	
 	public float getResolveModeTimerRatio(StandPower stand, float partialTick) {
@@ -182,10 +186,11 @@ public class ResolveHandler {
 			noBoostDecayTicks = NO_BOOST_ATTACK_DECAY_TICKS;
 		}
 		else {
-			int resolveLevel = resolveMode.getAmplifier();
-			if (resolveLevel < RESOLVE_EFFECT_MAX.length) {
-				resolveModeTimer.value = Math.max(resolveModeTimer.value, resolveModeTimer.defaultValue / 2);
-			}
+//			int resolveLevel = resolveMode.getAmplifier();
+//			if (resolveLevel < RESOLVE_EFFECT_MAX.length) {
+//				resolveModeTimer.value = Math.max(resolveModeTimer.value, resolveModeTimer.defaultValue / 2);
+//			}
+			resolveModeTimer.value = Math.max(resolveModeTimer.value, resolveModeTimer.defaultValue / 2);
 		}
 		
 		if (user instanceof ServerPlayer player) {
@@ -234,9 +239,12 @@ public class ResolveHandler {
 		if (canEnterResolveMode(stand)) {
 			LivingEntity user = stand.getUser();
 			if (!user.level().isClientSide()) {
-				int resolveLevel = Math.min(stand.getCurTypeData().getResolveReached(), RESOLVE_EFFECT_MAX.length - 1);
+//				int resolveLevel = Math.min(stand.getCurTypeData().getResolveReached(), RESOLVE_EFFECT_MAX.length - 1);
+//				stand.getUser().addEffect(new MobEffectInstance(ModStatusEffects.RESOLVE, 
+//						RESOLVE_EFFECT_MAX[resolveLevel], resolveLevel, false, 
+//						false, true));
 				stand.getUser().addEffect(new MobEffectInstance(ModStatusEffects.RESOLVE, 
-						RESOLVE_EFFECT_MAX[resolveLevel], resolveLevel, false, 
+						RESOLVE_EFFECT_MAX, 0, false, 
 						false, true));
 			}
 			return true;
@@ -253,11 +261,13 @@ public class ResolveHandler {
 			
 			boolean hasMinDuration = false;
 			if (resolveEffect.is(ModStatusEffects.RESOLVE)) {
-				int resolveLevel = resolveEffect.getAmplifier();
-				if (resolveLevel < RESOLVE_EFFECT_MAX.length) {
-					hasMinDuration = true;
-					resolveModeTimer.defaultValue = RESOLVE_EFFECT_MIN[resolveLevel];
-				}
+//				int resolveLevel = resolveEffect.getAmplifier();
+//				if (resolveLevel < RESOLVE_EFFECT_MAX.length) {
+//					hasMinDuration = true;
+//					resolveModeTimer.defaultValue = RESOLVE_EFFECT_MIN[resolveLevel];
+//				}
+				hasMinDuration = true;
+				resolveModeTimer.defaultValue = RESOLVE_EFFECT_MIN;
 			}
 			if (!hasMinDuration) {
 				resolveModeTimer.defaultValue = resolveEffect.getDuration();
