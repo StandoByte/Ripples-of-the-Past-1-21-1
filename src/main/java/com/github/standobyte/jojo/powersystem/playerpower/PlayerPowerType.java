@@ -12,7 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.common.util.Lazy;
 
-public abstract class PlayerPowerType<D extends PowerData> extends PowerType {
+public abstract class PlayerPowerType<D extends PlayerPowerData> extends PowerType {
 	private final ResourceLocation registryKey;
 
 	public PlayerPowerType(ResourceLocation registryKey, MovesetBuilder abilitySet) {
@@ -20,8 +20,8 @@ public abstract class PlayerPowerType<D extends PowerData> extends PowerType {
 		this.registryKey = registryKey;
 	}
 	
-	@Nonnull
-	public abstract D newDataInstance();
+	@Override
+	@Nonnull public abstract D newDataInstance();
 
 	
 	@Override

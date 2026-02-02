@@ -6,8 +6,6 @@ import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
-import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData;
-import com.github.standobyte.jojo.util.network.NetworkUtil;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -22,24 +20,15 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 public class TrPowerStandInstancePacket implements CustomPacketPayload {
 	private final int entityId;
 	private final Optional<StandInstance.NetworkData> standInstance;
-	private boolean isSentToTracking;
-	private StandTypePersistentData serverPerStandTypeData;
-	private FriendlyByteBuf clientPerStandTypeData;
 	
-	public TrPowerStandInstancePacket(int entityId, Optional<StandInstance> standInstance, 
-			StandTypePersistentData playerStandTypeData, boolean isSentToTracking) {
-		this(entityId, isSentToTracking, 
-				standInstance.map(StandInstance.NetworkData::wrap), 
-				playerStandTypeData);
+	public TrPowerStandInstancePacket(int entityId, Optional<StandInstance> standInstance) {
+		this(standInstance.map(StandInstance.NetworkData::wrap), entityId);
 	}
 	
-	private TrPowerStandInstancePacket(int entityId, boolean isSentToTracking, 
-			Optional<StandInstance.NetworkData> standInstance, 
-			StandTypePersistentData playerStandTypeData) {
+	// type erasure moment
+	private TrPowerStandInstancePacket(Optional<StandInstance.NetworkData> standInstance, int entityId) {
 		this.entityId = entityId;
 		this.standInstance = standInstance;
-		this.isSentToTracking = isSentToTracking;
-		this.serverPerStandTypeData = playerStandTypeData;
 	}
 	
 	
@@ -61,21 +50,15 @@ public class TrPowerStandInstancePacket implements CustomPacketPayload {
 		@Override
 		public void encode(TrPowerStandInstancePacket packet, RegistryFriendlyByteBuf buf) {
 			buf.writeInt(packet.entityId);
-			buf.writeBoolean(packet.isSentToTracking);
 			STAND_INSTANCE_OPTIONAL_CODEC.encode(buf, packet.standInstance);
-			if (packet.serverPerStandTypeData != null) {
-				packet.serverPerStandTypeData.toBuf(buf, packet.isSentToTracking);
-			}
 		}
 
 		@Override
 		public TrPowerStandInstancePacket decode(RegistryFriendlyByteBuf buf) {
+			int entityId = buf.readInt();
+			Optional<StandInstance.NetworkData> standInstance = STAND_INSTANCE_OPTIONAL_CODEC.decode(buf);
 			TrPowerStandInstancePacket packet = new TrPowerStandInstancePacket(
-					buf.readInt(), 
-					buf.readBoolean(), 
-					STAND_INSTANCE_OPTIONAL_CODEC.decode(buf),
-					null);
-			packet.clientPerStandTypeData = NetworkUtil.extraPacketData(buf);
+					standInstance, entityId);
 			return packet;
 		}
 
@@ -86,10 +69,6 @@ public class TrPowerStandInstancePacket implements CustomPacketPayload {
 				StandPower standPower = StandPower.get(living);
 				if (standPower != null) {
 					standPower.setStandInstance(payload.standInstance.map(StandInstance.NetworkData::get));
-					var perTypePlayerData = standPower.getCurTypeData();
-					if (perTypePlayerData != null) {
-						perTypePlayerData.fromBuf(payload.clientPerStandTypeData, payload.isSentToTracking);
-					}
 				}
 			}
 		}
