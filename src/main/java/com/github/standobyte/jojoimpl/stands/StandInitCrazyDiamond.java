@@ -128,20 +128,20 @@ public class StandInitCrazyDiamond {
 				.addSkill(StandUnlockableSkill.tiedToMainSkill("block_toss", "grab"))
 
 				.addSkill(StandUnlockableSkill.startingAbility("repair_item"))
-				.addSkill(StandUnlockableSkill.unlockableAbility("revert_state", 1).prerequisiteSkill("repair_item"))
+				.addSkill(StandUnlockableSkill.unlockableAbility("revert_state", 50).prerequisiteSkill("repair_item"))
 				.addSkill(StandUnlockableSkill.tiedToMainSkill("uncraft", "revert_state").withAbility("uncraft"))
 
-				.addSkill(StandUnlockableSkill.unlockableAbility("heal", 1))
-				.addSkill(StandUnlockableSkill.unlockableAbility("hit_armor_fix", 1).prerequisiteSkill("repair_item", "heavy_punch"))
-				.addSkill(StandUnlockableSkill.unlockableAbility("disfiguring_punch", 1).prerequisiteSkill("heal", "finisher"))
-				.addSkill(StandUnlockableSkill.unlockableAbility("leave_object", 1).prerequisiteSkill("heal", "heavy_charged"))
+				.addSkill(StandUnlockableSkill.unlockableAbility("heal", 50))
+				.addSkill(StandUnlockableSkill.unlockableAbility("hit_armor_fix", 150).prerequisiteSkill("repair_item", "heavy_punch"))
+				.addSkill(StandUnlockableSkill.unlockableAbility("disfiguring_punch", 200).prerequisiteSkill("heal", "finisher"))
+				.addSkill(StandUnlockableSkill.unlockableAbility("leave_object", 150).prerequisiteSkill("heal", "heavy_charged"))
 
-				.addSkill(StandUnlockableSkill.unlockableAbility("restore_terrain", 1))
+				.addSkill(StandUnlockableSkill.unlockableAbility("restore_terrain", 150))
 				.addSkill(StandUnlockableSkill.tiedToMainSkill("block_anchor", "restore_terrain").withAbility("block_anchor"))
-				.addSkill(StandUnlockableSkill.unlockableAbility("create_wall", 1).prerequisiteSkill("restore_terrain"))
-				.addSkill(StandUnlockableSkill.unlockableAbility("fuse_with_rock", 1).prerequisiteSkill("finisher_misshape", "restore_terrain"))
+				.addSkill(StandUnlockableSkill.unlockableAbility("create_wall", 50).prerequisiteSkill("restore_terrain"))
+				.addSkill(StandUnlockableSkill.unlockableAbility("fuse_with_rock", 100).prerequisiteSkill("finisher_misshape", "restore_terrain"))
 
-				.addSkill(StandUnlockableSkill.unlockableAbility("block_bullet", 1).withAbility("blood_cutter"))
+				.addSkill(StandUnlockableSkill.unlockableAbility("block_bullet", 250).withAbility("blood_cutter"))
 				.addSkill(StandUnlockableSkill.tiedToMainSkill("blood_cutter", "block_bullet").withAbility("blood_cutter"))
 
 				.addHumanoidStandSkills()

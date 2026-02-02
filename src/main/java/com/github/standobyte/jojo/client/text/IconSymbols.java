@@ -49,6 +49,9 @@ public class IconSymbols {
 	// EB06
 	public static final char ARMOR = IconGlyphsCache.makeCharCodeFor(new IconGlyphInfo(
 			new GuiIcon(JojoMod.resLoc("textures/gui/sprites/armor.png"), 0, 0, 9, 9, 9, 9), 9, 9));
+	// EB07
+	public static final char STAND_EXP = IconGlyphsCache.makeCharCodeFor(new IconGlyphInfo(
+			new GuiIcon(JojoMod.resLoc("textures/gui/sprites/stand_exp.png"), 0, 0, 10, 10, 10, 10), 10, 10));
 	
 	
 	public static boolean canRecolor = false;
