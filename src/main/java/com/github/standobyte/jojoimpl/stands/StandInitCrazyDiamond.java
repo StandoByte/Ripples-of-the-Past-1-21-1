@@ -96,7 +96,6 @@ public class StandInitCrazyDiamond {
 //					.addHotbarSlotVariation("revert_state", "heal", InputKey.Modifier.CONTROL, InputMethod.HOLD)
 					.addToHotbar("restore_terrain", 0, InputMethod.HOLD)
 //					.addHotbarSlotVariation("create_wall", "restore_terrain", InputKey.Modifier.CONTROL, InputMethod.CLICK)
-					.addToHotbar("block_anchor", 0, InputMethod.HOLD)
 				.finalizeControlScheme()
 
 
@@ -117,7 +116,6 @@ public class StandInitCrazyDiamond {
 //					.bind("revert_state", InputMethod.HOLD, InputKey.C.withModifier(InputKey.Modifier.CONTROL))
 					.bind("restore_terrain", InputMethod.HOLD, InputKey.V)
 //					.bind("create_wall", InputMethod.CLICK, InputKey.V.withModifier(InputKey.Modifier.CONTROL))
-//					.bind("block_anchor", InputMethod.HOLD, InputKey.B)
 				.finalizeControlScheme()
 
 
@@ -139,8 +137,8 @@ public class StandInitCrazyDiamond {
 				.addSkill(StandUnlockableSkill.unlockableAbility("leave_object", 1).prerequisiteSkill("heal", "heavy_charged"))
 
 				.addSkill(StandUnlockableSkill.unlockableAbility("restore_terrain", 1))
-				.addSkill(StandUnlockableSkill.unlockableAbility("create_wall", 1).prerequisiteSkill("restore_terrain"))
 				.addSkill(StandUnlockableSkill.tiedToMainSkill("block_anchor", "restore_terrain").withAbility("block_anchor"))
+				.addSkill(StandUnlockableSkill.unlockableAbility("create_wall", 1).prerequisiteSkill("restore_terrain"))
 				.addSkill(StandUnlockableSkill.unlockableAbility("fuse_with_rock", 1).prerequisiteSkill("finisher_misshape", "restore_terrain"))
 
 				.addSkill(StandUnlockableSkill.unlockableAbility("block_bullet", 1).withAbility("blood_cutter"))

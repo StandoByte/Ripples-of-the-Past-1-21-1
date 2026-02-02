@@ -32,8 +32,11 @@ import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker;
 import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracker;
 import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracking;
 import com.github.standobyte.jojo.powersystem.Power;
+import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
+import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
@@ -46,6 +49,7 @@ import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.OOPMoment;
 import com.github.standobyte.jojo.util.entitycomponent.ComponentUtil;
 import com.github.standobyte.jojo.util.mc.XpFormulas;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDAnchorBlockAbility.FoundAnchor;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.BlockBreaking;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.BrokenBlocksChunkData;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.CDBlocksRestoredPacket;
@@ -90,7 +94,20 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 		super(abilityType, abilityId, TerrainRestoration::new);
 		setButtonHoldPhase(ActionPhase.PERFORM);
 	}
-
+	
+	
+	@Override
+	public Ability replaceWithSubAbility(Power<?> context, AvailableAbilities abilities) {
+		FoundAnchor anchor = CrazyDAnchorBlockAbility.getItemToUseAsAnchor(PowerClass.STAND.cast(context));
+		if (anchor != null) {
+			Ability anchorAbility = abilities.getContextVariation("block_anchor");
+			if (anchorAbility != null && anchorAbility.isAbilityAvailable(context)) {
+				return anchorAbility;
+			}
+		}
+		
+		return super.replaceWithSubAbility(context, abilities);
+	}
 
 	@Override
 	public ConditionCheck checkSpecificConditions(Power<?> context) {
