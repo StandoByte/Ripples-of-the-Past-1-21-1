@@ -158,14 +158,16 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		}
 
 		skillListScrolling.pop(guiGraphics);
-		skillListScrolling.renderScrollBar(skillListX - 8, skillListY + 1, 0, guiGraphics, SCROLL_BAR, 1);
+		skillListScrolling.renderScrollBar(skillListX - 8, skillListY + 1, 0, 4, guiGraphics, SCROLL_BAR, 1);
 
 		if (selectedSkill != null) {
 			TextUtil.drawRightAlignedString(guiGraphics, font, selectedSkill.textName, 
 					x + getWindowWidth() - 10, y + 24, textColor, false);
 			
 			skillDescription.draw(4, 3, guiGraphics, this.minecraft.font, textColor, false);
+			skillDescription.drawSmallScrollBar(guiGraphics);
 			skillControls.draw(4, 3, guiGraphics, this.minecraft.font, textColor, false);
+			skillControls.drawSmallScrollBar(guiGraphics);
 		}
 		
 		Component levels = Component.literal(String.valueOf(levelingData.getResolveReached())).withStyle(ChatFormatting.BOLD);
