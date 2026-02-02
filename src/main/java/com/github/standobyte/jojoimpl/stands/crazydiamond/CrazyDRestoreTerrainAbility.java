@@ -1,6 +1,5 @@
 package com.github.standobyte.jojoimpl.stands.crazydiamond;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -54,6 +53,7 @@ import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.BlockBrea
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.BrokenBlocksChunkData;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.CDBlocksRestoredPacket;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.EntityMadeFromBlock;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.EntityMadeFromBlock.EntityReference;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.PrevBlockInfo;
 
 import it.unimi.dsi.fastutil.ints.IntArraySet;
@@ -316,7 +316,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 						boolean didSmthElse = false;
 						if (block.blockShards != null && !block.blockShards.isEmpty()) {
 							didSmthElse |= true;
-							for (WeakReference<EntityMadeFromBlock> shardRef : block.blockShards) {
+							for (EntityReference shardRef : block.blockShards) {
 								EntityMadeFromBlock shard = shardRef.get();
 								if (shard != null && shard.isEntityAlive()) {
 									placeBlockNow &= shard.crazyDRestore(blockPos);

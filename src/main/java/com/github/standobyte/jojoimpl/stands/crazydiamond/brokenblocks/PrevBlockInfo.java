@@ -1,6 +1,5 @@
 package com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,6 +10,7 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDRestoreTerrainAbility;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.EntityMadeFromBlock.EntityReference;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -32,7 +32,7 @@ public class PrevBlockInfo {
 	public final List<ItemStack> drops;
 	public boolean hasAnchorDrop;
 	private int xp = 0;
-	public List<WeakReference<EntityMadeFromBlock>> blockShards;
+	public List<EntityReference> blockShards;
 
 	public boolean alwaysKeepNBT;
 //	private int tickCount = 0;
@@ -68,7 +68,7 @@ public class PrevBlockInfo {
 	}
 
 	public void withEntities(EntityMadeFromBlock... blockShardEntities) {
-		this.blockShards = Arrays.stream(blockShardEntities).map(WeakReference::new).collect(Collectors.toList());
+		this.blockShards = Arrays.stream(blockShardEntities).map(EntityReference::makeStorage).collect(Collectors.toList());
 	}
 
 

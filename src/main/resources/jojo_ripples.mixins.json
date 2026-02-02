@@ -54,11 +54,14 @@
     "stand.crazyd.LootTableMixin",
     "stand.crazyd.LevelDestroyBlockMixin",
     "stand.crazyd.FireBlockMixin",
+    "stand.crazyd.TntEntityMixin",
 	
 	"KnockbackEntityCollision",
 	"ProjectileHighSpeedSync",
 	"attributes.EntityMixin",
 	"modcompat.MthInitBeforeLithium",
+	
+	"EntityMixinSuperclass",
 	
 	"debughelper.CodecErrorMessageMixin"
   ],
