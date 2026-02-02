@@ -527,7 +527,16 @@ public class ControlsHudElement extends HudElement {
 				x = x0;
 				y += SLOT_HEIGHT + 4;
 				if (hotbar.switchHint != null) {
-					guiGraphics.drawString(font, hotbar.switchHint, x, y, textColor);
+					if (hotbar.selectingAbility) {
+						x += 18;
+						for (int i = 0; i < 10 && i < hotbar.slots.size(); i++) {
+							guiGraphics.drawString(font, String.valueOf(i + 1), x, y, textColor);
+							x += SLOT_WIDTH;
+						}
+					}
+					else {
+						guiGraphics.drawString(font, hotbar.switchHint, x, y, textColor);
+					}
 				}
 				y += font.lineHeight + 4;
 			}

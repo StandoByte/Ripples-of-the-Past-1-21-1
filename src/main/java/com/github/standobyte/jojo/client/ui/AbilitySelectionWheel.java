@@ -124,6 +124,7 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 		ResourceLocation texture = DEFAULT_TEXTURE;
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
+		int textColor = standSkin != null ? standSkin.getColor() : 0xFFFFFFFF;
 		
 		boolean ignoreMouse = checkIsIgnoringMouse(mouseX, mouseY);
 		hoveredSlotIndex = ignoreMouse ? abilities.slotIndex : getSlotIndexAt(mouseX, mouseY);
@@ -174,6 +175,14 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 				float iconHeight = 16;
 				BlitFloat.blit(pose, minecraft, abilitySprite, 
 						iconPos[0] - iconWidth / 2, iconPos[1] - iconHeight / 2, iconWidth, iconHeight, 0, BlitFloat.NO_TINT);
+			}
+			
+			if (i < 10) {
+				int[] digitPos = posAtSector(i, n, 90);
+				guiGraphics.drawCenteredString(minecraft.font, String.valueOf(i + 1), 
+						digitPos[0], digitPos[1] - minecraft.font.lineHeight / 2, textColor);
+				RenderSystem.enableBlend();
+				RenderSystem.defaultBlendFunc();
 			}
 		}
 		RenderSystem.disableBlend();
