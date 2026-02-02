@@ -48,9 +48,9 @@ public class ControlSchemeTemplate {
 	public static class AbilitiesHotbar {
 		public List<Map<InputKey.Modifier, Map<InputMethod, String>>> slots = new ArrayList<>();
 		public InputBindTemplate useAbilityKey;
-		public InputBindTemplate switchAbilityKey;
+		@Nullable public InputBindTemplate switchAbilityKey;
 
-		public AbilitiesHotbar(InputBindTemplate useAbilityKey, InputBindTemplate switchAbilityKey) {
+		public AbilitiesHotbar(InputBindTemplate useAbilityKey, @Nullable InputBindTemplate switchAbilityKey) {
 			this.useAbilityKey = useAbilityKey;
 			this.switchAbilityKey = switchAbilityKey;
 		}
@@ -77,7 +77,7 @@ public class ControlSchemeTemplate {
 		return this;
 	}
 
-	public ControlSchemeTemplate makeHotbar(int hotbarId, InputBindTemplate useAbilityKey, InputBindTemplate switchAbilityKey) {
+	public ControlSchemeTemplate makeHotbar(int hotbarId, InputBindTemplate useAbilityKey, @Nullable InputBindTemplate switchAbilityKey) {
 		if (_curGroup != null) {
 			AbilitiesHotbar hotbar = new AbilitiesHotbar(useAbilityKey, switchAbilityKey);
 			hotbarsById.put(hotbarId, hotbar);
