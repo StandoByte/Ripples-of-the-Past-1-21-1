@@ -8,7 +8,6 @@ import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.core.packet.fromserver.TrPowerTypePacket;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
-import com.github.standobyte.jojo.util.NBTUtil;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -18,7 +17,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class PlayerPower extends Power<PlayerPower> {
-	protected Optional<PowerData> powerData = Optional.empty();
+	protected Optional<PlayerPowerType<?>> curPowerType = Optional.empty();
 
 	public PlayerPower(LivingEntity user) {
 		super(user);
@@ -26,13 +25,13 @@ public class PlayerPower extends Power<PlayerPower> {
 
 	@Override
 	public PlayerPowerType<?> getPowerType() {
-		return powerData.map(PowerData::getType).orElse(null);
+		return curPowerType.orElse(null);
 	}
 	
 	public void setPowerType(@Nullable PlayerPowerType<?> type) {
 		PlayerPowerType<?> old = getPowerType();
 		if (old != type) {
-			initPowerTypeData(type);
+			this.curPowerType = Optional.ofNullable(type);
 			if (!user.level().isClientSide()) {
 				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrPowerTypePacket(user.getId(), type));
 			}
@@ -40,18 +39,16 @@ public class PlayerPower extends Power<PlayerPower> {
 		onSetPowerType(old, type);
 	}
 	
-	protected void initPowerTypeData(@Nullable PlayerPowerType<?> type) {
-		powerData = type != null ? Optional.ofNullable(type.newDataInstance()) : Optional.empty();
-	}
-	
 	@Override
 	public boolean hasPower() {
-		return powerData.isPresent();
+		return curPowerType.isPresent();
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T extends PlayerPowerType<D>, D extends PowerData> Optional<D> getData(@Nullable T matchCurrentType) {
-		return (Optional<D>) powerData.filter(data -> matchCurrentType == null || matchCurrentType == data.getType());
+	public <T extends PlayerPowerType<D>, D extends PlayerPowerData> Optional<D> getData(@Nullable T matchCurrentType) {
+		return this.curPowerType
+				.filter(curType -> matchCurrentType == null || matchCurrentType == curType)
+				.map(type -> (D) getPowerTypeData(type));
 	}
 	
 	@Override
@@ -68,31 +65,27 @@ public class PlayerPower extends Power<PlayerPower> {
 
 	@Override
 	public void syncToPlayer(ServerPlayer user) {
-		super.syncToPlayer(user);
 		PacketDistributor.sendToPlayer(user, new TrPowerTypePacket(user.getId(), getPowerType()));
-		powerData.ifPresent(data -> data.syncToPlayer(user));
+		super.syncToPlayer(user);
 	}
 
 	@Override
 	public void syncToTracking(ServerPlayer player) {
-		super.syncToTracking(player);
 		PacketDistributor.sendToPlayer(player, new TrPowerTypePacket(user.getId(), getPowerType()));
-		powerData.ifPresent(data -> data.syncToTracking(player));
+		super.syncToTracking(player);
 	}
 	
 	@Override
 	public void onPlayerCloneData(PlayerPower newEntityData, boolean wasDeath) {
 		super.onPlayerCloneData(newEntityData, wasDeath);
-		newEntityData.powerData = this.powerData;
 	}
 	
 	
 	@Override
 	public CompoundTag serializeNBT(HolderLookup.Provider provider) {
 		CompoundTag nbt = super.serializeNBT(provider);
-		powerData.ifPresent(data -> {
-			nbt.putString("PowerType", data.getType().getId().toString());
-			nbt.put("PowerData", data.serializeNBT(provider));
+		curPowerType.ifPresent(curType -> {
+			nbt.putString("PowerType", curType.getId().toString());
 		});
 		return nbt;
 	}
@@ -102,9 +95,7 @@ public class PlayerPower extends Power<PlayerPower> {
 		super.deserializeNBT(provider, nbt);
 		PlayerPowerType<?> powerType = JojoRegistries.PLAYER_POWER_TYPES_REG.get(
 				ResourceLocation.parse(nbt.getString("PowerType")));
-		initPowerTypeData(powerType);
-		powerData.ifPresent(data -> NBTUtil.getCompoundOptional(nbt, "PowerData").ifPresent(
-				dataNbt -> data.deserializeNBT(provider, dataNbt)));
+		this.curPowerType = Optional.ofNullable(powerType);
 	}
 	
 	
@@ -117,7 +108,7 @@ public class PlayerPower extends Power<PlayerPower> {
 		return PowerClass.PLAYER_POWER.getOptional(entity);
 	}
 
-	public static <T extends PlayerPowerType<D>, D extends PowerData> Optional<D> getPowerData(LivingEntity user, @Nullable T specificType) {
+	public static <T extends PlayerPowerType<D>, D extends PlayerPowerData> Optional<D> getPowerData(LivingEntity user, @Nullable T specificType) {
 		PlayerPower playerPower = get(user);
 		return playerPower != null ? playerPower.getData(specificType) : Optional.empty();
 	}

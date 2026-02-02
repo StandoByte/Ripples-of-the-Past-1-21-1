@@ -2,6 +2,8 @@ package com.github.standobyte.jojo.powersystem;
 
 import java.util.Collection;
 
+import javax.annotation.Nonnull;
+
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.config.DefaultedValue;
@@ -21,6 +23,8 @@ public abstract class PowerType implements JsonConfigurable {
 		this.movesetConfigured = new DefaultedValue<>(defaultMoveset);
 		initBaseMoveset();
 	}
+	
+	@Nonnull public abstract PowerData newDataInstance();
 	
 	public abstract ResourceLocation getId();
 	

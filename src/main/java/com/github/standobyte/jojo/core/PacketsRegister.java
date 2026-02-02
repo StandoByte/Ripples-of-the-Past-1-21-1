@@ -19,7 +19,7 @@ import com.github.standobyte.jojo.core.packet.fromserver.TrPowerStandInstancePac
 import com.github.standobyte.jojo.core.packet.fromserver.TrPowerTypePacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrResetDeathTimePacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
-import com.github.standobyte.jojo.core.packet.fromserver.TrStandDataPacket;
+import com.github.standobyte.jojo.core.packet.fromserver.TrPowerDataPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrStandSkinPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSyncStandOffsetPacket;
 import com.github.standobyte.jojo.mechanics.clothes.TrClothesItemsPacket;
@@ -83,8 +83,8 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrEntityActionPhaseTimePacket.Handler(JojoMod.resLoc("actionphase")));
         registerPacket(registrar, PayloadRegistrar::playToClient, new TrEntityActionWithOBBSyncPacket.Handler(JojoMod.resLoc("obbsync")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrPowerStandInstancePacket.Handler(JojoMod.resLoc("standinst")));
-		registerPacket(registrar, PayloadRegistrar::playToClient, new TrStandDataPacket.Handler(JojoMod.resLoc("standdata")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrPowerTypePacket.Handler(JojoMod.resLoc("plpowertype")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new TrPowerDataPacket.Handler(JojoMod.resLoc("powerdata")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrSetStandEntityPacket.Handler(JojoMod.resLoc("standentity")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrNonEntityStandSummonPacket.Handler(JojoMod.resLoc("nestandsummon")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrStandEffectPacket.Handler(JojoMod.resLoc("standeffect")));

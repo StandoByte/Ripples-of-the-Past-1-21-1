@@ -1,13 +1,13 @@
 package com.github.standobyte.jojoimpl.powers.hamon;
 
+import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerData;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
-import com.github.standobyte.jojo.powersystem.playerpower.PowerData;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
 
-public class HamonData extends PowerData {
+public class HamonData extends PlayerPowerData {
 
 	@Override
 	public CompoundTag serializeNBT(HolderLookup.Provider provider) {
@@ -22,12 +22,12 @@ public class HamonData extends PowerData {
 	}
 
 	@Override
-	public void syncToPlayer(ServerPlayer user) {
+	public void toBuf(FriendlyByteBuf buf, boolean isSentToTracking) {
 		
 	}
 
 	@Override
-	public void syncToTracking(ServerPlayer player) {
+	public void fromBuf(FriendlyByteBuf buf, boolean isSentToTracking) {
 		
 	}
 
