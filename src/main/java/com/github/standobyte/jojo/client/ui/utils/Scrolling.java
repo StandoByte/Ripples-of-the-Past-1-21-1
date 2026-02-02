@@ -35,6 +35,10 @@ public class Scrolling {
 		return Math.max(contentsHeight - uiHeight, 0);
 	}
 	
+	public boolean hasScrolling() {
+		return contentsHeight > uiHeight;
+	}
+	
 	public void scroll(double scrollDir) {
 		setScrollOffset(this.scrollOffset + (float) scrollDir * scrollSpeed);
 	}
@@ -60,43 +64,51 @@ public class Scrolling {
 	}
 	
 	@Nullable
-	public int[] getScrollBarBounds(int barHeight) {
-		if (getMaxScrollOffset() <= 0) {
+	public int[] getScrollBarBounds(int barHeightOffset, int minHeight) {
+		if (!hasScrolling()) {
 			return null;
 		}
-		int barTop = (int) ((float) (uiHeight - barHeight) * (-scrollOffset / (float) getMaxScrollOffset()));
+		int barHeight = Math.max(calcScrollBarHeight() + barHeightOffset * 2, minHeight);
+		int barTop = (int) (
+				(float) (uiHeight - barHeight + barHeightOffset) * (
+						(-scrollOffset - barHeightOffset * 2) / 
+						((float) getMaxScrollOffset() - barHeightOffset * 2))
+				);
 		return new int[] { barTop, barTop + barHeight };
 	}
 	
-	public void renderScrollBar(float x, float y, int barHeightOffset, GuiGraphics guiGraphics, GuiIcon sprite, int usePixelsFromBottom) {
-		int barHeight = calcScrollBarHeight() + barHeightOffset;
-		int[] bounds = getScrollBarBounds(barHeight);
-		if (bounds == null) return;
-		y += bounds[0];
-		
-		if (usePixelsFromBottom != 69 && barHeight < sprite.height) {
-			int bottomHalfHeight = usePixelsFromBottom;
-			int topHalfHeight = barHeight - usePixelsFromBottom;
-			float topHalfHeightV = (float) topHalfHeight / sprite.texHeight;
-			float bottomHalfHeightV = (float) bottomHalfHeight / sprite.texHeight;
+	public void renderScrollBar(float x, float y, 
+			int barHeightOffset, int minHeight, 
+			GuiGraphics guiGraphics, 
+			GuiIcon sprite, int usePixelsFromBottom) {
+		int[] bounds = getScrollBarBounds(barHeightOffset, minHeight);
+		if (bounds != null) {
+			y += bounds[0];
+			int barHeight = bounds[1] - bounds[0];
 			
-			BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), sprite.file, 
-					x, y, sprite.width, topHalfHeight, 0, 
-					sprite.minU, sprite.minV, sprite.widthU, topHalfHeightV, 1, 1, 
-					BlitFloat.NO_TINT);
-			
-			BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), sprite.file, 
-					x, y + topHalfHeight, sprite.width, barHeight - topHalfHeight, 0, 
-					sprite.minU, sprite.minV + sprite.heightV - bottomHalfHeightV, sprite.widthU, bottomHalfHeightV, 1, 1, 
-					BlitFloat.NO_TINT);
+			if (usePixelsFromBottom != 69 && barHeight < sprite.height) {
+				int bottomHalfHeight = usePixelsFromBottom;
+				int topHalfHeight = barHeight - usePixelsFromBottom;
+				float topHalfHeightV = (float) topHalfHeight / sprite.texHeight;
+				float bottomHalfHeightV = (float) bottomHalfHeight / sprite.texHeight;
+				
+				BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), sprite.file, 
+						x, y, sprite.width, topHalfHeight, 0, 
+						sprite.minU, sprite.minV, sprite.widthU, topHalfHeightV, 1, 1, 
+						BlitFloat.NO_TINT);
+				
+				BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), sprite.file, 
+						x, y + topHalfHeight, sprite.width, barHeight - topHalfHeight, 0, 
+						sprite.minU, sprite.minV + sprite.heightV - bottomHalfHeightV, sprite.widthU, bottomHalfHeightV, 1, 1, 
+						BlitFloat.NO_TINT);
+			}
+			else {
+				BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), sprite.file, 
+						x, y, sprite.width, sprite.height, 0, 
+						sprite.minU, sprite.minV, sprite.widthU, sprite.heightV, 1, 1, 
+						BlitFloat.NO_TINT);
+			}
 		}
-		else {
-			BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), sprite.file, 
-					x, y, sprite.width, sprite.height, 0, 
-					sprite.minU, sprite.minV, sprite.widthU, sprite.heightV, 1, 1, 
-					BlitFloat.NO_TINT);
-		}
-		
 	}
 	
 	public int getYHovered(int uiPosY, int mouseY) {

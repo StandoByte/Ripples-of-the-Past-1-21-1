@@ -40,6 +40,18 @@ public class ScrollingText {
 		}
 	}
 	
+	public void drawSmallScrollBar(GuiGraphics guiGraphics) {
+		if (scrolling.hasScrolling()) {
+			int[] bounds = scrolling.getScrollBarBounds(-2, 6);
+			if (bounds != null) {
+				int x = this.x + this.width - 3;
+				int y = this.y + bounds[0];
+				int y2 = this.y + bounds[1];
+				guiGraphics.fill(x, y, x + 1, y2, 0x80000000);
+			}
+		}
+	}
+	
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
     	if (mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height) {
     		scrolling.scroll(scrollY);
