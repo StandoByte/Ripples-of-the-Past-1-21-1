@@ -109,7 +109,7 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 		@Override
 		public void onActionSet(@Nullable EntityActionInstance prevAction) {
 			if (inputInvSlot != null && inputInvSlot.isPresent() && powerUser.getEntity(level()) instanceof Player player) {
-				repairedStack = ContainerSlotInput.getItem(inputInvSlot.get(), player);
+				repairedStack = inputInvSlot.get().getItem(player);
 			}
 		}
 
