@@ -1,4 +1,4 @@
-package com.github.standobyte.jojoimpl.stands._entitybase.item;
+package com.github.standobyte.jojo.mechanics.standhelditems.moveset;
 
 import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.ui.powerhud.PowerHud;
@@ -13,14 +13,10 @@ import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.StandUtil;
-import com.github.standobyte.jojo.util.mc.ContainerSlotInput;
-import com.github.standobyte.jojo.util.network.NetworkUtil;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
@@ -48,19 +44,19 @@ public class SwapUserStandItemsAbility extends Ability {
 	public AbilityInputState cl_abilityInputState(Power<?> context) {
 		AbilityInputState state = super.cl_abilityInputState(context);
 		// FIXME fix Ctrl+F on an item in the inventory
-//		if (PowerHud.isInContainerScreen()) { // make it work in a container screen too
-//			state.setFlag(AbilityInputState.IS_ACTIVE, true);
-//			state.setFlag(AbilityInputState.ONLY_IN_CONTAINER, true);
-//		}
+		if (PowerHud.isInContainerScreen()) { // make it work in a container screen too
+			state.setFlag(AbilityInputState.IS_ACTIVE, true);
+			state.setFlag(AbilityInputState.ONLY_IN_CONTAINER, true);
+		}
 		return state;
 	}
 
 	@Override
 	public void writeExtraInput(FriendlyByteBuf serverboundBuf, LivingEntity user, boolean isClientPlayer) {
-		if (isClientPlayer) {
-			ContainerSlotInput hoveredItem = ContainerSlotInput.cl_HoveredSlot();
-			NetworkUtil.writeOptionally(hoveredItem, serverboundBuf, ContainerSlotInput.STREAM_CODEC);
-		}
+//		if (isClientPlayer) {
+//			ContainerSlotInput hoveredItem = ContainerSlotInput.cl_HoveredSlot();
+//			NetworkUtil.writeOptionally(hoveredItem, serverboundBuf, ContainerSlotInput.STREAM_CODEC);
+//		}
 	}
 	
 	@Override
@@ -68,12 +64,12 @@ public class SwapUserStandItemsAbility extends Ability {
 		if (!level.isClientSide()) {
 			StandEntity stand = StandUtil.getSummonedStand(user);
 			if (stand != null) {
-				var slotInInventory = NetworkUtil.readOptional(extraClientInput, ContainerSlotInput.STREAM_CODEC);
-				if (slotInInventory.isPresent()) {
+//				Optional<ContainerSlotInput> slotInInventory = NetworkUtil.readOptional(extraClientInput, ContainerSlotInput.STREAM_CODEC);
+//				if (slotInInventory.isPresent()) {
 //					// the ability was used on a slot in the player inventory
 //					if (user instanceof Player player) {
 //						ContainerSlotInput slotData = slotInInventory.get();
-//						ItemStack inventoryItem = ContainerSlotInput.getItem(slotData, player);
+//						ItemStack inventoryItem = slotData.getItem(player);
 //						
 //						int inventoryItemCount = inventoryItem.getCount();;
 //						if (!inventoryItem.isEmpty()) {
@@ -98,8 +94,8 @@ public class SwapUserStandItemsAbility extends Ability {
 //							stand.setItemInHand(standHandToSwap, inventoryItem);
 //						}
 //					}
-				}
-				else {
+//				}
+//				else {
 					ItemStack lUserItem = user.getOffhandItem();
 					ItemStack rUserItem = user.getMainHandItem();
 					int lUserItemCount = lUserItem.getCount();
@@ -128,7 +124,7 @@ public class SwapUserStandItemsAbility extends Ability {
 							standGrab.setGrabTarget(null);
 						}
 					}
-				}
+//				}
 			}
 		}
 	}

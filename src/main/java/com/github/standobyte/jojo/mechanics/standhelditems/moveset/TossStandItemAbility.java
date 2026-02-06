@@ -1,5 +1,7 @@
-package com.github.standobyte.jojoimpl.stands._entitybase.item;
+package com.github.standobyte.jojo.mechanics.standhelditems.moveset;
 
+import com.github.standobyte.jojo.client.input.AbilityInputState;
+import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
@@ -13,10 +15,11 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.client.settings.KeyModifier;
 
-public class SwapStandHandItemsAbility extends Ability {
+public class TossStandItemAbility extends Ability {
 
-	public SwapStandHandItemsAbility(AbilityType<?> abilityType, AbilityId abilityId) {
+	public TossStandItemAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId);
 		usageGroup = AbilityUsageGroup.UTILITY;
 	}
@@ -35,14 +38,32 @@ public class SwapStandHandItemsAbility extends Ability {
 	}
 	
 	@Override
+	public AbilityInputState cl_abilityInputState(Power<?> context) {
+		AbilityInputState state = super.cl_abilityInputState(context);
+		state.setFlag(AbilityInputState.WITH_ITEM_HELD, true);
+		return state;
+	}
+	
+	@Override
+	public void writeExtraInput(FriendlyByteBuf serverboundBuf, LivingEntity user, boolean isClientPlayer) {
+		if (isClientPlayer) {
+			boolean ctrl = InputHandler.getInstance().getCurModifier() == KeyModifier.CONTROL;
+			serverboundBuf.writeBoolean(ctrl);
+		}
+	}
+	
+	@Override
 	public void onClick(Level level, LivingEntity user, FriendlyByteBuf extraClientInput) {
 		if (!level.isClientSide()) {
 			StandEntity standEntity = StandUtil.getSummonedStand(user);
 			if (standEntity != null) {
-				ItemStack lItem = standEntity.getOffhandItem();
-				ItemStack rItem = standEntity.getMainHandItem();
-				standEntity.setItemInHand(InteractionHand.OFF_HAND, rItem);
-				standEntity.setItemInHand(InteractionHand.MAIN_HAND, lItem);
+				boolean ctrl = extraClientInput.readBoolean();
+				if (!standEntity.getMainHandItem().isEmpty()) {
+					standEntity.tossItem(InteractionHand.MAIN_HAND, !ctrl);
+				}
+				else {
+					standEntity.tossItem(InteractionHand.OFF_HAND, !ctrl);
+				}
 			}
 		}
 	}

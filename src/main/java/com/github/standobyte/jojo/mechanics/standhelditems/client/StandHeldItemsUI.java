@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.ui.standitems;
+package com.github.standobyte.jojo.mechanics.standhelditems.client;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ui.powerhud.PowerHud;
@@ -8,6 +8,7 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._LivingEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
@@ -29,6 +30,7 @@ public class StandHeldItemsUI {
 		StandEntity stand = ClientGlobals.playerStandEntity;
 		if (stand != null) {
 			AbstractContainerScreen<?> screen = event.getContainerScreen();
+			Minecraft mc = screen.getMinecraft();
 			boolean creativeScreen = screen.getClass() == CreativeModeInventoryScreen.class;
 			GuiGraphics guiGraphics = event.getGuiGraphics();
 			PoseStack pose = guiGraphics.pose();
@@ -44,22 +46,32 @@ public class StandHeldItemsUI {
 			int texV = creativeScreen ? 96 : 0;
 			int standIconX = creativeScreen ? (leftSlotX + rightSlotX) / 2 : -16;
 			int standIconY = creativeScreen ? -16 : slotsY;
-			int x = creativeScreen ? screen.getGuiLeft() - width + 3 : screen.getGuiLeft() + screen.getXSize() - width;
-			int y = creativeScreen ? screen.getGuiTop() + screenHeight - height : screen.getGuiTop() + screenHeight - 4;
+			int x = creativeScreen ?  -width + 3 : screen.getXSize() - width;
+			int y = creativeScreen ? screenHeight - height : screenHeight - 4;
 
 			pose.pushPose();
-			pose.translate(x, y, 0);
+			pose.translate(screen.getGuiLeft(), screen.getGuiTop(), 0);
 			BlitFloat.blit(pose, screen.getMinecraft(), TEXTURE, 
-					0, 0, width, height, 0, 
+					x, y, width, height, 0, 
 					0, texV, width, height, 256, 256, 
 					BlitFloat.NO_TINT);
 			
-			PowerHud.renderClientStandIcon(pose, standIconX, standIconY);
+			PowerHud.renderClientStandIcon(pose, x + standIconX, y + standIconY);
 
 			ItemStack item = _LivingEntity.getItemHeldByArm(stand, HumanoidArm.LEFT);
-			if (!item.isEmpty()) guiGraphics.renderItem(stand, item, leftSlotX, slotsY, 0);
+			int slotX = x + leftSlotX;
+			int slotY = y + slotsY;
+			if (!item.isEmpty()) {
+				guiGraphics.renderItem(stand, item, slotX, slotY, 0);
+				guiGraphics.renderItemDecorations(mc.font, item, slotX, slotY);
+			}
+			
 			item = _LivingEntity.getItemHeldByArm(stand, HumanoidArm.RIGHT);
-			if (!item.isEmpty()) guiGraphics.renderItem(stand, item, rightSlotX, slotsY, 0);
+			slotX = x + rightSlotX;
+			if (!item.isEmpty()) {
+				guiGraphics.renderItem(stand, item, slotX, slotY, 0);
+				guiGraphics.renderItemDecorations(mc.font, item, slotX, slotY);
+			}
 
 			pose.popPose();
 		}
