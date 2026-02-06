@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mechanics.standhelditems.moveset;
+package com.github.standobyte.jojoimpl.stands._helditems.abilities;
 
 import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.input.InputHandler;

@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.init.core;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.container.PlayerClothesMenu;
+import com.github.standobyte.jojoimpl.stands._helditems.StandHandsContainerMenu;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.flag.FeatureFlags;
@@ -15,4 +16,7 @@ public class ModContainers {
 
 	public static final DeferredHolder<MenuType<?>, MenuType<PlayerClothesMenu>> PLAYER_CLOTHES = CONTAINERS.register("clothes", 
 			key -> new MenuType<>(PlayerClothesMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
+	public static final DeferredHolder<MenuType<?>, MenuType<StandHandsContainerMenu>> STAND_HANDS = CONTAINERS.register("stand_hands", 
+			key -> new MenuType<>(StandHandsContainerMenu.CLIENT_FACTORY, FeatureFlags.DEFAULT_FLAGS));
 }

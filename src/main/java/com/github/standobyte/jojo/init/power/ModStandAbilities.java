@@ -4,9 +4,6 @@ import static com.github.standobyte.jojo.core.JojoRegistries.ABILITY_TYPES;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
-import com.github.standobyte.jojo.mechanics.standhelditems.moveset.SwapStandHandItemsAbility;
-import com.github.standobyte.jojo.mechanics.standhelditems.moveset.SwapUserStandItemsAbility;
-import com.github.standobyte.jojo.mechanics.standhelditems.moveset.TossStandItemAbility;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectType;
@@ -22,6 +19,9 @@ import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityHeavyPunchAb
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityHeavyPunchChargedAbility;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityManualControlToggle;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityPunchAbility;
+import com.github.standobyte.jojoimpl.stands._helditems.abilities.SwapStandHandItemsAbility;
+import com.github.standobyte.jojoimpl.stands._helditems.abilities.SwapUserStandItemsAbility;
+import com.github.standobyte.jojoimpl.stands._helditems.abilities.TossStandItemAbility;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDAngeloRockPunchInput;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDBlockBulletAbility;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDBloodCutterAbility;

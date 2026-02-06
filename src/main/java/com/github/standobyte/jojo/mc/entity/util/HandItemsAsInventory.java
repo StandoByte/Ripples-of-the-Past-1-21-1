@@ -3,17 +3,93 @@ package com.github.standobyte.jojo.mc.entity.util;
 import java.util.List;
 
 import net.minecraft.core.NonNullList;
+import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 /* this shit was copypasted from net.minecraft.world.entity.player.Inventory
  * and i ain't spending my braincells on rewriting that
  */
-public class HandItemsAsInventory {
-	public List<ItemStack> handItems = NonNullList.withSize(2, ItemStack.EMPTY);
+public class HandItemsAsInventory<T extends LivingEntity> implements Container {
+	public final T entity;
+	protected List<ItemStack> handItems = NonNullList.withSize(2, ItemStack.EMPTY);
 	
-	public HandItemsAsInventory(List<ItemStack> handItemsList) {
+	public HandItemsAsInventory(T entity, List<ItemStack> handItemsList) {
+		this.entity = entity;
 		this.handItems = handItemsList;
 	}
+	
+	// Container stuff
+	
+	@Override
+	public void clearContent() {
+		for (InteractionHand hand : InteractionHand.values()) {
+			entity.setItemInHand(hand, ItemStack.EMPTY);
+		}
+		this.setChanged();
+	}
+
+	@Override
+	public int getContainerSize() {
+		return 2;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		for (InteractionHand hand : InteractionHand.values()) {
+			if (!entity.getItemInHand(hand).isEmpty()) return false;
+		}
+		return true;
+	}
+
+	@Override
+	public ItemStack getItem(int slot) {
+		InteractionHand hand = InteractionHand.values()[slot];
+		return entity.getItemInHand(hand);
+	}
+
+	@Override
+	public ItemStack removeItem(int slot, int amount) {
+		InteractionHand hand = InteractionHand.values()[slot];
+		ItemStack item = entity.getItemInHand(hand);
+		ItemStack splitStack = !item.isEmpty() && amount > 0 ? item.split(amount) : ItemStack.EMPTY;
+		if (!splitStack.isEmpty()) {
+			this.setChanged();
+		}
+		return splitStack;
+	}
+
+	@Override
+	public ItemStack removeItemNoUpdate(int slot) {
+		InteractionHand hand = InteractionHand.values()[slot];
+		ItemStack item = entity.getItemInHand(hand);
+
+		if (item.isEmpty()) {
+			return ItemStack.EMPTY;
+		} else {
+			entity.setItemInHand(hand, ItemStack.EMPTY);
+			return item;
+		}
+	}
+
+	@Override
+	public void setItem(int slot, ItemStack stack) {
+		InteractionHand hand = InteractionHand.values()[slot];
+		entity.setItemInHand(hand, stack);
+		this.setChanged();
+	}
+
+	@Override
+	public void setChanged() {}
+	
+	@Override
+	public boolean stillValid(Player player) {
+		return entity != null && entity.isAlive();
+	}
+	
+	// Inventory stuff
 
 	/**
 	 * Adds the stack to the first empty slot in the player's inventory. Returns {@code false} if it's not possible to place the entire stack in the inventory.
@@ -106,7 +182,4 @@ public class HandItemsAsInventory {
 		}
 	}
 
-	int getMaxStackSize(ItemStack stack) {
-		return Math.min(99, stack.getMaxStackSize());
-	}
 }

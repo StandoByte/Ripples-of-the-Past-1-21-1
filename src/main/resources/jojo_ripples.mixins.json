@@ -77,6 +77,8 @@
 	"client.text.icon.FontStrintRenderOutputMixin",
 	"client.text.tooltip.GuiGraphicsMixin",
 	"client.text.tooltip.ClientTextTooltipMixin",
+	"container.client.ContainerScreenCrutch",
+	"container.client.ContainerScreenInvoker",
 	"client.modcompat.WoRStandRendering",
 	"client.CloseResources",
 	"client.keybindui.KeyEntryMixin",
