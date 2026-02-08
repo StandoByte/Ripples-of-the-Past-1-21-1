@@ -114,8 +114,17 @@ public class SwapUserStandItemsAbility extends Ability {
 					}
 					// or, if the player's hands are empty, *take* both items from the stand
 					else {
-						swapItemsInHand(stand, user, InteractionHand.OFF_HAND);
-						swapItemsInHand(stand, user, InteractionHand.MAIN_HAND);
+						ItemStack rStandItem = stand.getMainHandItem();
+						// the stand only has an item in offhand, put it to the player's main hand
+						if (rStandItem.isEmpty()) {
+							ItemStack lStandItem = stand.getOffhandItem();
+							stand.setItemInHand(InteractionHand.OFF_HAND, rUserItem /* which is empty btw */);
+							user.setItemInHand(InteractionHand.MAIN_HAND, lStandItem);
+						}
+						else {
+							swapItemsInHand(stand, user, InteractionHand.MAIN_HAND);
+							swapItemsInHand(stand, user, InteractionHand.OFF_HAND);
+						}
 					}
 
 					if (!stand.getOffhandItem().isEmpty()) {
