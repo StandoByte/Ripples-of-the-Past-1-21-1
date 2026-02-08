@@ -18,9 +18,9 @@ import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityHeavyPunchAb
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityHeavyPunchChargedAbility;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityManualControlToggle;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityPunchAbility;
-import com.github.standobyte.jojoimpl.stands._entitybase.item.SwapStandHandItemsAbility;
-import com.github.standobyte.jojoimpl.stands._entitybase.item.SwapUserStandItemsAbility;
-import com.github.standobyte.jojoimpl.stands._entitybase.item.TossStandItemAbility;
+import com.github.standobyte.jojoimpl.stands._helditems.abilities.SwapStandHandItemsAbility;
+import com.github.standobyte.jojoimpl.stands._helditems.abilities.SwapUserStandItemsAbility;
+import com.github.standobyte.jojoimpl.stands._helditems.abilities.TossStandItemAbility;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDAnchorBlockAbility;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDAngeloRockPunchInput;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDBlockBulletAbility;

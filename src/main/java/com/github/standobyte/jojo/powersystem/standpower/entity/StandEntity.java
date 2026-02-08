@@ -22,6 +22,7 @@ import com.github.standobyte.jojo.mc.entity.util.EntityWithStandSkin;
 import com.github.standobyte.jojo.mc.entity.util.HandItemsAsInventory;
 import com.github.standobyte.jojo.mc.entity.util.LivingReactToNewAction;
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.ClientEntityController;
+import com.github.standobyte.jojo.mechanics.externalcontainer.PlayerExternalContainers;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
@@ -43,6 +44,7 @@ import com.github.standobyte.jojo.util.mc.PrevRotations;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityUnsummonAction;
+import com.github.standobyte.jojoimpl.stands._helditems.StandHandsContainerMenu;
 
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.NonNullList;
@@ -98,7 +100,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	protected ResourceLocation standId;
 	protected static final EntityDataAccessor<Byte> STAND_FLAGS = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.BYTE);
 	protected static final EntityDataAccessor<Integer> USER_ID = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.INT);
-	protected WeakReference<LivingEntity> userRef = new WeakReference<LivingEntity>(null);
+	protected WeakReference<LivingEntity> userRef = new WeakReference<>(null);
 	protected StandPower userPower;
 	protected final LivingComponentAction standAction;
 	
@@ -146,6 +148,8 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		if (standCanHaveNoPhysics) {
 			noPhysics = true;
 		}
+		
+		openStandHandsContainer();
 	}
 	
 
@@ -244,7 +248,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			if (user == null) {
 				user = lookupUser(entityData.get(USER_ID));
 				if (user != null) {
-					userRef = new WeakReference<>(user);
+					setUserRef(user);
 				}
 			}
 			return user;
@@ -270,7 +274,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	// XXX left-side stand pos config
 	protected void updateUserFromNetwork(int userId) {
 		LivingEntity user = lookupUser(userId);
-		userRef = new WeakReference<>(user);
+		setUserRef(user);
 		if (user != null) {
 //			if (user instanceof Player) {
 //				playerSettings = PlayerClientBroadcastedSettings.getPlayerSettings((Player) user);
@@ -288,6 +292,10 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	protected LivingEntity lookupUser(int userId) {
 		Entity user = level().getEntity(userId);
 		return user instanceof LivingEntity living ? living : null;
+	}
+	
+	protected void setUserRef(LivingEntity userEntity) {
+		this.userRef = new WeakReference<>(userEntity);
 	}
 	
 	
@@ -1045,7 +1053,22 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	
 	
 	protected NonNullList<ItemStack> handItems = NonNullList.withSize(2, ItemStack.EMPTY);
-	protected HandItemsAsInventory pseudoInventory = new HandItemsAsInventory(this, handItems);
+	public HandItemsAsInventory<StandEntity> handsPseudoInventory = new HandItemsAsInventory<>(this, handItems) {
+		@Override
+		public boolean stillValid(Player player) {
+			return super.stillValid(player) && player.is(entity.getUser());
+		}
+	};
+	
+	protected void openStandHandsContainer() {
+		if (!level().isClientSide()) {
+			LivingEntity user = getUser();
+			if (user instanceof ServerPlayer pl) {
+				PlayerExternalContainers.get(pl).openMenu(StandHandsContainerMenu.createServerSide(this), null);
+			}
+		}
+	}
+	
 	@Override
 	public Iterable<ItemStack> getHandSlots() {
 		return this.handItems;
@@ -1100,7 +1123,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	 * @return false it's not possible to place the entire stack in the inventory.
 	 */
 	public boolean addItem(ItemStack item) {
-		return pseudoInventory.add(item);
+		return handsPseudoInventory.add(item);
 	}
 	
 	@Override
@@ -1162,26 +1185,38 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		else {
 			setItemSlot(slot, ItemStack.EMPTY);
 		}
+		InteractionHand hand = slot == EquipmentSlot.OFFHAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+		return drop(item, xRot, yRot, hand);
+	}
+	
+	public ItemEntity drop(ItemStack item, @Nullable InteractionHand itemHand) {
+		return drop(item, getXRot(), getYRot(), itemHand);
+	}
+	
+	public ItemEntity drop(ItemStack item, float xRot, float yRot, @Nullable InteractionHand itemHand) {
+		Level level = level();
+		if (!level.isClientSide()) {
+			ItemEntity itemEntity = new ItemEntity(this.level(), this.getX(), this.getEyeY() - 0.3F, this.getZ(), item);
+			// itemEntity.setPickUpDelay(40);
+			itemEntity.setThrower(this);
 
-		ItemEntity itemEntity = new ItemEntity(this.level(), this.getX(), this.getEyeY() - 0.3F, this.getZ(), item);
-//		itemEntity.setPickUpDelay(40);
-		itemEntity.setThrower(this);
+			float f8 = Mth.sin(xRot * MathUtil.DEG_TO_RAD);
+			float f2 = Mth.cos(xRot * MathUtil.DEG_TO_RAD);
+			float f3 = Mth.sin(yRot * MathUtil.DEG_TO_RAD);
+			float f4 = Mth.cos(yRot * MathUtil.DEG_TO_RAD);
+			float f5 = this.random.nextFloat() * (float) (Math.PI * 2);
+			float f6 = 0.02F * this.random.nextFloat();
+			itemEntity.setDeltaMovement(
+					(double)(-f3 * f2 * 0.3F) + Math.cos((double)f5) * (double)f6,
+					(double)(-f8 * 0.3F + 0.1F + (this.random.nextFloat() - this.random.nextFloat()) * 0.1F),
+					(double)(f4 * f2 * 0.3F) + Math.sin((double)f5) * (double)f6
+					);
 
-		float f8 = Mth.sin(xRot * MathUtil.DEG_TO_RAD);
-		float f2 = Mth.cos(xRot * MathUtil.DEG_TO_RAD);
-		float f3 = Mth.sin(yRot * MathUtil.DEG_TO_RAD);
-		float f4 = Mth.cos(yRot * MathUtil.DEG_TO_RAD);
-		float f5 = this.random.nextFloat() * (float) (Math.PI * 2);
-		float f6 = 0.02F * this.random.nextFloat();
-		itemEntity.setDeltaMovement(
-				(double)(-f3 * f2 * 0.3F) + Math.cos((double)f5) * (double)f6,
-				(double)(-f8 * 0.3F + 0.1F + (this.random.nextFloat() - this.random.nextFloat()) * 0.1F),
-				(double)(f4 * f2 * 0.3F) + Math.sin((double)f5) * (double)f6
-				);
-
-		swing(slot == EquipmentSlot.OFFHAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND);
-		level.addFreshEntity(itemEntity);
-		return itemEntity;
+			if (itemHand != null) swing(itemHand);
+			level.addFreshEntity(itemEntity);
+			return itemEntity;
+		}
+		return null;
 	}
 	
 	public enum HandOccupied {

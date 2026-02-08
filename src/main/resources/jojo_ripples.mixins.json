@@ -59,6 +59,8 @@
 	"KnockbackEntityCollision",
 	"ProjectileHighSpeedSync",
 	"attributes.EntityMixin",
+	"container.ContainerMenuInvoker",
+	"container.LivingEntityHandSwapSyncFixCrutch",
 	"modcompat.MthInitBeforeLithium",
 	
 	"EntityMixinSuperclass",
@@ -105,6 +107,8 @@
 	"client.text.tooltip.GuiGraphicsMixin",
 	"client.text.tooltip.ClientTextTooltipMixin",
 	"client.BleedingHealthGui",
+	"container.client.ContainerScreenCrutch",
+	"container.client.ContainerScreenInvoker",
 	"client.modcompat.WoRStandRendering",
 	"client.CloseResources",
 	"client.keybindui.KeyEntryMixin",

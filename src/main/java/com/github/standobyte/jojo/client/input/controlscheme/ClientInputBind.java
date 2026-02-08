@@ -41,6 +41,7 @@ public class ClientInputBind {
 	
 	@Nullable
 	public static ClientInputBind toClientInput(InputBindTemplate commonInput) {
+		if (commonInput == null) return null;
 		return switch (commonInput) {
 			case InputKey hardcodedKey -> new ClientInputBind(toClientKey(hardcodedKey), toClientModifier(hardcodedKey.modifier));
 			case InputUseVanillaMapping keyMapping -> {
