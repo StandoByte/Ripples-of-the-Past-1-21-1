@@ -1177,26 +1177,38 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		else {
 			setItemSlot(slot, ItemStack.EMPTY);
 		}
+		InteractionHand hand = slot == EquipmentSlot.OFFHAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+		return drop(item, xRot, yRot, hand);
+	}
+	
+	public ItemEntity drop(ItemStack item, @Nullable InteractionHand itemHand) {
+		return drop(item, getXRot(), getYRot(), itemHand);
+	}
+	
+	public ItemEntity drop(ItemStack item, float xRot, float yRot, @Nullable InteractionHand itemHand) {
+		Level level = level();
+		if (!level.isClientSide()) {
+			ItemEntity itemEntity = new ItemEntity(this.level(), this.getX(), this.getEyeY() - 0.3F, this.getZ(), item);
+			// itemEntity.setPickUpDelay(40);
+			itemEntity.setThrower(this);
 
-		ItemEntity itemEntity = new ItemEntity(this.level(), this.getX(), this.getEyeY() - 0.3F, this.getZ(), item);
-//		itemEntity.setPickUpDelay(40);
-		itemEntity.setThrower(this);
+			float f8 = Mth.sin(xRot * MathUtil.DEG_TO_RAD);
+			float f2 = Mth.cos(xRot * MathUtil.DEG_TO_RAD);
+			float f3 = Mth.sin(yRot * MathUtil.DEG_TO_RAD);
+			float f4 = Mth.cos(yRot * MathUtil.DEG_TO_RAD);
+			float f5 = this.random.nextFloat() * (float) (Math.PI * 2);
+			float f6 = 0.02F * this.random.nextFloat();
+			itemEntity.setDeltaMovement(
+					(double)(-f3 * f2 * 0.3F) + Math.cos((double)f5) * (double)f6,
+					(double)(-f8 * 0.3F + 0.1F + (this.random.nextFloat() - this.random.nextFloat()) * 0.1F),
+					(double)(f4 * f2 * 0.3F) + Math.sin((double)f5) * (double)f6
+					);
 
-		float f8 = Mth.sin(xRot * MathUtil.DEG_TO_RAD);
-		float f2 = Mth.cos(xRot * MathUtil.DEG_TO_RAD);
-		float f3 = Mth.sin(yRot * MathUtil.DEG_TO_RAD);
-		float f4 = Mth.cos(yRot * MathUtil.DEG_TO_RAD);
-		float f5 = this.random.nextFloat() * (float) (Math.PI * 2);
-		float f6 = 0.02F * this.random.nextFloat();
-		itemEntity.setDeltaMovement(
-				(double)(-f3 * f2 * 0.3F) + Math.cos((double)f5) * (double)f6,
-				(double)(-f8 * 0.3F + 0.1F + (this.random.nextFloat() - this.random.nextFloat()) * 0.1F),
-				(double)(f4 * f2 * 0.3F) + Math.sin((double)f5) * (double)f6
-				);
-
-		swing(slot == EquipmentSlot.OFFHAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND);
-		level.addFreshEntity(itemEntity);
-		return itemEntity;
+			if (itemHand != null) swing(itemHand);
+			level.addFreshEntity(itemEntity);
+			return itemEntity;
+		}
+		return null;
 	}
 	
 	public enum HandOccupied {

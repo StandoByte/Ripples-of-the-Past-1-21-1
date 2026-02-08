@@ -23,6 +23,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
@@ -68,7 +69,6 @@ public class ClientExternalContainerUI implements GuiEventListener, Renderable {
 		}
 	}
 
-	public static final int OFFHAND_SLOT_MAGIC_NUMBER = 40;
 	protected boolean handleInput(InputConstants.Key key, Slot slot, AbstractContainerMenu menu) {
 		if (slot == null) return false;
 
@@ -77,7 +77,7 @@ public class ClientExternalContainerUI implements GuiEventListener, Renderable {
 
 		if (carriedItem.isEmpty()) {
 			if (mc.options.keySwapOffhand.isActiveAndMatches(key)) {
-				this.slotClicked(slot, menu, OFFHAND_SLOT_MAGIC_NUMBER, ClickType.SWAP);
+				this.slotClicked(slot, menu, Inventory.SLOT_OFFHAND, ClickType.SWAP);
 				return true;
 			}
 

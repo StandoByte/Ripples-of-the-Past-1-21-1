@@ -17,7 +17,6 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.neoforged.api.distmarker.Dist;
@@ -52,7 +51,8 @@ public class ClientStandHeldItemsUI extends ClientExternalContainerUI {
 
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-		StandEntity stand = ((StandHandsContainerMenu) sideContainer).standEntity;
+		StandHandsContainerMenu standHandsContainer = ((StandHandsContainerMenu) sideContainer);
+		StandEntity stand = standHandsContainer.standEntity;
 		if (stand != null) {
 			boolean creativeScreen = mainScreen.getClass() == CreativeModeInventoryScreen.class;
 			PoseStack pose = guiGraphics.pose();
@@ -71,11 +71,10 @@ public class ClientStandHeldItemsUI extends ClientExternalContainerUI {
 			int standIconX = creativeScreen ? (leftSlotX + rightSlotX) / 2 : x - 16;
 			int standIconY = creativeScreen ? y - 16 : slotsY;
 			
-			boolean leftMainHand = stand.getMainArm() == HumanoidArm.LEFT;
-			Slot leftHand = sideContainer.slots.get(leftMainHand ? 0 : 1);
+			Slot leftHand = standHandsContainer.getLeftHandSlot();
 			leftHand.x = leftSlotX;
 			leftHand.y = slotsY;
-			Slot rightHand = sideContainer.slots.get(leftMainHand ? 1 : 0);
+			Slot rightHand = standHandsContainer.getRightHandSlot();
 			rightHand.x = rightSlotX;
 			rightHand.y = slotsY;
 

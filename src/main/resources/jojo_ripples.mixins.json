@@ -34,6 +34,8 @@
 	"ProjectileHighSpeedSync",
 	"attributes.EntityMixin",
 	"MobEffectLivingEntityMixin",
+	"container.ContainerMenuInvoker",
+	"container.LivingEntityHandSwapSyncFixCrutch",
 	"modcompat.MthInitBeforeLithium",
 	
 	"debughelper.CodecErrorMessageMixin"
