@@ -26,7 +26,7 @@ import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.cli
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.mob.ClMobControlMovementPacket;
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.stand.ClStandManualMovementPacket;
 import com.github.standobyte.jojo.mechanics.entity_like_player.useitem.ClStandClickPacket;
-import com.github.standobyte.jojo.mechanics.externalcontainer.packet.ClExternalContainerClickPacket;
+import com.github.standobyte.jojo.mechanics.externalcontainer.packet.ClExtendedContainerClickPacket;
 import com.github.standobyte.jojo.mechanics.externalcontainer.packet.ExternalContainerClosePacket;
 import com.github.standobyte.jojo.mechanics.externalcontainer.packet.ExternalContainerOpenPacket;
 import com.github.standobyte.jojo.mechanics.externalcontainer.packet.ExternalContainerSyncSetContentPacket;
@@ -63,7 +63,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClControlledMobCommandPacket.Handler(JojoMod.resLoc("clmobitemslot")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClStandClickPacket.Handler(JojoMod.resLoc("clstandclick")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClDebugCommandPacket.Handler(JojoMod.resLoc("cldebug")));
-		registerPacket(registrar, PayloadRegistrar::playToServer, new ClExternalContainerClickPacket.Handler(JojoMod.resLoc("clslotclick")));
+		registerPacket(registrar, PayloadRegistrar::playToServer, new ClExtendedContainerClickPacket.Handler(JojoMod.resLoc("clslotclick")));
 
 		registerPacket(registrar, PayloadRegistrar::playToClient, new DatapackStandsPacket.Handler(JojoMod.resLoc("datastands")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrAbilityUsePacket.Handler(JojoMod.resLoc("abilityuse")));

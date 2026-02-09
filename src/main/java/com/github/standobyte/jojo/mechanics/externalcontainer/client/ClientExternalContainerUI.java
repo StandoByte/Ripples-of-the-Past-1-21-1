@@ -4,15 +4,12 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.mechanics.externalcontainer.PlayerExternalContainers;
-import com.github.standobyte.jojo.mechanics.externalcontainer.packet.ClExternalContainerClickPacket;
+import com.github.standobyte.jojo.mechanics.externalcontainer.ModdedContainerClickType;
 import com.github.standobyte.jojo.mixin.container.client.ContainerScreenInvoker;
-import com.google.common.collect.Lists;
+import com.github.standobyte.jojoimpl.stands._helditems.ClientStandHeldItemsUI;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.datafixers.util.Pair;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
@@ -20,7 +17,6 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -28,7 +24,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 public class ClientExternalContainerUI implements GuiEventListener, Renderable {
 	protected AbstractContainerScreen<?> mainScreen;
@@ -121,38 +116,10 @@ public class ClientExternalContainerUI implements GuiEventListener, Renderable {
 		return false;
 	}
 
-	public boolean handleMainScreenInput() {
-		return false;
-	}
-
 
 	protected void slotClicked(Slot slot, AbstractContainerMenu container, int mouseButton, ClickType clickType) {
-		if (slot != null) {
-			int slotId = slot.index;
-			Minecraft mc = mainScreen.getMinecraft();
-
-			NonNullList<Slot> slots = container.slots;
-			List<ItemStack> prevItems = Lists.newArrayListWithCapacity(slots.size());
-			for (Slot _slot : slots) {
-				prevItems.add(_slot.getItem().copy());
-			}
-
-			PlayerExternalContainers.click(container, slotId, mouseButton, clickType, mc.player);
-
-			Int2ObjectMap<ItemStack> itemsChanged = new Int2ObjectOpenHashMap<>();
-			for (int j = 0; j < slots.size(); j++) {
-				ItemStack itemPrev = prevItems.get(j);
-				ItemStack itemCur = slots.get(j).getItem();
-				if (!ItemStack.matches(itemPrev, itemCur)) {
-					itemsChanged.put(j, itemCur.copy());
-				}
-			}
-
-			PacketDistributor.sendToServer(new ClExternalContainerClickPacket(container.containerId, 
-					container.getStateId(), slotId, mouseButton, clickType, getCarriedItem().copy(), itemsChanged));
-		}
+		ClientExtendedInventoryClick.slotClicked(slot, slot.index, container, true, mouseButton, ModdedContainerClickType.fromVanilla(clickType));
 	}
-
 
 	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
@@ -257,13 +224,18 @@ public class ClientExternalContainerUI implements GuiEventListener, Renderable {
 		List<GuiEventListener> children = (List<GuiEventListener>) mainScreen.children();
 		children.add(externalUI);
 		
-		((ExternalContainerScreenCrutches) mainScreen).jojo_ripples$addAlwaysHandleKeyPress(externalUI);
+		ExternalContainerScreenCrutches mainScreen_ = (ExternalContainerScreenCrutches) mainScreen;
+		mainScreen_.jojo_ripples$addAlwaysHandleKeyPress(externalUI);
+		mainScreen_.jojo_ripples$onAddedExternalContainerUI(externalUI);
 	}
 
 	
 	public static interface ExternalContainerScreenCrutches {
-		void jojo_ripples$preventMouseRelease();
 		void jojo_ripples$addAlwaysHandleKeyPress(GuiEventListener child);
+		void jojo_ripples$preventMouseRelease();
+		
+		void jojo_ripples$onAddedExternalContainerUI(GuiEventListener child);
+		@Nullable ClientStandHeldItemsUI jojo_ripples$getStandArmsExtContainer();
 	}
 	
 }

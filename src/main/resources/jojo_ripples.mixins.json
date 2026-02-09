@@ -81,6 +81,7 @@
 	"client.text.tooltip.ClientTextTooltipMixin",
 	"container.client.ContainerScreenCrutch",
 	"container.client.ContainerScreenInvoker",
+	"container.client.SpecialInventoryScreenClick",
 	"client.modcompat.WoRStandRendering",
 	"client.CloseResources",
 	"client.keybindui.KeyEntryMixin",
