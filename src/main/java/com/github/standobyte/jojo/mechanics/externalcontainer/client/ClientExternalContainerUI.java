@@ -174,7 +174,7 @@ public class ClientExternalContainerUI implements GuiEventListener, Renderable {
 			InputConstants.Key mouseKey = InputConstants.Type.MOUSE.getOrCreate(button);
 			boolean clickedSlot = handleInput(mouseKey, slot, menu);
 			if (clickedSlot) {
-				((DumbContainerScreenCrutches) mainScreen).jojo_ripples$preventMouseRelease();
+				((ExternalContainerScreenCrutches) mainScreen).jojo_ripples$preventMouseRelease();
 			}
 			return clickedSlot;
 		}
@@ -257,11 +257,11 @@ public class ClientExternalContainerUI implements GuiEventListener, Renderable {
 		List<GuiEventListener> children = (List<GuiEventListener>) mainScreen.children();
 		children.add(externalUI);
 		
-		((DumbContainerScreenCrutches) mainScreen).jojo_ripples$addAlwaysHandleKeyPress(externalUI);
+		((ExternalContainerScreenCrutches) mainScreen).jojo_ripples$addAlwaysHandleKeyPress(externalUI);
 	}
 
 	
-	public static interface DumbContainerScreenCrutches {
+	public static interface ExternalContainerScreenCrutches {
 		void jojo_ripples$preventMouseRelease();
 		void jojo_ripples$addAlwaysHandleKeyPress(GuiEventListener child);
 	}

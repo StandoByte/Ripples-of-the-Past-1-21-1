@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.github.standobyte.jojo.mechanics.externalcontainer.client.ClientExternalContainerUI.DumbContainerScreenCrutches;
+import com.github.standobyte.jojo.mechanics.externalcontainer.client.ClientExternalContainerUI.ExternalContainerScreenCrutches;
 
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
@@ -17,7 +17,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 
 @Mixin(AbstractContainerScreen.class)
-public class ContainerScreenCrutch extends Screen implements DumbContainerScreenCrutches {
+public abstract class ContainerScreenCrutch extends Screen implements ExternalContainerScreenCrutches {
 	
 	protected ContainerScreenCrutch(Component title) {
 		super(title);
@@ -52,4 +52,5 @@ public class ContainerScreenCrutch extends Screen implements DumbContainerScreen
 			}
 		}
 	}
+
 }

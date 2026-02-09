@@ -14,13 +14,13 @@ import net.minecraft.world.entity.LivingEntity;
 @Mixin(LivingEntity.class)
 public class LivingEntityHandSwapSyncFixCrutch implements HandSwapSyncFixCrutch {
 	
-	@Unique private boolean handSwapSyncFixCrutch = false;
-	@Override public void jojo_ripples$enableHandSwapCrutch() { this.handSwapSyncFixCrutch = true; }
-	@Override public void jojo_ripples$disableHandSwapCrutch() { this.handSwapSyncFixCrutch = false; }
+	@Unique private boolean disableHandSwapCheck = false;
+	@Override public void jojo_ripples$disableHandSwapCheck() { this.disableHandSwapCheck = true; }
+	@Override public void jojo_ripples$reenableHandSwapCheck() { this.disableHandSwapCheck = false; }
 	
 	@Inject(method = "handleHandSwap", at = @At("HEAD"), cancellable = true)
 	@Unique private void handSwapSyncFixCrutch(CallbackInfo ci) {
-		if (handSwapSyncFixCrutch) ci.cancel();
+		if (disableHandSwapCheck) ci.cancel();
 	}
 
 }

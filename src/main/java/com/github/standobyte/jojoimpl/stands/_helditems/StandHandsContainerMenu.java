@@ -99,7 +99,7 @@ public class StandHandsContainerMenu extends AbstractContainerMenu {
 					boolean serverSide = !standEntity.level().isClientSide();
 					HandSwapSyncFixCrutch desyncCrutch = serverSide ? (HandSwapSyncFixCrutch) standEntity : null;
 					if (serverSide) {
-						desyncCrutch.jojo_ripples$enableHandSwapCrutch();
+						desyncCrutch.jojo_ripples$disableHandSwapCheck();
 					}
 					
 					Slot clickedSlot = this.slots.get(slotId);
@@ -135,7 +135,7 @@ public class StandHandsContainerMenu extends AbstractContainerMenu {
 					
 					if (serverSide) {
 						standEntity.detectEquipmentUpdates();
-						desyncCrutch.jojo_ripples$disableHandSwapCrutch();
+						desyncCrutch.jojo_ripples$reenableHandSwapCheck();
 					}
 					return;
 				}
@@ -194,8 +194,8 @@ public class StandHandsContainerMenu extends AbstractContainerMenu {
 	
 	
 	public static interface HandSwapSyncFixCrutch {
-		public void jojo_ripples$enableHandSwapCrutch();
-		public void jojo_ripples$disableHandSwapCrutch();
+		public void jojo_ripples$disableHandSwapCheck();
+		public void jojo_ripples$reenableHandSwapCheck();
 	}
 
 }
