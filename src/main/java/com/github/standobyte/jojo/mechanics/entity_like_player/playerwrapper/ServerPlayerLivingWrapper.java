@@ -1,16 +1,22 @@
 package com.github.standobyte.jojo.mechanics.entity_like_player.playerwrapper;
 
+import java.util.OptionalInt;
+import java.util.function.Consumer;
+
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.mechanics.entity_like_player.opencontainer.OpenContainerAsEntity;
 import com.github.standobyte.jojo.mixin.entity_like_player.npc.LivingEntityAccessor;
 import com.mojang.authlib.GameProfile;
 
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stat;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -133,6 +139,17 @@ public class ServerPlayerLivingWrapper extends FakePlayer implements EntityAsPla
 				actualEntity.setItemSlot(armorSlot, inventory.armor.get(armorSlot.getIndex()));
 			}
 		}
+	}
+
+
+    protected int containerCounter;
+    protected int nextContainerCounter() { this.containerCounter = this.containerCounter % 100 + 1; return this.containerCounter; }
+	@Override
+	public OptionalInt openMenu(@Nullable MenuProvider menuProvider, @Nullable Consumer<RegistryFriendlyByteBuf> extraDataWriter) {
+		OptionalInt containerId = OpenContainerAsEntity.openMenu(this, actualEntity, playerStandUser, menuProvider, extraDataWriter, nextContainerCounter());
+		if (containerId.isPresent()) return containerId;
+		
+		return super.openMenu(menuProvider, extraDataWriter);
 	}
 	
 	
