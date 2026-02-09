@@ -1,10 +1,11 @@
 package com.github.standobyte.jojoimpl.stands._helditems;
 
-import java.util.Objects;
+import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ui.powerhud.PowerHud;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.mechanics.externalcontainer.ModdedContainerClickType;
 import com.github.standobyte.jojo.mechanics.externalcontainer.PlayerExternalContainers;
 import com.github.standobyte.jojo.mechanics.externalcontainer.client.ClientExternalContainerUI;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -18,6 +19,7 @@ import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -37,14 +39,12 @@ public class ClientStandHeldItemsUI extends ClientExternalContainerUI {
 	public static void onScreenOpened(ScreenEvent.Init.Post event) {
 		Screen screen = event.getScreen();
 		if (screen instanceof AbstractContainerScreen inventoryScreen) {
-			PlayerExternalContainers extraContainers = PlayerExternalContainers.get(Minecraft.getInstance().player);
-			extraContainers.getAllContainers().stream()
-			.map(container -> container instanceof StandHandsContainerMenu ? (StandHandsContainerMenu) container : null)
-			.filter(Objects::nonNull)
-			.findFirst().ifPresent(standHandsContainer -> {
+			StandHandsContainerMenu standHandsContainer = PlayerExternalContainers.get(Minecraft.getInstance().player)
+					.getContainerOfType(StandHandsContainerMenu.class);
+			if (standHandsContainer != null) {
 				ClientStandHeldItemsUI containerUI = new ClientStandHeldItemsUI(inventoryScreen, standHandsContainer);
 				addToScreen(inventoryScreen, containerUI);
-			});
+			}
 		}
 	}
 	
@@ -91,6 +91,24 @@ public class ClientStandHeldItemsUI extends ClientExternalContainerUI {
 			pose.popPose();
 			renderTooltip(guiGraphics, mouseX, mouseY);
 		}
+	}
+	
+	
+	@Nullable
+	public static ModdedContainerClickType getStandQolClickType(ClickType interceptedClickType, 
+			Screen containerScreen, AbstractContainerMenu mainContainer, 
+			Slot slot, int slotId, int mouseButton) {
+		if (slot != null
+				&& interceptedClickType == ClickType.PICKUP 
+				&& Screen.hasControlDown()) {
+			ClientStandHeldItemsUI standHandsContainerUI = 
+					((ExternalContainerScreenCrutches) containerScreen).jojo_ripples$getStandArmsExtContainer();
+			if (standHandsContainerUI != null) {
+				return ModdedContainerClickType.STAND_QUICK_MOVE;
+			}
+		}
+		
+		return null;
 	}
 
 }

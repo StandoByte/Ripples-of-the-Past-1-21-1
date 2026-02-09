@@ -21,7 +21,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.ContainerSynchronizer;
 import net.minecraft.world.inventory.MenuConstructor;
 import net.minecraft.world.inventory.MenuType;
@@ -125,6 +124,16 @@ public class PlayerExternalContainers implements TickingEntityData {
 	public Collection<AbstractContainerMenu> getAllContainers() {
 		return containers.values();
 	}
+	
+	@Nullable
+	public <T extends AbstractContainerMenu> T getContainerOfType(Class<T> clazz) {
+		for (AbstractContainerMenu container : containers.values()) {
+			if (clazz.isInstance(container)) {
+				return (T) container;
+			}
+		}
+		return null;
+	}
 
 
 	public static PlayerExternalContainers get(Player player) {
@@ -169,11 +178,19 @@ public class PlayerExternalContainers implements TickingEntityData {
 	}
 	
 	
-	public static void click(AbstractContainerMenu extContainer, int slotId, int mouseButton, ClickType clickType, Player player) {
-		ItemStack prevCarried = extContainer.getCarried();
-		extContainer.clicked(slotId, mouseButton, clickType, player);
-		if (player.containerMenu != null) {
-			ItemStack carried = extContainer.getCarried();
+	public static void click(AbstractContainerMenu container, int slotId, int mouseButton, ModdedContainerClickType clickType, Player player) {
+		ItemStack prevCarried = container.getCarried();
+		
+		if (clickType.vanillaType != null) {
+			container.clicked(slotId, mouseButton, clickType.vanillaType, player);
+		}
+		else {
+			ModdedContainerClickType.clicked(container, slotId, mouseButton, clickType, player);
+		}
+		
+		// if the carried item has changed, update it for the main player container too
+		if (player.containerMenu != null && player.containerMenu != container) {
+			ItemStack carried = container.getCarried();
 			if (carried != prevCarried) {
 				player.containerMenu.setCarried(carried);
 			}

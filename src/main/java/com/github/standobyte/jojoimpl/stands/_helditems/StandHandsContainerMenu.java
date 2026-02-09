@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.init.core.ModContainers;
+import com.github.standobyte.jojo.mechanics.externalcontainer.PlayerExternalContainers;
 import com.github.standobyte.jojo.mechanics.externalcontainer.PlayerExternalContainers.MenuConstructor_;
 import com.github.standobyte.jojo.mixin.container.ContainerMenuInvoker;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -30,19 +31,14 @@ public class StandHandsContainerMenu extends AbstractContainerMenu {
 		super(ModContainers.STAND_HANDS.get(), containerId);
 		this.handsContainer = standEntity.handsPseudoInventory;
 		this.standEntity = standEntity;
-		this.addSlot(new Slot(handsContainer, 0, 0, 0));
-		this.addSlot(new Slot(handsContainer, 1, 0, 0));
+		this.addSlot(new Slot(handsContainer, 0, 0, 0)); // main hand item
+		this.addSlot(new Slot(handsContainer, 1, 0, 0)); // off hand item
 	}
 	
-	public Slot getLeftHandSlot() {
-		boolean leftMainHand = standEntity.getMainArm() == HumanoidArm.LEFT;
-		return slots.get(leftMainHand ? 0 : 1);
-	}
-	
-	public Slot getRightHandSlot() {
-		boolean leftMainHand = standEntity.getMainArm() == HumanoidArm.LEFT;
-		return slots.get(leftMainHand ? 1 : 0);
-	}
+	public Slot getLeftHandSlot() { return standEntity.getMainArm() == HumanoidArm.LEFT ? getMainHandSlot() : getOffHandSlot(); }
+	public Slot getRightHandSlot() { return standEntity.getMainArm() == HumanoidArm.LEFT ? getOffHandSlot() : getMainHandSlot(); }
+	public Slot getMainHandSlot() { return slots.get(0); }
+	public Slot getOffHandSlot() { return slots.get(1); }
 	
 	
 	public static MenuConstructor_ createServerSide(StandEntity standEntity) {
@@ -99,7 +95,7 @@ public class StandHandsContainerMenu extends AbstractContainerMenu {
 					boolean serverSide = !standEntity.level().isClientSide();
 					HandSwapSyncFixCrutch desyncCrutch = serverSide ? (HandSwapSyncFixCrutch) standEntity : null;
 					if (serverSide) {
-						desyncCrutch.jojo_ripples$enableHandSwapCrutch();
+						desyncCrutch.jojo_ripples$disableHandSwapCheck();
 					}
 					
 					Slot clickedSlot = this.slots.get(slotId);
@@ -135,7 +131,7 @@ public class StandHandsContainerMenu extends AbstractContainerMenu {
 					
 					if (serverSide) {
 						standEntity.detectEquipmentUpdates();
-						desyncCrutch.jojo_ripples$disableHandSwapCrutch();
+						desyncCrutch.jojo_ripples$reenableHandSwapCheck();
 					}
 					return;
 				}
@@ -148,9 +144,9 @@ public class StandHandsContainerMenu extends AbstractContainerMenu {
 	@Override
 	public ItemStack quickMoveStack(Player player, int index) {
 		ItemStack itemMoved = ItemStack.EMPTY;
-		Slot slot = this.slots.get(index);
-		if (slot != null && slot.hasItem() && player.inventoryMenu != null) {
-			ItemStack itemInSlot = slot.getItem();
+		Slot clickedSlot = this.slots.get(index);
+		if (clickedSlot != null && clickedSlot.hasItem() && player.inventoryMenu != null) {
+			ItemStack itemInSlot = clickedSlot.getItem();
 			itemMoved = itemInSlot.copy();
 			if (!((ContainerMenuInvoker) player.inventoryMenu).invokeMoveItemStackTo(
 					itemInSlot, InventoryMenu.INV_SLOT_START, InventoryMenu.USE_ROW_SLOT_END, false)) {
@@ -158,20 +154,124 @@ public class StandHandsContainerMenu extends AbstractContainerMenu {
 			}
 
 			if (itemInSlot.isEmpty()) {
-				slot.setByPlayer(ItemStack.EMPTY);
+				clickedSlot.setByPlayer(ItemStack.EMPTY);
 			} else {
-				slot.setChanged();
+				clickedSlot.setChanged();
 			}
 
 			if (itemInSlot.getCount() == itemMoved.getCount()) {
 				return ItemStack.EMPTY;
 			}
 
-			slot.onTake(player, itemInSlot);
+			clickedSlot.onTake(player, itemInSlot);
 		}
 
 		return itemMoved;
 	}
+	
+
+	public void handleCtrlClickAKAStandQuickMove(AbstractContainerMenu mainContainer, int slotId, int mouseButton, Player player) {
+		Slot clickedSlot = slotId > 0 && slotId < mainContainer.slots.size() ? mainContainer.getSlot(slotId) : null;
+		if (clickedSlot != null) {
+			StandHandsContainerMenu standHandsContainer = PlayerExternalContainers.get(player)
+					.getContainerOfType(StandHandsContainerMenu.class);
+			if (standHandsContainer != null) {
+				boolean moveSingleItem = mouseButton == 1 /* RMB */;
+				ItemStack clickedItem = clickedSlot.getItem();
+				if (clickedItem.isEmpty()) {
+					// take held items from stand and put them to the clicked empty slot
+					quickTakeFromStand(player, mainContainer, slotId, mouseButton);
+				}
+				else {
+					// give the clicked item to the stand
+					if (clickedSlot.mayPickup(player)) {
+						ItemStack movedItem = quickGiveToStand(player, mainContainer, slotId, mouseButton);
+						if (movedItem.isEmpty()) {
+							/* couldn't find stand hand slots that are empty or stackable, 
+							 * instead swap the clicked item with the stand's main hand item
+							 */
+							Slot standMainHandSlot = getMainHandSlot();
+							ItemStack standMainHandItem = standMainHandSlot.getItem();
+							if (clickedSlot.mayPlace(standMainHandItem)) {
+								standMainHandSlot.setByPlayer(clickedItem);
+								clickedSlot.setByPlayer(standMainHandItem);
+							}
+						}
+						// the quick move handling was copypasted from AbstractContainerMenu's doClick, but this seems redundant
+//						else while (!movedItem.isEmpty() && ItemStack.isSameItem(clickedSlot.getItem(), movedItem)) {
+//							movedItem = quickGiveToStand(player, mainContainer, slotId, mouseButton);
+//						}
+					}
+				}
+			}
+		}
+	}
+	
+	public ItemStack quickGiveToStand(Player player, AbstractContainerMenu mainContainer, int index, int mouseButton) {
+		ItemStack itemMoved = ItemStack.EMPTY;
+		Slot clickedSlot = mainContainer.getSlot(index);
+		if (clickedSlot != null && clickedSlot.hasItem()) {
+			ItemStack itemInSlot = clickedSlot.getItem();
+			itemMoved = itemInSlot.copy();
+			
+			boolean offHandFirst = false;
+			if (!this.moveItemStackTo(itemInSlot, 0, 2, offHandFirst)) {
+				return ItemStack.EMPTY;
+			}
+
+			if (itemInSlot.isEmpty()) {
+				clickedSlot.setByPlayer(ItemStack.EMPTY);
+			}
+
+			if (itemInSlot.getCount() == itemMoved.getCount()) {
+				return ItemStack.EMPTY;
+			}
+			
+			clickedSlot.setChanged();
+		}
+
+		return itemMoved;
+	}
+
+	public boolean quickTakeFromStand(Player player, AbstractContainerMenu mainContainer, int index, int mouseButton) {
+		boolean moved = false;
+		Slot clickedSlot = mainContainer.getSlot(index);
+		if (clickedSlot != null) {
+			for (int i = slots.size() - 1; i >= 0; i--) {
+				Slot standSlot = slots.get(i);
+				ItemStack itemToMove = standSlot.getItem();
+				if (clickedSlot.mayPlace(itemToMove)) {
+					ItemStack destItem = clickedSlot.getItem();
+					if (destItem.isEmpty()) {
+						standSlot.setByPlayer(ItemStack.EMPTY);
+						clickedSlot.setByPlayer(itemToMove);
+						moved = true;
+					}
+					else if (ItemStack.isSameItemSameComponents(itemToMove, destItem)) {
+						int amountSum = destItem.getCount() + itemToMove.getCount();
+						int maxAmount = clickedSlot.getMaxStackSize(destItem);
+						if (amountSum <= maxAmount) {
+							itemToMove.setCount(0);
+							destItem.setCount(amountSum);
+							clickedSlot.setChanged();
+							standSlot.setChanged();
+							moved = true;
+						}
+						else if (destItem.getCount() < maxAmount) {
+							itemToMove.shrink(maxAmount - destItem.getCount());
+							destItem.setCount(maxAmount);
+							clickedSlot.setChanged();
+							standSlot.setChanged();
+							moved = true;
+						}
+					}
+				}
+			}
+		}
+		
+		return moved;
+	}
+	
 	
 	@Override
     public void synchronizeSlotToRemote(int slotIndex, ItemStack stack, Supplier<ItemStack> supplier) {
@@ -194,8 +294,8 @@ public class StandHandsContainerMenu extends AbstractContainerMenu {
 	
 	
 	public static interface HandSwapSyncFixCrutch {
-		public void jojo_ripples$enableHandSwapCrutch();
-		public void jojo_ripples$disableHandSwapCrutch();
+		public void jojo_ripples$disableHandSwapCheck();
+		public void jojo_ripples$reenableHandSwapCheck();
 	}
 
 }
