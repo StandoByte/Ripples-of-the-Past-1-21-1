@@ -20,7 +20,7 @@ import net.neoforged.neoforge.common.util.FriendlyByteBufUtil;
 import net.neoforged.neoforge.event.entity.player.PlayerContainerEvent;
 import net.neoforged.neoforge.network.payload.AdvancedOpenScreenPayload;
 
-public class OpenContainerAsEntity {
+public class OpenContainerAsNonPlayer {
 
 	// yaaaaaay copypasting
 	public static OptionalInt openMenu(ServerPlayer entityWrapperAsPlayer, LivingEntity wrappedEntity, ServerPlayer actualPlayer, 

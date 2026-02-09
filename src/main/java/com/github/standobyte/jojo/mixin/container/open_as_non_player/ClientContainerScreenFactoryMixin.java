@@ -1,11 +1,11 @@
-package com.github.standobyte.jojo.mixin.container.open_as_entity;
+package com.github.standobyte.jojo.mixin.container.open_as_non_player;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.standobyte.jojo.mechanics.entity_like_player.opencontainer.OpenContainerAsEntity;
+import com.github.standobyte.jojo.mechanics.entity_like_player.opencontainer.OpenContainerAsNonPlayer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -29,6 +29,6 @@ public class ClientContainerScreenFactoryMixin {
 			MenuScreens.ScreenConstructor<?, ?> screenFactory, 
 			CallbackInfo ci) {
 		AbstractContainerMenu containerMenu = Minecraft.getInstance().player.containerMenu;
-		OpenContainerAsEntity.readClient(buf, containerMenu);
+		OpenContainerAsNonPlayer.readClient(buf, containerMenu);
 	}
 }

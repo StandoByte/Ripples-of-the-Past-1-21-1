@@ -33,8 +33,8 @@
 	
 	"container.ContainerMenuInvoker",
 	"container.LivingEntityHandSwapSyncFixCrutch",
-	"container.open_as_entity.ContainerMenuMixin",
-	"container.open_as_entity.ValidCheckChestInventory",
+	"container.open_as_non_player.ContainerMenuMixin",
+	"container.open_as_non_player.ValidCheckChestInventory",
 	
 	"ProjectileHighSpeedSync",
 	"attributes.EntityMixin",
@@ -75,7 +75,7 @@
 	"container.client.ContainerScreenCrutch",
 	"container.client.ContainerScreenInvoker",
 	"container.client.SpecialInventoryScreenClick",
-	"container.open_as_entity.ClientContainerScreenFactoryMixin",
+	"container.open_as_non_player.ClientContainerScreenFactoryMixin",
 	
 	"client.screen.KeyMappingMixin",
 	"client.screen.MinecraftMixin",
