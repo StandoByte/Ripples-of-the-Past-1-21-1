@@ -13,10 +13,12 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ArmorSlot;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
@@ -240,7 +242,7 @@ public class StandHandsContainerMenu extends AbstractContainerMenu {
 			for (int i = slots.size() - 1; i >= 0; i--) {
 				Slot standSlot = slots.get(i);
 				ItemStack itemToMove = standSlot.getItem();
-				if (clickedSlot.mayPlace(itemToMove)) {
+				if (clickedSlot.mayPlace(itemToMove) || clickedSlot instanceof ArmorSlot armorSlot && armorSlot.slot == EquipmentSlot.HEAD /* the funny part of that one bug */) {
 					ItemStack destItem = clickedSlot.getItem();
 					if (destItem.isEmpty()) {
 						standSlot.setByPlayer(ItemStack.EMPTY);
