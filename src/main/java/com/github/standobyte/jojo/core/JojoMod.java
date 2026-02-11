@@ -31,6 +31,7 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
+// TODO (!) reorganize the packages after merging the two branches
 // XXX allow PowerType to override controls/HUD rendering
 @Mod(JojoMod.MOD_ID)
 public class JojoMod {

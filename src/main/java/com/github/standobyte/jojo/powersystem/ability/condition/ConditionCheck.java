@@ -41,8 +41,8 @@ public class ConditionCheck {
 		return warning;
 	}
 	
-	public static void sendActionFailedMessage(Ability ability, ConditionCheck result, LivingEntity user) {
-		if (!user.level().isClientSide() /* && ability.sendsConditionMessage() */) {
+	public static void sendActionFailedMessage(@Nullable Ability ability, ConditionCheck result, LivingEntity user) {
+		if (!user.level().isClientSide() /* && (ability == null || ability.sendsConditionMessage()) */) {
 			Component message = result.getWarning();
 			
 			if (message != null && user instanceof ServerPlayer player) {

@@ -7,6 +7,7 @@ import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.cli
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojoimpl.stands._helditems.input.ClientStandItemInputs;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -65,6 +66,12 @@ public class ClientStandController extends ClientEntityController {
 	public void clearInput(MovementInputUpdateEvent event) {
 		Input input = event.getInput();
 		clearInput(input);
+	}
+	
+	@Override
+	public void tickPre() {
+		super.tickPre();
+		ClientStandItemInputs.handleInManualControl(mc);
 	}
 
 
