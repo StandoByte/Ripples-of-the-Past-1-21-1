@@ -44,6 +44,7 @@ import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -648,6 +649,28 @@ public class ControlsHudElement extends HudElement {
 			case ALT -> ALT;
 			case NONE -> null;
 		};
+	}
+	
+	
+	public static final String CONTROL_NOSPACE = "neoforge.controlsgui.control.nospace";
+	public static final String CONTROL_MAC_NOSPACE = "neoforge.controlsgui.control.mac.nospace";
+	public static final String SHIFT_NOSPACE = "neoforge.controlsgui.shift.nospace";
+	public static final String ALT_NOSPACE = "neoforge.controlsgui.alt.nospace";
+	
+	public static Component getKeybindNoSpaceAtModifierPlus(KeyMapping keybind) {
+		KeyModifier modifier = keybind.getKeyModifier();
+		if (modifier == null || modifier == KeyModifier.NONE) {
+			return Component.keybind(keybind.getName());
+		}
+		else {
+			String key = switch (modifier) {
+				case CONTROL -> Minecraft.ON_OSX ? CONTROL_MAC_NOSPACE : CONTROL_NOSPACE;
+				case SHIFT -> SHIFT_NOSPACE;
+				case ALT -> ALT_NOSPACE;
+				default -> null;
+			};
+			return Component.translatable(key, keybind.getKey().getDisplayName());
+		}
 	}
 
 }

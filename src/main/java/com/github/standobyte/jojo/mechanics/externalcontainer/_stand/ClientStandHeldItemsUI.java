@@ -1,26 +1,36 @@
-package com.github.standobyte.jojoimpl.stands._helditems;
+package com.github.standobyte.jojo.mechanics.externalcontainer._stand;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.ui.powerhud.ControlsHudElement;
 import com.github.standobyte.jojo.client.ui.powerhud.PowerHud;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.externalcontainer.ModdedContainerClickType;
 import com.github.standobyte.jojo.mechanics.externalcontainer.PlayerExternalContainers;
+import com.github.standobyte.jojo.mechanics.externalcontainer._stand.input.ClientStandItemInputs;
 import com.github.standobyte.jojo.mechanics.externalcontainer.client.ClientExternalContainerUI;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -69,7 +79,7 @@ public class ClientStandHeldItemsUI extends ClientExternalContainerUI {
 			int slotsY = y + (creativeScreen ? 8 : 2);
 			int texV = creativeScreen ? 96 : 0;
 			int standIconX = creativeScreen ? (leftSlotX + rightSlotX) / 2 : x - 16;
-			int standIconY = creativeScreen ? y - 16 : slotsY;
+			int standIconY = creativeScreen ? y - 16 : slotsY + 2;
 			
 			Slot leftHand = standHandsContainer.getLeftHandSlot();
 			leftHand.x = leftSlotX;
@@ -90,6 +100,32 @@ public class ClientStandHeldItemsUI extends ClientExternalContainerUI {
 			super.render(guiGraphics, mouseX, mouseY, partialTick);
 			pose.popPose();
 			renderTooltip(guiGraphics, mouseX, mouseY);
+		}
+	}
+
+	@Override
+	protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
+		if (getCarriedItem().isEmpty() && this.hoveredSlot != null) {
+			if (this.hoveredSlot.hasItem()) {
+				super.renderTooltip(guiGraphics, x, y);
+			}
+			else {
+				List<Component> slotTooltip = new ArrayList<>();
+				Entity standEntity = ((StandHandsContainerMenu) sideContainer).standEntity;
+				slotTooltip.add(Component.translatable("stand_hand_slot." + (hoveredSlot.index == 0 ? "main" : "off"), standEntity.getDisplayName()));
+				if (Screen.hasShiftDown()) {
+					slotTooltip.add(Component.translatable("stand_hand_slot.hint1").withStyle(ChatFormatting.GRAY));
+					slotTooltip.add(Component.translatable("stand_hand_slot.hint2").withStyle(ChatFormatting.GRAY));
+					slotTooltip.add(Component.translatable("stand_hand_slot.hint3").withStyle(ChatFormatting.GRAY));
+					slotTooltip.add(Component.translatable("stand_hand_slot.hint4", 
+							ControlsHudElement.getKeybindNoSpaceAtModifierPlus(ClientStandItemInputs.keyDrop))
+							.withStyle(ChatFormatting.GRAY));
+				}
+				else {
+					slotTooltip.add(Component.translatable("stand_hand_slot.shift").withStyle(ChatFormatting.DARK_GRAY));
+				}
+				guiGraphics.renderTooltip(mainScreen.getMinecraft().font, slotTooltip, Optional.empty(), ItemStack.EMPTY, x, y);
+			}
 		}
 	}
 	

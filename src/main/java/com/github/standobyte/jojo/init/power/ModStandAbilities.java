@@ -18,9 +18,6 @@ import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityHeavyPunchAb
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityHeavyPunchChargedAbility;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityManualControlToggle;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityPunchAbility;
-import com.github.standobyte.jojoimpl.stands._helditems.abilities.SwapStandHandItemsAbility;
-import com.github.standobyte.jojoimpl.stands._helditems.abilities.SwapUserStandItemsAbility;
-import com.github.standobyte.jojoimpl.stands._helditems.abilities.TossStandItemAbility;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDAnchorBlockAbility;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDAngeloRockPunchInput;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDBlockBulletAbility;
@@ -53,15 +50,6 @@ public final class ModStandAbilities {
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityManualControlToggle>> MANUAL_CONTROL = ABILITY_TYPES.register(
 			"stand_manual_control", key -> new AbilityType<>(key, StandEntityManualControlToggle::new));
 	
-	
-	public static final DeferredHolder<AbilityType<?>, AbilityType<SwapUserStandItemsAbility>> ITEMS_SWAP_W_USER = ABILITY_TYPES.register(
-			"stand_items_swap_w_user", key -> new AbilityType<>(key, SwapUserStandItemsAbility::new));
-	
-	public static final DeferredHolder<AbilityType<?>, AbilityType<SwapStandHandItemsAbility>> ITEMS_SWAP_HANDS = ABILITY_TYPES.register(
-			"stand_items_swap_hands", key -> new AbilityType<>(key, SwapStandHandItemsAbility::new));
-	
-	public static final DeferredHolder<AbilityType<?>, AbilityType<TossStandItemAbility>> ITEM_TOSS = ABILITY_TYPES.register(
-			"stand_item_toss", key -> new AbilityType<>(key, TossStandItemAbility::new));
 	
 //	public static final DeferredHolder<AbilityType<?>, AbilityType<StandAttackWithItemAbility>> ITEM_ATTACK = ABILITY_TYPES.register(
 //			"stand_item_attack", key -> new AbilityType<>(key, StandAttackWithItemAbility::new));

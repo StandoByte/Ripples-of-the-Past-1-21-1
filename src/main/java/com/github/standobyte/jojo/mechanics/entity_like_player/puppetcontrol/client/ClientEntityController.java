@@ -48,6 +48,7 @@ public abstract class ClientEntityController {
 		ClientEntityController.instance = instance;
 	}
 
+	@Nullable
 	public static ClientEntityController getInstance() {
 		return instance;
 	}

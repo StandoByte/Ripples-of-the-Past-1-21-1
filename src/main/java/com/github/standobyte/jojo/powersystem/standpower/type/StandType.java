@@ -55,6 +55,7 @@ public class StandType extends PowerType {
 	public List<Component> discExtraTooltip = new ArrayList<>();
 	/** The lesser this field is, the earlier the disc will appear in the creative tab. Default is 100. */
 	public int discCategoryPriority = 100;
+	public boolean translucentDisc = false;
 	public int discStoryPartPriority = 100;
 	
 	public StandType(StandStats stats, MovesetBuilder moveset, 
@@ -74,12 +75,14 @@ public class StandType extends PowerType {
 		return cast;
 	}
 	
-	public <T extends StandType> T discTooltipWIP() { 
+	public <T extends StandType> T discTooltipWIP() { return discTooltipWIP(false); }
+	public <T extends StandType> T discTooltipWIP(boolean translucentDisc) { 
 		return init(stand -> {
 			stand.discExtraTooltip.add(
 					Component.translatable("item.jojo_ripples.stand_disc.wip")
 					.withStyle(ChatFormatting.ITALIC).withColor(0x808000));
 			stand.discCategoryPriority = 200;
+			stand.translucentDisc = translucentDisc;
 		});
 	}
 	
@@ -89,6 +92,7 @@ public class StandType extends PowerType {
 					Component.translatable("item.jojo_ripples.stand_disc.experimental")
 					.withStyle(ChatFormatting.ITALIC).withColor(0x800000));
 			stand.discCategoryPriority = 300;
+			stand.translucentDisc = true;
 		});
 	}
 	

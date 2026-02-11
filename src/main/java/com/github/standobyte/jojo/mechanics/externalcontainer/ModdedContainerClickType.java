@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.mechanics.externalcontainer;
 
-import com.github.standobyte.jojoimpl.stands._helditems.ClientStandHeldItemsUI;
-import com.github.standobyte.jojoimpl.stands._helditems.StandHandsContainerMenu;
+import com.github.standobyte.jojo.mechanics.externalcontainer._stand.ClientStandHeldItemsUI;
+import com.github.standobyte.jojo.mechanics.externalcontainer._stand.StandHandsContainerMenu;
 
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.entity.player.Player;

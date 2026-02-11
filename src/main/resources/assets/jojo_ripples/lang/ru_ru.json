@@ -1,19 +1,5 @@
 {
   "itemGroup.jojo_ripples.main": "ДжоДжо",
-
-  "key.mouse.lmb_and_rmb": "ЛКМ + ПКМ",
-  "key.mouse.left.shortened": "ЛКМ",
-  "key.mouse.right.shortened": "ПКМ",
-  "key.mouse.middle.shortened": "СКМ",
-  "key.mouse.shortened": "Кн.%1$s",
-  "key.keyboard.left.alt.shortened": "Л.Alt",
-  "key.keyboard.left.control.shortened": "Л.Ctrl",
-  "key.keyboard.left.shift.shortened": "Л.Shift",
-  "key.keyboard.left.win.shortened": "Л.Win",
-  "key.keyboard.right.alt.shortened": "П.Alt",
-  "key.keyboard.right.control.shortened": "П.Ctrl",
-  "key.keyboard.right.shift.shortened": "П.Shift",
-  "key.keyboard.right.win.shortened": "П.Win",
   
   "entity.jojo.block_shard": "Осколок блока",
   
@@ -207,11 +193,20 @@
   "attribute.name.jojo_ripples.stand_durability": "Выносливость Стенда",
   "attribute.name.jojo_ripples.stand_precision": "Точность Стенда",
   
+  "stand_hand_slot.main": "Ведущая рука %s",
+  "stand_hand_slot.off": "Второстепенная рука %s",
+  "    перевести-stand_hand_slot.shift": "Hold Shift to see inventory shortcut tips",
+  "    перевести-stand_hand_slot.hint1": "- Ctrl+\uEAFA on an item in your inventory - give it to your Stand.",
+  "    перевести-stand_hand_slot.hint2": "- Ctrl+\uEAFA on an empty inventory slot - take an item from your Stand.",
+  "    перевести-stand_hand_slot.hint3": "- Using \uEAFB instead moves one item rather than the whole stack, if possible.",
+  "    перевести-stand_hand_slot.hint4": "- %s (outside the inventory screen) - give items you're holding to your Stand, or, if your hands are empty, take items from your Stand.",
+  "jojo_ripples.key.swap_items": "Поменяться предметами со Стендом",
+  "jojo.message.action_condition.stand_user_too_far": "Вы и ваш Стенд слишком далеко друг от друга",
+  
   "stand.unknown": "Неизвестный Стенд: %s",
   "effect.jojo_ripples.resolve": "Решимость",
   "effect.jojo_ripples.bleeding": "Кровотечение",
 
-  "jojo.message.action_condition.stand_user_too_far": "Вы и ваш Стенд слишком далеко друг от друга",
   "jojo.message.action_condition.stand_too_slow": "Ваш Стенд слишком медленный",
   
   "jojo_ripples.subtitle.stand_summon": "Стенд призван",
@@ -280,12 +275,6 @@
   "jojo_ripples.skill.manual_control.controls": "O",
   "jojo_ripples.ability.manual_control": "Ручное управление",
 
-  "jojo_ripples.skill.swap_items": "Поменяться предметами",
-  "jojo_ripples.skill.swap_items.desc": "Быстрый способ дать Стенду предметы в ваших руках, или положить предметы в руках Стенда в ваш инвентарь.",
-  "jojo_ripples.skill.swap_items.controls": "Ctrl + F",
-  "jojo_ripples.ability.items_swap_w_user": "Поменяться предметами",
-  "jojo_ripples.ability.items_swap_hands": "Переложить предметы в руках",
-  "jojo_ripples.ability.item_toss": "Выбросить",
   "jojo_ripples.ability.bearing_shot": "Выстрел кусочком",
 
   "jojo_ripples.skill.leap": "(NYI) Прыжок",
