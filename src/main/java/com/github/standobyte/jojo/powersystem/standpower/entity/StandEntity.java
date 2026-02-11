@@ -23,6 +23,7 @@ import com.github.standobyte.jojo.mc.entity.util.HandItemsAsInventory;
 import com.github.standobyte.jojo.mc.entity.util.LivingReactToNewAction;
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.ClientEntityController;
 import com.github.standobyte.jojo.mechanics.externalcontainer.PlayerExternalContainers;
+import com.github.standobyte.jojo.mechanics.externalcontainer._stand.StandHandsContainerMenu;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
@@ -44,7 +45,6 @@ import com.github.standobyte.jojo.util.mc.PrevRotations;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityUnsummonAction;
-import com.github.standobyte.jojoimpl.stands._helditems.StandHandsContainerMenu;
 
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.NonNullList;

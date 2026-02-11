@@ -1,4 +1,4 @@
-package com.github.standobyte.jojoimpl.stands._helditems.input;
+package com.github.standobyte.jojo.mechanics.externalcontainer._stand.input;
 
 import java.util.EnumMap;
 import java.util.Map;

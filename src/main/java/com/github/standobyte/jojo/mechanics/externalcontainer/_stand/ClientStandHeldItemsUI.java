@@ -1,4 +1,4 @@
-package com.github.standobyte.jojoimpl.stands._helditems;
+package com.github.standobyte.jojo.mechanics.externalcontainer._stand;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,9 +12,9 @@ import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.externalcontainer.ModdedContainerClickType;
 import com.github.standobyte.jojo.mechanics.externalcontainer.PlayerExternalContainers;
+import com.github.standobyte.jojo.mechanics.externalcontainer._stand.input.ClientStandItemInputs;
 import com.github.standobyte.jojo.mechanics.externalcontainer.client.ClientExternalContainerUI;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
-import com.github.standobyte.jojoimpl.stands._helditems.input.ClientStandItemInputs;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.ChatFormatting;

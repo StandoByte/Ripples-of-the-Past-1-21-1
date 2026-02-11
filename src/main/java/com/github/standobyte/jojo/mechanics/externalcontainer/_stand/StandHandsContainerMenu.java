@@ -1,4 +1,4 @@
-package com.github.standobyte.jojoimpl.stands._helditems;
+package com.github.standobyte.jojo.mechanics.externalcontainer._stand;
 
 import java.util.function.Supplier;
 

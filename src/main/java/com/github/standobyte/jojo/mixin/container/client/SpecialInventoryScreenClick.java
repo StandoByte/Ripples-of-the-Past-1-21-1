@@ -9,9 +9,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.mechanics.externalcontainer.ModdedContainerClickType;
+import com.github.standobyte.jojo.mechanics.externalcontainer._stand.ClientStandHeldItemsUI;
 import com.github.standobyte.jojo.mechanics.externalcontainer.client.ClientExtendedInventoryClick;
 import com.github.standobyte.jojo.mechanics.externalcontainer.client.ClientExternalContainerUI.ExternalContainerScreenCrutches;
-import com.github.standobyte.jojoimpl.stands._helditems.ClientStandHeldItemsUI;
 
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;

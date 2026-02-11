@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.init.core;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.container.PlayerClothesMenu;
-import com.github.standobyte.jojoimpl.stands._helditems.StandHandsContainerMenu;
+import com.github.standobyte.jojo.mechanics.externalcontainer._stand.StandHandsContainerMenu;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.flag.FeatureFlags;

@@ -5,8 +5,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.mechanics.externalcontainer.ModdedContainerClickType;
+import com.github.standobyte.jojo.mechanics.externalcontainer._stand.ClientStandHeldItemsUI;
 import com.github.standobyte.jojo.mixin.container.client.ContainerScreenInvoker;
-import com.github.standobyte.jojoimpl.stands._helditems.ClientStandHeldItemsUI;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.datafixers.util.Pair;
 

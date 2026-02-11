@@ -26,6 +26,7 @@ import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.cli
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.mob.ClMobControlMovementPacket;
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.stand.ClStandManualMovementPacket;
 import com.github.standobyte.jojo.mechanics.entity_like_player.useitem.ClStandClickPacket;
+import com.github.standobyte.jojo.mechanics.externalcontainer._stand.input.ClStandItemInputPacket;
 import com.github.standobyte.jojo.mechanics.externalcontainer.packet.ClExtendedContainerClickPacket;
 import com.github.standobyte.jojo.mechanics.externalcontainer.packet.ExternalContainerClosePacket;
 import com.github.standobyte.jojo.mechanics.externalcontainer.packet.ExternalContainerOpenPacket;
@@ -41,7 +42,6 @@ import com.github.standobyte.jojo.powersystem.standpower.effect.TrStandEffectPac
 import com.github.standobyte.jojo.powersystem.standpower.packet.ResolveBoostsPacket;
 import com.github.standobyte.jojo.powersystem.standpower.packet.TrResolvePacket;
 import com.github.standobyte.jojo.powersystem.standpower.packet.TrStaminaPacket;
-import com.github.standobyte.jojoimpl.stands._helditems.input.ClStandItemInputPacket;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
