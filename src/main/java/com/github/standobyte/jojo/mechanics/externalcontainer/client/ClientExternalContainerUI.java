@@ -100,20 +100,26 @@ public class ClientExternalContainerUI implements GuiEventListener, Renderable {
 		}
 
 		if (key.getType() == InputConstants.Type.MOUSE) {
-			boolean LMB = key.getValue() == 0;
-			boolean RMB = key.getValue() == 1;
-			if (LMB || RMB) {
-				boolean quickMove = Screen.hasShiftDown();
-				ClickType clickType = ClickType.PICKUP;
-				if (quickMove) {
-					clickType = ClickType.QUICK_MOVE;
-				}
-				this.slotClicked(slot, menu, key.getValue(), clickType);
-				return true;
-			}
+			return handleMouseClick(key, slot, menu);
 		}
 
 		return false;
+	}
+	
+	protected boolean handleMouseClick(InputConstants.Key key, Slot slot, AbstractContainerMenu menu) {
+		int mouseButton = key.getValue();
+		boolean LMB = mouseButton == 0;
+		boolean RMB = mouseButton == 1;
+		if (LMB || RMB) {
+			ClickType clickType = mouseClickType(mouseButton);
+			this.slotClicked(slot, menu, key.getValue(), clickType);
+			return true;
+		}
+		return false;
+	}
+	
+	protected ClickType mouseClickType(int mouseButton) {
+		return Screen.hasShiftDown() ? ClickType.QUICK_MOVE : ClickType.PICKUP;
 	}
 
 

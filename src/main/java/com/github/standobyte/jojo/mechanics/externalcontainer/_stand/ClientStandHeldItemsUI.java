@@ -146,5 +146,10 @@ public class ClientStandHeldItemsUI extends ClientExternalContainerUI {
 		
 		return null;
 	}
+	
+	@Override
+	protected ClickType mouseClickType(int mouseButton) {
+		return Screen.hasControlDown() ? ClickType.QUICK_MOVE : super.mouseClickType(mouseButton);
+	}
 
 }
