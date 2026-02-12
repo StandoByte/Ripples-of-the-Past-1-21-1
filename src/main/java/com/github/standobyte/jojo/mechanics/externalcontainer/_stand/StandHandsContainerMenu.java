@@ -178,7 +178,6 @@ public class StandHandsContainerMenu extends AbstractContainerMenu {
 			StandHandsContainerMenu standHandsContainer = PlayerExternalContainers.get(player)
 					.getContainerOfType(StandHandsContainerMenu.class);
 			if (standHandsContainer != null) {
-				boolean moveSingleItem = mouseButton == 1 /* RMB */;
 				ItemStack clickedItem = clickedSlot.getItem();
 				if (clickedItem.isEmpty()) {
 					// take held items from stand and put them to the clicked empty slot
@@ -188,7 +187,7 @@ public class StandHandsContainerMenu extends AbstractContainerMenu {
 					// give the clicked item to the stand
 					if (clickedSlot.mayPickup(player)) {
 						ItemStack movedItem = quickGiveToStand(player, mainContainer, slotId, mouseButton);
-						if (movedItem.isEmpty()) {
+						if (movedItem.isEmpty() && mouseButton == 0) {
 							/* couldn't find stand hand slots that are empty or stackable, 
 							 * instead swap the clicked item with the stand's main hand item
 							 */
@@ -200,9 +199,9 @@ public class StandHandsContainerMenu extends AbstractContainerMenu {
 							}
 						}
 						// the quick move handling was copypasted from AbstractContainerMenu's doClick, but this seems redundant
-//						else while (!movedItem.isEmpty() && ItemStack.isSameItem(clickedSlot.getItem(), movedItem)) {
-//							movedItem = quickGiveToStand(player, mainContainer, slotId, mouseButton);
-//						}
+						// else while (!movedItem.isEmpty() && ItemStack.isSameItem(clickedSlot.getItem(), movedItem)) {
+						// 	movedItem = quickGiveToStand(player, mainContainer, slotId, mouseButton);
+						// }
 					}
 				}
 			}
@@ -210,14 +209,28 @@ public class StandHandsContainerMenu extends AbstractContainerMenu {
 	}
 	
 	public ItemStack quickGiveToStand(Player player, AbstractContainerMenu mainContainer, int index, int mouseButton) {
-		ItemStack itemMoved = ItemStack.EMPTY;
+		ItemStack itemPrev = ItemStack.EMPTY;
 		Slot clickedSlot = mainContainer.getSlot(index);
 		if (clickedSlot != null && clickedSlot.hasItem()) {
 			ItemStack itemInSlot = clickedSlot.getItem();
-			itemMoved = itemInSlot.copy();
+			itemPrev = itemInSlot.copy();
+			boolean rightClick = mouseButton == 1;
+			ItemStack itemToMove;
 			
+			if (rightClick) {
+				itemToMove = itemInSlot.split(1);
+			}
+			else {
+				itemToMove = itemInSlot;
+			}
+
 			boolean offHandFirst = false;
-			if (!this.moveItemStackTo(itemInSlot, 0, 2, offHandFirst)) {
+			boolean quickMoved = this.moveItemStackTo(itemToMove, 0, 2, offHandFirst);
+			if (itemToMove != itemInSlot /* when rightClick is true */ 
+					&& !itemToMove.isEmpty() && ItemStack.isSameItem(itemToMove, itemInSlot)) {
+				itemInSlot.setCount(itemInSlot.getCount() + itemToMove.getCount());
+			}
+			if (!quickMoved) {
 				return ItemStack.EMPTY;
 			}
 
@@ -225,46 +238,57 @@ public class StandHandsContainerMenu extends AbstractContainerMenu {
 				clickedSlot.setByPlayer(ItemStack.EMPTY);
 			}
 
-			if (itemInSlot.getCount() == itemMoved.getCount()) {
+			if (itemInSlot.getCount() == itemPrev.getCount()) {
 				return ItemStack.EMPTY;
 			}
 			
 			clickedSlot.setChanged();
 		}
 
-		return itemMoved;
+		return itemPrev;
 	}
 
 	public boolean quickTakeFromStand(Player player, AbstractContainerMenu mainContainer, int index, int mouseButton) {
 		boolean moved = false;
 		Slot clickedSlot = mainContainer.getSlot(index);
 		if (clickedSlot != null) {
+			boolean rightClick = mouseButton == 1 /* RMB */;
 			for (int i = slots.size() - 1; i >= 0; i--) {
 				Slot standSlot = slots.get(i);
 				ItemStack itemToMove = standSlot.getItem();
-				if (clickedSlot.mayPlace(itemToMove) || clickedSlot instanceof ArmorSlot armorSlot && armorSlot.slot == EquipmentSlot.HEAD /* the funny part of that one bug */) {
+				if (standSlot.hasItem() && (clickedSlot.mayPlace(itemToMove) || clickedSlot instanceof ArmorSlot armorSlot && armorSlot.slot == EquipmentSlot.HEAD /* the funny part of that one bug */)) {
 					ItemStack destItem = clickedSlot.getItem();
-					if (destItem.isEmpty()) {
-						standSlot.setByPlayer(ItemStack.EMPTY);
-						clickedSlot.setByPlayer(itemToMove);
-						moved = true;
-					}
-					else if (ItemStack.isSameItemSameComponents(itemToMove, destItem)) {
-						int amountSum = destItem.getCount() + itemToMove.getCount();
-						int maxAmount = clickedSlot.getMaxStackSize(destItem);
-						if (amountSum <= maxAmount) {
-							itemToMove.setCount(0);
-							destItem.setCount(amountSum);
-							clickedSlot.setChanged();
+					if (rightClick) {
+						if (destItem.isEmpty()) {
+							clickedSlot.setByPlayer(itemToMove.split(1));
 							standSlot.setChanged();
+							moved = true;
+							break;
+						}
+					}
+					else {
+						if (destItem.isEmpty()) {
+							standSlot.setByPlayer(ItemStack.EMPTY);
+							clickedSlot.setByPlayer(itemToMove);
 							moved = true;
 						}
-						else if (destItem.getCount() < maxAmount) {
-							itemToMove.shrink(maxAmount - destItem.getCount());
-							destItem.setCount(maxAmount);
-							clickedSlot.setChanged();
-							standSlot.setChanged();
-							moved = true;
+						else if (ItemStack.isSameItemSameComponents(itemToMove, destItem)) {
+							int amountSum = destItem.getCount() + itemToMove.getCount();
+							int maxAmount = clickedSlot.getMaxStackSize(destItem);
+							if (amountSum <= maxAmount) {
+								itemToMove.setCount(0);
+								destItem.setCount(amountSum);
+								clickedSlot.setChanged();
+								standSlot.setChanged();
+								moved = true;
+							}
+							else if (destItem.getCount() < maxAmount) {
+								itemToMove.shrink(maxAmount - destItem.getCount());
+								destItem.setCount(maxAmount);
+								clickedSlot.setChanged();
+								standSlot.setChanged();
+								moved = true;
+							}
 						}
 					}
 				}
