@@ -3,17 +3,14 @@ package com.github.standobyte.jojo.mixin.container.client;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.mechanics.externalcontainer.ModdedContainerClickType;
-import com.github.standobyte.jojo.mechanics.externalcontainer._stand.ClientStandHeldItemsUI;
 import com.github.standobyte.jojo.mechanics.externalcontainer.client.ClientExtendedInventoryClick;
 import com.github.standobyte.jojo.mechanics.externalcontainer.client.ClientExternalContainerUI.ExternalContainerScreenCrutches;
 
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -24,7 +21,6 @@ import net.minecraft.world.inventory.Slot;
 @Mixin(AbstractContainerScreen.class)
 public abstract class SpecialInventoryScreenClick extends Screen implements ExternalContainerScreenCrutches {
 	@Shadow @Final protected AbstractContainerMenu menu;
-	@Unique private ClientStandHeldItemsUI standArmsExtContainer;
 
 	protected SpecialInventoryScreenClick(Component title) {
 		super(title);
@@ -43,16 +39,4 @@ public abstract class SpecialInventoryScreenClick extends Screen implements Exte
 		}
 	}
 
-
-	@Override
-	public void jojo_ripples$onAddedExternalContainerUI(GuiEventListener child) {
-		if (child instanceof ClientStandHeldItemsUI standHandsUI) {
-			standArmsExtContainer = standHandsUI;
-		}
-	}
-
-	@Override
-	public ClientStandHeldItemsUI jojo_ripples$getStandArmsExtContainer() {
-		return standArmsExtContainer;
-	}
 }

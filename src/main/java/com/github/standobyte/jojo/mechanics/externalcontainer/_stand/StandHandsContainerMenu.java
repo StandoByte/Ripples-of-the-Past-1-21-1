@@ -28,19 +28,21 @@ import net.neoforged.neoforge.network.IContainerFactory;
 public class StandHandsContainerMenu extends AbstractContainerMenu {
 	public Container handsContainer;
 	public StandEntity standEntity;
+	protected Slot mainHandSlot;
+	protected Slot offHandSlot;
 
 	public StandHandsContainerMenu(int containerId, Inventory playerInventory, StandEntity standEntity) {
 		super(ModContainers.STAND_HANDS.get(), containerId);
 		this.handsContainer = standEntity.handsPseudoInventory;
 		this.standEntity = standEntity;
-		this.addSlot(new Slot(handsContainer, 0, 0, 0)); // main hand item
-		this.addSlot(new Slot(handsContainer, 1, 0, 0)); // off hand item
+		this.addSlot(mainHandSlot = new Slot(handsContainer, 0, 0, 0));
+		this.addSlot(offHandSlot = new Slot(handsContainer, 1, 0, 0));
 	}
 	
-	public Slot getLeftHandSlot() { return standEntity.getMainArm() == HumanoidArm.LEFT ? getMainHandSlot() : getOffHandSlot(); }
-	public Slot getRightHandSlot() { return standEntity.getMainArm() == HumanoidArm.LEFT ? getOffHandSlot() : getMainHandSlot(); }
-	public Slot getMainHandSlot() { return slots.get(0); }
-	public Slot getOffHandSlot() { return slots.get(1); }
+	public Slot getLeftHandSlot() { return standEntity.getMainArm() == HumanoidArm.LEFT ? mainHandSlot : offHandSlot; }
+	public Slot getRightHandSlot() { return standEntity.getMainArm() == HumanoidArm.LEFT ? offHandSlot : mainHandSlot; }
+	public Slot getMainHandSlot() { return mainHandSlot; }
+	public Slot getOffHandSlot() { return offHandSlot; }
 	
 	
 	public static MenuConstructor_ createServerSide(StandEntity standEntity) {

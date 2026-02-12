@@ -72,11 +72,12 @@
 	"client.firstperson.LivingEntityRendererMixin",
 	"client.firstperson.PlayerRendererMixin",
 	
-	"container.client.ContainerScreenCrutch",
+	"container.client.ContainerScreenCrutches",
 	"container.client.ContainerScreenInvoker",
 	"container.client.SpecialInventoryScreenClick",
 	"container.open_as_non_player.ClientContainerScreenFactoryMixin",
 	
+	"client.screen.ScreenMixin",
 	"client.screen.KeyMappingMixin",
 	"client.screen.MinecraftMixin",
     "client.standskin.SoundInstanceMixin",
