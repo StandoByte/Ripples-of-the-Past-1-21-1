@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.ui.ScreenCrutches;
 import com.github.standobyte.jojo.mechanics.externalcontainer.ModdedContainerClickType;
 import com.github.standobyte.jojo.mechanics.externalcontainer._stand.ClientStandHeldItemsUI;
 import com.github.standobyte.jojo.mixin.container.client.ContainerScreenInvoker;
@@ -17,6 +18,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.Tickable;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -25,7 +27,7 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class ClientExternalContainerUI implements GuiEventListener, Renderable {
+public class ClientExternalContainerUI implements GuiEventListener, Renderable, Tickable {
 	protected AbstractContainerScreen<?> mainScreen;
 	protected AbstractContainerMenu sideContainer;
 
@@ -49,11 +51,15 @@ public class ClientExternalContainerUI implements GuiEventListener, Renderable {
 			if (this.isHovering(slot, (double)mouseX, (double)mouseY) && slot.isActive()) {
 				this.hoveredSlot = slot;
 				if (slot.isHighlightable()) {
-					int slotColor = -2130706433;
-					AbstractContainerScreen.renderSlotHighlight(guiGraphics, slot.x, slot.y, 0, slotColor);
+					renderSlotHighlight(guiGraphics, slot);
 				}
 			}
 		}
+	}
+	
+	protected void renderSlotHighlight(GuiGraphics guiGraphics, Slot slot) {
+		int slotColor = -2130706433;
+		AbstractContainerScreen.renderSlotHighlight(guiGraphics, slot.x, slot.y, 0, slotColor);
 	}
 
 	protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
@@ -100,20 +106,26 @@ public class ClientExternalContainerUI implements GuiEventListener, Renderable {
 		}
 
 		if (key.getType() == InputConstants.Type.MOUSE) {
-			boolean LMB = key.getValue() == 0;
-			boolean RMB = key.getValue() == 1;
-			if (LMB || RMB) {
-				boolean quickMove = Screen.hasShiftDown();
-				ClickType clickType = ClickType.PICKUP;
-				if (quickMove) {
-					clickType = ClickType.QUICK_MOVE;
-				}
-				this.slotClicked(slot, menu, key.getValue(), clickType);
-				return true;
-			}
+			return handleMouseClick(key, slot, menu);
 		}
 
 		return false;
+	}
+	
+	protected boolean handleMouseClick(InputConstants.Key key, Slot slot, AbstractContainerMenu menu) {
+		int mouseButton = key.getValue();
+		boolean LMB = mouseButton == 0;
+		boolean RMB = mouseButton == 1;
+		if (LMB || RMB) {
+			ClickType clickType = mouseClickType(mouseButton);
+			this.slotClicked(slot, menu, key.getValue(), clickType);
+			return true;
+		}
+		return false;
+	}
+	
+	protected ClickType mouseClickType(int mouseButton) {
+		return Screen.hasShiftDown() ? ClickType.QUICK_MOVE : ClickType.PICKUP;
 	}
 
 
@@ -152,6 +164,10 @@ public class ClientExternalContainerUI implements GuiEventListener, Renderable {
 	protected ItemStack getCarriedItem() {
 		return mainScreen.getMenu().getCarried();
 	}
+	
+	
+	@Override
+	public void tick() {}
 
 
 	@Nullable
@@ -225,16 +241,15 @@ public class ClientExternalContainerUI implements GuiEventListener, Renderable {
 		children.add(externalUI);
 		
 		ExternalContainerScreenCrutches mainScreen_ = (ExternalContainerScreenCrutches) mainScreen;
-		mainScreen_.jojo_ripples$addAlwaysHandleKeyPress(externalUI);
 		mainScreen_.jojo_ripples$onAddedExternalContainerUI(externalUI);
+		((ScreenCrutches) mainScreen).jojo_ripples$addTickable(externalUI);
 	}
 
 	
 	public static interface ExternalContainerScreenCrutches {
-		void jojo_ripples$addAlwaysHandleKeyPress(GuiEventListener child);
-		void jojo_ripples$preventMouseRelease();
-		
 		void jojo_ripples$onAddedExternalContainerUI(GuiEventListener child);
+		
+		void jojo_ripples$preventMouseRelease();
 		@Nullable ClientStandHeldItemsUI jojo_ripples$getStandArmsExtContainer();
 	}
 	

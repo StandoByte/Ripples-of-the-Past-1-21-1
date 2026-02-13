@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.github.standobyte.jojo.mechanics.externalcontainer._stand.ClientStandHeldItemsUI;
 import com.github.standobyte.jojo.mechanics.externalcontainer.client.ClientExternalContainerUI.ExternalContainerScreenCrutches;
 
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -17,9 +18,9 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 
 @Mixin(AbstractContainerScreen.class)
-public abstract class ContainerScreenCrutch extends Screen implements ExternalContainerScreenCrutches {
+public abstract class ContainerScreenCrutches extends Screen implements ExternalContainerScreenCrutches {
 	
-	protected ContainerScreenCrutch(Component title) {
+	protected ContainerScreenCrutches(Component title) {
 		super(title);
 	}
 
@@ -36,14 +37,18 @@ public abstract class ContainerScreenCrutch extends Screen implements ExternalCo
 			ci.setReturnValue(true);
 		}
 	}
+	
+	
+	@Override
+	public void jojo_ripples$onAddedExternalContainerUI(GuiEventListener child) {
+		if (child instanceof ClientStandHeldItemsUI standHandsUI) {
+			standArmsExtContainer = standHandsUI;
+		}
+		alwaysHandleKeyPress.add(child);
+	}
 
 
 	@Unique private List<GuiEventListener> alwaysHandleKeyPress = new ArrayList<>();
-	@Override
-	public void jojo_ripples$addAlwaysHandleKeyPress(GuiEventListener child) {
-		alwaysHandleKeyPress.add(child);
-	}
-	
 	@Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
 	public void onKeyPressed(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> ci) {
 		for (GuiEventListener extContainerUI : alwaysHandleKeyPress) {
@@ -52,5 +57,12 @@ public abstract class ContainerScreenCrutch extends Screen implements ExternalCo
 			}
 		}
 	}
+	
 
+	@Unique private ClientStandHeldItemsUI standArmsExtContainer;
+	@Override
+	public ClientStandHeldItemsUI jojo_ripples$getStandArmsExtContainer() {
+		return standArmsExtContainer;
+	}
+	
 }

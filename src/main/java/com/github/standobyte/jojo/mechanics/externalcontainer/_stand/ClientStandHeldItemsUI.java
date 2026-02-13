@@ -6,6 +6,9 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.ClientGlobals;
+import com.github.standobyte.jojo.client.ClientProxy;
+import com.github.standobyte.jojo.client.ui.OverlayMessage;
 import com.github.standobyte.jojo.client.ui.powerhud.ControlsHudElement;
 import com.github.standobyte.jojo.client.ui.powerhud.PowerHud;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
@@ -13,7 +16,9 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.externalcontainer.ModdedContainerClickType;
 import com.github.standobyte.jojo.mechanics.externalcontainer.PlayerExternalContainers;
 import com.github.standobyte.jojo.mechanics.externalcontainer._stand.input.ClientStandItemInputs;
+import com.github.standobyte.jojo.mechanics.externalcontainer._stand.input.StandItemInput;
 import com.github.standobyte.jojo.mechanics.externalcontainer.client.ClientExternalContainerUI;
+import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -27,6 +32,8 @@ import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
@@ -39,6 +46,8 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class ClientStandHeldItemsUI extends ClientExternalContainerUI {
 	public static final ResourceLocation TEXTURE = JojoMod.resLoc("textures/gui/container/stand_arm_slots.png");
+	protected ConditionCheck clickableCheck = ConditionCheck.POSITIVE;
+	protected OverlayMessage overlayMessage = new OverlayMessage();
 
 	public ClientStandHeldItemsUI(AbstractContainerScreen<?> mainScreen, AbstractContainerMenu sideContainer) {
 		super(mainScreen, sideContainer);
@@ -99,7 +108,11 @@ public class ClientStandHeldItemsUI extends ClientExternalContainerUI {
 
 			super.render(guiGraphics, mouseX, mouseY, partialTick);
 			pose.popPose();
+			// FIXME tooltip renders below item durability bars
 			renderTooltip(guiGraphics, mouseX, mouseY);
+			
+			int messageY = mainScreen.getGuiTop() + mainScreen.getYSize() + height + 2;
+			overlayMessage.renderOverlayMessage(guiGraphics, guiGraphics.guiHeight() - messageY);
 		}
 	}
 
@@ -129,6 +142,45 @@ public class ClientStandHeldItemsUI extends ClientExternalContainerUI {
 		}
 	}
 	
+	@Override
+	protected void renderSlotHighlight(GuiGraphics guiGraphics, Slot slot) {
+		if (clickableCheck.isPositive()) {
+			super.renderSlotHighlight(guiGraphics, slot);
+		}
+	}
+	
+	
+	@Override
+	public void tick() {
+		super.tick();
+		LivingEntity user = ClientProxy.getClientPlayer();
+		StandEntity stand = ClientGlobals.playerStandEntity;
+		clickableCheck = user != null && stand != null ? StandItemInput.distanceCondition(stand, user) : ConditionCheck.NEGATIVE;
+		overlayMessage.tick();
+	}
+
+	@Override
+	protected void slotClicked(Slot slot, AbstractContainerMenu container, int mouseButton, ClickType clickType) {
+		if (clickableCheck.isPositive() || (
+				clickType == ClickType.SWAP && mouseButton == Inventory.SLOT_OFFHAND ||
+				clickType == ClickType.CLONE || 
+				clickType == ClickType.THROW)
+				) {
+			super.slotClicked(slot, container, mouseButton, clickType);
+		}
+		else {
+			setErrorMessage();
+			return;
+		}
+	}
+	
+	protected void setErrorMessage() {
+		Component message = clickableCheck.getWarning();
+		if (message != null) {
+			overlayMessage.setOverlayMessage(message.copy().withStyle(ChatFormatting.RED), false);
+		}
+	}
+	
 	
 	@Nullable
 	public static ModdedContainerClickType getStandQolClickType(ClickType interceptedClickType, 
@@ -140,11 +192,21 @@ public class ClientStandHeldItemsUI extends ClientExternalContainerUI {
 			ClientStandHeldItemsUI standHandsContainerUI = 
 					((ExternalContainerScreenCrutches) containerScreen).jojo_ripples$getStandArmsExtContainer();
 			if (standHandsContainerUI != null) {
-				return ModdedContainerClickType.STAND_QUICK_MOVE;
+				if (standHandsContainerUI.clickableCheck.isPositive()) {
+					return ModdedContainerClickType.STAND_QUICK_MOVE;
+				}
+				else {
+					standHandsContainerUI.setErrorMessage();
+				}
 			}
 		}
 		
 		return null;
+	}
+	
+	@Override
+	protected ClickType mouseClickType(int mouseButton) {
+		return Screen.hasControlDown() ? ClickType.QUICK_MOVE : super.mouseClickType(mouseButton);
 	}
 
 }
