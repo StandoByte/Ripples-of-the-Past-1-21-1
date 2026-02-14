@@ -1,6 +1,7 @@
 package com.github.standobyte.jojoimpl.stands._entitybase;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -9,6 +10,7 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityLingeringSoundInstance;
 import com.github.standobyte.jojo.init.ModSoundEvents;
+import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.Moveset;
 import com.github.standobyte.jojo.powersystem.Power;
@@ -27,6 +29,7 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
+import com.github.standobyte.jojo.util.OOPMoment;
 import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
@@ -140,15 +143,10 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 					}
 					
 					stand.addFinisherMeter(0.2f);
-					if (target.getType() == TargetType.ENTITY) {
-						Entity targetEntity = target.getMainEntity();
-						if (targetEntity instanceof LivingEntity targetLiving) {
-                            DamageSource dmgSource = makePunchDamageSource();
-							float dmgAmount = StandStatFormulas.getLightAttackDamage(stand.getAttackDamage());
-							if (standEntityAttack(stand, targetLiving, dmgSource, dmgAmount)) {
-								stand.addFinisherMeter(0.2f);
-							}
-						}
+					switch (target.getType()) {
+						case ENTITY -> hitEntity(target, level, stand);
+						case BLOCK -> hitBlock(target, level, stand);
+						default -> {}
 					}
 
 					punchedTarget = target;
@@ -170,6 +168,67 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 				}
 			}
 		}
+		
+		protected void hitEntity(ActionTarget target, Level level, StandEntity stand) {
+			Entity targetEntity = target.getMainEntity();
+			if (targetEntity instanceof LivingEntity targetLiving) {
+                DamageSource dmgSource = makePunchDamageSource();
+				float dmgAmount = StandStatFormulas.getLightAttackDamage(stand.getAttackDamage());
+				if (standEntityAttack(stand, targetLiving, dmgSource, dmgAmount)) {
+					stand.addFinisherMeter(0.2f);
+				}
+			}
+		}
+		
+		protected void hitBlock(ActionTarget target, Level level, StandEntity stand) {
+			BlockPos blockPos = target.getBlockPos();
+			BlockState blockState = level.getBlockState(blockPos);
+			
+			double standStrength = stand.getAttackDamage();
+			float blockDamage = (float) standStrength * StandStatFormulas.getBlockMiningEfficiency(standStrength) * 0.05f;
+			float blockHardness = StandStatFormulas.getBlockHardness(standStrength, blockState, level, blockPos);
+			
+			var blockPunch = ServerBlockDestroyTracker.addBlockDestroyProgress((ServerLevel) level, stand, blockPos, 
+					blockDamage / blockHardness);
+			if (blockPunch.progressNew >= 1) {
+				boolean dropBlock = !isUserCreative();
+				level.destroyBlock(blockPos, dropBlock, stand);
+				
+				// add cracks to the blocks around
+				blockDamage -= blockPunch.progressAdded * blockHardness;
+				if (blockDamage > 0) {
+					float aroundDamageTotal = blockDamage;
+					List<BlockPosState> blocksAround = new ArrayList<>(25);
+					BlockPos.MutableBlockPos nearbyPos = new BlockPos.MutableBlockPos();
+					int centerX = blockPos.getX();
+					int centerY = blockPos.getY();
+					int centerZ = blockPos.getZ();
+					for (int x = -1; x <= 1; x++) for (int y = -1; y <= 1; y++) for (int z = -1; z <= 1; z++) {
+						int manhattanDist = Math.abs(x) + Math.abs(y) + Math.abs(z);
+						if (manhattanDist > 0 && manhattanDist < 3) {
+							nearbyPos.set(centerX + x, centerY + y, centerZ + z);
+							BlockState nearbyState = level.getBlockState(nearbyPos);
+							if (!nearbyState.isEmpty()) {
+								blocksAround.add(new BlockPosState(nearbyPos.immutable(), nearbyState, manhattanDist));
+							}
+						}
+					}
+					if (!blocksAround.isEmpty()) {
+						Collections.shuffle(blocksAround);
+						for (BlockPosState block : blocksAround) {
+							blockHardness = StandStatFormulas.getBlockHardness(standStrength, block.blockState, level, block.blockPos);
+							float multiplier = (0.5f + 0.5f * OOPMoment.RANDOM.nextFloat()) / block.manhattanDist;
+							float damageToDeal = Math.min(blockDamage, aroundDamageTotal / blocksAround.size() * multiplier);
+							blockPunch = ServerBlockDestroyTracker.addBlockDestroyProgress((ServerLevel) level, stand, block.blockPos, 
+									damageToDeal / blockHardness);
+							blockDamage -= blockPunch.progressAdded * blockHardness;
+							if (blockDamage <= 0) break;
+						}
+					}
+				}
+			}
+		}
+		protected static record BlockPosState(BlockPos blockPos, BlockState blockState, int manhattanDist) {}
 		
 		protected ActionTarget getPunchTarget(StandEntity stand) {
 			if (isGrabVariation()) {

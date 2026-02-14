@@ -73,7 +73,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 	public StandEntityHeavyPunchAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId, StandEntityHeavyPunch::new);
 		usageGroup = AbilityUsageGroup.COMBAT;
-		setDefaultPhaseLength(ActionPhase.WINDUP, StandStatFormulas.getHeavyAttackWindup(8, 0) /* 16 */);
+		setDefaultPhaseLength(ActionPhase.WINDUP, StandStatFormulas.getHeavyAttackWindup(12, 0) /* 14 */);
 		setDefaultPhaseLength(ActionPhase.PERFORM, 6);
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 12);
 		noFinisherBarDecay = true;
@@ -193,56 +193,8 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 					float explRadius = Math.min((float) stand.getAttackDamage() * 0.175f, 10);
 
 					switch (target.getType()) {
-						case ENTITY -> {
-							Entity targetEntity = target.getMainEntity();
-							if (targetEntity instanceof LivingEntity targetLiving) {
-								addKnockback(dmgSource);
-								boolean hurt = standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
-
-								if (hurt) {
-									Entity knockedBack = targetEntity;
-									
-									EntityActionInstance targetAction = LivingComponentAction.getCurEntityAction(targetLiving);
-									if (targetAction != null) {
-										if (targetAction instanceof StandEntityBarrageAbility.StandEntityBarrage) {
-											targetAction.setPhaseStart(ActionPhase.RECOVERY);
-											targetAction.syncPhaseChanges();
-										}
-									}
-									
-									if (targetEntity instanceof StandEntity targetStand) {
-										LivingEntity standUser = targetStand.getUser();
-										if (standUser != null) {
-											knockedBack = standUser;
-										}
-									}
-
-									Entity _knockedBack = knockedBack;
-									KnockbackCollisionImpact kbImpact = KnockbackCollisionImpact.getHandler(_knockedBack);
-									if (kbImpact != null) {
-										kbImpact
-										.onPunchSetKnockbackImpact(_knockedBack.getDeltaMovement(), stand)
-										.withImpactExplosion(Math.max(explRadius - 0.5f, 0), null, 0);
-									}
-								}
-							}
-						}
-						case BLOCK -> {
-							BlockPos blockPos = target.getBlockPos();
-							Direction face = target.getFace();
-							Vec3 pos = Vec3.atCenterOf(blockPos).add(Vec3.atLowerCornerOf(face.getNormal()).scale(0.6));
-							DamageSource aoeDmgSource = dmgSource;
-							float aoeDmg = dmgAmount * 0.5f;
-							HeavyPunchExplosion explosion = new HeavyPunchExplosion(level, stand, 
-									new ActionTarget(blockPos, face), stand.getLookAngle(), 
-									aoeDmgSource, 
-									pos.x, pos.y, pos.z, 
-									explRadius, false, 
-									JojoModUtil.breakingBlocksEnabled(level) ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.KEEP)
-									.aoeDamage(aoeDmg)
-									.createBlockShards(stand.getAttackDamage(), stand.getPrecision());
-							CustomExplosion.explode(explosion);
-						}
+						case ENTITY -> hitEntity(target, level, stand, dmgSource, dmgAmount, explRadius);
+						case BLOCK -> hitBlock(target, level, stand, dmgSource, dmgAmount, explRadius);
 						default -> {}
 					}
 
@@ -259,9 +211,63 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 			}
 		}
 		
+		protected void hitEntity(ActionTarget target, Level level, StandEntity stand, 
+				DamageSource dmgSource, float dmgAmount, float explRadius) {
+			Entity targetEntity = target.getMainEntity();
+			if (targetEntity instanceof LivingEntity targetLiving) {
+				addKnockback(dmgSource);
+				boolean hurt = standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
+
+				if (hurt) {
+					Entity knockedBack = targetEntity;
+					
+					EntityActionInstance targetAction = LivingComponentAction.getCurEntityAction(targetLiving);
+					if (targetAction != null) {
+						if (targetAction instanceof StandEntityBarrageAbility.StandEntityBarrage) {
+							targetAction.setPhaseStart(ActionPhase.RECOVERY);
+							targetAction.syncPhaseChanges();
+						}
+					}
+					
+					if (targetEntity instanceof StandEntity targetStand) {
+						LivingEntity standUser = targetStand.getUser();
+						if (standUser != null) {
+							knockedBack = standUser;
+						}
+					}
+
+					Entity _knockedBack = knockedBack;
+					KnockbackCollisionImpact kbImpact = KnockbackCollisionImpact.getHandler(_knockedBack);
+					if (kbImpact != null) {
+						kbImpact
+						.onPunchSetKnockbackImpact(_knockedBack.getDeltaMovement(), stand)
+						.withImpactExplosion(Math.max(explRadius - 0.5f, 0), null, 0);
+					}
+				}
+			}
+		}
+		
 		protected void addKnockback(DamageSource dmgSource) {
 			RipplesModifiedDamageSource knockback = (RipplesModifiedDamageSource) dmgSource;
 			knockback.jojo_ripples$modifyKnockback(1f, 1);
+		}
+		
+		protected void hitBlock(ActionTarget target, Level level, StandEntity stand, 
+				DamageSource dmgSource, float dmgAmount, float explRadius) {
+			BlockPos blockPos = target.getBlockPos();
+			Direction face = target.getFace();
+			Vec3 pos = Vec3.atCenterOf(blockPos).add(Vec3.atLowerCornerOf(face.getNormal()).scale(0.6));
+			DamageSource aoeDmgSource = dmgSource;
+			float aoeDmg = dmgAmount * 0.5f;
+			HeavyPunchExplosion explosion = new HeavyPunchExplosion(level, stand, 
+					new ActionTarget(blockPos, face), stand.getLookAngle(), 
+					aoeDmgSource, 
+					pos.x, pos.y, pos.z, 
+					explRadius, false, 
+					JojoModUtil.breakingBlocksEnabled(level) ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.KEEP)
+					.aoeDamage(aoeDmg)
+					.createBlockShards(stand.getAttackDamage(), stand.getPrecision());
+			CustomExplosion.explode(explosion);
 		}
 
 		protected ActionTarget getPunchTarget(StandEntity stand) {

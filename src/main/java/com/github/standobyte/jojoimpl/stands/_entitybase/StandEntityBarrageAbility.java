@@ -164,8 +164,8 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 					}
 					
 					switch (target.getType()) {
-						case ENTITY -> dealDamage(target, level, stand);
-						case BLOCK -> mineBlock(target, level, stand);
+						case ENTITY -> hitEntity(target, level, stand);
+						case BLOCK -> hitBlock(target, level, stand);
 						default -> {}
 					}
 					punchedTarget = target;
@@ -207,7 +207,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 			return StandEntityPunchAbility.aimAtPunchTarget(stand);
 		}
 		
-		protected void dealDamage(ActionTarget target, Level level, StandEntity stand) {
+		protected void hitEntity(ActionTarget target, Level level, StandEntity stand) {
 			Entity targetEntity = target.getMainEntity();
 			if (targetEntity != null) {
 				DamageSource dmgSource = makePunchDamageSource();
@@ -219,24 +219,28 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 			}
 		}
 		
-		protected void mineBlock(ActionTarget blockTarget, Level level, StandEntity stand) {
-			BlockPos blockPos = blockTarget.getBlockPos();
+		protected void hitBlock(ActionTarget target, Level level, StandEntity stand) {
+			BlockPos blockPos = target.getBlockPos();
 			BlockState blockState = level.getBlockState(blockPos);
 			
 			double standStrength = stand.getAttackDamage();
 			double standSpeed = stand.getAttackSpeed();
 			
+			boolean breakBlock;
 			float blockHardnessForStand = StandStatFormulas.getBlockHardness(standStrength, blockState, level, blockPos);
 			if (blockHardnessForStand >= 0) {
 				float standEfficiency = StandStatFormulas.getBarrageBlockMiningEfficiency(standStrength, standSpeed);
 				float destroyProgress = standEfficiency / (blockHardnessForStand * 100);
 				
-				boolean brokenBlock = ServerBlockDestroyTracker.addBlockDestroyProgress((ServerLevel) level, stand, blockPos, destroyProgress);
-				if (brokenBlock) {
-					boolean dropBlock = !isUserCreative();
-					level.destroyBlock(blockPos, dropBlock, stand);
-					return;
-				}
+				breakBlock = ServerBlockDestroyTracker.addBlockDestroyProgress((ServerLevel) level, stand, blockPos, destroyProgress).progressNew >= 1;
+			}
+			else {
+				breakBlock = true;
+			}
+			if (breakBlock) {
+				boolean dropBlock = !isUserCreative();
+				level.destroyBlock(blockPos, dropBlock, stand);
+				return;
 			}
 			
 			if (curPhaseTick % 2 == 0) {

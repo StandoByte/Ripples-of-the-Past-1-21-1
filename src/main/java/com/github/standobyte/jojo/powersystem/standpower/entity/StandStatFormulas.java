@@ -64,6 +64,13 @@ public class StandStatFormulas {
 
 
 
+	public static float getChargedHeavyAttackDamage(double strength) {
+		float damage = Math.max((float) strength, 1F) * 1.5f;
+		return damage;
+	}
+
+
+
 	public static float getPhysicalResistance(double durability, double strength, float blocked, float damageDealt) {
 		double x = (durability * 2 + strength * 1) / 3;
 		double resistance = x / (x + 4); // simplified `1 - 1 / (x / 4 + 1)`
@@ -235,8 +242,12 @@ public class StandStatFormulas {
 	
 	public static float getBarrageBlockMiningEfficiency(double strength, double speed) {
 		float multSpeed = getBarrageHitsPerSecond(speed) / 8;
-		float multStrength = strength > 17 ? (float) (strength - 16) * 2 : 1;
+		float multStrength = getBlockMiningEfficiency(strength);
 		return multStrength * multSpeed;
+	}
+	
+	public static float getBlockMiningEfficiency(double strength) {
+		return strength > 17 ? (float) (strength - 16.5) * 2 : 1;
 	}
 	
 	public static boolean canGrabBlock(double strength, BlockState blockState, Level level, BlockPos blockPos) {

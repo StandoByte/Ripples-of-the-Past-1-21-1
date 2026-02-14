@@ -15,6 +15,7 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
 import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
 import com.github.standobyte.jojo.util.target.ActionTarget;
@@ -115,14 +116,10 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 								stand.getSoundSource(), 1, 1);
 					}
 					
-					if (target.getType() == TargetType.ENTITY) {
-						Entity targetEntity = target.getMainEntity();
-						if (targetEntity instanceof LivingEntity targetLiving) {
-                            DamageSource dmgSource = makePunchDamageSource();
-							((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(2.5f, 1);
-							float dmgAmount = 27.75f;
-							standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
-						}
+					switch (target.getType()) {
+						case ENTITY -> hitEntity(target, level, stand);
+						case BLOCK -> hitBlock(target, level, stand);
+						default -> {}
 					}
 					
 					punchedTarget = target;
@@ -135,6 +132,25 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 					aimAs = AimingEntity.CAMERA_ENTITY;
 				}
 			}
+		}
+		
+		protected void hitEntity(ActionTarget target, Level level, StandEntity stand) {
+			Entity targetEntity = target.getMainEntity();
+			if (targetEntity instanceof LivingEntity targetLiving) {
+                DamageSource dmgSource = makePunchDamageSource();
+                addKnockback(dmgSource);
+				float dmgAmount = StandStatFormulas.getChargedHeavyAttackDamage(stand.getAttackDamage());
+				standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
+			}
+		}
+		
+		protected void addKnockback(DamageSource dmgSource) {
+			RipplesModifiedDamageSource knockback = (RipplesModifiedDamageSource) dmgSource;
+			knockback.jojo_ripples$modifyKnockback(2.5f, 1);
+		}
+		
+		protected void hitBlock(ActionTarget target, Level level, StandEntity stand) {
+			
 		}
 		
 		@Override
