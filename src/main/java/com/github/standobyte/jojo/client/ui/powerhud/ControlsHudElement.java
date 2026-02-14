@@ -557,9 +557,11 @@ public class ControlsHudElement extends HudElement {
 	}
 
 	public static void renderAbility(GuiGraphics guiGraphics, float x, float y, AbilityBindUI abilityUi, Minecraft mc, float partialTick, int alpha) {
-		BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), abilityUi.sprite, 
-				x + 3, y + 3, 16, 16, 0, 
-				abilityColor(alpha, abilityUi.ability));
+		AbilityConditionCheck abilityCheck = abilityUi.ability;
+		Ability ability = abilityCheck.ability;
+		Power<?> power = ClientPowerCache.getPower(ability.abilityId.powerClass());
+		ability.renderAbilityIcon(power, guiGraphics, abilityUi.sprite, 
+				x + 3, y + 3, abilityColor(alpha, abilityUi.ability));
 		
 		if (mc.player != null) {
 			WindupIndicator windup = abilityUi.ability.ability.cl_windupIndicator(mc.player, windupIndicator, partialTick);
@@ -568,10 +570,6 @@ public class ControlsHudElement extends HudElement {
 				WindupAtCrosshair.setRender(windup);
 			}
 		}
-	}
-
-	public static void renderAbility(GuiGraphics guiGraphics, float x, float y, AbilityBindUI abilityUi, Minecraft mc, float partialTick) {
-		renderAbility(guiGraphics, x, y, abilityUi, mc, partialTick, BlitFloat.NO_TINT);
 	}
 	
 	static final WindupIndicator windupIndicator = new WindupIndicator();

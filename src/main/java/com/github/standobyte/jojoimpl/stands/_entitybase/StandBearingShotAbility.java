@@ -17,9 +17,12 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbili
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 import com.github.standobyte.jojo.util.StandUtil;
 
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.Tags;
@@ -40,7 +43,7 @@ public class StandBearingShotAbility extends StandEntityAbility {
 			StandEntity standEntity = StandUtil.getSummonedStand(context);
 			if (standEntity != null) {
 				ItemStack rItem = standEntity.getMainHandItem();
-				return rItem.is(Tags.Items.NUGGETS);
+				return canShoot(rItem);
 			}
 		}
 		return false;
@@ -50,9 +53,33 @@ public class StandBearingShotAbility extends StandEntityAbility {
 	public AbilityInputState cl_abilityInputState(Power<?> context) {
 		AbilityInputState state = super.cl_abilityInputState(context);
 		state.setFlag(AbilityInputState.WITH_ITEM_HELD, true);
+		state.setFlag(AbilityInputState.HIGH_PRIORITY, true);
 		return state;
 	}
 	
+	
+	protected static final ItemStack DEFAULT_ITEM_ICON = new ItemStack(Items.IRON_NUGGET);
+	@Override
+	public void renderAbilityIcon(Power<?> context, GuiGraphics guiGraphics, TextureAtlasSprite sprite, float x, float y, int color) {
+		ItemStack item = DEFAULT_ITEM_ICON;
+		
+		if (context != null) {
+			StandEntity standEntity = StandUtil.getSummonedStand(context);
+			if (standEntity != null) {
+				ItemStack itemToShoot = standEntity.getMainHandItem();
+				if (canShoot(itemToShoot)) {
+					item = itemToShoot;
+				}
+			}
+		}
+
+		guiGraphics.renderFakeItem(item, (int) x, (int) y);
+	}
+	
+	
+	public static boolean canShoot(ItemStack item) {
+		return item.is(Tags.Items.NUGGETS);
+	}
 	
 	public static class StandBearingShot extends EntityActionInstance {
 
