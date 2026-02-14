@@ -8,9 +8,11 @@ import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.util.StringUtil;
 import com.mojang.datafixers.util.Pair;
 
+import net.minecraft.world.entity.HumanoidArm;
+
 public record ActionAnimIdentifier(String name, int index, boolean isIdle) {
 
-	protected ActionAnimIdentifier(String name, boolean isIdle) {
+	public ActionAnimIdentifier(String name, boolean isIdle) {
 		this(name, 0, isIdle);
 	}
 
@@ -20,10 +22,14 @@ public record ActionAnimIdentifier(String name, int index, boolean isIdle) {
 	 */
 	public static ActionAnimIdentifier getOrCreate(String animName, boolean setIdle) {
 		Pair<String, OptionalInt> enumeratedName = StringUtil.splitIntAtTheEnd(animName);
-		ActionAnimIdentifier anim = new ActionAnimIdentifier(
+		return getOrCreate(
 				enumeratedName.getFirst(), 
-				enumeratedName.getSecond().orElse(1) - 1 /* 1-based indexing in anims */, 
+				enumeratedName.getSecond().orElse(1) - 1 /* 1-based indexing in anims */,
 				setIdle);
+	}
+	
+	public static ActionAnimIdentifier getOrCreate(String animName, int index, boolean setIdle) {
+		ActionAnimIdentifier anim = new ActionAnimIdentifier(animName, index, setIdle);
 		ActionAnimIdentifier present = ANIM_IDS.get(anim);
 		if (present != null) {
 			return present;
@@ -48,4 +54,22 @@ public record ActionAnimIdentifier(String name, int index, boolean isIdle) {
 	}
 	
 	// no need to override equals() and hashCode() for records
+	
+	
+	public static record ActionAnimIdHandsided(ActionAnimIdentifier left, ActionAnimIdentifier right) {
+		
+		public ActionAnimIdHandsided(ActionAnimIdentifier animId) {
+			this(
+					ActionAnimIdentifier.getOrCreate(animId.name + "_left", animId.index, animId.isIdle),
+					ActionAnimIdentifier.getOrCreate(animId.name + "_right", animId.index, animId.isIdle));
+		}
+		
+		public ActionAnimIdentifier get(HumanoidArm side) {
+			return switch (side) {
+				case LEFT -> left;
+				case RIGHT -> right;
+			};
+		}
+	}
+	
 }

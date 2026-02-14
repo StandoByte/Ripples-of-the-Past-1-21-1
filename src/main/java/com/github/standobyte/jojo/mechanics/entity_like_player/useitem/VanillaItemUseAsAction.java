@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.init.ModSpecialActions;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier.ActionAnimIdHandsided;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -36,8 +37,7 @@ public class VanillaItemUseAsAction extends SpecialEntityActionType {
 		return new ItemUsingInstance(this);
 	}
 
-	public ActionAnimIdentifier bowAnimLeft = ActionAnimIdentifier.getOrCreate("bow_shoot_left", false);
-	public ActionAnimIdentifier bowAnimRight = ActionAnimIdentifier.getOrCreate("bow_shoot_right", false);
+	public ActionAnimIdHandsided bowAnim = new ActionAnimIdHandsided(new ActionAnimIdentifier("bow_shoot", false));
 	@Override
 	public ActionAnimIdentifier getEntityAnim(EntityActionInstance _action) {
 		ItemUsingInstance action = (ItemUsingInstance) _action;
@@ -53,10 +53,7 @@ public class VanillaItemUseAsAction extends SpecialEntityActionType {
 		
 		if (action.vanillaAnim != null) {
 			return switch (action.vanillaAnim) {
-				case BOW -> switch (action.useHand) {
-					case LEFT -> bowAnimLeft;
-					case RIGHT -> bowAnimRight;
-				};
+				case BOW -> bowAnim.get(action.useHand);
 				default -> super.getEntityAnim(action);
 			};
 		}

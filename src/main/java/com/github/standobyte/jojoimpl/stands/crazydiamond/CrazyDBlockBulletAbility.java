@@ -15,6 +15,7 @@ import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier.ActionAnimIdHandsided;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -76,16 +77,12 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 		}
 	}
 
-	public ActionAnimIdentifier animLeft = ActionAnimIdentifier.getOrCreate(this.name() + "_left", false);
-	public ActionAnimIdentifier animRight = ActionAnimIdentifier.getOrCreate(this.name() + "_right", false);
+	public ActionAnimIdHandsided animSided = new ActionAnimIdHandsided(this.anim);
 	@Override
 	public ActionAnimIdentifier getEntityAnim(EntityActionInstance action) {
 		HumanoidArm side = ((BlockBulletShot) action).side;
-		if (side != null) return switch (side) {
-			case LEFT -> animLeft;
-			case RIGHT -> animRight;
-		};
-		
+		if (side != null) return animSided.get(side);
+
 		return super.getEntityAnim(action);
 	}
 
