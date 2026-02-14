@@ -237,7 +237,7 @@
   "jojo_ripples.skill.heavy_punch.controls": "\uEAFE",
   "jojo_ripples.ability.heavy_punch": "Тяжёлый удар",
   
-  "jojo_ripples.skill.finisher": "(NYI) Добивающий удар",
+  "jojo_ripples.skill.finisher": "Добивающий удар",
   "jojo_ripples.skill.finisher.desc": "Более быстрый тяжёлый удар.",
   "jojo_ripples.skill.finisher.controls": "\uEAFE с 1 шкалой добивающего удара",
   "jojo_ripples.ability.finisher": "Добивающий удар",
@@ -291,7 +291,7 @@
   "stand.jojo_ripples.star_platinum.desc": "Стенд силового типа с исключительно высокой силой, скоростью и точностью. Будучи Стендом того же типа, что и The World, в схватке с ним Star Platinum тоже пробуждает способность останавливать время.",
   "stand.jojo_ripples.star_platinum.desc.no_ts_spoilers": "Стенд силового типа с исключительно высокой силой, скоростью и точностью.",
   
-  "jojo_ripples.skill.uppercut": "(NYI) Добивающий апперкот",
+  "jojo_ripples.skill.uppercut": "Добивающий апперкот",
   "jojo_ripples.skill.uppercut.desc": "Более быстрый тяжёлый удар, который пробивает защиту и подбрасывает цель вверх.",
   "jojo_ripples.skill.uppercut.controls": "\uEAFE с 1 шкалой добивающего удара",
   "jojo_ripples.ability.uppercut": "Апперкот",

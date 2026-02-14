@@ -39,13 +39,11 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 	
 	public static final Set<String> NOT_YET_IMPLEMENTED = Util.make(new HashSet<>(), set -> {
 		Collections.addAll(set, 
-				"finisher",
 				"block_toss",
 				"guard",
 				"leap",
 				"ledge_grab",
 				
-				"uppercut",
 				"ground_slam",
 				"grab_terrain",
 				"uppercut_ground_throw",

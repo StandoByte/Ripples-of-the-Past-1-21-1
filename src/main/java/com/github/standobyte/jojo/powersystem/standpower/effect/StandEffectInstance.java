@@ -42,11 +42,10 @@ public abstract class StandEffectInstance {
 	public boolean removeOnStandChanged = true;
 	public boolean needsTarget = false;
 	
-	public boolean needsStandAction = false;
+	public boolean isFromStandAction = false;
 	public EntityActionInstance standAction;
-	public boolean needsUserAction = false;
+	public boolean isFromUserAction = false;
 	public EntityActionInstance userAction;
-	public boolean isPunchEffect = false;
 
 
 	public StandEffectInstance(@Nonnull StandEffectType<?> effectType) {
@@ -55,12 +54,12 @@ public abstract class StandEffectInstance {
 	
 	protected void initStandPower(StandPower userPower) {
 		this.userPower = userPower;
-		if (needsStandAction) {
+		if (isFromStandAction) {
 			StandEntity standEntity = userPower.getSummonedStandEntity();
 			if (standEntity != null) standAction = LivingComponentAction.getCurEntityAction(standEntity);
 			if (standAction != null) standAction.getPunchModifiers().add(this);
 		}
-		if (needsUserAction) {
+		if (isFromUserAction) {
 			LivingEntity user = userPower.getUser();
 			if (user != null) userAction = LivingComponentAction.getCurEntityAction(user);
 			if (userAction != null) userAction.getPunchModifiers().add(this);

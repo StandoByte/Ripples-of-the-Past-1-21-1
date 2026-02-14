@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.util.OOPMoment;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDBlockBulletEntity;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -18,7 +19,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.data.ModelData;
 
-public class CrazyDBlockBulletRenderer extends SimpleEntityRenderer<CrazyDBlockBulletEntity> {
+public class CrazyDBlockBulletRenderer extends SimpleEntityRenderer<CrazyDBlockBulletEntity, EntityModel<CrazyDBlockBulletEntity>> {
 
 	public CrazyDBlockBulletRenderer(EntityRendererProvider.Context renderManager) {
 		super(renderManager);

@@ -241,7 +241,7 @@
   "jojo_ripples.skill.heavy_punch.controls": "\uEAFE",
   "jojo_ripples.ability.heavy_punch": "Heavy Punch",
   
-  "jojo_ripples.skill.finisher": "(NYI) Finisher Punch",
+  "jojo_ripples.skill.finisher": "Finisher Punch",
   "jojo_ripples.skill.finisher.desc": "A faster heavy attack variation.",
   "jojo_ripples.skill.finisher.controls": "\uEAFE with 1 finisher bar",
   "jojo_ripples.ability.finisher": "Finisher",
@@ -295,7 +295,7 @@
   "stand.jojo_ripples.star_platinum.desc": "A power-type Stand with exceptionally high physical strength, speed and precision. Being the same type of Stand as The World, in a clash against it Star Platinum also awakens an ability to stop time.",
   "stand.jojo_ripples.star_platinum.desc.no_ts_spoilers": "A power-type Stand with exceptionally high physical strength, speed and precision.",
   
-  "jojo_ripples.skill.uppercut": "(NYI) Finisher Uppercut",
+  "jojo_ripples.skill.uppercut": "Finisher Uppercut",
   "jojo_ripples.skill.uppercut.desc": "A faster heavy attack variation that breaks guard and knocks the enemy upwards.",
   "jojo_ripples.skill.uppercut.controls": "\uEAFE with 1 finisher bar",
   "jojo_ripples.ability.uppercut": "Uppercut",
