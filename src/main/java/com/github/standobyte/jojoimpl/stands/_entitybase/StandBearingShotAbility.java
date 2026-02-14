@@ -33,8 +33,9 @@ public class StandBearingShotAbility extends StandEntityAbility {
 		super(abilityType, abilityId, StandBearingShot::new);
 		usageGroup = AbilityUsageGroup.UTILITY;
 		isSubAbility = true;
+		setDefaultPhaseLength(ActionPhase.WINDUP, 10);
 		setButtonHoldPhase(ActionPhase.PERFORM);
-		setDefaultPhaseLength(ActionPhase.RECOVERY, 10);
+		setDefaultPhaseLength(ActionPhase.RECOVERY, 15);
 	}
 	
 	@Override
@@ -86,6 +87,14 @@ public class StandBearingShotAbility extends StandEntityAbility {
 		public StandBearingShot(EntityActionType ability) {
 			super(ability);
 		}
+		
+		@Override
+		public void onActionSet(EntityActionInstance prevAction) {
+			if (prevAction != null && prevAction.ability == this.ability) {
+				setPhase(ActionPhase.WINDUP, (int) (phasesLength.getFloat(ActionPhase.WINDUP) / 2));
+				syncPhaseChanges();
+			}
+		}
 
 		@Override
 		public void onButtonStopHold() {
@@ -117,7 +126,7 @@ public class StandBearingShotAbility extends StandEntityAbility {
 
 		@Override
 		public boolean canBeCancelledInto(EntityActionType cancellingAbility) {
-			return this.phase != ActionPhase.RECOVERY;
+			return this.phase != ActionPhase.RECOVERY || this.getPhaseTick() >= (phasesLength.getFloat(ActionPhase.WINDUP) * 2 / 3 - 1);
 		}
 		
 	}
