@@ -13,6 +13,7 @@ import com.github.standobyte.jojo.client.ui.powerhud.ControlsHudElement;
 import com.github.standobyte.jojo.client.ui.powerhud.PowerHud;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.mechanics.entity_like_player.opencontainer.OpenContainerAsNonPlayer.ContainerOpenedAsNonPlayer;
 import com.github.standobyte.jojo.mechanics.externalcontainer.ModdedContainerClickType;
 import com.github.standobyte.jojo.mechanics.externalcontainer.PlayerExternalContainers;
 import com.github.standobyte.jojo.mechanics.externalcontainer._stand.input.ClientStandItemInputs;
@@ -155,7 +156,12 @@ public class ClientStandHeldItemsUI extends ClientExternalContainerUI {
 		super.tick();
 		LivingEntity user = ClientProxy.getClientPlayer();
 		StandEntity stand = ClientGlobals.playerStandEntity;
-		clickableCheck = user != null && stand != null ? StandItemInput.distanceCondition(stand, user) : ConditionCheck.NEGATIVE;
+		if (user != null && stand != null) {
+			AbstractContainerMenu mainContainer = mainScreen.getMenu();
+			Entity actualEntity = ((ContainerOpenedAsNonPlayer) mainContainer).jojo_ripples$getActualEntity();
+			clickableCheck = actualEntity != stand ? StandItemInput.distanceCondition(stand, user) : ConditionCheck.POSITIVE;
+		}
+		
 		overlayMessage.tick();
 	}
 
