@@ -172,10 +172,9 @@ public class MovesetBuilder {
 	
 	public MovesetBuilder addHumanoidStandSkills() {
 		return this
-		.addSkill(StandUnlockableSkill.startingAbility("guard"))
+		.addSkill(StandUnlockableSkill.startingAbility("guard").setNotYetImplemented())
 		.addSkill(StandUnlockableSkill.startingAbility("manual_control"))
-		.addSkill(StandUnlockableSkill.startingAbility("leap"))
-		.addSkill(StandUnlockableSkill.startingAbility("ledge_grab"));
+		.addSkill(StandUnlockableSkill.startingAbility("ledge_grab").setNotYetImplemented());
 	}
 	
 	protected void postInitControls() {
