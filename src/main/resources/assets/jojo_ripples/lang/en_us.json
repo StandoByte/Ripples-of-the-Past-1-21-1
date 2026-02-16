@@ -416,7 +416,7 @@
   "jojo_ripples.ability.block_bullet_homing": "Homing Bullet",
   
   "jojo_ripples.skill.blood_cutter": "(WIP) Blood Cutter",
-  "jojo_ripples.skill.blood_cutter.desc": "A fast projectile made out of your blood. When it hits something, the blood drops remain on nearby entities - this helps you make your Block Bullets home in on them §7§o(by adding more of your blood drops on Block Bullets, and fixing the blood as the bullet is flying)§r.",
+  "jojo_ripples.skill.blood_cutter.desc": "A fast projectile made out of your blood. When it hits something, the blood drops remain on nearby entities - this makes your Block Bullets home in on them §7§o(by adding more of your blood drops on Block Bullets, and fixing the blood while the bullet is flying)§r.",
   "jojo_ripples.skill.blood_cutter.controls": "Special ability",
   "jojo_ripples.ability.blood_cutter": "Blood Cutter",
   
