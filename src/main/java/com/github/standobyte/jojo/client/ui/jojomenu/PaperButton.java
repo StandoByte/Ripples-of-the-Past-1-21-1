@@ -60,7 +60,7 @@ public class PaperButton extends Button {
 	}
 
 	public static void renderScrollingString(GuiGraphics guiGraphics, Font font, Component text, 
-			int centerX, int minX, int minY, int maxX, int maxY, int color, boolean GOFUCKYOURSELVESMOJANG) {
+			int centerX, int minX, int minY, int maxX, int maxY, int color, boolean shadow) {
 		int i = font.width(text);
 		int j = (minY + maxY - 9) / 2 + 1;
 		int k = maxX - minX;
@@ -71,12 +71,12 @@ public class PaperButton extends Button {
 			double d2 = Math.sin((Math.PI / 2) * Math.cos((Math.PI * 2) * d0 / d1)) / 2.0 + 0.5;
 			double d3 = Mth.lerp(d2, 0.0, (double)l);
 			guiGraphics.enableScissor(minX, minY, maxX, maxY);
-			guiGraphics.drawString(font, text, minX - (int)d3, j, color, GOFUCKYOURSELVESMOJANG);
+			guiGraphics.drawString(font, text, minX - (int)d3, j, color, shadow);
 			guiGraphics.disableScissor();
 		} else {
 			int i1 = Mth.clamp(centerX, minX + i / 2, maxX - i / 2);
 			FormattedCharSequence formattedcharsequence = text.getVisualOrderText();
-			guiGraphics.drawString(font, formattedcharsequence, i1 - font.width(formattedcharsequence) / 2, j, color, GOFUCKYOURSELVESMOJANG);
+			guiGraphics.drawString(font, formattedcharsequence, i1 - font.width(formattedcharsequence) / 2, j, color, shadow);
 		}
 	}
 

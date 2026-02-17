@@ -35,4 +35,12 @@ public abstract class PowerData implements INBTSerializable<CompoundTag> {
 			}
 		}
 	}
+	
+	
+	public void onInit(PowerType powerType, Power<?> userPower) {}
+	
+	public boolean unlockSkill(Power<?> userPower, String skillName) {
+		return false;
+	}
+	
 }
