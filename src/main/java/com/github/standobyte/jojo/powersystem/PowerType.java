@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.powersystem;
 
-import java.util.Collection;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 
@@ -90,8 +90,8 @@ public abstract class PowerType implements JsonConfigurable {
 	}
 	
 	
-	public Collection<UnlockableSkill> getUnlockableSkills() {
-		return this.movesetConfigured.value.unlockableSkills.values();
+	public Map<String, ? extends UnlockableSkill> getUnlockableSkills() {
+		return this.movesetConfigured.value.unlockableSkills;
 	}
 	
 }
