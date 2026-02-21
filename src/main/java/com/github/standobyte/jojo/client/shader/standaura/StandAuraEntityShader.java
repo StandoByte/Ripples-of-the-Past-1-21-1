@@ -40,6 +40,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderLivingEvent;
 
+// FIXME (stand aura shader) noise drawing crutch (PowerHud)
+// FIXME (stand aura shader) stand rendering breaks completely
+// FIXME (stand aura shader) depth test
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class StandAuraEntityShader extends SeparateBufferEntityShader {
 	protected BufferSourceRecolor auraColor;
@@ -161,7 +164,6 @@ public class StandAuraEntityShader extends SeparateBufferEntityShader {
 		Window window = Minecraft.getInstance().getWindow();
 		int windowWidth = (int) (window.getWidth() * window.getGuiScale());
 		int windowHeight = (int) (window.getHeight() * window.getGuiScale());
-		boolean currentlyCallingThisShitFromPowerHudWhichIsAnEggregiousCrutch = true;
 		windowWidth = window.getWidth();
 		windowHeight = window.getHeight();
 
@@ -195,14 +197,6 @@ public class StandAuraEntityShader extends SeparateBufferEntityShader {
 		
 		this.noiseBuffer.unbindWrite();
 	}
-	
-	// FIXME crash (Not building!) when i equip an enchanted item
-	// TODO stand aura shader
-	/*
-	 * alpha in outline color doesn't work (shader pass?)
-	 * the entity doesn't render
-	 * stand rendering breaks completely
-	 */
 	
 	protected void handleLevelRenderStage(RenderLevelStageEvent.Stage stage) {
 		if (stage == RenderLevelStageEvent.Stage.AFTER_CUTOUT_BLOCKS) {
