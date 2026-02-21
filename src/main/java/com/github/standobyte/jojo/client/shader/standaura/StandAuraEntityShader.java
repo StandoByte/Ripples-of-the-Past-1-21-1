@@ -1,18 +1,31 @@
 package com.github.standobyte.jojo.client.shader.standaura;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.joml.Matrix4f;
+
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.shader.EntityShaders;
 import com.github.standobyte.jojo.client.shader.SeparateBufferEntityShader;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.RenderStateShard;
@@ -21,13 +34,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.Sheep;
-import net.minecraft.world.entity.monster.Creeper;
-import net.minecraft.world.entity.monster.Skeleton;
-import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderLivingEvent;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
@@ -37,8 +47,7 @@ public class StandAuraEntityShader extends SeparateBufferEntityShader {
 	public RenderTarget silhouetteBuffer;
 	protected BufferSourceRecolor silhouetteBufferSource;
 	
-	public RenderTarget swapPixelated;
-	public float screenRatio;
+	public RenderTarget noiseBuffer;
 	
 	public StandAuraEntityShader(Minecraft mc, String outputShardName, ResourceLocation postShaderId) {
 		super(mc, outputShardName, postShaderId);
@@ -51,37 +60,70 @@ public class StandAuraEntityShader extends SeparateBufferEntityShader {
 		
 		int width = mc.getWindow().getWidth();
 		int height = mc.getWindow().getHeight();
-		swapPixelated = new TextureTarget(width, height, false, Minecraft.ON_OSX);
-		swapPixelated.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
-		swapPixelated.clear(Minecraft.ON_OSX);
+		noiseBuffer = new TextureTarget(width, height, false, Minecraft.ON_OSX);
+		noiseBuffer.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
+		noiseBuffer.clear(Minecraft.ON_OSX);
 	}
 	
 	@Override
 	protected void createBufferSource(Minecraft mc, RenderBuffers vanillaRenderBuffers) {
-		RenderStateShard targetShard = renderTypeModification();
+		List<RenderStateShard> outlineShards = renderTypeModification();
+		outlineShards.add(OUTLINE_TRANSLUCENT_SHADER);
+		outlineShards.add(RenderStateShard.TRANSLUCENT_TRANSPARENCY);
+		outlineShards.add(DISABLE_DEPTH_TEST);
 		auraColor = new BufferSourceRecolor(
 				new ByteBufferBuilder(786432), 
 				new Object2ObjectLinkedOpenHashMap<>(), 
-				targetShard, RenderStateShard.RENDERTYPE_OUTLINE_SHADER);
+				outlineShards.toArray(RenderStateShard[]::new));
 		bufferSource = auraColor;
 
-
-		RenderStateShard.OutputStateShard silhouetteTargetShard = createTargetShard(outputShardName + "_silhouette", silhouetteBuffer);
 		silhouetteBufferSource = new BufferSourceRecolor(
 				new ByteBufferBuilder(786432), 
 				new Object2ObjectLinkedOpenHashMap<>(), 
-				silhouetteTargetShard, RenderStateShard.RENDERTYPE_OUTLINE_SHADER);
+				createTargetShard(outputShardName + "_silhouette", silhouetteBuffer), 
+				RenderStateShard.RENDERTYPE_OUTLINE_SHADER);
 	}
-	
 
+	public static final RenderStateShard.ShaderStateShard OUTLINE_TRANSLUCENT_SHADER = 
+			new RenderStateShard.ShaderStateShard(() -> EntityShaders._outlineTranslucentShader);
+
+	public static final RenderStateShard DISABLE_DEPTH_TEST = new RenderStateShard("no_depth_test", 
+			() -> { RenderSystem.disableDepthTest(); },
+			() -> {}) {};
+
+	
+	@Override
+	protected void frameRenderCallback(RenderLevelStageEvent event) {
+		handleLevelRenderStage(event.getStage());
+		super.frameRenderCallback(event);
+	}
+
+	public static final ResourceLocation NOISE = JojoMod.resLoc("textures/stand_aura_noise.png");
 	@Override
 	protected void frameStart() {
 		super.frameStart();
 		silhouetteBuffer.clear(Minecraft.ON_OSX);
-		swapPixelated.clear(Minecraft.ON_OSX);
-		screenRatio = 135f / (float) Minecraft.getInstance().getWindow().getHeight();
+//		noiseBuffer.clear(Minecraft.ON_OSX);
+//		drawNoiseTexture();
 	}
 	
+	@Override
+	protected void blitBuffer() {
+		Minecraft mc = Minecraft.getInstance();
+		
+		RenderSystem.enableBlend();
+		RenderSystem.blendFuncSeparate(
+				GlStateManager.SourceFactor.SRC_ALPHA,
+				GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+				GlStateManager.SourceFactor.ZERO,
+				GlStateManager.DestFactor.ONE
+				);
+//		noiseBuffer.blitToScreen(mc.getWindow().getWidth(), mc.getWindow().getHeight(), false);
+		frameBuffer.blitToScreen(mc.getWindow().getWidth(), mc.getWindow().getHeight(), false);
+		RenderSystem.disableBlend();
+		RenderSystem.defaultBlendFunc();
+	}
+
 	@Override
 	protected void setupBuffer() {
 		super.setupBuffer();
@@ -107,24 +149,51 @@ public class StandAuraEntityShader extends SeparateBufferEntityShader {
 			silhouetteBuffer.resize(width, height, Minecraft.ON_OSX);
 		}
 		
-		swapPixelated.resize(width, height, Minecraft.ON_OSX);
+		noiseBuffer.resize(width, height, Minecraft.ON_OSX);
 	}
 
+	public void drawNoiseTexture() {
+		this.noiseBuffer.clear(Minecraft.ON_OSX);
+		this.noiseBuffer.bindWrite(true);
+        RenderSystem.setShaderTexture(0, NOISE);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		
+		Window window = Minecraft.getInstance().getWindow();
+		int windowWidth = (int) (window.getWidth() * window.getGuiScale());
+		int windowHeight = (int) (window.getHeight() * window.getGuiScale());
+		boolean currentlyCallingThisShitFromPowerHudWhichIsAnEggregiousCrutch = true;
+		windowWidth = window.getWidth();
+		windowHeight = window.getHeight();
 
-	public static int getStandAuraColor(LivingEntity entity) {
-		if (entity instanceof Player || entity instanceof StandEntity) {
-			return 0xFFFFD000;
-		}
-		if (entity instanceof Skeleton) {
-			return 0xFFCB00FF;
-		}
-		if (entity instanceof Creeper) {
-			return 0xFF009B02;
-		}
-		if (entity instanceof Sheep) {
-			return 0xFFFF00F6;
-		}
-		return -1;
+		Matrix4f matrix4f = new Matrix4f();
+		BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		float ratio = (float) windowWidth / windowHeight;
+		int x1 = 0;
+		int x2 = x1 + (int) (windowHeight * ratio);
+		float loop = 80f;
+		int y1 = (int) (-windowHeight * (EntityShaders.getTime() % loop / loop));
+		int y2 = y1 + windowHeight;
+		float minU = 0;
+		float minV = 0;
+		float maxU = ratio;
+		float maxV = 1;
+		float _x1 = x1;
+		float _x2 = x2;
+		float _y1 = y1;
+		float _y2 = y2;
+		bufferbuilder.addVertex(matrix4f, _x1, _y1, -90).setUv(minU, minV);
+		bufferbuilder.addVertex(matrix4f, _x1, _y2, -90).setUv(minU, maxV);
+		bufferbuilder.addVertex(matrix4f, _x2, _y2, -90).setUv(maxU, maxV);
+		bufferbuilder.addVertex(matrix4f, _x2, _y1, -90).setUv(maxU, minV);
+		_y1 = y2;
+		_y2 = y2 + windowHeight;
+		bufferbuilder.addVertex(matrix4f, _x1, _y1, -90).setUv(minU, minV);
+		bufferbuilder.addVertex(matrix4f, _x1, _y2, -90).setUv(minU, maxV);
+		bufferbuilder.addVertex(matrix4f, _x2, _y2, -90).setUv(maxU, maxV);
+		bufferbuilder.addVertex(matrix4f, _x2, _y1, -90).setUv(maxU, minV);
+		BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
+		
+		this.noiseBuffer.unbindWrite();
 	}
 	
 	// FIXME crash (Not building!) when i equip an enchanted item
@@ -135,34 +204,75 @@ public class StandAuraEntityShader extends SeparateBufferEntityShader {
 	 * stand rendering breaks completely
 	 */
 	
+	protected void handleLevelRenderStage(RenderLevelStageEvent.Stage stage) {
+		if (stage == RenderLevelStageEvent.Stage.AFTER_CUTOUT_BLOCKS) {
+			entitiesToRender.clear();
+		}
+		else if (stage == RenderLevelStageEvent.Stage.AFTER_WEATHER) {
+			renderAuraOnEntities();
+		}
+	}
+	
+	protected static record EntityAuraColor(LivingEntity entity, 
+			LivingEntityRenderer renderer, float partialTick, PoseStack.Pose pose, 
+			int auraColor) {}
+	protected List<EntityAuraColor> entitiesToRender = new ArrayList<>();
+	
 	@SubscribeEvent
 	public static <T extends LivingEntity, M extends EntityModel<T>> void afterEntityRender(RenderLivingEvent.Post<T, M> event) {
 		StandAuraEntityShader shader = EntityShaders.standAura;
 		if (shader._renderingNow) return;
 		
-		int color = getStandAuraColor(event.getEntity());
-		if (color == -1) return;
-		shader.auraColor.setColor(color);
-		shader.silhouetteBufferSource.setColor(color);
-
-		MultiBufferSource source = shader.useBufferSourceThisFrame();
-		shader._renderingNow = true;
-		
-		Minecraft mc = Minecraft.getInstance();
-		shader.frameBuffer.copyDepthFrom(mc.getMainRenderTarget());
-		shader.silhouetteBuffer.copyDepthFrom(mc.getMainRenderTarget());
-		
-		LivingEntityRenderer<T, M> renderer = event.getRenderer();
-		T entity = (T) event.getEntity();
-		float partialTick = event.getPartialTick();
-		float entityYaw = Mth.lerp(partialTick, entity.yRotO, entity.getYRot());
-		PoseStack poseStack = event.getPoseStack();
-		AuraUtil.inflateEachCube = 4.0f;
-		renderer.render(entity, entityYaw, partialTick, poseStack, source, ClientUtil.MAX_LIGHT);
-		AuraUtil.inflateEachCube = null;
-		renderer.render(entity, entityYaw, partialTick, poseStack, shader.silhouetteBufferSource, ClientUtil.MAX_LIGHT);
-
-		shader._renderingNow = false;
+		LivingEntity entity = event.getEntity();
+		int color = AuraUtil.getStandAuraColor(entity);
+		if (color != -1) {
+			color &= 0xFFFFFF;
+			EntityShaders.standAura.entitiesToRender.add(new EntityAuraColor(entity, 
+					event.getRenderer(), event.getPartialTick(), event.getPoseStack().last().copy(), 
+					color));
+		}
+	}
+	
+	protected void renderAuraOnEntities() {
+		if (!entitiesToRender.isEmpty()) {
+			this._renderingNow = true;
+			Minecraft mc = Minecraft.getInstance();
+			MultiBufferSource source = this.useBufferSourceThisFrame();
+			PoseStack poseStack = new PoseStack();
+			
+			this.frameBuffer.copyDepthFrom(mc.getMainRenderTarget());
+			this.silhouetteBuffer.copyDepthFrom(mc.getMainRenderTarget());
+			for (EntityAuraColor noted : entitiesToRender) {
+				LivingEntity entity = noted.entity;
+				LivingEntityRenderer renderer = noted.renderer;
+				int color = noted.auraColor;
+				float partialTick = noted.partialTick;
+				
+				poseStack.poseStack.addLast(noted.pose);
+				
+				float entityYaw = Mth.lerp(partialTick, entity.yRotO, entity.getYRot());
+				
+				poseStack.pushPose();
+				RenderSystem.enableBlend();
+				RenderSystem.defaultBlendFunc();
+				// TODO variable stand aura intensity
+				for (float inflate = 5; inflate >= 1; inflate--) {
+					AuraUtil.inflateEachCube = inflate;
+					float alphaAdditive = 0.05f;
+					this.auraColor.setColor(FastColor.ARGB32.color(FastColor.as8BitChannel(alphaAdditive), color));
+					// render
+					renderer.render(entity, entityYaw, partialTick, poseStack, source, ClientUtil.MAX_LIGHT);
+				}
+				poseStack.popPose();
+				
+				AuraUtil.inflateEachCube = null;
+				this.silhouetteBufferSource.setColor(FastColor.ARGB32.color(255, color));
+				renderer.render(entity, entityYaw, partialTick, poseStack, this.silhouetteBufferSource, ClientUtil.MAX_LIGHT);
+				
+				poseStack.popPose();
+			}
+			this._renderingNow = false;
+		}
 	}
 
 }

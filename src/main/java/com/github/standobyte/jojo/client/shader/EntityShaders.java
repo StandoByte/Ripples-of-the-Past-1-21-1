@@ -9,14 +9,17 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.ClientTickHandler;
+import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.shader.standaura.StandAuraEntityShader;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.EffectInstance;
 import net.minecraft.client.renderer.PostPass;
 import net.minecraft.client.renderer.RenderBuffers;
+import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.server.packs.resources.ResourceProvider;
@@ -24,6 +27,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent.RegisterStageEvent;
 
@@ -34,6 +38,8 @@ public class EntityShaders {
 
 	public static SeparateBufferEntityShader firstPersonStandTranslucency;
 	public static StandAuraEntityShader standAura;
+	
+	public static ShaderInstance _outlineTranslucentShader;
 
 //	@SubscribeEvent
 	public static void bufferInit(/*ConfigureMainRenderTargetEvent event*/) {
@@ -75,6 +81,22 @@ public class EntityShaders {
 		});
 	}
 
+	@SubscribeEvent
+	private static void loadCoreShaders(RegisterShadersEvent event) {
+		ResourceProvider resourceProvider = event.getResourceProvider();
+		List<ShaderInstance> addedShaders = new ArrayList<>();
+		try {
+			ShaderInstance shader = new ShaderInstance(resourceProvider, 
+					JojoMod.resLoc("outline_translucent"), DefaultVertexFormat.POSITION_TEX_COLOR);
+			addedShaders.add(shader);
+			event.registerShader(shader, _shader -> _outlineTranslucentShader = _shader);
+		}
+		catch (IOException e) {
+			for (ShaderInstance shader : addedShaders) shader.close();
+			JojoMod.getLogger().error("Failed loading a core shader from the mod", e);
+		}
+	}
+
 	
 	@SubscribeEvent
 	public static void frameRenderCallback(RenderLevelStageEvent event) {
@@ -101,32 +123,21 @@ public class EntityShaders {
 	public static void customizePass(PostPass pass, ResourceProvider resourceProvider, String name, 
 			RenderTarget inTarget, RenderTarget outTarget, boolean useLinearFilter) throws IOException {
 		switch (name) {
-			case "jojo_ripples:aura_noise_pixelated" -> {
-		        pass.outTarget = EntityShaders.standAura.swapPixelated;
-				pass.effect.close();
-				pass.effect = new EffectInstance(resourceProvider, name) {
-					@Override
-				    public void apply() {
-				        this.setSampler("SilhouetteSampler", EntityShaders.standAura.silhouetteBuffer::getColorTextureId);
-						float time = ClientTickHandler.tickCount + Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
-				        this.safeGetUniform("Time").set(time / 20f);
-				        this.safeGetUniform("ScreenRatio").set(EntityShaders.standAura.screenRatio);
-						super.apply();
-				    }
-				};
-			}
 			case "jojo_ripples:aura_apply_noise_mask" -> {
 				pass.effect.close();
 				pass.effect = new EffectInstance(resourceProvider, name) {
 					@Override
 				    public void apply() {
 				        this.setSampler("SilhouetteSampler", EntityShaders.standAura.silhouetteBuffer::getColorTextureId);
-				        this.setSampler("PixelatedMaskSampler", EntityShaders.standAura.swapPixelated::getColorTextureId);
-				        this.safeGetUniform("ScreenRatio").set(EntityShaders.standAura.screenRatio);
+				        this.setSampler("NoiseSampler", EntityShaders.standAura.noiseBuffer::getColorTextureId);
 						super.apply();
 				    }
 				};
 			}
 		}
+	}
+	
+	public static float getTime() {
+		return ClientTickHandler.tickCount + ClientUtil.partialTick(Minecraft.getInstance().getTimer(), true);
 	}
 }

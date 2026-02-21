@@ -1,6 +1,8 @@
 package com.github.standobyte.jojo.client.shader;
 
 import java.util.SequencedMap;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.rendertype.CustomMultiBufferSource;
@@ -52,9 +54,11 @@ public class SeparateBufferEntityShader {
 		return frameBuffer;
 	}
 	
-	protected RenderStateShard renderTypeModification() {
+	protected List<RenderStateShard> renderTypeModification() {
 		RenderStateShard.OutputStateShard targetShard = createTargetShard(outputShardName, frameBuffer);
-		return targetShard;
+		List<RenderStateShard> list = new ArrayList<>();
+		list.add(targetShard);
+		return list;
 	}
 
 	protected static RenderStateShard.OutputStateShard createTargetShard(String name, RenderTarget buffer) {
@@ -65,12 +69,12 @@ public class SeparateBufferEntityShader {
 	}
 	
 	protected void createBufferSource(Minecraft mc, RenderBuffers vanillaRenderBuffers) {
-		RenderStateShard modification = renderTypeModification();
+		List<RenderStateShard> modification = renderTypeModification();
 		SequencedMap<RenderType, ByteBufferBuilder> fixedBuffers;
 		fixedBuffers = ClientReflection.getFixedBuffers(vanillaRenderBuffers.bufferSource());
 		bufferSource = new CustomMultiBufferSource(
 				new ByteBufferBuilder(786432), 
-				fixedBuffers, modification);
+				fixedBuffers, modification.toArray(RenderStateShard[]::new));
 	}
 	
 	public void onResourceReload(ResourceManager resourceManager) {}

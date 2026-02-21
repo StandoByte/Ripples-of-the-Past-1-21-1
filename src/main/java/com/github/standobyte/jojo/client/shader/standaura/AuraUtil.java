@@ -4,9 +4,15 @@ import javax.annotation.Nullable;
 
 import org.joml.Matrix4f;
 
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Sheep;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.monster.Skeleton;
+import net.minecraft.world.entity.player.Player;
 
 /* another way could be to apply a morphological dilation, 
  * but then the aura would look too large from the distance
@@ -46,5 +52,22 @@ public class AuraUtil {
 			poseStack.scale(1 + inflate * 2 / sizeX, 1 + inflate * 2 / sizeY, 1 + inflate * 2 / sizeZ);
 			poseStack.translate(offsetX, offsetY, offsetZ);
 		}
+	}
+
+
+	public static int getStandAuraColor(LivingEntity entity) {
+		if (entity instanceof Player || entity instanceof StandEntity) {
+			return 0xFFFFD000;
+		}
+		if (entity instanceof Skeleton) {
+			return 0xFFCB00FF;
+		}
+		if (entity instanceof Creeper) {
+			return 0xFF009B02;
+		}
+		if (entity instanceof Sheep) {
+			return 0xFFFF00F6;
+		}
+		return -1;
 	}
 }

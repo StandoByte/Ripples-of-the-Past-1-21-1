@@ -1,14 +1,9 @@
 {
     "targets": [
-    	"_pixelated_noise",
+    	"noise",
         "swap"
     ],
     "passes": [
-        {
-            "name": "jojo_ripples:aura_noise_pixelated",
-            "intarget": "minecraft:main",
-            "outtarget": "_pixelated_noise"
-        },
         {
             "name": "jojo_ripples:aura_apply_noise_mask",
             "intarget": "minecraft:main",
