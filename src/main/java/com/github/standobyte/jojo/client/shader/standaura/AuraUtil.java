@@ -11,7 +11,10 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.monster.EnderMan;
+import net.minecraft.world.entity.monster.Husk;
 import net.minecraft.world.entity.monster.Skeleton;
+import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.player.Player;
 
 /* another way could be to apply a morphological dilation, 
@@ -63,10 +66,19 @@ public class AuraUtil {
 			return 0xFFCB00FF;
 		}
 		if (entity instanceof Creeper) {
-			return 0xFF009B02;
+			return 0xFF00CE00;
 		}
 		if (entity instanceof Sheep) {
 			return 0xFFFF00F6;
+		}
+		if (entity instanceof Husk) {
+			return 0xFF80B000;
+		}
+		if (entity instanceof Spider) {
+			return 0xFFFF0000;
+		}
+		if (entity instanceof EnderMan) {
+			return 0xFFFF00FF;
 		}
 		return -1;
 	}
