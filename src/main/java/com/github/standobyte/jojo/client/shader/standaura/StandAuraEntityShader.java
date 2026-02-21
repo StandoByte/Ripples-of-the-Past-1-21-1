@@ -40,6 +40,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderLivingEvent;
 
+
+// FIXME (stand aura shader) crash (Not building!) when i equip an enchanted item
 // FIXME (stand aura shader) noise drawing crutch (PowerHud)
 // FIXME (stand aura shader) stand rendering breaks completely
 // FIXME (stand aura shader) depth test
