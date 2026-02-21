@@ -104,13 +104,13 @@ public class SeparateBufferEntityShader {
 			frameStart();
 		}
 		if (this.usedThisFrame) {
-			if (stage == RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) {
+			if (stage == RenderLevelStageEvent.Stage.AFTER_WEATHER) {
 				this.setupBuffer();
 				this.endBatch();
 				this.applyEffect();
 				Minecraft.getInstance().getMainRenderTarget().bindWrite(true);
 			}
-			if (stage == RenderLevelStageEvent.Stage.AFTER_LEVEL) {
+			else if (stage == RenderLevelStageEvent.Stage.AFTER_LEVEL) {
 				this.blitBuffer();
 			}
 		}
