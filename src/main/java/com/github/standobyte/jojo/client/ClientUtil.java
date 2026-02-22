@@ -48,6 +48,10 @@ public class ClientUtil {
 		TickRateManager tickRateManager = Minecraft.getInstance().level.tickRateManager();
 		return deltaTracker.getGameTimeDeltaPartialTick(!tickRateManager.isEntityFrozen(entity));
 	}
+	
+	public static float getTime(boolean worksInPauseToo) {
+		return ClientTickHandler.tickCount + partialTick(Minecraft.getInstance().getTimer(), worksInPauseToo);
+	}
 
 	public static int getScreenMouseX() {
 		Minecraft mc = Minecraft.getInstance();

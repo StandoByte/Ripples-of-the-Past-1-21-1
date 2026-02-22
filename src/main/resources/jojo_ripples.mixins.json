@@ -112,7 +112,6 @@
     "client.aim.GameRendererMixin",
     "client.aim.HitboxRenderingMixin",
     "client.standshader.MinecraftMixin",
-    "client.standshader.PostChainMixin",
     "client.standshader.aura.ModelCubeMixin",
 	"client.text.icon.FontSetMixin",
 	"client.text.icon.FontStrintRenderOutputMixin",

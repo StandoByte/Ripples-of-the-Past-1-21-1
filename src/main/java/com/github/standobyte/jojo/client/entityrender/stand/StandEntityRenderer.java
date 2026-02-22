@@ -12,7 +12,7 @@ import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery.AnimM
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
-import com.github.standobyte.jojo.client.shader.EntityShaders;
+import com.github.standobyte.jojo.client.shader.ModShaders;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.ui.jojomenu.StandInfoScreen;
@@ -290,7 +290,10 @@ public class StandEntityRenderer<
 		this.model = modelFrom(renderState);
 		
 		if (renderState.mayObstructView) {
-			bufferSource = EntityShaders.firstPersonStandTranslucency.useBufferSourceThisFrame();
+			ModShaders shaders = ModShaders.getInstance();
+			if (shaders != null) {
+				bufferSource = ModShaders.getInstance().firstPersonStandTranslucency.useBufferSource(bufferSource);
+			}
 		}
 		
 		if (this.model != null) {

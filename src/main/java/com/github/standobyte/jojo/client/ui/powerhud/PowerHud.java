@@ -9,7 +9,7 @@ import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
-import com.github.standobyte.jojo.client.shader.EntityShaders;
+import com.github.standobyte.jojo.client.shader.ModShaders;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.ui.powerhud.ControlsHudElement.AbilityBindUI;
@@ -170,7 +170,7 @@ public class PowerHud {
 			renderAbilitiesHUD(guiGraphics, deltaTracker);
 			WindupAtCrosshair.renderCrosshair(guiGraphics, deltaTracker, mc);
 			
-			EntityShaders.standAura.drawNoiseTexture();
+			ModShaders.getInstance().standAura.drawNoiseTexture();
 		}
 
 		public void renderAbilitiesHUD(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
