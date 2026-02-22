@@ -71,7 +71,7 @@ public class StandAuraShader extends RotpShader {
 		frameBuffer = new BufferWithSource(createMainTargetBuffer(mc));
 		frameBuffer.buffer.setClearColor(1, 1, 1, 0); // white color, makes the border brighter kinda
 		auraColor = new BufferSourceRecolor(
-				new ByteBufferBuilder(786432), 
+				new ByteBufferBuilder(MAGIC_BUFFER_CAPACITY), 
 				fixedRenderBuffers, 
 				frameBuffer.createTargetShard("stand_aura"), 
 				TRANSLUCENT_OUTLINE_SHADER, 
@@ -81,7 +81,7 @@ public class StandAuraShader extends RotpShader {
 		
 		silhouetteBuffer = new BufferWithSource(createMainTargetBuffer(mc));
 		silhouetteColor = new BufferSourceRecolor(
-				new ByteBufferBuilder(786432), 
+				new ByteBufferBuilder(MAGIC_BUFFER_CAPACITY), 
 				fixedRenderBuffers, 
 				silhouetteBuffer.createTargetShard("stand_aura_silhouette"), 
 				RenderStateShard.RENDERTYPE_OUTLINE_SHADER);

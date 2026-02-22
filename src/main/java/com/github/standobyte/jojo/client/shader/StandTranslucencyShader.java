@@ -25,7 +25,7 @@ public class StandTranslucencyShader extends RotpShader {
 	public StandTranslucencyShader(Minecraft mc, SequencedMap<RenderType, ByteBufferBuilder> fixedRenderBuffers) {
 		frameBuffer = new BufferWithSource(createMainTargetBuffer(mc));
 		frameBuffer.initSource(new CustomMultiBufferSource(
-				new ByteBufferBuilder(786432), 
+				new ByteBufferBuilder(MAGIC_BUFFER_CAPACITY), 
 				fixedRenderBuffers, 
 				frameBuffer.createTargetShard("stand_translucent")));
 	}

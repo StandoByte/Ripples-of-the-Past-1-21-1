@@ -16,6 +16,7 @@ import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
 public abstract class RotpShader {
+	protected static final int MAGIC_BUFFER_CAPACITY = 786432;
 	
 	public abstract void loadPostShader(ResourceManager resourceManager);
 	public void loadCoreShaders(RegisterShadersEvent event) {}
