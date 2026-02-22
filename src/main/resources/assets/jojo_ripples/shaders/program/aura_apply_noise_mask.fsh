@@ -12,6 +12,7 @@ uniform float NoiseVShift;
 
 out vec4 fragColor;
 
+// Noise texture: https://noisegen.bubblebirdstudio.com/ (res - 64, perlin, size - 0.06, 1 octave, seamless)
 void main(){
 	if (texture(SilhouetteSampler, texCoord).a == 0.0) {
 		vec4 outlineColor = texture(DiffuseSampler, texCoord);
