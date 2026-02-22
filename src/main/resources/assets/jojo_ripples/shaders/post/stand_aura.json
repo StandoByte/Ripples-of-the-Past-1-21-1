@@ -1,13 +1,21 @@
 {
     "targets": [
-    	"noise",
         "swap"
     ],
     "passes": [
         {
             "name": "jojo_ripples:aura_apply_noise_mask",
             "intarget": "minecraft:main",
-            "outtarget": "swap"
+            "outtarget": "swap",
+            "auxtargets": [
+                {
+                    "name": "NoiseSampler",
+                    "id": "jojo_ripples:stand_aura_noise",
+                    "width": 128,
+                    "height": 128,
+                    "bilinear": false
+                }
+            ]
         },
         {
             "name": "blit",

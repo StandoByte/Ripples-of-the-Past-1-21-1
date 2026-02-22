@@ -4,31 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.SequencedMap;
 
-import org.joml.Matrix4f;
-
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.shader.core.BufferWithSource;
 import com.github.standobyte.jojo.client.shader.core.RotpShader;
 import com.github.standobyte.jojo.client.shader.standaura.AuraUtil;
 import com.github.standobyte.jojo.client.shader.standaura.BufferSourceRecolor;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.EffectInstance;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.PostPass;
@@ -36,7 +26,6 @@ import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
@@ -48,7 +37,6 @@ import net.neoforged.neoforge.client.event.RenderLivingEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
 // FIXME (stand aura shader) crash (Not building!) when i equip an enchanted item
-// FIXME (stand aura shader) noise drawing crutch (PowerHud)
 // FIXME (stand aura shader) stand rendering breaks completely
 // FIXME (stand aura shader) depth test
 public class StandAuraShader extends RotpShader {
@@ -61,8 +49,6 @@ public class StandAuraShader extends RotpShader {
 	
 	protected BufferWithSource silhouetteBuffer;
 	protected BufferSourceRecolor silhouetteColor;
-	
-	protected RenderTarget noiseBuffer;
 	
 	protected ShaderInstance outlineTranslucentShader;
 	public final RenderStateShard.ShaderStateShard TRANSLUCENT_OUTLINE_SHADER = new RenderStateShard.ShaderStateShard(() -> this.outlineTranslucentShader);
@@ -87,12 +73,6 @@ public class StandAuraShader extends RotpShader {
 				RenderStateShard.RENDERTYPE_OUTLINE_SHADER);
 		silhouetteBuffer.initSource(silhouetteColor);
 		
-		int width = mc.getWindow().getWidth();
-		int height = mc.getWindow().getHeight();
-		noiseBuffer = new TextureTarget(width, height, false, Minecraft.ON_OSX);
-		noiseBuffer.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
-		noiseBuffer.clear(Minecraft.ON_OSX);
-		
 		NeoForge.EVENT_BUS.register(this);
 		
 	}
@@ -102,6 +82,7 @@ public class StandAuraShader extends RotpShader {
 			() -> { RenderSystem.disableDepthTest(); },
 			() -> {}) {};
 	
+	public static int NOISE_V_SHIFT_LOOP = 60;
 	@Override
 	public void loadPostShader(ResourceManager resourceManager) {
 		closePostChain();
@@ -116,7 +97,7 @@ public class StandAuraShader extends RotpShader {
 						@Override
 						public void apply() {
 							this.setSampler("SilhouetteSampler", StandAuraShader.this.silhouetteBuffer.buffer::getColorTextureId);
-							this.setSampler("NoiseSampler", StandAuraShader.this.noiseBuffer::getColorTextureId);
+							this.safeGetUniform("NoiseVShift").set(ClientUtil.getTime(true) % NOISE_V_SHIFT_LOOP / NOISE_V_SHIFT_LOOP);
 							super.apply();
 						}
 					};
@@ -143,7 +124,6 @@ public class StandAuraShader extends RotpShader {
 	public void resize(int width, int height) {
 		frameBuffer.resizeBuffer(width, height);
 		silhouetteBuffer.resizeBuffer(width, height);
-		noiseBuffer.resize(width, height, Minecraft.ON_OSX);
 		if (glslShaderChain != null) {
 			glslShaderChain.resize(width, height);
 		}
@@ -154,7 +134,6 @@ public class StandAuraShader extends RotpShader {
 		closePostChain();
 		frameBuffer.destroyBuffers();
 		silhouetteBuffer.destroyBuffers();
-		noiseBuffer.destroyBuffers();
 	}
 	
 	
@@ -243,9 +222,11 @@ public class StandAuraShader extends RotpShader {
 	
 	protected void renderAuraOnEntities() {
 		if (!entitiesToRender.isEmpty()) {
+			MultiBufferSource source = this.useBufferSource(null);
+			if (source == null) return;
+			
 			this._renderingNow = true;
 			Minecraft mc = Minecraft.getInstance();
-			MultiBufferSource source = this.useBufferSource(null);
 			PoseStack poseStack = new PoseStack();
 			
 			this.frameBuffer.copyDepthFrom(mc.getMainRenderTarget());
@@ -281,52 +262,6 @@ public class StandAuraShader extends RotpShader {
 			}
 			this._renderingNow = false;
 		}
-	}
-	
-
-
-	public static final ResourceLocation NOISE = JojoMod.resLoc("textures/stand_aura_noise.png");
-	public void drawNoiseTexture() {
-		this.noiseBuffer.clear(Minecraft.ON_OSX);
-		this.noiseBuffer.bindWrite(true);
-        RenderSystem.setShaderTexture(0, NOISE);
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		
-		Window window = Minecraft.getInstance().getWindow();
-		int windowWidth = (int) (window.getWidth() * window.getGuiScale());
-		int windowHeight = (int) (window.getHeight() * window.getGuiScale());
-		windowWidth = window.getWidth();
-		windowHeight = window.getHeight();
-
-		Matrix4f matrix4f = new Matrix4f();
-		BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-		float ratio = (float) windowWidth / windowHeight;
-		int x1 = 0;
-		int x2 = x1 + (int) (windowHeight * ratio);
-		float loop = 80f;
-		int y1 = (int) (-windowHeight * (ClientUtil.getTime(true) % loop / loop));
-		int y2 = y1 + windowHeight;
-		float minU = 0;
-		float minV = 0;
-		float maxU = ratio;
-		float maxV = 1;
-		float _x1 = x1;
-		float _x2 = x2;
-		float _y1 = y1;
-		float _y2 = y2;
-		bufferbuilder.addVertex(matrix4f, _x1, _y1, -90).setUv(minU, minV);
-		bufferbuilder.addVertex(matrix4f, _x1, _y2, -90).setUv(minU, maxV);
-		bufferbuilder.addVertex(matrix4f, _x2, _y2, -90).setUv(maxU, maxV);
-		bufferbuilder.addVertex(matrix4f, _x2, _y1, -90).setUv(maxU, minV);
-		_y1 = y2;
-		_y2 = y2 + windowHeight;
-		bufferbuilder.addVertex(matrix4f, _x1, _y1, -90).setUv(minU, minV);
-		bufferbuilder.addVertex(matrix4f, _x1, _y2, -90).setUv(minU, maxV);
-		bufferbuilder.addVertex(matrix4f, _x2, _y2, -90).setUv(maxU, maxV);
-		bufferbuilder.addVertex(matrix4f, _x2, _y1, -90).setUv(maxU, minV);
-		BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
-		
-		this.noiseBuffer.unbindWrite();
 	}
 
 }
