@@ -17,8 +17,8 @@ void main(){
 		if (outlineColor.a > 0) {
 			vec4 noiseColor = texture(NoiseSampler, texCoord);
 			if (noiseColor.r < outlineColor.a) {
-//				fragColor = vec4(outlineColor.rgb, 0.75 * outlineColor.a);
-				fragColor = vec4(outlineColor.rgb, 0.5);
+				fragColor = vec4(outlineColor.rgb, 0.75 * outlineColor.a);
+//				fragColor = vec4(outlineColor.rgb, 0.5);
 			}
 		}
 	}

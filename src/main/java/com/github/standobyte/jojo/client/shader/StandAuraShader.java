@@ -67,6 +67,7 @@ public class StandAuraShader extends RotpShader {
 
 	public StandAuraShader(Minecraft mc, SequencedMap<RenderType, ByteBufferBuilder> fixedRenderBuffers) {
 		frameBuffer = new BufferWithSource(createMainTargetBuffer(mc));
+		frameBuffer.buffer.setClearColor(1, 1, 1, 0); // white color, makes the border brighter kinda
 		auraColor = new BufferSourceRecolor(
 				new ByteBufferBuilder(786432), 
 				fixedRenderBuffers, 
