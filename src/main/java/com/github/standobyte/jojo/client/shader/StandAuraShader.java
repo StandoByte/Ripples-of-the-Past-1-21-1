@@ -153,8 +153,6 @@ public class StandAuraShader extends RotpShader {
 			this.usedThisFrame = false;
 			frameBuffer.clearBuffer();
 			silhouetteBuffer.clearBuffer();
-//			noiseBuffer.clear(Minecraft.ON_OSX);
-//			drawNoiseTexture();
 			entitiesToRender.clear();
 		}
 		
@@ -164,8 +162,6 @@ public class StandAuraShader extends RotpShader {
 			renderAuraOnEntities();
 			if (this.usedThisFrame) {
 				Minecraft mc = Minecraft.getInstance();
-//				frameBuffer.copyDepthFrom(mc.getMainRenderTarget());
-//				silhouetteBuffer.copyDepthFrom(mc.getMainRenderTarget());
 
 				endBatch((MultiBufferSource.BufferSource) this.frameBuffer.bufferSource);
 				endBatch((MultiBufferSource.BufferSource) this.silhouetteBuffer.bufferSource);
