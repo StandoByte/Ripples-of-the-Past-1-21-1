@@ -31,7 +31,7 @@ public class StandTranslucencyShader extends RotpShader {
 	}
 	
 	@Override
-	public void onResourceReload(ResourceManager resourceManager) {
+	public void loadPostShader(ResourceManager resourceManager) {
 		closePostChain();
 		glslShaderChain = ModShaders.loadPostShaderChain(JojoMod.resLoc("fp_stand_translucent"), frameBuffer.buffer);
 	}

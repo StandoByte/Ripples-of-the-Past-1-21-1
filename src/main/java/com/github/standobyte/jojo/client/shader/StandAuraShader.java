@@ -27,9 +27,11 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.renderer.EffectInstance;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.PostChain;
+import net.minecraft.client.renderer.PostPass;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
@@ -57,10 +59,10 @@ public class StandAuraShader extends RotpShader {
 	protected BufferWithSource frameBuffer;
 	protected BufferSourceRecolor auraColor;
 	
-	public BufferWithSource silhouetteBuffer;
+	protected BufferWithSource silhouetteBuffer;
 	protected BufferSourceRecolor silhouetteColor;
 	
-	public RenderTarget noiseBuffer;
+	protected RenderTarget noiseBuffer;
 	
 	protected ShaderInstance outlineTranslucentShader;
 	public final RenderStateShard.ShaderStateShard TRANSLUCENT_OUTLINE_SHADER = new RenderStateShard.ShaderStateShard(() -> this.outlineTranslucentShader);
@@ -101,9 +103,26 @@ public class StandAuraShader extends RotpShader {
 			() -> {}) {};
 	
 	@Override
-	public void onResourceReload(ResourceManager resourceManager) {
+	public void loadPostShader(ResourceManager resourceManager) {
 		closePostChain();
+		
 		glslShaderChain = ModShaders.loadPostShaderChain(JojoMod.resLoc("stand_aura"), frameBuffer.buffer);
+		modifyShader(glslShaderChain, (PostPass pass) -> {
+			String effectName = pass.effect.getName();
+			switch (effectName) {
+				case "jojo_ripples:aura_apply_noise_mask" -> {
+					pass.effect.close();
+					pass.effect = new EffectInstance(getResourceProvider(), effectName) {
+						@Override
+						public void apply() {
+							this.setSampler("SilhouetteSampler", StandAuraShader.this.silhouetteBuffer.buffer::getColorTextureId);
+							this.setSampler("NoiseSampler", StandAuraShader.this.noiseBuffer::getColorTextureId);
+							super.apply();
+						}
+					};
+				}
+			}
+		});
 	}
 	
 	@Override

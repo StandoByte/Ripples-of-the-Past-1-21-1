@@ -9,7 +9,6 @@ import java.util.function.Consumer;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.ModClientResources;
-import com.github.standobyte.jojo.client.shader.core.PostChain2;
 import com.github.standobyte.jojo.client.shader.core.RotpShader;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
@@ -88,7 +87,7 @@ public class ModShaders implements ResourceManagerReloadListener, AutoCloseable 
 	@Override
     public void onResourceManagerReload(ResourceManager resourceManager) {
 		for (RotpShader shader : _allShaders) {
-			shader.onResourceReload(resourceManager);
+			shader.loadPostShader(resourceManager);
 		}
 	}
 	
@@ -118,7 +117,7 @@ public class ModShaders implements ResourceManagerReloadListener, AutoCloseable 
 		Minecraft mc = Minecraft.getInstance();
 		PostChain effect;
 		try {
-			effect = new PostChain2(mc.getTextureManager(), mc.getResourceManager(), targetBuffer, actualPath);
+			effect = new PostChain(mc.getTextureManager(), mc.getResourceManager(), targetBuffer, actualPath);
 			effect.resize(mc.getWindow().getWidth(), mc.getWindow().getHeight());
 		} catch (IOException e) {
 			JojoMod.getLogger().error("Failed to load shader: {}", actualPath, e);

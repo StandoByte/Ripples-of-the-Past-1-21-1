@@ -1,14 +1,27 @@
 package com.github.standobyte.jojo.client.shader.core;
 
+import java.io.IOException;
+import java.util.Iterator;
+
+import com.github.standobyte.jojo.core.JojoMod;
 import com.mojang.blaze3d.pipeline.MainTarget;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.PostChain;
+import net.minecraft.client.renderer.PostPass;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceProvider;
 import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
 public abstract class RotpShader {
+	
+	public abstract void loadPostShader(ResourceManager resourceManager);
+	public void loadCoreShaders(RegisterShadersEvent event) {}
+	public abstract void resize(int width, int height);
+	public abstract void close();
+	public void frameRenderCallback(RenderLevelStageEvent event) {}
 
 	public static MainTarget createMainTargetBuffer(Minecraft mc) {
 		MainTarget frameBuffer = new MainTarget(mc.getWindow().getWidth(), mc.getWindow().getHeight()/*, false*/);
@@ -34,10 +47,27 @@ public abstract class RotpShader {
 	public static boolean isBeforeEntities(RenderLevelStageEvent.Stage stage) { return stage == RenderLevelStageEvent.Stage.AFTER_CUTOUT_BLOCKS; }
 	public static boolean isLastInLevelRender(RenderLevelStageEvent.Stage stage) { return stage == RenderLevelStageEvent.Stage.AFTER_WEATHER; }
 	
-	public abstract void onResourceReload(ResourceManager resourceManager);
-	public void loadCoreShaders(RegisterShadersEvent event) {}
-	public abstract void resize(int width, int height);
-	public abstract void close();
+	protected static ResourceProvider getResourceProvider() {
+		return Minecraft.getInstance().getResourceManager();
+	}
 	
-	public void frameRenderCallback(RenderLevelStageEvent event) {}
+	protected static void modifyShader(PostChain loadedShaderChain, PostPassConsumer a) {
+		if (loadedShaderChain != null) {
+			Iterator<PostPass> passIter = loadedShaderChain.passes.listIterator();
+			while (passIter.hasNext()) {
+				PostPass pass = passIter.next();
+				try {
+					a.accept(pass);
+				}
+				catch (IOException e) {
+					JojoMod.getLogger().error("", e);
+				}
+			}
+		}
+	}
+	
+	public static interface PostPassConsumer {
+		void accept(PostPass pass) throws IOException;
+	}
+	
 }
