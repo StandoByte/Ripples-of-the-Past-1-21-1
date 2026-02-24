@@ -135,9 +135,11 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 	
 	public static class TerrainRestoration extends EntityActionInstance implements SyncedDataHolderExtended {
 		public boolean useOtherPlayersInventories = false;
+		public CrazyDRestoreTerrainAbility terrainRestoreAbility;
 
 		public TerrainRestoration(EntityActionType ability) {
 			super(ability);
+			this.terrainRestoreAbility = (CrazyDRestoreTerrainAbility) ability;
 		}
 
 		@Override
@@ -179,7 +181,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 				}
 				boolean onlyAimedAt = user.isShiftKeyDown();
 				
-				Collection<Map.Entry<BlockPos, ?>> blocks = getFixableBlocksInRange(serverLevel, user, eyePos, manhattanRange, 
+				Collection<BlockToFix<?>> blocks = terrainRestoreAbility.getFixableBlocksInRange(serverLevel, user, eyePos, manhattanRange, 
 						blockPos -> blockPosSelectedForRestoration(blockPos, cameraEntity, 
 								lookVec, eyePosD, eyePos, manhattanRange, 
 								resolveEffect, onlyAimedAt));
@@ -240,16 +242,31 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 			}
 		}
 	}
-
-	public static Collection<Map.Entry<BlockPos, ?>> getFixableBlocksInRange(ServerLevel level, LivingEntity user, Vec3i center, int blockRange, Predicate<BlockPos> filter) {
-		Stream<Map.Entry<BlockPos, PrevBlockInfo>> blocksDestroyed = getBrokenBlocksInRange(level, user, center, blockRange, 
-				(BlockPos targetPos, PrevBlockInfo block) -> filter.test(targetPos));
-		Collection<Map.Entry<BlockPos, ?>> list = blocksDestroyed.collect(Collectors.toCollection(ArrayList::new));
+	
+	public static class BlockToFix<B> {
+		public B block;
+		public BlockPos targetPos;
 		
+		public BlockToFix(B block) {
+			this.block = block;
+		}
+		
+		public BlockToFix(B block, BlockPos targetPos) {
+			this.block = block;
+			this.targetPos = targetPos;
+		}
+	}
+
+	/** Includes both fully broken blocks and blocks that have destruction progress from Stand punches */
+	public Collection<BlockToFix<?>> getFixableBlocksInRange(ServerLevel level, LivingEntity user, Vec3i center, int blockRange, Predicate<BlockPos> filter) {
+		Collection<BlockToFix<PrevBlockInfo>> blocksDestroyed = getBrokenBlocksInRange(level, user, center, blockRange, 
+				(BlockPos targetPos, PrevBlockInfo block) -> filter.test(targetPos));
+		Collection<BlockToFix<?>> list = new ArrayList<>(blocksDestroyed);
 		ServerBlockDestroyTracker trackers = ComponentUtil.getExistingDataOrNull(level, ModDataAttachmentTypes.BLOCK_DESTROY);
 		if (trackers != null) {
 			trackers.blockDestroy.entrySet().stream()
 					.filter(entry -> filter.test(entry.getKey()))
+					.map(entry -> new BlockToFix<>(entry.getValue(), entry.getKey()))
 					.forEach(list::add);;
 		}
 		
@@ -278,7 +295,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 		return list;
 	}
 
-	public static RestoreResult restoreBlocks(ServerLevel level, Entity trackedEntity, Stream<Map.Entry<BlockPos, ?>> blocks, 
+	public static RestoreResult restoreBlocks(ServerLevel level, Entity trackedEntity, Stream<BlockToFix<?>> blocks, 
 			float limit, Vec3i eyePos, 
 			boolean isCreative, boolean randomizePos, boolean forgetFailed, 
 			@Nullable Player playerWithXp, List<ItemStack> itemsSource) {
@@ -287,8 +304,8 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 
 		blocks = blocks
 				.filter(blockEntry -> {
-					BlockPos targetPos = blockEntry.getKey();
-					return switch (blockEntry.getValue()) {
+					BlockPos targetPos = blockEntry.targetPos;
+					return switch (blockEntry.block) {
 						case PrevBlockInfo block -> {
 							if (restorationExclude(block, targetPos, level)) {
 								yield false;
@@ -306,12 +323,12 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 				});
 		
 		blocks = blocks.sorted(Comparator.comparingInt(
-				(Map.Entry<BlockPos, ?> blockEntry) -> restorationPriority(blockEntry.getValue(), blockEntry.getKey(), level)).thenComparingInt(
-				(Map.Entry<BlockPos, ?> blockEntry) -> blockEntry.getKey().distManhattan(eyePos)));
+				(BlockToFix<?> blockEntry) -> restorationPriority(blockEntry.block, blockEntry.targetPos, level)).thenComparingInt(
+				(BlockToFix<?> blockEntry) -> blockEntry.targetPos.distManhattan(eyePos)));
 
 		blocks.forEach(blockEntry -> {
-			BlockPos targetBlockPos = blockEntry.getKey();
-			switch (blockEntry.getValue()) {
+			BlockPos targetBlockPos = blockEntry.targetPos;
+			switch (blockEntry.block) {
 				case PrevBlockInfo block -> {
 					float blockToRestore = 1;
 					if (result.blockForStaminaCost + blockToRestore <= limit) {
@@ -412,38 +429,41 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 		public final Set<BlockPos> blocksToForget = new HashSet<>();
 	}
 
-	public static Stream<Map.Entry<BlockPos, PrevBlockInfo>> getBrokenBlocksInRange(Level level, LivingEntity user, 
+	public Collection<BlockToFix<PrevBlockInfo>> getBrokenBlocksInRange(Level level, LivingEntity user, 
 			Vec3i center, int blockRange, BiPredicate<BlockPos, PrevBlockInfo> filter) {
 		int chunkXMin = center.getX() - blockRange >> 4;
 		int chunkXMax = center.getX() + blockRange >> 4;
 		int chunkZMin = center.getZ() - blockRange >> 4;
 		int chunkZMax = center.getZ() + blockRange >> 4;
-		Stream.Builder<LevelChunk> builder = Stream.builder();
+		
+		List<PrevBlockInfo> allBlocks = new ArrayList<>();
 		for (int x = chunkXMin; x <= chunkXMax; x++) {
 			for (int z = chunkZMin; z <= chunkZMax; z++) {
 				LevelChunk chunk = level.getChunk(x, z);
 				if (chunk != null) {
-					builder.add(chunk);
+					BrokenBlocksChunkData data = BrokenBlocksChunkData.getExistingData(chunk);
+					if (data != null) {
+						for (Map.Entry<BlockPos, PrevBlockInfo> blockEntry : data.brokenBlocks.entrySet()) {
+							PrevBlockInfo block = blockEntry.getValue();
+							allBlocks.add(block);
+						}
+					}
 				}
 			}
 		}
-		Stream<LevelChunk> chunks = builder.build();
-		Stream<Map.Entry<BlockPos, PrevBlockInfo>> brokenBlocks = chunks.flatMap(chunk -> {
-			BrokenBlocksChunkData data = BrokenBlocksChunkData.getExistingData(chunk);
-			if (data != null) {
-				return data.brokenBlocks.entrySet().stream()
-						// remap the block position (entry key) here
-						.filter(blockEntry -> {
-							PrevBlockInfo block = blockEntry.getValue();
-							BlockPos targetPos = blockEntry.getKey();
-							return filter.test(targetPos, block) && !user.getBoundingBox().intersects(new AABB(targetPos));
-						});
+		
+		List<BlockToFix<PrevBlockInfo>> blocksToRestore = new ArrayList<>();
+		for (PrevBlockInfo block : allBlocks) {
+			// remap the block position here
+			BlockPos targetPos = block.pos;
+			if (filter.test(targetPos, block)) {
+				BlockToFix<PrevBlockInfo> blockToRestore = new BlockToFix<>(block);
+				blocksToRestore.add(blockToRestore);
 			}
-			else return Stream.empty();
-		});
-		return brokenBlocks;
+		}
+		return blocksToRestore;
 	}
-
+	
 
 
 	// this whole junk somewhat fixes janky restoration of sand blocks, e.g. an explosion in a desert

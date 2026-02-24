@@ -26,7 +26,7 @@ public class CrazyDOriginPosAnchorMarker extends MarkerRenderer {
 
 	@Override
 	protected boolean shouldRender() {
-		return TranslucentBlockRenderHelper.willRender();
+		return TranslucentBlockRenderHelper.toRender() != null;
 	}
 
 	@Override
