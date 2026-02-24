@@ -95,7 +95,7 @@ public class StandInitCrazyDiamond {
 					.addToHotbar("heal", 0, InputMethod.HOLD)
 //					.addHotbarSlotVariation("revert_state", "heal", InputKey.Modifier.CONTROL, InputMethod.HOLD)
 					.addToHotbar("restore_terrain", 0, InputMethod.HOLD)
-//					.addHotbarSlotVariation("create_wall", "restore_terrain", InputKey.Modifier.CONTROL, InputMethod.CLICK)
+					.addHotbarSlotVariation("create_wall", "restore_terrain", InputKey.Modifier.CONTROL, InputMethod.CLICK)
 				.finalizeControlScheme()
 
 
@@ -115,7 +115,7 @@ public class StandInitCrazyDiamond {
 					.bind("heal", InputMethod.HOLD, InputKey.C)
 //					.bind("revert_state", InputMethod.HOLD, InputKey.C.withModifier(InputKey.Modifier.CONTROL))
 					.bind("restore_terrain", InputMethod.HOLD, InputKey.V)
-//					.bind("create_wall", InputMethod.CLICK, InputKey.V.withModifier(InputKey.Modifier.CONTROL))
+					.bind("create_wall", InputMethod.CLICK, InputKey.V.withModifier(InputKey.Modifier.CONTROL))
 				.finalizeControlScheme()
 
 
