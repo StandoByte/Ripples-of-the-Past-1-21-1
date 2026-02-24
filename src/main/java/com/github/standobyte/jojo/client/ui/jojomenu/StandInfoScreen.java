@@ -43,14 +43,14 @@ public class StandInfoScreen extends Screen implements IJojoMenuScreen {
 	protected StandSkin standSkin;
 	protected StandSkinsScreen.SkinView standRender;
 	protected int tickCount = 0;
-	protected int rand;
+	public static int rand;
 
 	public StandInfoScreen(TabCategory category, Tab tab) {
 		super(Component.empty());
 		this.category = category;
 		this.tab = tab;
 		this.texture = JojoMod.resLoc("textures/gui/paper_style/stand_stats.png");
-		this.rand = Math.abs(OOPMoment.RANDOM.nextInt());
+		StandInfoScreen.rand = Math.abs(OOPMoment.RANDOM.nextInt());
 	}
 	
 	@Override
@@ -197,7 +197,7 @@ public class StandInfoScreen extends Screen implements IJojoMenuScreen {
 		// stand model
 		if (standRender != null) {
 			float partialTick = ClientUtil.partialTick(Minecraft.getInstance().getTimer(), true);
-			standRender.renderInStandInfo(guiGraphics, mouseX, mouseY, tickCount + partialTick, x, y, 35, rand);
+			standRender.renderInStandInfo(guiGraphics, mouseX, mouseY, tickCount + partialTick, x, y, 35);
 		}
 		
 		

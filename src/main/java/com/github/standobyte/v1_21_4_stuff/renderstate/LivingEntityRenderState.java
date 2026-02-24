@@ -115,7 +115,7 @@ public class LivingEntityRenderState extends EntityRenderState {
         reusedState.appearsGlowing = minecraft.shouldEntityAppearGlowing(entity);
     }
 
-    private static float solveBodyRot(LivingEntity entity, float yHeadRot, float partialTick) {
+    public static float solveBodyRot(LivingEntity entity, float yHeadRot, float partialTick) {
         if (entity.getVehicle() instanceof LivingEntity livingentity) {
             float yBodyRot = Mth.rotLerp(partialTick, livingentity.yBodyRotO, livingentity.yBodyRot);
             float maxRotAbs = 85.0F;

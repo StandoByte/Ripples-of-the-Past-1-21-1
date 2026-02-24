@@ -1,23 +1,23 @@
 package com.github.standobyte.jojo.client.entityrender.stand;
 
-import java.util.Optional;
+import java.util.List;
 import java.util.function.Consumer;
 
 import com.github.standobyte.jojo.client.ClientUtil;
+import com.github.standobyte.jojo.client.entityanim.AnimationSet;
+import com.github.standobyte.jojo.client.entityanim.PreFrameEntityAnimCalc;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
-import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.AnimWithIdReturn;
-import com.github.standobyte.jojo.client.entityanim.pose.EntityKeepAnimPose;
+import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.AnimWithId;
+import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery.AnimMolangVariables;
+import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
 import com.github.standobyte.jojo.client.shader.EntityShaders;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.client.ui.jojomenu.StandInfoScreen;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
-import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
-import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
-import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.java.LazyNullable;
 import com.github.standobyte.v1_21_4_stuff.renderstate.ArmedEntityRenderState;
@@ -39,7 +39,6 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.Vec3;
 
 public class StandEntityRenderer<
 				T extends StandEntity, 
@@ -89,7 +88,6 @@ public class StandEntityRenderer<
 	public static final ActionAnimIdentifier GRAB_IDLE_ANIM = ActionAnimIdentifier.getOrCreate("grab", true);
 //	@Override // 1.21.2+
 	public void extractRenderState(T entity, S renderState, float partialTick) {
-		renderState.action.staticPose = null;
 //		super.extractRenderState(entity, renderState, partialTick); // 1.21.2+
 		LivingEntityRenderState.extract(entity, renderState, this, entityRenderDispatcher, partialTick);
 		ArmedEntityRenderState.extractArmedEntityRenderState(entity, renderState/*, this.itemModelResolver*/);
@@ -97,37 +95,9 @@ public class StandEntityRenderer<
 		renderState.leftArmPose = HumanoidModel.ArmPose.EMPTY;
 		renderState.rightArmPose = HumanoidModel.ArmPose.EMPTY;
 		
-		renderState.standId = entity.getStandType();
-		Optional<ResourceLocation> selectedSkin = entity.getStandSkin();
-		StandSkinsLoader standSkins = StandSkinsLoader.getInstance();
-		renderState.skin = standSkins.getSkinFromId(renderState.standId, selectedSkin);
-		if (renderState.skin == null) renderState.skin = standSkins.getDefaultSkin(renderState.standId);
-
+		renderState.skin = getStandSkin(entity);
 		renderState.visibleParts = HumanoidPart.ALL;
-		
-		LivingComponentAction actionComponent = entity.getStandActionComponent();
-		EntityActionInstance action = entity.getCurStandAction();
-		EntityActionRenderState.extract(renderState.action, entity, actionComponent, action, partialTick);
-		if (renderState.action.animId == null) {
-			float idleTime = entity.tickCount - entity.nonIdlePoseTimeStamp + partialTick;
-			// FIXME for a bit after grabbing, the grabbed entity is not yet synced to the client, causing it to use regular idle anim for a few frames
-			boolean isGrabbing = LivingComponentGrab.getEntityGrabbedBy(entity) != null;
-			if (isGrabbing) {
-				renderState.action.animId = GRAB_IDLE_ANIM;
-				renderState.action.actionPhase = ActionPhase.PERFORM;
-				renderState.action.phaseTime = idleTime;
-			}
-			else {
-				renderState.action.animId = IDLE_ANIM;
-				renderState.action.time = idleTime;
-			}
-		}
-		if (!renderState.action.animId.isIdle()) {
-			entity.nonIdlePoseTimeStamp = entity.tickCount;
-		}
-		AnimWithIdReturn anim = this.getStandAnim(renderState);
-		EntityActionRenderState.setAnim(renderState.action, renderState, entity, 
-				anim.animId, anim.anim, entity.clientStuff.barrageSwings);
+		EntityActionRenderState.extract(renderState.action, entity, partialTick);
 		
 		renderState.tint = -1;
 		renderState.alpha = (float) entity.rangeEfficiency * entity.modelAlpha.lerp(partialTick);
@@ -139,37 +109,47 @@ public class StandEntityRenderer<
 			if (cameraEntity == null) cameraEntity = mc.player;
 			renderState.mayObstructView &= cameraEntity != null && entity.getUser() == cameraEntity;
 		}
-		
-		renderState.motionTiltVec = Vec3.ZERO;
 	}
 	
-	public void extractSkinMenuRenderState(S renderState, StandSkin skin, ResourceLocation standId, float ticks, int tint) {
-		renderState.action.staticPose = null;
+	public StandSkin getStandSkin(T entity) {
+		return StandSkinsLoader.getInstance().getSkin(entity);
+	}
+	
+	public void extractSkinMenuRenderState(S renderState, StandSkin skin, ResourceLocation standId, float ticks, int tint, MenuType menuType) {
 		renderState.skin = skin;
 		renderState.visibleParts = HumanoidPart.ALL;
-		renderState.standId = standId;
-		renderState.action.animId = StandEntityRenderer.IDLE_ANIM;
-		renderState.action.time = ticks;
-		AnimWithIdReturn anim = this.getStandAnim(renderState);
-		EntityActionRenderState.setAnim(renderState.action, renderState, null, anim.animId, anim.anim, null);
 		renderState.tint = tint;
-	}
-	
-	public AnimWithIdReturn getStandAnim(S renderState) {
-		if (renderState.skin != null) {
-			EntityActionRenderState action = renderState.action;
-			if (action.animId != null) {
-				RotpAnimDefinition anim = renderState.skin.getStandAnimation(anims -> anims.getNamedAnim(action.animId));
-				if (anim == null) {
-					anim = renderState.skin.getStandAnimation(anims -> anims.getNamedAnim(StandEntityRenderer.IDLE_ANIM));
-					if (anim != null) {
-						return AnimWithIdReturn.with(StandEntityRenderer.IDLE_ANIM, anim);
+		
+		AnimFramePose pose = null;
+		switch (menuType) {
+			case STAND_SKINS -> {
+				ActionAnimIdentifier animId = StandEntityRenderer.IDLE_ANIM;
+				AnimWithId animWithId = PreFrameEntityAnimCalc.getStandAnim(skin, animId, StandEntityRenderer.IDLE_ANIM);
+				RotpAnimDefinition anim = animWithId.anim;
+				if (anim != null) {
+					float seconds = anim.getAnimTime(ticks);
+					AnimMolangVariables molangVars = AnimMolangVariables.set(0, 0, 0);
+					pose = anim.calcAnimPose(molangVars, null, seconds, 1);
+				}
+			}
+			case STAND_INFO -> {
+				if (skin != null) {
+					AnimationSet anims = skin.getAnimations();
+					if (anims != null) {
+						List<AnimFramePose> poses = anims.coolPoses;
+						if (poses != null && !poses.isEmpty()) {
+							pose = poses.get(StandInfoScreen.rand % poses.size());
+						}
 					}
 				}
-				return AnimWithIdReturn.with(action.animId, anim);
 			}
 		}
-		return AnimWithIdReturn.with(null, null);
+		renderState.action.pose = pose;
+	}
+	
+	public enum MenuType {
+		STAND_SKINS,
+		STAND_INFO
 	}
 	
 	
@@ -204,11 +184,15 @@ public class StandEntityRenderer<
 	}
 	
 	public M getEntityModel(T entity) {
-		return getEntityModel(createRenderState(entity, 1));
+		return getEntityModel(getStandSkin(entity));
 	}
 	
 	public M getEntityModel(S renderState) {
 		StandSkin standSkin = renderState.skin;
+		return getEntityModel(standSkin);
+	}
+	
+	public M getEntityModel(StandSkin standSkin) {
 		M model = standSkin != null ? (M) standSkin.getStandModel(this) : null;
 		if (model == null) {
 			model = missingSkinModel.get();
@@ -309,24 +293,7 @@ public class StandEntityRenderer<
 		}
 		
 		if (this.model != null) {
-			model.prepareMotionTilt(renderState, entity);
-			model.pose = null;
 			this.doRender(entity, entityYaw, partialTicks, poseStack, bufferSource, light);
-			if (model.pose != null) ((EntityKeepAnimPose) entity).jojo_ripples$keepModelPose(model.pose);
-		}
-		postRender();
-	}
-	
-	public void pose(T entity, float partialTicks) {
-		S renderState = this.createRenderState(entity, partialTicks);
-		preRender(renderState);
-
-		this.model = modelFrom(renderState);
-		
-		if (this.model != null) {
-			model.pose = null;
-			model.setupAnim(renderState);
-			if (model.pose != null) ((EntityKeepAnimPose) entity).jojo_ripples$keepModelPose(model.pose);
 		}
 		postRender();
 	}

@@ -13,6 +13,7 @@ import com.github.standobyte.jojo.client.entityanim.IHumanoidAnimModel;
 import com.github.standobyte.jojo.client.entityanim.playerbend.IPlayerBendModel;
 import com.github.standobyte.jojo.client.entityanim.playerbend.IPlayerLimbBend;
 import com.github.standobyte.jojo.client.entityanim.playerbend.PlayerModelBends;
+import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState;
 import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
@@ -154,7 +155,7 @@ public abstract class HumanoidModelMixin/* extends ModelMixinSuperclass*/ extend
 	@Override
 	public void jojo_ripples$setupHumanoidAnim(HumanoidRenderState renderState) {
 		RipplesPlayerRenderState jojoRenderState = ((RipplesRenderStateExtensionMixin) renderState).get();
-		this.jojo_ripples$playerAnim = RipplesPlayerRenderState.setupModelAnim((HumanoidModel<?>) (Object) this, renderState, jojoRenderState);
+		this.jojo_ripples$playerAnim = EntityActionRenderState.setupModelAnim((HumanoidModel<?>) (Object) this, renderState, jojoRenderState);
 	}
 	
 	@Override

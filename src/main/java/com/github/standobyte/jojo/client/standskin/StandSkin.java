@@ -248,6 +248,10 @@ public class StandSkin {
 		return null;
 	}
 	
+	public AnimationSet getAnimations() {
+		return standEntityAnims;
+	}
+	
 	public GuiIcon getStandIcon() {
 		if (standIcon == null) {
 			ResourcePathChecker iconPath = remapAssetPath(standTypeId.withPath("textures/stand_icon.png"));

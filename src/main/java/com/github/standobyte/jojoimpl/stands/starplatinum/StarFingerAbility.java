@@ -52,7 +52,7 @@ public class StarFingerAbility extends StandEntityAbility {
             super.onActionSet(prevAction);
             setStandOffset(0, 1.5, StandOffsetFromUser.Rotations.HEAD_XY, true);
             OrientedBoundingBox obb = new OrientedBoundingBox(new Vec3(0, 1.35, 0), 0.125d, 0.125d, 0.8d, getPerformer().getYRot(), getPerformer().getXRot());
-            this.starFingerBB = new ExtendableOBB(obb, 0.8F, (int) phasesLength.get(ActionPhase.PERFORM).floatValue(), 10, new Vec3(0, 1.35, 0));
+            this.starFingerBB = new ExtendableOBB(obb, 0.8F, (int) phasesLength.getFloat(ActionPhase.PERFORM), 10, new Vec3(0, 1.35, 0));
         }
 
         @Override
@@ -113,17 +113,11 @@ public class StarFingerAbility extends StandEntityAbility {
                             stand.getSoundSource(), 1, 1);
                 }
             }
-            if (newPhase == ActionPhase.RECOVERY) {
-                starFingerBB = null;
-            }
         }
 
         @Override
         public ExtendableOBB extendableOBB() {
-            if (starFingerBB != null){
-                return starFingerBB;
-            }
-            return null;
+            return starFingerBB;
         }
     }
 }

@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
-import com.github.standobyte.jojo.client.entityanim.pose.EntityKeepAnimPose;
+import com.github.standobyte.jojo.client.entityanim.pose.AnimatedEntity;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.mc.entity.util.LivingReactToNewAction;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.SyncType;
@@ -88,8 +88,8 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 		
 		if (entity.level().isClientSide()) {
 			clPrevPunchPose = null;
-			if (action != null && action.savePrevPoseForAnimTransition(prevAction) && entity instanceof EntityKeepAnimPose entity) {
-				AnimFramePose clientSavedPose = entity.jojo_ripples$getModelPose();
+			if (action != null && action.savePrevPoseForAnimTransition(prevAction) && entity instanceof AnimatedEntity entity) {
+				AnimFramePose clientSavedPose = entity.jojo_ripples$getModelPose(AnimatedEntity.PoseType.UNMODIFIED);
 				if (clientSavedPose != null) {
 					clPrevPunchPose = clientSavedPose.deepCopy();
 				}

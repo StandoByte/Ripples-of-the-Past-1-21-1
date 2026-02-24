@@ -23,6 +23,10 @@ public class AnimFramePose {
 				.computeIfAbsent(modelPartName, ___ -> new ModelPartFrame()));
 	}
 	
+	public ModelPartFrame getIfPresent(String modelPartName) {
+		return this.pose.get(modelPartName);
+	}
+	
 	
 	public AnimFramePose clear() {
 		for (ModelPartFrame obj : pose.values()) {
@@ -30,6 +34,13 @@ public class AnimFramePose {
 		}
 		pose.clear();
 		return this;
+	}
+	
+	public void copyTo(AnimFramePose destPose) {
+		destPose.clear();
+		for (var modelPartPose : this.pose.entrySet()) {
+			modelPartPose.getValue().copyTo(destPose.getForModelPart(modelPartPose.getKey()));
+		}
 	}
 	
 	public AnimFramePose deepCopy() {
@@ -52,18 +63,6 @@ public class AnimFramePose {
 			this.scaleOffset.set(0, 0, 0);
 		}
 		
-		public void set(Vector3f value, AnimationChannel.Target target) {
-			if (target == AnimationChannel.Targets.ROTATION) {
-				this.rotationOffset.set(value);
-			}
-			else if (target == AnimationChannel.Targets.POSITION) {
-				this.positionOffset.set(value);
-			}
-			else if (target == AnimationChannel.Targets.SCALE) {
-				this.scaleOffset.set(value);
-			}
-		}
-		
 		public void apply(ModelPart modelPart) {
 			if (!modelPart.visible) return;
 			
@@ -83,12 +82,10 @@ public class AnimFramePose {
 			modelPart.offsetScale(this.scaleOffset);
 		}
 		
-		public ModelPartFrame deepCopy() {
-			ModelPartFrame copy = new ModelPartFrame();
-			copy.positionOffset.set(this.positionOffset);
-			copy.rotationOffset.set(this.rotationOffset);
-			copy.scaleOffset.set(this.scaleOffset);
-			return copy;
+		public void set(Vector3f value, AnimationChannel.Target target) {
+			if (target == AnimationChannel.Targets.ROTATION)		this.rotationOffset.set(value);
+			else if (target == AnimationChannel.Targets.POSITION)	this.positionOffset.set(value);
+			else if (target == AnimationChannel.Targets.SCALE)		this.scaleOffset.set(value);
 		}
 		
 		public Vector3f getForTarget(AnimationChannel.Target target) {
@@ -96,6 +93,20 @@ public class AnimFramePose {
 			else if (target == AnimationChannel.Targets.POSITION) 	return positionOffset;
 			else if (target == AnimationChannel.Targets.SCALE) 		return scaleOffset;
 			throw new IllegalStateException();
+		}
+		
+		public void copyTo(ModelPartFrame dest) {
+			dest.positionOffset.set(this.positionOffset);
+			dest.rotationOffset.set(this.rotationOffset);
+			dest.scaleOffset.set(this.scaleOffset);
+		}
+		
+		public ModelPartFrame deepCopy() {
+			ModelPartFrame copy = new ModelPartFrame();
+			copy.positionOffset.set(this.positionOffset);
+			copy.rotationOffset.set(this.rotationOffset);
+			copy.scaleOffset.set(this.scaleOffset);
+			return copy;
 		}
 		
 	}
