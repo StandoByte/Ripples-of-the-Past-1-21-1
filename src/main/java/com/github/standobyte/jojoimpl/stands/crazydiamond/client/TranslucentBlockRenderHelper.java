@@ -76,8 +76,8 @@ public class TranslucentBlockRenderHelper {
 			boolean resolveEffect = ModStatusEffects.isInResolveEffect(mc.player);
 			int manhattanRange = CrazyDRestoreTerrainAbility.restorationDistManhattan(resolveEffect);
 			Stream<Map.Entry<BlockPos, PrevBlockInfo>> allFixableBlocks = CrazyDRestoreTerrainAbility.getBrokenBlocksInRange(mc.level, mc.player, pos, 32, 
-							block -> CrazyDRestoreTerrainAbility.blockCanBePlaced(mc.level, block.pos, block.state));
-			Predicate<PrevBlockInfo> inAbilityRange = block -> CrazyDRestoreTerrainAbility.blockPosSelectedForRestoration(block.pos, entity, 
+					(BlockPos targetPos, PrevBlockInfo block) -> CrazyDRestoreTerrainAbility.blockCanBePlaced(mc.level, targetPos, block.state));
+			Predicate<BlockPos> inAbilityRange = blockPos -> CrazyDRestoreTerrainAbility.blockPosSelectedForRestoration(blockPos, entity, 
 					lookVec, eyePosD, pos, manhattanRange, 
 					resolveEffect, mc.player.isShiftKeyDown());
 			TranslucentBlockRenderHelper.renderCDRestorationTranslucentBlocks(poseStack, mc, 
@@ -88,7 +88,7 @@ public class TranslucentBlockRenderHelper {
 	public static Collection<BlockPos> highlightedBlocks = new ArrayList<>();
 
 	public static void renderCDRestorationTranslucentBlocks(PoseStack poseStack, Minecraft mc, 
-			Stream<Map.Entry<BlockPos, PrevBlockInfo>> blocks, Predicate<PrevBlockInfo> inAbilityRange) {
+			Stream<Map.Entry<BlockPos, PrevBlockInfo>> blocks, Predicate<BlockPos> inAbilityRange) {
 		if (buffers == null) {
 			RenderStateShard.OutputStateShard targetShard = new RenderStateShard.OutputStateShard(
 					"crazy_d_blocks", 
@@ -128,22 +128,22 @@ public class TranslucentBlockRenderHelper {
 		highlightedBlocks.clear();
 		blocks.forEach(blockEntry -> {
 			PrevBlockInfo block = blockEntry.getValue();
-			BlockPos pos = block.pos;
+			BlockPos targetPos = blockEntry.getKey();
+			BlockPos originalPos = block.pos;
 			BlockState blockState = block.state;
-			ModelData tileData = mc.level.getModelData(pos);
 			BakedModel bakedModel = renderer.getBlockModel(blockState);
-			ModelData model = bakedModel.getModelData(mc.level, pos, blockState, tileData);
+			ModelData model = bakedModel.getModelData(mc.level, originalPos, blockState, mc.level.getModelData(originalPos));
 			poseStack.pushPose();
 			poseStack.translate(
-					pos.getX(), 
-					pos.getY(), 
-					pos.getZ());
-			boolean isHighlighted = inAbilityRange.test(block);
+					targetPos.getX(), 
+					targetPos.getY(), 
+					targetPos.getZ());
+			boolean isHighlighted = inAbilityRange.test(targetPos);
 			int overlay = isHighlighted ? overlayTexture : OverlayTexture.NO_OVERLAY;
 
 			RenderShape renderShape = blockState.getRenderShape();
 			if (renderShape == RenderShape.MODEL) {
-				int color = mc.getBlockColors().getColor(blockState, mc.level, pos, 0);
+				int color = mc.getBlockColors().getColor(blockState, mc.level, originalPos, 0);
 				for (RenderType renderType : bakedModel.getRenderTypes(blockState, RandomSource.create(42), model)) {
 					renderer.getModelRenderer().renderModel(poseStack.last(), buffers.getBuffer(renderType), 
 							blockState, bakedModel, 
@@ -153,7 +153,7 @@ public class TranslucentBlockRenderHelper {
 			}
 			
 			if (isHighlighted) {
-				highlightedBlocks.add(pos);
+				highlightedBlocks.add(originalPos);
 			}
 
 			poseStack.popPose();
