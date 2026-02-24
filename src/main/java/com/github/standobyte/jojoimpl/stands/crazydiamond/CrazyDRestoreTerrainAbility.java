@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -241,7 +242,8 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 	}
 
 	public static Collection<Map.Entry<BlockPos, ?>> getFixableBlocksInRange(ServerLevel level, LivingEntity user, Vec3i center, int blockRange, Predicate<BlockPos> filter) {
-		Stream<Map.Entry<BlockPos, PrevBlockInfo>> blocksDestroyed = getBrokenBlocksInRange(level, user, center, blockRange, block -> filter.test(block.pos));
+		Stream<Map.Entry<BlockPos, PrevBlockInfo>> blocksDestroyed = getBrokenBlocksInRange(level, user, center, blockRange, 
+				(BlockPos targetPos, PrevBlockInfo block) -> filter.test(targetPos));
 		Collection<Map.Entry<BlockPos, ?>> list = blocksDestroyed.collect(Collectors.toCollection(ArrayList::new));
 		
 		ServerBlockDestroyTracker trackers = ComponentUtil.getExistingDataOrNull(level, ModDataAttachmentTypes.BLOCK_DESTROY);
@@ -285,12 +287,13 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 
 		blocks = blocks
 				.filter(blockEntry -> {
+					BlockPos targetPos = blockEntry.getKey();
 					return switch (blockEntry.getValue()) {
 						case PrevBlockInfo block -> {
-							if (restorationExclude(block, level)) {
+							if (restorationExclude(block, targetPos, level)) {
 								yield false;
 							}
-							if (blockCanBePlaced(level, block.pos, block.state)) {
+							if (blockCanBePlaced(level, targetPos, block.state)) {
 								yield true;
 							}
 							if (forgetFailed) {
@@ -303,11 +306,11 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 				});
 		
 		blocks = blocks.sorted(Comparator.comparingInt(
-				(Map.Entry<BlockPos, ?> blockEntry) -> restorationPriority(blockEntry.getValue(), level)).thenComparingInt(
+				(Map.Entry<BlockPos, ?> blockEntry) -> restorationPriority(blockEntry.getValue(), blockEntry.getKey(), level)).thenComparingInt(
 				(Map.Entry<BlockPos, ?> blockEntry) -> blockEntry.getKey().distManhattan(eyePos)));
 
 		blocks.forEach(blockEntry -> {
-			BlockPos blockPos = blockEntry.getKey();
+			BlockPos targetBlockPos = blockEntry.getKey();
 			switch (blockEntry.getValue()) {
 				case PrevBlockInfo block -> {
 					float blockToRestore = 1;
@@ -319,7 +322,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 							for (EntityReference shardRef : block.blockShards) {
 								EntityMadeFromBlock shard = shardRef.get();
 								if (shard != null && shard.isEntityAlive()) {
-									placeBlockNow &= shard.crazyDRestore(blockPos);
+									placeBlockNow &= shard.crazyDRestore(targetBlockPos);
 								}
 							}
 						}
@@ -343,7 +346,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 									
 									if (entity != null && entity.isAlive()) {
 										entity = CrazyDAnchorBlockAbility.entityToMove(entity);
-										Vec3 posD = Vec3.atCenterOf(block.pos);
+										Vec3 posD = Vec3.atCenterOf(targetBlockPos);
 						                boolean isCloseToAnchorPos = CrazyDAnchorBlockAbility.isCloseToAnchorPos(entity, posD);
 						                if (!isCloseToAnchorPos) {
 						                	CrazyDAnchorBlockAbility.moveWithAnchor(entity, posD);
@@ -362,17 +365,17 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 						
 						if (placeBlockNow) {
 //							result.blocksTried.add(block.pos);
-							if (tryPlaceBlock(level, block.pos, block.state, isCreative, randomizePos, 
+							if (tryPlaceBlock(level, targetBlockPos, block.state, isCreative, randomizePos, 
 									block.drops, block.getDroppedXp(), playerWithXp, itemsSource)) {
 								result.blockForStaminaCost += blockToRestore;
-								result.blocksFixParticles.add(block.pos);
+								result.blocksFixParticles.add(targetBlockPos);
 								result.blocksToForget.add(block.pos);
 								result.isRestoring |= true;
 							}
 						}
 						else if (didSmthElse) {
 							result.blockForStaminaCost += blockToRestore;
-							result.blocksFixParticles.add(block.pos);
+							result.blocksFixParticles.add(targetBlockPos);
 							result.isRestoring |= true;
 						}
 					}
@@ -381,9 +384,9 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 					float curProgress = blockBeingBroken.getProgress();
 					float breakProgressToFix = Mth.clamp(limit - result.blockForStaminaCost, 0, curProgress);
 					if (breakProgressToFix > 0) {
-						blockBeingBroken.setAndSyncProgress(curProgress - breakProgressToFix, blockPos, level);
+						blockBeingBroken.setAndSyncProgress(curProgress - breakProgressToFix, targetBlockPos, level);
 						result.blockForStaminaCost += breakProgressToFix;
-						result.blocksFixParticles.add(blockPos);
+						result.blocksFixParticles.add(targetBlockPos);
 						result.isRestoring |= true;
 					}
 				}
@@ -409,7 +412,8 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 		public final Set<BlockPos> blocksToForget = new HashSet<>();
 	}
 
-	public static Stream<Map.Entry<BlockPos, PrevBlockInfo>> getBrokenBlocksInRange(Level level, LivingEntity user, Vec3i center, int blockRange, Predicate<PrevBlockInfo> filter) {
+	public static Stream<Map.Entry<BlockPos, PrevBlockInfo>> getBrokenBlocksInRange(Level level, LivingEntity user, 
+			Vec3i center, int blockRange, BiPredicate<BlockPos, PrevBlockInfo> filter) {
 		int chunkXMin = center.getX() - blockRange >> 4;
 		int chunkXMax = center.getX() + blockRange >> 4;
 		int chunkZMin = center.getZ() - blockRange >> 4;
@@ -427,12 +431,13 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 		Stream<Map.Entry<BlockPos, PrevBlockInfo>> brokenBlocks = chunks.flatMap(chunk -> {
 			BrokenBlocksChunkData data = BrokenBlocksChunkData.getExistingData(chunk);
 			if (data != null) {
-				return data.brokenBlocks.entrySet().stream().filter(blockEntry -> {
-					PrevBlockInfo block = blockEntry.getValue();
-					BlockPos blockPos = blockEntry.getKey();
-					return filter.test(block)
-							&& !user.getBoundingBox().intersects(new AABB(blockPos));
-				});
+				return data.brokenBlocks.entrySet().stream()
+						// remap the block position (entry key) here
+						.filter(blockEntry -> {
+							PrevBlockInfo block = blockEntry.getValue();
+							BlockPos targetPos = blockEntry.getKey();
+							return filter.test(targetPos, block) && !user.getBoundingBox().intersects(new AABB(targetPos));
+						});
 			}
 			else return Stream.empty();
 		});
@@ -442,23 +447,23 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 
 
 	// this whole junk somewhat fixes janky restoration of sand blocks, e.g. an explosion in a desert
-	protected static boolean restorationExclude(PrevBlockInfo block, Level level) {
+	protected static boolean restorationExclude(PrevBlockInfo block, BlockPos targetPos, Level level) {
 		if (block.state.getBlock() instanceof FallingBlock) {
-			BlockPos blockBelow = block.pos.below();
+			BlockPos blockBelow = targetPos.below();
 			if (level.isEmptyBlock(blockBelow)) {
-				BrokenBlocksChunkData data = BrokenBlocksChunkData.getExistingData(level, block.pos);
+				BrokenBlocksChunkData data = BrokenBlocksChunkData.getExistingData(level, targetPos);
 				if (data != null && data.brokenBlocks.containsKey(blockBelow)) {
 					return true;
 				}
 			}
 		}
 
-		return !block.state.canSurvive(level, block.pos);
+		return !block.state.canSurvive(level, targetPos);
 	}
 
-	protected static int restorationPriority(Object blockToFix, Level level) {
+	protected static int restorationPriority(Object blockToFix, BlockPos targetPos, Level level) {
 		if (blockToFix instanceof PrevBlockInfo block) {
-			if (block.state.getBlock() instanceof FallingBlock && !level.isEmptyBlock(block.pos.below())) {
+			if (block.state.getBlock() instanceof FallingBlock && !level.isEmptyBlock(targetPos)) {
 				return 0;
 			}
 		}
@@ -502,8 +507,8 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 		}
 	}
 
-	public static boolean blockCanBePlaced(Level level, BlockPos pos, BlockState placedBlockState) {
-		BlockState curBlockState = level.getBlockState(pos);
+	public static boolean blockCanBePlaced(Level level, BlockPos targetPos, BlockState placedBlockState) {
+		BlockState curBlockState = level.getBlockState(targetPos);
 		return FallingBlock.isFree(curBlockState);
 	}
 
