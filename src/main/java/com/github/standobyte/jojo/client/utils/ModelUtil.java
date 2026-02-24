@@ -12,7 +12,7 @@ import org.joml.Vector3f;
 
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
-import com.github.standobyte.jojo.client.entityanim.pose.EntityKeepAnimPose;
+import com.github.standobyte.jojo.client.entityanim.pose.AnimatedEntity;
 import com.github.standobyte.jojo.client.entityrender.ModelWithExtraFeatures;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinEntity;
@@ -58,9 +58,9 @@ public class ModelUtil {
 	@Nullable
 	public static Vec3 getModelPartPos(Entity entity, 
 			String modelPartName, Vec3 modelPartOffset) {
-		AnimFramePose clientSavedPose = ((EntityKeepAnimPose) entity).jojo_ripples$getModelPose();
-		return clientSavedPose != null ? getModelPartPos(
-				entity, clientSavedPose, 
+		AnimFramePose modelPose = ((AnimatedEntity) entity).jojo_ripples$getModelPose(AnimatedEntity.PoseType.FINAL);
+		return modelPose != null ? getModelPartPos(
+				entity, modelPose, 
 				modelPartName, modelPartOffset) : null;
 	}
 

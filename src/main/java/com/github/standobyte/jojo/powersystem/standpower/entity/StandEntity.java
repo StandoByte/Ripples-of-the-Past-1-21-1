@@ -11,7 +11,6 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientProxy;
-import com.github.standobyte.jojo.client.entityanim.pose.EntityKeepAnimPose;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.init.ModSpecialActions;
 import com.github.standobyte.jojo.init.ModStatusEffects;
@@ -120,7 +119,6 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		this.offsetFromUser = StandOffsetFromUser.createDefault(this);
 		if (level.isClientSide()) {
 			this.clientStuff = new ClientStandEntityStuff();
-			((EntityKeepAnimPose) this).jojo_ripples$setKeepModelPose(true);
 		}
 	}
 	

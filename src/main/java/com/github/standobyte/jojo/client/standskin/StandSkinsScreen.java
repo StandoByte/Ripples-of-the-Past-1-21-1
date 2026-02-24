@@ -13,10 +13,9 @@ import org.lwjgl.glfw.GLFW;
 
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.ClientUtil;
-import com.github.standobyte.jojo.client.entityanim.AnimationSet;
-import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
+import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer.MenuType;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.ui.jojomenu.IJojoMenuScreen;
 import com.github.standobyte.jojo.client.ui.jojomenu.JojoMenuTabs;
@@ -456,7 +455,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		
 		// XXX set it to one of the stand summon poses
 		public void renderInStandInfo(GuiGraphics gui, int mouseX, int mouseY, float ticks, 
-				float windowX, float windowY, float scale, int rand) {
+				float windowX, float windowY, float scale) {
 			if (standType instanceof EntityStandType) {
 				PoseStack poseStack = gui.pose();
 //				float angle = (float) -Math.PI / 12;
@@ -469,18 +468,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 				renderStandModel(gui, windowX + 60, windowY + 150, scale, 1, 
 						(float) Math.PI + angle, 0, 0, 0, 
 						(EntityStandType) standType, skin, 
-						(renderer, renderState) -> {
-							renderer.extractSkinMenuRenderState(renderState, skin, standType.getId(), 0, 0xFFB0B0B0);
-							if (skin != null) {
-								AnimationSet anims = skin.standEntityAnims;
-								if (anims != null) {
-									List<AnimFramePose> poses = anims.coolPoses;
-									if (poses != null && !poses.isEmpty()) {
-										renderState.action.staticPose = poses.get(rand % poses.size());
-									}
-								}
-							}
-						});
+						(renderer, renderState) -> renderer.extractSkinMenuRenderState(renderState, skin, standType.getId(), 0, 0xFFB0B0B0, MenuType.STAND_INFO));
 				
 				poseStack.popPose();
 				renderStandModel(gui, windowX + 45, windowY + 150, scale, 1, 
@@ -598,7 +586,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		renderStandModel(gui, posX, posY, 
 				scale, scaleZoom, yRot, xRot, xOffsetRatio, yOffsetRatio, 
 				standType, standSkin, 
-				(renderer, renderState) -> renderer.extractSkinMenuRenderState(renderState, standSkin, standType.getId(), ticks, tint));
+				(renderer, renderState) -> renderer.extractSkinMenuRenderState(renderState, standSkin, standType.getId(), ticks, tint, MenuType.STAND_SKINS));
 	}
 
 	public static <S extends StandEntityRenderState> void renderStandModel(GuiGraphics gui, float posX, float posY, 

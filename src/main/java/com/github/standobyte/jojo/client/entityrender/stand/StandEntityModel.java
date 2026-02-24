@@ -6,10 +6,12 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.config.ClientModSettings;
+import org.joml.Vector3f;
+
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.barrage.BarrageSwings;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
+import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
 import com.github.standobyte.jojo.client.entityrender.HiddenModelPartsUtil;
 import com.github.standobyte.jojo.client.entityrender.ModelWithExtraFeatures;
 import com.github.standobyte.jojo.client.utils.ModelPartWithName;
@@ -101,7 +103,6 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 		}
 	}
 
-	public AnimFramePose pose;
 //	@Override // 1.21.2+
 	public void setupAnim(S renderState) {
 //		super.setupAnim(renderState); // 1.21.2+
@@ -109,24 +110,12 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 
 		HumanoidPart.setPartsVisible(this, renderState.visibleParts);
 		
-		if (renderState.action.staticPose != null) {
-			pose = renderState.action.staticPose;
-			RotpAnimDefinition.animate(this, renderState.action.staticPose);
+		if (renderState.action.pose != null) {
+			RotpAnimDefinition.animate(this, renderState.action.pose);
 		}
-		else {
-			RotpAnimDefinition anim = renderState.action.anim;
-			float seconds = renderState.action.timeSeconds;
-			if (anim != null) {
-				pose = anim.animate(this, renderState, renderState.action, seconds, 1);
-			}
-			else if (head != null) {
-				head.xRot = renderState.xRot * MathUtil.DEG_TO_RAD;
-				head.yRot = renderState.yRot * MathUtil.DEG_TO_RAD;
-			}
-		}
-
-		if (ClientModSettings.getSettingsReadOnly().standMotionTilt) {
-			doMotionTilt(renderState);
+		else if (head != null) {
+			head.xRot = renderState.xRot * MathUtil.DEG_TO_RAD;
+			head.yRot = renderState.yRot * MathUtil.DEG_TO_RAD;
 		}
 	}
 	
@@ -189,15 +178,15 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 
 
 	private static final int TICKS_MOTION_TILT_LERP = 5;
-	public void prepareMotionTilt(S renderState, T entity) {
-		float ticks = renderState.ageInTicks;
-		float partialTick = Mth.frac(ticks);
+	public Vec3 prepareMotionTilt(T entity, float partialTick) {
+		int tick = entity.tickCount;
+		float ticks = tick + partialTick;
 		
 		Vec3 tiltVec;
 		List<Vec3> vecQueue = entity.clientStuff.tiltVecQueue;
 		while (vecQueue.size() > TICKS_MOTION_TILT_LERP) vecQueue.remove(vecQueue.size() - 1);
 		boolean fillQueue = vecQueue.size() < TICKS_MOTION_TILT_LERP;
-		if (fillQueue || Mth.floor(entity.clientStuff.lastMotionTiltTick) != Mth.floor(ticks)) {
+		if (fillQueue || Mth.floor(entity.clientStuff.lastMotionTiltTick) != tick) {
 			Vec3 motion = entity.position().subtract(entity.xOld, entity.yOld, entity.zOld);
 
 			tiltVec = motion.yRot(entity.yBodyRot * MathUtil.DEG_TO_RAD).scale(2);
@@ -221,15 +210,12 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 		}
 		tiltVec = lerpVecs(vecQueue, partialTick);
 		
-		renderState.motionTiltVec = tiltVec;
+		return tiltVec;
 	}
 
-	protected void doMotionTilt(S renderState) {
+	public void doMotionTilt(Vec3 tiltVec, AnimFramePose targetPose, boolean idlePose) {
 		boolean isSummonPose = false;
 		if (!isSummonPose) {
-			Vec3 tiltVec = renderState.motionTiltVec;
-
-			boolean idlePose = renderState.action.animId != null && renderState.action.animId.isIdle();
 			double tiltSqr = tiltVec.lengthSqr();
 			if (tiltSqr > 1.0E-4) {
 				double tilt = Math.sqrt(tiltSqr);
@@ -238,96 +224,118 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 				float tiltX = (float) tiltVec.x;
 				float bodyTiltX = tiltX * 0.75f;
 				float legsTiltX = tiltX - bodyTiltX;
+				
+				Vector3f body_rot = getPoseRotationVec(targetPose, "body_rot");
+				Vector3f head_rot = getPoseRotationVec(targetPose, "head_rot");
+				Vector3f torso_bend = getPoseRotationVec(targetPose, "torso_bend");
+				Vector3f left_arm_xrot = getPoseRotationVec(targetPose, "left_arm_xrot");
+				Vector3f left_arm = getPoseRotationVec(targetPose, "left_arm");
+				Vector3f left_arm_bend = getPoseRotationVec(targetPose, "left_arm_bend");
+				Vector3f right_arm_xrot = getPoseRotationVec(targetPose, "right_arm_xrot");
+				Vector3f right_arm = getPoseRotationVec(targetPose, "right_arm");
+				Vector3f right_arm_bend = getPoseRotationVec(targetPose, "right_arm_bend");
+				Vector3f left_leg_xrot = getPoseRotationVec(targetPose, "left_leg_xrot");
+				Vector3f left_leg = getPoseRotationVec(targetPose, "left_leg");
+				Vector3f left_leg_bend = getPoseRotationVec(targetPose, "left_leg_bend");
+				Vector3f right_leg_xrot = getPoseRotationVec(targetPose, "right_leg_xrot");
+				Vector3f right_leg = getPoseRotationVec(targetPose, "right_leg");
+				Vector3f right_leg_bend = getPoseRotationVec(targetPose, "right_leg_bend");
 
-				if (this.body_rot != null) {
-					this.body_rot.xRot += bodyTiltX;
-					if (this.head_rot != null) {
-						this.head_rot.xRot -= bodyTiltX;
+				if (body_rot != null) {
+					body_rot.x += bodyTiltX;
+					if (head_rot != null) {
+						head_rot.x -= bodyTiltX;
 					}
 					if (idlePose) {
-						this.body_rot.zRot += tiltVec.z;
-						float diff = this.body_rot.yRot - (this.body_rot.yRot * d1);
-						this.body_rot.yRot -= diff;
-						if (this.head_rot != null) {
-							this.head_rot.zRot -= tiltVec.z;
-							this.head_rot.yRot += diff;
+						body_rot.z += tiltVec.z;
+						float diff = body_rot.y - (body_rot.y * d1);
+						body_rot.y -= diff;
+						if (head_rot != null) {
+							head_rot.z -= tiltVec.z;
+							head_rot.y += diff;
 						}
 					}
 				}
 
 				double d = Mth.clamp(1 - 1.5 * tilt / Math.PI, 0, 1);
-				if (this.left_leg_bend != null) {
-					this.left_leg_bend.xRot *= d;
-					this.left_leg_bend.yRot *= d;
-					this.left_leg_bend.zRot *= d;
+				if (left_leg_bend != null) {
+					left_leg_bend.x *= d;
+					left_leg_bend.y *= d;
+					left_leg_bend.z *= d;
 				}
-				if (this.right_leg_bend != null) {
-					this.right_leg_bend.xRot *= d;
-					this.right_leg_bend.yRot *= d;
-					this.right_leg_bend.zRot *= d;
+				if (right_leg_bend != null) {
+					right_leg_bend.x *= d;
+					right_leg_bend.y *= d;
+					right_leg_bend.z *= d;
 				}
-				if (this.torso_bend != null) {
+				if (torso_bend != null) {
 					double movementFront = Mth.clamp(tiltVec.x, -1, 1);
-					if (movementFront > 0 && torso_bend.xRot > 0) {
-						torso_bend.xRot *= 1 - movementFront;
+					if (movementFront > 0 && torso_bend.x > 0) {
+						torso_bend.x *= 1 - movementFront;
 					}
-					else if (movementFront < 0 && torso_bend.xRot < 0) {
-						torso_bend.xRot *= 1 + movementFront;
+					else if (movementFront < 0 && torso_bend.x < 0) {
+						torso_bend.x *= 1 + movementFront;
 					}
 				}
 				if (idlePose) {
-					if (this.left_arm_bend != null) {
-						this.left_arm_bend.xRot *= d;
-						this.left_arm_bend.yRot *= d;
-						this.left_arm_bend.zRot *= d;
+					if (left_arm_bend != null) {
+						left_arm_bend.x *= d;
+						left_arm_bend.y *= d;
+						left_arm_bend.z *= d;
 					}
-					if (this.right_arm_bend != null) {
-						this.right_arm_bend.xRot *= d;
-						this.right_arm_bend.yRot *= d;
-						this.right_arm_bend.zRot *= d;
+					if (right_arm_bend != null) {
+						right_arm_bend.x *= d;
+						right_arm_bend.y *= d;
+						right_arm_bend.z *= d;
 					}
 				}
 
 				double d2 = Mth.clamp(1 - tilt / (2 * Math.PI), 0, 1);
 				if (idlePose) {
-					if (this.left_arm != null) {
-						this.left_arm.xRot *= d2;
-						this.left_arm.yRot *= d2;
-						this.left_arm.zRot *= d2;
+					if (left_arm != null) {
+						left_arm.x *= d2;
+						left_arm.y *= d2;
+						left_arm.z *= d2;
 					}
-					if (this.right_arm != null) {
-						this.right_arm.xRot *= d2;
-						this.right_arm.yRot *= d2;
-						this.right_arm.zRot *= d2;
+					if (right_arm != null) {
+						right_arm.x *= d2;
+						right_arm.y *= d2;
+						right_arm.z *= d2;
 					}
 				}
 				else {
-					if (this.left_arm_xrot != null) {
-						this.left_arm_xrot.xRot -= bodyTiltX;
+					if (left_arm_xrot != null) {
+						left_arm_xrot.x -= bodyTiltX;
 					}
-					if (this.right_arm_xrot != null) {
-						this.right_arm_xrot.xRot -= bodyTiltX;
+					if (right_arm_xrot != null) {
+						right_arm_xrot.x -= bodyTiltX;
 					}
 				}
 
-				if (this.right_leg != null) {
-					this.right_leg.xRot *= d2;
-					this.right_leg.yRot *= d2;
-					this.right_leg.zRot *= d2;
+				if (right_leg != null) {
+					right_leg.x *= d2;
+					right_leg.y *= d2;
+					right_leg.z *= d2;
 				}
-				if (this.right_leg_xrot != null) {
-					this.right_leg_xrot.xRot += legsTiltX;
+				if (right_leg_xrot != null) {
+					right_leg_xrot.x += legsTiltX;
 				}
-				if (this.left_leg != null) {
-					this.left_leg.xRot *= d2;
-					this.left_leg.yRot *= d2;
-					this.left_leg.zRot *= d2;
+				if (left_leg != null) {
+					left_leg.x *= d2;
+					left_leg.y *= d2;
+					left_leg.z *= d2;
 				}
-				if (this.left_leg_xrot != null) {
-					this.left_leg_xrot.xRot += legsTiltX;
+				if (left_leg_xrot != null) {
+					left_leg_xrot.x += legsTiltX;
 				}
 			}
 		}
+	}
+	
+	@Nullable
+	protected static Vector3f getPoseRotationVec(AnimFramePose pose, String modelPartName) {
+		ModelPartFrame modelPart = pose.getIfPresent(modelPartName);
+		return modelPart != null ? modelPart.rotationOffset : null;
 	}
 
 	private static Vec3 lerpVecs(List<Vec3> vecs, float partialTick) {

@@ -12,26 +12,27 @@ import javax.annotation.Nullable;
 
 import org.joml.Vector3f;
 
+import com.github.standobyte.jojo.client.entityanim.PreFrameEntityAnimCalc.LivingAnimState;
 import com.github.standobyte.jojo.client.entityanim.action.AnimActionPhase;
 import com.github.standobyte.jojo.client.entityanim.action.AnimInstructionTimelines;
 import com.github.standobyte.jojo.client.entityanim.action.AnimObjTimeline;
 import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery;
+import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery.AnimMolangVariables;
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.AnimationChannelQuery;
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.IAnimationChannel;
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.KeyframeQuery;
 import com.github.standobyte.jojo.client.entityanim.playerbend.PlayerModelBends;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
-import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.client.entityrender.HiddenModelPartsUtil;
 import com.github.standobyte.jojo.client.entityrender.ModelWithExtraFeatures;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
+import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.java.OptionalFloat;
 import com.github.standobyte.v1_21_4_stuff.OldPlayerModelJank;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
-import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
 import com.google.common.collect.Maps;
 
 import it.unimi.dsi.fastutil.floats.Float2ObjectMap;
@@ -45,6 +46,7 @@ import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
 
 public class RotpAnimDefinition {
 	public final float lengthInSeconds;
@@ -93,13 +95,12 @@ public class RotpAnimDefinition {
 	}
 
 
-	public AnimFramePose calcAnimPose(@Nullable LivingEntityRenderState renderState, 
-			@Nullable EntityActionRenderState modRenderState, float seconds, float animSpeed) {
-		evaluateQueries(renderState);
+	public AnimFramePose calcAnimPose(@Nullable AnimMolangVariables animVariables, 
+			@Nullable AnimFramePose prevPunchPose, float seconds, float animSpeed) {
+		evaluateQueries(animVariables);
 		AnimFramePose frame = AnimFramePose.reused.clear();
 
-		Map<String, List<IAnimationChannel>> anim = SmoothPunchComboAnimTransition.transition(
-				boneAnimations, modRenderState != null ? modRenderState.prevPunchPose : null);
+		Map<String, List<IAnimationChannel>> anim = SmoothPunchComboAnimTransition.transition(boneAnimations, prevPunchPose);
 		for (Map.Entry<String, List<IAnimationChannel>> entry : anim.entrySet()) {
 			ModelPartFrame modelPartPose = frame.getForModelPart(entry.getKey());
 			for (IAnimationChannel tf : entry.getValue()) {
@@ -129,6 +130,23 @@ public class RotpAnimDefinition {
 		}
 	}
 	
+	@Deprecated
+	public AnimFramePose animate(Model model, LivingEntity entity, 
+			LivingComponentAction actionComponent, float seconds, float animSpeed, float partialTick) {
+		AnimFramePose frame = calcAnimPose(AnimMolangVariables.extract(entity, partialTick), 
+				actionComponent != null ? actionComponent.clPrevPunchPose : null, seconds, animSpeed);
+		animate(model, frame);
+		return frame;
+	}
+	
+	@Deprecated
+	public AnimFramePose animate(Model model, @Nullable AnimMolangVariables animVariables, 
+			@Nullable AnimFramePose prevPunchPose, float seconds, float animSpeed) {
+		AnimFramePose frame = calcAnimPose(animVariables, prevPunchPose, seconds, animSpeed);
+		animate(model, frame);
+		return frame;
+	}
+	
 
 	public static ModelPart getModelPart(String animBoneName, Model model, @Nullable HumanoidModel<?> humanoidModelCast, @Nullable Model_1_21_2plus rotpModelCast) {
 		if (humanoidModelCast != null) {
@@ -144,25 +162,11 @@ public class RotpAnimDefinition {
 		return null;
 	}
 	
-
-	public AnimFramePose animate(Model model, LivingEntityRenderState renderState, 
-			EntityActionRenderState modRenderState, float seconds, float animSpeed) {
-		AnimFramePose frame = calcAnimPose(renderState, modRenderState, seconds, animSpeed);
-		animate(model, frame);
-		return frame;
-	}
-
-	@Deprecated
-	public void animateVanillaPlayer(HumanoidModel<?> humanoidModel, LivingEntityRenderState renderState, 
-			EntityActionRenderState modRenderState, float seconds, float animSpeed) {
-		animate(humanoidModel, renderState, modRenderState, seconds, animSpeed);
-	}
-	
 	
 	/**
 	 * @return action anim time in seconds
 	 */
-	public float getAnimTime(EntityActionRenderState entityAction) {
+	public float getAnimTime(LivingAnimState entityAction) {
 		float animSeconds = 0;
 
 		boolean appliedPhaseAnim = false;
@@ -285,8 +289,8 @@ public class RotpAnimDefinition {
 	}
 	
 	
-	private void evaluateQueries(@Nullable LivingEntityRenderState renderState) {
-		if (renderState != null) 	AnimMolangQuery.instance.fillContext(renderState);
+	private void evaluateQueries(@Nullable AnimMolangVariables animVariables) {
+		if (animVariables != null) 	AnimMolangQuery.instance.fillContext(animVariables);
 		else						AnimMolangQuery.instance.reset();
 		queries.forEach(KeyframeQuery::evaluate);
 	}
@@ -367,19 +371,19 @@ public class RotpAnimDefinition {
 	}
 	
 	
-	public static class AnimWithIdReturn {
-		public static AnimWithIdReturn instance = new AnimWithIdReturn();
+	public static class AnimWithId {
+		public static AnimWithId instance = new AnimWithId();
 		
 		public ActionAnimIdentifier animId;
 		public RotpAnimDefinition anim;
 		
-		public static AnimWithIdReturn with(ActionAnimIdentifier animId, RotpAnimDefinition anim) {
+		public static AnimWithId with(ActionAnimIdentifier animId, RotpAnimDefinition anim) {
 			instance.animId = animId;
 			instance.anim = anim;
 			return instance;
 		}
 		
-		private AnimWithIdReturn() {}
+		private AnimWithId() {}
 	}
 	
 }
