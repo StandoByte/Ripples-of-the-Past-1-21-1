@@ -17,6 +17,7 @@ import com.github.standobyte.jojo.client.ui.utils.ScrollingText;
 import com.github.standobyte.jojo.client.ui.utils.TextUtil;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.MutableTooltipWrapper;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
+import com.github.standobyte.jojo.client.ui.widgets.ImageButton2;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
@@ -42,6 +43,8 @@ import net.neoforged.neoforge.network.PacketDistributor;
 public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 	public static final ResourceLocation WINDOW = JojoMod.resLoc("textures/gui/paper_style/stand_skills.png");
 	public static final GuiIcon SCROLL_BAR = new GuiIcon(WINDOW, 243, 58, 5, 162, 256, 256);
+	public static final GuiIcon CROSS = new GuiIcon(JojoMod.resLoc("textures/gui/sprites/widget/cross8.png"), 8, 8);
+	public static final GuiIcon CROSS_HIGHLIGHTED = new GuiIcon(JojoMod.resLoc("textures/gui/sprites/widget/cross8_highlighted.png"), 8, 8);
 	
 	protected TabCategory category;
 	protected Tab tab;
@@ -59,6 +62,8 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 	protected Button learnSkillButton;
 	protected MutableTooltipWrapper learnSkillTooltip;
 	protected Map<String, ConditionCheck> unlockSkillChecks = new HashMap<>();
+	
+	protected Button deselectSkillButton;
 
 	public StandSkillsScreen(Component title, TabCategory category, Tab tab) {
 		super(title);
@@ -115,12 +120,18 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		skillDescription = new ScrollingText(x + 86, y + 87, 124, 105);
 		skillControls = new ScrollingText(x + 100, y + 49, 117, 31);
 		setSelectedSkill(this.selectedSkill);
+		
+		deselectSkillButton = addRenderableWidget(new ImageButton2(x + 68, y + 23, 8, 8, 
+				CROSS, CROSS, CROSS_HIGHLIGHTED, CROSS_HIGHLIGHTED, 
+				button -> setSelectedSkill(null)));
 	}
 
 	protected static final int SKILL_LIST_X = 22;
 	protected static final int SKILL_LIST_Y = 57;
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float p_283123_) {
+		deselectSkillButton.visible = selectedSkill != null;
+		
 		this.renderBackground(guiGraphics, mouseX, mouseY, p_283123_);
 		
 		for (StandUnlockableSkill skill : skills) {
