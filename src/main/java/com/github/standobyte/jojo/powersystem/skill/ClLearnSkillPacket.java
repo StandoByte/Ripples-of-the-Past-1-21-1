@@ -14,16 +14,25 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 public class ClLearnSkillPacket implements CustomPacketPayload {
 	public PowerClass<?> powerClass;
 	public ResourceLocation powerType;
+	public PacketType packetType;
 	public String skillName;
 	
 	public static ClLearnSkillPacket learnSkill(PowerClass<?> powerClass, ResourceLocation powerType, String skillName) {
-		return new ClLearnSkillPacket(powerClass, powerType, skillName);
+		return new ClLearnSkillPacket(powerClass, powerType, PacketType.LEARN, skillName);
 	}
 	
-	protected ClLearnSkillPacket(PowerClass<?> powerClass, ResourceLocation powerType, String skillName) {
+	public ClLearnSkillPacket(PowerClass<?> powerClass, ResourceLocation powerType, PacketType packetType, String skillName) {
 		this.powerClass = powerClass;
 		this.powerType = powerType;
+		this.packetType = packetType;
 		this.skillName = skillName;
+	}
+	
+	public static enum PacketType {
+		LEARN,
+		LEARN_ALL,
+		RESET,
+		RESET_ALL
 	}
 	
 	
@@ -44,15 +53,27 @@ public class ClLearnSkillPacket implements CustomPacketPayload {
 		public void encode(ClLearnSkillPacket packet, RegistryFriendlyByteBuf buf) {
 			PowerClass.NETWORK_CODEC.encode(buf, packet.powerClass);
 			ResourceLocation.STREAM_CODEC.encode(buf, packet.powerType);
-			buf.writeUtf(packet.skillName);
+			buf.writeEnum(packet.packetType);
+			switch (packet.packetType) {
+				case LEARN_ALL, RESET_ALL -> {}
+				default -> buf.writeUtf(packet.skillName);
+			}
 		}
 
 		@Override
 		public ClLearnSkillPacket decode(RegistryFriendlyByteBuf buf) {
 			PowerClass<?> powerClass = PowerClass.NETWORK_CODEC.decode(buf);
 			ResourceLocation powerType = ResourceLocation.STREAM_CODEC.decode(buf);
-			String skillName = buf.readUtf();
-			return learnSkill(powerClass, powerType, skillName);
+			PacketType packetType = buf.readEnum(PacketType.class);
+			return switch (packetType) {
+				case LEARN_ALL, RESET_ALL -> {
+					yield new ClLearnSkillPacket(powerClass, powerType, packetType, null);
+				}
+				default -> {
+					String skillName = buf.readUtf();
+					yield new ClLearnSkillPacket(powerClass, powerType, packetType, skillName);
+				}
+			};
 		}
 		
 
@@ -63,7 +84,20 @@ public class ClLearnSkillPacket implements CustomPacketPayload {
 			if (power != null && power.hasPower() && power.getPowerType().getId().equals(payload.powerType)) {
 				PowerData powerData = power.getCurTypeData();
 				if (powerData != null) {
-					powerData.unlockSkill(power, payload.skillName);
+					switch (payload.packetType) {
+						case LEARN -> {
+							powerData.unlockSkill(power, payload.skillName);
+						}
+//						case LEARN_ALL -> {
+//							// unlock all skills and sync
+//						}
+//						case RESET -> {
+//							// remove skill
+//						}
+//						case RESET_ALL -> {
+//							// remove all skills and sync
+//						}
+					}
 				}
 			}
 		}

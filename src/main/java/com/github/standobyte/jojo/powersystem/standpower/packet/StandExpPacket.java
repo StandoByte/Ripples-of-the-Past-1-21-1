@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.powersystem.skill;
+package com.github.standobyte.jojo.powersystem.standpower.packet;
 
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.core.PacketsRegister;

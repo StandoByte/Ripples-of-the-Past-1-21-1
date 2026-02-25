@@ -45,9 +45,9 @@ import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActio
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionWithOBBSyncPacket;
 import com.github.standobyte.jojo.powersystem.entityaction.syncdata.TrActionSynchedDataPacket;
 import com.github.standobyte.jojo.powersystem.skill.ClLearnSkillPacket;
-import com.github.standobyte.jojo.powersystem.skill.StandExpPacket;
 import com.github.standobyte.jojo.powersystem.standpower.effect.TrStandEffectPacket;
 import com.github.standobyte.jojo.powersystem.standpower.packet.ResolveBoostsPacket;
+import com.github.standobyte.jojo.powersystem.standpower.packet.StandExpPacket;
 import com.github.standobyte.jojo.powersystem.standpower.packet.TrResolvePacket;
 import com.github.standobyte.jojo.powersystem.standpower.packet.TrStaminaPacket;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.BrokenChunkBlocksPacket;

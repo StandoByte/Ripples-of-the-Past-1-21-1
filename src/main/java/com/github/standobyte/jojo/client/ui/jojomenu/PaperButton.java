@@ -40,7 +40,7 @@ public class PaperButton extends Button {
 		guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
 		int i = getFGColor();
 		this.renderString(guiGraphics, minecraft.font, (i | Mth.ceil(this.alpha * 255.0F) << 24) & 0xFF000000);
-		if (isHovered()) {
+		if (isHovered() && enabled) {
 			RenderSystem.enableBlend();
 			ResourceLocation FOCUS_HIGHLIGHT = JojoMod.resLoc("jojo_ripples/paper_style/button_overlay");
 			guiGraphics.blitSprite(FOCUS_HIGHLIGHT, this.getX(), this.getY(), this.getWidth(), this.getHeight());

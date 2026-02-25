@@ -207,7 +207,10 @@
   "jojo_ripples.key.swap_items": "Swap items with Stand",
   "jojo.message.action_condition.stand_user_too_far": "You and your Stand are too far away from each other",
   
+  "jojo_ripples.stand_exp": "Stand EXP",
   "jojo_ripples.stand_skills.learn": "Gain Skill",
+  "jojo_ripples.stand_skills.not_enough_exp": "You don't have enough Stand EXP",
+  "jojo_ripples.stand_skills.prerequisites": "You need to gain the following skills first: %s",
   
   "stand.unknown": "Unknown Stand: %s",
   "effect.jojo_ripples.resolve": "Resolve",
