@@ -7,8 +7,9 @@ import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerData;
 import com.github.standobyte.jojo.powersystem.PowerType;
-import com.github.standobyte.jojo.powersystem.skill.StandExpPacket;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
+import com.github.standobyte.jojo.powersystem.standpower.packet.StandExpPacket;
 import com.github.standobyte.jojo.util.NBTUtil;
 import com.github.standobyte.jojo.util.network.NetworkUtil;
 
@@ -61,10 +62,11 @@ public class StandTypePersistentData extends PowerData {
 		LivingEntity user = userPower.getUser();
 		if (user.level().isClientSide()) return false;
 		
-		StandType standType = (StandType) userPower.getPowerType();
+		StandPower standPower = PowerClass.STAND.cast(userPower);
+		StandType standType = standPower.getPowerType();
 		if (standType != null && !isSkillUnlocked(skillName)) {
 			StandUnlockableSkill skill = standType.getUnlockableSkills().get(skillName);
-			if (skill != null && this.getExp() >= skill.expToUnlock) {
+			if (skill != null && skill.canUnlockFromMenu(standPower, this).isPositive()) {
 				setSkillUnlocked(skillName, true);
 				this.exp -= skill.expToUnlock;
 				syncOnUpdate(user);
