@@ -41,7 +41,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -99,7 +98,6 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 			setStandOffset(0, 2, StandOffsetFromUser.Rotations.HEAD_XY, false);
 			keepStandAimedAtTarget();
 			aimAs = AimingEntity.STAND;
-			tossStandHeldItems(EquipmentSlot.OFFHAND, EquipmentSlot.MAINHAND);
 		}
 		
 		@Override
