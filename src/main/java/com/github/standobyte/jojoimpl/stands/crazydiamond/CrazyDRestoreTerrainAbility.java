@@ -458,6 +458,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 			BlockPos targetPos = block.pos;
 			if (filter.test(targetPos, block)) {
 				BlockToFix<PrevBlockInfo> blockToRestore = new BlockToFix<>(block);
+				blockToRestore.targetPos = block.pos;
 				blocksToRestore.add(blockToRestore);
 			}
 		}
