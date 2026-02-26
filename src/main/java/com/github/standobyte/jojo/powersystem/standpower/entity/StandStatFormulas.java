@@ -27,35 +27,32 @@ public class StandStatFormulas {
 
 
 	public static float getLightAttackDamage(double strength) {
-		float damage = Math.max((float) strength * 0.25F, 0.0001F);
+		float damage = Math.max((float) strength * 0.25F, 0.1F);
 		return damage;
 	}
 
-//	public static float getLightAttackWindup(double speed, float finisherMeter, float guardCounter, boolean firstPunch) {
-//		float val = (24 - (float) speed) / 4;
-//		if (val <= 0) return 0;
-//
-//		if (val > 2) {
-//			val = Math.max(val * (1.0F - finisherMeter * 0.4F), 2);
-//		}
-//		val *= (1F - guardCounter);
-//
-//		if (firstPunch) {
-//			val /= 2;
-//		}
-//
-//		return val;
-//	}
+	public static float getLightAttackWindup(double speed, float finisherMeter, boolean firstPunch) {
+		float val = 8 - (float) speed / 6;
+		if (val <= 0) return 0;
+
+		val *= 1.0F - finisherMeter * 0.2F;
+
+		if (firstPunch) {
+			val /= 2;
+		}
+
+		return val;
+	}
 
 
 
 	public static float getBarrageHitDamage(double strength) {
-		float damage = 0.04F + (float) strength * 0.01F;
+		float damage = (float) (strength + 1) * 0.008F;
 		return damage;
 	}
 
 	public static float getBarrageHitsPerSecond(double speed) {
-		return Math.max((float) speed * 8.0f - 20.0f, 0);
+		return Math.max((float) speed * 8.0f, 0);
 	}
 
 	public static float getBarrageMaxDuration(double durability) {

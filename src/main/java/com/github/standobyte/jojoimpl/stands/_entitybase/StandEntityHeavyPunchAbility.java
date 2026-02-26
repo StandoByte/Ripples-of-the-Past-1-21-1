@@ -99,7 +99,8 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 			LivingEntity powerUser, LivingEntity performer) {
 		super.initActionFromConfig(action, level, powerUser, performer);
 		if (!level.isClientSide() && performer instanceof StandEntity stand) {
-			action.phasesLength.put(ActionPhase.WINDUP, StandStatFormulas.getHeavyAttackWindup(stand.getAttackSpeed(), stand.getFinisherMeter()));
+			action.phasesLength.put(ActionPhase.WINDUP, StandStatFormulas.getHeavyAttackWindup(
+					stand.getAttackSpeed(), stand.getFinisherMeter()));
 		}
 	}
 

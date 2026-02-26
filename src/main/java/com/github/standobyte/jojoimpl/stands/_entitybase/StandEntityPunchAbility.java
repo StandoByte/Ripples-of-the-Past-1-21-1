@@ -79,8 +79,9 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 	@Override
 	public void initActionFromConfig(EntityActionInstance action, Level level, LivingEntity standUser, LivingEntity standEntity) {
 		super.initActionFromConfig(action, level, standUser, standEntity);
-		if (!level.isClientSide()) {
-			
+		if (!level.isClientSide() && standEntity instanceof StandEntity stand) {
+			action.phasesLength.put(ActionPhase.WINDUP, StandStatFormulas.getLightAttackWindup(
+					stand.getAttackSpeed(), stand.getFinisherMeter(), stand.getCurStandAction() == null));
 		}
 	}
 	
