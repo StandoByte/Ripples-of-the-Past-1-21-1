@@ -189,7 +189,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 					}
 					DamageSource dmgSource = makePunchDamageSource();
 					float dmgAmount = StandStatFormulas.getHeavyAttackDamage(stand.getAttackDamage());
-					float explRadius = Math.min((float) stand.getAttackDamage() * 0.175f, 10);
+					float explRadius = Math.min((float) stand.getAttackDamage() * 0.125f, 10);
 
 					switch (target.getType()) {
 						case ENTITY -> hitEntity(target, level, stand, dmgSource, dmgAmount, explRadius);
@@ -198,7 +198,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 					}
 
 					punchedTarget = target;
-					standPower.consumeStamina(10);
+					standPower.consumeStamina(50);
 					stand.consumeFinisherMeter(1.0001f);
 				}
 				if (target.getType() == TargetType.ENTITY) {

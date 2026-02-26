@@ -11,6 +11,7 @@ import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityLingeringSoundInstance;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker;
+import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker.BlockBreakResult;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.Moveset;
 import com.github.standobyte.jojo.powersystem.Power;
@@ -187,42 +188,42 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 			float blockDamage = (float) standStrength * StandStatFormulas.getBlockMiningEfficiency(standStrength) * 0.05f;
 			float blockHardness = StandStatFormulas.getBlockHardness(standStrength, blockState, level, blockPos);
 			
-			var blockPunch = ServerBlockDestroyTracker.addBlockDestroyProgress((ServerLevel) level, stand, blockPos, 
-					blockDamage / blockHardness);
-			if (blockPunch.progressNew >= 1) {
-				boolean dropBlock = !isUserCreative();
-				level.destroyBlock(blockPos, dropBlock, stand);
-				
-				// add cracks to the blocks around
-				blockDamage -= blockPunch.progressAdded * blockHardness;
-				if (blockDamage > 0) {
-					float aroundDamageTotal = blockDamage;
-					List<BlockPosState> blocksAround = new ArrayList<>(25);
-					BlockPos.MutableBlockPos nearbyPos = new BlockPos.MutableBlockPos();
-					int centerX = blockPos.getX();
-					int centerY = blockPos.getY();
-					int centerZ = blockPos.getZ();
-					for (int x = -1; x <= 1; x++) for (int y = -1; y <= 1; y++) for (int z = -1; z <= 1; z++) {
-						int manhattanDist = Math.abs(x) + Math.abs(y) + Math.abs(z);
-						if (manhattanDist > 0 && manhattanDist < 3) {
-							nearbyPos.set(centerX + x, centerY + y, centerZ + z);
-							BlockState nearbyState = level.getBlockState(nearbyPos);
-							if (!nearbyState.isEmpty()) {
-								blocksAround.add(new BlockPosState(nearbyPos.immutable(), nearbyState, manhattanDist));
-							}
+			BlockBreakResult blockPunch = ServerBlockDestroyTracker.addBlockDestroyProgress((ServerLevel) level, stand, 
+					blockPos, blockState, blockDamage / blockHardness);
+			if (blockPunch.progressNew < 1) return;
+			
+			boolean dropBlock = !isUserCreative();
+			level.destroyBlock(blockPos, dropBlock, stand);
+			blockDamage -= blockPunch.progressAdded * blockHardness;
+
+			// add cracks to the blocks around
+			if (blockDamage > 0) {
+				float aroundDamageTotal = blockDamage;
+				List<BlockPosState> blocksAround = new ArrayList<>(25);
+				BlockPos.MutableBlockPos nearbyPos = new BlockPos.MutableBlockPos();
+				int centerX = blockPos.getX();
+				int centerY = blockPos.getY();
+				int centerZ = blockPos.getZ();
+				for (int x = -1; x <= 1; x++) for (int y = -1; y <= 1; y++) for (int z = -1; z <= 1; z++) {
+					int manhattanDist = Math.abs(x) + Math.abs(y) + Math.abs(z);
+					if (manhattanDist > 0 && manhattanDist < 3) {
+						nearbyPos.set(centerX + x, centerY + y, centerZ + z);
+						BlockState nearbyState = level.getBlockState(nearbyPos);
+						if (!nearbyState.isEmpty() && nearbyState.getDestroySpeed(level, nearbyPos) > 0) {
+							blocksAround.add(new BlockPosState(nearbyPos.immutable(), nearbyState, manhattanDist));
 						}
 					}
-					if (!blocksAround.isEmpty()) {
-						Collections.shuffle(blocksAround);
-						for (BlockPosState block : blocksAround) {
-							blockHardness = StandStatFormulas.getBlockHardness(standStrength, block.blockState, level, block.blockPos);
-							float multiplier = (0.5f + 0.5f * OOPMoment.RANDOM.nextFloat()) / block.manhattanDist;
-							float damageToDeal = Math.min(blockDamage, aroundDamageTotal / blocksAround.size() * multiplier);
-							blockPunch = ServerBlockDestroyTracker.addBlockDestroyProgress((ServerLevel) level, stand, block.blockPos, 
-									damageToDeal / blockHardness);
-							blockDamage -= blockPunch.progressAdded * blockHardness;
-							if (blockDamage <= 0) break;
-						}
+				}
+				if (!blocksAround.isEmpty()) {
+					Collections.shuffle(blocksAround);
+					for (BlockPosState block : blocksAround) {
+						blockHardness = StandStatFormulas.getBlockHardness(standStrength, block.blockState, level, block.blockPos);
+						float multiplier = (0.5f + 0.5f * OOPMoment.RANDOM.nextFloat()) / block.manhattanDist;
+						float damageToDeal = Math.min(blockDamage, aroundDamageTotal / blocksAround.size() * multiplier);
+						blockPunch = ServerBlockDestroyTracker.addBlockDestroyProgress((ServerLevel) level, stand, 
+								block.blockPos, block.blockState, damageToDeal / blockHardness, false);
+						blockDamage -= blockPunch.progressAdded * blockHardness;
+						if (blockDamage <= 0) break;
 					}
 				}
 			}

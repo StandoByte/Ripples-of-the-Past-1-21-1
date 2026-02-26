@@ -35,10 +35,20 @@ public class ServerBlockDestroyTracker {
 	}
 
 	public static BlockBreakResult addBlockDestroyProgress(ServerLevel level, @Nullable Entity entity, 
-			BlockPos blockPos, float progress/*, int ticksBeforeRevert*/) {
+			BlockPos blockPos, BlockState blockState, float progress/*, int ticksBeforeRevert*/) {
+		return addBlockDestroyProgress(level, entity, blockPos, blockState, progress, true);
+	}
+
+	public static BlockBreakResult addBlockDestroyProgress(ServerLevel level, @Nullable Entity entity, 
+			BlockPos blockPos, BlockState blockState, float progress/*, int ticksBeforeRevert*/, boolean removeOnFull) {
 		BlockBreakResult res = BlockBreakResult.instance;
 		res.progressNew = 0;
 		res.progressAdded = 0;
+		
+		float hardness = blockState.getDestroySpeed(level, blockPos);
+		if (hardness < 0) { // unbreakable blocks like bedrock
+			return res;
+		}
 		
 		ServerBlockDestroyTracker tracker = level.getData(ModDataAttachmentTypes.BLOCK_DESTROY.get());
 		if (tracker == null) {
@@ -49,8 +59,13 @@ public class ServerBlockDestroyTracker {
 				pos -> new BlockDestroy(counter.getAndIncrement() % 16383 /* 2 bytes of varint */));
 //		blockProgress.ticksBeforeRevert = ticksBeforeRevert;
 		blockProgress.ticksBeforeRevert = 40;
+		
 		float prevDestroy = blockProgress.getProgress();
-		boolean remove = blockProgress.setAndSyncProgress(blockProgress.curProgress + progress, blockPos, level);
+		float newDestroy = blockProgress.curProgress + progress;
+		if (!removeOnFull) {
+			newDestroy = Math.min(newDestroy, 0.9999f);
+		}
+		boolean remove = blockProgress.setAndSyncProgress(newDestroy, blockPos, level);
 		if (remove) {
 			tracker.blockDestroy.remove(blockPos);
 		}

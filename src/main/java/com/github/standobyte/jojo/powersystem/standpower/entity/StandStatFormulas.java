@@ -25,7 +25,6 @@ public class StandStatFormulas {
 	}
 
 
-
 	public static float getLightAttackDamage(double strength) {
 		float damage = Math.max((float) strength * 0.25F, 0.1F);
 		return damage;
@@ -45,7 +44,6 @@ public class StandStatFormulas {
 	}
 
 
-
 	public static float getBarrageHitDamage(double strength) {
 		float damage = (float) (strength + 1) * 0.008F;
 		return damage;
@@ -60,12 +58,18 @@ public class StandStatFormulas {
 	}
 
 
-
 	public static float getChargedHeavyAttackDamage(double strength) {
 		float damage = Math.max((float) strength, 1F) * 1.5f;
 		return damage;
 	}
 
+	public static float getChargedHeavyButtonWindup(double speed, float finisherMeter) {
+		return getHeavyAttackWindup(speed, finisherMeter) * 1.5f;
+	}
+
+	public static float getChargedHeavyPunchWindup(double speed, float finisherMeter) {
+		return getHeavyAttackWindup(speed, finisherMeter) * 0.5f;
+	}
 
 
 	public static float getPhysicalResistance(double durability, double strength, float blocked, float damageDealt) {
