@@ -427,6 +427,10 @@ public class EntityActionInstance implements HeldInput {
 	@ApiStatus.NonExtendable
 	public float getAnimPhaseLength() {
 		float phaseLength = curPhaseLength;
+		float lengthPartial = Mth.frac(phaseLength);
+		// reflects the actual length (integer)
+		if (lengthPartial > 0) phaseLength += 1 - lengthPartial;
+		
 		if (skippedWindupPhase != null) {
 			phaseLength -= skippedWindupPhase.getOrDefault(this.phase, 0);
 		}
