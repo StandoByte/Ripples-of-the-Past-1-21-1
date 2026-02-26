@@ -4,6 +4,7 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityLingeringSoundInstance;
 import com.github.standobyte.jojo.init.ModSoundEvents;
+import com.github.standobyte.jojo.mechanics.explosion.CustomExplosion;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
@@ -16,27 +17,33 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
+import com.github.standobyte.jojo.util.JojoModUtil;
 import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.target.AimingEntity;
 import com.github.standobyte.jojo.util.target.HitResultUtil;
+import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityHeavyPunchAbility.HeavyPunchExplosion;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 
 	public StandEntityHeavyPunchChargedAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId, StandEntityChargedHeavy::new);
 		usageGroup = AbilityUsageGroup.COMBAT;
-		setDefaultPhaseLength(ActionPhase.BUTTON_CHARGE, 16);
+		setDefaultPhaseLength(ActionPhase.BUTTON_CHARGE, 21);
 		setButtonHoldPhase(ActionPhase.WINDUP);
-		setDefaultPhaseLength(ActionPhase.PERFORM, 6);
+		setDefaultPhaseLength(ActionPhase.PERFORM, 7);
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 12);
 	}
 	
@@ -44,7 +51,19 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 	public boolean isAbilityAvailable(Power<?> context) {
 		return super.isAbilityAvailable(context) && StandUtil.getStandGrabTarget(context) == null;
 	}
-	
+
+
+	@Override
+	public void initActionFromConfig(EntityActionInstance action, Level level, 
+			LivingEntity powerUser, LivingEntity performer) {
+		super.initActionFromConfig(action, level, powerUser, performer);
+		if (!level.isClientSide() && performer instanceof StandEntity stand) {
+			action.phasesLength.put(ActionPhase.BUTTON_CHARGE, StandStatFormulas.getChargedHeavyButtonWindup(
+					stand.getAttackSpeed(), stand.getFinisherMeter()));
+			action.phasesLength.put(ActionPhase.PERFORM, StandStatFormulas.getChargedHeavyPunchWindup(
+					stand.getAttackSpeed(), stand.getFinisherMeter()));
+		}
+	}
 	
 	public static class StandEntityChargedHeavy extends EntityActionInstance {
 		protected float buttonChargeRatio;
@@ -113,15 +132,19 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 								ModSoundEvents.STAND_PUNCH_HEAVY_CHARGED, true, standPower, 
 								stand.getSoundSource(), 1, 1);
 					}
+					DamageSource dmgSource = makePunchDamageSource();
+					float dmgAmount = StandStatFormulas.getChargedHeavyAttackDamage(stand.getAttackDamage());
+					float explRadius = Math.min((float) stand.getAttackDamage() * 0.25f, 10);
 					
 					switch (target.getType()) {
-						case ENTITY -> hitEntity(target, level, stand);
-						case BLOCK -> hitBlock(target, level, stand);
+						case ENTITY -> hitEntity(target, level, stand, dmgSource, dmgAmount, explRadius);
+						case BLOCK -> hitBlock(target, level, stand, dmgSource, dmgAmount, explRadius);
 						default -> {}
 					}
 					
 					punchedTarget = target;
 					standPower.consumeStamina(100);
+					stand.consumeFinisherMeter(1.0001f);
 				}
 				if (target.getType() == TargetType.ENTITY) {
 					standRotationTarget = target;
@@ -132,12 +155,11 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 			}
 		}
 		
-		protected void hitEntity(ActionTarget target, Level level, StandEntity stand) {
+		protected void hitEntity(ActionTarget target, Level level, StandEntity stand, 
+				DamageSource dmgSource, float dmgAmount, float explRadius) {
 			Entity targetEntity = target.getMainEntity();
 			if (targetEntity instanceof LivingEntity targetLiving) {
-                DamageSource dmgSource = makePunchDamageSource();
                 addKnockback(dmgSource);
-				float dmgAmount = StandStatFormulas.getChargedHeavyAttackDamage(stand.getAttackDamage());
 				standEntityAttack(stand, targetLiving, dmgSource, dmgAmount);
 			}
 		}
@@ -147,8 +169,22 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 			knockback.jojo_ripples$modifyKnockback(2.5f, 1);
 		}
 		
-		protected void hitBlock(ActionTarget target, Level level, StandEntity stand) {
-			
+		protected void hitBlock(ActionTarget target, Level level, StandEntity stand, 
+				DamageSource dmgSource, float dmgAmount, float explRadius) {
+			BlockPos blockPos = target.getBlockPos();
+			Direction face = target.getFace();
+			Vec3 pos = Vec3.atCenterOf(blockPos).add(Vec3.atLowerCornerOf(face.getNormal()).scale(0.6));
+			DamageSource aoeDmgSource = dmgSource;
+			float aoeDmg = dmgAmount * 0.5f;
+			HeavyPunchExplosion explosion = new HeavyPunchExplosion(level, stand, 
+					new ActionTarget(blockPos, face), stand.getLookAngle(), 
+					aoeDmgSource, 
+					pos.x, pos.y, pos.z, 
+					explRadius, false, 
+					JojoModUtil.breakingBlocksEnabled(level) ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.KEEP)
+					.aoeDamage(aoeDmg)
+					.createBlockShards(stand.getAttackDamage(), stand.getPrecision());
+			CustomExplosion.explode(explosion);
 		}
 		
 		@Override

@@ -224,27 +224,25 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 			double standStrength = stand.getAttackDamage();
 			double standSpeed = stand.getAttackSpeed();
 			
-			boolean breakBlock;
 			float blockHardnessForStand = StandStatFormulas.getBlockHardness(standStrength, blockState, level, blockPos);
 			if (blockHardnessForStand >= 0) {
 				float standEfficiency = StandStatFormulas.getBarrageBlockMiningEfficiency(standStrength, standSpeed);
 				float destroyProgress = standEfficiency / (blockHardnessForStand * 100);
 				
-				breakBlock = ServerBlockDestroyTracker.addBlockDestroyProgress((ServerLevel) level, stand, blockPos, destroyProgress).progressNew >= 1;
-			}
-			else {
-				breakBlock = true;
-			}
-			if (breakBlock) {
-				boolean dropBlock = !isUserCreative();
-				level.destroyBlock(blockPos, dropBlock, stand);
-				return;
+				boolean breakBlock = blockHardnessForStand == 0 || ServerBlockDestroyTracker.addBlockDestroyProgress((ServerLevel) level, stand, 
+						blockPos, blockState, destroyProgress).progressNew >= 1;
+				if (breakBlock) {
+					boolean dropBlock = !isUserCreative();
+					level.destroyBlock(blockPos, dropBlock, stand);
+				}
 			}
 			
-			if (curPhaseTick % 2 == 0) {
-				SoundType blockSounds = blockState.getSoundType(level, blockPos, stand);
-				level.playSound(null, blockPos, blockSounds.getHitSound(), SoundSource.BLOCKS, 
-						(blockSounds.getVolume() + 1.0F) / 8.0F, blockSounds.getPitch() * 0.5F);
+			if (blockHardnessForStand != 0) {
+				if (curPhaseTick % 2 == 0) {
+					SoundType blockSounds = blockState.getSoundType(level, blockPos, stand);
+					level.playSound(null, blockPos, blockSounds.getHitSound(), SoundSource.BLOCKS, 
+							(blockSounds.getVolume() + 1.0F) / 8.0F, blockSounds.getPitch() * 0.5F);
+				}
 			}
 		}
 		
