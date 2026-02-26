@@ -303,6 +303,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 			if (curAbility != null) {
 				String actionName = curAbility.nameInMoveset();
 				for (int i = 0; i < punchNamesBuffer.size(); i++) {
+					// FIXME !!!!! java.lang.NullPointerException: Cannot invoke "String.equals(Object)" because the return value of "java.util.List.get(int)" is null
 					if (punchNamesBuffer.get(i).equals(actionName)) {
 						startFromPunch = i + 1;
 						break;
