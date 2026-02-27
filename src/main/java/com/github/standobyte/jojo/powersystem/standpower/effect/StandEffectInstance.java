@@ -219,6 +219,8 @@ public abstract class StandEffectInstance {
 	protected abstract void start();
 	protected abstract void tick();
 	protected abstract void stop();
+	
+	public void onFrame(float tickDelta) {}
 
 	protected boolean shouldClearTarget(Entity target, @Nullable LivingEntity targetLiving) {
 		return targetLiving != null && targetLiving.isDeadOrDying();
