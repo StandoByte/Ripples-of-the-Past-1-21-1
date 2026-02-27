@@ -133,7 +133,7 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 	public void tick() {
 		if (action != null) {
 			tickAction();
-			if (action != null) {
+			if (action != null && !entity.level().isClientSide()) {
 				SyncActionInstanceData.tickSyncDirtyData(entity, action.synchedData.getDataSyncher());
 			}
 		}
@@ -157,6 +157,7 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 	public void syncToTracking(ServerPlayer player) {
 		PacketDistributor.sendToPlayer(player, new TrEntityActionInstancePacket(
 				entity.getId(), action));
+		SyncActionInstanceData.onStartedTracking(player, entity, action);
 	}
 	
 	@Override

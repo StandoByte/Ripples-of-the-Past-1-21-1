@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.util.syncheddata;
 
+import java.util.function.BooleanSupplier;
+
 import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
@@ -8,15 +10,18 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 
 public class SynchedDataHelper {
-	protected HasLevelReference entityLikeObject;
-	protected String objClassName;
+	protected Object entityLikeObject;
+	protected BooleanSupplier clientSideCheck;
+	
 	protected boolean clientSide;
+	protected String objClassName;
 	
 	@Nullable protected SynchedDataExtended synchedData;
 	protected boolean didLazyInit;
 	
-	public SynchedDataHelper(HasLevelReference entityLikeObject) {
+	public SynchedDataHelper(Object entityLikeObject, BooleanSupplier isClientSide) {
 		this.entityLikeObject = entityLikeObject;
+		this.clientSideCheck = isClientSide;
 		this.objClassName = entityLikeObject.getClass().getName();
 	}
 	
@@ -24,14 +29,17 @@ public class SynchedDataHelper {
 	@ApiStatus.NonExtendable
 	public SynchedDataExtended getDataSyncher() {
 		if (synchedData == null && !didLazyInit) {
-			clientSide = entityLikeObject.isClientSide();
+			clientSide = clientSideCheck.getAsBoolean();
 			if (entityLikeObject instanceof SyncedDataHolderExtended withSynchedData) {
 				SynchedEntityData.Builder builder = new SynchedEntityData.Builder(withSynchedData);
 				withSynchedData.defineSynchedData(builder);
 				synchedData = new SynchedDataExtended(builder, clientSide);
 			}
-			entityLikeObject = null; // we don't need this reference anymore
 			didLazyInit = true;
+			
+			// we don't need this stuff anymore
+			entityLikeObject = null;
+			clientSideCheck = null;
 		}
 		return synchedData;
 	}
