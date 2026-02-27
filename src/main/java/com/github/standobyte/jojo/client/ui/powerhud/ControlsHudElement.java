@@ -481,7 +481,7 @@ public class ControlsHudElement extends HudElement {
 						}
 						case HOLD -> {
 							HeldKeyTimer heldKeyTimer = modInput.getHeldKeyTimer(ability.key);
-							yield heldKeyTimer != null && heldKeyTimer.getInputMethod() == InputMethod.HOLD;
+							yield heldKeyTimer != null && heldKeyTimer.isDefinitelyHold();
 						}
 					};
 					if (isClicked) {

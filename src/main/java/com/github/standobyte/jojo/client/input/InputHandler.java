@@ -21,6 +21,7 @@ import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ClientTickHandler;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.config.ClientModSettings;
+import com.github.standobyte.jojo.client.input.clickhold.AmbiguousKeyPress;
 import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.AbilityControlsEntry;
@@ -102,8 +103,8 @@ public class InputHandler {
 	@SubscribeEvent
 	public void handleKeyBindingsPost(ClientTickEvent.Post event) {
 		vanillaKeybinds.handleTick();
-		tickHeldKeyTimers();
 		tickReleaseEventQueue();
+		tickKeyPressIndication();
 	}
 	
 	@SubscribeEvent(priority = EventPriority.HIGH)
@@ -244,22 +245,43 @@ public class InputHandler {
 				@Nullable BaseAndActiveAbility clickAbility = input.clickAbility.curActiveAbility != null ? input.clickAbility : null;
 				
 				boolean ambiguousClickOrHold = heldAbility != null && clickAbility != null;
-				InputMethod inputMethod = 
-						ambiguousClickOrHold ? null : 
-						heldAbility != null ? InputMethod.HOLD : 
-						clickAbility != null ? InputMethod.CLICK : 
-						null;
 				cancelVanilla |= heldAbility != null || clickAbility != null;
-
 				HeldKeyTimer heldKeyTimer = new HeldKeyTimer(key, cancelVanilla, keyModifier);
+				
 				if (ambiguousClickOrHold) {
-					heldKeyTimer.setResolveInputMethod(new ClickHoldResolve(heldAbility.baseAbility, clickAbility.baseAbility));
+					AmbiguousKeyPress resolveInputMethod = new AmbiguousKeyPress();
+
+					if (heldAbility != null) {
+						Ability heldBaseAbility = heldAbility.baseAbility;
+						resolveInputMethod.onHold = (float ticksToResolveHeld) -> {
+							AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(heldBaseAbility.abilityId.powerClass());
+							AbilityConditionCheck abilityResolved = curAbilities.getContextVariationContainer(heldBaseAbility);
+							doClickInput(InputEventType.PRESS_HOLD, keyId, heldBaseAbility, abilityResolved, ticksToResolveHeld);
+						};
+					}
+					
+					if (clickAbility != null) {
+						Ability clickBaseAbility = clickAbility.baseAbility;
+						resolveInputMethod.onClick = (float ticksToResolveClick) -> {
+							AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(clickBaseAbility.abilityId.powerClass());
+							AbilityConditionCheck abilityResolved = curAbilities.getContextVariationContainer(clickBaseAbility);
+							doClickInput(InputEventType.PRESS_CLICK, keyId, clickBaseAbility, abilityResolved, ticksToResolveClick);
+						};
+					}
+					
+					heldKeyTimer.setAmbiguousInputMethod(resolveInputMethod);
 				}
-				else if (inputMethod != null) {
-					heldKeyTimer.setInputMethod(inputMethod);
-					switch (inputMethod) {
-						case HOLD -> doClickInput(InputEventType.PRESS_HOLD, keyId, heldAbility.baseAbility, heldAbility.curActiveAbility, 0);
-						case CLICK -> doClickInput(InputEventType.PRESS_CLICK, keyId, clickAbility.baseAbility, input.clickAbility.curActiveAbility, 0);
+				
+				else {
+					InputMethod inputMethod = 
+							heldAbility != null ? InputMethod.HOLD : 
+							clickAbility != null ? InputMethod.CLICK : 
+							null;
+					if (inputMethod != null) {
+						switch (inputMethod) {
+							case HOLD -> doClickInput(InputEventType.PRESS_HOLD, keyId, heldAbility.baseAbility, heldAbility.curActiveAbility, 0);
+							case CLICK -> doClickInput(InputEventType.PRESS_CLICK, keyId, clickAbility.baseAbility, input.clickAbility.curActiveAbility, 0);
+						}
 					}
 				}
 				
@@ -317,7 +339,7 @@ public class InputHandler {
 	// Held keys stuff
 	
 	public Map<ClientKey, HeldKeyTimer> _heldKeys = new HashMap<>();
-	public Map<ClientKey, MutableInt> _recentlyClicked = new HashMap<>();
+	public Map<ClientKey, MutableInt> _recentlyPressed = new HashMap<>();
 	
 	public HeldKeyTimer getHeldKeyTimer(ClientKey key) {
 		return _heldKeys.get(key);
@@ -332,25 +354,22 @@ public class InputHandler {
 		return timer;
 	}
 	
-	protected void tickHeldKeyTimers() {
-		for (var heldKey : _heldKeys.values()) {
-			heldKey.incTicks();
-		}
-		
-		for (MutableInt timer : _recentlyClicked.values()) {
+	
+	public void onResolvedKeyAsClick(ClientKey key) {
+		_recentlyPressed.computeIfAbsent(key, __ -> new MutableInt(0)).setValue(3);
+	}
+	
+	public boolean wasKeyClickedRecently(ClientKey key) {
+		MutableInt timer = _recentlyPressed.get(key);
+		return timer != null && timer.intValue() >= 0;
+	}
+	
+	protected void tickKeyPressIndication() {
+		for (MutableInt timer : _recentlyPressed.values()) {
 			if (timer.intValue() >= 0) {
 				timer.decrement();
 			}
 		}
-	}
-	
-	public void onResolvedKeyAsClick(ClientKey key) {
-		_recentlyClicked.computeIfAbsent(key, __ -> new MutableInt(0)).setValue(3);
-	}
-	
-	public boolean wasKeyClickedRecently(ClientKey key) {
-		MutableInt timer = _recentlyClicked.get(key);
-		return timer != null && timer.intValue() >= 0;
 	}
 	
 	
@@ -367,38 +386,33 @@ public class InputHandler {
 	}
 	
 	private void clickHeldOnRelease(HeldKeyTimer heldKeyTimer, short keyId) {
-		ClickHoldResolve keyResolution = heldKeyTimer.getResolvingInputMethod();
-		if (keyResolution != null) {
-			ClickHoldResolve.Result wasItClick = keyResolution.keyReleased();
-			if (wasItClick != null && wasItClick.input() == ClickHoldResolve.InputState.CLICK) {
-				Ability baseAbility = keyResolution.clickBaseAbility;
-				AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(baseAbility.abilityId.powerClass());
-				AbilityConditionCheck abilityResolved = curAbilities.getContextVariationContainer(baseAbility);
-				float ticksToResolveClick = wasItClick.timeTook();
-				doClickInput(InputEventType.PRESS_CLICK, keyId, baseAbility, abilityResolved, ticksToResolveClick);
-				heldKeyTimer.setInputMethod(InputMethod.CLICK);
+		AmbiguousKeyPress inputResolution = heldKeyTimer.getAmbiguousInputMethod();
+		if (inputResolution != null) {
+			AmbiguousKeyPress.Result wasItClick = inputResolution.keyReleased();
+			if (wasItClick != null && wasItClick.input() == AmbiguousKeyPress.InputState.CLICK) {
+				if (inputResolution.onClick != null) {
+					inputResolution.onClick.accept(wasItClick.timeTook());
+				}
+				heldKeyTimer.setAmbiguousInputMethod(null);
+				onResolvedKeyAsClick(heldKeyTimer.key);
 			}
 		}
 	}
 	
 	private void frameUpdateHeldKeys(float tickDelta) {
 		for (HeldKeyTimer timer : _heldKeys.values()) {
-			ClickHoldResolve keyResolution = timer.getResolvingInputMethod();
-			if (keyResolution != null) {
-				var changedState = keyResolution.frameUpdate(tickDelta);
-				if (changedState != null) {
-					switch (changedState.input()) {
-						case ASSUME_HOLD -> {}
-						case HOLD -> {
-							Ability baseAbility = keyResolution.heldBaseAbility;
-							AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(baseAbility.abilityId.powerClass());
-							AbilityConditionCheck abilityResolved = curAbilities.getContextVariationContainer(baseAbility);
-							float ticksToResolveHeld = changedState.timeTook();
-							doClickInput(InputEventType.PRESS_HOLD, timer.key.keyId(), baseAbility, abilityResolved, ticksToResolveHeld);
-							timer.setInputMethod(InputMethod.HOLD);
+			AmbiguousKeyPress.Result changedState = timer.frameUpdate(tickDelta);
+			if (changedState != null) {
+				AmbiguousKeyPress inputResolution = timer.getAmbiguousInputMethod();
+				switch (changedState.input()) {
+					case ASSUME_HOLD -> {}
+					case HOLD -> {
+						if (inputResolution.onHold != null) {
+							inputResolution.onHold.accept(changedState.timeTook());
 						}
-						default -> {}
+						timer.setAmbiguousInputMethod(null);
 					}
+					default -> {}
 				}
 			}
 		}
