@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.client.model.data.ModelData;
 
 public class BlockShardRenderer extends EntityRenderer<BlockShardEntity> {
 
@@ -32,7 +33,8 @@ public class BlockShardRenderer extends EntityRenderer<BlockShardEntity> {
 	public ResourceLocation getTextureLocation(BlockShardEntity pEntity) {
 		BlockState block = pEntity.getBlock();
 		if (block != null) {
-			TextureAtlasSprite sprite = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getParticleIcon(block);
+			TextureAtlasSprite sprite = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper()
+					.getBlockModel(block).getParticleIcon(ModelData.EMPTY);
 			if (sprite != null) {
 				ResourceLocation texture = CrazyDBlockBulletRenderer.getSpriteTexture(sprite);
 				if (texture != null) {

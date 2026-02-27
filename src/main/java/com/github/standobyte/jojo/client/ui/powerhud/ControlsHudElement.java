@@ -301,7 +301,7 @@ public class ControlsHudElement extends HudElement {
 						AbilityControlsEntry abilityEntry = slot.getBinds().getFirst(modifier, inputMethod);
 						if (abilityEntry != null) {
 							AvailableAbilities allAbilities = ClientPowerCache.getAvailableAbilities(abilityEntry.powerClass());
-							AbilityConditionCheck ability = allAbilities.getAbilityResolved(abilityEntry.abilityName());
+							AbilityConditionCheck ability = allAbilities.getContextVariationContainer(abilityEntry.abilityName());
 							AbilityBindUI bind = makeAbilityBindUI(key, null, 
 									inputMethod, ability, 
 									abilityIconSprites, standSkin, 

@@ -125,6 +125,7 @@ public class PlayerExternalContainers implements TickingEntityData {
 		return containers.values();
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Nullable
 	public <T extends AbstractContainerMenu> T getContainerOfType(Class<T> clazz) {
 		for (AbstractContainerMenu container : containers.values()) {

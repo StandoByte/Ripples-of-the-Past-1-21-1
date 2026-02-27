@@ -104,7 +104,7 @@ public class ClAbilityInputPacket implements CustomPacketPayload {
 					if (baseAbility != null) {
 						Power<?> power = baseAbility.getUserPower(player);
 						if (power != null) {
-							AbilityConditionCheck ability = power.updateAvailableMoves().getAbilityResolved(baseAbility);
+							AbilityConditionCheck ability = power.updateAvailableMoves().getContextVariationContainer(baseAbility);
 							if (AbilityInput.withConditionCheck(ability, player)) {
 								AbilityInput.keyPress(payload.key, ability.ability, player, payload.extraData, 
 										payload.inputEvent.inputMethod, payload.timeTookToResolve, BufferingState.clickCanBuffer(), baseAbility.abilityId);

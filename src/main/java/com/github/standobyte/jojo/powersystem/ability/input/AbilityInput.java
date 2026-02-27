@@ -36,7 +36,7 @@ public class AbilityInput {
 		}
 		
 		AvailableAbilities availableAbilities = power.updateAvailableMoves();
-		AbilityConditionCheck abilityConditionCheck = availableAbilities.getAbilityResolved(ability);
+		AbilityConditionCheck abilityConditionCheck = availableAbilities.getContextVariationContainer(ability);
 		return withConditionCheck(abilityConditionCheck, user);
 	}
 	

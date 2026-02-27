@@ -253,8 +253,6 @@ public class InputHandler {
 
 				HeldKeyTimer heldKeyTimer = new HeldKeyTimer(key, cancelVanilla, keyModifier);
 				if (ambiguousClickOrHold) {
-					// TODO (!!!!) only do this if both abilities have a windup (if not, then idfk, it's 2AM rn)
-					// also consider that the windup might be shorted than 4 ticks
 					heldKeyTimer.setResolveInputMethod(new ClickHoldResolve(heldAbility.baseAbility, clickAbility.baseAbility));
 				}
 				else if (inputMethod != null) {
@@ -375,7 +373,7 @@ public class InputHandler {
 			if (wasItClick != null && wasItClick.input() == ClickHoldResolve.InputState.CLICK) {
 				Ability baseAbility = keyResolution.clickBaseAbility;
 				AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(baseAbility.abilityId.powerClass());
-				AbilityConditionCheck abilityResolved = curAbilities.getAbilityResolved(baseAbility);
+				AbilityConditionCheck abilityResolved = curAbilities.getContextVariationContainer(baseAbility);
 				float ticksToResolveClick = wasItClick.timeTook();
 				doClickInput(InputEventType.PRESS_CLICK, keyId, baseAbility, abilityResolved, ticksToResolveClick);
 				heldKeyTimer.setInputMethod(InputMethod.CLICK);
@@ -394,7 +392,7 @@ public class InputHandler {
 						case HOLD -> {
 							Ability baseAbility = keyResolution.heldBaseAbility;
 							AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(baseAbility.abilityId.powerClass());
-							AbilityConditionCheck abilityResolved = curAbilities.getAbilityResolved(baseAbility);
+							AbilityConditionCheck abilityResolved = curAbilities.getContextVariationContainer(baseAbility);
 							float ticksToResolveHeld = changedState.timeTook();
 							doClickInput(InputEventType.PRESS_HOLD, timer.key.keyId(), baseAbility, abilityResolved, ticksToResolveHeld);
 							timer.setInputMethod(InputMethod.HOLD);
