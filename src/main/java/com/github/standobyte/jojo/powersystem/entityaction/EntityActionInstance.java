@@ -22,7 +22,6 @@ import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mc.EntityResolver;
 import com.github.standobyte.jojo.util.network.NetworkUtil;
-import com.github.standobyte.jojo.util.syncheddata.HasLevelReference;
 import com.github.standobyte.jojo.util.syncheddata.SynchedDataHelper;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.AimingEntity;
@@ -46,14 +45,14 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 // TODO (entity action) test the phase lengths stuff (with partial lengths and lengths < 1)
-public class EntityActionInstance implements HeldInput, HasLevelReference {
+public class EntityActionInstance implements HeldInput {
 	/** Is used in network code, to make sure server and client are on the same page when sending changes to the action's phases from server */
 	@ApiStatus.Internal public int id;
 	@Nonnull public final EntityActionType ability;
 	@ApiStatus.Internal public Object2FloatMap<ActionPhase> phasesLength = new Object2FloatArrayMap<>();
 	@ApiStatus.Internal @Nullable public Object2FloatMap<ActionPhase> skippedWindupPhase = null;
 	
-	public SynchedDataHelper synchedData = new SynchedDataHelper(this);
+	public SynchedDataHelper synchedData = new SynchedDataHelper(this, () -> this.level().isClientSide());
 	
 	@Nonnull protected ActionPhase phase;
 	protected int curPhaseTick;
@@ -318,7 +317,9 @@ public class EntityActionInstance implements HeldInput, HasLevelReference {
 	
 	
 	
-	@Override public Level level() { return performer.level(); }
+	public Level level() {
+		return performer.level();
+	}
 	
 	@ApiStatus.NonExtendable
 	public float getPhaseTick() {
