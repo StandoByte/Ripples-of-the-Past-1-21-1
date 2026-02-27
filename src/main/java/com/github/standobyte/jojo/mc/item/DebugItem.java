@@ -86,7 +86,7 @@ public class DebugItem extends Item {
 				for (ItemTracker tracker : trackingSystem.values()) {
 					ItemStack item = tracker.getItem();
 					if (item != null && !item.isEmpty()) {
-						Vec3 pos = tracker.markerPos(level, 1);
+						Vec3 pos = tracker.getPos(level, 1);
 						if (pos != null) {
 							ItemStack itemToDrop = tracker.clearAndCopyItem(level);
 							ItemEntity dropItem = new ItemEntity(level, pos.x, pos.y, pos.z, itemToDrop);

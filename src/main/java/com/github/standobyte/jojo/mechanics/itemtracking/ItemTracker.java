@@ -292,8 +292,7 @@ public class ItemTracker {
 //		this.clear();
 //	}
 
-	@Deprecated
-	public Vec3 markerPos(Level level, float partialTick) {
+	public Vec3 getPos(Level level, float partialTick) {
 		if (positionEntity.isPresent()) {
 			Entity entity = level.getEntity(positionEntity.getAsInt());
 			if (entity != null) {
@@ -304,11 +303,11 @@ public class ItemTracker {
 				else {
 					position = entity.position();
 				}
-				return position.add(0, entity.getBbHeight() + 0.25, 0);
+				return position.add(0, entity.getBbHeight() * 0.5, 0);
 			}
 		}
 		if (positionBlock != null) {
-			return Vec3.upFromBottomCenterOf(positionBlock, 1.0);
+			return Vec3.atCenterOf(positionBlock);
 		}
 
 		return null;

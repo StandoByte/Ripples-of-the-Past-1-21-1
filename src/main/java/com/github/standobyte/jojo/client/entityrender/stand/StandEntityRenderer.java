@@ -232,6 +232,7 @@ public class StandEntityRenderer<
 
 			for (RenderLayer<T, M> layerRenderer : this.layers) {
 				if (layerRenderer instanceof StandModelLayerRenderer) {
+					@SuppressWarnings("unchecked")
 					StandModelLayerRenderer<T, S, M> standLayer = (StandModelLayerRenderer<T, S, M>) layerRenderer;
 //					if (standLayer.shouldRender(null, nonDefaultSkin)) {
 //						M layerModel = standLayer.getLayerModel(nonDefaultSkin);

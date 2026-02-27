@@ -40,7 +40,7 @@ public class ModStatusEffects {
 	public static final Set<Holder<? extends MobEffect>> RESOLVE_EFFECTS = new HashSet<>();
 
 	public static final DeferredHolder<MobEffect, ResolveModeEffect> RESOLVE = STATUS_EFFECTS.register("resolve", 
-			id -> new ResolveModeEffect(MobEffectCategory.BENEFICIAL, 0xC6151F).setUncurable());
+			id -> new ResolveModeEffect(MobEffectCategory.BENEFICIAL, 0xC6151F));
 
 	public static final DeferredHolder<MobEffect, BleedingEffect> BLEEDING = STATUS_EFFECTS.register("bleeding", 
 			id -> new BleedingEffect(MobEffectCategory.HARMFUL, 0x990000));

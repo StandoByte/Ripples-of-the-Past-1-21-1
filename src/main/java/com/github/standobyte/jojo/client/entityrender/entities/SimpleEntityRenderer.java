@@ -58,6 +58,7 @@ public class SimpleEntityRenderer<T extends Entity, M extends EntityModel<T>> ex
 	}
 	
 
+	@SuppressWarnings("unchecked")
 	protected M getEntityModel(T entity) {
 		if (resourceModel != null) {
 			EntityModel<T> modelFromResource = resourceModel.getModel(modelFromStandSkin ? SimpleEntityRenderer.getStandSkin(entity) : null);

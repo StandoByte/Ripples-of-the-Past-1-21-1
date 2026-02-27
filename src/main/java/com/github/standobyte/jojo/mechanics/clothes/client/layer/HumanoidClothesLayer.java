@@ -58,6 +58,7 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 	/**
 	 * Don't forget to fill {@link HumanoidClothesRSExtension} before rendering this from outside.
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T extends LivingEntity, M extends HumanoidModel<T>> void render(M parentModel, 
 			PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int overlay) {
 		HumanoidClothesRSExtension clothesRS = HumanoidClothesRSExtension.getCurRenderData();
