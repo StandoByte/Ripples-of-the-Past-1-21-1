@@ -8,7 +8,6 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputBindTemplate;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputKey;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputUseVanillaMapping;
-import com.github.standobyte.jojo.util.reflection.ClientReflection;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.KeyMapping;
@@ -45,7 +44,7 @@ public class ClientInputBind {
 		return switch (commonInput) {
 			case InputKey hardcodedKey -> new ClientInputBind(toClientKey(hardcodedKey), toClientModifier(hardcodedKey.modifier));
 			case InputUseVanillaMapping keyMapping -> {
-				KeyMapping vanillaKeyMapping = toClientKeybind(keyMapping);
+				KeyMapping vanillaKeyMapping = keyMapping.toClientKeybind();
 				yield vanillaKeyMapping != null ? new ClientInputBind(vanillaKeyMapping) : null;
 			}
 			default -> null;
@@ -65,11 +64,6 @@ public class ClientInputBind {
     		case SHIFT -> KeyModifier.SHIFT;
     		case CONTROL -> KeyModifier.CONTROL;
     	};
-    }
-    
-    @Nullable
-    public static KeyMapping toClientKeybind(InputUseVanillaMapping keyMapping) {
-    	return ClientReflection.getKeyMappingMapByName().get(keyMapping.keyMappingName);
     }
     
 	
