@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
+import com.github.standobyte.jojo.util.syncheddata.SynchedDataExtended;
 
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,7 +26,7 @@ public class SyncActionInstanceData {
 		Entity entity = event.getTarget();
 		SynchedDataExtended synchedData = getActionSynchedData(entity);
 		if (synchedData != null) {
-			var nonDefaultData = synchedData.syncOnStartedTracking();
+			List<SynchedEntityData.DataValue<?>> nonDefaultData = synchedData.syncOnStartedTracking();
 			if (nonDefaultData != null) {
 				ServerPlayer tracking = (ServerPlayer) event.getEntity();
 				PacketDistributor.sendToPlayer(tracking, new TrActionSynchedDataPacket(entity.getId(), nonDefaultData));
@@ -36,7 +37,7 @@ public class SyncActionInstanceData {
 	@Nullable
 	public static void tickSyncDirtyData(Entity entity, SynchedDataExtended synchedData) {
 		if (synchedData != null) {
-			var dirtyData = synchedData.syncDirtyData();
+			List<SynchedEntityData.DataValue<?>> dirtyData = synchedData.syncDirtyData();
 			if (dirtyData != null) {
 				PacketDistributor.sendToPlayersTrackingEntity(entity, new TrActionSynchedDataPacket(entity.getId(), dirtyData));
 			}
@@ -55,7 +56,7 @@ public class SyncActionInstanceData {
 		if (entity instanceof LivingEntity living) {
 			EntityActionInstance action = LivingComponentAction.getCurEntityAction(living);
 			if (action != null) {
-				return action.getSynchedData(entity.level().isClientSide());
+				return action.synchedData.getDataSyncher();
 			}
 		}
 		return null;

@@ -14,8 +14,6 @@ import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.mc.entity.projectile.DamagingEntity;
 import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionPhaseTimePacket;
-import com.github.standobyte.jojo.powersystem.entityaction.syncdata.SyncedDataHolderExtended;
-import com.github.standobyte.jojo.powersystem.entityaction.syncdata.SynchedDataExtended;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -24,6 +22,8 @@ import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mc.EntityResolver;
 import com.github.standobyte.jojo.util.network.NetworkUtil;
+import com.github.standobyte.jojo.util.syncheddata.HasLevelReference;
+import com.github.standobyte.jojo.util.syncheddata.SynchedDataHelper;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.AimingEntity;
 
@@ -31,8 +31,6 @@ import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -48,15 +46,14 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 // TODO (entity action) test the phase lengths stuff (with partial lengths and lengths < 1)
-public class EntityActionInstance implements HeldInput {
+public class EntityActionInstance implements HeldInput, HasLevelReference {
 	/** Is used in network code, to make sure server and client are on the same page when sending changes to the action's phases from server */
 	@ApiStatus.Internal public int id;
 	@Nonnull public final EntityActionType ability;
 	@ApiStatus.Internal public Object2FloatMap<ActionPhase> phasesLength = new Object2FloatArrayMap<>();
 	@ApiStatus.Internal @Nullable public Object2FloatMap<ActionPhase> skippedWindupPhase = null;
 	
-	@Nullable protected SynchedDataExtended _synchedData;
-	protected Boolean _hasSynchedData;
+	public SynchedDataHelper synchedData = new SynchedDataHelper(this);
 	
 	@Nonnull protected ActionPhase phase;
 	protected int curPhaseTick;
@@ -179,45 +176,6 @@ public class EntityActionInstance implements HeldInput {
 
 	@ApiStatus.OverrideOnly
 	public void fromBuf(FriendlyByteBuf buf) {}
-	
-
-	@Nullable
-	@ApiStatus.NonExtendable
-	public SynchedDataExtended getSynchedData(boolean clientSide) {
-		if (_synchedData == null && _hasSynchedData == null) {
-			if (this instanceof SyncedDataHolderExtended withSynchedData) {
-				SynchedEntityData.Builder builder = new SynchedEntityData.Builder(withSynchedData);
-				withSynchedData.defineSynchedData(builder);
-				_synchedData = new SynchedDataExtended(builder, clientSide);
-				_hasSynchedData = true;
-			}
-			else {
-				_hasSynchedData = false;
-			}
-		}
-		return _synchedData;
-	}
-	
-	public <T> T getSynchedData(EntityDataAccessor<T> key) {
-		hasSynchedDataCheck();
-		return getSynchedData(level().isClientSide()).get(key);
-	}
-
-	public <T> void setSynchedData(EntityDataAccessor<T> key, T value) {
-		hasSynchedDataCheck();
-		setSynchedData(key, value, false);
-	}
-
-	public <T> void setSynchedData(EntityDataAccessor<T> key, T value, boolean forceUpdate) {
-		hasSynchedDataCheck();
-		getSynchedData(level().isClientSide()).set(key, value, forceUpdate);
-	}
-	
-	protected void hasSynchedDataCheck() {
-		if (_hasSynchedData == Boolean.FALSE) {
-			throw new ClassCastException("Action of class " + this.getClass().getName() + " does not implement SyncedDataHolderExtended");
-		}
-	}
 	
 	
 	public List<StandEffectInstance> getPunchModifiers() {
@@ -354,17 +312,13 @@ public class EntityActionInstance implements HeldInput {
 		}
 	}
 	
-	protected Level level() {
-		return performer.level();
-	}
-	
 	protected boolean isGrabVariation() {
 		return ability.getAbilityUsageCategory() == AbilityUsageGroup.GRAB;
 	}
 	
 	
 	
-	
+	@Override public Level level() { return performer.level(); }
 	
 	@ApiStatus.NonExtendable
 	public float getPhaseTick() {

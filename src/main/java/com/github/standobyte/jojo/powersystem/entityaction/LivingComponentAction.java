@@ -134,7 +134,7 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 		if (action != null) {
 			tickAction();
 			if (action != null) {
-				SyncActionInstanceData.tickSyncDirtyData(entity, action.getSynchedData(entity.level().isClientSide()));
+				SyncActionInstanceData.tickSyncDirtyData(entity, action.synchedData.getDataSyncher());
 			}
 		}
 	}

@@ -17,7 +17,6 @@ import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
-import com.github.standobyte.jojo.powersystem.entityaction.syncdata.SyncedDataHolderExtended;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
@@ -27,6 +26,7 @@ import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.StandUtil.StandAndUserEntity;
 import com.github.standobyte.jojo.util.mc.StatusEffectUtil;
+import com.github.standobyte.jojo.util.syncheddata.SyncedDataHolderExtended;
 import com.github.standobyte.jojo.util.target.ActionTarget;
 import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.target.AimingEntity;
@@ -90,11 +90,11 @@ public class CrazyDHealAbility extends StandEntityAbility {
 				ActionTarget aimTarget = LivingComponentAction.getAim(performer).getTarget();
 				StandEntity standEntity = performer instanceof StandEntity s ? s : null;
 				curHealing = restoreTarget(aimTarget, standEntity);
-				setSynchedData(HEAL_RESULT, curHealing);
+				synchedData.set(HEAL_RESULT, curHealing);
 			}
 			
 			else {
-				curHealing = getSynchedData(HEAL_RESULT);
+				curHealing = synchedData.get(HEAL_RESULT);
 				if (curHealing.isHealing && curHealing.target.getType() == TargetType.ENTITY) {
 					Entity targetEntity = curHealing.target.getEntity();
 					if (targetEntity != null) {
@@ -144,7 +144,7 @@ public class CrazyDHealAbility extends StandEntityAbility {
 							ClientsideSoundsHelper.playNonVanillaClassSound(new EntityStoppableSoundInstance(ClientsideSoundsHelper.withStandSkin(
 									ModSoundEvents.CRAZY_DIAMOND_FIX_LOOP.get(), standEntity), 
 									standEntity.getSoundSource(), 1, 1, targetEntity, level.random.nextLong(), 
-									() -> this.isOver() || this.phase != ActionPhase.PERFORM || !this.getSynchedData(HEAL_RESULT).isHealing));
+									() -> this.isOver() || this.phase != ActionPhase.PERFORM || !this.synchedData.get(HEAL_RESULT).isHealing));
 						}
 					}
 				}
