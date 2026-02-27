@@ -7,6 +7,9 @@ import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.ClientEntityController;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.modcompat.ModInteractionUtil;
+import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -56,6 +59,14 @@ public class ClientTickHandler {
 	public static void onLivingRender(RenderLivingEvent.Pre<?, ?> event) {
 		LivingEntity entity = event.getEntity();
 		limitEntityRotation(entity);
+		
+		StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+		if (standPower != null) {
+			float tickDelta = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
+			for (StandEffectInstance standEffect : standPower.userStandEffects.getEffects()) {
+				standEffect.onFrame(tickDelta);
+			}
+		}
 	}
 
 	@SubscribeEvent
