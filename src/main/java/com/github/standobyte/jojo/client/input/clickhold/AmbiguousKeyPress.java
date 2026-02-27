@@ -1,24 +1,18 @@
-package com.github.standobyte.jojo.client.input;
+package com.github.standobyte.jojo.client.input.clickhold;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.powersystem.ability.Ability;
-
+import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import net.minecraft.client.Minecraft;
 
-public class ClickHoldResolve {
+public class AmbiguousKeyPress {
 	public static final float timeIsHold = 4; // 200 ms
 	public static final float timeAssumeHold = 2; // 100 ms
 	private InputState curState = null;
 	private float timeHeld;
 	
-	public final Ability clickBaseAbility;
-	public final Ability heldBaseAbility;
-	
-	public ClickHoldResolve(Ability heldBaseAbility, Ability clickBaseAbility) {
-		this.clickBaseAbility = clickBaseAbility;
-		this.heldBaseAbility = heldBaseAbility;
-	}
+	public FloatConsumer onHold;
+	public FloatConsumer onClick;
 	
 	@Nullable
 	public Result frameUpdate(float tickDelta) {
