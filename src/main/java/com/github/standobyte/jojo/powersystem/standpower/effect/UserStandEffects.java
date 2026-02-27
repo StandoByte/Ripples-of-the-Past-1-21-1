@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.powersystem.standpower.effect;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -73,9 +74,9 @@ public class UserStandEffects {
 
 	@SuppressWarnings("unchecked")
 	public <T extends StandEffectInstance> Optional<T> getEffectTargeting(StandEffectType<T> effectType, LivingEntity target) {
-		Stream<StandEffectInstance> effects = getEffects().filter(effect -> 
-		effect.effectType == effectType && 
-		(target == null ? effect.getTargetUUID() == null : target.getUUID().equals(effect.getTargetUUID())));
+		Stream<StandEffectInstance> effects = getEffects().stream().filter(effect -> 
+				effect.effectType == effectType && 
+				(target == null ? effect.getTargetUUID() == null : target.getUUID().equals(effect.getTargetUUID())));
 		Optional<T> effect = (Optional<T>) effects.findFirst();
 		return effect;
 	}
@@ -94,7 +95,7 @@ public class UserStandEffects {
 
 	@SuppressWarnings("unchecked")
 	public <T extends StandEffectInstance> T getOrCreateEffect(StandEffectType<T> effectType) {
-		Optional<T> effect = (Optional<T>) getEffects()
+		Optional<T> effect = (Optional<T>) getEffects().stream()
 				.filter(e -> e.effectType == effectType)
 				.findFirst();
 		if (effect.isPresent()) {
@@ -109,7 +110,7 @@ public class UserStandEffects {
 
 	@SuppressWarnings("unchecked")
 	public <T extends StandEffectInstance> Stream<T> getEffectsOfType(StandEffectType<T> type) {
-		return (Stream<T>) getEffects()
+		return (Stream<T>) getEffects().stream()
 				.filter(effect -> effect.effectType == type);
 	}
 
@@ -150,8 +151,8 @@ public class UserStandEffects {
 				.map(Function.identity());
 	}
 
-	public Stream<StandEffectInstance> getEffects() {
-		return effects.values().stream();
+	public Collection<StandEffectInstance> getEffects() {
+		return effects.values();
 	}
 
 	@SuppressWarnings("unchecked")
