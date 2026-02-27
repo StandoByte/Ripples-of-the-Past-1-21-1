@@ -53,20 +53,26 @@ public class ClientTickHandler {
 		if (mc.player != null) {
 			limitEntityRotation(mc.player);
 		}
+
+		if (mc.level != null) {
+			float tickDelta = mc.getTimer().getGameTimeDeltaTicks();
+			for (Entity entity : mc.level.entitiesForRendering()) {
+				if (entity instanceof LivingEntity living) {
+					StandPower standPower = entity == mc.player ? ClientPowerCache.getPower(PowerClass.STAND) : StandPower.get(living);
+					if (standPower != null) {
+						for (StandEffectInstance standEffect : standPower.userStandEffects.getEffects()) {
+							standEffect.onFrame(tickDelta);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	@SubscribeEvent
 	public static void onLivingRender(RenderLivingEvent.Pre<?, ?> event) {
 		LivingEntity entity = event.getEntity();
 		limitEntityRotation(entity);
-		
-		StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
-		if (standPower != null) {
-			float tickDelta = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
-			for (StandEffectInstance standEffect : standPower.userStandEffects.getEffects()) {
-				standEffect.onFrame(tickDelta);
-			}
-		}
 	}
 
 	@SubscribeEvent
