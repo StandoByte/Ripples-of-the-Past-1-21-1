@@ -40,7 +40,6 @@ import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbiliti
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
-import com.github.standobyte.jojo.powersystem.entityaction.syncdata.SyncedDataHolderExtended;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -49,6 +48,7 @@ import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.OOPMoment;
 import com.github.standobyte.jojo.util.entitycomponent.ComponentUtil;
 import com.github.standobyte.jojo.util.mc.XpFormulas;
+import com.github.standobyte.jojo.util.syncheddata.SyncedDataHolderExtended;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDAnchorBlockAbility.FoundAnchor;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.BlockBreaking;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.BrokenBlocksChunkData;
@@ -199,7 +199,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 						creative, resolveEffect && !onlyAimedAt, true, 
 						playerUser, itemsSource);
 				
-				setSynchedData(IS_RESTORING, result.isRestoring);
+				synchedData.set(IS_RESTORING, result.isRestoring);
 				if (result.blockForStaminaCost > 0) {
 					userPower.consumeStamina(staminaPerBlock * result.blockForStaminaCost);
 				}
@@ -231,7 +231,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 						ClientsideSoundsHelper.playNonVanillaClassSound(new EntityStoppableSoundInstance(ClientsideSoundsHelper.withStandSkin(
 								ModSoundEvents.CRAZY_DIAMOND_FIX_LOOP.get(), standEntity), 
 								standEntity.getSoundSource(), 1, 1, standEntity, level.random.nextLong(), 
-								() -> this.isOver() || this.phase != ActionPhase.PERFORM || !this.getSynchedData(IS_RESTORING)));
+								() -> this.isOver() || this.phase != ActionPhase.PERFORM || !this.synchedData.get(IS_RESTORING)));
 					}
 					else {
 						ClientsideSoundsHelper.playNonVanillaClassSound(new EntityLingeringSoundInstance(ClientsideSoundsHelper.withStandSkin(

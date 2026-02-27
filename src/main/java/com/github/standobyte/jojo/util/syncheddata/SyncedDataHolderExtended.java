@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.powersystem.entityaction.syncdata;
+package com.github.standobyte.jojo.util.syncheddata;
 
 import java.util.List;
 
