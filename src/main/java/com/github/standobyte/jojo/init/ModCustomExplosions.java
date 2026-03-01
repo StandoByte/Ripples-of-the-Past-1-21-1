@@ -3,8 +3,8 @@ package com.github.standobyte.jojo.init;
 import java.util.HashMap;
 
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityHeavyPunchAbility;
 import com.github.standobyte.jojo.mechanics.explosion.CustomExplosion.CustomExplosionSupplier;
+import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityHeavyPunchAbility;
 
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;

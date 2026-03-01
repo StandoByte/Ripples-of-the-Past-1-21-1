@@ -8,17 +8,21 @@ import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.ui.powerhud.WindupIndicator;
+import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
+import com.github.standobyte.jojo.powersystem.ability.finisher.AbilityStandFinisherData;
 import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer.BufferingState;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
 import com.github.standobyte.jojo.util.StringUtil;
 import com.google.gson.JsonObject;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
@@ -32,6 +36,8 @@ public class Ability {
 	
 	public AbilityUsageGroup usageGroup = AbilityUsageGroup.SPECIAL;
 	public boolean isSubAbility = false;
+	
+	@Nullable public AbilityStandFinisherData isStandFinisherOf = null;
 
 	public Ability(AbilityType<?> abilityType, AbilityId abilityId) {
 		this.abilityType = abilityType;
@@ -51,8 +57,38 @@ public class Ability {
 		return abilityId;
 	}
 	
+	public final String name() {
+		return abilityId.nameInMoveset();
+	}
+	
 	public Power<?> getUserPower(LivingEntity user) {
 		return this.abilityId.powerClass().get(user);
+	}
+	
+	public boolean addToControlSchemeEditing() {
+		return !isSubAbility;
+	}
+	
+	
+	public AbilityUsageGroup getAbilityUsageCategory() {
+		return usageGroup;
+	}
+	
+	
+	public void initIsFinisher(String basePunchName) { initIsFinisher(basePunchName, 1); }
+	public void initIsFinisher(float finisherValue) { initIsFinisher("heavy_punch", finisherValue); }
+	public void initIsFinisher() { initIsFinisher("heavy_punch", 1); }
+	public void initIsFinisher(String basePunchName, float finisherValue) {
+		this.isStandFinisherOf = new AbilityStandFinisherData(basePunchName, finisherValue);
+		this.isSubAbility = true;
+	}
+	
+	
+	public void initIsGrabVariation() {
+		usageGroup = AbilityUsageGroup.GRAB;
+		isSubAbility = true;
+		this.spriteName = abilityId.nameInMoveset().replace("grab_", "");
+		this.name = Component.translatable("jojo_ripples.ability." + spriteName);
 	}
 	
 	
@@ -153,6 +189,10 @@ public class Ability {
 	
 	public String getSpriteName(Power<?> context) {
 		return spriteName;
+	}
+	
+	public void renderAbilityIcon(Power<?> context, GuiGraphics guiGraphics, TextureAtlasSprite sprite, float x, float y, int color) {
+		BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), sprite, x, y, 16, 16, 0, color);
 	}
 	
 	// 

@@ -1,0 +1,15 @@
+{
+  "key.mouse.lmb_and_rmb": "ЛКМ + ПКМ",
+  "key.mouse.left.shortened": "ЛКМ",
+  "key.mouse.right.shortened": "ПКМ",
+  "key.mouse.middle.shortened": "СКМ",
+  "key.mouse.shortened": "Кн.%1$s",
+  "key.keyboard.left.alt.shortened": "Л.Alt",
+  "key.keyboard.left.control.shortened": "Л.Ctrl",
+  "key.keyboard.left.shift.shortened": "Л.Shift",
+  "key.keyboard.left.win.shortened": "Л.Win",
+  "key.keyboard.right.alt.shortened": "П.Alt",
+  "key.keyboard.right.control.shortened": "П.Ctrl",
+  "key.keyboard.right.shift.shortened": "П.Shift",
+  "key.keyboard.right.win.shortened": "П.Win"
+}

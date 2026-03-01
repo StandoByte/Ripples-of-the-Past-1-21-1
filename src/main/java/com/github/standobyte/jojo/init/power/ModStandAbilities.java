@@ -2,48 +2,43 @@ package com.github.standobyte.jojo.init.power;
 
 import static com.github.standobyte.jojo.core.JojoRegistries.ABILITY_TYPES;
 
-import java.util.function.Supplier;
-
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandBearingShotAbility;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityBarrageAbility;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabAbility;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabBarrage;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabHeavyPunch;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabPunch;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabReleaseAbility;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityGrabThrowAbility;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityHeavyPunchAbility;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityHeavyPunchChargedAbility;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityManualControlToggle;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityPunchAbility;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.item.SwapStandHandItemsAbility;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.item.SwapUserStandItemsAbility;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.item.TossStandItemAbility;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDAnchorBlockAbility;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDAngeloRockPunchInput;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBlockBulletAbility;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBloodCutterAbility;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDHealAbility;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDLeaveObjectPunchInput;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDMisshapingPunchEffect;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDMisshapingPunchInput;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDRepairItemAbility;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDRestoreTerrainAbility;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDRevertEntityAndBlocksAbility;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDTerrainWallAbility;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDUncraftItemAbility;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.DriedBloodDropsEffect;
-import com.github.standobyte.jojo.jojoimpl.stands.hierophant.HierophantPuppetAbility;
-import com.github.standobyte.jojo.jojoimpl.stands.hierophant.HierophantPuppetEffect;
-import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarFingerAbility;
-import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarFingerSwipeAbility;
-import com.github.standobyte.jojo.jojoimpl.stands.starplatinum.StarInhaleAbility;
-import com.github.standobyte.jojo.jojoimpl.stands.theworld.TimeStopAbility;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectType;
+import com.github.standobyte.jojoimpl.stands._entitybase.StandBearingShotAbility;
+import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityBarrageAbility;
+import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityGrabAbility;
+import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityGrabReleaseAbility;
+import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityGrabThrowAbility;
+import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityHeavyPunchAbility;
+import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityHeavyPunchChargedAbility;
+import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityManualControlToggle;
+import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityPunchAbility;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDAnchorBlockAbility;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDAngeloRockPunchEffect;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDAngeloRockPunchInput;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDBlockBulletAbility;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDBloodCutterAbility;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDHealAbility;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDLeaveObjectPunchEffect;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDLeaveObjectPunchInput;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDMisshapingPunchEffect;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDMisshapingPunchInput;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDRepairItemAbility;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDRestoreTerrainAbility;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDRevertEntityAndBlocksAbility;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDTerrainWallAbility;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDUncraftItemAbility;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.DriedBloodDropsEffect;
+import com.github.standobyte.jojoimpl.stands.hierophant.HierophantPuppetAbility;
+import com.github.standobyte.jojoimpl.stands.hierophant.HierophantPuppetEffect;
+import com.github.standobyte.jojoimpl.stands.starplatinum.HeavyPunchUppercutAbility;
+import com.github.standobyte.jojoimpl.stands.starplatinum.StarFingerAbility;
+import com.github.standobyte.jojoimpl.stands.starplatinum.StarFingerSwipeAbility;
+import com.github.standobyte.jojoimpl.stands.starplatinum.StarInhaleAbility;
+import com.github.standobyte.jojoimpl.stands.theworld.TimeStopAbility;
 
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -55,15 +50,6 @@ public final class ModStandAbilities {
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityManualControlToggle>> MANUAL_CONTROL = ABILITY_TYPES.register(
 			"stand_manual_control", key -> new AbilityType<>(key, StandEntityManualControlToggle::new));
 	
-	
-	public static final DeferredHolder<AbilityType<?>, AbilityType<SwapUserStandItemsAbility>> ITEMS_SWAP_W_USER = ABILITY_TYPES.register(
-			"stand_items_swap_w_user", key -> new AbilityType<>(key, SwapUserStandItemsAbility::new));
-	
-	public static final DeferredHolder<AbilityType<?>, AbilityType<SwapStandHandItemsAbility>> ITEMS_SWAP_HANDS = ABILITY_TYPES.register(
-			"stand_items_swap_hands", key -> new AbilityType<>(key, SwapStandHandItemsAbility::new));
-	
-	public static final DeferredHolder<AbilityType<?>, AbilityType<TossStandItemAbility>> ITEM_TOSS = ABILITY_TYPES.register(
-			"stand_item_toss", key -> new AbilityType<>(key, TossStandItemAbility::new));
 	
 //	public static final DeferredHolder<AbilityType<?>, AbilityType<StandAttackWithItemAbility>> ITEM_ATTACK = ABILITY_TYPES.register(
 //			"stand_item_attack", key -> new AbilityType<>(key, StandAttackWithItemAbility::new));
@@ -89,16 +75,10 @@ public final class ModStandAbilities {
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityGrabThrowAbility>> GRAB_THROW = ABILITY_TYPES.register(
 			"stand_grab_throw", key -> new AbilityType<>(key, StandEntityGrabThrowAbility::new));
-	
-	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityGrabPunch>> GRAB_PUNCH = ABILITY_TYPES.register(
-			"stand_grab_punch", key -> new AbilityType<>(key, StandEntityGrabPunch::new));
-	
-	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityGrabBarrage>> GRAB_BARRAGE = ABILITY_TYPES.register(
-			"stand_grab_barrage", key -> new AbilityType<>(key, StandEntityGrabBarrage::new));
-	
-	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityGrabHeavyPunch>> GRAB_HEAVY_PUNCH = ABILITY_TYPES.register(
-			"stand_grab_heavy_punch", key -> new AbilityType<>(key, StandEntityGrabHeavyPunch::new));
 
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<HeavyPunchUppercutAbility>> HEAVY_UPPERCUT = ABILITY_TYPES.register(
+			"stand_heavy_uppercut", key -> new AbilityType<>(key, HeavyPunchUppercutAbility::new));
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StarFingerAbility>> SP_STAR_FINGER = ABILITY_TYPES.register(
 			"star_finger", key -> new AbilityType<>(key, StarFingerAbility::new));
@@ -162,16 +142,14 @@ public final class ModStandAbilities {
 	public static final DeferredHolder<StandEffectType<?>, StandEffectType<DriedBloodDropsEffect>> EFFECT_CD_BLOOD_DROPS = STAND_EFFECT_TYPES.register(
 			"cd_blood_drops", key -> new StandEffectType<>(key, DriedBloodDropsEffect::new));
 
-//	public static final DeferredHolder<StandEffectType<?>, StandEffectType<CrazyDLeaveObjectPunchEffect>> EFFECT_CD_PUNCH_LEAVE_OBJECT = STAND_EFFECT_TYPES.register(
-//			"cd_punch_leave_object", key -> new StandEffectType<>(key, CrazyDLeaveObjectPunchEffect::new));
-//
+	public static final DeferredHolder<StandEffectType<?>, StandEffectType<CrazyDLeaveObjectPunchEffect>> EFFECT_CD_PUNCH_LEAVE_OBJECT = STAND_EFFECT_TYPES.register(
+			"cd_punch_leave_object", key -> new StandEffectType<>(key, CrazyDLeaveObjectPunchEffect::new));
+
 	public static final DeferredHolder<StandEffectType<?>, StandEffectType<CrazyDMisshapingPunchEffect>> EFFECT_CD_PUNCH_MISSHAPING = STAND_EFFECT_TYPES.register(
 			"cd_punch_misshaping", key -> new StandEffectType<>(key, CrazyDMisshapingPunchEffect::new));
-//
-//	public static final DeferredHolder<StandEffectType<?>, StandEffectType<CrazyDAngeloRockPunchEffect>> EFFECT_CD_PUNCH_ANGELO_ROCK = STAND_EFFECT_TYPES.register(
-//			"cd_punch_angelo_rock", key -> new StandEffectType<>(key, CrazyDAngeloRockPunchEffect::new));
-	
-	public static final Supplier<StandEffectType<?>> _PLACEHOLDER_CD_TURN_INTO_ANGELO_ROCK_EFFECT = () -> null;
+
+	public static final DeferredHolder<StandEffectType<?>, StandEffectType<CrazyDAngeloRockPunchEffect>> EFFECT_CD_PUNCH_ANGELO_ROCK = STAND_EFFECT_TYPES.register(
+			"cd_punch_angelo_rock", key -> new StandEffectType<>(key, CrazyDAngeloRockPunchEffect::new));
 
 
 

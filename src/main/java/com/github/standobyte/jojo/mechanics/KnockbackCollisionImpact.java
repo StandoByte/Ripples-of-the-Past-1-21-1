@@ -12,8 +12,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
-import com.github.standobyte.jojo.jojoimpl.stands._entitybase.StandEntityHeavyPunchAbility.HeavyPunchExplosion;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDBlockBulletAbility;
 import com.github.standobyte.jojo.mc.entity.BlockShardEntity;
 import com.github.standobyte.jojo.mechanics.CollisionHelper.BlockCollisionResult;
 import com.github.standobyte.jojo.mechanics.explosion.CustomExplosion;
@@ -31,6 +29,8 @@ import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
 import com.github.standobyte.jojo.util.java.ReuseableStream;
 import com.github.standobyte.jojo.util.mc.AttributeUtil;
 import com.github.standobyte.jojo.util.target.ActionTarget;
+import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityHeavyPunchAbility.HeavyPunchExplosion;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDBlockBulletAbility;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -282,7 +282,7 @@ public class KnockbackCollisionImpact implements TickingEntityData, INBTSerializ
 		if (collideBlocks) {
 			BlockCollisionResult collision = CollisionHelper.collideBoundingBox(movementVec, aabb, serverWorld, selectionContext);
 			
-			MutableFloat impactStrengthMutable = new MutableFloat(knockbackImpactStrength);
+			MutableFloat impactStrengthNew = new MutableFloat(knockbackImpactStrength);
 			if (collision.blocks.size() > 0) {
 				collision.blocks.stream()
 				.distinct()
@@ -327,10 +327,10 @@ public class KnockbackCollisionImpact implements TickingEntityData, INBTSerializ
 							JojoModUtil.blockCatchFire(level, blockPos, blockState, null, asLiving);
 						}
 
-						impactStrengthMutable.setValue(impactStrengthMutable.floatValue() - Math.max(useImpactStrength, 0.05f));
+						impactStrengthNew.setValue(impactStrengthNew.floatValue() - Math.max(useImpactStrength, 0.05f));
 					}
 
-					return impactStrengthMutable.floatValue() > 0;
+					return impactStrengthNew.floatValue() > 0;
 				});
 
 				Vec3 collisionDir = new Vec3(collision.movementX - collision.x, collision.movementY - collision.y, collision.movementZ - collision.z);
@@ -363,7 +363,7 @@ public class KnockbackCollisionImpact implements TickingEntityData, INBTSerializ
 					hurtTarget(entity, level.damageSources().flyIntoWall(), wallDamage.floatValue());
 				}
 
-//				setKnockbackImpactStrength(impactStrength.floatValue());
+//				setKnockbackImpactStrength(impactStrengthNew.floatValue());
 				reset();
 			}
 		}

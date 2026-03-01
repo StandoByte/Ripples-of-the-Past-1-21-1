@@ -2,8 +2,8 @@ package com.github.standobyte.jojo.init.power;
 
 import java.util.function.Supplier;
 
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.DriedBloodDropsEffect;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectType;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.DriedBloodDropsEffect;
 
 /**
  * @deprecated Stand effects are now registered in {@link ModStandAbilities}, in the same file as abilities

@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.mc.item.component.StandWrittenOnDisc;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
@@ -33,7 +34,8 @@ public class StandDiscRenderer extends BlockEntityWithoutLevelRenderer {
 	@Override
 	public void renderByItem(ItemStack itemStack, ItemDisplayContext displayContext, PoseStack poseStack, 
 			MultiBufferSource renderTypeBuffer, int light, int overlay) {
-		ItemRenderer ir = Minecraft.getInstance().getItemRenderer();
+		Minecraft mc = Minecraft.getInstance();
+		ItemRenderer ir = mc.getItemRenderer();
 		BakedModel pModel = ir.getModel(itemStack, null, null, 0);
 
 		RenderType rendertype = RenderTypeHelper.getFallbackItemRenderType(itemStack, pModel, true);
@@ -45,23 +47,25 @@ public class StandDiscRenderer extends BlockEntityWithoutLevelRenderer {
 		if (discStand != null) {
 			StandInstance stand = discStand.getInstance();
 			if (stand != null) {
-				renderStandIcon(poseStack, stand, itemStack, renderTypeBuffer, light, overlay);
+				int color = mc.getItemColors().getColor(itemStack, 0);
+				color |= 0xFFFFFF; // keep the alpha of the main disc model
+				renderStandIcon(poseStack, stand, itemStack, renderTypeBuffer, light, overlay, color);
 			}
 		}
 	}
 
 	protected void renderStandIcon(PoseStack poseStack, StandInstance stand, ItemStack discItem, 
-			MultiBufferSource buffer, int light, int overlay) {
+			MultiBufferSource buffer, int light, int overlay, int color) {
 		StandSkin standSkin = StandSkinsLoader.getInstance().getSkin(stand);
 		if (standSkin != null) {
 			GuiIcon icon = standSkin.getStandIcon();
 
 			VertexConsumer vertexBuilder = ItemRenderer.getFoilBufferDirect(
-					buffer, RenderType.entityCutoutNoCull(icon.file), 
+					buffer, RenderType.entityTranslucent(icon.file), 
 					false, discItem.hasFoil());
 
-			renderIconQuad(poseStack.last(), QUAD_FRONT, vertexBuilder, light, overlay);
-			renderIconQuad(poseStack.last(), QUAD_BACK, vertexBuilder, light, overlay);
+			renderIconQuad(poseStack.last(), QUAD_FRONT, vertexBuilder, light, overlay, color);
+			renderIconQuad(poseStack.last(), QUAD_BACK, vertexBuilder, light, overlay, color);
 		}
 
 	}
@@ -114,7 +118,7 @@ public class StandDiscRenderer extends BlockEntityWithoutLevelRenderer {
 	protected static ModelPart.Polygon QUAD_BACK;
 
 	protected void renderIconQuad(PoseStack.Pose poseEntry, ModelPart.Polygon quad, 
-			VertexConsumer vertexBuilder, int light, int overlay) {
+			VertexConsumer vertexBuilder, int light, int overlay, int color) {
 		Matrix4f pose = poseEntry.pose();
 		Vector3f vector3f = new Vector3f();
 
@@ -132,20 +136,36 @@ public class StandDiscRenderer extends BlockEntityWithoutLevelRenderer {
 			Vector3f vector3f2 = pose.transformPosition(vertexX, vertexY, vertexZ, vector3f);
 			vertexBuilder.addVertex(
 					vector3f2.x(), vector3f2.y(), vector3f2.z(), 
-					0xFFFFFFFF, vertex.u, vertex.v, 
+					color, vertex.u, vertex.v, 
 					overlay, light, normalX, normalY, normalZ);
 		}
 	}
 	
 	
-	public static int getStandColor(StandWrittenOnDisc discStand) {
-		if (discStand != null) {
-			StandInstance stand = discStand.getInstance();
-			if (stand != null) {
-				StandSkin skin = StandSkinsLoader.getInstance().getSkin(stand);
-				if (skin != null) {
-					return skin.getColor();
-				}
+	public static int getItemModelLayerColor(ItemStack item, int layer) {
+		StandWrittenOnDisc discStand = item.get(ModItemDataComponents.DISC_STAND.get());
+		StandInstance stand = discStand != null ? discStand.getInstance() : null;
+		int color = switch (layer) {
+			case 1 -> lightDiscTint(StandDiscRenderer.getStandColor(stand));
+			case 2 -> getStandColor(stand);
+			default -> 0xFFFFFFFF;
+		};
+		
+		if (stand != null) {
+			StandType standType = stand.getStandType();
+			if (standType != null && standType.translucentDisc) {
+				color &= 0x60FFFFFF;
+			}
+		}
+		
+		return color;
+	}
+	
+	public static int getStandColor(StandInstance stand) {
+		if (stand != null) {
+			StandSkin skin = StandSkinsLoader.getInstance().getSkin(stand);
+			if (skin != null) {
+				return skin.getColor();
 			}
 		}
 		
@@ -155,4 +175,5 @@ public class StandDiscRenderer extends BlockEntityWithoutLevelRenderer {
 	public static int lightDiscTint(int color) {
 		return (((0xFFFFFF - color) & 0xFEFEFE) >> 1) + color;
 	}
+	
 }

@@ -4,8 +4,8 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDHealAbility;
 import com.github.standobyte.jojo.util.target.ActionTarget;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDHealAbility;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;

@@ -4,6 +4,7 @@ import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.ElementTransparency;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.ClientEntityController;
+import com.github.standobyte.jojo.mechanics.externalcontainer._stand.input.ClientStandItemInputs;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -65,6 +66,12 @@ public class ClientStandController extends ClientEntityController {
 	public void clearInput(MovementInputUpdateEvent event) {
 		Input input = event.getInput();
 		clearInput(input);
+	}
+	
+	@Override
+	public void tickPre() {
+		super.tickPre();
+		ClientStandItemInputs.handleInManualControl(mc);
 	}
 
 

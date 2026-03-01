@@ -12,36 +12,52 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.powersystem.Moveset;
 import com.github.standobyte.jojo.powersystem.Power;
-import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
+import com.github.standobyte.jojo.powersystem.ability.finisher.StandFinisherCheck;
 
 public class AvailableAbilities {
-	public final PowerClass<?> powerClass;
 	public final Map<String, AbilityConditionCheck> _inMoveset = new HashMap<>();
 	public final Map<String, Ability> inMovesetAndCanBeUsed = new HashMap<>();
+	public StandFinisherCheck standFinisherCheckLast = new StandFinisherCheck();
 	
-	public AvailableAbilities(PowerClass<?> powerClass) {
-		this.powerClass = powerClass;
-	}
+	public AvailableAbilities() {}
 	
 	public void update(Power<?> context, Moveset baseMoveset) {
 		_inMoveset.clear();
 		
+		// Filtering out the abilities that are currently available (unlocked / make sense in the context)
+		
 		Map<String, Ability> abilities = baseMoveset.abilities;
 		for (var baseAbilityEntry : abilities.entrySet()) {
 			Ability ability = baseAbilityEntry.getValue();
-			ability = ability.replaceWithSubAbility(context, this);
-			if (ability != null && ability.isAbilityAvailable(context)) {
+			if (ability.isAbilityAvailable(context)) {
 				AbilityConditionCheck container = getContainerFor(ability);
 				_inMoveset.put(baseAbilityEntry.getKey(), container);
 			}
 		}
 		
-		__visibleIter.clear();
-		__visibleIter.addAll(_inMoveset.values());
-		for (AbilityConditionCheck ability : __visibleIter) {
+		// Checking usage conditions on all of the abilities (this would make the ability gray out in the HUD if you currently can't use it for some reason)
+		
+		Collection<AbilityConditionCheck> visibleIter = this.__visibleIter; // to avoid ConcurrentModificationException
+		visibleIter.clear();
+		visibleIter.addAll(_inMoveset.values());
+		for (AbilityConditionCheck ability : visibleIter) {
 			ability.ability.onConditionCheck(context, this, ability);
+		}
+		
+		// Finisher stuff to replace base attacks with finishers
+		
+		standFinisherCheckLast.update(context, baseMoveset, this);
+		
+		// Ability replacing with dynamic polymorphism
+		
+		for (var abilityEntry : _inMoveset.entrySet()) {
+			AbilityConditionCheck abilityContainer = abilityEntry.getValue();
+			Ability contextVariation = abilityContainer.ability.replaceWithSubAbility(context, this);
+			if (contextVariation != null && contextVariation.isAbilityAvailable(context)) {
+				abilityEntry.setValue(getContainerFor(contextVariation));
+			}
 		}
 		
 		inMovesetAndCanBeUsed.clear();
@@ -52,6 +68,7 @@ public class AvailableAbilities {
 			}
 		}
 	}
+	private final Collection<AbilityConditionCheck> __visibleIter = new ArrayList<>();
 	
 	
 	public void replaceOtherAbilityWith(Power<?> context, String baseAbilityName, Ability subAbility) {
@@ -70,7 +87,7 @@ public class AvailableAbilities {
 	
 	@Nonnull
 	public ConditionCheck getConditionCheck(Ability ability) {
-		return getConditionCheck(ability.abilityId.nameInMoveset());
+		return getConditionCheck(ability.name());
 	}
 
 	@Nonnull
@@ -79,23 +96,20 @@ public class AvailableAbilities {
 		return container != null ? container.conditionCheck : ConditionCheck.NEGATIVE;
 	}
 	
-	@ApiStatus.Internal
-	@Nullable
-	public AbilityConditionCheck getAbilityResolved(Ability baseAbility) {
-		return _inMoveset.get(baseAbility.abilityId.nameInMoveset());
-	}
-	
-	@ApiStatus.Internal
-	@Nullable
-	public AbilityConditionCheck getAbilityResolved(String baseAbilityName) {
-		return _inMoveset.get(baseAbilityName);
+	@Deprecated @Nullable public AbilityConditionCheck getAbilityResolved(Ability baseAbility) { return _inMoveset.get(baseAbility.name()); }
+	@Deprecated @Nullable public AbilityConditionCheck getAbilityResolved(String baseAbilityName) { return _inMoveset.get(baseAbilityName); }
+	@Nullable public AbilityConditionCheck getContextVariationContainer(Ability baseAbility) { return _inMoveset.get(baseAbility.name()); }
+	@Nullable public AbilityConditionCheck getContextVariationContainer(String baseAbilityName) { return _inMoveset.get(baseAbilityName); }
+	@Nullable public Ability getContextVariation(String baseAbilityName) { 
+		AbilityConditionCheck container = _inMoveset.get(baseAbilityName);
+		return container != null ? container.ability : null;
 	}
 
 	
 	private final Map<AbilityId, AbilityConditionCheck> __cache = new HashMap<>();
-	private final Collection<AbilityConditionCheck> __visibleIter = new ArrayList<>();
 	
-	private AbilityConditionCheck getContainerFor(Ability ability) {
+	@ApiStatus.Internal
+	public AbilityConditionCheck getContainerFor(Ability ability) {
 		AbilityConditionCheck container = __cache.compute(ability.abilityId, (id, existing) -> {
 			if (existing == null) return new AbilityConditionCheck(ability);
 			else {

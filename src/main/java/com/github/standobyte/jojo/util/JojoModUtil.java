@@ -14,9 +14,9 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.github.standobyte.jojo.core.packet.fromserver.BrokenBlocksParticlesAndSoundsPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrResetDeathTimePacket;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.CrazyDRestoreTerrainAbility;
 import com.github.standobyte.jojo.mechanics.explosion.CustomExplosion;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDRestoreTerrainAbility;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

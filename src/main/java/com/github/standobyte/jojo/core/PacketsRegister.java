@@ -22,8 +22,6 @@ import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrStandDataPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrStandSkinPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSyncStandOffsetPacket;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.brokenblocks.BrokenChunkBlocksPacket;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.brokenblocks.CDBlocksRestoredPacket;
 import com.github.standobyte.jojo.mechanics.clothes.TrClothesItemsPacket;
 import com.github.standobyte.jojo.mechanics.clothes.sewing.ClSetSewingMachineItemPacket;
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.SetClientControllerPacket;
@@ -32,6 +30,13 @@ import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.cli
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.stand.ClStandManualMovementPacket;
 import com.github.standobyte.jojo.mechanics.entity_like_player.useitem.ClStandClickPacket;
 import com.github.standobyte.jojo.mechanics.explosion.CustomExplosionPacket;
+import com.github.standobyte.jojo.mechanics.externalcontainer._stand.input.ClStandItemInputPacket;
+import com.github.standobyte.jojo.mechanics.externalcontainer.packet.ClExtendedContainerClickPacket;
+import com.github.standobyte.jojo.mechanics.externalcontainer.packet.ExternalContainerClosePacket;
+import com.github.standobyte.jojo.mechanics.externalcontainer.packet.ExternalContainerOpenPacket;
+import com.github.standobyte.jojo.mechanics.externalcontainer.packet.ExternalContainerSyncSetContentPacket;
+import com.github.standobyte.jojo.mechanics.externalcontainer.packet.ExternalContainerSyncSetDataPacket;
+import com.github.standobyte.jojo.mechanics.externalcontainer.packet.ExternalContainerSyncSetSlotPacket;
 import com.github.standobyte.jojo.mechanics.grab.TrSetGrabbedEntityPacket;
 import com.github.standobyte.jojo.mechanics.itemtracking.TrackedItemPacket;
 import com.github.standobyte.jojo.mechanics.possessionv2.TrPossessEntityPacket;
@@ -43,6 +48,8 @@ import com.github.standobyte.jojo.powersystem.standpower.effect.TrStandEffectPac
 import com.github.standobyte.jojo.powersystem.standpower.packet.ResolveBoostsPacket;
 import com.github.standobyte.jojo.powersystem.standpower.packet.TrResolvePacket;
 import com.github.standobyte.jojo.powersystem.standpower.packet.TrStaminaPacket;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.BrokenChunkBlocksPacket;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.CDBlocksRestoredPacket;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -65,7 +72,9 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClControlledMobCommandPacket.Handler(JojoMod.resLoc("clmobitemslot")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClStandClickPacket.Handler(JojoMod.resLoc("clstandclick")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClDebugCommandPacket.Handler(JojoMod.resLoc("cldebug")));
+		registerPacket(registrar, PayloadRegistrar::playToServer, new ClStandItemInputPacket.Handler(JojoMod.resLoc("clstanditem")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClSetSewingMachineItemPacket.Handler(JojoMod.resLoc("clsewingitem")));
+		registerPacket(registrar, PayloadRegistrar::playToServer, new ClExtendedContainerClickPacket.Handler(JojoMod.resLoc("clslotclick")));
 
 		registerPacket(registrar, PayloadRegistrar::playToClient, new DatapackStandsPacket.Handler(JojoMod.resLoc("datastands")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrAbilityUsePacket.Handler(JojoMod.resLoc("abilityuse")));
@@ -94,6 +103,11 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrackedItemPacket.Handler(JojoMod.resLoc("itemtrack")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrClothesItemsPacket.Handler(JojoMod.resLoc("clothes")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrSetGrabbedEntityPacket.Handler(JojoMod.resLoc("grab")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new ExternalContainerOpenPacket.Handler(JojoMod.resLoc("extcopen")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new ExternalContainerClosePacket.Handler(JojoMod.resLoc("extcclose")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new ExternalContainerSyncSetSlotPacket.Handler(JojoMod.resLoc("extcslot")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new ExternalContainerSyncSetContentPacket.Handler(JojoMod.resLoc("extccont")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new ExternalContainerSyncSetDataPacket.Handler(JojoMod.resLoc("extcdata")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new EntitySyncMotionBypassingPacket.Handler(JojoMod.resLoc("motfix")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrResetDeathTimePacket.Handler(JojoMod.resLoc("undeath")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new DeflectedBulletPacket.Handler(JojoMod.resLoc("projdefl")));

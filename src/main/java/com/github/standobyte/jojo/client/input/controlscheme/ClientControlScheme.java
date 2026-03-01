@@ -1,6 +1,5 @@
 package com.github.standobyte.jojo.client.input.controlscheme;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -42,10 +41,11 @@ import net.neoforged.neoforge.client.settings.KeyModifier;
 public class ClientControlScheme {
 	public PowerClass<?> powerClassCosmetic;
 	@ApiStatus.Internal public final Map<String, MoveGroup> moveGroups = new LinkedHashMap<>();
-	@ApiStatus.Internal public Map.Entry<String, MoveGroup> curGroup;
-	private static final Map.Entry<String, MoveGroup> EMPTY = new AbstractMap.SimpleEntry<>("", new MoveGroup(Component.empty(), null));
+	@ApiStatus.Internal protected MoveGroup curGroup;
+	protected static final MoveGroup EMPTY = new MoveGroup("", Component.empty(), null);
 	
 	public static class MoveGroup {
+		public String internalName;
 		@ApiStatus.Internal public Component name;
 		@ApiStatus.Internal public ClientInputBind toggleHudKey;
 		
@@ -54,7 +54,7 @@ public class ClientControlScheme {
 		
 		protected Map<ClientKey, InputsByKeyModifier> bindsMap = new TreeMap<>(Comparator.comparingInt(ClientKey::keyOrder));
 		
-		public MoveGroup(Component name, ClientInputBind toggleHudKey) {
+		public MoveGroup(String internalName, Component name, ClientInputBind toggleHudKey) {
 			this.name = name;
 			this.toggleHudKey = toggleHudKey;
 		}
@@ -105,11 +105,11 @@ public class ClientControlScheme {
 
 	public static class Hotbar {
 		public ClientInputBind useAbilityKey;
-		public ClientInputBind switchAbilityKey;
+		@Nullable public ClientInputBind switchAbilityKey;
 		public List<HotbarSlot> slots = new ArrayList<>();
 		public int slotIndex = 0;
 		
-		public Hotbar(ClientInputBind useAbilityKey, ClientInputBind switchAbilityKey) {
+		public Hotbar(ClientInputBind useAbilityKey, @Nullable ClientInputBind switchAbilityKey) {
 			this.useAbilityKey = useAbilityKey;
 			this.switchAbilityKey = switchAbilityKey;
 		}
@@ -151,7 +151,7 @@ public class ClientControlScheme {
 
 
 	public boolean hasAbility(Predicate<AbilityControlsEntry> condition) {
-		MoveGroup moves = this.getCurGroup().getValue();
+		MoveGroup moves = this.getCurGroup();
 		for (var bind : moves.binds) {
 			if (condition.test(bind.ability)) {
 				return true;
@@ -177,15 +177,22 @@ public class ClientControlScheme {
 	
 	
 	@Nonnull
-	public Map.Entry<String, MoveGroup> getCurGroup() {
+	public MoveGroup getCurGroup() {
 		if (curGroup == null) {
-			curGroup = moveGroups.entrySet().stream().findFirst().orElse(EMPTY);
+			setCurGroup(moveGroups.values().stream().findFirst().orElse(EMPTY));
 		}
 		return curGroup;
 	}
 	
+	protected void setCurGroup(MoveGroup moveGroup) {
+		if (this.curGroup != moveGroup) {
+			this.curGroup = moveGroup;
+			InputHandler.getInstance().onUpdatedControls(moveGroup);
+		}
+	}
+	
 	public List<AbilityControlsEntry> getBindsWithModifier(InputMethod keyInputMethod, ClientKey key, KeyModifier currentModifier) {
-		ClientControlScheme.MoveGroup controls = getCurGroup().getValue();
+		ClientControlScheme.MoveGroup controls = getCurGroup();
 		InputsByKeyModifier allBindsInKey = controls.getBinds().get(key);
 		if (allBindsInKey != null) {
 			return allBindsInKey.getAll(currentModifier, keyInputMethod);
@@ -263,7 +270,7 @@ public class ClientControlScheme {
 			}
 			ClientInputBind toggleHudKeybind = ClientInputBind.toClientInput(toggleHudKey);
 			
-			ClientControlScheme.MoveGroup group = new ClientControlScheme.MoveGroup(
+			ClientControlScheme.MoveGroup group = new ClientControlScheme.MoveGroup(groupTemplate.name, 
 					Component.translatable(groupTemplate.name), toggleHudKeybind);
 			controls.moveGroups.put(groupTemplate.name, group);
 			

@@ -12,6 +12,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 
 public record ContainerSlotInput(
@@ -27,48 +28,80 @@ public record ContainerSlotInput(
 				int index = switch (invScreen) {
 					case CreativeModeInventoryScreen killMe -> {
 						int anotherIndexWtfMojang = slot.getSlotIndex();
-						if (anotherIndexWtfMojang >= 0 && anotherIndexWtfMojang <= 8) { // hotbar
-							anotherIndexWtfMojang += 36;
+						int matchingIndex = anotherIndexWtfMojang;
+						CreativeModeTab.Type tabType = CreativeModeInventoryScreen.selectedTab.getType();
+						switch (tabType) {
+							case INVENTORY -> {
+								// hotbar
+								if (anotherIndexWtfMojang >= 0 && anotherIndexWtfMojang <= 8) {
+									matchingIndex += 36;
+								}
+								// armor slots
+								if (anotherIndexWtfMojang >= 36 && anotherIndexWtfMojang <= 39) {
+									matchingIndex = 44 - anotherIndexWtfMojang;
+								}
+								// offhand
+								else if (anotherIndexWtfMojang == 40) {
+									matchingIndex = 45;
+								}
+								// otherwise that's one of the 27 regular slots, for which the indices match
+							}
+							// when you have another creative tab open
+							default -> {
+								// hotbar
+								if (anotherIndexWtfMojang >= 0 && anotherIndexWtfMojang <= 8 && anotherIndexWtfMojang != slot.index) {
+									matchingIndex += 36;
+								}
+								// otherwise it's a creative tab slot, which are illegal here
+								else {
+									matchingIndex = -1;
+								}
+							}
 						}
-						else if (anotherIndexWtfMojang >= 45 && anotherIndexWtfMojang <= 53) { // hotbar when you have another creative tab open
-							anotherIndexWtfMojang -= 9;
-						}
-						else if (anotherIndexWtfMojang >= 36 && anotherIndexWtfMojang <= 39) { // armor slots
-							anotherIndexWtfMojang = 44 - anotherIndexWtfMojang;
-						}
-						yield anotherIndexWtfMojang;
+						yield matchingIndex;
 					}
-					
+
 					default -> slot.index;
 				};
-				return new ContainerSlotInput(invScreen.getMenu().containerId, index);
+				return index >= 0 ? new ContainerSlotInput(invScreen.getMenu().containerId, index) : null;
 			}
 		}
 		return null;
 	}
-
-	public static ItemStack getItem(ContainerSlotInput input, Player player) {
-		if (player.containerMenu.containerId == input.containerId()) {
+	
+	@Nullable
+	public Slot getSlot(Player player) {
+		if (player.containerMenu.containerId == this.containerId()) {
 			if (!player.containerMenu.stillValid(player)) {
 				JojoMod.getLogger().debug("Player {} interacted with invalid menu {}", player, player.containerMenu);
 			} else {
-				if (!player.containerMenu.isValidSlotIndex(input.slotNum())) {
+				if (!player.containerMenu.isValidSlotIndex(this.slotNum())) {
 					JojoMod.getLogger().debug("Player {} interacted with invalid slot index: {}, available slots: {}", 
-							player.getName(), input.slotNum(), player.containerMenu.slots.size());
-				} else {
-					Slot slot = player.containerMenu.getSlot(input.slotNum());
-					ItemStack item = slot.getItem();
+							player.getName(), this.slotNum(), player.containerMenu.slots.size());
+				}
+				else {
+					Slot slot = player.containerMenu.getSlot(this.slotNum());
 
 //					if (input.stateId != player.containerMenu.getStateId()) {
 //						player.containerMenu.broadcastFullState();
 //					}
 
-					return item;
+					return slot;
 				}
 			}
 		}
 
-		return ItemStack.EMPTY;
+		return null;
+	}
+	
+	public ItemStack getItem(Player player) {
+		Slot slot = getSlot(player);
+		return slot != null ? slot.getItem() : ItemStack.EMPTY;
+	}
+	
+	@Deprecated
+	public static ItemStack getItem(ContainerSlotInput data, Player player) {
+		return data.getItem(player);
 	}
 
 	public static final StreamCodec<? super FriendlyByteBuf, ContainerSlotInput> STREAM_CODEC = new StreamCodec<>() {

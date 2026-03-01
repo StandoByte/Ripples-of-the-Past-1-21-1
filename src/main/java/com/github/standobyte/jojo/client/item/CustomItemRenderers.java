@@ -14,7 +14,6 @@ import com.github.standobyte.jojo.client.item.standdisc.StandDiscRenderer;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModBlockEntities;
 import com.github.standobyte.jojo.init.ModBlocks;
-import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.mechanics.clothes.sewing.SewingMachineBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -118,13 +117,7 @@ public class CustomItemRenderers {
 
 	@SubscribeEvent
 	public static void registerItemColoring(RegisterColorHandlersEvent.Item event) {
-		event.register((stack, layer) -> {
-			return switch (layer) {
-				case 1 -> StandDiscRenderer.lightDiscTint(StandDiscRenderer.getStandColor(stack.get(ModItemDataComponents.DISC_STAND.get())));
-				case 2 -> StandDiscRenderer.getStandColor(stack.get(ModItemDataComponents.DISC_STAND.get()));
-				default -> -1;
-			};
-		}, ModItems.STAND_DISC.get());
+		event.register(StandDiscRenderer::getItemModelLayerColor, ModItems.STAND_DISC.get());
 
 //		itemColors.register((stack, layer) -> {
 //			if (layer != 1) return -1;

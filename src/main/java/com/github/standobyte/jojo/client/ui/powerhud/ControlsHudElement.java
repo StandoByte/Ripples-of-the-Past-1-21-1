@@ -44,6 +44,7 @@ import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -193,8 +194,9 @@ public class ControlsHudElement extends HudElement {
 		public int y;
 		public int keybindWidth;
 		public int width;
-		
-		public boolean selectingAbility;
+
+		public boolean isSelectingAbility;
+		public boolean highlight;
 	}
 	
 	public static class HotbarSlotUI {
@@ -217,7 +219,7 @@ public class ControlsHudElement extends HudElement {
 	public void prepare(AbilityHud hud, ClientControlScheme controlScheme, Font font, 
 			@Nonnull KeyModifier modifier, @Nullable StandSkin standSkin) {
 		if (controlScheme == null) return;
-		ClientControlScheme.MoveGroup curGroup = controlScheme.getCurGroup().getValue();
+		ClientControlScheme.MoveGroup curGroup = controlScheme.getCurGroup();
 		if (modifier == KeyModifier.ALT) modifier = KeyModifier.NONE;
 		AbilityIconSprites abilityIconSprites = StandSkinsLoader.getInstance().abilityIcons;
 		
@@ -323,12 +325,19 @@ public class ControlsHudElement extends HudElement {
 
 				ClientKey hotbarKey = input.getKey();
 				hotbarUI.keybind = getKeyName(hotbarKey, KeyModifier.NONE);
-				hotbarUI.switchHint = Component.translatable("ripples_hud.hotbar_switch", 
-						getKeyName(hotbar.switchAbilityKey.getKey(), hotbar.switchAbilityKey.getKeyModifier()));
+				hotbarUI.switchHint = hotbar.switchAbilityKey != null ? 
+						Component.translatable("ripples_hud.hotbar_switch", 
+								getKeyName(hotbar.switchAbilityKey.getKey(), hotbar.switchAbilityKey.getKeyModifier()))
+						: null;
+				
 				hotbarUI.keybindWidth = font.width(hotbarUI.keybind) + 4;
 				hotbarUI.width = hotbarUI.keybindWidth + hotbarUI.slots.size() * SLOT_WIDTH + 4;
-				hotbarUI.width = Math.max(font.width(hotbarUI.switchHint), hotbarUI.width);
-				hotbarUI.selectingAbility = modInput.isSelectingAbility(hotbar);
+				if (hotbarUI.switchHint != null) {
+					hotbarUI.width = Math.max(font.width(hotbarUI.switchHint), hotbarUI.width);
+				}
+				
+				hotbarUI.isSelectingAbility = modInput.isSelectingAbility(hotbar);
+				hotbarUI.highlight = hotbarUI.isSelectingAbility && hotbar.switchAbilityKey != null;
 
 				this.hotbars.add(hotbarUI);
 			}
@@ -369,7 +378,7 @@ public class ControlsHudElement extends HudElement {
 				x += SLOT_WIDTH;
 			}
 			y += SLOT_HEIGHT + 2;
-			if (hotbar.switchHint != null) {
+			if (hotbar.isSelectingAbility || hotbar.switchHint != null) {
 				y += font.lineHeight + 2;
 			}
 		}
@@ -513,7 +522,7 @@ public class ControlsHudElement extends HudElement {
 					if (slot == hotbar.selected) {
 						HOTBAR_SELECTION.render(guiGraphics.pose(), x - 15, y - 15, alpha);
 						
-						if (hotbar.selectingAbility) {
+						if (hotbar.highlight) {
 							float time = modInput.getHotbarsSelectionTime();
 							int highlightAlpha = (int) (ClientUtil.getHighlightAlpha(time + 20F, 40F, 40F, 0.25F, 0.5F) * 255F);
 							guiGraphics.fill(x - 1, y - 1, x + 23, y + 23, ARGB.white(highlightAlpha));
@@ -526,7 +535,15 @@ public class ControlsHudElement extends HudElement {
 
 				x = x0;
 				y += SLOT_HEIGHT + 4;
-				if (hotbar.switchHint != null) {
+				if (hotbar.isSelectingAbility) {
+					x += 18;
+					for (int i = 0; i < 10 && i < hotbar.slots.size(); i++) {
+						guiGraphics.drawString(font, String.valueOf(i + 1), x, y, textColor);
+						x += SLOT_WIDTH;
+					}
+					x = x0;
+				}
+				else if (hotbar.switchHint != null) {
 					guiGraphics.drawString(font, hotbar.switchHint, x, y, textColor);
 				}
 				y += font.lineHeight + 4;
@@ -540,9 +557,11 @@ public class ControlsHudElement extends HudElement {
 	}
 
 	public static void renderAbility(GuiGraphics guiGraphics, float x, float y, AbilityBindUI abilityUi, Minecraft mc, float partialTick, int alpha) {
-		BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), abilityUi.sprite, 
-				x + 3, y + 3, 16, 16, 0, 
-				abilityColor(alpha, abilityUi.ability));
+		AbilityConditionCheck abilityCheck = abilityUi.ability;
+		Ability ability = abilityCheck.ability;
+		Power<?> power = ClientPowerCache.getPower(ability.abilityId.powerClass());
+		ability.renderAbilityIcon(power, guiGraphics, abilityUi.sprite, 
+				x + 3, y + 3, abilityColor(alpha, abilityUi.ability));
 		
 		if (mc.player != null) {
 			WindupIndicator windup = abilityUi.ability.ability.cl_windupIndicator(mc.player, windupIndicator, partialTick);
@@ -551,10 +570,6 @@ public class ControlsHudElement extends HudElement {
 				WindupAtCrosshair.setRender(windup);
 			}
 		}
-	}
-
-	public static void renderAbility(GuiGraphics guiGraphics, float x, float y, AbilityBindUI abilityUi, Minecraft mc, float partialTick) {
-		renderAbility(guiGraphics, x, y, abilityUi, mc, partialTick, BlitFloat.NO_TINT);
 	}
 	
 	static final WindupIndicator windupIndicator = new WindupIndicator();
@@ -632,6 +647,28 @@ public class ControlsHudElement extends HudElement {
 			case ALT -> ALT;
 			case NONE -> null;
 		};
+	}
+	
+	
+	public static final String CONTROL_NOSPACE = "neoforge.controlsgui.control.nospace";
+	public static final String CONTROL_MAC_NOSPACE = "neoforge.controlsgui.control.mac.nospace";
+	public static final String SHIFT_NOSPACE = "neoforge.controlsgui.shift.nospace";
+	public static final String ALT_NOSPACE = "neoforge.controlsgui.alt.nospace";
+	
+	public static Component getKeybindNoSpaceAtModifierPlus(KeyMapping keybind) {
+		KeyModifier modifier = keybind.getKeyModifier();
+		if (modifier == null || modifier == KeyModifier.NONE) {
+			return Component.keybind(keybind.getName());
+		}
+		else {
+			String key = switch (modifier) {
+				case CONTROL -> Minecraft.ON_OSX ? CONTROL_MAC_NOSPACE : CONTROL_NOSPACE;
+				case SHIFT -> SHIFT_NOSPACE;
+				case ALT -> ALT_NOSPACE;
+				default -> null;
+			};
+			return Component.translatable(key, keybind.getKey().getDisplayName());
+		}
 	}
 
 }

@@ -1,9 +1,5 @@
 package com.github.standobyte.jojo.powersystem.ability.input;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
@@ -22,12 +18,10 @@ public class ActionInputBuffer {
 	protected BufferedInputEntry buffered;
 
 	public void bufferClickInput(AbilityId abilityToBuffer) {
-		JojoMod.LOGGER.debug("buffer click {}", abilityToBuffer);
 		this.buffered = new BufferedInputEntry(abilityToBuffer, InputMethod.CLICK);
 	}
 
 	public HeldInput bufferHeldInput(AbilityId abilityToBuffer) {
-		JojoMod.LOGGER.debug("buffer hold {}", abilityToBuffer);
 		this.buffered = new BufferedInputEntry(abilityToBuffer, InputMethod.HOLD);
 		return buffered;
 	}

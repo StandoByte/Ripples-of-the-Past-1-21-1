@@ -157,7 +157,6 @@ public class MovesetBuilder {
 	
 	public MovesetBuilder addHumanoidStandStuff() {
 		addManualControl();
-		addItemUsage();
 		return this;
 	}
 	
@@ -166,10 +165,8 @@ public class MovesetBuilder {
 		return this;
 	}
 	
+	@Deprecated
 	public MovesetBuilder addItemUsage() {
-		addAbility("items_swap_w_user", ModStandAbilities.ITEMS_SWAP_W_USER);
-		addAbility("items_swap_hands", ModStandAbilities.ITEMS_SWAP_HANDS);
-		addAbility("item_toss", ModStandAbilities.ITEM_TOSS);
 		return this;
 	}
 	
@@ -177,7 +174,6 @@ public class MovesetBuilder {
 		return this
 		.addSkill(StandUnlockableSkill.startingAbility("guard"))
 		.addSkill(StandUnlockableSkill.startingAbility("manual_control"))
-		.addSkill(StandUnlockableSkill.startingAbility("swap_items"))
 		.addSkill(StandUnlockableSkill.startingAbility("leap"))
 		.addSkill(StandUnlockableSkill.startingAbility("ledge_grab"));
 	}

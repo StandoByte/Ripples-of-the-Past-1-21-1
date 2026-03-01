@@ -12,6 +12,7 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.mc.entity.projectile.DamagingEntity;
+import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionPhaseTimePacket;
 import com.github.standobyte.jojo.powersystem.entityaction.syncdata.SyncedDataHolderExtended;
 import com.github.standobyte.jojo.powersystem.entityaction.syncdata.SynchedDataExtended;
@@ -357,6 +358,10 @@ public class EntityActionInstance implements HeldInput {
 		return performer.level();
 	}
 	
+	protected boolean isGrabVariation() {
+		return ability.getAbilityUsageCategory() == AbilityUsageGroup.GRAB;
+	}
+	
 	
 	
 	
@@ -400,10 +405,19 @@ public class EntityActionInstance implements HeldInput {
 	 * In the animations, the skipped time is deducted from the phase length
 	 *   (the windup animation will start at tick 0/16).
 	 */
-	
+
+	ActionPhase prevFramePhase = null;
+	float subtractFramePartialTick;
 	@ApiStatus.NonExtendable
 	public float getAnimPhaseTick(float partialTick) {
-		float phaseTick = curPhaseTick + phasePartialTick;
+		// it just works
+		if (prevFramePhase != this.phase) {
+			if (prevFramePhase == null && this.phase != null)	subtractFramePartialTick = this.phasePartialTick;
+			else												subtractFramePartialTick = 0;
+			prevFramePhase = this.phase;
+		}
+		
+		float phaseTick = curPhaseTick - subtractFramePartialTick;
 		if (skippedWindupPhase != null) {
 			phaseTick -= skippedWindupPhase.getOrDefault(this.phase, 0);
 		}
@@ -452,7 +466,7 @@ public class EntityActionInstance implements HeldInput {
 	}
 	
 	public boolean savePrevPoseForAnimTransition(EntityActionInstance prevAction) {
-		return true;
+		return false;
 	}
 	
 

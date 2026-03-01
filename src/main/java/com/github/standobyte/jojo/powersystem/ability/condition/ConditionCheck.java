@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -23,7 +24,7 @@ public class ConditionCheck {
 		return new ConditionCheck(false, message(warningPostfix));
 	}
 	
-	public static Component message(String warningPostfix) {
+	public static MutableComponent message(String warningPostfix) {
 		return Component.translatable("jojo.message.action_condition." + warningPostfix);
 	}
 	
@@ -45,8 +46,8 @@ public class ConditionCheck {
 		return warning;
 	}
 	
-	public static void sendActionFailedMessage(Ability ability, ConditionCheck result, LivingEntity user) {
-		if (!user.level().isClientSide() /* && ability.sendsConditionMessage() */) {
+	public static void sendActionFailedMessage(@Nullable Ability ability, ConditionCheck result, LivingEntity user) {
+		if (!user.level().isClientSide() /* && (ability == null || ability.sendsConditionMessage()) */) {
 			Component message = result.getWarning();
 			
 			if (message != null && user instanceof ServerPlayer player) {

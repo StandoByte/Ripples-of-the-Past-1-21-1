@@ -10,7 +10,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.brokenblocks.BlockBreaking;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.BlockBreaking;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
@@ -34,20 +34,36 @@ public class ServerBlockDestroyTracker {
 		this.level = level;
 	}
 
-	public static boolean addBlockDestroyProgress(ServerLevel level, @Nullable Entity entity, 
+	public static BlockBreakResult addBlockDestroyProgress(ServerLevel level, @Nullable Entity entity, 
 			BlockPos blockPos, float progress/*, int ticksBeforeRevert*/) {
+		BlockBreakResult res = BlockBreakResult.instance;
+		res.progressNew = 0;
+		res.progressAdded = 0;
+		
 		ServerBlockDestroyTracker tracker = level.getData(ModDataAttachmentTypes.BLOCK_DESTROY.get());
-		if (tracker == null) return false;
+		if (tracker == null) {
+			return res;
+		}
 		
 		BlockDestroy blockProgress = tracker.blockDestroy.computeIfAbsent(blockPos, 
 				pos -> new BlockDestroy(counter.getAndIncrement() % 16383 /* 2 bytes of varint */));
 //		blockProgress.ticksBeforeRevert = ticksBeforeRevert;
 		blockProgress.ticksBeforeRevert = 40;
+		float prevDestroy = blockProgress.getProgress();
 		boolean remove = blockProgress.setAndSyncProgress(blockProgress.curProgress + progress, blockPos, level);
 		if (remove) {
 			tracker.blockDestroy.remove(blockPos);
 		}
-		return blockProgress.curProgress >= 1;
+		res.progressNew = blockProgress.curProgress;
+		res.progressAdded = blockProgress.curProgress - prevDestroy;
+		return res;
+	}
+	
+	public static class BlockBreakResult {
+		public float progressNew;
+		public float progressAdded;
+		
+		protected static BlockBreakResult instance = new BlockBreakResult();
 	}
 
 	public void tickPost() {
@@ -96,7 +112,7 @@ public class ServerBlockDestroyTracker {
 		@Override
 		public boolean setAndSyncProgress(float value, BlockPos blockPos, ServerLevel level) {
 			int prevProgress = this.getVanillaProgressValue();
-			this.curProgress = value;
+			this.curProgress = Mth.clamp(value, 0, 1);
 			int newProgress = this.getVanillaProgressValue();
 			if (newProgress != prevProgress) {
 				sync(blockPos, this, level);

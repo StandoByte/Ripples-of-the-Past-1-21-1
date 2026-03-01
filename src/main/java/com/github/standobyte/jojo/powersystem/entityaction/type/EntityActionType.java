@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId.AbilityInputNetwork;
+import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
@@ -30,6 +31,8 @@ public interface EntityActionType {
 	}
 	
 	AbilityId getAbilityId();
+	
+	AbilityUsageGroup getAbilityUsageCategory();
 
 
 	/**

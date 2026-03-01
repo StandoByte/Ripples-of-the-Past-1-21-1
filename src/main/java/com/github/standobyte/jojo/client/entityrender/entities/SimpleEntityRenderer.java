@@ -25,8 +25,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 
-public class SimpleEntityRenderer<T extends Entity> extends EntityRenderer<T> {
-	protected EntityModel<T> hardcodedModel;
+public class SimpleEntityRenderer<T extends Entity, M extends EntityModel<T>> extends EntityRenderer<T> {
+	protected M hardcodedModel;
 	
 	protected ResourceModelEntry resourceModel;
 	
@@ -38,19 +38,19 @@ public class SimpleEntityRenderer<T extends Entity> extends EntityRenderer<T> {
 		super(renderManager);
 	}
 	
-	public SimpleEntityRenderer<T> initTexture(ResourceLocation texPath, boolean loadFromStandSkin) {
+	public SimpleEntityRenderer<T, M> initTexture(ResourceLocation texPath, boolean loadFromStandSkin) {
 		this.texPath = texPath;
 		this.texFromStandSkin = loadFromStandSkin;
 		return this;
 	}
 	
-	public SimpleEntityRenderer<T> initModel(EntityModel<T> model) {
+	public SimpleEntityRenderer<T, M> initModel(M model) {
 		this.hardcodedModel = model;
 		return this;
 	}
 	
-	public SimpleEntityRenderer<T> initResourceModel(ResourceLocation modelPath, 
-			Function<ModelPart, EntityModel<T>> modelClass, boolean loadFromStandSkin) {
+	public SimpleEntityRenderer<T, M> initResourceModel(ResourceLocation modelPath, 
+			Function<ModelPart, M> modelClass, boolean loadFromStandSkin) {
 		this.resourceModel = RotpGeckoModelLoader.getInstance().getModelContainer(modelPath);
 		this.modelFromStandSkin = loadFromStandSkin;
 		this.resourceModel.rendererInit(modelClass);
@@ -58,11 +58,11 @@ public class SimpleEntityRenderer<T extends Entity> extends EntityRenderer<T> {
 	}
 	
 
-	protected EntityModel<T> getEntityModel(T entity) {
+	protected M getEntityModel(T entity) {
 		if (resourceModel != null) {
 			EntityModel<T> modelFromResource = resourceModel.getModel(modelFromStandSkin ? SimpleEntityRenderer.getStandSkin(entity) : null);
 			if (modelFromResource != null) {
-				return modelFromResource;
+				return (M) modelFromResource;
 			}
 		}
 		
@@ -94,7 +94,7 @@ public class SimpleEntityRenderer<T extends Entity> extends EntityRenderer<T> {
 	@Override
 	public void render(T entity, float yRotation, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
 		if (shouldRender(entity)) {
-			EntityModel<T> model = getEntityModel(entity);
+			M model = getEntityModel(entity);
 			if (model == null) return;
 			poseStack.pushPose();
 			poseStack.scale(1.0F, -1.0F, -1.0F);
@@ -111,21 +111,21 @@ public class SimpleEntityRenderer<T extends Entity> extends EntityRenderer<T> {
 		return !entity.isInvisible() || !entity.isInvisibleTo(Minecraft.getInstance().player);
 	}
 
-	protected void rotateModel(EntityModel<T> model, T entity, float partialTick, float yRotation, float xRotation, PoseStack poseStack) {
+	protected void rotateModel(M model, T entity, float partialTick, float yRotation, float xRotation, PoseStack poseStack) {
 		model.setupAnim(entity, 0, 0, entity.tickCount + partialTick, yRotation, xRotation);
 	}
 	
 	// this works well for projectiles, just make sure the pivot of the root model part is at (0; 24; 0)
-	protected void offsetFromDimensions(T entity, EntityModel<T> model, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
+	protected void offsetFromDimensions(T entity, M model, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
 		float height = entity.getBbHeight();
 		poseStack.translate(0, -height / 2, 0);
 	}
 
-	protected void doRender(T entity, EntityModel<T> model, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
+	protected void doRender(T entity, M model, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
 		renderModel(entity, model, partialTick, poseStack, buffer.getBuffer(model.renderType(getTextureLocation(entity))), packedLight);
 	}
 
-	protected void renderModel(T entity, EntityModel<T> model, float partialTick, PoseStack poseStack, VertexConsumer vertexBuilder, int packedLight) {
+	protected void renderModel(T entity, M model, float partialTick, PoseStack poseStack, VertexConsumer vertexBuilder, int packedLight) {
 		model.renderToBuffer(poseStack, vertexBuilder, packedLight, OverlayTexture.NO_OVERLAY, BlitFloat.NO_TINT);
 	}
 

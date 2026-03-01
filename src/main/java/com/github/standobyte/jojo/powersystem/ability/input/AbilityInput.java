@@ -13,6 +13,7 @@ import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
+import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer.BufferingState;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState;
@@ -34,15 +35,20 @@ public class AbilityInput {
 			return false;
 		}
 		
-		var availableAbilities = power.updateAvailableMoves();
-		return withConditionCheck(ability, availableAbilities, user);
+		AvailableAbilities availableAbilities = power.updateAvailableMoves();
+		AbilityConditionCheck abilityConditionCheck = availableAbilities.getAbilityResolved(ability);
+		return withConditionCheck(abilityConditionCheck, user);
 	}
 	
-	public static boolean withConditionCheck(Ability ability, AvailableAbilities updatedAvailable, LivingEntity user) {
-		ConditionCheck conditionCheck = updatedAvailable.getConditionCheck(ability);
-		boolean canUse = conditionCheck.isPositive();
+	public static boolean withConditionCheck(AbilityConditionCheck abilityConditionCheck, LivingEntity user) {
+		if (abilityConditionCheck == null) {
+			return false;
+		}
+		Ability ability = abilityConditionCheck.ability;
+		ConditionCheck result = abilityConditionCheck.conditionCheck;
+		boolean canUse = result.isPositive();
 		if (!canUse) {
-			ConditionCheck.sendActionFailedMessage(ability, conditionCheck, user);
+			ConditionCheck.sendActionFailedMessage(ability, result, user);
 		}
 		return canUse;
 	}

@@ -6,7 +6,7 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.particle.type.custom.BloodFromEntityParticle;
 import com.github.standobyte.jojo.client.particle.type.custom.EntityPosParticle;
 import com.github.standobyte.jojo.core.NotYetImplemented;
-import com.github.standobyte.jojo.jojoimpl.stands.crazydiamond.client.CrazyDRestorationHandItemParticle;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.client.CrazyDRestorationHandItemParticle;
 
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;

@@ -3,11 +3,11 @@ package com.github.standobyte.jojo.client.input;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.Queue;
-import java.util.Set;
 import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
@@ -40,16 +40,13 @@ import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.ability.input.AbilityInput;
 import com.github.standobyte.jojo.powersystem.ability.input.AbilityInput.InputEventType;
 import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer.BufferingState;
-import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState.HeldInputEntry;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.CommonEnums.Direction2D;
-import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.InputConstants.Key;
-import com.mojang.datafixers.util.Pair;
 
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -59,7 +56,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.Input;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.phys.EntityHitResult;
@@ -160,8 +156,13 @@ public class InputHandler {
 		}
 	}
 	
+	
+	protected boolean shouldQueueInput() {
+		return !(mc.screen == null || PowerHud.isInContainerScreen() || mc.screen instanceof AbilitySelectionWheel);
+	}
+	
 	protected void tickReleaseEventQueue() {
-		if (!keyReleaseEventQueue.isEmpty() && mc.getConnection() != null && mc.screen == null) {
+		if (!keyReleaseEventQueue.isEmpty() && mc.getConnection() != null && !shouldQueueInput()) {
 			for (DelayedInput keyRelease : keyReleaseEventQueue) {
 				input(keyRelease.key, keyRelease.action, keyRelease.modifiers);
 			}
@@ -222,7 +223,7 @@ public class InputHandler {
 		boolean cancelVanilla = false;
 		short keyId = key.keyId();
 		
-		if (mc.screen != null && !PowerHud.isInContainerScreen()) {
+		if (shouldQueueInput()) {
 			if (inputType == InputConstants.RELEASE) {
 				keyReleaseEventQueue.add(new DelayedInput(key, inputType, modifiers));
 			}
@@ -488,16 +489,16 @@ public class InputHandler {
 	
 	// Hotbar stuff
 	
-	public Set<Pair<Hotbar, ClientKey>> hotbarsSelection = Sets.newIdentityHashSet();
+	public Map<Hotbar, ClientKey> hotbarsSelection = new IdentityHashMap<>();
 	protected float hotbarsSelectionTimestamp;
 	
 	public void checkStartHotbarSelection(ClientKey pressedKey) {
 		ClientControlScheme controlScheme = getActiveControlScheme();
 		if (controlScheme != null) {
 			Hotbar wheelHotbar = null;
-			var curControls = controlScheme.getCurGroup().getValue();
+			ClientControlScheme.MoveGroup curControls = controlScheme.getCurGroup();
 			for (Hotbar abilityHotbar : curControls.hotbars) {
-				if (abilityHotbar.switchAbilityKey.keyMatches(pressedKey, getCurModifier())) {
+				if (abilityHotbar.switchAbilityKey != null && abilityHotbar.switchAbilityKey.keyMatches(pressedKey, getCurModifier())) {
 					if (wheelHotbar == null) wheelHotbar = abilityHotbar;
 					setSelectingAbility(abilityHotbar, pressedKey, true);
 				}
@@ -510,10 +511,10 @@ public class InputHandler {
 	
 	public void checkStopHotbarSelection(ClientKey releasedKey) {
 		if (!hotbarsSelection.isEmpty()) {
-			var iter = hotbarsSelection.iterator();
+			var iter = hotbarsSelection.entrySet().iterator();
 			while (iter.hasNext()) {
 				var entry = iter.next();
-				ClientKey hotbarKey = entry.getSecond();
+				ClientKey hotbarKey = entry.getValue();
 				if (hotbarKey == releasedKey) {
 					iter.remove();
 				}
@@ -522,26 +523,30 @@ public class InputHandler {
 	}
 	
 	public boolean hotbarScroll(double scrollDelta) {
-		if (hotbarsSelection.isEmpty()) return false;
-		@Nullable AbilitySelectionWheel curWheel = mc.screen instanceof AbilitySelectionWheel w ? w : null;
-		for (var entry : hotbarsSelection) {
-			Hotbar hotbar = entry.getFirst();
-			int n = hotbar.slots.size();
-			int newIndex = (hotbar.slotIndex - (int) scrollDelta);
-			if (newIndex < 0) newIndex += (-newIndex / n + 1) * n;
-			newIndex %= n;
-			
-			hotbar.slotIndex = newIndex;
-			if (curWheel != null && curWheel.abilities == hotbar) {
-				curWheel.setIgnoreMouseUntilMove(OptionalInt.of(newIndex));
+		boolean scrolledAHotbar = false;
+		ClientControlScheme controlScheme = getActiveControlScheme();
+		if (controlScheme != null) {
+			ClientControlScheme.MoveGroup curControls = controlScheme.getCurGroup();
+			@Nullable AbilitySelectionWheel curWheel = mc.screen instanceof AbilitySelectionWheel w ? w : null;
+			for (Hotbar hotbar : curControls.hotbars) {
+				if (isSelectingAbility(hotbar)) {
+					int n = hotbar.slots.size();
+					int newIndex = (hotbar.slotIndex - (int) scrollDelta);
+					if (newIndex < 0) newIndex += (-newIndex / n + 1) * n;
+					newIndex %= n;
+					
+					hotbar.slotIndex = newIndex;
+					scrolledAHotbar |= true;
+					if (curWheel != null && curWheel.abilities == hotbar) {
+						curWheel.setIgnoreMouseUntilMove(OptionalInt.of(newIndex));
+					}
+				}
 			}
 		}
-		return true;
+		return scrolledAHotbar;
 	}
 	
 	public boolean hotbarPickSlot(ClientKey digitKey) {
-		if (hotbarsSelection.isEmpty()) return false;
-		
 		Key vanillaKey = digitKey.getVanillaKey();
 		int newIndex = -1;
 		for (int i = 0; i < mc.options.keyHotbarSlots.length; i++) {
@@ -551,22 +556,27 @@ public class InputHandler {
 			}
 		}
 		if (newIndex < 0) return false;
-		
-		@Nullable AbilitySelectionWheel curWheel = mc.screen instanceof AbilitySelectionWheel w ? w : null;
-		for (var entry : hotbarsSelection) {
-			Hotbar hotbar = entry.getFirst();
-			if (newIndex < hotbar.slots.size()) {
-				hotbar.slotIndex = newIndex;
-				if (curWheel != null && curWheel.abilities == hotbar) {
-					curWheel.setIgnoreMouseUntilMove(OptionalInt.of(newIndex));
+
+		boolean pickedAHotbarSlot = false;
+		ClientControlScheme controlScheme = getActiveControlScheme();
+		if (controlScheme != null) {
+			ClientControlScheme.MoveGroup curControls = controlScheme.getCurGroup();
+			@Nullable AbilitySelectionWheel curWheel = mc.screen instanceof AbilitySelectionWheel w ? w : null;
+			for (Hotbar hotbar : curControls.hotbars) {
+				if (isSelectingAbility(hotbar) && newIndex < hotbar.slots.size()) {
+					hotbar.slotIndex = newIndex;
+					pickedAHotbarSlot |= true;
+					if (curWheel != null && curWheel.abilities == hotbar) {
+						curWheel.setIgnoreMouseUntilMove(OptionalInt.of(newIndex));
+					}
 				}
 			}
 		}
-		return true;
+		return pickedAHotbarSlot;
 	}
 	
 	public boolean isSelectingAbility(Hotbar hotbar) {
-		return hotbarsSelection.stream().anyMatch(entry -> entry.getFirst() == hotbar);
+		return hotbar.switchAbilityKey == null && !inputsDisabled || hotbarsSelection.containsKey(hotbar);
 	}
 	
 	public void setSelectingAbility(Hotbar hotbar, ClientKey key, boolean selecting) {
@@ -574,16 +584,21 @@ public class InputHandler {
 			if (hotbarsSelection.isEmpty()) {
 				hotbarsSelectionTimestamp = ClientTickHandler.tickCount + ClientUtil.partialTick();
 			}
-			hotbarsSelection.add(Pair.of(hotbar, key));
+			hotbarsSelection.put(hotbar, key);
 		}
 		else {
-			hotbarsSelection.removeIf(entry -> entry.getFirst() == hotbar);
+			hotbarsSelection.remove(hotbar);
 		}
 	}
 	
 	public float getHotbarsSelectionTime() {
 		float time = ClientTickHandler.tickCount + ClientUtil.partialTick();
 		return time - hotbarsSelectionTimestamp;
+	}
+	
+	
+	public void onUpdatedControls(ClientControlScheme.MoveGroup newControls) {
+		hotbarsSelection.clear();
 	}
 	
 	

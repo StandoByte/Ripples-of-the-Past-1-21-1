@@ -20,7 +20,7 @@ import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.init.power.ModStandEffects;
 import com.github.standobyte.jojo.init.power.ModStands;
-import com.github.standobyte.jojo.jojoimpl.hamon.ModHamonSkills;
+import com.github.standobyte.jojoimpl.powers.hamon.ModHamonSkills;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.resources.ResourceLocation;
@@ -32,6 +32,7 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
+// TODO (!) reorganize the packages after merging the two branches
 // XXX allow PowerType to override controls/HUD rendering
 @Mod(JojoMod.MOD_ID)
 public class JojoMod {
