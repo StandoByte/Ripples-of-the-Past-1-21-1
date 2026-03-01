@@ -83,7 +83,9 @@
   "jojo_ripples.config.client.hamonAuraBlur.tooltip": "Blur Hamon aura particles",
   "jojo_ripples.config.client.vampireGlowingEyes": "Glowing eyes",
   "jojo_ripples.config.client.vampireGlowingEyes.tooltip": "Red eyes glowing in the dark in 3rd person when you have 80% or more energy",
-  
+
+  "item.jojo_ripples.stand_arrow": "Stand Arrow",
+
   "jojo_ripples.ui.story": "Story (NYI)",
   "jojo_ripples.menu.player.profile": "Character Profile: %s (NYI)",
   "jojo_ripples.menu.player.group": "Group (NYI)",
@@ -210,6 +212,7 @@
   "stand.unknown": "Unknown Stand: %s",
   "effect.jojo_ripples.resolve": "Resolve",
   "effect.jojo_ripples.bleeding": "Bleeding",
+  "effect.jojo_ripples.stand_virus": "Meteorite Virus",
 
   "jojo.message.action_condition.stand_too_slow": "Your Stand is too slow to do this",
   
