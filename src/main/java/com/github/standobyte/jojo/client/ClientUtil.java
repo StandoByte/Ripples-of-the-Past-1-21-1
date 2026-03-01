@@ -7,6 +7,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.TickRateManager;
@@ -101,4 +102,7 @@ public class ClientUtil {
 		}
 	}
 
+	public static LocalPlayer getClientPlayer() {
+		return Minecraft.getInstance().player;
+	}
 }

@@ -100,6 +100,8 @@
   "jojo_ripples.story_part.p8": "JoJolion",
   "jojo_ripples.story_part.p9": "The JOJOLands",
 
+  "item.jojo_ripples.stand_arrow": "Стрела Стенда",
+
   "jojo_ripples.menu.player.clothes": "Одежда (WIP)",
   "block.jojo_ripples.sewing_machine": "Швейная машинка (WIP)",
   "item.jojo_ripples.sewing_needle": "Швейная игла",
@@ -208,6 +210,7 @@
   "stand.unknown": "Неизвестный Стенд: %s",
   "effect.jojo_ripples.resolve": "Решимость",
   "effect.jojo_ripples.bleeding": "Кровотечение",
+  "effect.jojo_ripples.stand_virus": "Вирус из метеорита",
 
   "jojo.message.action_condition.stand_too_slow": "Ваш Стенд слишком медленный",
   

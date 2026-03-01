@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.client.entityrender.entities.v1_21_2plus.Manne
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModEntityTypes;
+import com.github.standobyte.jojo.mc.entity.projectile.StandArrowEntity;
 import com.github.standobyte.jojo.mechanics.clothes.client.layer.HumanoidClothesLayer;
 import com.github.standobyte.jojo.mechanics.entity_like_player.npc.client.CharacterMobRenderer;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.client.CrazyDBlockBulletRenderer;
@@ -20,6 +21,7 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.renderer.entity.ArrowRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
@@ -47,8 +49,15 @@ public class ModEntityRenderers {
 				.initResourceModel(JojoMod.resLoc("blood_cutter"), SimpleEntityModel::new, true));
 		event.registerEntityRenderer(ModEntityTypes.CD_BLOCK_BULLET.get(), ctx -> new CrazyDBlockBulletRenderer(ctx)
 				.initResourceModel(JojoMod.resLoc("block_bullet"), SimpleEntityModel::new, true));
+		// стандо добавь пж initFromRenderer()
+		event.registerEntityRenderer(ModEntityTypes.STAND_ARROW.get(), ctx -> new ArrowRenderer<StandArrowEntity>(ctx) {
+			@Override
+			public ResourceLocation getTextureLocation(StandArrowEntity standArrowEntity) {
+				return JojoMod.resLoc("textures/entity/stand_arrow.png");
+			}
+		});
 	}
-	
+
 	// Hardcoded models
 	
 	public static final ModelLayerLocation MANNEQUIN = mainLayer(ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "mannequin"));
