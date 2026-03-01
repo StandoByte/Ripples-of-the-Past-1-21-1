@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 // XXX tick the unlocked stand skills
 public abstract class UnlockableSkill {
@@ -23,9 +24,13 @@ public abstract class UnlockableSkill {
 		this.prerequisiteSkills = new ArrayList<>();
 		this.mainSkill = Optional.empty();
 		this.unlocksAbilities = new ArrayList<>();
-		this.textName = Component.translatable("jojo_ripples.skill." + name);
+		this.textName = skillName(name);
 		this.textDesc = Component.translatable("jojo_ripples.skill." + name + ".desc");
 		this.textControls = Component.translatable("jojo_ripples.skill." + name + ".controls");
+	}
+	
+	protected static MutableComponent skillName(String internalName) {
+		return Component.translatable("jojo_ripples.skill." + internalName);
 	}
 	
 	public UnlockableSkill withAbility(String abilityName, String... extra) {

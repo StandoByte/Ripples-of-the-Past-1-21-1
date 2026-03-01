@@ -83,9 +83,8 @@ public class CharacterMobRenderer<T extends PowerUserMobEntity> extends LivingEn
 
 				poseStack.translate(0, 0.25, 0);
 				float resolveRatio = stand.getResolve() / stand.getMaxResolve();
-				int level = stand.getCurTypeData().getResolveReached();
 				renderNameTag(entity, 
-						Component.translatable(String.format("Resolve: %.2f%% (level %d)", resolveRatio * 100, level)), 
+						Component.translatable(String.format("Resolve: %.2f%%", resolveRatio * 100)), 
 						poseStack, buffer, packedLight, partialTick);
 
 				poseStack.translate(0, 0.25, 0);

@@ -26,6 +26,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
+import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
 import com.github.standobyte.jojo.powersystem.standpower.datapack.DataDrivenStandsLoader;
 import com.github.standobyte.jojo.powersystem.standpower.datapack.StandTypeClass;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
@@ -161,6 +162,7 @@ public class StandType extends PowerType {
 	
 	
 	@Nonnull
+	@Override
 	public StandTypePersistentData newDataInstance() {
 		return new StandTypePersistentData();
 	}
@@ -258,6 +260,12 @@ public class StandType extends PowerType {
 	
 	public boolean usesResolve(StandPower standPower) {
 		return true;
+	}
+	
+	
+	@Override
+	public Map<String, StandUnlockableSkill> getUnlockableSkills() {
+		return (Map<String, StandUnlockableSkill>) super.getUnlockableSkills();
 	}
 	
 	

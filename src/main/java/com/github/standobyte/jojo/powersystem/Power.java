@@ -1,6 +1,9 @@
 package com.github.standobyte.jojo.powersystem;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -10,14 +13,16 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
-import com.github.standobyte.jojo.powersystem.skill.UserUnlockedSkills;
 import com.github.standobyte.jojo.util.NBTUtil;
 import com.github.standobyte.jojo.util.entitycomponent.SynchronizablePlayerData;
 import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
+import com.mojang.datafixers.util.Either;
 
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -27,7 +32,7 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	@Nonnull protected final LivingEntity user;
 	protected final Optional<ServerPlayer> serverPlayerUser;
 	protected Moveset moveset;
-	protected UserUnlockedSkills unlockedSkills = new UserUnlockedSkills();
+	protected Map<ResourceLocation, Either<PowerData, CompoundTag>> powerData = new HashMap<>();
 	
 	public Power(LivingEntity user) {
 		this.user = user;
@@ -52,6 +57,42 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	
 	protected void onSetPowerType(@Nullable PowerType oldPower, @Nullable PowerType newPower) {
 		moveset = initMoveset(newPower);
+
+		if (!user.level().isClientSide()) {
+			PowerData curData = getCurTypeData();
+			if (curData != null) {
+				curData.syncToAllTracking(user);
+				if (user instanceof ServerPlayer player) {
+					curData.syncToPlayer(player);
+				}
+			}
+		}
+	}
+	
+	@Nullable
+	public PowerData getCurTypeData() {
+		PowerType powerType = getPowerType();
+		return powerType != null ? getPowerTypeData(powerType) : null;
+	}
+	
+	public PowerData getPowerTypeData(PowerType powerType) {
+		ResourceLocation id = powerType.getId();
+		Either<PowerData, CompoundTag> dataEntry = powerData.get(id);
+		if (dataEntry == null) {
+			PowerData data = powerType.newDataInstance();
+			data.onInit(powerType, this);
+			this.powerData.put(id, Either.left(data));
+			return data;
+		}
+		else {
+			return dataEntry.map(Function.identity(), readNbt -> {
+				PowerData data = powerType.newDataInstance();
+				RegistryAccess provider = getUser().registryAccess();
+				data.deserializeNBT(provider, readNbt);
+				this.powerData.put(id, Either.left(data));
+				return data;
+			});
+		}
 	}
 	
 	@Nonnull
@@ -120,11 +161,18 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 
 	@Override
 	public void syncToPlayer(ServerPlayer user) {
-		// TODO (skill unlocking) sync to user
+		PowerData curData = getCurTypeData();
+		if (curData != null) {
+			curData.syncToPlayer(user);
+		}
 	}
 
 	@Override
 	public void syncToTracking(ServerPlayer player) {
+		PowerData curData = getCurTypeData();
+		if (curData != null) {
+			curData.syncToTracking(user, player);
+		}
 	}
 	
 	@Override
@@ -135,18 +183,36 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	
 	protected void onPlayerCloneData(P newEntityData, boolean wasDeath) {
 		newEntityData.moveset = this.moveset;
+		newEntityData.powerData = this.powerData;
 	}
 	
 	@Override
 	public CompoundTag serializeNBT(HolderLookup.Provider provider) {
 		CompoundTag nbt = new CompoundTag();
-		nbt.put("skills", unlockedSkills.toNBT());
+		
+		if (!powerData.isEmpty()) {
+			CompoundTag dataNbt = new CompoundTag();
+			for (var dataEntry : powerData.entrySet()) {
+				String key = dataEntry.getKey().toString();
+				dataEntry.getValue()
+				.ifLeft(data -> dataNbt.put(key, data.serializeNBT(provider)))
+				.ifRight(danaEntryNbt -> dataNbt.put(key, danaEntryNbt));
+			}
+			nbt.put("powersData", dataNbt);
+		}
+		
 		return nbt;
 	}
 
 	@Override
 	public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
-		NBTUtil.getCompoundOptional(nbt, "skills").ifPresent(unlockedSkills::fromNBT);
+		NBTUtil.getCompoundOptional(nbt, "powersData").ifPresent(dataNbt -> {
+			for (String key : dataNbt.getAllKeys()) {
+				if (dataNbt.get(key) instanceof CompoundTag compound) {
+					this.powerData.put(ResourceLocation.parse(key), Either.right(compound));
+				}
+			}
+		});
 	}
 	
 	

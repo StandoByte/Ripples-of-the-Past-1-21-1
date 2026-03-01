@@ -207,6 +207,11 @@
   "jojo_ripples.key.swap_items": "Swap items with Stand",
   "jojo.message.action_condition.stand_user_too_far": "You and your Stand are too far away from each other",
   
+  "jojo_ripples.stand_exp": "Stand EXP",
+  "jojo_ripples.stand_skills.learn": "Gain Skill",
+  "jojo_ripples.stand_skills.not_enough_exp": "You don't have enough Stand EXP",
+  "jojo_ripples.stand_skills.prerequisites": "You need to gain the following skills first: %s",
+  
   "stand.unknown": "Unknown Stand: %s",
   "effect.jojo_ripples.resolve": "Resolve",
   "effect.jojo_ripples.bleeding": "Bleeding",
@@ -414,7 +419,7 @@
   "jojo_ripples.ability.block_bullet_homing": "Homing Bullet",
   
   "jojo_ripples.skill.blood_cutter": "(WIP) Blood Cutter",
-  "jojo_ripples.skill.blood_cutter.desc": "A fast projectile made out of your blood. When it hits something, the blood drops remain on nearby entities - this helps you make your Block Bullets home in on them §7§o(by adding more of your blood drops on Block Bullets, and fixing the blood as the bullet is flying)§r.",
+  "jojo_ripples.skill.blood_cutter.desc": "A fast projectile made out of your blood. When it hits something, the blood drops remain on nearby entities - this makes your Block Bullets home in on them §7§o(by adding more of your blood drops on Block Bullets, and fixing the blood while the bullet is flying)§r.",
   "jojo_ripples.skill.blood_cutter.controls": "Special ability",
   "jojo_ripples.ability.blood_cutter": "Blood Cutter",
   

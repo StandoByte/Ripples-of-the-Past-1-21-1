@@ -1,10 +1,7 @@
 package com.github.standobyte.jojo.powersystem.standpower;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
@@ -23,10 +20,8 @@ import com.github.standobyte.jojo.util.NBTUtil;
 import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.entitycomponent.PostNbtReadEntityData;
 import com.github.standobyte.jojo.util.java.Lerp;
-import com.mojang.datafixers.util.Either;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
@@ -40,7 +35,6 @@ import net.neoforged.neoforge.network.PacketDistributor;
 public class StandPower extends Power<StandPower> implements PostNbtReadEntityData {
 	protected Optional<StandInstance> standInstance = Optional.empty();
 	protected SummonedStand summonedStand;
-	protected Map<ResourceLocation, Either<StandTypePersistentData, CompoundTag>> standData = new HashMap<>();
 	
 	protected Lerp.FloatValue staminaLerp = new Lerp.FloatValue();
 	protected float staminaAddNextTick = 0;
@@ -85,24 +79,22 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		}
 		
 		this.standInstance = standInstance;
+		StandType newStand = getPowerType();
+		
 		LivingEntity user = getUser();
 		if (user != null) {
 			StandStats.updateStandStatAttributes(this, user);
 		}
-		StandType newStand = getPowerType();
-		onSetPowerType(oldStand, newStand);
-		if (newStand == null) {
-			setStamina(0);
-		}
 		
 		if (user != null && !user.level().isClientSide()) {
 			userStandEffects.onStandChanged(user);
-
-			PacketDistributor.sendToPlayersTrackingEntity(user, new TrPowerStandInstancePacket(user.getId(), standInstance, getCurTypeData(), true));
-			if (user instanceof ServerPlayer player) {
-				PacketDistributor.sendToPlayer(player, new TrPowerStandInstancePacket(user.getId(), standInstance, getCurTypeData(), false));
-			}
+			PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrPowerStandInstancePacket(user.getId(), standInstance));
 		}
+		
+		if (newStand == null) {
+			setStamina(0);
+		}
+		onSetPowerType(oldStand, newStand);
 	}
 
 	@Override
@@ -148,25 +140,10 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	
 	
 	@Nullable
+	@Override
 	public StandTypePersistentData getCurTypeData() {
-		StandType standType = getPowerType();
-		if (standType == null) return null;
-		
-		var dataEntry = standData.get(standType.getId());
-		if (dataEntry == null) {
-			StandTypePersistentData data = standType.newDataInstance();
-			this.standData.put(standType.getId(), Either.left(data));
-			return data;
-		}
-		else {
-			return dataEntry.map(Function.identity(), readNbt -> {
-				StandTypePersistentData data = standType.newDataInstance();
-				RegistryAccess provider = getUser().registryAccess();
-				data.deserializeNBT(provider, readNbt);
-				this.standData.put(standType.getId(), Either.left(data));
-				return data;
-			});
-		}
+		// who needs generics, amirite
+		return (StandTypePersistentData) super.getCurTypeData();
 	}
 	
 	public void skipProgression() {}
@@ -301,8 +278,8 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 
 	@Override
 	public void syncToPlayer(ServerPlayer user) {
+		PacketDistributor.sendToPlayer(user, new TrPowerStandInstancePacket(user.getId(), standInstance));
 		super.syncToPlayer(user);
-		PacketDistributor.sendToPlayer(user, new TrPowerStandInstancePacket(user.getId(), standInstance, getCurTypeData(), false));
 		syncStaminaFixed(user, user);
 		resolveHandler.syncToUser(user);
 		PacketDistributor.sendToPlayer(user, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
@@ -312,8 +289,8 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 
 	@Override
 	public void syncToTracking(ServerPlayer player) {
+		PacketDistributor.sendToPlayer(player, new TrPowerStandInstancePacket(user.getId(), standInstance));
 		super.syncToTracking(player);
-		PacketDistributor.sendToPlayer(player, new TrPowerStandInstancePacket(user.getId(), standInstance, getCurTypeData(), true));
 		syncStaminaFixed(player, user);
 		resolveHandler.syncToTracking(user, player);
 		PacketDistributor.sendToPlayer(player, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
@@ -332,7 +309,6 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	protected void onPlayerCloneData(StandPower newEntityData, boolean wasDeath) {
 		super.onPlayerCloneData(newEntityData, wasDeath);
 		newEntityData.standInstance = this.standInstance;
-		newEntityData.standData = this.standData;
 		newEntityData.staminaLerp = this.staminaLerp;
 		newEntityData.resolveHandler.copyValues(this.resolveHandler, wasDeath);
 		newEntityData.userStandEffects = this.userStandEffects;
@@ -346,18 +322,6 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		standInstance.ifPresent(
 				stand -> StandInstance.CODEC.encodeStart(NbtOps.INSTANCE, stand)
 				.ifSuccess(standNbt -> nbt.put("StandInstance", standNbt)));
-		
-		if (!standData.isEmpty()) {
-			CompoundTag dataNbt = new CompoundTag();
-			for (var dataEntry : standData.entrySet()) {
-				String key = dataEntry.getKey().toString();
-				dataEntry.getValue()
-				.ifLeft(data -> dataNbt.put(key, data.serializeNBT(provider)))
-				.ifRight(danaEntryNbt -> dataNbt.put(key, danaEntryNbt));
-			}
-			nbt.put("perStand", dataNbt);
-		}
-		
 		nbt.putFloat("Stamina", staminaLerp.get());
 		nbt.put("ResolveHandler", resolveHandler.writeNBT());
 		nbt.put("Effects", userStandEffects.writeNBT());
@@ -370,15 +334,6 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		standInstance = NBTUtil.getCompoundOptional(nbt, "StandInstance")
 				.flatMap(standNbt -> StandInstance.CODEC.decode(NbtOps.INSTANCE, standNbt).result())
 				.map(pair -> pair.getFirst());
-		
-		NBTUtil.getCompoundOptional(nbt, "perStand").ifPresent(dataNbt -> {
-			for (String key : dataNbt.getAllKeys()) {
-				if (dataNbt.get(key) instanceof CompoundTag compound) {
-					this.standData.put(ResourceLocation.parse(key), Either.right(compound));
-				}
-			}
-		});
-		
 		staminaLerp.set(nbt.getFloat("Stamina"), false);
 		NBTUtil.getCompoundOptional(nbt, "ResolveHandler").ifPresent(resolveHandler::readNBT);
 		NBTUtil.getCompoundOptional(nbt, "Effects").ifPresent(userStandEffects::readNBT);

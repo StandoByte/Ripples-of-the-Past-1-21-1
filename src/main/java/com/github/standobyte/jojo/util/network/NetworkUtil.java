@@ -2,7 +2,6 @@ package com.github.standobyte.jojo.util.network;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -90,25 +89,16 @@ public class NetworkUtil {
 	public static final StreamCodec<ByteBuf, JsonObject> JSON_OBJECT_CODEC = ByteBufCodecs.STRING_UTF8
 			.map(JSONUtil::parse, JsonObject::toString);
 	
-	public static <B extends ByteBuf, T> StreamCodec<B, Collection<T>> collectionCodec(StreamCodec<? super B, T> elementCodec) {
+	public static <B extends FriendlyByteBuf, T> StreamCodec<B, Collection<T>> collectionCodec(StreamCodec<? super B, T> elementCodec) {
 		return new StreamCodec<>() {
 			@Override
 			public void encode(B buffer, Collection<T> collection) {
-				ByteBufCodecs.VAR_INT.encode(buffer, collection.size());
-				for (T element : collection) {
-					elementCodec.encode(buffer, element);
-				}
+				writeCollection(buffer, collection, elementCodec);
 			}
 
 			@Override
 			public List<T> decode(B buffer) {
-				int size = ByteBufCodecs.VAR_INT.decode(buffer);
-				if (size <= 0) return Collections.emptyList();
-				List<T> list = new ArrayList<>(size);
-				for (int i = 0; i < size; i++) {
-					list.add(elementCodec.decode(buffer));
-				}
-				return list;
+				return readCollection(buffer, elementCodec);
 			}
 		};
 	}
@@ -203,6 +193,11 @@ public class NetworkUtil {
 		return OptionalInt.of(value);
 	}
 
+	
+	public static <T, B extends FriendlyByteBuf> void writeAsSingletonCollection(B buf, T obj, StreamEncoder<? super B, T> writer) {
+		buf.writeInt(1);
+		writer.encode(buf, obj);
+	}
 
 	public static <T, B extends FriendlyByteBuf> int writeCollection(B buf, Collection<T> collection, StreamEncoder<? super B, T> writer) {
 		int i = 0;
