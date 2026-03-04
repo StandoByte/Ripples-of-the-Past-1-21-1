@@ -27,7 +27,6 @@ import com.github.standobyte.jojo.client.sound.sounds.EntityStoppableSoundInstan
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModParticles;
 import com.github.standobyte.jojo.init.ModSoundEvents;
-import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker;
 import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracker;
 import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracking;
@@ -44,6 +43,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
+import com.github.standobyte.jojo.powersystem.standpower.resolve.ResolveModeEffect;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.OOPMoment;
 import com.github.standobyte.jojo.util.entitycomponent.ComponentUtil;
@@ -163,7 +163,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 				Player playerUser = user instanceof Player ? (Player) user : null;
 				boolean creative = playerUser != null ? playerUser.getAbilities().instabuild : false;
 				Entity cameraEntity = restorationCenterEntity(user, userPower);
-				boolean resolveEffect = ModStatusEffects.isInResolveEffect(user);
+				boolean resolveEffect = ResolveModeEffect.getResolveEffectLvl(user) >= 0;
 				int manhattanRange = restorationDistManhattan(resolveEffect);
 				Vec3i eyePos = eyePos(cameraEntity);
 				Vec3 lookVec = cameraEntity.getLookAngle();
@@ -831,7 +831,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 	public String getSpriteName(Power<?> context) {
 		if (context != null) {
 			LivingEntity user = context.getUser();
-			if (user != null && ModStatusEffects.isInResolveEffect(user)) {
+			if (user != null && ResolveModeEffect.getResolveEffectLvl(user) >= 0) {
 				return resolveSpriteName;
 			}
 		}

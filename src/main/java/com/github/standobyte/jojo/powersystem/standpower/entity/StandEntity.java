@@ -13,7 +13,6 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.init.ModSpecialActions;
-import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.init.core.ModEntityAttributes;
 import com.github.standobyte.jojo.mc.entity.projectile.DamagingEntity;
 import com.github.standobyte.jojo.mc.entity.util.EntityStandVisibility;
@@ -29,6 +28,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.SyncType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
+import com.github.standobyte.jojo.powersystem.standpower.resolve.ResolveModeEffect;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
 import com.github.standobyte.jojo.util.MathUtil;
@@ -1346,7 +1346,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	public void addFinisherMeter(float value) {
 		if (value > 0) {
 			LivingEntity user = getUser();
-			if (user != null && ModStatusEffects.isInResolveEffect(user)) {
+			if (user != null && ResolveModeEffect.getResolveEffectLvl(user) >= 0) {
 				value *= 2;
 			}
 		}
@@ -1379,7 +1379,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 						decay *= 0.5F;
 					}
 					LivingEntity user = getUser();
-					if (user != null && ModStatusEffects.isInResolveEffect(user)) {
+					if (user != null && ResolveModeEffect.getResolveEffectLvl(user) >= 0) {
 						decay *= 0.5F;
 					}
 					setFinisherMeter(Math.max(value - decay, 0));

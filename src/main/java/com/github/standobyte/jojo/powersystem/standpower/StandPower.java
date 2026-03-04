@@ -13,6 +13,7 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.effect.UserStandEffects;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.packet.TrStaminaPacket;
+import com.github.standobyte.jojo.powersystem.standpower.resolve.ResolveCounter;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
@@ -38,7 +39,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	
 	protected Lerp.FloatValue staminaLerp = new Lerp.FloatValue();
 	protected float staminaAddNextTick = 0;
-	public ResolveHandler resolveHandler = new ResolveHandler();
+	public ResolveCounter resolveCounter = new ResolveCounter();
 	public UserStandEffects userStandEffects = new UserStandEffects(this);
 	
 	public StandPower(LivingEntity user) {
@@ -228,27 +229,12 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		return hasPower() ? getPowerType().usesResolve(this) : false;
 	}
 	
-	public float getResolve() {
-		return resolveHandler.getResolveValue();
-	}
-	
-	public float getMaxResolve() {
-		return hasPower() ? resolveHandler.getMaxResolveValue(this) : 0;
-	}
-	
-	public float getResolveRatio() { return getResolveRatio(1); }
-	
-	public float getResolveRatio(float partialTick) {
-		float maxResolve = getMaxResolve();
-		return maxResolve > 0 ? resolveHandler.resolveLerp.lerp(partialTick) / maxResolve : 0;
-	}
-	
-	public ResolveHandler getResolveHandler() {
-		return resolveHandler;
+	public ResolveCounter getResolveCounter() {
+		return resolveCounter;
 	}
 	
 	protected void tickResolve() {
-		resolveHandler.tick(this);
+		resolveCounter.tick(this);
 	}
 	
 	
@@ -281,7 +267,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		PacketDistributor.sendToPlayer(user, new TrPowerStandInstancePacket(user.getId(), standInstance));
 		super.syncToPlayer(user);
 		syncStaminaFixed(user, user);
-		resolveHandler.syncToUser(user);
+		resolveCounter.syncToUser(user);
 		PacketDistributor.sendToPlayer(user, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
 		userStandEffects.syncWithTrackingOrUser(user);
 		userStandEffects.syncWithUserOnly(user);
@@ -292,7 +278,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		PacketDistributor.sendToPlayer(player, new TrPowerStandInstancePacket(user.getId(), standInstance));
 		super.syncToTracking(player);
 		syncStaminaFixed(player, user);
-		resolveHandler.syncToTracking(user, player);
+		resolveCounter.syncToTracking(user, player);
 		PacketDistributor.sendToPlayer(player, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
 		userStandEffects.syncWithTrackingOrUser(player);
 	}
@@ -310,7 +296,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		super.onPlayerCloneData(newEntityData, wasDeath);
 		newEntityData.standInstance = this.standInstance;
 		newEntityData.staminaLerp = this.staminaLerp;
-		newEntityData.resolveHandler.copyValues(this.resolveHandler, wasDeath);
+		newEntityData.resolveCounter.copyValues(this.resolveCounter, wasDeath);
 		newEntityData.userStandEffects = this.userStandEffects;
 		newEntityData.userStandEffects.setPowerData(newEntityData);
 	}
@@ -323,7 +309,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 				stand -> StandInstance.CODEC.encodeStart(NbtOps.INSTANCE, stand)
 				.ifSuccess(standNbt -> nbt.put("StandInstance", standNbt)));
 		nbt.putFloat("Stamina", staminaLerp.get());
-		nbt.put("ResolveHandler", resolveHandler.writeNBT());
+		nbt.put("Resolve", resolveCounter.writeNBT());
 		nbt.put("Effects", userStandEffects.writeNBT());
 		return nbt;
 	}
@@ -335,7 +321,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 				.flatMap(standNbt -> StandInstance.CODEC.decode(NbtOps.INSTANCE, standNbt).result())
 				.map(pair -> pair.getFirst());
 		staminaLerp.set(nbt.getFloat("Stamina"), false);
-		NBTUtil.getCompoundOptional(nbt, "ResolveHandler").ifPresent(resolveHandler::readNBT);
+		NBTUtil.getCompoundOptional(nbt, "Resolve").ifPresent(resolveCounter::readNBT);
 		NBTUtil.getCompoundOptional(nbt, "Effects").ifPresent(userStandEffects::readNBT);
 	}
 	

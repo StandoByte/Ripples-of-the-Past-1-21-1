@@ -25,6 +25,8 @@ import com.github.standobyte.jojo.powersystem.PowerType;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.powersystem.standpower.resolve.ResolveCounter;
+import com.github.standobyte.jojo.powersystem.standpower.resolve.ResolveModeEffect;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
@@ -46,6 +48,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringUtil;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -322,11 +326,51 @@ public class PowerHud {
 		
 		
 	public static class Resolve extends HudElement {
-		public static final GuiIcon RESOLVE_MODE = new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve_mode_bar.png"), 40, 40);
-		public static final GuiIcon HORIZONTAL_EMPTY = new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve_horizontal_empty.png"), 32, 16);
-		public static final GuiIcon HORIZONTAL_FULL = new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve_horizontal_full.png"), 32, 16);
-		public static final GuiIcon VERTICAL_EMPTY = new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve_vertical_empty.png"), 16, 32);
-		public static final GuiIcon VERTICAL_FULL = new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve_vertical_full.png"), 16, 32);
+		public static final GuiIcon RESOLVE_MODE = new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_mode_bar.png"), 40, 40);
+		public static final GuiIcon HORIZONTAL_EMPTY = new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_horizontal_empty.png"), 32, 16);
+		public static final GuiIcon HORIZONTAL_FULL = new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_horizontal_full.png"), 32, 16);
+		public static final GuiIcon VERTICAL_EMPTY = new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_vertical_empty.png"), 16, 32);
+		public static final GuiIcon VERTICAL_FULL = new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_vertical_full.png"), 16, 32);
+		
+		public static final GuiIcon STAGE_BAR_HORIZONTAL = new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_stages_h.png"), 32, 16);
+		public static final GuiIcon[] STAGE_HORIZONTAL = new GuiIcon[] {
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_stage_1_h.png"), 32, 16),
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_stage_2_h.png"), 32, 16),
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_stage_3_h.png"), 32, 16),
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_stage_4_h.png"), 32, 16)
+		};
+		public static final GuiIcon[] STAGE_UNLOCKED_HORIZONTAL = new GuiIcon[] {
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_stage_unlocked1_h.png"), 32, 16),
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_stage_unlocked2_h.png"), 32, 16),
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_stage_unlocked3_h.png"), 32, 16),
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_stage_unlocked4_h.png"), 32, 16)
+		};
+		public static final GuiIcon STAGE_BAR_VERTICAL = new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_stages_v.png"), 16, 32);
+		public static final GuiIcon[] STAGE_VERTICAL = new GuiIcon[] {
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_stage_1_v.png"), 16, 32),
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_stage_2_v.png"), 16, 32),
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_stage_3_v.png"), 16, 32),
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_stage_4_v.png"), 16, 32)
+		};
+		public static final GuiIcon[] STAGE_UNLOCKED_VERTICAL = new GuiIcon[] {
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_stage_unlocked1_v.png"), 16, 32),
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_stage_unlocked2_v.png"), 16, 32),
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_stage_unlocked3_v.png"), 16, 32),
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_stage_unlocked4_v.png"), 16, 32)
+		};
+		
+		public static final GuiIcon[] LVL_HORIZONTAL = new GuiIcon[] {
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_lvl_1_h.png"), 32, 16),
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_lvl_2_h.png"), 32, 16),
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_lvl_3_h.png"), 32, 16),
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_lvl_4_h.png"), 32, 16)
+		};
+		public static final GuiIcon[] LVL_VERTICAL = new GuiIcon[] {
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_lvl_1_v.png"), 16, 32),
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_lvl_2_v.png"), 16, 32),
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_lvl_3_v.png"), 16, 32),
+				new GuiIcon(JojoMod.resLoc("textures/hud/stand_resolve/stand_resolve_lvl_4_v.png"), 16, 32)
+		};
 
 		public Resolve(String name, int x0, int y0, int width, int height) {
 			super(name, x0, y0, width, height);
@@ -356,7 +400,7 @@ public class PowerHud {
 
 		@Override
 		public boolean shouldRender() {
-			if (hud.forContainerMenu.isTrue()) return false;
+			if (hud.forContainerMenu == TriState.TRUE) return false;
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 			if (standPower != null && standPower.usesResolve()) {
 				ClientControlScheme controlScheme = InputHandler.getInstance().getActiveControlScheme();
@@ -379,30 +423,73 @@ public class PowerHud {
 			
 			GuiIcon emptySprite = HORIZONTAL_EMPTY;
 			GuiIcon fullSprite = HORIZONTAL_FULL;
-			
-			float resolveMode = standPower.resolveHandler.getResolveModeTimerRatio(standPower, partialTick);
-			if (resolveMode > 0) {
-				BlitFloat.blitRadial(guiGraphics.pose(), mc, RESOLVE_MODE.file, 
-						x + (width - RESOLVE_MODE.width) / 2, y + (height - RESOLVE_MODE.height) / 2, RESOLVE_MODE.width, RESOLVE_MODE.height, 0, 
-						0, resolveMode, BlitFloat.NO_TINT);
+
+			LivingEntity user = standPower.getUser();
+			ResolveCounter resolve = standPower.resolveCounter;
+			MobEffectInstance resolveEffect = ResolveModeEffect.maxDurationResolveEffect(user);
+			if (resolveEffect != null) {
+				// resolve mode timer circle
+				int duration = resolveEffect.getDuration();
+				var resolveModeTimer = resolve.resolveModeTimer;
+				if (resolveModeTimer.defaultValue > -1 && resolveModeTimer.value > -1) {
+					duration = Math.min(resolveModeTimer.value, duration);
+				}
+				float value = duration + 1 - partialTick;
+				if (value > 0) {
+					float resolveModeDurationRatio = resolveModeTimer.defaultValue > 0 ? value / resolveModeTimer.defaultValue : 1;
+					BlitFloat.blitRadial(guiGraphics.pose(), mc, RESOLVE_MODE.file, 
+							x + (width - RESOLVE_MODE.width) / 2, y + (height - RESOLVE_MODE.height) / 2, RESOLVE_MODE.width, RESOLVE_MODE.height, 0, 
+							0, resolveModeDurationRatio, BlitFloat.NO_TINT);
+				}
 			}
 			
-			float resolveRatio = standPower.getResolveRatio(partialTick);
+			// resolve kanji fill
 			BlitFloat.blit(guiGraphics.pose(), mc, emptySprite.file, 
 					x, y, width, height, 0, 
 					BlitFloat.NO_TINT);
-			float fillWidth = resolveRatio >= 1 ? width : Math.min(width * resolveRatio, width - 5);
+			float resolveRatio = resolve.getResolveBarFill();
+			float fillWidth = resolveRatio >= 1 ? width : 2 + (width - 6) * resolveRatio;
 			BlitFloat.blit(guiGraphics.pose(), mc, fullSprite.file, 
 					x, y, fillWidth, height, 0, 
 					0, 0, fillWidth, height, width, height, 
 					BlitFloat.NO_TINT);
 			
-			if (resolveMode < 0) {
-				float multiplier = standPower.resolveHandler.getTotalBoostVisible(standPower.getUser());
+			int lvlX = x;
+			int lvlY = y + 16;
+			if (resolveEffect != null) {
+				// resolve mode level
+				GuiIcon[] lvlSprites = LVL_HORIZONTAL;
+				GuiIcon sprite = lvlSprites[Mth.clamp(resolveEffect.getAmplifier(), 0, lvlSprites.length - 1)];
+				sprite.render(guiGraphics.pose(), lvlX, lvlY);
+			}
+			else {
+				GuiIcon sprite;
+				GuiIcon[] stageSprites;
+				
+				// empty bar
+				sprite = STAGE_BAR_HORIZONTAL;
+				sprite.render(guiGraphics.pose(), lvlX, lvlY);
+				
+				// unlocked resolve stages
+				stageSprites = STAGE_UNLOCKED_HORIZONTAL;
+				sprite = stageSprites[Mth.clamp(resolve.getUnlockedStage(), 0, stageSprites.length - 1)];
+				sprite.render(guiGraphics.pose(), lvlX, lvlY);
+				
+				// current resolve stage
+				int curStage = resolve.getCurStage();
+				if (curStage >= 0) {
+					stageSprites = STAGE_HORIZONTAL;
+					sprite = stageSprites[Mth.clamp(curStage, 0, stageSprites.length - 1)];
+					sprite.render(guiGraphics.pose(), lvlX, lvlY);
+				}
+			}
+			
+			if (resolveEffect == null) {
+				float multiplier = resolve.getTotalBoostVisible(standPower.getUser());
 				if (multiplier > 1) {
 					Component multiplierText = Component.literal("x" + String.format("%.2f", multiplier));
 					StandSkin skin = StandSkinsLoader.getCurSkin();
-					guiGraphics.drawCenteredString(mc.font, multiplierText, x + width / 2, y + 20, skin != null ? skin.getColor() : 0xFFFFFFFF);
+					guiGraphics.drawCenteredString(mc.font, multiplierText, x + width / 2, y - 10, skin != null ? skin.getColor() : 0xFFFFFFFF);
 				}
 			}
 		}
@@ -420,7 +507,8 @@ public class PowerHud {
 			}
 			
 			MultiLineScreenTooltip tooltipText = (MultiLineScreenTooltip) this.tooltip.get();
-			int resolveModeTimer = standPower.resolveHandler.resolveModeTimer.value;
+			ResolveCounter resolve = standPower.resolveCounter;
+			int resolveModeTimer = resolve.resolveModeTimer.value;
 			if (resolveModeTimer > 0) {
 				tooltipText.setTitle(Component.translatable("ripples_hud.resolve_mode",
 						Component.literal(StringUtil.formatTickDuration(resolveModeTimer, Minecraft.getInstance().level.tickRateManager().tickrate()))
@@ -428,7 +516,7 @@ public class PowerHud {
 			}
 			else {
 				tooltipText.setTitle(Component.translatable("ripples_hud.resolve_bar",
-						Component.literal(String.valueOf((int) (standPower.getResolveRatio() * 100)))
+						Component.literal(String.valueOf((int) (resolve.getResolveBarFill() * 100)))
 						).withStyle(ChatFormatting.BLACK));
 			}
 			super.checkTooltip(mouseX, mouseY, deltaTracker);

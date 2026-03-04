@@ -1,17 +1,13 @@
 package com.github.standobyte.jojo.init;
 
-import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-
-import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mc.statuseffect.BleedingEffect;
-import com.github.standobyte.jojo.mc.statuseffect.ResolveModeEffect;
+import com.github.standobyte.jojo.powersystem.standpower.resolve.ResolveModeEffect;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
@@ -37,8 +33,6 @@ public class ModStatusEffects {
 
 	public static final Set<Holder<? extends MobEffect>> TRACKED_EFFECTS = new HashSet<>();
 
-	public static final Set<Holder<? extends MobEffect>> RESOLVE_EFFECTS = new HashSet<>();
-
 	public static final DeferredHolder<MobEffect, ResolveModeEffect> RESOLVE = STATUS_EFFECTS.register("resolve", 
 			id -> new ResolveModeEffect(MobEffectCategory.BENEFICIAL, 0xC6151F));
 
@@ -48,26 +42,10 @@ public class ModStatusEffects {
 
 	@SubscribeEvent
 	public static void afterRegister(FMLCommonSetupEvent event) {
-		TRACKED_EFFECTS.add(RESOLVE);
-		TRACKED_EFFECTS.add(BLEEDING);
-		
-		RESOLVE_EFFECTS.add(RESOLVE);
-	}
-	
-	
-	@Nullable
-	public static MobEffectInstance maxDurationResolveEffect(LivingEntity entity) {
-		return entity.getActiveEffectsMap().entrySet().stream()
-				.filter(effect -> ModStatusEffects.RESOLVE_EFFECTS.contains(effect.getKey()))
-				.max(Comparator.comparingInt(effect -> effect.getValue().getDuration()))
-				.map(Map.Entry::getValue)
-				.orElse(null);
-	}
-	
-	public static boolean isInResolveEffect(LivingEntity entity) {
-		return entity.getActiveEffectsMap().entrySet().stream()
-				.filter(effect -> ModStatusEffects.RESOLVE_EFFECTS.contains(effect.getKey()))
-				.findAny().isPresent();
+		event.enqueueWork(() -> {
+			TRACKED_EFFECTS.add(RESOLVE);
+			TRACKED_EFFECTS.add(BLEEDING);
+		});
 	}
 	
 	

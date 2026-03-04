@@ -1,0 +1,105 @@
+package com.github.standobyte.jojo.powersystem.standpower.resolve;
+
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Nullable;
+
+import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.init.ModStatusEffects;
+import com.github.standobyte.jojo.mc.statuseffect.RotpStatusEffect;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+
+import net.minecraft.core.Holder;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+
+@EventBusSubscriber(modid = JojoMod.MOD_ID)
+public class ResolveModeEffect extends RotpStatusEffect {
+
+	public ResolveModeEffect(MobEffectCategory category, int color) {
+		super(category, color);
+		isUncurable = true;
+		disableCreeperLinger = true;
+	}
+
+	@Override
+	public void onAdded(LivingEntity entity, MobEffectInstance instance, @Nullable Entity source) {
+		super.onAdded(entity, instance, source);
+		StandPower standPower = StandPower.get(entity);
+		if (standPower != null && standPower.usesResolve()) {
+			standPower.resolveCounter.onResolveEffectStart(standPower, entity, instance);
+		}
+	}
+
+	@Override
+	public void onUpdated(LivingEntity entity, MobEffectInstance instance, @Nullable Entity source) {
+		super.onUpdated(entity, instance, source);
+		StandPower standPower = StandPower.get(entity);
+		if (standPower != null && standPower.usesResolve()) {
+			standPower.resolveCounter.onResolveEffectStart(standPower, entity, instance);
+		}
+	}
+
+	@Override
+	public void onRemoved(LivingEntity entity, MobEffectInstance instance) {
+		super.onRemoved(entity, instance);
+		StandPower standPower = StandPower.get(entity);
+		if (standPower != null) {
+			standPower.resolveCounter.onResolveEffectEnd(standPower, entity, instance);
+		}
+	}
+
+	@Override
+	public boolean applyEffectTick(LivingEntity entity, int amplifier) {
+//		if (!entity.isInvisible()) {
+//			entity.level().addParticle(ModParticles.RESOLVE.get(), 
+//					entity.getRandomX(2.5D), entity.getY(entity.getRandom().nextDouble() * 1.5), entity.getRandomZ(2.5D), 0, 0, 0);
+//		}
+		return true;
+	}
+
+	@Override
+	public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+		return duration % 3 == 0;
+	}
+
+
+
+	public static final Set<Holder<? extends MobEffect>> RESOLVE_EFFECTS = new HashSet<>();
+	@SubscribeEvent
+	public static void afterRegister(FMLCommonSetupEvent event) {
+		event.enqueueWork(() -> {
+			RESOLVE_EFFECTS.add(ModStatusEffects.RESOLVE);
+		});
+	}
+	
+	@Nullable
+	public static MobEffectInstance maxDurationResolveEffect(LivingEntity entity) {
+		return entity.getActiveEffectsMap().entrySet().stream()
+				.filter(effect -> RESOLVE_EFFECTS.contains(effect.getKey()))
+				.max(Comparator.comparingInt(effect -> effect.getValue().getDuration()))
+				.map(Map.Entry::getValue)
+				.orElse(null);
+	}
+	
+	// XXX (resolve notes) incapacitation - get up after N seconds during resolve
+	// XXX (resolve notes) better combat AI during resolve
+	// XXX (resolve notes) Resolve IV "automatic stand protection" (whatever it will end up being, if ever)
+	public static int getResolveEffectLvl(LivingEntity entity) {
+		return entity.getActiveEffectsMap().entrySet().stream()
+				.filter(effect -> RESOLVE_EFFECTS.contains(effect.getKey()))
+				.map(Map.Entry::getValue)
+				.mapToInt(MobEffectInstance::getAmplifier)
+				.max().orElse(-1);
+	}
+
+}

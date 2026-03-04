@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 
 import com.github.standobyte.jojo.mechanics.entity_like_player.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.resolve.ResolveCounter;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
@@ -81,11 +82,14 @@ public class CharacterMobRenderer<T extends PowerUserMobEntity> extends LivingEn
 								Component.translatable(String.format("%.2f%%", staminaRatio * 100)).withStyle(style -> style.withColor(color))), 
 						poseStack, buffer, packedLight, partialTick);
 
-				poseStack.translate(0, 0.25, 0);
-				float resolveRatio = stand.getResolve() / stand.getMaxResolve();
-				renderNameTag(entity, 
-						Component.translatable(String.format("Resolve: %.2f%%", resolveRatio * 100)), 
-						poseStack, buffer, packedLight, partialTick);
+				if (stand.usesResolve()) {
+					poseStack.translate(0, 0.25, 0);
+					ResolveCounter resolve = stand.resolveCounter;
+					float resolveRatio = resolve.getResolveBarFill();
+					renderNameTag(entity, 
+							Component.translatable(String.format("Resolve: %.2f%%", resolveRatio * 100)), 
+							poseStack, buffer, packedLight, partialTick);
+				}
 
 				poseStack.translate(0, 0.25, 0);
 				renderNameTag(entity, 

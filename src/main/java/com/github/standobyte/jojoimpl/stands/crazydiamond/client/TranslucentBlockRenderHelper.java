@@ -13,10 +13,10 @@ import com.github.standobyte.jojo.client.ui.powerhud.PowerHud;
 import com.github.standobyte.jojo.client.ui.powerhud.PowerHud.AbilityHud;
 import com.github.standobyte.jojo.client.utils.ARGBUtil;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.resolve.ResolveModeEffect;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDRestoreTerrainAbility;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDRestoreTerrainAbility.BlockToFix;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.PrevBlockInfo;
@@ -86,7 +86,7 @@ public class TranslucentBlockRenderHelper {
 				Vec3i pos = CrazyDRestoreTerrainAbility.eyePos(entity);
 				Vec3 lookVec = entity.getLookAngle();
 				Vec3 eyePosD = entity.getEyePosition(1.0F);
-				boolean resolveEffect = ModStatusEffects.isInResolveEffect(mc.player);
+				boolean resolveEffect = ResolveModeEffect.getResolveEffectLvl(mc.player) >= 0;
 				int manhattanRange = CrazyDRestoreTerrainAbility.restorationDistManhattan(resolveEffect);
 				Collection<BlockToFix<PrevBlockInfo>> allFixableBlocks = ability.getBrokenBlocksInRange(mc.level, mc.player, pos, 32, 
 						(BlockPos targetPos, PrevBlockInfo block) -> CrazyDRestoreTerrainAbility.blockCanBePlaced(mc.level, targetPos, block.state));

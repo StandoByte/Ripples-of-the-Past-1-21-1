@@ -1,11 +1,8 @@
 package com.github.standobyte.jojo.util;
 
-import java.util.function.Consumer;
-
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.packet.fromserver.StandSkinSoundPacket;
-import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.init.core.ModEntityAttributes;
 import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.modcompat.JojoModsInteraction;
@@ -13,6 +10,7 @@ import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.powersystem.standpower.resolve.ResolveModeEffect;
 import com.github.standobyte.jojo.util.mc.AttributeUtil;
 
 import net.minecraft.core.Holder;
@@ -98,7 +96,7 @@ public class StandUtil {
 	}
 	
 	public static boolean standIgnoresStaminaDebuff(LivingEntity standUser) {
-		return ModStatusEffects.isInResolveEffect(standUser);
+		return ResolveModeEffect.getResolveEffectLvl(standUser) >= 0;
 	}
 	
 	public static double staminaCondition(StandPower standPower) {

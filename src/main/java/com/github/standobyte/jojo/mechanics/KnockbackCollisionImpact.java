@@ -15,11 +15,11 @@ import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.mc.entity.BlockShardEntity;
 import com.github.standobyte.jojo.mechanics.CollisionHelper.BlockCollisionResult;
 import com.github.standobyte.jojo.mechanics.explosion.CustomExplosion;
-import com.github.standobyte.jojo.powersystem.standpower.ResolveHandler;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas.BlockMiningTier;
+import com.github.standobyte.jojo.powersystem.standpower.resolve.ResolveCounter;
 import com.github.standobyte.jojo.util.JojoModUtil;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.NBTUtil;
@@ -401,7 +401,7 @@ public class KnockbackCollisionImpact implements TickingEntityData, INBTSerializ
 		if (attackerIsStand && attackerStandUser != null && target instanceof LivingEntity targetLiving) {
 			StandPower attackerStand = StandPower.get(attackerStandUser);
 			if (attackerStand != null) {
-				ResolveHandler.addResolve(attackerStand, targetLiving, amount);
+				ResolveCounter.addResolve(attackerStand, targetLiving, amount);
 			}
 		}
 		return hurt;

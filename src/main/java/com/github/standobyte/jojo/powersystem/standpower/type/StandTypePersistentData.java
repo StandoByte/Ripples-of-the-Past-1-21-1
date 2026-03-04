@@ -101,12 +101,6 @@ public class StandTypePersistentData extends PowerData {
 	}
 	
 
-	// I guess I'll keep this just as a stat
-	protected int resolveReached;
-	public void incResolveReached(LivingEntity standUser) {
-		++resolveReached;
-	}
-
 	@Override
 	public CompoundTag serializeNBT(Provider provider) {
 		CompoundTag nbt = new CompoundTag();
@@ -116,7 +110,6 @@ public class StandTypePersistentData extends PowerData {
 		nbt.put("skills", skillsNbt);
 
 		nbt.putFloat("exp", exp);
-		nbt.putInt("resolveReached", resolveReached);
 		return nbt;
 	}
 	
@@ -132,14 +125,12 @@ public class StandTypePersistentData extends PowerData {
 		});
 		
 		this.exp = nbt.getFloat("exp");
-		this.resolveReached = nbt.getInt("resolveReached");
 	}
 	
 	@Override
 	public void toBuf(FriendlyByteBuf buf, boolean isSentToTracking) {
 		if (!isSentToTracking) {
 			buf.writeFloat(exp);
-			buf.writeVarInt(resolveReached);
 			NetworkUtil.writeCollection(buf, unlockedSkills, FriendlyByteBuf::writeUtf);
 		}
 	}
@@ -148,7 +139,6 @@ public class StandTypePersistentData extends PowerData {
 	public void fromBuf(FriendlyByteBuf buf, boolean isSentToTracking) {
 		if (!isSentToTracking) {
 			exp = buf.readFloat();
-			resolveReached = buf.readVarInt();
 			this.unlockedSkills.clear();
 			this.unlockedSkills.addAll(NetworkUtil.readCollection(buf, FriendlyByteBuf::readUtf));
 		}
