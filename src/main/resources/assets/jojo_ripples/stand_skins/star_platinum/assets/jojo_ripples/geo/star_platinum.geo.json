@@ -28,7 +28,7 @@
 				{
 					"name": "torso",
 					"parent": "body",
-					"pivot": [0, 24, 0]
+					"pivot": [0, 12, 0]
 				},
 				{
 					"name": "torso_bend",
