@@ -7,7 +7,9 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 import com.github.standobyte.jojo.client.entityrender.parsemodel.gecko.GeckoModelFormat;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.generic.GenericModelFormat;
@@ -132,12 +134,30 @@ public class ParseModEntityModel {
 			return rotation != null && (rotation.x() != 0 || rotation.y() != 0 || rotation.z() != 0);
 		}
 		
-		public static final JsonDeserializer<Vector3f> VEC_DESERIALIZER = new JsonDeserializer<Vector3f> () {
+		public static final JsonDeserializer<Vector3f> VEC_3F_DESERIALIZER = new JsonDeserializer<Vector3f> () {
 			@Override
 			public Vector3f deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
 					throws JsonParseException {
 				JsonArray array = json.getAsJsonArray();
 				return new Vector3f(array.get(0).getAsFloat(), array.get(1).getAsFloat(), array.get(2).getAsFloat());
+			}
+		};
+		
+		public static final JsonDeserializer<Vector3i> VEC_3I_DESERIALIZER = new JsonDeserializer<Vector3i> () {
+			@Override
+			public Vector3i deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+					throws JsonParseException {
+				JsonArray array = json.getAsJsonArray();
+				return new Vector3i(array.get(0).getAsInt(), array.get(1).getAsInt(), array.get(2).getAsInt());
+			}
+		};
+		
+		public static final JsonDeserializer<Vector2f> VEC_2F_DESERIALIZER = new JsonDeserializer<Vector2f> () {
+			@Override
+			public Vector2f deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+					throws JsonParseException {
+				JsonArray array = json.getAsJsonArray();
+				return new Vector2f(array.get(0).getAsFloat(), array.get(1).getAsFloat());
 			}
 		};
 		

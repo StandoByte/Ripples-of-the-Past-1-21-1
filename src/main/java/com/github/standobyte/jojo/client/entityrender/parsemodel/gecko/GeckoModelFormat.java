@@ -12,12 +12,15 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
+import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 import com.github.standobyte.jojo.client.entityrender.parsemodel.ParseModEntityModel;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.ParseModEntityModel.UnbakedModelGeometry;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.ParseModEntityModel.Utils.RotatedCubeCounter;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.gecko.GeckoPerFaceCubeDefinition.FaceUV;
+import com.github.standobyte.jojo.client.entityrender.parsemodel.generic.BlockbenchMeshDefinition;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -48,22 +51,23 @@ public class GeckoModelFormat {
 	
 	
 	
-	private static record GeometryParsed(
+	static record GeometryParsed(
 			Description description, 
 			List<BoneParsed> bones) {}
 	
-	private static record Description(
+	static record Description(
 			int texture_width, 
 			int texture_height) {}
 	
-	private static record BoneParsed(
+	static record BoneParsed(
 			String name, 
 			@Nullable String parent,
 			Vector3f pivot,
 			@Nullable Vector3f rotation,
-			List<CubeParsed> cubes) {}
+			List<CubeParsed> cubes,
+			@Nullable Meshy poly_mesh) {}
 	
-	private static record CubeParsed(
+	static record CubeParsed(
 			Vector3f origin,
 			Vector3f size,
 			float inflate,
@@ -72,7 +76,7 @@ public class GeckoModelFormat {
 			boolean mirror,
 			CubeUV uv) {}
 	
-	private static interface CubeUV {
+	static interface CubeUV {
 		
 		static record Box(
 				int[] uv) implements CubeUV {}
@@ -102,7 +106,8 @@ public class GeckoModelFormat {
 							modelPart.name,
 							cube.pivot != null ? cube.pivot : new Vector3f(),
 							rotation,
-							Util.make(new ArrayList<>(), list -> list.add(cubeNoRotation)));
+							Util.make(new ArrayList<>(), list -> list.add(cubeNoRotation)),
+							null);
 					addModelParts.add(newModelPart);
 					
 					cubeIter.remove();
@@ -120,27 +125,28 @@ public class GeckoModelFormat {
 		
 		for (BoneParsed bone : geckoGeometry.bones) {
 			Vector3f parentPivot = bone.parent != null ? bonesNamed.get(bone.parent).pivot : null;
-			PartDefinition modelPart = makeModelPart(bone, parentPivot);
+			PartDefinition modelPart = makeModelPart(bone, parentPivot, geckoGeometry.description);
 			geometry.addModelPart(bone.name, modelPart, bone.parent);
 		}
 		return geometry.getGeometryDefinition();
 	}
 	
-	static PartDefinition makeModelPart(BoneParsed bone, @Nullable Vector3f parentPivot) {
+	static PartDefinition makeModelPart(BoneParsed bone, @Nullable Vector3f parentPivot, Description modelDesc) {
 		float yOffset = 24;
+		Vector3f bonePivot = bone.pivot != null ? bone.pivot : new Vector3f();
 		
 		float x;
 		float y;
 		float z;
 		if (parentPivot != null) {
-			x =   bone.pivot.x() - parentPivot.x();
-			y = -(bone.pivot.y() - parentPivot.y());
-			z =   bone.pivot.z() - parentPivot.z();
+			x =   bonePivot.x() - parentPivot.x();
+			y = -(bonePivot.y() - parentPivot.y());
+			z =   bonePivot.z() - parentPivot.z();
 		}
 		else {
-			x =  bone.pivot.x();
-			y = -bone.pivot.y() + yOffset;
-			z =  bone.pivot.z();
+			x =  bonePivot.x();
+			y = -bonePivot.y() + yOffset;
+			z =  bonePivot.z();
 		}
 
 		float xRot = 0;
@@ -158,6 +164,13 @@ public class GeckoModelFormat {
 		if (bone.cubes != null) {
 			for (CubeParsed cubeParsed : bone.cubes) {
 				cubes.add(makeModelBox(cubeParsed, bone));
+			}
+		}
+		
+		if (bone.poly_mesh != null) {
+			BlockbenchMeshDefinition mesh = bone.poly_mesh.makeMesh(modelDesc, bonePivot);
+			if (mesh != null) {
+				cubes.add(mesh);
 			}
 		}
 		
@@ -215,7 +228,9 @@ public class GeckoModelFormat {
 	
 	private static final Gson GSON = new GsonBuilder()
 			.registerTypeAdapter(CubeUV.class, UV_DESERIALIZER)
-			.registerTypeAdapter(Vector3f.class, ParseModEntityModel.Utils.VEC_DESERIALIZER)
+			.registerTypeAdapter(Vector3f.class, ParseModEntityModel.Utils.VEC_3F_DESERIALIZER)
+			.registerTypeAdapter(Vector3i.class, ParseModEntityModel.Utils.VEC_3I_DESERIALIZER)
+			.registerTypeAdapter(Vector2f.class, ParseModEntityModel.Utils.VEC_2F_DESERIALIZER)
 			.create();
 	
 	
