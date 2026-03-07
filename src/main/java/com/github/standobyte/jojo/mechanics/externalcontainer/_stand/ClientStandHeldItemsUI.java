@@ -58,7 +58,8 @@ public class ClientStandHeldItemsUI extends ClientExternalContainerUI {
 	@SubscribeEvent
 	public static void onScreenOpened(ScreenEvent.Init.Post event) {
 		Screen screen = event.getScreen();
-		if (screen instanceof AbstractContainerScreen inventoryScreen) {
+		// FIXME stand slots UI with the creative inventory screen
+		if (screen instanceof AbstractContainerScreen inventoryScreen && !(screen instanceof CreativeModeInventoryScreen)) {
 			StandHandsContainerMenu standHandsContainer = PlayerExternalContainers.get(Minecraft.getInstance().player)
 					.getContainerOfType(StandHandsContainerMenu.class);
 			if (standHandsContainer != null) {
