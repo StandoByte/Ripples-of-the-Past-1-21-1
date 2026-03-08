@@ -11,7 +11,6 @@ import javax.sound.sampled.AudioFormat;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo.BgmLoopPartitioning;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo.BgmLoopPartitioning.BgmPart;
 import com.github.standobyte.jojo.client.sound.util.SoundUtil;
-import com.github.standobyte.jojo.util.reflection.ClientReflection;
 import com.mojang.blaze3d.audio.SoundBuffer;
 
 import net.minecraft.client.sounds.SoundBufferLibrary;
@@ -27,9 +26,9 @@ public class PartitionedSoundBuffers {
 		return SoundUtil.computeIfKeyAbsent(this.cache, partitioning, 
 				_partitioning -> fullSoundCache.getCompleteBuffer(soundPath).thenApply(buffer -> {
 					Map<BgmPart, SoundBuffer> partition = new EnumMap<>(BgmPart.class);
-					ByteBuffer fullAudio = ClientReflection.getSoundData(buffer);
+					ByteBuffer fullAudio = buffer.data;
 					int fullSize = fullAudio.limit();
-					AudioFormat format = ClientReflection.getAudioFormat(buffer);
+					AudioFormat format = buffer.format;
 					for (var part : _partitioning.partition.entrySet()) {
 						ByteBuffer partBuffer = partition(fullAudio, fullSize, format, part.getValue());
 						SoundBuffer soundBuffer = new SoundBuffer(partBuffer, format);
@@ -52,8 +51,9 @@ public class PartitionedSoundBuffers {
 		return bytes;
 	}
 
+	// FIXME !!!!! (bgm) [Render thread/ERROR] [mojang/OpenAlUtil]: Deleting stream buffers: Invalid operation.
 	public void clear() {
-		this.cache.values().forEach(p_120201_ -> p_120201_.thenAccept(map -> map.values().forEach(SoundBuffer::discardAlBuffer)));
+		this.cache.values().forEach(track -> track.thenAccept(map -> map.values().forEach(SoundBuffer::discardAlBuffer)));
 		this.cache.clear();
 	}
 }

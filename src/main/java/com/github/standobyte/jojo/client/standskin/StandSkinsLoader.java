@@ -402,6 +402,7 @@ public class StandSkinsLoader implements PreparableReloadListener {
 			case "sounds.json" -> {
 				loadSoundsJson(resource, builder, resPath.assetNamespace);
 			}
+			// XXX (resolve BGM) different tracks on different resolve levels
 			case "bgm" -> {
 				if ("resolve.json".equals(resPath.getFileName())) {
 					try {

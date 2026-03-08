@@ -38,25 +38,24 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.sound.PlaySoundSourceEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
-// FIXME !!!!! (bgm) use less reflection ffs
 public class BgmPlayer {
-	protected static final Logger LOGGER = LogUtils.getLogger();
+	public static final Logger LOGGER = LogUtils.getLogger();
 	
-	boolean isPlaying = false;
-	protected Consumer<BgmPlayer> onTick;
-	protected SoundSource category = SoundSource.RECORDS;
-	protected float volume = 0.4f;
-	protected float pitch = 1;
+	public boolean isPlaying = false;
+	public Consumer<BgmPlayer> onTick;
+	public SoundSource category = SoundSource.RECORDS;
+	public float volume = 0.4f;
+	public float pitch = 1;
 	public final Weighted<BgmTrackInfo> track;
-	protected Sound sound;
+	public Sound sound;
 	
-	protected SoundInstance soundInstance;
-	protected OptionalInt soundSourceId = OptionalInt.empty();
+	public SoundInstance soundInstance;
+	public OptionalInt soundSourceId = OptionalInt.empty();
 	
-	protected OptionalInt loopSoundBuffer = OptionalInt.empty();
-	boolean setLooped = false;
-	@Nullable protected SoundBuffer outroAudioStream;
-	boolean isAtOutro = false;
+	public OptionalInt loopSoundBuffer = OptionalInt.empty();
+	public boolean setLooped = false;
+	@Nullable public SoundBuffer outroAudioStream;
+	public boolean isAtOutro = false;
 	
 	@Nullable
 	public static BgmPlayer track(ResourceLocation trackId) {
@@ -122,12 +121,12 @@ public class BgmPlayer {
 		BgmTrackLoader.getInstance().play(bgm);
 	}
 	
-	protected void play(BiConsumer<ChannelAccess.ChannelHandle, SoundInstance> playSound) {
+	public void play(BiConsumer<ChannelAccess.ChannelHandle, SoundInstance> playSound) {
 		Minecraft mc = Minecraft.getInstance();
 		SoundManager soundManager = mc.getSoundManager();
 		SoundEngine soundEngine = ClientReflection.getSoundEngine(soundManager);
 		// SoundEngine copypasta
-		CompletableFuture<ChannelAccess.ChannelHandle> completablefuture = ClientReflection.getChannelAccess(soundEngine).createHandle(Library.Pool.STATIC);
+		CompletableFuture<ChannelAccess.ChannelHandle> completablefuture = soundEngine.channelAccess.createHandle(Library.Pool.STATIC);
 		ChannelAccess.ChannelHandle channelHandle = completablefuture.join();
 		if (channelHandle == null) {
 			if (SharedConstants.IS_RUNNING_IN_IDE) {
@@ -147,9 +146,9 @@ public class BgmPlayer {
 			@Override public boolean canStartSilent() { return true; }
 		};
 		
-		ClientReflection.getSoundDeleteTime(soundEngine).put(soundInstance, ClientReflection.getTickCount(soundEngine) + 20);
-		ClientReflection.getInstanceToChannel(soundEngine).put(soundInstance, channelHandle);
-		ClientReflection.getInstanceBySource(soundEngine).put(category, soundInstance);
+		soundEngine.soundDeleteTime.put(soundInstance, soundEngine.tickCount + 20);
+		soundEngine.instanceToChannel.put(soundInstance, channelHandle);
+		soundEngine.instanceBySource.put(category, soundInstance);
 		
 		channelHandle.execute(channel -> {
 			channel.setPitch(pitch);
@@ -161,6 +160,7 @@ public class BgmPlayer {
 		});
 		
 		playSound.accept(channelHandle, soundInstance);
+		setSoundInstance(soundInstance);
 	}
 
 
@@ -178,12 +178,12 @@ public class BgmPlayer {
 					SoundBuffer introAudioStream = splitAudioStreams.get(BgmPart.INTRO);
 					SoundBuffer mainAudioStream = splitAudioStreams.get(BgmPart.MAIN);
 					this.outroAudioStream = splitAudioStreams.get(BgmPart.OUTRO);
-					OptionalInt introSoundBuffer = ClientReflection.getAlBuffer(introAudioStream);
-					OptionalInt mainLoopBuffer = ClientReflection.getAlBuffer(mainAudioStream);
+					OptionalInt introSoundBuffer = introAudioStream.getAlBuffer();
+					OptionalInt mainLoopBuffer = mainAudioStream.getAlBuffer();
 					
 					channelHandle.execute(channel -> {
 						BgmTrackLoader.getInstance().onStartedPlaying(this);
-						int soundSourceId = ClientReflection.getSourceId(channel);
+						int soundSourceId = channel.source;
 						AL10.alSourcei(soundSourceId, AL10.AL_BUFFER, 0);
 						AL10.alSourceQueueBuffers(soundSourceId, introSoundBuffer.getAsInt());
 						AL10.alSourceQueueBuffers(soundSourceId, mainLoopBuffer.getAsInt());
@@ -191,7 +191,6 @@ public class BgmPlayer {
 						
 						this.loopSoundBuffer = introSoundBuffer;
 						this.soundSourceId = OptionalInt.of(soundSourceId);
-						this.soundInstance = soundInstance;
 						NeoForge.EVENT_BUS.post(new PlaySoundSourceEvent(soundEngine, soundInstance, channel));
 					});
 				});
@@ -201,18 +200,17 @@ public class BgmPlayer {
 			this.play((channelHandle, soundInstance) -> {
 				// just play the audio without looping
 				vanillaSoundBuffers.getCompleteBuffer(this.sound.getPath()).thenAccept(audioStream -> {
-					OptionalInt soundBuffer = ClientReflection.getAlBuffer(audioStream);
+					OptionalInt soundBuffer = audioStream.getAlBuffer();
 					
 					channelHandle.execute(channel -> {
 						BgmTrackLoader.getInstance().onStartedPlaying(this);
-						int soundSourceId = ClientReflection.getSourceId(channel);
+						int soundSourceId = channel.source;
 						AL10.alSourcei(soundSourceId, AL10.AL_BUFFER, 0);
 						AL10.alSourceQueueBuffers(soundSourceId, soundBuffer.getAsInt());
 						AL10.alSourcePlay(soundSourceId);
 
 						this.loopSoundBuffer = OptionalInt.empty();
 						this.soundSourceId = OptionalInt.of(soundSourceId);
-						this.soundInstance = soundInstance;
 						NeoForge.EVENT_BUS.post(new PlaySoundSourceEvent(soundEngine, soundInstance, channel));
 					});
 				});
@@ -242,14 +240,13 @@ public class BgmPlayer {
 					channelHandle.execute(channel -> {
 						stopSound();
 						
-						int soundSourceId = ClientReflection.getSourceId(channel);
-						OptionalInt outroSoundBuffer = ClientReflection.getAlBuffer(outroAudioStream);
+						int soundSourceId = channel.source;
+						OptionalInt outroSoundBuffer = outroAudioStream.getAlBuffer();
 						AL10.alSourcei(soundSourceId, AL10.AL_BUFFER, outroSoundBuffer.getAsInt());
 						AL10.alSourcePlay(soundSourceId);
 
 						this.loopSoundBuffer = OptionalInt.empty();
 						this.soundSourceId = OptionalInt.of(soundSourceId);
-						this.soundInstance = soundInstance;
 						NeoForge.EVENT_BUS.post(new PlaySoundSourceEvent(soundEngine, soundInstance, channel));
 					});
 				});
@@ -257,16 +254,17 @@ public class BgmPlayer {
 			}
 		}
 	}
-
-	// FIXME !!!!!!!! (bgm) properly close this
-	public void stopSound() {
-		if (isPlaying) {
+	
+	public void setSoundInstance(SoundInstance soundInstance) {
+		if (this.soundInstance != null) {
 			SoundManager soundManager = Minecraft.getInstance().getSoundManager();
-			if (soundInstance != null) {
-				soundManager.stop(soundInstance);
-				soundInstance = null;
-			}
+			soundManager.stop(this.soundInstance);
 		}
+		this.soundInstance = soundInstance;
+	}
+
+	public void stopSound() {
+		setSoundInstance(null);
 	}
 
 	

@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 
+import com.github.standobyte.jojo.client.ModClientResources;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo.BgmLoopPartitioning;
 import com.github.standobyte.jojo.util.JSONUtil;
 import com.github.standobyte.jojo.util.java.WeightsList;
@@ -40,39 +41,43 @@ import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.sound.SoundEngineLoadEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
-public class BgmTrackLoader extends SimplePreparableReloadListener<BgmTrackLoader.Preparations> {
-	public Map<ResourceLocation, WeightsList<BgmTrackInfo>> tracks = new HashMap<>();
-
+public class BgmTrackLoader extends SimplePreparableReloadListener<BgmTrackLoader.Preparations> implements AutoCloseable {
 	public static final Logger LOGGER = LogUtils.getLogger();
-	
 	protected static BgmTrackLoader instance;
 
 	@ApiStatus.Internal
 	public static void init(RegisterClientReloadListenersEvent event) {
 		if (instance == null) {
 			instance = new BgmTrackLoader();
+			event.registerReloadListener(instance);
+			NeoForge.EVENT_BUS.register(instance);
+			ModClientResources.closeables.add(instance);
 		}
-		event.registerReloadListener(instance);
-		NeoForge.EVENT_BUS.register(instance);
+	}
+	
+	protected BgmTrackLoader() {
+		Minecraft mc = Minecraft.getInstance();
+		SoundManager soundManager = mc.getSoundManager();
+		this.soundEngine = ClientReflection.getSoundEngine(soundManager);
+		this.vanillaSoundBuffers = soundEngine.soundBuffers;
+		this.partitionedSoundBuffers = new PartitionedSoundBuffers();
 	}
 	
 	public static BgmTrackLoader getInstance() {
 		return instance;
 	}
-	
-	// BGM manager
     
-    // FIXME !!!!! (bgm) also keep soundEngine reference
-    // FIXME !!!!! (bgm) can this cause a memory leak?
+	
+	public Map<ResourceLocation, WeightsList<BgmTrackInfo>> tracks = new HashMap<>();
+	protected SoundEngine soundEngine;
 	protected SoundBufferLibrary vanillaSoundBuffers;
 	protected PartitionedSoundBuffers partitionedSoundBuffers;
 	@Nullable public BgmPlayer bgmPlaying;
 	
+	// BGM manager
+	
 	public void play(BgmPlayer bgm) {
-		Minecraft mc = Minecraft.getInstance();
-		SoundManager soundManager = mc.getSoundManager();
-		SoundEngine soundEngine = ClientReflection.getSoundEngine(soundManager);
-		if (!ClientReflection.isLoaded(soundEngine)) {
+		if (!soundEngine.loaded) {
 			LOGGER.error("Failed playing looping BGM - sound engine is not loaded");
 			return;
 		}
@@ -80,13 +85,6 @@ public class BgmTrackLoader extends SimplePreparableReloadListener<BgmTrackLoade
 		if (bgm.track == null) {
 			LOGGER.error("Failed playing BGM - track not found");
 			return;
-		}
-
-		if (vanillaSoundBuffers == null) {
-			vanillaSoundBuffers = ClientReflection.getSoundBuffers(soundEngine);
-		}
-		if (partitionedSoundBuffers == null) {
-			partitionedSoundBuffers = new PartitionedSoundBuffers();
 		}
 		
 		bgm.startBgm(vanillaSoundBuffers, partitionedSoundBuffers, soundEngine);
@@ -107,6 +105,7 @@ public class BgmTrackLoader extends SimplePreparableReloadListener<BgmTrackLoade
 		if (bgmPlaying != null) {
 			bgmPlaying.updateState();
 			if (!bgmPlaying.isPlaying) {
+				bgmPlaying.stopSound();
 				bgmPlaying = null;
 			}
 			else if (!mc.isPaused()) {
@@ -176,20 +175,25 @@ public class BgmTrackLoader extends SimplePreparableReloadListener<BgmTrackLoade
 		public Map<ResourceLocation, WeightsList<BgmTrackInfo>> tracks = new HashMap<>();
 	}
 
+
 	public static void onResourceReload(SoundEngineLoadEvent event) {
 		BgmTrackLoader bgmManager = BgmTrackLoader.getInstance();
 		if (bgmManager != null) {
-			if (bgmManager.partitionedSoundBuffers != null) bgmManager.partitionedSoundBuffers.clear();
+			bgmManager.clear();
 		}
 	}
-	
-	// FIXME !!!!!!!!!!!!!! (bgm) call this on Minecraft#close
-	// FIXME !!!!!!!!!!!!!! (bgm) do i have to make a BgmLoopPlayer#close() too?
-	public static void close() {
-		BgmTrackLoader bgmManager = BgmTrackLoader.getInstance();
-		if (bgmManager != null) {
-			if (bgmManager.partitionedSoundBuffers != null) bgmManager.partitionedSoundBuffers.clear();
+
+	public void clear() {
+		partitionedSoundBuffers.clear();
+		if (bgmPlaying != null) {
+			bgmPlaying.isPlaying = false;
+			bgmPlaying = null;
 		}
 	}
-	
+
+	@Override
+	public void close() throws Exception {
+		clear();
+	}
+
 }

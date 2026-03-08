@@ -12,7 +12,6 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.util.reflection.ClientReflection;
 
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.sounds.SoundManager;
@@ -47,7 +46,7 @@ public class SoundUtil {
 		if (sounds == null) {
 			return Collections.emptyList();
 		}
-		List<Weighted<Sound>> soundList = ClientReflection.getSoundsList(sounds);
+		List<Weighted<Sound>> soundList = sounds.list;
 		List<Weighted<Sound>> decomposeList = null;
 		for (int i = 0; i < soundList.size(); i++) {
 			Weighted<Sound> sound = soundList.get(i);
