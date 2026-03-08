@@ -1,13 +1,11 @@
 package com.github.standobyte.jojo.client.sound.bgmloop;
 
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.util.JSONUtil;
 import com.github.standobyte.jojo.util.java.OptionalFloat;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -15,12 +13,10 @@ import com.google.gson.JsonPrimitive;
 import com.mojang.realmsclient.util.JsonUtils;
 
 import net.minecraft.client.resources.sounds.Sound;
-import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 
 // TODO (bgm) guide on the bgmloop files
 public record BgmTrackInfo(@Nullable BgmLoopPartitioning loop, Sound sound) {
-    public static final FileToIdConverter LISTER = new FileToIdConverter("sounds", ".bgmloop.json");
 	
 	public static class BgmLoopPartitioning {
 		public final Map<BgmPart, Partition> partition;
@@ -76,6 +72,7 @@ public record BgmTrackInfo(@Nullable BgmLoopPartitioning loop, Sound sound) {
 	
 	
 	public static class Unbaked {
+		final ResourceLocation audio;
 		boolean hasLoop;
 		float bpm = 240;
 		float intro;
@@ -86,11 +83,12 @@ public record BgmTrackInfo(@Nullable BgmLoopPartitioning loop, Sound sound) {
 		
 		int weight = 1;
 		
-		@Nullable List<ResourceLocation> trackIds;
-		@Nullable List<ResourceLocation> standTypeIds;
+		public Unbaked(ResourceLocation audio) {
+			this.audio = audio;
+		}
 		
 		public static Unbaked fromJson(JsonObject json) {
-			Unbaked obj = new Unbaked();
+			Unbaked obj = new Unbaked(ResourceLocation.parse(json.get("track").getAsString()));
 			JsonElement bpm = json.get("bpm");
 			if (bpm != null) {
 				obj.hasLoop = true;
@@ -103,9 +101,6 @@ public record BgmTrackInfo(@Nullable BgmLoopPartitioning loop, Sound sound) {
 			else {
 				obj.hasLoop = false;
 			}
-			
-			obj.trackIds = JSONUtil.parseArrayOrSingleElement(json.get("track"), elem -> ResourceLocation.parse(elem.getAsString()));
-			obj.standTypeIds = JSONUtil.parseArrayOrSingleElement(json.get("stand"), elem -> ResourceLocation.parse(elem.getAsString()));
 			
 			obj.weight = JsonUtils.getIntOr("weight", json, 1);
 			

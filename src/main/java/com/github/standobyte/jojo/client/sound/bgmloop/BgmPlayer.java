@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo.BgmLoopParti
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo.BgmLoopPartitioning.BgmPart;
 import com.github.standobyte.jojo.client.sound.util.EventlessSound;
 import com.github.standobyte.jojo.client.sound.util.SoundUtil;
+import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
 import com.mojang.blaze3d.audio.Library;
 import com.mojang.blaze3d.audio.SoundBuffer;
@@ -56,22 +57,27 @@ public class BgmPlayer {
 	protected OptionalInt _loopSoundBuffer = OptionalInt.empty();
 	@Nullable protected SoundBuffer outroAudioStream;
 	
+	@Nullable
 	public static BgmPlayer track(ResourceLocation trackId) {
 		BgmTrackLoader loader = BgmTrackLoader.getInstance();
 		Weighted<BgmTrackInfo> track = loader.tracks.get(trackId);
 		if (track == null) {
 			LOGGER.error("BGM track {} not found", trackId);
+			return null;
 		}
 		return new BgmPlayer(track);
 	}
 	
-	public static BgmPlayer standBGM(ResourceLocation standId) {
-		BgmTrackLoader loader = BgmTrackLoader.getInstance();
-		Weighted<BgmTrackInfo> track = loader.standOstTracks.get(standId);
-		if (track == null) {
-			LOGGER.error("BGM theme of Stand {} not found", standId);
+	@Nullable
+	public static BgmPlayer standResolve(StandSkin standSkin) {
+		if (standSkin == null) return null;
+
+		Weighted<BgmTrackInfo> resolveBGM = standSkin.getResolveBGM();
+		if (resolveBGM == null) {
+			LOGGER.error("Resolve BGM for Stand skin {} not found", standSkin.skinId);
+			return null;
 		}
-		return new BgmPlayer(track);
+		return new BgmPlayer(resolveBGM);
 	}
 	
 	public BgmPlayer(Weighted<BgmTrackInfo> track) {
@@ -103,16 +109,16 @@ public class BgmPlayer {
 		});
 	}
 
-
-	// FIXME !!!!! (bgm) a function to preload sounds
-	public static void start(BgmPlayer bgm) {
-		BgmTrackLoader.getInstance().play(bgm);
-	}
 	
 	@Nullable
 	public static BgmPlayer getCurTrackPlaying() {
 		BgmTrackLoader loader = BgmTrackLoader.getInstance();
 		return loader != null ? loader.bgmPlaying : null;
+	}
+
+	// FIXME !!!!! (bgm) a function to preload sounds
+	public static void start(BgmPlayer bgm) {
+		BgmTrackLoader.getInstance().play(bgm);
 	}
 	
 	public void startPlaying(SoundBufferLibrary vanillaSoundBuffers, PartitionedSoundBuffers partitionedSoundBuffers, SoundEngine soundEngine, Runnable onPlay) {
@@ -121,7 +127,7 @@ public class BgmPlayer {
 		BgmTrackInfo track = bgm.track.getSound(SoundUtil.random);
 		@Nullable BgmLoopPartitioning loopData = track.loop();
 		bgm.sound = track.sound();
-		
+
 		if (loopData != null) {
 			bgm.play((channelHandle, soundInstance) -> {
 				// play the intro part buffer and queue the main loop buffer immediately after

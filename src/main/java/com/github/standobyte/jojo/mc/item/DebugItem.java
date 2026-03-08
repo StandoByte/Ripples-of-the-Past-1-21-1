@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.Optional;
 
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmPlayer;
+import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracker;
 import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracking;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -38,9 +38,11 @@ public class DebugItem extends Item {
         	Optional<? extends LivingEntity> entity = level.getEntitiesOfClass(Husk.class, player.getBoundingBox().inflate(12))
         			.stream().min(Comparator.comparingDouble(player::distanceTo));
         	if (entity.isPresent()) {
-        		BgmPlayer bossMusic = BgmPlayer.standBGM(ResourceLocation.fromNamespaceAndPath("jojo_ripples", "star_platinum"));
-        		bossMusic.bossEntity(entity.get());
-        		BgmPlayer.start(bossMusic);
+        		BgmPlayer bossMusic = BgmPlayer.standResolve(StandSkinsLoader.getCurSkin());
+        		if (bossMusic != null) {
+        			bossMusic.bossEntity(entity.get());
+        			BgmPlayer.start(bossMusic);
+        		}
         	}
         }
 		return InteractionResultHolder.consume(item);

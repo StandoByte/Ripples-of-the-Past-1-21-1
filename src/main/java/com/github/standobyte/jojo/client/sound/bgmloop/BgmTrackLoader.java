@@ -40,7 +40,6 @@ import net.neoforged.neoforge.common.NeoForge;
 
 public class BgmTrackLoader extends SimplePreparableReloadListener<BgmTrackLoader.Preparations> {
 	public Map<ResourceLocation, WeightsList<BgmTrackInfo>> tracks = new HashMap<>();
-	public Map<ResourceLocation, WeightsList<BgmTrackInfo>> standOstTracks = new HashMap<>();
 
 	public static final Logger LOGGER = LogUtils.getLogger();
 	
@@ -113,7 +112,7 @@ public class BgmTrackLoader extends SimplePreparableReloadListener<BgmTrackLoade
 	
 	// Resource loading
 
-	public static final FileToIdConverter META_DATA_LISTER = new FileToIdConverter("sounds", ".bgmloop.json");
+	public static final FileToIdConverter META_DATA_LISTER = new FileToIdConverter("bgm", ".json");
 	public static final FileToIdConverter SOUND_LISTER = Sound.SOUND_LISTER;
 	@Override
 	protected BgmTrackLoader.Preparations prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
@@ -124,32 +123,11 @@ public class BgmTrackLoader extends SimplePreparableReloadListener<BgmTrackLoade
 
 		for (var trackEntry : trackDefinitions.entrySet()) {
 			Resource resource = trackEntry.getValue();
-			ResourceLocation id = META_DATA_LISTER.fileToId(trackEntry.getKey());
-			try (Reader reader = resource.openAsReader()) {
-				ResourceLocation soundPath = SOUND_LISTER.idToFile(id);
-				if (!resourceManager.getResource(soundPath).isPresent()) {
-					throw new FileNotFoundException(soundPath.toString());
-				}
-				Sound sound = new Sound(id, DEFAULT_FLOAT, DEFAULT_FLOAT, 1, Sound.Type.FILE, false, false, 16);
-
-				JsonElement json = JSONUtil.fromJson(JSONUtil.GSON, reader, JsonElement.class, Strictness.STRICT);
-				List<BgmTrackInfo.Unbaked> tracksInfo = JSONUtil.parseArrayOrSingleElement(json, BgmTrackInfo.Unbaked::fromJson);
-				for (BgmTrackInfo.Unbaked trackInfoParsed : tracksInfo) {
-					BgmTrackInfo info = new BgmTrackInfo(BgmLoopPartitioning.createLoop(trackInfoParsed), sound);
-					if (trackInfoParsed.trackIds != null) {
-						for (ResourceLocation key : trackInfoParsed.trackIds) {
-							preps.tracks.computeIfAbsent(key, __ -> new WeightsList<>(null)).addValue(info);
-						}
-					}
-					if (trackInfoParsed.standTypeIds != null) {
-						for (ResourceLocation key : trackInfoParsed.standTypeIds) {
-							preps.standOstTracks.computeIfAbsent(key, __ -> new WeightsList<>(null)).addValue(info);
-						}
-					}
-				}
-
+			ResourceLocation bgmDataId = META_DATA_LISTER.fileToId(trackEntry.getKey());
+			try {
+				preps.tracks.put(bgmDataId, parse(resource, resourceManager));
 			} catch (RuntimeException | IOException e) {
-				LOGGER.warn("Failed to load BGM track {} in resourcepack: '{}'", id, resource.sourcePackId(), e);
+				LOGGER.warn("Failed to load BGM definition {} in resourcepack: '{}'", bgmDataId, resource.sourcePackId(), e);
 			}
 		}
 
@@ -157,19 +135,40 @@ public class BgmTrackLoader extends SimplePreparableReloadListener<BgmTrackLoade
 		profiler.endTick();
 		return preps;
 	}
+	
+	public static WeightsList<BgmTrackInfo> parse(Resource bgmFile, ResourceManager resourceManager) throws IOException {
+		try (Reader reader = bgmFile.openAsReader()) {
+			WeightsList<BgmTrackInfo> tracks = new WeightsList<>(null);
+			JsonElement json = JSONUtil.fromJson(JSONUtil.GSON, reader, JsonElement.class, Strictness.STRICT);
+			List<BgmTrackInfo.Unbaked> tracksInfo = JSONUtil.parseArrayOrSingleElement(json, BgmTrackInfo.Unbaked::fromJson);
+			for (BgmTrackInfo.Unbaked trackInfoParsed : tracksInfo) {
+				ResourceLocation soundId = trackInfoParsed.audio;
+				ResourceLocation soundPath = SOUND_LISTER.idToFile(soundId);
+				if (!resourceManager.getResource(soundPath).isPresent()) {
+					LOGGER.error("Soundtrack {} not found", soundId, new FileNotFoundException(soundPath.toString()));
+					continue;
+				}
+				Sound sound = new Sound(soundId, DEFAULT_FLOAT, DEFAULT_FLOAT, 1, Sound.Type.FILE, false, false, 16);
+				BgmTrackInfo info = new BgmTrackInfo(BgmLoopPartitioning.createLoop(trackInfoParsed), sound);
+				tracks.addValue(info, trackInfoParsed.weight);
+			}
+			return tracks;
+		}
+	}
 	private static final FloatProvider DEFAULT_FLOAT = ConstantFloat.of(1.0F);
 
 	@Override
 	protected void apply(BgmTrackLoader.Preparations preps, ResourceManager resourceManager, ProfilerFiller profiler) {
 		this.tracks.clear();
-		this.tracks.putAll(preps.tracks);
-		this.standOstTracks.clear();
-		this.standOstTracks.putAll(preps.standOstTracks);
+		preps.tracks.forEach((bgmId, soundsList) -> {
+			if (!soundsList.isEmpty()) {
+				this.tracks.put(bgmId, soundsList);
+			}
+		});
 	}
 
 	public static class Preparations {
 		public Map<ResourceLocation, WeightsList<BgmTrackInfo>> tracks = new HashMap<>();
-		public Map<ResourceLocation, WeightsList<BgmTrackInfo>> standOstTracks = new HashMap<>();
 	}
 
 	public static void onResourceReload(SoundEngineLoadEvent event) {
