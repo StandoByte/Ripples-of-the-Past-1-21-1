@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.init.core;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.command.JojoPowerCommand;
+import com.github.standobyte.jojo.core.command.PlayBgmCommand;
 import com.github.standobyte.jojo.core.command.StandCommand;
 import com.mojang.brigadier.CommandDispatcher;
 
@@ -21,6 +22,7 @@ public class ModChatCommands {
 		
 		StandCommand.register(dispatcher, context);
 		JojoPowerCommand.register(dispatcher, context);
+		PlayBgmCommand.register(dispatcher, context);
 	}
 
 }
