@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.client.sound.bgmloop;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -144,7 +145,8 @@ public class BgmTrackLoader extends SimplePreparableReloadListener<BgmTrackLoade
 		try (Reader reader = bgmFile.openAsReader()) {
 			WeightsList<BgmTrackInfo> tracks = new WeightsList<>(null);
 			JsonElement json = JSONUtil.fromJson(JSONUtil.GSON, reader, JsonElement.class, Strictness.STRICT);
-			List<BgmTrackInfo.Unbaked> tracksInfo = JSONUtil.parseArrayOrSingleElement(json, BgmTrackInfo.Unbaked::fromJson);
+			List<BgmTrackInfo.Unbaked> tracksInfo = new ArrayList<>();
+			BgmTrackInfo.Unbaked.fromJson(json, tracksInfo);
 			for (BgmTrackInfo.Unbaked trackInfoParsed : tracksInfo) {
 				ResourceLocation soundId = trackInfoParsed.audio;
 				ResourceLocation soundPath = SOUND_LISTER.idToFile(soundId);

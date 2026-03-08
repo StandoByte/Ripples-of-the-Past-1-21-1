@@ -1,12 +1,15 @@
 package com.github.standobyte.jojo.client.sound.bgmloop;
 
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.util.JSONUtil;
 import com.github.standobyte.jojo.util.java.OptionalFloat;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -87,25 +90,49 @@ public record BgmTrackInfo(@Nullable BgmLoopPartitioning loop, Sound sound) {
 			this.audio = audio;
 		}
 		
-		public static Unbaked fromJson(JsonObject json) {
-			Unbaked obj = new Unbaked(ResourceLocation.parse(json.get("track").getAsString()));
-			JsonElement bpm = json.get("bpm");
-			if (bpm != null) {
-				obj.hasLoop = true;
-				obj.bpm = bpm.getAsFloat();
-				obj.intro = JsonParseHelper.getFloatOr("intro", json, 0, JsonParseHelper::parseFlStudioNote);
-				obj.loopStart = JsonParseHelper.getFloatOr("loopStart", json, 0, JsonParseHelper::parseFlStudioNote);
-				obj.loopBack = JsonParseHelper.getFloatOptional("loopBack", json, JsonParseHelper::parseFlStudioNote);
-				obj.outro = JsonParseHelper.getFloatOptional("outro", json, JsonParseHelper::parseFlStudioNote);
+
+		public static void fromJson(JsonElement jsonElement, List<Unbaked> destination) {
+			if (jsonElement.isJsonArray()) {
+				JsonArray jsonArray = jsonElement.getAsJsonArray();
+				for (JsonElement element : jsonArray) {
+					fromJsonObj(element.getAsJsonObject(), destination);
+				}
 			}
 			else {
-				obj.hasLoop = false;
+				fromJsonObj(jsonElement.getAsJsonObject(), destination);
 			}
-			
-			obj.weight = JsonUtils.getIntOr("weight", json, 1);
-			
-			return obj;
 		}
+		
+		public static void fromJsonObj(JsonObject json, List<Unbaked> destination) {
+			ResourceLocation track = ResourceLocation.parse(json.get("track").getAsString());
+			int weight = JsonUtils.getIntOr("weight", json, 1);
+			
+			OptionalFloat bpm = JsonParseHelper.getFloatOptional("bpm", json, JsonElement::getAsFloat);
+			boolean hasLoop = bpm.isPresent();
+			if (hasLoop) {
+				List<Float> introTimestamps = JSONUtil.parseArrayOrSingleElement(json.get("intro"), JsonParseHelper::parseFlStudioNote);
+				float loopStart = JsonParseHelper.getFloatOr("loopStart", json, 1, JsonParseHelper::parseFlStudioNote);
+				OptionalFloat loopBack = JsonParseHelper.getFloatOptional("loopBack", json, JsonParseHelper::parseFlStudioNote);
+				OptionalFloat outro = JsonParseHelper.getFloatOptional("outro", json, JsonParseHelper::parseFlStudioNote);
+				for (Float intro : introTimestamps) {
+					Unbaked obj = new Unbaked(track);
+					obj.hasLoop = true;
+					obj.bpm = bpm.getAsFloat();
+					obj.intro = intro;
+					obj.loopStart = loopStart;
+					obj.loopBack = loopBack;
+					obj.outro = outro;
+					destination.add(obj);
+				}
+			}
+			else {
+				Unbaked obj = new Unbaked(track);
+				obj.hasLoop = false;
+				obj.weight = weight;
+				destination.add(obj);
+			}
+		}
+		
 	}
 
 
