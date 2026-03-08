@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmPlayer;
-import com.github.standobyte.jojo.client.ui.DebugFunctionsScreen;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracker;
 import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracking;

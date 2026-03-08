@@ -10,7 +10,7 @@ import javax.sound.sampled.AudioFormat;
 
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo.BgmLoopPartitioning;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo.BgmLoopPartitioning.BgmPart;
-import com.github.standobyte.jojo.client.sound.util.SoundCache;
+import com.github.standobyte.jojo.client.sound.util.SoundUtil;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
 import com.mojang.blaze3d.audio.SoundBuffer;
 
@@ -24,7 +24,7 @@ public class PartitionedSoundBuffers {
 
 	public CompletableFuture<Map<BgmPart, SoundBuffer>> getPartitionedBuffers(ResourceLocation soundPath, 
 			SoundBufferLibrary fullSoundCache, BgmLoopPartitioning partitioning) {
-		return SoundCache.computeIfKeyAbsent(this.cache, partitioning, 
+		return SoundUtil.computeIfKeyAbsent(this.cache, partitioning, 
 				_partitioning -> fullSoundCache.getCompleteBuffer(soundPath).thenApply(buffer -> {
 					Map<BgmPart, SoundBuffer> partition = new EnumMap<>(BgmPart.class);
 					ByteBuffer fullAudio = ClientReflection.getSoundData(buffer);

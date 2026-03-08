@@ -4,7 +4,12 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Predicate;
+
+import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
@@ -14,22 +19,30 @@ import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.client.sounds.Weighted;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
 
 public class SoundUtil {
-
-	/**
-	 * All of the elements are guaranteed to be instances of Sound, 
-	 * you can give null to {@link Weighted#getSound(RandomSource)} and it'll return the sound itself
-	 */
-	public static List<Weighted<Sound>> getSoundFiles(SoundEvent soundEvent, SoundManager soundManager) {
-		return SoundCache.computeIfKeyAbsent(
-				SoundCache.soundEventSeparateSounds, 
-				soundEvent.getLocation(), 
-				key -> decomposeSounds(soundManager.getSoundEvent(key)));
-	}
 	
+	/**
+     * If the specified key is not already associated with a value, 
+     * attempts to compute its value using the given mapping function 
+     * and enters it into this map.
+     * 
+     * Unlike the default {@link Map#computeIfAbsent(Object, Function)}, 
+     * this will put the returned value into the map even if it's null,
+     * meaning we don't have to run the same logic multiple times
+     * if the sound we're looking for is missing.
+	 */
+	@Nullable
+	public static <K, V> V computeIfKeyAbsent(Map<K, V> cache, K key, 
+			Function<K, V> mappingFunctionMayReturnNull) {
+		Objects.requireNonNull(mappingFunctionMayReturnNull);
+		if (cache.containsKey(key)) return cache.get(key);
+		V value = mappingFunctionMayReturnNull.apply(key);
+		cache.put(key, value);
+		return value;
+	}
+
 	protected static List<Weighted<Sound>> decomposeSounds(WeighedSoundEvents sounds) {
 		if (sounds == null) {
 			return Collections.emptyList();

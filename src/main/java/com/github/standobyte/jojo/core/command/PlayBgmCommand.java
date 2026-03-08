@@ -247,13 +247,13 @@ public class PlayBgmCommand {
 		        		BgmPlayer.start(track);
 					}
 					case FINISH -> {
-						BgmPlayer curBgm = BgmPlayer.bgmPlaying;
+						BgmPlayer curBgm = BgmPlayer.getCurTrackPlaying();
 						if (curBgm != null) {
 							curBgm.finishWithOutro();
 						}
 					}
 					case ABRUPT_STOP -> {
-						BgmPlayer curBgm = BgmPlayer.bgmPlaying;
+						BgmPlayer curBgm = BgmPlayer.getCurTrackPlaying();
 						if (curBgm != null) {
 							curBgm.forceStop();
 						}

@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.client.sound.bgmloop;
 import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
@@ -12,9 +13,7 @@ import org.slf4j.Logger;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo.BgmLoopPartitioning;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo.BgmLoopPartitioning.BgmPart;
 import com.github.standobyte.jojo.client.sound.util.EventlessSound;
-import com.github.standobyte.jojo.client.sound.util.SoundCache;
 import com.github.standobyte.jojo.client.sound.util.SoundUtil;
-import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
 import com.mojang.blaze3d.audio.Library;
 import com.mojang.blaze3d.audio.SoundBuffer;
@@ -34,25 +33,14 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.sound.PlaySoundSourceEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
-@EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 // FIXME !!!!! (bgm) use less reflection ffs
 public class BgmPlayer {
 	protected static final Logger LOGGER = LogUtils.getLogger();
-    
-    // FIXME !!!!! (bgm) also keep soundEngine reference
-    // FIXME !!!!! (bgm) can this cause a memory leak?
-	protected static SoundBufferLibrary vanillaSoundBuffers;
-	protected static PartitionedSoundBuffers partitionedSoundBuffers;
 	
-	protected LivingEntity bossEntity;
+	protected Consumer<BgmPlayer> onTick;
 	protected SoundSource category = SoundSource.RECORDS;
 	protected float volume = 0.4f;
 	protected float pitch = 1;
@@ -90,44 +78,50 @@ public class BgmPlayer {
 		this.track = track;
 	}
 	
-	public void bossEntity(LivingEntity entity) {
-		this.bossEntity = entity;
-	}
-	
 	public void settings(SoundSource category, float volume, float pitch) {
 		this.category = category;
 		this.volume = volume;
 		this.pitch = pitch;
 	}
 
+	
+	/** Return true from the predicate returns true if you've stopped the soundtrack */
+	public void setTickHandler(Consumer<BgmPlayer> onTick) {
+		this.onTick = onTick;
+	}
+	
+	public void bossEntity(LivingEntity entity) {
+		setTickHandler(bgm -> {
+			if (entity != null) {
+				if (entity.isDeadOrDying()) {
+					bgm.finishWithOutro();
+				}
+				else if (entity.isRemoved()) {
+					bgm.forceStop();
+				}
+			}
+		});
+	}
 
-	@Nullable public static BgmPlayer bgmPlaying;
 
 	// FIXME !!!!! (bgm) a function to preload sounds
 	public static void start(BgmPlayer bgm) {
-		Minecraft mc = Minecraft.getInstance();
-		SoundManager soundManager = mc.getSoundManager();
-		SoundEngine soundEngine = ClientReflection.getSoundEngine(soundManager);
-		if (!ClientReflection.isLoaded(soundEngine)) {
-			LOGGER.error("Failed playing looping BGM - sound engine is not loaded");
-			return;
-		}
-		
-		if (bgm.track == null) {
-			LOGGER.error("Failed playing BGM - track not found");
-			return;
-		}
-
-		if (vanillaSoundBuffers == null) vanillaSoundBuffers = ClientReflection.getSoundBuffers(soundEngine);
-		if (partitionedSoundBuffers == null) {
-			partitionedSoundBuffers = new PartitionedSoundBuffers();
-			SoundCache.partitionedSoundBuffers = partitionedSoundBuffers;
-		}
+		BgmTrackLoader.getInstance().play(bgm);
+	}
+	
+	@Nullable
+	public static BgmPlayer getCurTrackPlaying() {
+		BgmTrackLoader loader = BgmTrackLoader.getInstance();
+		return loader != null ? loader.bgmPlaying : null;
+	}
+	
+	public void startPlaying(SoundBufferLibrary vanillaSoundBuffers, PartitionedSoundBuffers partitionedSoundBuffers, SoundEngine soundEngine, Runnable onPlay) {
+		BgmPlayer bgm = this;
 		
 		BgmTrackInfo track = bgm.track.getSound(SoundUtil.random);
 		@Nullable BgmLoopPartitioning loopData = track.loop();
 		bgm.sound = track.sound();
-		bgm.isPlaying = true;
+		
 		if (loopData != null) {
 			bgm.play((channelHandle, soundInstance) -> {
 				// play the intro part buffer and queue the main loop buffer immediately after
@@ -145,10 +139,7 @@ public class BgmPlayer {
 						bgm.loopSoundInstance = soundInstance;
 						
 						// FIXME !!!!!!!!!!! (bgm) i think i can reuse the same channel actually
-						if (bgmPlaying != null) {
-							bgmPlaying.forceStop();
-						}
-						bgmPlaying = bgm;
+						onPlay.run();
 						
 						AL10.alSourcei(soundSourceId, AL10.AL_BUFFER, 0);
 						AL10.alSourceQueueBuffers(soundSourceId, introSoundBuffer.getAsInt());
@@ -206,32 +197,14 @@ public class BgmPlayer {
 	}
 	
 
-	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	public static void tickBossMusic(ClientTickEvent.Pre event) {
-		Minecraft mc = Minecraft.getInstance();
-		if (!mc.isPaused() && bgmPlaying != null && bgmPlaying.isPlaying) {
-			bgmPlaying.tick();
-		}
-		if (bgmPlaying != null && !bgmPlaying.isPlaying) {
-			bgmPlaying = null;
-		}
-	}
-
 	public void tick() {
 		// check if the music should still be playing
-		if (bossEntity != null) {
-			if (bossEntity.isDeadOrDying()) {
-				finishWithOutro();
-				return;
-			}
-			else if (bossEntity.isRemoved()) {
-				forceStop();
-				return;
-			}
+		if (onTick != null) {
+			onTick.accept(this);
 		}
 
 		// check if the intro part has stopped - if it did, it's now the main loop playing (we've queued it previously), so we set looping for that to true
-		if (!_setLooped) {
+		if (!hasFinished() && !_setLooped) {
 			_soundSourceID.ifPresent(soundSourceId -> {
 				_loopSoundBuffer.ifPresent(loopSoundBuffer -> {
 					int curBuffer = AL10.alGetSourcei(soundSourceId, AL10.AL_BUFFERS_PROCESSED);

@@ -7,6 +7,7 @@ import com.github.standobyte.jojo.client.entityanim.AnimationLoader;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
 import com.github.standobyte.jojo.client.shader.EntityShaders;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackLoader;
+import com.github.standobyte.jojo.client.sound.util.SoundCache;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.utils.ResourcePathChecker;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -16,6 +17,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.sound.SoundEngineLoadEvent;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class ModClientResources {
@@ -30,6 +32,12 @@ public class ModClientResources {
 		ClothesModelLoader.init(event);
 		EntityShaders.resourceReload(event);
 		BgmTrackLoader.init(event);
+	}
+	
+	@SubscribeEvent
+	public static void onResourceReload(SoundEngineLoadEvent event) {
+		SoundCache.getInstance().onResourceReload(event);
+		BgmTrackLoader.onResourceReload(event);
 	}
 	
 	public static Set<AutoCloseable> closeables = new HashSet<>();
