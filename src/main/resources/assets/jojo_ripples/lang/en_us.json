@@ -61,6 +61,8 @@
   "jojo_ripples.config.client.standAimMarker.tooltip": "A marker showing the current aim target (block/entity) of your Stand.",
   "jojo_ripples.config.client.resolveShaders": "Resolve shaders",
   "jojo_ripples.config.client.resolveShaders.tooltip": "Enable shaders during Resolve effect.",
+  "jojo_ripples.config.client.standAura": "Stand aura",
+  "jojo_ripples.config.client.standAura.tooltip": "Enable Stand aura around the Stand users with Resolve effect (drawn with shaders).",
   "jojo_ripples.config.client.menacingParticles": "\"Menacing\" particles",
   "jojo_ripples.config.client.menacingParticles.tooltip": "Enable ゴゴゴゴゴ particles when AFK.",
   "jojo_ripples.config.client.timeStopAnimation": "Time stop animation",

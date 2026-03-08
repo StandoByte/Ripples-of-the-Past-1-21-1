@@ -58,6 +58,8 @@
   "jojo_ripples.config.client.standAimMarker.tooltip": "Отображение маркера на цели (сущности/блоке), на которую сейчас нацелен ваш Стенд.",
   "jojo_ripples.config.client.resolveShaders": "Шейдеры решимости",
   "jojo_ripples.config.client.resolveShaders.tooltip": "Шейдеры смены цветов во время эффекта Решимости",
+  "jojo_ripples.config.client.standAura": "Аура Стенда",
+  "jojo_ripples.config.client.standAura.tooltip": "Аура вокруг обладателей Стендов с эффектом Решимости (отрисована с помощью шейдеров).",
   "jojo_ripples.config.client.menacingParticles": "Частицы \"опасности\"",
   "jojo_ripples.config.client.menacingParticles.tooltip": "Частицы ゴゴゴゴゴ, исходящие от неактивных игроков",
   "jojo_ripples.config.client.timeStopAnimation": "Анимация остановки времени",

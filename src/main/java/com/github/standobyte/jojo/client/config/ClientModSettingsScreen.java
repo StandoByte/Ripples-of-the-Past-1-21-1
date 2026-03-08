@@ -190,6 +190,15 @@ public class ClientModSettingsScreen extends Screen {
 		}.withIcon(toIconPath("stand_aim_marker"), iconPath -> new IconGlyphInfo(new GuiIcon(iconPath, 17, 17), 17, 17, 0, -5, 5));
 		addRenderableWidget(standAimMarker.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
 
+		Setting<Boolean> standAura = new BooleanSetting(settings, 
+				Component.translatable("jojo_ripples.config.client.standAura"), 
+				Component.translatable("jojo_ripples.config.client.standAura.tooltip")
+				) {
+			@Override public Boolean get() { return settingsValues.standAura; }
+			@Override public void set(Boolean value) {  settingsValues.standAura = value; }
+		};
+		addRenderableWidget(standAura.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
+
 //		BooleanSetting resolveShaders = new BooleanSetting(settings, 
 //				Component.translatable("jojo_ripples.config.client.resolveShaders"), 
 //				Component.translatable("jojo_ripples.config.client.resolveShaders.tooltip")

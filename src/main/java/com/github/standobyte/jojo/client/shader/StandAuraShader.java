@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.SequencedMap;
 
 import com.github.standobyte.jojo.client.ClientUtil;
+import com.github.standobyte.jojo.client.config.ClientModSettings;
 import com.github.standobyte.jojo.client.shader.core.BufferWithSource;
 import com.github.standobyte.jojo.client.shader.core.RotpShader;
 import com.github.standobyte.jojo.client.shader.standaura.AuraUtil;
@@ -148,6 +149,8 @@ public class StandAuraShader extends RotpShader {
 	
 	@Override
 	public void frameRenderCallback(RenderLevelStageEvent event) {
+		if (!ClientModSettings.getSettingsReadOnly().standAura) return;
+		
 		RenderLevelStageEvent.Stage stage = event.getStage();
 		if (isBeforeEntities(stage)) {
 			this.usedThisFrame = false;
