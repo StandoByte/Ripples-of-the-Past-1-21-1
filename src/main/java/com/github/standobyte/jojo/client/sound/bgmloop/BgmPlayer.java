@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.lwjgl.openal.AL10;
 import org.slf4j.Logger;
 
@@ -41,21 +42,21 @@ import net.neoforged.neoforge.common.NeoForge;
 public class BgmPlayer {
 	protected static final Logger LOGGER = LogUtils.getLogger();
 	
+	boolean isPlaying = false;
 	protected Consumer<BgmPlayer> onTick;
 	protected SoundSource category = SoundSource.RECORDS;
 	protected float volume = 0.4f;
 	protected float pitch = 1;
-
-	boolean _setLooped = false;
-	boolean isPlaying = false;
-//	boolean finished = false;
-
 	public final Weighted<BgmTrackInfo> track;
 	protected Sound sound;
-	protected SoundInstance loopSoundInstance;
-	protected OptionalInt _soundSourceID = OptionalInt.empty();
-	protected OptionalInt _loopSoundBuffer = OptionalInt.empty();
+	
+	protected SoundInstance soundInstance;
+	protected OptionalInt soundSourceId = OptionalInt.empty();
+	
+	protected OptionalInt loopSoundBuffer = OptionalInt.empty();
+	boolean setLooped = false;
 	@Nullable protected SoundBuffer outroAudioStream;
+	boolean isAtOutro = false;
 	
 	@Nullable
 	public static BgmPlayer track(ResourceLocation trackId) {
@@ -103,7 +104,7 @@ public class BgmPlayer {
 					bgm.finishWithOutro();
 				}
 				else if (entity.isRemoved()) {
-					bgm.forceStop();
+					bgm.stopSound();
 				}
 			}
 		});
@@ -116,49 +117,9 @@ public class BgmPlayer {
 		return loader != null ? loader.bgmPlaying : null;
 	}
 
-	// FIXME !!!!! (bgm) a function to preload sounds
+	// TODO (bgm) a function to preload sounds
 	public static void start(BgmPlayer bgm) {
 		BgmTrackLoader.getInstance().play(bgm);
-	}
-	
-	public void startPlaying(SoundBufferLibrary vanillaSoundBuffers, PartitionedSoundBuffers partitionedSoundBuffers, SoundEngine soundEngine, Runnable onPlay) {
-		BgmPlayer bgm = this;
-		
-		BgmTrackInfo track = bgm.track.getSound(SoundUtil.random);
-		@Nullable BgmLoopPartitioning loopData = track.loop();
-		bgm.sound = track.sound();
-
-		if (loopData != null) {
-			bgm.play((channelHandle, soundInstance) -> {
-				// play the intro part buffer and queue the main loop buffer immediately after
-				partitionedSoundBuffers.getPartitionedBuffers(bgm.sound.getPath(), vanillaSoundBuffers, loopData).thenAccept(splitAudioStreams -> {
-					SoundBuffer introAudioStream = splitAudioStreams.get(BgmPart.INTRO);
-					SoundBuffer mainAudioStream = splitAudioStreams.get(BgmPart.MAIN);
-					bgm.outroAudioStream = splitAudioStreams.get(BgmPart.OUTRO);
-					OptionalInt introSoundBuffer = ClientReflection.getAlBuffer(introAudioStream);
-					OptionalInt mainLoopBuffer = ClientReflection.getAlBuffer(mainAudioStream);
-					
-					channelHandle.execute(channel -> {
-						bgm._loopSoundBuffer = introSoundBuffer;
-						int soundSourceId = ClientReflection.getSourceId(channel);
-						bgm._soundSourceID = OptionalInt.of(soundSourceId);
-						bgm.loopSoundInstance = soundInstance;
-						
-						// FIXME !!!!!!!!!!! (bgm) i think i can reuse the same channel actually
-						onPlay.run();
-						
-						AL10.alSourcei(soundSourceId, AL10.AL_BUFFER, 0);
-						AL10.alSourceQueueBuffers(soundSourceId, introSoundBuffer.getAsInt());
-						AL10.alSourceQueueBuffers(soundSourceId, mainLoopBuffer.getAsInt());
-						AL10.alSourcePlay(soundSourceId);
-						NeoForge.EVENT_BUS.post(new PlaySoundSourceEvent(soundEngine, soundInstance, channel));
-					});
-				});
-			});
-		}
-		else {
-			// FIXME !!!!!!!!!!!!!!!! (bgm) play the sound without looping
-		}
 	}
 	
 	protected void play(BiConsumer<ChannelAccess.ChannelHandle, SoundInstance> playSound) {
@@ -167,41 +128,154 @@ public class BgmPlayer {
 		SoundEngine soundEngine = ClientReflection.getSoundEngine(soundManager);
 		// SoundEngine copypasta
 		CompletableFuture<ChannelAccess.ChannelHandle> completablefuture = ClientReflection.getChannelAccess(soundEngine).createHandle(Library.Pool.STATIC);
-		ChannelAccess.ChannelHandle channelaccess$channelhandle = completablefuture.join();
-		if (channelaccess$channelhandle == null) {
+		ChannelAccess.ChannelHandle channelHandle = completablefuture.join();
+		if (channelHandle == null) {
 			if (SharedConstants.IS_RUNNING_IN_IDE) {
 				LOGGER.warn("Failed to create new sound handle");
 			}
+			return;
+		}
+
+		float categoryVolume = category != null && category != SoundSource.MASTER ? mc.options.getSoundSourceVolume(category) : 1.0F;
+		float volume = Mth.clamp(this.volume * categoryVolume, 0.0F, 1.0F);
+		float pitch = Mth.clamp(this.pitch, 0.5F, 2.0F);
+		
+		// we need to create a sound instance object so that the vanilla can handle stuff like changing volume while the music player correctly
+		SoundInstance soundInstance = new EventlessSound(sound, category, null, 
+				volume, pitch, false, 0, 
+				SoundInstance.Attenuation.NONE, 0, 0, 0, false) {
+			@Override public boolean canStartSilent() { return true; }
+		};
+		
+		ClientReflection.getSoundDeleteTime(soundEngine).put(soundInstance, ClientReflection.getTickCount(soundEngine) + 20);
+		ClientReflection.getInstanceToChannel(soundEngine).put(soundInstance, channelHandle);
+		ClientReflection.getInstanceBySource(soundEngine).put(category, soundInstance);
+		
+		channelHandle.execute(channel -> {
+			channel.setPitch(pitch);
+			channel.setVolume(volume);
+			channel.disableAttenuation();
+
+			channel.setSelfPosition(Vec3.ZERO);
+			channel.setRelative(false);
+		});
+		
+		playSound.accept(channelHandle, soundInstance);
+	}
+
+
+	@ApiStatus.Internal
+	public void startBgm(SoundBufferLibrary vanillaSoundBuffers, PartitionedSoundBuffers partitionedSoundBuffers, 
+			SoundEngine soundEngine) {
+		BgmTrackInfo track = this.track.getSound(SoundUtil.random);
+		@Nullable BgmLoopPartitioning loopData = track.loop();
+		this.sound = track.sound();
+
+		if (loopData != null) {
+			this.play((channelHandle, soundInstance) -> {
+				// play the intro part buffer and queue the main loop buffer immediately after
+				partitionedSoundBuffers.getPartitionedBuffers(this.sound.getPath(), vanillaSoundBuffers, loopData).thenAccept(splitAudioStreams -> {
+					SoundBuffer introAudioStream = splitAudioStreams.get(BgmPart.INTRO);
+					SoundBuffer mainAudioStream = splitAudioStreams.get(BgmPart.MAIN);
+					this.outroAudioStream = splitAudioStreams.get(BgmPart.OUTRO);
+					OptionalInt introSoundBuffer = ClientReflection.getAlBuffer(introAudioStream);
+					OptionalInt mainLoopBuffer = ClientReflection.getAlBuffer(mainAudioStream);
+					
+					channelHandle.execute(channel -> {
+						BgmTrackLoader.getInstance().onStartedPlaying(this);
+						int soundSourceId = ClientReflection.getSourceId(channel);
+						AL10.alSourcei(soundSourceId, AL10.AL_BUFFER, 0);
+						AL10.alSourceQueueBuffers(soundSourceId, introSoundBuffer.getAsInt());
+						AL10.alSourceQueueBuffers(soundSourceId, mainLoopBuffer.getAsInt());
+						AL10.alSourcePlay(soundSourceId);
+						
+						this.loopSoundBuffer = introSoundBuffer;
+						this.soundSourceId = OptionalInt.of(soundSourceId);
+						this.soundInstance = soundInstance;
+						NeoForge.EVENT_BUS.post(new PlaySoundSourceEvent(soundEngine, soundInstance, channel));
+					});
+				});
+			});
 		}
 		else {
-			float categoryVolume = category != null && category != SoundSource.MASTER ? mc.options.getSoundSourceVolume(category) : 1.0F;
-			float volume = Mth.clamp(this.volume * categoryVolume, 0.0F, 1.0F);
-			float pitch = Mth.clamp(this.pitch, 0.5F, 2.0F);
-			
-			// we need to create a sound instance object so that the vanilla can handle stuff like changing volume while the music player correctly
-			SoundInstance soundInstance = new EventlessSound(sound, category, null, 
-					volume, pitch, false, 0, 
-					SoundInstance.Attenuation.NONE, 0, 0, 0, false) {
-				@Override public boolean canStartSilent() { return true; }
-			};
-			
-			ClientReflection.getSoundDeleteTime(soundEngine).put(soundInstance, ClientReflection.getTickCount(soundEngine) + 20);
-			ClientReflection.getInstanceToChannel(soundEngine).put(soundInstance, channelaccess$channelhandle);
-			ClientReflection.getInstanceBySource(soundEngine).put(category, soundInstance);
-			
-			channelaccess$channelhandle.execute(channel -> {
-				channel.setPitch(pitch);
-				channel.setVolume(volume);
-				channel.disableAttenuation();
+			this.play((channelHandle, soundInstance) -> {
+				// just play the audio without looping
+				vanillaSoundBuffers.getCompleteBuffer(this.sound.getPath()).thenAccept(audioStream -> {
+					OptionalInt soundBuffer = ClientReflection.getAlBuffer(audioStream);
+					
+					channelHandle.execute(channel -> {
+						BgmTrackLoader.getInstance().onStartedPlaying(this);
+						int soundSourceId = ClientReflection.getSourceId(channel);
+						AL10.alSourcei(soundSourceId, AL10.AL_BUFFER, 0);
+						AL10.alSourceQueueBuffers(soundSourceId, soundBuffer.getAsInt());
+						AL10.alSourcePlay(soundSourceId);
 
-				channel.setSelfPosition(Vec3.ZERO);
-				channel.setRelative(false);
+						this.loopSoundBuffer = OptionalInt.empty();
+						this.soundSourceId = OptionalInt.of(soundSourceId);
+						this.soundInstance = soundInstance;
+						NeoForge.EVENT_BUS.post(new PlaySoundSourceEvent(soundEngine, soundInstance, channel));
+					});
+				});
 			});
-			
-			playSound.accept(channelaccess$channelhandle, soundInstance);
 		}
 	}
+
+	public void finishWithOutro() {
+		if (isPlaying) {
+			if (outroAudioStream == null) {
+				// FIXME !!!!! (bgm) weird error (one of the two seemingly at random)
+				/*
+				 * [Sound engine/ERROR] [mojang/OpenAlUtil]: Allocate new source: Invalid name parameter.
+				 * [minecraft/SoundEngine]: Failed to create new sound handle
+				 */
+				/*
+				 * [Sound engine/ERROR] [mojang/OpenAlUtil]: Stop: Invalid name parameter.
+				 */
+				stopSound();
+			}
+			else if (!isAtOutro) {
+				Minecraft mc = Minecraft.getInstance();
+				SoundManager soundManager = mc.getSoundManager();
+				SoundEngine soundEngine = ClientReflection.getSoundEngine(soundManager);
+
+				this.play((channelHandle, soundInstance) -> {
+					channelHandle.execute(channel -> {
+						stopSound();
+						
+						int soundSourceId = ClientReflection.getSourceId(channel);
+						OptionalInt outroSoundBuffer = ClientReflection.getAlBuffer(outroAudioStream);
+						AL10.alSourcei(soundSourceId, AL10.AL_BUFFER, outroSoundBuffer.getAsInt());
+						AL10.alSourcePlay(soundSourceId);
+
+						this.loopSoundBuffer = OptionalInt.empty();
+						this.soundSourceId = OptionalInt.of(soundSourceId);
+						this.soundInstance = soundInstance;
+						NeoForge.EVENT_BUS.post(new PlaySoundSourceEvent(soundEngine, soundInstance, channel));
+					});
+				});
+				isAtOutro = true;
+			}
+		}
+	}
+
+	// FIXME !!!!!!!! (bgm) properly close this
+	public void stopSound() {
+		if (isPlaying) {
+			SoundManager soundManager = Minecraft.getInstance().getSoundManager();
+			if (soundInstance != null) {
+				soundManager.stop(soundInstance);
+				soundInstance = null;
+			}
+		}
+	}
+
 	
+	public void updateState() {
+		soundSourceId.ifPresent(source -> {
+			int state = AL10.alGetSourcei(source, AL10.AL_SOURCE_STATE);
+			this.isPlaying = state == AL10.AL_PLAYING || state == AL10.AL_PAUSED;
+		});
+	}
 
 	public void tick() {
 		// check if the music should still be playing
@@ -210,56 +284,20 @@ public class BgmPlayer {
 		}
 
 		// check if the intro part has stopped - if it did, it's now the main loop playing (we've queued it previously), so we set looping for that to true
-		if (!hasFinished() && !_setLooped) {
-			_soundSourceID.ifPresent(soundSourceId -> {
-				_loopSoundBuffer.ifPresent(loopSoundBuffer -> {
-					int curBuffer = AL10.alGetSourcei(soundSourceId, AL10.AL_BUFFERS_PROCESSED);
+		if (isPlaying && !setLooped) {
+			loopSoundBuffer.ifPresent(soundBuffer -> {
+				soundSourceId.ifPresent(sourceName -> {
+					int curBuffer = AL10.alGetSourcei(sourceName, AL10.AL_BUFFERS_PROCESSED);
 					boolean introIsOver = curBuffer == 1;
 					if (introIsOver) {
-						AL10.alSourceUnqueueBuffers(soundSourceId, new int[] { loopSoundBuffer });
-						AL10.alSourcei(soundSourceId, AL10.AL_LOOPING, AL10.AL_TRUE);
-						_setLooped = true;
+						AL10.alSourceUnqueueBuffers(sourceName, new int[] { soundBuffer });
+						AL10.alSourcei(sourceName, AL10.AL_LOOPING, AL10.AL_TRUE);
+						this.loopSoundBuffer = OptionalInt.empty();
+						this.setLooped = true;
 					}
 				});
 			});
 		}
-	}
-
-	public void finishWithOutro() {
-		if (isPlaying && outroAudioStream != null) {
-			Minecraft mc = Minecraft.getInstance();
-			SoundManager soundManager = mc.getSoundManager();
-			SoundEngine soundEngine = ClientReflection.getSoundEngine(soundManager);
-			
-			play((channelHandle, soundInstance) -> {
-				channelHandle.execute(channel -> {
-					// FIXME !!!!!!!!!!! (bgm) i think i can reuse the same channel actually
-					int soundSourceId = ClientReflection.getSourceId(channel);
-					OptionalInt outroSoundBuffer = ClientReflection.getAlBuffer(outroAudioStream);
-					AL10.alSourcei(soundSourceId, AL10.AL_BUFFER, outroSoundBuffer.getAsInt());
-					AL10.alSourcePlay(soundSourceId);
-					NeoForge.EVENT_BUS.post(new PlaySoundSourceEvent(soundEngine, soundInstance, channel));
-				});
-			});
-		}
-		
-		forceStop();
-	}
-
-	// FIXME !!!!!!!! (bgm) properly close this
-	public void forceStop() {
-		if (isPlaying) {
-			SoundManager soundManager = Minecraft.getInstance().getSoundManager();
-			if (loopSoundInstance != null) {
-				soundManager.stop(loopSoundInstance);
-				loopSoundInstance = null;
-			}
-			isPlaying = false;
-		}
-	}
-
-	public boolean hasFinished() {
-		return !isPlaying;
 	}
 
 }

@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 
@@ -64,7 +66,7 @@ public class BgmTrackLoader extends SimplePreparableReloadListener<BgmTrackLoade
     // FIXME !!!!! (bgm) can this cause a memory leak?
 	protected SoundBufferLibrary vanillaSoundBuffers;
 	protected PartitionedSoundBuffers partitionedSoundBuffers;
-	public BgmPlayer bgmPlaying;
+	@Nullable public BgmPlayer bgmPlaying;
 	
 	public void play(BgmPlayer bgm) {
 		Minecraft mc = Minecraft.getInstance();
@@ -86,26 +88,29 @@ public class BgmTrackLoader extends SimplePreparableReloadListener<BgmTrackLoade
 		if (partitionedSoundBuffers == null) {
 			partitionedSoundBuffers = new PartitionedSoundBuffers();
 		}
-
-		bgm.startPlaying(vanillaSoundBuffers, partitionedSoundBuffers, soundEngine, () -> {
-			if (this.bgmPlaying != null) {
-				this.bgmPlaying.forceStop();
-			}
-			this.bgmPlaying = bgm;
-			bgm.isPlaying = true;
-		});
+		
+		bgm.startBgm(vanillaSoundBuffers, partitionedSoundBuffers, soundEngine);
+	}
+	
+	@ApiStatus.Internal
+	public void onStartedPlaying(BgmPlayer bgm) {
+		if (this.bgmPlaying != null) {
+			this.bgmPlaying.stopSound();
+		}
+		this.bgmPlaying = bgm;
+		bgm.isPlaying = true;
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void tickBossMusic(ClientTickEvent.Pre event) {
 		Minecraft mc = Minecraft.getInstance();
-		BgmTrackLoader manager = BgmTrackLoader.getInstance();
-		if (manager != null) {
-			if (!mc.isPaused() && bgmPlaying != null && bgmPlaying.isPlaying) {
-				bgmPlaying.tick();
-			}
-			if (bgmPlaying != null && !bgmPlaying.isPlaying) {
+		if (bgmPlaying != null) {
+			bgmPlaying.updateState();
+			if (!bgmPlaying.isPlaying) {
 				bgmPlaying = null;
+			}
+			else if (!mc.isPaused()) {
+				bgmPlaying.tick();
 			}
 		}
 	}

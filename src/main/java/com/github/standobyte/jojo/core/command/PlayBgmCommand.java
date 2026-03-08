@@ -125,7 +125,7 @@ public class PlayBgmCommand {
 			i++;
 		}
 
-		// FIXME !!!!! (bgm) a function to preload sounds
+		// TODO (bgm) a function to preload sounds
 //		if (source != null) {
 //			Component trackName = Component.translatable("track." + track.getNamespace() + "." + track.getPath());
 //			if (targets.size() == 1) {
@@ -239,7 +239,7 @@ public class PlayBgmCommand {
 			@Override
 			public void handle(PlayBgmCommandPacket payload, IPayloadContext context) {
 				switch (payload.packetType) {
-					// FIXME !!!!! (bgm) a function to preload sounds
+					// TODO (bgm) a function to preload sounds
 					case PRELOAD -> {
 					}
 					case PLAY -> {
@@ -255,7 +255,7 @@ public class PlayBgmCommand {
 					case ABRUPT_STOP -> {
 						BgmPlayer curBgm = BgmPlayer.getCurTrackPlaying();
 						if (curBgm != null) {
-							curBgm.forceStop();
+							curBgm.stopSound();
 						}
 					}
 				}
