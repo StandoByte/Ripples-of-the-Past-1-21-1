@@ -44,7 +44,7 @@ public class BgmPlayer {
 	public boolean isPlaying = false;
 	public Consumer<BgmPlayer> onTick;
 	public SoundSource category = SoundSource.RECORDS;
-	public float volume = 0.4f;
+	public float volume = 1.0f;
 	public float pitch = 1;
 	public final Weighted<BgmTrackInfo> track;
 	public Sound sound;
