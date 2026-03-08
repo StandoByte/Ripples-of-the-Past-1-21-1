@@ -51,7 +51,7 @@ public class ModShaders implements ResourceManagerReloadListener, AutoCloseable 
 		SequencedMap<RenderType, ByteBufferBuilder> fixedRenderBuffers = ClientReflection.getFixedBuffers(mc.renderBuffers().bufferSource());
 		
 		_allShaders.add(firstPersonStandTranslucency = new StandTranslucencyShader(mc, fixedRenderBuffers));
-		_allShaders.add(standAura = new StandAuraShader(mc, fixedRenderBuffers));
+		//_allShaders.add(standAura = new StandAuraShader(mc, fixedRenderBuffers));
 	}
 	
 	
