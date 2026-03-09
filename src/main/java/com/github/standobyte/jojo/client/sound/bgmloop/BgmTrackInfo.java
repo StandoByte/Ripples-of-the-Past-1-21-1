@@ -107,9 +107,11 @@ public record BgmTrackInfo(@Nullable BgmLoopPartitioning loop, Sound sound) {
 			ResourceLocation track = ResourceLocation.parse(json.get("track").getAsString());
 			int weight = JsonUtils.getIntOr("weight", json, 1);
 			
-			OptionalFloat bpm = JsonParseHelper.getFloatOptional("bpm", json, JsonElement::getAsFloat);
-			boolean hasLoop = bpm.isPresent();
+			OptionalFloat bpmElement = JsonParseHelper.getFloatOptional("bpm", json, JsonElement::getAsFloat);
+			boolean hasLoop = bpmElement.isPresent();
 			if (hasLoop) {
+				float bpm = bpmElement.getAsFloat();
+				float shift = JsonParseHelper.getFloatOr("shift", json, JsonParseHelper::parseFlStudioNote, 0);
 				List<Float> introTimestamps = JSONUtil.parseArrayOrSingleElement(json.get("intro"), JsonParseHelper::parseFlStudioNote);
 				float loopStart = JsonParseHelper.getFloatOr("loopStart", json, JsonParseHelper::parseFlStudioNote, 0);
 				OptionalFloat loopBack = JsonParseHelper.getFloatOptional("loopBack", json, JsonParseHelper::parseFlStudioNote);
@@ -117,11 +119,11 @@ public record BgmTrackInfo(@Nullable BgmLoopPartitioning loop, Sound sound) {
 				for (Float intro : introTimestamps) {
 					Unbaked obj = new Unbaked(track);
 					obj.hasLoop = true;
-					obj.bpm = bpm.getAsFloat();
-					obj.intro = intro;
-					obj.loopStart = loopStart;
-					obj.loopBack = loopBack;
-					obj.outro = outro;
+					obj.bpm = bpm;
+					obj.intro = intro - shift;
+					obj.loopStart = loopStart - shift;
+					obj.loopBack = loopBack.map(timestamp -> timestamp - shift);
+					obj.outro = outro.map(timestamp -> timestamp - shift);
 					destination.add(obj);
 				}
 			}
@@ -178,7 +180,13 @@ public record BgmTrackInfo(@Nullable BgmLoopPartitioning loop, Sound sound) {
 					split.length > 1 ? Integer.parseInt(split[1]) - 1 : 0,
 					split.length > 2 ? Integer.parseInt(split[2]) : 0,
 				};
-				return values[0] + (float) values[1] / 16f + (float) values[2] / (16 * 24f);
+				
+				boolean negative = values[0] < 0;
+				if (negative) values[0] = -values[0];
+				
+				float time = values[0] + (float) values[1] / 16f + (float) values[2] / (16 * 24f);
+				if (negative) time = -time;
+				return time;
 			}
 			throw new IllegalArgumentException("Failed to parse FL Studio note (not an integer number or string)");
 		}
