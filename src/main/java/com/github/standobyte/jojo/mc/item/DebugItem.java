@@ -2,11 +2,17 @@ package com.github.standobyte.jojo.mc.item;
 
 import java.util.List;
 
+import com.github.standobyte.jojo.client.sound.bgmloop.BgmPlayer;
+import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo;
+import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackLoader;
+import com.github.standobyte.jojo.client.sound.bgmloop.DebugBgm;
 import com.github.standobyte.jojo.client.ui.DebugFunctionsScreen;
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracker;
 import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracking;
 
+import net.minecraft.client.sounds.Weighted;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -45,8 +51,8 @@ public class DebugItem extends Item {
 	
 	
 	public static String[] OPTIONS = new String[] {
-			"test1",
-			"test2",
+			"cycle_bgm",
+			"stop_bgm",
 			"test3",
 			"test4",
 			"test5",
@@ -62,6 +68,21 @@ public class DebugItem extends Item {
 	 */
 	public static boolean onClientClick(String option) {
 		return switch (option) {
+			case "cycle_bgm" -> {
+				Weighted<BgmTrackInfo> track = DebugBgm.cycleVariation(DebugBgm.BgmTrackType.STAND_SKINS, JojoMod.resLoc("crazy_diamond"));
+				if (track != null) {
+					BgmPlayer player = new BgmPlayer(track);
+					player.start();
+				}
+				yield false;
+			}
+			case "stop_bgm" -> {
+				BgmPlayer curPlaying = BgmTrackLoader.getInstance().bgmPlaying;
+				if (curPlaying != null) {
+					curPlaying.finishWithOutro();
+				}
+				yield false;
+			}
 			default -> {
 				yield true;
 			}

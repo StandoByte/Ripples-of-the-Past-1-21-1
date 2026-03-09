@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 
 import com.github.standobyte.jojo.client.ModClientResources;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo.BgmLoopPartitioning;
+import com.github.standobyte.jojo.client.sound.bgmloop.DebugBgm.BgmTrackType;
 import com.github.standobyte.jojo.util.JSONUtil;
 import com.github.standobyte.jojo.util.java.WeightsList;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
@@ -88,7 +89,7 @@ public class BgmTrackLoader extends SimplePreparableReloadListener<BgmTrackLoade
 			return;
 		}
 		
-		bgm.startBgm(vanillaSoundBuffers, partitionedSoundBuffers, soundEngine);
+		bgm._startBgm(vanillaSoundBuffers, partitionedSoundBuffers, soundEngine);
 	}
 	
 	@ApiStatus.Internal
@@ -124,13 +125,16 @@ public class BgmTrackLoader extends SimplePreparableReloadListener<BgmTrackLoade
 		BgmTrackLoader.Preparations preps = new BgmTrackLoader.Preparations();
 		profiler.startTick();
 		profiler.push("jojo_ripples:bgm");
+		DebugBgm.clear(BgmTrackType.REGULAR);
 		Map<ResourceLocation, Resource> trackDefinitions = META_DATA_LISTER.listMatchingResources(resourceManager);
 
 		for (var trackEntry : trackDefinitions.entrySet()) {
 			Resource resource = trackEntry.getValue();
 			ResourceLocation bgmDataId = META_DATA_LISTER.fileToId(trackEntry.getKey());
 			try {
-				preps.tracks.put(bgmDataId, parse(resource, resourceManager));
+				WeightsList<BgmTrackInfo> tracks = parse(resource, resourceManager);
+				preps.tracks.put(bgmDataId, tracks);
+				DebugBgm.onLoad(BgmTrackType.REGULAR, bgmDataId, tracks);
 			} catch (RuntimeException | IOException e) {
 				LOGGER.warn("Failed to load BGM definition {} in resourcepack: '{}'", bgmDataId, resource.sourcePackId(), e);
 			}

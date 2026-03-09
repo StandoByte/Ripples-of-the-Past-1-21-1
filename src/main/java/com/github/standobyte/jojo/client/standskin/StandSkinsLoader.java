@@ -32,6 +32,7 @@ import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeck
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader.ModelFileFormatPath;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackLoader;
+import com.github.standobyte.jojo.client.sound.bgmloop.DebugBgm;
 import com.github.standobyte.jojo.client.sound.util.SoundEventDelegate;
 import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -189,6 +190,7 @@ public class StandSkinsLoader implements PreparableReloadListener {
 	}
 	
 	protected Preps prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
+		DebugBgm.clear(DebugBgm.BgmTrackType.STAND_SKINS);
 		Preps preps = new Preps(this);
 
 		try (Zone zone = _ProfilerFiller.zone(profiler, JojoMod.MOD_ID + "_stand_skins")) {
@@ -402,6 +404,7 @@ public class StandSkinsLoader implements PreparableReloadListener {
 				if ("resolve.json".equals(resPath.getFileName())) {
 					try {
 						builder.resolveBGM = BgmTrackLoader.parse(getLastResource(resource), resourceManager);
+						DebugBgm.onLoad(DebugBgm.BgmTrackType.STAND_SKINS, builder.skinId, builder.resolveBGM);
 					} catch (IOException e) {
 						JojoMod.getLogger().warn("Failed to load BGM definition {} in Stand skin: '{}'", resPath.assetPathWExtension, builder.skinId, e);
 					}

@@ -244,7 +244,7 @@ public class PlayBgmCommand {
 					}
 					case PLAY -> {
 		        		BgmPlayer track = BgmPlayer.track(payload.trackId);
-		        		BgmPlayer.start(track);
+		        		track.start();
 					}
 					case FINISH -> {
 						BgmPlayer curBgm = BgmPlayer.getCurTrackPlaying();

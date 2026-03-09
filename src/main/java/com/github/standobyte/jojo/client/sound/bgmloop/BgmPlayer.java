@@ -117,11 +117,12 @@ public class BgmPlayer {
 	}
 
 	// TODO (bgm) a function to preload sounds
-	public static void start(BgmPlayer bgm) {
-		BgmTrackLoader.getInstance().play(bgm);
+	public void start() {
+		BgmTrackLoader.getInstance().play(this);
 	}
-	
-	public void play(BiConsumer<ChannelAccess.ChannelHandle, SoundInstance> playSound) {
+
+	@ApiStatus.Internal
+	public void _play(BiConsumer<ChannelAccess.ChannelHandle, SoundInstance> playSound) {
 		Minecraft mc = Minecraft.getInstance();
 		SoundManager soundManager = mc.getSoundManager();
 		SoundEngine soundEngine = ClientReflection.getSoundEngine(soundManager);
@@ -160,19 +161,19 @@ public class BgmPlayer {
 		});
 		
 		playSound.accept(channelHandle, soundInstance);
-		setSoundInstance(soundInstance);
+		_setSoundInstance(soundInstance);
 	}
 
 
 	@ApiStatus.Internal
-	public void startBgm(SoundBufferLibrary vanillaSoundBuffers, PartitionedSoundBuffers partitionedSoundBuffers, 
+	public void _startBgm(SoundBufferLibrary vanillaSoundBuffers, PartitionedSoundBuffers partitionedSoundBuffers, 
 			SoundEngine soundEngine) {
 		BgmTrackInfo track = this.track.getSound(SoundUtil.random);
 		@Nullable BgmLoopPartitioning loopData = track.loop();
 		this.sound = track.sound();
 
 		if (loopData != null) {
-			this.play((channelHandle, soundInstance) -> {
+			this._play((channelHandle, soundInstance) -> {
 				// play the intro part buffer and queue the main loop buffer immediately after
 				partitionedSoundBuffers.getPartitionedBuffers(this.sound.getPath(), vanillaSoundBuffers, loopData).thenAccept(splitAudioStreams -> {
 					SoundBuffer introAudioStream = splitAudioStreams.get(BgmPart.INTRO);
@@ -197,7 +198,7 @@ public class BgmPlayer {
 			});
 		}
 		else {
-			this.play((channelHandle, soundInstance) -> {
+			this._play((channelHandle, soundInstance) -> {
 				// just play the audio without looping
 				vanillaSoundBuffers.getCompleteBuffer(this.sound.getPath()).thenAccept(audioStream -> {
 					OptionalInt soundBuffer = audioStream.getAlBuffer();
@@ -236,7 +237,7 @@ public class BgmPlayer {
 				SoundManager soundManager = mc.getSoundManager();
 				SoundEngine soundEngine = ClientReflection.getSoundEngine(soundManager);
 
-				this.play((channelHandle, soundInstance) -> {
+				this._play((channelHandle, soundInstance) -> {
 					channelHandle.execute(channel -> {
 						stopSound();
 						
@@ -254,8 +255,9 @@ public class BgmPlayer {
 			}
 		}
 	}
-	
-	public void setSoundInstance(SoundInstance soundInstance) {
+
+	@ApiStatus.Internal
+	public void _setSoundInstance(SoundInstance soundInstance) {
 		if (this.soundInstance != null) {
 			SoundManager soundManager = Minecraft.getInstance().getSoundManager();
 			soundManager.stop(this.soundInstance);
@@ -264,10 +266,11 @@ public class BgmPlayer {
 	}
 
 	public void stopSound() {
-		setSoundInstance(null);
+		_setSoundInstance(null);
 	}
 
-	
+
+	@ApiStatus.Internal
 	public void updateState() {
 		soundSourceId.ifPresent(source -> {
 			int state = AL10.alGetSourcei(source, AL10.AL_SOURCE_STATE);
@@ -275,6 +278,7 @@ public class BgmPlayer {
 		});
 	}
 
+	@ApiStatus.Internal
 	public void tick() {
 		// check if the music should still be playing
 		if (onTick != null) {
