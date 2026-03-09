@@ -1,11 +1,8 @@
 package com.github.standobyte.jojo.mc.item;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
-import com.github.standobyte.jojo.client.sound.bgmloop.BgmPlayer;
-import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.client.ui.DebugFunctionsScreen;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracker;
 import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracking;
@@ -14,9 +11,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.monster.Husk;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -34,16 +29,7 @@ public class DebugItem extends Item {
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack item = player.getItemInHand(hand);
         if (level.isClientSide()) {
-        	//DebugFunctionsScreen.onDebugItemUsed();
-        	Optional<? extends LivingEntity> entity = level.getEntitiesOfClass(Husk.class, player.getBoundingBox().inflate(12))
-        			.stream().min(Comparator.comparingDouble(player::distanceTo));
-        	if (entity.isPresent()) {
-        		BgmPlayer bossMusic = BgmPlayer.standResolve(StandSkinsLoader.getCurSkin());
-        		if (bossMusic != null) {
-        			bossMusic.bossEntity(entity.get());
-        			BgmPlayer.start(bossMusic);
-        		}
-        	}
+        	DebugFunctionsScreen.onDebugItemUsed();
         }
 		return InteractionResultHolder.consume(item);
 	}
