@@ -111,7 +111,7 @@ public record BgmTrackInfo(@Nullable BgmLoopPartitioning loop, Sound sound) {
 			boolean hasLoop = bpm.isPresent();
 			if (hasLoop) {
 				List<Float> introTimestamps = JSONUtil.parseArrayOrSingleElement(json.get("intro"), JsonParseHelper::parseFlStudioNote);
-				float loopStart = JsonParseHelper.getFloatOr("loopStart", json, 1, JsonParseHelper::parseFlStudioNote);
+				float loopStart = JsonParseHelper.getFloatOr("loopStart", json, JsonParseHelper::parseFlStudioNote, 0);
 				OptionalFloat loopBack = JsonParseHelper.getFloatOptional("loopBack", json, JsonParseHelper::parseFlStudioNote);
 				OptionalFloat outro = JsonParseHelper.getFloatOptional("outro", json, JsonParseHelper::parseFlStudioNote);
 				for (Float intro : introTimestamps) {
@@ -139,7 +139,7 @@ public record BgmTrackInfo(@Nullable BgmLoopPartitioning loop, Sound sound) {
 
 	public static class JsonParseHelper {
 	
-		public static float getFloatOr(String key, JsonObject json, float defaultValue, NoteParse parse) {
+		public static float getFloatOr(String key, JsonObject json, NoteParse parse, float defaultValue) {
 			JsonElement jsonelement = json.get(key);
 			if (jsonelement != null) {
 				return jsonelement.isJsonNull() ? defaultValue : parse.parse(jsonelement);
