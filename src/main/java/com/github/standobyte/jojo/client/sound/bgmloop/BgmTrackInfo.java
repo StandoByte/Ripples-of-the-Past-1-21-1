@@ -119,6 +119,7 @@ public record BgmTrackInfo(@Nullable BgmLoopPartitioning loop, Sound sound) {
 				for (Float intro : introTimestamps) {
 					Unbaked obj = new Unbaked(track);
 					obj.hasLoop = true;
+					obj.weight = weight;
 					obj.bpm = bpm;
 					obj.intro = intro - shift;
 					obj.loopStart = loopStart - shift;
