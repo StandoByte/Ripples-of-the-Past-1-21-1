@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.core.command;
 import java.util.Collection;
 
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.core.command.argument.PlayerPowerTypeArgument;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
@@ -36,12 +37,12 @@ public class JojoPowerCommand {
 					.then(
 					Commands.argument("targets", EntityArgument.entities())
 						.then(
-						Commands.literal("hamon")
+						Commands.argument("player_power", PlayerPowerTypeArgument.power(context))
 							.executes(
 							src -> setPower(
 								src.getSource(),
 								EntityArgument.getEntities(src, "targets"),
-								ModPlayerPowers.HAMON.get()
+                                PlayerPowerTypeArgument.getPlayerPower(src, "player_power")
 								)
 							)
 						)

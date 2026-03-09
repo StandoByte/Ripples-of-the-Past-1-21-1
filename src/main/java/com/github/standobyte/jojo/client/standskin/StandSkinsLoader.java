@@ -355,11 +355,6 @@ public class StandSkinsLoader implements PreparableReloadListener {
 			StandSkinResourceBuilder builder, Logger logger, ResourceLocation fullFilePath, 
 			Preps resourcePreps, ResourceManager resourceManager) {
 		for (ModelFileFormatPath format : RotpGeckoModelLoader.PATHS) {
-			// XXX (stand skin) merge gecko and bb models (+ test the ParseModEntityModel.merge function)
-			
-			// It is possible to create two models: "geo" model with the regular cubes, and a "bb" one with just the meshes.
-			// This is implemented to reduce overhead when we need a model with meshes, since models in the Generic Blockbench format generally take longer to load.
-			
 			if (resPath.assetPathWDirAndExtension.startsWith(format.directory()) /* is in the correct directory */
 					&& resPath.assetPathWDirAndExtension.endsWith(format.extension()) /* has the correct extension */ ) {
 				readModel(resource, builder, resPath.assetNamespace, 
