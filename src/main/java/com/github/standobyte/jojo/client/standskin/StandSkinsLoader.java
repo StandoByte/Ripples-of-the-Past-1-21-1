@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.client.standskin;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -29,6 +30,8 @@ import com.github.standobyte.jojo.client.entityrender.parsemodel.ParseModEntityM
 import com.github.standobyte.jojo.client.entityrender.parsemodel.ParseModEntityModel.ModelFormat;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader.ModelFileFormatPath;
+import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo;
+import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackLoader;
 import com.github.standobyte.jojo.client.sound.util.SoundEventDelegate;
 import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -39,6 +42,7 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.JSONUtil;
 import com.github.standobyte.jojo.util.StringUtil;
+import com.github.standobyte.jojo.util.java.WeightsList;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Zone;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._ProfilerFiller;
@@ -223,7 +227,7 @@ public class StandSkinsLoader implements PreparableReloadListener {
 						}
 					}
 					else {
-						loadResource(resourceEntry.getValue(), resPath, skinBuilder, JojoMod.getLogger(), filePath, preps);
+						loadResource(resourceEntry.getValue(), resPath, skinBuilder, JojoMod.getLogger(), filePath, preps, resourceManager);
 					}
 				}
 			}
@@ -283,6 +287,10 @@ public class StandSkinsLoader implements PreparableReloadListener {
 		public String getResPathPart(int index) {
 			return pathByParts[4 + index];
 		}
+		
+		public String getFileName() {
+			return pathByParts[pathByParts.length - 1];
+		}
 	}
 	
 	
@@ -305,6 +313,7 @@ public class StandSkinsLoader implements PreparableReloadListener {
 		private Map<ResourceLocation, AnimationSet.Builder> animations;
 		private Map<ResourceLocation, WeighedSoundEvents> soundEvents;
 		private Map<ResourceLocation, Pair<ResourceLocation, Resource>> soundFiles;
+		private WeightsList<BgmTrackInfo> resolveBGM;
 		
 		private StandSkinResourceBuilder(ResourceLocation skinId) {
 			this.skinId = skinId;
@@ -325,6 +334,7 @@ public class StandSkinsLoader implements PreparableReloadListener {
 			if (soundEvents != null) skin.withSoundEvents(soundEvents);
 			if (soundFiles != null) skin.withSounds(soundFiles.entrySet().stream().collect(Collectors.toMap(
 					Map.Entry::getKey, entry -> entry.getValue().getFirst())));
+			if (resolveBGM != null && !resolveBGM.isEmpty()) skin.withResolveBGM(resolveBGM);
 			return skin;
 		}
 	}
@@ -343,7 +353,7 @@ public class StandSkinsLoader implements PreparableReloadListener {
 	private static final String SOUND_EXTENSION = ".ogg";
 	private void loadResource(List<Resource> resource, SkinResPath resPath, 
 			StandSkinResourceBuilder builder, Logger logger, ResourceLocation fullFilePath, 
-			Preps resourcePreps) {
+			Preps resourcePreps, ResourceManager resourceManager) {
 		for (ModelFileFormatPath format : RotpGeckoModelLoader.PATHS) {
 			// XXX (stand skin) merge gecko and bb models (+ test the ParseModEntityModel.merge function)
 			
@@ -385,15 +395,29 @@ public class StandSkinsLoader implements PreparableReloadListener {
 					}
 					ResourceLocation soundLocation = ResourceLocation.fromNamespaceAndPath(resPath.assetNamespace, 
 							StringUtil.substrBack(resPath.assetPathWExtension, SOUND_EXTENSION.length()));
-					Resource soundResource = resource.get(resource.size() - 1);
+					Resource soundResource = getLastResource(resource);
 					builder.soundFiles.put(soundLocation, Pair.of(fullFilePath, soundResource));
 				}
 			}
 			case "sounds.json" -> {
 				loadSoundsJson(resource, builder, resPath.assetNamespace);
 			}
+			// XXX (resolve BGM) different tracks on different resolve levels
+			case "bgm" -> {
+				if ("resolve.json".equals(resPath.getFileName())) {
+					try {
+						builder.resolveBGM = BgmTrackLoader.parse(getLastResource(resource), resourceManager);
+					} catch (IOException e) {
+						JojoMod.getLogger().warn("Failed to load BGM definition {} in Stand skin: '{}'", resPath.assetPathWExtension, builder.skinId, e);
+					}
+				}
+			}
 			default -> {}
 		}
+	}
+	
+	static Resource getLastResource(List<Resource> resourceStack) {
+		return resourceStack.get(resourceStack.size() - 1);
 	}
 	
 	
@@ -402,7 +426,7 @@ public class StandSkinsLoader implements PreparableReloadListener {
 			@Nullable Function<Resource, T> add, @Nullable Function<BufferedReader, T> read, 
 			ResourceLocation skinId, String resNamespace, String resPathWithExt, String... fileExtensions) {
 		Pair<ResourceLocation, List<T>> resourceRead = readResources(
-				Collections.singletonList(resource.get(resource.size() - 1)), 
+				Collections.singletonList(getLastResource(resource)), 
 				add, read, skinId, resNamespace, resPathWithExt, fileExtensions);
 		return resourceRead != null ? resourceRead.mapSecond(list -> list.get(0)) : null;
 	}

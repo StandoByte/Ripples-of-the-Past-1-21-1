@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.core;
 
+import com.github.standobyte.jojo.core.command.PlayBgmCommand;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAbilityInputPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAimTargetPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClDebugCommandPacket;
@@ -116,6 +117,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new BloodParticlesPacket.Handler(JojoMod.resLoc("blood")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new BrokenChunkBlocksPacket.Handler(JojoMod.resLoc("brokenblocks")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new CDBlocksRestoredPacket.Handler(JojoMod.resLoc("restoreblocks")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new PlayBgmCommand.PlayBgmCommandPacket.Handler(JojoMod.resLoc("bgm")));
 	}
 
 	

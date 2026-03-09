@@ -26,13 +26,13 @@ public final class ClientReflection {
 	public static Map<ResourceLocation, Resource> getSoundCache(SoundManager soundManager) {
 		return ReflectionUtil.getFieldValue(SOUND_MANAGER_SOUND_CACHE, soundManager);
 	}
-	
+
 	private static final Field SOUND_MANAGER_SOUND_ENGINE = ObfuscationReflectionHelper.findField(SoundManager.class, "soundEngine");
 	public static SoundEngine getSoundEngine(SoundManager soundManager) {
 		return ReflectionUtil.getFieldValue(SOUND_MANAGER_SOUND_ENGINE, soundManager);
 	}
 
-	
+
 //	private static final Field GAME_RENDERER_RESOURCE_POOL = ObfuscationReflectionHelper.findField(GameRenderer.class, "resourcePool");
 //	public static CrossFrameResourcePool getResourcePool(GameRenderer gameRenderer) {
 //		return ReflectionUtil.getFieldValue(GAME_RENDERER_RESOURCE_POOL, gameRenderer);
