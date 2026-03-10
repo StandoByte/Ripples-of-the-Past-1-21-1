@@ -2,6 +2,8 @@ package com.github.standobyte.jojo.mc.item;
 
 import java.util.List;
 
+import com.github.standobyte.jojo.client.shader.ModShaders;
+import com.github.standobyte.jojo.client.shader.colorshift.ColorShift;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmPlayer;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackLoader;
@@ -11,6 +13,7 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracker;
 import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracking;
+import com.github.standobyte.jojo.util.OOPMoment;
 
 import net.minecraft.client.sounds.Weighted;
 import net.minecraft.network.chat.Component;
@@ -52,10 +55,12 @@ public class DebugItem extends Item {
 	
 	public static String[] OPTIONS = new String[] {
 			"cycle_bgm",
-			"stop_bgm",
-			"test3",
-			"test4",
-			"test5",
+			"color_shift",
+			"__blank",
+			"__blank",
+			"__blank",
+			"__blank",
+			"__blank",
 			"track_offhand",
 			"drop_tracked"
 	};
@@ -66,20 +71,30 @@ public class DebugItem extends Item {
 	/**
 	 * @return true if the option should be sent to the server side for handling
 	 */
-	public static boolean onClientClick(String option) {
+	public static boolean onClientClick(String option, int mouseButton) {
 		return switch (option) {
 			case "cycle_bgm" -> {
-				Weighted<BgmTrackInfo> track = DebugBgm.cycleVariation(DebugBgm.BgmTrackType.STAND_SKINS, JojoMod.resLoc("crazy_diamond"));
-				if (track != null) {
-					BgmPlayer player = new BgmPlayer(track);
-					player.start();
+				switch (mouseButton) {
+					case 0 -> {
+						Weighted<BgmTrackInfo> track = DebugBgm.cycleVariation(DebugBgm.BgmTrackType.STAND_SKINS, JojoMod.resLoc("crazy_diamond"));
+						if (track != null) {
+							BgmPlayer player = new BgmPlayer(track);
+							player.start();
+						}
+					}
+					case 1 -> {
+						BgmPlayer curPlaying = BgmTrackLoader.getInstance().bgmPlaying;
+						if (curPlaying != null) {
+							curPlaying.finishWithOutro();
+						}
+					}
 				}
 				yield false;
 			}
-			case "stop_bgm" -> {
-				BgmPlayer curPlaying = BgmTrackLoader.getInstance().bgmPlaying;
-				if (curPlaying != null) {
-					curPlaying.finishWithOutro();
+			case "color_shift" -> {
+				switch (mouseButton) {
+					case 0 -> ModShaders.getInstance().colorShift.colorShift = ColorShift.createRandom(OOPMoment.RANDOM);
+					case 1 -> ModShaders.getInstance().colorShift.colorShift = null;
 				}
 				yield false;
 			}
@@ -89,7 +104,7 @@ public class DebugItem extends Item {
 		};
 	}
 	
-	public static void handleServer(String option, Player player) {
+	public static void handleServer(String option, Player player, int mouseButton) {
 		switch (option) {
 			case "track_offhand" -> {
 				ItemStack item = player.getOffhandItem();
