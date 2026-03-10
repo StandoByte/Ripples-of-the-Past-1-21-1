@@ -61,6 +61,7 @@ public class ColorShiftShader extends RotpShader {
 
 
 
+	// FIXME (color shift) doesn't apply to the stand rendered with StandTranslucencyShader
 	@Override
 	public void frameRenderCallback(RenderLevelStageEvent event) {
 		if (colorShift == null) return;
