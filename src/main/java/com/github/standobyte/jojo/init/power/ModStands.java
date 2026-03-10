@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.init.power;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
+import com.github.standobyte.jojo.core.SimpleTagKey;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputUseVanillaMapping;
 import com.github.standobyte.jojo.powersystem.standpower.entity.EntityStandType;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
@@ -20,6 +21,9 @@ public class ModStands {
 	public static InputUseVanillaMapping USE_SPECIAL = new InputUseVanillaMapping("jojo_ripples.key.use_special_ability");
 	public static InputUseVanillaMapping SWITCH_SPECIAL = new InputUseVanillaMapping("jojo_ripples.key.ability_hotbar");
 	
+	
+	public static final SimpleTagKey<StandType> PLAYER_CAN_GET_FROM_ARROW = SimpleTagKey.create(StandType.class, JojoMod.resLoc("player_can_get_from_arrow"));
+	
 	// Adding all the abilities and skills takes quite a few lines, so I decided to put each into a separate file.
 	// Makes it a bit easier to compare them between each other too.
 	
@@ -27,4 +31,9 @@ public class ModStands {
 	public static final DeferredHolder<StandType, EntityStandType> CRAZY_DIAMOND = DEFAULT_STANDS.register("crazy_diamond", StandInitCrazyDiamond::create);
 	public static final DeferredHolder<StandType, EntityStandType> HIEROPHANT_GREEN = DEFAULT_STANDS.register("hierophant_green", StandInitHierophantGreen::create);
 	
+	static {
+		PLAYER_CAN_GET_FROM_ARROW.add(STAR_PLATINUM);
+		PLAYER_CAN_GET_FROM_ARROW.add(CRAZY_DIAMOND);
+		PLAYER_CAN_GET_FROM_ARROW.add(HIEROPHANT_GREEN);
+	}
 }

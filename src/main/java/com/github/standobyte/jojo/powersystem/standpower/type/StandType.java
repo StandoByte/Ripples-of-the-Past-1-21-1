@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsScreen;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
+import com.github.standobyte.jojo.core.SimpleTagKey;
 import com.github.standobyte.jojo.core.packet.fromserver.StandSkinSoundPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrNonEntityStandSummonPacket;
 import com.github.standobyte.jojo.init.ModSoundEvents;
@@ -46,6 +47,10 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforgespi.language.IConfigurable;
 
 public class StandType extends PowerType {
+	static {
+		SimpleTagKey.SimpleTagType.registerType(StandType.class, StandType::getId, "stands");
+	}
+
 	protected final ResourceLocation standTypeId;
 	protected StandStats stats;
 	protected boolean isEnabled;
