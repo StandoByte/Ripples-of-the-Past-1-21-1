@@ -41,7 +41,8 @@ public class ModShaders implements ResourceManagerReloadListener, AutoCloseable 
 	public static ModShaders getInstance() {
 		return instance;
 	}
-	
+
+	public ColorShiftShader colorShift;
 	public StandTranslucencyShader firstPersonStandTranslucency;
 	public StandAuraShader standAura;
 	@ApiStatus.Internal public List<RotpShader> _allShaders = new ArrayList<>();
@@ -49,7 +50,8 @@ public class ModShaders implements ResourceManagerReloadListener, AutoCloseable 
 	private void init() {
 		Minecraft mc = Minecraft.getInstance();
 		SequencedMap<RenderType, ByteBufferBuilder> fixedRenderBuffers = ClientReflection.getFixedBuffers(mc.renderBuffers().bufferSource());
-		
+
+		_allShaders.add(colorShift = new ColorShiftShader());
 		_allShaders.add(firstPersonStandTranslucency = new StandTranslucencyShader(mc, fixedRenderBuffers));
 		_allShaders.add(standAura = new StandAuraShader(mc, fixedRenderBuffers));
 	}
