@@ -2,8 +2,8 @@ package com.github.standobyte.jojo.mc.item;
 
 import java.util.List;
 
+import com.github.standobyte.jojo.client.shader.ColorShiftEffect;
 import com.github.standobyte.jojo.client.shader.ModShaders;
-import com.github.standobyte.jojo.client.shader.colorshift.ColorShift;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmPlayer;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackLoader;
@@ -93,7 +93,7 @@ public class DebugItem extends Item {
 			}
 			case "color_shift" -> {
 				switch (mouseButton) {
-					case 0 -> ModShaders.getInstance().colorShift.colorShift = ColorShift.createRandom(OOPMoment.RANDOM);
+					case 0 -> ModShaders.getInstance().colorShift.colorShift = ColorShiftEffect.Parameters.createRandom(OOPMoment.RANDOM);
 					case 1 -> ModShaders.getInstance().colorShift.colorShift = null;
 				}
 				yield false;

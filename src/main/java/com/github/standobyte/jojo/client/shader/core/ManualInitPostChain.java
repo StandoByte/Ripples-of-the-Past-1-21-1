@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.shader.colorshift;
+package com.github.standobyte.jojo.client.shader.core;
 
 import java.io.IOException;
 import java.util.List;
