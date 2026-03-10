@@ -55,7 +55,7 @@ public record ClNoParamsPacket(PacketType packetType) implements CustomPacketPay
 					StandPower standPower = StandPower.get(player);
 					if (standPower.hasPower()) {
 						StandType standType = standPower.getPowerType();
-						standType.toggleSummon(player, standPower);
+						standType.onUserSummonCommand(player, standPower);
 					}
 				}
 				case OPEN_CLOTHES -> {

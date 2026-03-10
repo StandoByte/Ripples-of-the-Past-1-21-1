@@ -1,6 +1,8 @@
 package com.github.standobyte.jojo.util;
 
+import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
@@ -78,6 +80,27 @@ public class NBTUtil {
 			return values[ordinal];
 		}
 		return null;
+	}
+	
+	public static <V> ListTag toList(Iterable<V> collection, Encoder<V> elementCodec) {
+		ListTag listNbt = new ListTag();
+		for (V value : collection) {
+			elementCodec.encodeStart(NbtOps.INSTANCE, value).ifSuccess(listNbt::add);
+		}
+		return listNbt;
+	}
+	
+	public static <V> void fromList(CompoundTag nbt, String key, Collection<V> destination, Decoder<V> elementCodec) {
+		fromList(nbt, key, destination::add, elementCodec);
+	}
+	
+	public static <V> void fromList(CompoundTag nbt, String key, Consumer<V> destination, Decoder<V> elementCodec) {
+		ListTag listNbt = NBTUtil.getElementOptional(nbt, key, ListTag.class).orElse(null);
+		if (listNbt != null) {
+			for (Tag elementNbt : listNbt) {
+				elementCodec.decode(NbtOps.INSTANCE, elementNbt).ifSuccess(daOtstanUzhe -> destination.accept(daOtstanUzhe.getFirst()));
+			}
+		}
 	}
 	
 	public static class Types {

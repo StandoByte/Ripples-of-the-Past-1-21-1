@@ -25,6 +25,7 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerType;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
+import com.github.standobyte.jojo.powersystem.standpower.StandAwakening.AwakeningStage;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
@@ -173,8 +174,8 @@ public class StandType extends PowerType {
 	}
 	
 	
-	public void toggleSummon(LivingEntity user, StandPower standPower) {
-		if (!standPower.isSummoned()) {
+	public void onUserSummonCommand(LivingEntity user, StandPower standPower) {
+		if (!standPower.isSummoned() && onTrySummon(user, standPower)) {
 			summon(user, standPower);
 		}
 		else {
@@ -199,6 +200,21 @@ public class StandType extends PowerType {
 			return true;
 		}
 		return false;
+	}
+	
+	public boolean onTrySummon(LivingEntity user, StandPower standPower) {
+		AwakeningStage awakeningStage = standPower.userStandAwakeningState.stage;
+		return switch (awakeningStage) {
+			case FULL_CONTROL -> true;
+			case PARTIALLY_AWAKENED -> {
+				user.sendSystemMessage(Component.translatable("stand_summon.not_in_full_control"));
+				yield false;
+			}
+			case AWAKENING_PASSIVE -> {
+				user.sendSystemMessage(Component.translatable("stand_summon.dormant"));
+				yield false;
+			}
+		};
 	}
 	
 	/**
