@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.google.common.collect.ImmutableList;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
 import net.minecraft.commands.CommandBuildContext;
@@ -21,8 +22,14 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 
 public class StandCommand {
-	private static final SimpleCommandExceptionType ERROR_GIVE_FAILED = new SimpleCommandExceptionType(Component.translatable("commands.effect.give.failed"));
-	private static final SimpleCommandExceptionType ERROR_CLEAR_FAILED = new SimpleCommandExceptionType(Component.translatable("commands.effect.clear.everything.failed"));
+	public static final SimpleCommandExceptionType ERROR_GIVE_FAILED = new SimpleCommandExceptionType(
+			Component.translatable("commands.effect.give.failed"));
+	public static final SimpleCommandExceptionType ERROR_CLEAR_FAILED = new SimpleCommandExceptionType(
+			Component.translatable("commands.effect.clear.everything.failed"));
+	public static final DynamicCommandExceptionType NO_STAND_SINGLE_EXCEPTION = new DynamicCommandExceptionType(
+			player -> Component.translatable("commands.stand.query.failed.single", player));
+	public static final DynamicCommandExceptionType NO_STAND_MULTIPLE_EXCEPTION = new DynamicCommandExceptionType(
+			player -> Component.translatable("commands.stand.resolve.failed.single", player));
 
 
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {

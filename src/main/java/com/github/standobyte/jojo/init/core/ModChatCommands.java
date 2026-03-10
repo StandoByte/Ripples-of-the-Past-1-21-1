@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.init.core;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.command.JojoPowerCommand;
 import com.github.standobyte.jojo.core.command.StandCommand;
+import com.github.standobyte.jojo.core.command.StandExpCommand;
 import com.mojang.brigadier.CommandDispatcher;
 
 import net.minecraft.commands.CommandBuildContext;
@@ -19,8 +20,18 @@ public class ModChatCommands {
 		CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
 		CommandBuildContext context = event.getBuildContext();
 		
-		StandCommand.register(dispatcher, context);
-		JojoPowerCommand.register(dispatcher, context);
+		StandCommand.register(dispatcher, context);		// "stand"
+		StandExpCommand.register(dispatcher, context);	// "stand_exp"
+		JojoPowerCommand.register(dispatcher, context);	// "power"
+
+		// "stand_skills unlock/unlock_all/reset"
+		// "stand_disc give/random"
+		// "power_hamon stat set/add/query"
+		// "power_vampire energy"
+		// "power_pillarman energy/mode/stage"
+		// "rock_paper_scissors"
+		
+		// "commands_list"
 	}
 
 }
