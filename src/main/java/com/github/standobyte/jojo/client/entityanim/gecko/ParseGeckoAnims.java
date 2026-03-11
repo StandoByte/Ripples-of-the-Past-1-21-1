@@ -173,16 +173,21 @@ public class ParseGeckoAnims {
 		Optional<JsonObject> keyframeObj = keyframeValue.isJsonObject() ? Optional.of(keyframeValue.getAsJsonObject()) : Optional.empty();
 		
 		JsonArray rotVecJson = keyframeObj.map(keyframe -> {
-			JsonElement rotVecJsonElem = keyframe.get("vector");
-			if (rotVecJsonElem == null && keyframe.has("post")) rotVecJsonElem = keyframe.get("post").getAsJsonObject().get("vector");
+			JsonElement rotVecJsonElem = keyframe.get("vector"); // Geckolib format
+			if (rotVecJsonElem == null && keyframe.has("post")) { // Bedrock format
+				rotVecJsonElem = keyframe.get("post"); // idgaf about pre and post keyframes, be normal
+				if (rotVecJsonElem.isJsonObject()) {
+					rotVecJsonElem = rotVecJsonElem.getAsJsonObject().get("vector");
+				}
+			}
 			return rotVecJsonElem.getAsJsonArray();
 		}).orElseGet(() -> keyframeValue.isJsonArray() ? keyframeValue.getAsJsonArray() : null);
 		
 		String easingName = keyframeObj.map(keyframe -> {
-			if (keyframe.has("easing")) {
+			if (keyframe.has("easing")) { // Geckolib format
 				return keyframe.get("easing").getAsString();
 			}
-			if (keyframe.has("lerp_mode")) {
+			if (keyframe.has("lerp_mode")) { // Bedrock format
 				return keyframe.get("lerp_mode").getAsString();
 			}
 			return null;

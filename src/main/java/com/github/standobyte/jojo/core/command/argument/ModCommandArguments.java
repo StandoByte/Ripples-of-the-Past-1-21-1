@@ -14,4 +14,7 @@ public final class ModCommandArguments {
 	
 	public static final DeferredHolder<ArgumentTypeInfo<?, ?>, ?> STAND_ARG = ARGUMENT_TYPES.register("stand", 
 			() -> ArgumentTypeInfos.registerByClass(StandArgument.class, SingletonArgumentInfo.contextAware(StandArgument::new)));
+
+    public static final DeferredHolder<ArgumentTypeInfo<?, ?>, ?> PLAYER_POWER_ARG = ARGUMENT_TYPES.register("player_power",
+            () -> ArgumentTypeInfos.registerByClass(PlayerPowerTypeArgument.class, SingletonArgumentInfo.contextAware(PlayerPowerTypeArgument::new)));
 }

@@ -47,8 +47,8 @@ jobs:
       - name: Make main branch snapshot
         id: maven-publish
         # Only run this if gradle.properties was edited. 
-		# Also no need to run this on other branches (if they aren't merged, they aren't for Maven publishing yet) or forks
-        if: steps.filter.outputs.new-snapshot == 'true' && github.ref == 'refs/heads/1.21.1' && github.repository == 'StandoByte/Ripples-of-the-Past-Kiwami'
+        # Also no need to run this on other branches (if they aren't merged, they aren't for Maven publishing yet) or forks
+        if: steps.filter.outputs.new-snapshot == 'true' && github.ref == 'refs/heads/1.21.1' && github.repository == 'StandoByte/Ripples-of-the-Past-1-21-1'
         run: ./gradlew publish
 
       - name: Read Gradle build variables

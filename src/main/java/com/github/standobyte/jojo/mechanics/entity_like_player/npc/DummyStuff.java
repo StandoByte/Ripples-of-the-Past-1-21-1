@@ -106,7 +106,7 @@ public class DummyStuff {
 //						}
 					}
 					else {
-						stand.getPowerType().toggleSummon(dummyEntity, stand);
+						stand.getPowerType().onUserSummonCommand(dummyEntity, stand);
 					}
 				}
 			}

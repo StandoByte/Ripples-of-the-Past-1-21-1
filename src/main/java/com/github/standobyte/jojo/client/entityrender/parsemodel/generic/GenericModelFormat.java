@@ -430,7 +430,7 @@ public class GenericModelFormat {
 			.setPrettyPrinting()
 			.registerTypeAdapter(BlockbenchElement.class, ELEMENT_DESERIALIZER)
 			.registerTypeAdapter(BlockbenchObj.class, BB_OBJ_DESERIALIZER)
-			.registerTypeAdapter(Vector3f.class, ParseModEntityModel.Utils.VEC_DESERIALIZER)
+			.registerTypeAdapter(Vector3f.class, ParseModEntityModel.Utils.VEC_3F_DESERIALIZER)
 			.create();
 	
 }
