@@ -1,6 +1,14 @@
 package com.github.standobyte.jojo.mc.item;
 
-import com.github.standobyte.jojo.client.ClientUtil;
+import static com.github.standobyte.jojo.init.ModItems.discsOrder;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import org.jetbrains.annotations.Nullable;
+
+import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.init.power.ModStands;
@@ -10,6 +18,7 @@ import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -25,13 +34,6 @@ import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
-
-import static com.github.standobyte.jojo.init.ModItems.discsOrder;
 
 public class StandArrowItem extends ArrowItem {
     // dur: 25 | 250; ench: 10 | 25
@@ -120,7 +122,7 @@ public class StandArrowItem extends ArrowItem {
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        Player player = ClientUtil.getClientPlayer();
+        Player player = ClientProxy.getClientPlayer();
         if (player != null) {
             Stream<StandType> stands = StandType.getAllEnabledStands();
             stands.map(StandInstance::new)
