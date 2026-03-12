@@ -20,16 +20,15 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Position;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -44,22 +43,17 @@ public class StandArrowItem extends ArrowItem {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
-        ItemStack arrow = player.getItemInHand(usedHand);
-
-        if (!level.isClientSide() && onPiercedByArrow(player, arrow, level, Optional.empty())) {
-            player.hurt(player.damageSources().playerAttack(player), Math.min(1.0F, Math.max(player.getHealth() - 1.0F, 0)));
-            arrow.hurtAndBreak(1, (ServerLevel) level, (ServerPlayer) player, item -> {});
-
-            return InteractionResultHolder.success(arrow);
-        }
-        return InteractionResultHolder.fail(arrow);
-    }
-
-    @Override
     public AbstractArrow createArrow(Level level, ItemStack ammo, LivingEntity shooter, @Nullable ItemStack weapon) {
         return new StandArrowEntity(shooter, level, ammo, weapon);
     }
+
+    @Override
+    public Projectile asProjectile(Level level, Position pos, ItemStack arrowItem, Direction dispenserDir) {
+    	StandArrowEntity arrow = new StandArrowEntity(level, pos.x(), pos.y(), pos.z(), arrowItem.copyWithCount(1), null);
+        arrow.pickup = AbstractArrow.Pickup.ALLOWED;
+        return arrow;
+    }
+
 
     /**
      * @return  if the entity got the Stand Virus effect or a Stand
@@ -120,8 +114,14 @@ public class StandArrowItem extends ArrowItem {
         return false;
     }
 
+
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+    	addStandNamesToTooltip(tooltipComponents, context);
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+    }
+    
+    public static void addStandNamesToTooltip(List<Component> tooltipComponents, TooltipContext context) {
         Player player = ClientProxy.getClientPlayer();
         if (player != null) {
             Stream<StandType> stands = StandType.getAllEnabledStands();
@@ -134,7 +134,6 @@ public class StandArrowItem extends ArrowItem {
                 tooltipComponents.add(partIconAndName);
             });
         }
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
     }
 
     @Override

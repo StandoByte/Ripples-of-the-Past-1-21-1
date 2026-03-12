@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.mc.item.DebugItem;
 import com.github.standobyte.jojo.mc.item.StandArrowItem;
+import com.github.standobyte.jojo.mc.item.StandArrowShardItem;
 import com.github.standobyte.jojo.mc.item.StandDiscItem;
 import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.mechanics.clothes.ClothesItem;
@@ -35,6 +36,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+// TODO datagen for crafting recipes, advancements and loot tables
 @EventBusSubscriber(modid = JojoMod.MOD_ID)
 public final class ModItems {
 	public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, JojoMod.MOD_ID);
@@ -56,9 +58,19 @@ public final class ModItems {
 
 	public static final DeferredItem<ClothesItem> CLOTHES_BASE_ITEM = ITEMS.registerItem("clothes", props -> new ClothesItem(props));
 
-	public static final DeferredItem<Item> STAND_ARROW = ITEMS.registerItem("stand_arrow", props -> new StandArrowItem(props), new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON).durability(32));
+	public static final DeferredItem<Item> STAND_ARROW = ITEMS.registerItem("stand_arrow", props -> new StandArrowItem(props), 
+			new Item.Properties().stacksTo(1).rarity(Rarity.RARE).durability(25));
+	public static final DeferredItem<Item> STAND_ARROW_BEETLE = ITEMS.registerItem("stand_arrow_beetle", props -> new StandArrowItem(props), 
+			new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
+	public static final DeferredItem<Item> STAND_ARROW_METEORITE = ITEMS.registerItem("stand_arrow_meteorite", props -> new StandArrowItem(props), 
+			new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON).durability(5));
 
-	
+	public static final DeferredItem<Item> STAND_ARROW_SHARD = ITEMS.register("stand_arrow_shard", () -> new StandArrowShardItem(new Item.Properties().rarity(Rarity.UNCOMMON)));
+	public static final DeferredItem<BlockItem> METEORIC_IRON = ITEMS.register("meteoric_iron", props -> new BlockItem(ModBlocks.METEORIC_IRON.get(), new Item.Properties()));
+	public static final DeferredItem<BlockItem> METEORITE_CORE = ITEMS.register("meteorite_core", props -> new BlockItem(ModBlocks.METEORITE_CORE.get(), new Item.Properties().rarity(Rarity.UNCOMMON)));
+	public static final DeferredItem<Item> METEORIC_SCRAP = ITEMS.register("meteoric_scrap", () -> new Item(new Item.Properties().rarity(Rarity.UNCOMMON)));
+	public static final DeferredItem<Item> METEORIC_INGOT = ITEMS.register("meteoric_ingot", () -> new Item(new Item.Properties().rarity(Rarity.UNCOMMON)));
+
 	public static Comparator<StandInstance> discsOrder(HolderLookup.Provider registries) {
 		return Comparator
 				.comparingInt((StandInstance stand) -> stand.getStandType().discCategoryPriority)
@@ -72,6 +84,13 @@ public final class ModItems {
 			.displayItems((CreativeModeTab.ItemDisplayParameters parameters, CreativeModeTab.Output output) -> {
 				// most of the mod's items
 				output.accept(STAND_ARROW.get());
+				output.accept(STAND_ARROW_BEETLE.get());
+				output.accept(STAND_ARROW_METEORITE.get());
+				output.accept(STAND_ARROW_SHARD.get());
+				output.accept(METEORIC_IRON.get());
+				output.accept(METEORITE_CORE.get());
+				output.accept(METEORIC_SCRAP.get());
+				output.accept(METEORIC_INGOT.get());
 
 				Stream<StandType> stands = StandType.getAllEnabledStands();
 				stands

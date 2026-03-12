@@ -2,6 +2,14 @@
   "itemGroup.jojo_ripples.main": "ДжоДжо",
   
   "entity.jojo_ripples.block_shard": "Осколок блока",
+  "item.jojo_ripples.stand_arrow": "Древняя стрела",
+  "item.jojo_ripples.stand_arrow_beetle": "Древняя стрела с жуком",
+  "item.jojo_ripples.stand_arrow_meteorite": "Стрела из метеорита",
+  "item.jojo_ripples.stand_arrow_shard": "Осколок стрелы",
+  "block.jojo_ripples.meteoric_iron": "Метеоритное железо",
+  "block.jojo_ripples.meteorite_core": "Ядро метеорита",
+  "item.jojo_ripples.meteoric_scrap": "Метеоритный лом",
+  "item.jojo_ripples.meteoric_ingot": "Метеоритный слиток",
   
   "itemGroup.jojo_ripples_main": "ДжоДжо: Ripples of the Past",
   "jojo_ripples.key.toggle_stand": "Призвать/отозвать Стенд",
@@ -99,8 +107,6 @@
   "jojo_ripples.story_part.p7": "Steel Ball Run",
   "jojo_ripples.story_part.p8": "JoJolion",
   "jojo_ripples.story_part.p9": "The JOJOLands",
-
-  "item.jojo_ripples.stand_arrow": "Стрела Стенда",
 
   "jojo_ripples.menu.player.clothes": "Одежда (WIP)",
   "block.jojo_ripples.sewing_machine": "Швейная машинка (WIP)",

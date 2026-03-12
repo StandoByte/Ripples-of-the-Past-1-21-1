@@ -20,6 +20,10 @@ public class StandArrowEntity extends AbstractArrow {
         super(ModEntityTypes.STAND_ARROW.get(), owner.getX(), owner.getEyeY() - (double)0.1F, owner.getZ(), level, pickupItemStack, firedFromWeapon);
         this.setOwner(owner);
     }
+    
+    public StandArrowEntity(Level level, double x, double y, double z, ItemStack pickupItemStack, @Nullable ItemStack firedFromWeapon) {
+        super(ModEntityTypes.STAND_ARROW.get(), x, y, z, level, pickupItemStack, firedFromWeapon);
+    }
 
     @Override
     protected ItemStack getDefaultPickupItem() {

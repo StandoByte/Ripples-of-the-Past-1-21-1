@@ -2,6 +2,14 @@
   "itemGroup.jojo_ripples.main": "JoJo",
   
   "entity.jojo_ripples.block_shard": "Block Shard",
+  "item.jojo_ripples.stand_arrow": "Ancient Arrow",
+  "item.jojo_ripples.stand_arrow_beetle": "Ancient Arrow (bettle)",
+  "item.jojo_ripples.stand_arrow_meteorite": "Meteorite Arrow",
+  "item.jojo_ripples.stand_arrow_shard": "Arrow Shard",
+  "block.jojo_ripples.meteoric_iron": "Meteoric Iron",
+  "block.jojo_ripples.meteorite_core": "Meteorite Core",
+  "item.jojo_ripples.meteoric_scrap": "Meteoric Scrap",
+  "item.jojo_ripples.meteoric_ingot": "Meteoric Ingot",
   
   "key.categories.jojo_ripples": "JoJo: Ripples of the Past",
   "jojo_ripples.key.toggle_stand": "Summon/unsummon Stand",
@@ -91,8 +99,6 @@
   "commands.standexp.add.success.single": "Gave %s Stand exp to %s",
   "commands.standexp.add.success.multiple": "Gave %s Stand exp to %s entities",
   "commands.standexp.query.success": "%1$s has %2$s Stand exp with %3$s",
-  
-  "item.jojo_ripples.stand_arrow": "Stand Arrow",
   
   "jojo_ripples.ui.story": "Story (NYI)",
   "jojo_ripples.menu.player.profile": "Character Profile: %s (NYI)",

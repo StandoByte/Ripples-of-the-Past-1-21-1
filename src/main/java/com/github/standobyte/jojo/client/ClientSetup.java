@@ -4,6 +4,7 @@ import java.io.File;
 
 import com.github.standobyte.jojo.client.config.ClientModSettings;
 import com.github.standobyte.jojo.client.input.InputHandler;
+import com.github.standobyte.jojo.client.item.ModItemModelOverrides;
 import com.github.standobyte.jojo.client.ui.jojomenu.JojoMenuTabs;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.stand.StandHudElements;
@@ -37,6 +38,9 @@ public class ClientSetup {
 		Minecraft mc = Minecraft.getInstance();
 		InitMarkers.registerMarkers(mc);
 		StandHudElements.init();
+		event.enqueueWork(() -> {
+			ModItemModelOverrides.register();
+		});
 	}
 	
 	@SubscribeEvent

@@ -1,0 +1,20 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "jojo_ripples:item/stand_arrow_shard1"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "jojo_ripples:shard_variant": 1
+      },
+      "model": "jojo_ripples:item/stand_arrow_shard2"
+    },
+    {
+      "predicate": {
+        "jojo_ripples:shard_variant": 2
+      },
+      "model": "jojo_ripples:item/stand_arrow_shard3"
+    }
+  ]
+}

@@ -1,8 +1,6 @@
 {
 	"replace": false,
 	"values": [
-		"jojo_ripples:sewing_machine",
-		"jojo_ripples:meteoric_iron",
 		"jojo_ripples:meteorite_core"
 	]
 }
