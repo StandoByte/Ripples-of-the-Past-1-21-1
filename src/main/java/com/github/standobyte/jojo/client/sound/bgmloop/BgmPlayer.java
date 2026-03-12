@@ -50,6 +50,7 @@ public class BgmPlayer {
 	public float pitch = 1;
 	public final Weighted<BgmTrackInfo> track;
 	public Sound sound;
+	public int FADE_OUT_DURATION = 40;
 	
 	public AbstractSoundInstance soundInstance;
 	public ChannelAccess.ChannelHandle channelHandle;
@@ -260,7 +261,7 @@ public class BgmPlayer {
 				});
 			}
 			else {
-				setFadeOutTimer(40);
+				setFadeOutTimer(FADE_OUT_DURATION);
 			}
 			isAtOutro = true;
 		}
