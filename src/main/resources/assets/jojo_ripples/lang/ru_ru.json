@@ -1,7 +1,7 @@
 {
   "itemGroup.jojo_ripples.main": "ДжоДжо",
   
-  "entity.jojo.block_shard": "Осколок блока",
+  "entity.jojo_ripples.block_shard": "Осколок блока",
   
   "itemGroup.jojo_ripples_main": "ДжоДжо: Ripples of the Past",
   "jojo_ripples.key.toggle_stand": "Призвать/отозвать Стенд",
