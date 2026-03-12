@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.sound.bgmloop;
 
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,7 @@ public record BgmTrackInfo(@Nullable BgmLoopPartitioning loop, Sound sound) {
 
 		public enum BgmPart {
 			INTRO,
-			MAIN,
+			MAIN_LOOP,
 			OUTRO
 		}
 
@@ -40,25 +41,27 @@ public record BgmTrackInfo(@Nullable BgmLoopPartitioning loop, Sound sound) {
 		public static BgmLoopPartitioning createLoop(Unbaked parsed) {
 			if (!parsed.hasLoop) return null;
 			
-			if (parsed.loopBack.isPresent() && parsed.loopBack.getAsFloat() <= parsed.loopStart) {
+			if (parsed.loopStart.isPresent() && parsed.loopBack.isPresent() && parsed.loopBack.getAsFloat() <= parsed.loopStart.getAsFloat()) {
 				BgmTrackLoader.LOGGER.error("loopBack timestamp can't come earlier than loopStart! ({} < {})", 
 						parsed.loopBack.getAsFloat(), parsed.loopStart);
 				return null;
 			}
 			
 			parsed.intro = toSecs(parsed.intro, parsed.bpm);
-			parsed.loopStart = toSecs(parsed.loopStart, parsed.bpm);
-			if (parsed.loopBack.isPresent()) parsed.loopBack = OptionalFloat.of(toSecs(parsed.loopBack.getAsFloat(), parsed.bpm));
-			if (parsed.outro.isPresent()) parsed.outro = OptionalFloat.of(toSecs(parsed.outro.getAsFloat(), parsed.bpm));
+			parsed.loopStart = parsed.loopStart.map(time -> toSecs(time, parsed.bpm));
+			parsed.loopBack = parsed.loopBack.map(time -> toSecs(time, parsed.bpm));
+			parsed.outro = parsed.outro.map(time -> toSecs(time, parsed.bpm));
 			
 			OptionalFloat introEnd;
-			if (parsed.intro <= parsed.loopStart) 													introEnd = OptionalFloat.of(parsed.loopStart);
+			if (parsed.loopStart.isPresent() && parsed.intro <= parsed.loopStart.getAsFloat()) 		introEnd = parsed.loopStart;
 			else if (parsed.loopBack.isPresent() && parsed.intro < parsed.loopBack.getAsFloat()) 	introEnd = parsed.loopBack;
-			else 																					introEnd = OptionalFloat.empty();
+			else 																					introEnd = parsed.outro;
 			
 			Map<BgmPart, Partition> partition = new EnumMap<>(BgmPart.class);
 			partition.put(BgmPart.INTRO, new Partition(parsed.intro, introEnd));
-			partition.put(BgmPart.MAIN, new Partition(parsed.loopStart, parsed.loopBack));
+			if (parsed.loopStart.isPresent()) {
+				partition.put(BgmPart.MAIN_LOOP, new Partition(parsed.loopStart.getAsFloat(), parsed.loopBack));
+			}
 			if (parsed.outro.isPresent()) {
 				partition.put(BgmPart.OUTRO, new Partition(parsed.outro.getAsFloat(), OptionalFloat.empty()));
 			}
@@ -79,9 +82,8 @@ public record BgmTrackInfo(@Nullable BgmLoopPartitioning loop, Sound sound) {
 		boolean hasLoop;
 		float bpm = 240;
 		float intro;
-		float loopStart;
+		OptionalFloat loopStart = OptionalFloat.empty();
 		OptionalFloat loopBack = OptionalFloat.empty();
-		// TODO (bgm) optional fade out
 		OptionalFloat outro = OptionalFloat.empty();
 		
 		int weight = 1;
@@ -112,17 +114,21 @@ public record BgmTrackInfo(@Nullable BgmLoopPartitioning loop, Sound sound) {
 			if (hasLoop) {
 				float bpm = bpmElement.getAsFloat();
 				float shift = JsonParseHelper.getFloatOr("shift", json, JsonParseHelper::parseFlStudioNote, 0);
+				
 				List<Float> introTimestamps = JSONUtil.parseArrayOrSingleElement(json.get("intro"), JsonParseHelper::parseFlStudioNote);
-				float loopStart = JsonParseHelper.getFloatOr("loopStart", json, JsonParseHelper::parseFlStudioNote, 0);
+				if (introTimestamps == null) introTimestamps = Collections.singletonList(shift);
+				
+				OptionalFloat loopStart = JsonParseHelper.getFloatOptional("loopStart", json, JsonParseHelper::parseFlStudioNote);
 				OptionalFloat loopBack = JsonParseHelper.getFloatOptional("loopBack", json, JsonParseHelper::parseFlStudioNote);
+				
 				OptionalFloat outro = JsonParseHelper.getFloatOptional("outro", json, JsonParseHelper::parseFlStudioNote);
 				for (Float intro : introTimestamps) {
 					Unbaked obj = new Unbaked(track);
 					obj.hasLoop = true;
 					obj.weight = weight;
 					obj.bpm = bpm;
-					obj.intro = intro - shift;
-					obj.loopStart = loopStart - shift;
+					obj.intro = Math.max(intro - shift, 0);
+					obj.loopStart = loopStart.map(timestamp -> timestamp - shift);
 					obj.loopBack = loopBack.map(timestamp -> timestamp - shift);
 					obj.outro = outro.map(timestamp -> timestamp - shift);
 					destination.add(obj);

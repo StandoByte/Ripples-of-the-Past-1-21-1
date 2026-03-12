@@ -38,6 +38,8 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.sound.PlaySoundSourceEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
+// this class might as well implement SoundInstance itself actually
+// but it ain't broke so there's no reason for me to do that now
 public class BgmPlayer {
 	public static final Logger LOGGER = LogUtils.getLogger();
 	
@@ -53,10 +55,11 @@ public class BgmPlayer {
 	public ChannelAccess.ChannelHandle channelHandle;
 	public OptionalInt soundSourceId = OptionalInt.empty();
 	
-	public OptionalInt loopSoundBuffer = OptionalInt.empty();
-	public boolean setLooped = false;
-	@Nullable public SoundBuffer outroAudioStream;
-	public boolean isAtOutro = false;
+	protected OptionalInt soundBufferToLoop = OptionalInt.empty();
+	protected boolean isLooped = false;
+	protected boolean checkAtOutro = false;
+	@Nullable protected SoundBuffer outroAudioStream;
+	protected boolean isAtOutro = false;
 	protected int fadeOutTimer = -1;
 	protected float fadeOutAmount = 0;
 	
@@ -177,21 +180,36 @@ public class BgmPlayer {
 			this._play((channelHandle, soundInstance) -> {
 				// play the intro part buffer and queue the main loop buffer immediately after
 				partitionedSoundBuffers.getPartitionedBuffers(this.sound.getPath(), vanillaSoundBuffers, loopData).thenAccept(splitAudioStreams -> {
-					SoundBuffer introAudioStream = splitAudioStreams.get(BgmPart.INTRO);
-					SoundBuffer mainAudioStream = splitAudioStreams.get(BgmPart.MAIN);
-					this.outroAudioStream = splitAudioStreams.get(BgmPart.OUTRO);
-					OptionalInt introSoundBuffer = introAudioStream.getAlBuffer();
-					OptionalInt mainLoopBuffer = mainAudioStream.getAlBuffer();
-					
 					channelHandle.execute(channel -> {
 						BgmTrackLoader.getInstance().onStartedPlaying(this);
+						
+						SoundBuffer introAudioStream = splitAudioStreams.get(BgmPart.INTRO);
+						@Nullable SoundBuffer mainLoopAudioStream = splitAudioStreams.get(BgmPart.MAIN_LOOP);
+						@Nullable SoundBuffer outroAudioStream = splitAudioStreams.get(BgmPart.OUTRO);
+						
+						OptionalInt introSoundBuffer = introAudioStream.getAlBuffer();
 						int soundSourceId = channel.source;
+						
 						AL10.alSourcei(soundSourceId, AL10.AL_BUFFER, 0);
 						AL10.alSourceQueueBuffers(soundSourceId, introSoundBuffer.getAsInt());
-						AL10.alSourceQueueBuffers(soundSourceId, mainLoopBuffer.getAsInt());
+						if (mainLoopAudioStream != null) {
+							// queue the main loop part after the intro
+							OptionalInt mainLoopBuffer = mainLoopAudioStream.getAlBuffer();
+							AL10.alSourceQueueBuffers(soundSourceId, mainLoopBuffer.getAsInt());
+							this.soundBufferToLoop = introSoundBuffer;
+						}
+						else {
+							if (outroAudioStream != null) {
+								// in this case outro goes immediately after the intro, so queue that
+								OptionalInt outroBuffer = outroAudioStream.getAlBuffer();
+								AL10.alSourceQueueBuffers(soundSourceId, outroBuffer.getAsInt());
+								this.checkAtOutro = true;
+							}
+							this.soundBufferToLoop = OptionalInt.empty();
+						}
 						AL10.alSourcePlay(soundSourceId);
 						
-						this.loopSoundBuffer = introSoundBuffer;
+						this.outroAudioStream = outroAudioStream;
 						this.soundSourceId = OptionalInt.of(soundSourceId);
 						NeoForge.EVENT_BUS.post(new PlaySoundSourceEvent(soundEngine, soundInstance, channel));
 					});
@@ -202,16 +220,16 @@ public class BgmPlayer {
 			this._play((channelHandle, soundInstance) -> {
 				// just play the audio without looping
 				vanillaSoundBuffers.getCompleteBuffer(this.sound.getPath()).thenAccept(audioStream -> {
-					OptionalInt soundBuffer = audioStream.getAlBuffer();
-					
 					channelHandle.execute(channel -> {
 						BgmTrackLoader.getInstance().onStartedPlaying(this);
+						OptionalInt soundBuffer = audioStream.getAlBuffer();
 						int soundSourceId = channel.source;
+						
 						AL10.alSourcei(soundSourceId, AL10.AL_BUFFER, 0);
 						AL10.alSourceQueueBuffers(soundSourceId, soundBuffer.getAsInt());
 						AL10.alSourcePlay(soundSourceId);
 
-						this.loopSoundBuffer = OptionalInt.empty();
+						this.soundBufferToLoop = OptionalInt.empty();
 						this.soundSourceId = OptionalInt.of(soundSourceId);
 						NeoForge.EVENT_BUS.post(new PlaySoundSourceEvent(soundEngine, soundInstance, channel));
 					});
@@ -235,7 +253,7 @@ public class BgmPlayer {
 						AL10.alSourcei(soundSourceId, AL10.AL_BUFFER, outroSoundBuffer.getAsInt());
 						AL10.alSourcePlay(soundSourceId);
 
-						this.loopSoundBuffer = OptionalInt.empty();
+						this.soundBufferToLoop = OptionalInt.empty();
 						this.soundSourceId = OptionalInt.of(soundSourceId);
 						NeoForge.EVENT_BUS.post(new PlaySoundSourceEvent(soundEngine, soundInstance, channel));
 					});
@@ -278,6 +296,12 @@ public class BgmPlayer {
 	public void updateState() {
 		soundSourceId.ifPresent(source -> {
 			int state = AL10.alGetSourcei(source, AL10.AL_SOURCE_STATE);
+//			switch (state) {
+//				case AL10.AL_INITIAL -> JojoMod.LOGGER.debug("INITIAL");
+//				case AL10.AL_PLAYING -> JojoMod.LOGGER.debug("PLAYING");
+//				case AL10.AL_PAUSED -> JojoMod.LOGGER.debug("PAUSED");
+//				case AL10.AL_STOPPED -> JojoMod.LOGGER.debug("STOPPED");
+//			}
 			this.isPlaying = state == AL10.AL_PLAYING || state == AL10.AL_PAUSED;
 		});
 	}
@@ -289,27 +313,42 @@ public class BgmPlayer {
 
 	@ApiStatus.Internal
 	public void tick() {
-		if (Minecraft.getInstance().isPaused()) return;
+		boolean isActuallyPaused = soundSourceId.isPresent() && AL10.alGetSourcei(soundSourceId.getAsInt(), 
+				AL10.AL_SOURCE_STATE) == AL10.AL_PAUSED;
+		if (isActuallyPaused) return;
 		
 		// check if the music should still be playing
 		if (onTick != null) {
 			onTick.accept(this);
 		}
 
-		// check if the intro part has stopped - if it did, it's now the main loop playing (we've queued it previously), so we set looping for that to true
-		if (isPlaying && !setLooped) {
-			loopSoundBuffer.ifPresent(soundBuffer -> {
+		if (isPlaying) {
+			// check if the intro part is over
+			boolean introOutroWithoutLoop = checkAtOutro;
+			boolean introWithLoop = soundBufferToLoop.isPresent() && !isLooped;
+			if (introOutroWithoutLoop || introWithLoop) {
+				// we've queued two parts previously, check if the first one (being the intro) is over
 				soundSourceId.ifPresent(sourceName -> {
 					int curBuffer = AL10.alGetSourcei(sourceName, AL10.AL_BUFFERS_PROCESSED);
 					boolean introIsOver = curBuffer == 1;
+					
 					if (introIsOver) {
-						AL10.alSourceUnqueueBuffers(sourceName, new int[] { soundBuffer });
-						AL10.alSourcei(sourceName, AL10.AL_LOOPING, AL10.AL_TRUE);
-						this.loopSoundBuffer = OptionalInt.empty();
-						this.setLooped = true;
+						if (introOutroWithoutLoop) {
+							// we're now at the outro part, which means we don't have to do anything in finishWithOutro()
+							this.checkAtOutro = false;
+							this.isAtOutro = true;
+						}
+						else {
+							// it's now the main loop part playing (we've queued it previously), so we set looping for that to true
+							int soundBuffer = soundBufferToLoop.getAsInt();
+							AL10.alSourceUnqueueBuffers(sourceName, new int[] { soundBuffer });
+							AL10.alSourcei(sourceName, AL10.AL_LOOPING, AL10.AL_TRUE);
+							this.soundBufferToLoop = OptionalInt.empty();
+							this.isLooped = true;
+						}
 					}
 				});
-			});
+			}
 		}
 		
 		// fade out
