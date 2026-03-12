@@ -33,6 +33,7 @@ import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.DispenserBlock;
 
 public class StandArrowItem extends ArrowItem {
     // dur: 25 | 250; ench: 10 | 25
@@ -40,6 +41,7 @@ public class StandArrowItem extends ArrowItem {
 
     public StandArrowItem(Properties properties) {
         super(properties);
+        DispenserBlock.registerProjectileBehavior(this);
     }
 
     // TODO bow/crossbow model override when shooting a stand arrow
