@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "jojo_ripples:star_platinum",
+    {
+      "id": "jojo_ripples:non_existent",
+      "required": false
+    },
+    "#jojo_ripples:another_tag"
+  ]
+}

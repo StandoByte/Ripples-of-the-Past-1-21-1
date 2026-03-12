@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.client.entityrender.entities.BlockShardRendere
 import com.github.standobyte.jojo.client.entityrender.entities.MannequinRenderer;
 import com.github.standobyte.jojo.client.entityrender.entities.SimpleEntityModel;
 import com.github.standobyte.jojo.client.entityrender.entities.SimpleEntityRenderer;
+import com.github.standobyte.jojo.client.entityrender.entities.StandArrowRenderer;
 import com.github.standobyte.jojo.client.entityrender.entities.v1_21_2plus.MannequinModel_1_21_2plus;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -47,8 +48,10 @@ public class ModEntityRenderers {
 				.initResourceModel(JojoMod.resLoc("blood_cutter"), SimpleEntityModel::new, true));
 		event.registerEntityRenderer(ModEntityTypes.CD_BLOCK_BULLET.get(), ctx -> new CrazyDBlockBulletRenderer(ctx)
 				.initResourceModel(JojoMod.resLoc("block_bullet"), SimpleEntityModel::new, true));
+		// стандо добавь пж initFromRenderer()
+		event.registerEntityRenderer(ModEntityTypes.STAND_ARROW.get(), StandArrowRenderer::new);
 	}
-	
+
 	// Hardcoded models
 	
 	public static final ModelLayerLocation MANNEQUIN = mainLayer(ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "mannequin"));

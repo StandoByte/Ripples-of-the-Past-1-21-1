@@ -7,6 +7,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mc.statuseffect.BleedingEffect;
+import com.github.standobyte.jojo.mc.statuseffect.StandVirusEffect;
 import com.github.standobyte.jojo.powersystem.standpower.resolve.ResolveModeEffect;
 
 import net.minecraft.core.Holder;
@@ -38,6 +39,9 @@ public class ModStatusEffects {
 
 	public static final DeferredHolder<MobEffect, BleedingEffect> BLEEDING = STATUS_EFFECTS.register("bleeding", 
 			id -> new BleedingEffect(MobEffectCategory.HARMFUL, 0x990000));
+
+	public static final DeferredHolder<MobEffect, StandVirusEffect> STAND_VIRUS = STATUS_EFFECTS.register("stand_virus",
+			id -> new StandVirusEffect(MobEffectCategory.HARMFUL, 0xC10019));
 	
 
 	@SubscribeEvent
@@ -45,6 +49,7 @@ public class ModStatusEffects {
 		event.enqueueWork(() -> {
 			TRACKED_EFFECTS.add(RESOLVE);
 			TRACKED_EFFECTS.add(BLEEDING);
+			TRACKED_EFFECTS.add(STAND_VIRUS);
 		});
 	}
 	

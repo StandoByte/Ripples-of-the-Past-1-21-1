@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "i",
+    "s",
+    "f"
+  ],
+  "key": {
+    "i": {
+      "item": "jojo_ripples:meteoric_ingot"
+    },
+    "s": {
+      "tag": "c:rods/wooden"
+    },
+    "f": {
+      "item": "minecraft:feather"
+    }
+  },
+  "result": {
+    "id": "jojo_ripples:stand_arrow_meteorite"
+  }
+}

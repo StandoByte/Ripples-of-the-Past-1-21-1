@@ -1,7 +1,16 @@
 {
   "itemGroup.jojo_ripples.main": "ДжоДжо",
   
-  "entity.jojo.block_shard": "Осколок блока",
+  "entity.jojo_ripples.block_shard": "Осколок блока",
+  "item.jojo_ripples.stand_arrow": "Древняя стрела",
+  "item.jojo_ripples.stand_arrow_beetle": "Древняя стрела с жуком",
+  "item.jojo_ripples.stand_arrow_meteorite": "Стрела из метеорита",
+  "entity.jojo_ripples.stand_arrow": "Стрела",
+  "item.jojo_ripples.stand_arrow_shard": "Осколок стрелы",
+  "block.jojo_ripples.meteoric_iron": "Метеоритное железо",
+  "block.jojo_ripples.meteorite_core": "Ядро метеорита",
+  "item.jojo_ripples.meteoric_scrap": "Метеоритный лом",
+  "item.jojo_ripples.meteoric_ingot": "Метеоритный слиток",
   
   "itemGroup.jojo_ripples_main": "ДжоДжо: Ripples of the Past",
   "jojo_ripples.key.toggle_stand": "Призвать/отозвать Стенд",
@@ -219,6 +228,7 @@
   "stand.unknown": "Неизвестный Стенд: %s",
   "effect.jojo_ripples.resolve": "Решимость",
   "effect.jojo_ripples.bleeding": "Кровотечение",
+  "effect.jojo_ripples.stand_virus": "Вирус из метеорита",
 
   "jojo.message.action_condition.stand_too_slow": "Ваш Стенд слишком медленный",
   

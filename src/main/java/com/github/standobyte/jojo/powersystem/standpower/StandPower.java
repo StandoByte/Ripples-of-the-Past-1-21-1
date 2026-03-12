@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.core.packet.fromserver.TrStandSkinPacket;
 import com.github.standobyte.jojo.init.core.ModEntityAttributes;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.standpower.StandAwakening.AwakeningStage;
 import com.github.standobyte.jojo.powersystem.standpower.effect.UserStandEffects;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.packet.TrStaminaPacket;
@@ -39,8 +40,10 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	
 	protected Lerp.FloatValue staminaLerp = new Lerp.FloatValue();
 	protected float staminaAddNextTick = 0;
+	
 	public ResolveCounter resolveCounter = new ResolveCounter();
 	public UserStandEffects userStandEffects = new UserStandEffects(this);
+	public StandAwakening userStandAwakeningState = new StandAwakening();
 	
 	public StandPower(LivingEntity user) {
 		super(user);
@@ -226,7 +229,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	
 	
 	public boolean usesResolve() {
-		return hasPower() ? getPowerType().usesResolve(this) : false;
+		return hasPower() && getPowerType().usesResolve(this) && userStandAwakeningState.stage == AwakeningStage.FULL_CONTROL;
 	}
 	
 	public ResolveCounter getResolveCounter() {
@@ -271,6 +274,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		PacketDistributor.sendToPlayer(user, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
 		userStandEffects.syncWithTrackingOrUser(user);
 		userStandEffects.syncWithUserOnly(user);
+		userStandAwakeningState.syncToUser(user);
 	}
 
 	@Override
@@ -299,6 +303,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		newEntityData.resolveCounter.copyValues(this.resolveCounter, wasDeath);
 		newEntityData.userStandEffects = this.userStandEffects;
 		newEntityData.userStandEffects.setPowerData(newEntityData);
+		newEntityData.userStandAwakeningState = this.userStandAwakeningState;
 	}
 	
 	
@@ -311,6 +316,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		nbt.putFloat("Stamina", staminaLerp.get());
 		nbt.put("Resolve", resolveCounter.writeNBT());
 		nbt.put("Effects", userStandEffects.writeNBT());
+		nbt.put("Awakening", userStandAwakeningState.serializeNBT());
 		return nbt;
 	}
 
@@ -323,6 +329,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		staminaLerp.set(nbt.getFloat("Stamina"), false);
 		NBTUtil.getCompoundOptional(nbt, "Resolve").ifPresent(resolveCounter::readNBT);
 		NBTUtil.getCompoundOptional(nbt, "Effects").ifPresent(userStandEffects::readNBT);
+		NBTUtil.getCompoundOptional(nbt, "Awakening").ifPresent(userStandAwakeningState::deserializeNBT);
 	}
 	
 	/* unlike deserializeNBT, this is called after the entity attributes are read, 

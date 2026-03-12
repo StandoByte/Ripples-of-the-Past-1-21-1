@@ -12,7 +12,9 @@ import com.github.standobyte.v1_21_4_stuff.itemmodel.__ItemModelComponent;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ExtraCodecs;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class ModItemDataComponents {
@@ -43,6 +45,12 @@ public class ModItemDataComponents {
 			builder -> builder
 			.persistent(OriginalItemPosComponent.CODEC)
 			.networkSynchronized(OriginalItemPosComponent.STREAM_CODEC)
+			.cacheEncoding());
+
+	public static final Supplier<DataComponentType<Integer>> ARROW_SHARD_VARIANT = DATA_COMPONENT_TYPES.registerComponentType("arrow_shard_variant", 
+			builder -> builder
+			.persistent(ExtraCodecs.NON_NEGATIVE_INT)
+			.networkSynchronized(ByteBufCodecs.VAR_INT)
 			.cacheEncoding());
 
 	public static final Supplier<DataComponentType<ResourceLocation>> ITEM_MODEL = DATA_COMPONENT_TYPES.registerComponentType("item_model", 

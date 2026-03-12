@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "c:ingots/gold"
+    },
+    {
+      "item": "jojo_ripples:meteoric_scrap"
+    }
+  ],
+  "result": {
+    "id": "jojo_ripples:meteoric_ingot"
+  }
+}

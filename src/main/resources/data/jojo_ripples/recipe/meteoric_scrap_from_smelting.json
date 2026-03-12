@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "ingredient": {
+    "item": "jojo_ripples:meteorite_core"
+  },
+  "result": {
+    "id": "jojo_ripples:meteoric_scrap"
+  },
+  "experience": 1.0,
+  "cookingtime": 200
+}

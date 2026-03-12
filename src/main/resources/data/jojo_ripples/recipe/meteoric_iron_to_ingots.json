@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "jojo_ripples:meteoric_iron"
+    }
+  ],
+  "result": {
+    "id": "minecraft:iron_ingot",
+    "count": 3
+  }
+}
