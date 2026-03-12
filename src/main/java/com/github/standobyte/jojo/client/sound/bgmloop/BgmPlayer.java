@@ -23,6 +23,7 @@ import com.mojang.logging.LogUtils;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.sounds.AbstractSoundInstance;
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.ChannelAccess;
@@ -49,13 +50,16 @@ public class BgmPlayer {
 	public final Weighted<BgmTrackInfo> track;
 	public Sound sound;
 	
-	public SoundInstance soundInstance;
+	public AbstractSoundInstance soundInstance;
+	public ChannelAccess.ChannelHandle channelHandle;
 	public OptionalInt soundSourceId = OptionalInt.empty();
 	
 	public OptionalInt loopSoundBuffer = OptionalInt.empty();
 	public boolean setLooped = false;
 	@Nullable public SoundBuffer outroAudioStream;
 	public boolean isAtOutro = false;
+	protected int fadeOutTimer = -1;
+	protected float fadeOutAmount = 0;
 	
 	@Nullable
 	public static BgmPlayer track(ResourceLocation trackId) {
@@ -136,12 +140,11 @@ public class BgmPlayer {
 			return;
 		}
 
-		float categoryVolume = category != null && category != SoundSource.MASTER ? mc.options.getSoundSourceVolume(category) : 1.0F;
-		float volume = Mth.clamp(this.volume * categoryVolume, 0.0F, 1.0F);
+		float volume = Mth.clamp(this.volume, 0.0F, 1.0F);
 		float pitch = Mth.clamp(this.pitch, 0.5F, 2.0F);
 		
 		// we need to create a sound instance object so that the vanilla can handle stuff like changing volume while the music player correctly
-		SoundInstance soundInstance = new EventlessSound(sound, category, null, 
+		AbstractSoundInstance soundInstance = new EventlessSound(sound, category, null, 
 				volume, pitch, false, 0, 
 				SoundInstance.Attenuation.NONE, 0, 0, 0, false) {
 			@Override public boolean canStartSilent() { return true; }
@@ -152,8 +155,8 @@ public class BgmPlayer {
 		soundEngine.instanceBySource.put(category, soundInstance);
 		
 		channelHandle.execute(channel -> {
-			channel.setPitch(pitch);
-			channel.setVolume(volume);
+			channel.setPitch(calculatePitch(soundInstance));
+			channel.setVolume(calculateVolume(soundInstance));
 			channel.disableAttenuation();
 
 			channel.setSelfPosition(Vec3.ZERO);
@@ -161,7 +164,7 @@ public class BgmPlayer {
 		});
 		
 		playSound.accept(channelHandle, soundInstance);
-		_setSoundInstance(soundInstance);
+		_setSoundInstance(soundInstance, channelHandle);
 	}
 
 
@@ -220,19 +223,8 @@ public class BgmPlayer {
 	}
 
 	public void finishWithOutro() {
-		if (isPlaying) {
-			if (outroAudioStream == null) {
-				// FIXME !!!!! (bgm) weird error (one of the two seemingly at random)
-				/*
-				 * [Sound engine/ERROR] [mojang/OpenAlUtil]: Allocate new source: Invalid name parameter.
-				 * [minecraft/SoundEngine]: Failed to create new sound handle
-				 */
-				/*
-				 * [Sound engine/ERROR] [mojang/OpenAlUtil]: Stop: Invalid name parameter.
-				 */
-				stopSound();
-			}
-			else if (!isAtOutro) {
+		if (isPlaying && !isAtOutro) {
+			if (outroAudioStream != null) {
 				Minecraft mc = Minecraft.getInstance();
 				SoundManager soundManager = mc.getSoundManager();
 				SoundEngine soundEngine = ClientReflection.getSoundEngine(soundManager);
@@ -251,22 +243,37 @@ public class BgmPlayer {
 						NeoForge.EVENT_BUS.post(new PlaySoundSourceEvent(soundEngine, soundInstance, channel));
 					});
 				});
-				isAtOutro = true;
 			}
+			else {
+				setFadeOutTimer(40);
+			}
+			isAtOutro = true;
 		}
 	}
 
 	@ApiStatus.Internal
-	public void _setSoundInstance(SoundInstance soundInstance) {
+	public void _setSoundInstance(AbstractSoundInstance soundInstance, ChannelAccess.ChannelHandle channelHandle) {
 		if (this.soundInstance != null) {
+			if (soundInstance != null) {
+				soundInstance.volume = this.soundInstance.getVolume();
+			}
 			SoundManager soundManager = Minecraft.getInstance().getSoundManager();
 			soundManager.stop(this.soundInstance);
 		}
 		this.soundInstance = soundInstance;
+		this.channelHandle = channelHandle;
 	}
 
+	// FIXME !!!!! (bgm) weird error (one of the two seemingly at random)
+	/*
+	 * [Sound engine/ERROR] [mojang/OpenAlUtil]: Allocate new source: Invalid name parameter.
+	 * [minecraft/SoundEngine]: Failed to create new sound handle
+	 */
+	/*
+	 * [Sound engine/ERROR] [mojang/OpenAlUtil]: Stop: Invalid name parameter.
+	 */
 	public void stopSound() {
-		_setSoundInstance(null);
+		_setSoundInstance(null, null);
 	}
 
 
@@ -277,9 +284,16 @@ public class BgmPlayer {
 			this.isPlaying = state == AL10.AL_PLAYING || state == AL10.AL_PAUSED;
 		});
 	}
+	
+	public void setFadeOutTimer(int ticks) {
+		fadeOutTimer = ticks;
+		fadeOutAmount = soundInstance.getVolume() / ticks;
+	}
 
 	@ApiStatus.Internal
 	public void tick() {
+		if (Minecraft.getInstance().isPaused()) return;
+		
 		// check if the music should still be playing
 		if (onTick != null) {
 			onTick.accept(this);
@@ -300,6 +314,46 @@ public class BgmPlayer {
 				});
 			});
 		}
+		
+		// fade out
+		if (fadeOutTimer > 0) {
+			if (soundInstance != null) {
+				this.volume -= fadeOutAmount;
+			}
+			fadeOutTimer--;
+		}
+		else if (fadeOutTimer == 0) {
+			stopSound();
+		}
+		
+		// a part of the TickableSoundInstance logic from SoundEngine (update volume and pitch)
+		if (soundInstance != null && channelHandle != null) {
+			float volume = this.volume * calculateVolume(soundInstance);
+			float pitch = this.pitch * calculatePitch(soundInstance);
+			Vec3 pos = new Vec3(soundInstance.getX(), soundInstance.getY(), soundInstance.getZ());
+			channelHandle.execute(channel -> {
+				channel.setVolume(volume);
+				channel.setPitch(pitch);
+				channel.setSelfPosition(pos);
+			});
+		}
 	}
 
+	
+	// copypaste from SoundEngine - this shit doesn't deserve ATs
+	public static float calculateVolume(SoundInstance sound) {
+		return calculateVolume(sound.getVolume(), sound.getSource());
+	}
+
+	public static float calculateVolume(float volumeMultiplier, SoundSource source) {
+		return Mth.clamp(volumeMultiplier * getVolume(source), 0.0F, 1.0F);
+	}
+
+	public static float getVolume(@Nullable SoundSource category) {
+		return category != null && category != SoundSource.MASTER ? Minecraft.getInstance().options.getSoundSourceVolume(category) : 1.0F;
+	}
+	
+	public static float calculatePitch(SoundInstance sound) {
+		return Mth.clamp(sound.getPitch(), 0.5F, 2.0F);
+	}
 }

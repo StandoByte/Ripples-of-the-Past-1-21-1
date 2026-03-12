@@ -103,14 +103,13 @@ public class BgmTrackLoader extends SimplePreparableReloadListener<BgmTrackLoade
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void tickBossMusic(ClientTickEvent.Pre event) {
-		Minecraft mc = Minecraft.getInstance();
 		if (bgmPlaying != null) {
 			bgmPlaying.updateState();
 			if (!bgmPlaying.isPlaying) {
 				bgmPlaying.stopSound();
 				bgmPlaying = null;
 			}
-			else if (!mc.isPaused()) {
+			else {
 				bgmPlaying.tick();
 			}
 		}
