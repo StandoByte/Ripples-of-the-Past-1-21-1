@@ -47,7 +47,7 @@ public class ModStatusEffects {
 			id -> new BleedingEffect(MobEffectCategory.HARMFUL, 0x990000));
 
 	public static final DeferredHolder<MobEffect, StandVirusEffect> STAND_VIRUS = STATUS_EFFECTS.register("stand_virus",
-			id -> new StandVirusEffect(MobEffectCategory.HARMFUL, 0xC10019).setUncurable());
+			id -> new StandVirusEffect(MobEffectCategory.HARMFUL, 0xC10019));
 	
 
 	@SubscribeEvent

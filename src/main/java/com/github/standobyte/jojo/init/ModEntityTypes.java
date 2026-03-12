@@ -91,7 +91,7 @@ public final class ModEntityTypes {
 
 	public static final DeferredHolder<EntityType<?>, EntityType<StandArrowEntity>> STAND_ARROW = ENTITY_TYPES.register("stand_arrow", key ->
 			EntityType.Builder.<StandArrowEntity>of(StandArrowEntity::new, MobCategory.MISC)
-			.sized(0.75F, 0.75F)
+			.sized(0.5F, 0.5F).eyeHeight(0.13F)
 			.clientTrackingRange(4)
 			.updateInterval(20)
 			.build(createIDFor(key)));

@@ -16,6 +16,7 @@ public class StandVirusEffect extends RotpStatusEffect implements StatusEffectAp
 
     public StandVirusEffect(MobEffectCategory category, int color) {
         super(category, color);
+        this.isUncurable = true;
     }
 
     @Override

@@ -42,6 +42,7 @@ public class StandArrowItem extends ArrowItem {
         super(properties);
     }
 
+    // TODO bow/crossbow model override when shooting a stand arrow
     @Override
     public AbstractArrow createArrow(Level level, ItemStack ammo, LivingEntity shooter, @Nullable ItemStack weapon) {
         return new StandArrowEntity(shooter, level, ammo, weapon);
