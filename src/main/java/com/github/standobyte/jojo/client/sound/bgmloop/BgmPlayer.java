@@ -16,7 +16,6 @@ import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo.BgmLoopParti
 import com.github.standobyte.jojo.client.sound.util.EventlessSound;
 import com.github.standobyte.jojo.client.sound.util.SoundUtil;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
-import com.github.standobyte.jojo.util.reflection.ClientReflection;
 import com.mojang.blaze3d.audio.Library;
 import com.mojang.blaze3d.audio.SoundBuffer;
 import com.mojang.logging.LogUtils;
@@ -128,8 +127,7 @@ public class BgmPlayer {
 	@ApiStatus.Internal
 	public void _play(BiConsumer<ChannelAccess.ChannelHandle, SoundInstance> playSound) {
 		Minecraft mc = Minecraft.getInstance();
-		SoundManager soundManager = mc.getSoundManager();
-		SoundEngine soundEngine = ClientReflection.getSoundEngine(soundManager);
+		SoundEngine soundEngine = mc.getSoundManager().soundEngine;
 		// SoundEngine copypasta
 		CompletableFuture<ChannelAccess.ChannelHandle> completablefuture = soundEngine.channelAccess.createHandle(Library.Pool.STATIC);
 		ChannelAccess.ChannelHandle channelHandle = completablefuture.join();
@@ -226,8 +224,7 @@ public class BgmPlayer {
 		if (isPlaying && !isAtOutro) {
 			if (outroAudioStream != null) {
 				Minecraft mc = Minecraft.getInstance();
-				SoundManager soundManager = mc.getSoundManager();
-				SoundEngine soundEngine = ClientReflection.getSoundEngine(soundManager);
+				SoundEngine soundEngine = mc.getSoundManager().soundEngine;
 
 				this._play((channelHandle, soundInstance) -> {
 					channelHandle.execute(channel -> {

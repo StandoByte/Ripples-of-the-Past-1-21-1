@@ -44,7 +44,6 @@ import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.JSONUtil;
 import com.github.standobyte.jojo.util.StringUtil;
 import com.github.standobyte.jojo.util.java.WeightsList;
-import com.github.standobyte.jojo.util.reflection.ClientReflection;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Zone;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._ProfilerFiller;
 import com.google.gson.Gson;
@@ -550,8 +549,8 @@ public class StandSkinsLoader implements PreparableReloadListener {
 	protected void apply(Preps preps, ResourceManager resourceManager, ProfilerFiller profiler) {
 		Minecraft mc = Minecraft.getInstance();
 		SoundManager soundManager = mc.getSoundManager();
-		Map<ResourceLocation, Resource> soundCache = ClientReflection.getSoundCache(soundManager);
-		SoundEngine soundEngine = ClientReflection.getSoundEngine(soundManager);
+		Map<ResourceLocation, Resource> soundCache = soundManager.soundCache;
+		SoundEngine soundEngine = soundManager.soundEngine;
 		
 		this.skins.clear();
 		for (var skinBuilder : preps.skinsRead.values()) {

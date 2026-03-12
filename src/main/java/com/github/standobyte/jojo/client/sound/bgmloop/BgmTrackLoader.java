@@ -18,7 +18,6 @@ import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo.BgmLoopParti
 import com.github.standobyte.jojo.client.sound.bgmloop.DebugBgm.BgmTrackType;
 import com.github.standobyte.jojo.util.JSONUtil;
 import com.github.standobyte.jojo.util.java.WeightsList;
-import com.github.standobyte.jojo.util.reflection.ClientReflection;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Strictness;
 import com.google.gson.JsonElement;
 import com.mojang.logging.LogUtils;
@@ -27,7 +26,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.sounds.SoundBufferLibrary;
 import net.minecraft.client.sounds.SoundEngine;
-import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -59,8 +57,7 @@ public class BgmTrackLoader extends SimplePreparableReloadListener<BgmTrackLoade
 	
 	protected BgmTrackLoader() {
 		Minecraft mc = Minecraft.getInstance();
-		SoundManager soundManager = mc.getSoundManager();
-		this.soundEngine = ClientReflection.getSoundEngine(soundManager);
+		this.soundEngine = mc.getSoundManager().soundEngine;
 		this.vanillaSoundBuffers = soundEngine.soundBuffers;
 		this.partitionedSoundBuffers = new PartitionedSoundBuffers();
 	}

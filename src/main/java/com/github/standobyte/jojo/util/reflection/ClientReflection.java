@@ -12,26 +12,11 @@ import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.sounds.SoundEngine;
-import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
-import net.minecraft.server.packs.resources.Resource;
 import net.neoforged.fml.util.ObfuscationReflectionHelper;
 
 public final class ClientReflection {
-
-	private static final Field SOUND_MANAGER_SOUND_CACHE = ObfuscationReflectionHelper.findField(SoundManager.class, "soundCache");
-	public static Map<ResourceLocation, Resource> getSoundCache(SoundManager soundManager) {
-		return ReflectionUtil.getFieldValue(SOUND_MANAGER_SOUND_CACHE, soundManager);
-	}
-
-	private static final Field SOUND_MANAGER_SOUND_ENGINE = ObfuscationReflectionHelper.findField(SoundManager.class, "soundEngine");
-	public static SoundEngine getSoundEngine(SoundManager soundManager) {
-		return ReflectionUtil.getFieldValue(SOUND_MANAGER_SOUND_ENGINE, soundManager);
-	}
-
 
 //	private static final Field GAME_RENDERER_RESOURCE_POOL = ObfuscationReflectionHelper.findField(GameRenderer.class, "resourcePool");
 //	public static CrossFrameResourcePool getResourcePool(GameRenderer gameRenderer) {
