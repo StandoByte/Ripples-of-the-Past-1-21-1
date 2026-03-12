@@ -38,6 +38,7 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.SelectMusicEvent;
 import net.neoforged.neoforge.client.event.sound.SoundEngineLoadEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
@@ -109,6 +110,13 @@ public class BgmTrackLoader extends SimplePreparableReloadListener<BgmTrackLoade
 			else {
 				bgmPlaying.tick();
 			}
+		}
+	}
+
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void disableVanillaMusic(SelectMusicEvent event) {
+		if (bgmPlaying != null) {
+			event.setMusic(null);
 		}
 	}
 	
