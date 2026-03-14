@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.core.packet.fromserver.BrokenBlocksParticlesAn
 import com.github.standobyte.jojo.core.packet.fromserver.DatapackStandsPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.DeflectedBulletPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.EntitySyncMotionBypassingPacket;
+import com.github.standobyte.jojo.core.packet.fromserver.ItemBreakVisualsPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.StandEntitySoundPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.StandSkinSoundPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrAbilityUsePacket;
@@ -120,6 +121,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new BloodParticlesPacket.Handler(JojoMod.resLoc("blood")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new BrokenChunkBlocksPacket.Handler(JojoMod.resLoc("brokenblocks")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new CDBlocksRestoredPacket.Handler(JojoMod.resLoc("restoreblocks")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new ItemBreakVisualsPacket.Handler(JojoMod.resLoc("itemparticle")));
 	}
 
 	

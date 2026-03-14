@@ -11,6 +11,7 @@ import com.github.standobyte.gameplay.standarrow.GiveStandToEntity;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.core.packet.fromserver.ItemBreakVisualsPacket;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.mc.entity.projectile.StandArrowEntity;
 import com.github.standobyte.jojo.mechanics.StoryPart;
@@ -30,6 +31,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -38,9 +40,11 @@ import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class StandArrowItem extends ArrowItem {
     // dur: 25 | 250; ench: 10 | 25
@@ -134,27 +138,34 @@ public class StandArrowItem extends ArrowItem {
         	}
         	ServerLevel serverLevel = (ServerLevel) level;
 			arrow.hurtAndBreak(1, serverLevel, player, itemType -> onBreakArrow(
-					serverLevel, null, player, usedHand, itemType));
+					serverLevel, player, usedHand, null, null, itemType));
             return InteractionResultHolder.success(arrow);
         }
         return InteractionResultHolder.fail(arrow);
     }
     
     public static void onBreakArrow(ServerLevel level, 
-    		@Nullable Vec3 pos,
-    		@Nullable LivingEntity entity, 
-    		@Nullable InteractionHand usedHand,
+    		@Nullable LivingEntity userEntity, @Nullable InteractionHand usedHand,
+    		@Nullable Entity itemEntity, @Nullable Vec3 pos, 
     		Item itemConsumerArg) {
-    	if (entity != null && usedHand != null) {
-    		entity.onEquippedItemBroken(itemConsumerArg, UtilFunctions.getHandSlot(usedHand));
+    	if (userEntity != null && usedHand != null) {
+    		userEntity.onEquippedItemBroken(itemConsumerArg, UtilFunctions.getHandSlot(usedHand));
     		// TODO spawn arrow shards
     	}
-    	else if (pos != null) {
-    		// TODO arrow break particles
+    	else if (pos != null || itemEntity != null) {
+    		if (pos == null) pos = itemEntity.getBoundingBox().getCenter();
     		// TODO spawn arrow shards
+    		ItemBreakVisualsPacket packet = ItemBreakVisualsPacket.fromParams(itemEntity, pos, null);
+    		if (packet != null) {
+    			PacketDistributor.sendToPlayersTrackingChunk(level, AAAAAAAAAAAAAAAAAA(pos), packet);
+    		}
     	}
     }
     
+    public static ChunkPos AAAAAAAAAAAAAAAAAA(Vec3 pos) {
+    	return new ChunkPos(((int) pos.x) >> 4, ((int) pos.z) >> 4);
+    }
+
     // i'm tired of being angry
     public static boolean isInvulnerable(LivingEntity entity) {
     	return entity.isInvulnerable() || entity instanceof Player player && player.getAbilities().invulnerable;
