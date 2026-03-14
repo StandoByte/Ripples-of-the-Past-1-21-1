@@ -9,24 +9,32 @@ import net.minecraft.world.entity.LivingEntity;
 
 public enum EntityCustomEffectsClass {
 	STAND_EFFECT {
-		@Override
-		public UserStandEffects get(Entity entity, boolean createIfAbsent) {
-			if (entity instanceof LivingEntity living) {
-				StandPower standPower = StandPower.get(living);
-				if (standPower != null) {
-					return standPower.userStandEffects;
-				}
-			}
-			return null;
+		@Override public UserStandEffects get(Entity entity, boolean createIfAbsent) {
+			return getStandEffects(entity);
 		}
 	},
+	
 	OTHER {
-		@Override
-		public EntityCustomEffectsMap<?> get(Entity entity, boolean createIfAbsent) {
-			var type = ModDataAttachmentTypes.ENTITY_CUSTOM_EFFECTS;
-			return createIfAbsent ? entity.getData(type) : entity.getExistingDataOrNull(type);
+		@Override public EntityCustomEffectsMap.Impl get(Entity entity, boolean createIfAbsent) {
+			return getCustomEffects(entity, createIfAbsent);
 		}
 	};
 	
 	public abstract EntityCustomEffectsMap<?> get(Entity entity, boolean createIfAbsent);
+	
+	// generics are so fucking annoying
+	public static EntityCustomEffectsMap.Impl getCustomEffects(Entity entity, boolean createIfAbsent) {
+		var type = ModDataAttachmentTypes.ENTITY_CUSTOM_EFFECTS;
+		return createIfAbsent ? entity.getData(type) : entity.getExistingDataOrNull(type);
+	}
+	
+	public static UserStandEffects getStandEffects(Entity user) {
+		if (user instanceof LivingEntity living) {
+			StandPower standPower = StandPower.get(living);
+			if (standPower != null) {
+				return standPower.userStandEffects;
+			}
+		}
+		return null;
+	}
 }

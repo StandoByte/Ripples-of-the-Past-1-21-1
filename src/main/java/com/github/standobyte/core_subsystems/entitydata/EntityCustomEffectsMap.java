@@ -28,7 +28,7 @@ public abstract class EntityCustomEffectsMap<T extends EntityCustomEffect> {
 	
 	protected abstract Entity getEntity();
 	
-	public static class Impl<T extends EntityCustomEffect> extends EntityCustomEffectsMap<T> {
+	public static class Impl extends EntityCustomEffectsMap<EntityCustomEffect> {
 		protected Entity entity;
 		
 		public Impl(EntityCustomEffectsClass effectsClass, Entity entity) {

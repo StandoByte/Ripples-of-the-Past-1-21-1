@@ -5,6 +5,7 @@ import javax.annotation.Nonnull;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.util.syncheddata.SynchedDataHelper;
 
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -30,6 +31,10 @@ public abstract class EntityCustomEffect {
 
 	public EntityCustomEffect(@Nonnull EntityCustomEffectType<?> effectType) {
 		this.effectType = effectType;
+	}
+	
+	public boolean is(Holder<EntityCustomEffectType<?>> supplier) {
+		return this.effectType == supplier.value();
 	}
 
 	public EntityCustomEffect withEntity(Entity entity) {
