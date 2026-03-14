@@ -5,9 +5,9 @@ import java.util.Set;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.gameplay.standarrow.StandVirusEffect;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mc.statuseffect.BleedingEffect;
-import com.github.standobyte.jojo.mc.statuseffect.StandVirusEffect;
 import com.github.standobyte.jojo.powersystem.standpower.resolve.ResolveModeEffect;
 
 import net.minecraft.core.Holder;

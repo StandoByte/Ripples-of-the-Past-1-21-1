@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mc.entity.projectile;
+package com.github.standobyte.gameplay.standarrow;
 
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModItems;
@@ -30,5 +30,5 @@ public class StandArrowEntity extends AbstractArrow {
         return new ItemStack(ModItems.STAND_ARROW.get());
     }
 
-    // todo Stand arrow anti-disappear on hitting an entity
+    // TODO Stand arrow anti-disappear on hitting an entity
 }

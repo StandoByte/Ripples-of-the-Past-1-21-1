@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.core;
 
+import com.github.standobyte.core_subsystems.entitydata.TrEntityCustomEffectsPacket;
+import com.github.standobyte.core_subsystems.entitydata.sync.TrStandEffectSynchedDataPacket;
 import com.github.standobyte.jojo.core.command.PlayBgmCommand;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAbilityInputPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAimTargetPacket;
@@ -11,6 +13,7 @@ import com.github.standobyte.jojo.core.packet.fromserver.BrokenBlocksParticlesAn
 import com.github.standobyte.jojo.core.packet.fromserver.DatapackStandsPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.DeflectedBulletPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.EntitySyncMotionBypassingPacket;
+import com.github.standobyte.jojo.core.packet.fromserver.ItemBreakVisualsPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.StandEntitySoundPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.StandSkinSoundPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrAbilityUsePacket;
@@ -47,7 +50,6 @@ import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActio
 import com.github.standobyte.jojo.powersystem.entityaction.syncdata.TrActionSynchedDataPacket;
 import com.github.standobyte.jojo.powersystem.skill.ClLearnSkillPacket;
 import com.github.standobyte.jojo.powersystem.standpower.StandAwakeningDataPacket;
-import com.github.standobyte.jojo.powersystem.standpower.effect.TrStandEffectPacket;
 import com.github.standobyte.jojo.powersystem.standpower.packet.StandExpPacket;
 import com.github.standobyte.jojo.powersystem.standpower.packet.TrStaminaPacket;
 import com.github.standobyte.jojo.powersystem.standpower.resolve.TrResolvePacket;
@@ -92,7 +94,8 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrPowerDataPacket.Handler(JojoMod.resLoc("powerdata")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrSetStandEntityPacket.Handler(JojoMod.resLoc("standentity")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrNonEntityStandSummonPacket.Handler(JojoMod.resLoc("nestandsummon")));
-		registerPacket(registrar, PayloadRegistrar::playToClient, new TrStandEffectPacket.Handler(JojoMod.resLoc("standeffect")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new TrEntityCustomEffectsPacket.Handler(JojoMod.resLoc("standeffect")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new TrStandEffectSynchedDataPacket.Handler(JojoMod.resLoc("steffdata")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrStaminaPacket.Handler(JojoMod.resLoc("stamina")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrResolvePacket.Handler(JojoMod.resLoc("resolve")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new StandAwakeningDataPacket.Handler(JojoMod.resLoc("standawake")));
@@ -120,6 +123,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new BrokenChunkBlocksPacket.Handler(JojoMod.resLoc("brokenblocks")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new CDBlocksRestoredPacket.Handler(JojoMod.resLoc("restoreblocks")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new PlayBgmCommand.PlayBgmCommandPacket.Handler(JojoMod.resLoc("bgm")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new ItemBreakVisualsPacket.Handler(JojoMod.resLoc("itemparticle")));
 	}
 
 	

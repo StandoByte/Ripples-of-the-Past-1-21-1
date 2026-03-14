@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectType;
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.rendertype.CustomMultiBufferSource;
@@ -19,7 +20,6 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
-import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectType;
 import com.github.standobyte.jojo.powersystem.standpower.effect.UserStandEffects;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.mojang.blaze3d.platform.Lighting;
@@ -219,7 +219,7 @@ public abstract class MarkerRenderer {
 	protected abstract void updatePositions(List<MarkerInstance> list, float partialTick);
 
 	protected static void fillWithStandEffectTargets(List<MarkerInstance> list, float partialTick, 
-			StandEffectType<?> standEffect, double range, Minecraft mc, boolean highlightLookedAt) {
+			EntityCustomEffectType<? extends StandEffectInstance> standEffect, double range, Minecraft mc, boolean highlightLookedAt) {
 		StandPower stand = ClientPowerCache.getPower(PowerClass.STAND);
 		if (stand != null) {
 			List<StandEffectInstance> targets = UserStandEffects.getEffectsInRange(stand, standEffect, range, mc.player).collect(Collectors.toList());

@@ -1,14 +1,14 @@
 package com.github.standobyte.jojoimpl.stands.crazydiamond;
 
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectType;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
-import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectType;
 
 import net.minecraft.world.entity.LivingEntity;
 
 public class CrazyDAngeloRockPunchEffect extends StandEffectInstance {
 
-	public CrazyDAngeloRockPunchEffect(StandEffectType<?> effectType) {
+	public CrazyDAngeloRockPunchEffect(EntityCustomEffectType<?> effectType) {
 		super(effectType);
 		isFromStandAction = true;
 	}

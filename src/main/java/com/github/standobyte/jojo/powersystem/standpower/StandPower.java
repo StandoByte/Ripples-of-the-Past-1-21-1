@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.gameplay.standarrow.StandArrowItem;
 import com.github.standobyte.jojo.core.packet.fromserver.TrPowerStandInstancePacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrStandSkinPacket;
 import com.github.standobyte.jojo.init.core.ModEntityAttributes;
@@ -44,6 +45,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	public ResolveCounter resolveCounter = new ResolveCounter();
 	public UserStandEffects userStandEffects = new UserStandEffects(this);
 	public StandAwakening userStandAwakeningState = new StandAwakening();
+	public boolean healingDamageFromArrow = false;
 	
 	public StandPower(LivingEntity user) {
 		super(user);
@@ -59,10 +61,15 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		if (hasPower()) {
 			userStandEffects.tick();
 		}
-		if (!user.level().isClientSide() && !canUsePower()) {
-			StandType type = getPowerType();
-			if (type != null) {
-				type.forceUnsummon(user, this);
+		if (!user.level().isClientSide()) {
+			if (healingDamageFromArrow && !StandArrowItem.healArrowDamage(user)) {
+				healingDamageFromArrow = false;
+			}
+			if (!canUsePower()) {
+				StandType type = getPowerType();
+				if (type != null) {
+					type.forceUnsummon(user, this);
+				}
 			}
 		}
 		if (summonedStand != null) {
@@ -272,8 +279,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		syncStaminaFixed(user, user);
 		resolveCounter.syncToUser(user);
 		PacketDistributor.sendToPlayer(user, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
-		userStandEffects.syncWithTrackingOrUser(user);
-		userStandEffects.syncWithUserOnly(user);
+		userStandEffects.syncToPlayer(user);
 		userStandAwakeningState.syncToUser(user);
 	}
 
@@ -284,7 +290,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		syncStaminaFixed(player, user);
 		resolveCounter.syncToTracking(user, player);
 		PacketDistributor.sendToPlayer(player, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
-		userStandEffects.syncWithTrackingOrUser(player);
+		userStandEffects.syncToTracking(player);
 	}
 	
 	protected void syncStaminaFixed(ServerPlayer player, LivingEntity user) {
@@ -293,6 +299,12 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 			player.connection.send(new ClientboundUpdateAttributesPacket(user.getId(), Collections.singletonList(durabilityAttribute)));
 		}
 		PacketDistributor.sendToPlayer(player, new TrStaminaPacket(user.getId(), staminaLerp.get()));
+	}
+	
+	@Override
+	public void onPlayerClone(Player newPlayer, boolean wasDeath) {
+		super.onPlayerClone(newPlayer, wasDeath);
+		this.userStandEffects.onPlayerClone(newPlayer, wasDeath);
 	}
 	
 	@Override
@@ -315,8 +327,9 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 				.ifSuccess(standNbt -> nbt.put("StandInstance", standNbt)));
 		nbt.putFloat("Stamina", staminaLerp.get());
 		nbt.put("Resolve", resolveCounter.writeNBT());
-		nbt.put("Effects", userStandEffects.writeNBT());
+		nbt.put("Effects", userStandEffects.serializeNBT(provider));
 		nbt.put("Awakening", userStandAwakeningState.serializeNBT());
+		nbt.putBoolean("HealFromArrow", healingDamageFromArrow);
 		return nbt;
 	}
 
@@ -328,8 +341,9 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 				.map(pair -> pair.getFirst());
 		staminaLerp.set(nbt.getFloat("Stamina"), false);
 		NBTUtil.getCompoundOptional(nbt, "Resolve").ifPresent(resolveCounter::readNBT);
-		NBTUtil.getCompoundOptional(nbt, "Effects").ifPresent(userStandEffects::readNBT);
+		NBTUtil.getCompoundOptional(nbt, "Effects").ifPresent(effectsNbt -> userStandEffects.deserializeNBT(provider, effectsNbt));
 		NBTUtil.getCompoundOptional(nbt, "Awakening").ifPresent(userStandAwakeningState::deserializeNBT);
+		healingDamageFromArrow = nbt.getBoolean("HealFromArrow");
 	}
 	
 	/* unlike deserializeNBT, this is called after the entity attributes are read, 

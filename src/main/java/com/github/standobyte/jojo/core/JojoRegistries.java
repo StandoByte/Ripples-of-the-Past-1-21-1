@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.function.Consumer;
 
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectType;
 import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSet;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.StoryCharacter;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.entityaction.type.SpecialEntityActionType;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
-import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectType;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.reflection.CommonReflection;
 import com.github.standobyte.jojoimpl.powers.hamon.HamonSkill;
@@ -60,12 +60,13 @@ public final class JojoRegistries {
 			.sync(true)
 			.create();
 	
-	public static final ResourceKey<Registry<StandEffectType<?>>> STAND_EFFECTS_REG_KEY = ResourceKey.createRegistryKey(
-			JojoMod.resLoc("stand_effect"));
+	public static final ResourceKey<Registry<EntityCustomEffectType<?>>> ENTITY_CUSTOM_EFFECTS_REG_KEY = ResourceKey.createRegistryKey(
+			JojoMod.resLoc("custom_effects"));
 	
-	public static final Registry<StandEffectType<?>> STAND_EFFECTS_REG = new RegistryBuilder<>(STAND_EFFECTS_REG_KEY)
+	public static final Registry<EntityCustomEffectType<?>> ENTITY_CUSTOM_EFFECTS_REG = new RegistryBuilder<>(ENTITY_CUSTOM_EFFECTS_REG_KEY)
 			.sync(true)
 			.create();
+	public static final Registry<EntityCustomEffectType<?>> STAND_EFFECTS_REG = ENTITY_CUSTOM_EFFECTS_REG;
 	
 	
 	public static final ResourceKey<Registry<StandType>> DEFAULT_STANDS_REG_KEY = ResourceKey.createRegistryKey(

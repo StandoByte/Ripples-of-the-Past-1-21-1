@@ -5,11 +5,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
+import com.github.standobyte.gameplay.standarrow.StandArrowItem;
+import com.github.standobyte.gameplay.standarrow.StandArrowShardItem;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.mc.item.DebugItem;
-import com.github.standobyte.jojo.mc.item.StandArrowItem;
-import com.github.standobyte.jojo.mc.item.StandArrowShardItem;
 import com.github.standobyte.jojo.mc.item.StandDiscItem;
 import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.mechanics.clothes.ClothesItem;

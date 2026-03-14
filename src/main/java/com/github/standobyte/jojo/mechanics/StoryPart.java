@@ -32,7 +32,8 @@ public class StoryPart {
 	protected final float iconWidth;
 	protected final float iconHeight;
 	
-	protected Component name;
+	protected Component iconAsText;
+	protected Component nameWithIcon;
 	protected ResourceLocation icon;
 	protected char clientGlyphIndex = 0;
 
@@ -57,11 +58,12 @@ public class StoryPart {
 			this.icon = id.withPath(path -> "textures/story_part/" + path + ".png");
 			this.clientGlyphIndex = IconGlyphsCache.makeCharCodeFor(
 					new IconGlyphInfo(new GuiIcon(this.icon, this.iconWidth, this.iconHeight), this.iconWidth / 2, this.iconHeight / 2));
-			iconAndName = Component.literal(Character.toString(this.clientGlyphIndex));
+			this.iconAsText = Component.literal(Character.toString(this.clientGlyphIndex));
 		}
 		else {
-			iconAndName = Component.empty();
+			this.iconAsText = Component.empty();
 		}
+		iconAndName = iconAsText.copy();
 
 		ResourceLocation id = key.location();
 		String tlKey = id.getNamespace() + ".story_part." + id.getPath();
@@ -71,15 +73,19 @@ public class StoryPart {
 		}
 		iconAndName.append(name);
 
-		this.name = iconAndName;
+		this.nameWithIcon = iconAndName;
 	}
 	
 	public Component getPartName() {
-		return name;
+		return nameWithIcon;
 	}
 	
 	public ResourceLocation getPartIcon() {
 		return icon;
+	}
+	
+	public Component getPartIconAsText() {
+		return iconAsText;
 	}
 
 

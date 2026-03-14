@@ -1,5 +1,5 @@
 {
-  "parent": "item/handheld",
+  "parent": "jojo_ripples:item/stand_arrow",
   "textures": {
     "layer0": "jojo_ripples:item/stand_arrow"
   }
