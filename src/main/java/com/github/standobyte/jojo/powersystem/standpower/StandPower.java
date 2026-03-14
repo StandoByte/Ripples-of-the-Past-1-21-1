@@ -293,8 +293,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		syncStaminaFixed(user, user);
 		resolveHandler.syncToUser(user);
 		PacketDistributor.sendToPlayer(user, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
-		userStandEffects.syncWithTrackingOrUser(user);
-		userStandEffects.syncWithUserOnly(user);
+		userStandEffects.syncToPlayer(user);
 		userStandAwakeningState.syncToUser(user);
 	}
 
@@ -305,7 +304,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		syncStaminaFixed(player, user);
 		resolveHandler.syncToTracking(user, player);
 		PacketDistributor.sendToPlayer(player, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
-		userStandEffects.syncWithTrackingOrUser(player);
+		userStandEffects.syncToTracking(player);
 	}
 	
 	protected void syncStaminaFixed(ServerPlayer player, LivingEntity user) {
@@ -314,6 +313,12 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 			player.connection.send(new ClientboundUpdateAttributesPacket(user.getId(), Collections.singletonList(durabilityAttribute)));
 		}
 		PacketDistributor.sendToPlayer(player, new TrStaminaPacket(user.getId(), staminaLerp.get()));
+	}
+	
+	@Override
+	public void onPlayerClone(Player newPlayer, boolean wasDeath) {
+		super.onPlayerClone(newPlayer, wasDeath);
+		this.userStandEffects.onPlayerClone(newPlayer, wasDeath);
 	}
 	
 	@Override
@@ -336,7 +341,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 				.ifSuccess(standNbt -> nbt.put("StandInstance", standNbt)));
 		nbt.putFloat("Stamina", staminaLerp.get());
 		nbt.put("ResolveHandler", resolveHandler.writeNBT());
-		nbt.put("Effects", userStandEffects.writeNBT());
+		nbt.put("Effects", userStandEffects.serializeNBT(provider));
 		nbt.put("Awakening", userStandAwakeningState.serializeNBT());
 		nbt.putBoolean("HealFromArrow", healingDamageFromArrow);
 		return nbt;
@@ -350,7 +355,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 				.map(pair -> pair.getFirst());
 		staminaLerp.set(nbt.getFloat("Stamina"), false);
 		NBTUtil.getCompoundOptional(nbt, "ResolveHandler").ifPresent(resolveHandler::readNBT);
-		NBTUtil.getCompoundOptional(nbt, "Effects").ifPresent(userStandEffects::readNBT);
+		NBTUtil.getCompoundOptional(nbt, "Effects").ifPresent(effectsNbt -> userStandEffects.deserializeNBT(provider, effectsNbt));
 		NBTUtil.getCompoundOptional(nbt, "Awakening").ifPresent(userStandAwakeningState::deserializeNBT);
 		healingDamageFromArrow = nbt.getBoolean("HealFromArrow");
 	}

@@ -18,18 +18,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
 public class UserStandEffects extends EntityCustomEffectsMap<StandEffectInstance> {
-	protected StandPower standPower;
 
 	public UserStandEffects(StandPower standPower) {
-		super(EntityCustomEffectsClass.STAND_EFFECT);
-		this.standPower = standPower;
+		super(EntityCustomEffectsClass.STAND_EFFECT, standPower.getUser());
 	}
 	
-	@Override
-	public Entity getEntity() {
-		return standPower.getUser();
-	}
-
 //	public void onUserStandRemoved(LivingEntity user) {
 //		effects.values().forEach(effect -> effect.onStop());
 //		effects.clear();

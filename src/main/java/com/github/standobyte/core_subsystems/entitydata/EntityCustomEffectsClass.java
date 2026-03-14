@@ -15,7 +15,7 @@ public enum EntityCustomEffectsClass {
 	},
 	
 	OTHER {
-		@Override public EntityCustomEffectsMap.Impl get(Entity entity, boolean createIfAbsent) {
+		@Override public EntityCustomEffectsMap<EntityCustomEffect> get(Entity entity, boolean createIfAbsent) {
 			return getCustomEffects(entity, createIfAbsent);
 		}
 	};
@@ -23,7 +23,7 @@ public enum EntityCustomEffectsClass {
 	public abstract EntityCustomEffectsMap<?> get(Entity entity, boolean createIfAbsent);
 	
 	// generics are so fucking annoying
-	public static EntityCustomEffectsMap.Impl getCustomEffects(Entity entity, boolean createIfAbsent) {
+	public static EntityCustomEffectsMap<EntityCustomEffect> getCustomEffects(Entity entity, boolean createIfAbsent) {
 		var type = ModDataAttachmentTypes.ENTITY_CUSTOM_EFFECTS;
 		return createIfAbsent ? entity.getData(type) : entity.getExistingDataOrNull(type);
 	}

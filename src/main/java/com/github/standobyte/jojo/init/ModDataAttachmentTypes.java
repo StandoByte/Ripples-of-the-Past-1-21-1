@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffect;
 import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectsClass;
 import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectsMap;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -71,8 +72,8 @@ public final class ModDataAttachmentTypes {
 	public static final Supplier<AttachmentType<LivingComponentPossession>> ENTITY_POSSESSION = ATTACHMENT_TYPES.register("possession", 
 			() -> AttachmentType.builder(obj -> obj instanceof Entity entity ? new LivingComponentPossession(entity) : null).build());
 	
-	public static final Supplier<AttachmentType<EntityCustomEffectsMap.Impl>> ENTITY_CUSTOM_EFFECTS = ATTACHMENT_TYPES.register("entity_custom_effects", 
-			() -> AttachmentType.builder(obj -> obj instanceof Entity entity ? new EntityCustomEffectsMap.Impl(EntityCustomEffectsClass.OTHER, entity) : null).build());
+	public static final Supplier<AttachmentType<EntityCustomEffectsMap<EntityCustomEffect>>> ENTITY_CUSTOM_EFFECTS = ATTACHMENT_TYPES.register("entity_custom_effects", 
+			() -> AttachmentType.serializable(obj -> obj instanceof Entity entity ? new EntityCustomEffectsMap<>(EntityCustomEffectsClass.OTHER, entity) : null).build());
 	
 	
 	public static final Supplier<AttachmentType<StandEffectsTarget>> STAND_EFFECTS_TARGET = ATTACHMENT_TYPES.register("stand_effects_target", 
