@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.core;
 
 import com.github.standobyte.core_subsystems.entitydata.TrTickingEntityAttachmentPacket;
+import com.github.standobyte.core_subsystems.entitydata.sync.TrStandEffectSynchedDataPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAbilityInputPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAimTargetPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClDebugCommandPacket;
@@ -94,6 +95,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrSetStandEntityPacket.Handler(JojoMod.resLoc("standentity")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrNonEntityStandSummonPacket.Handler(JojoMod.resLoc("nestandsummon")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrTickingEntityAttachmentPacket.Handler(JojoMod.resLoc("standeffect")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new TrStandEffectSynchedDataPacket.Handler(JojoMod.resLoc("steffdata")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrStaminaPacket.Handler(JojoMod.resLoc("stamina")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrResolvePacket.Handler(JojoMod.resLoc("resolve")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new ResolveBoostsPacket.Handler(JojoMod.resLoc("resolveboost")));

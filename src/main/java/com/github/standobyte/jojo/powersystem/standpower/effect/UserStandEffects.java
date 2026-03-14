@@ -1,66 +1,33 @@
 package com.github.standobyte.jojo.powersystem.standpower.effect;
 
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.core_subsystems.entitydata.EntityAttachType;
 import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentType;
-import com.github.standobyte.core_subsystems.entitydata.TickingEntityAttachment;
-import com.github.standobyte.core_subsystems.entitydata.TrTickingEntityAttachmentPacket;
-import com.github.standobyte.core_subsystems.entitydata.TrTickingEntityAttachmentPacket.AttachmentType;
+import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentsHolder;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.network.PacketDistributor;
 
-public class UserStandEffects {
-	public static final AtomicInteger EFFECTS_COUNTER = new AtomicInteger();
+public class UserStandEffects extends EntityAttachmentsHolder<StandEffectInstance> {
 	protected StandPower standPower;
-	protected final Int2ObjectMap<StandEffectInstance> effects = new Int2ObjectLinkedOpenHashMap<>();
 
 	public UserStandEffects(StandPower standPower) {
+		super(EntityAttachType.STAND_EFFECT);
 		this.standPower = standPower;
 	}
-
-	public void addEffect(StandEffectInstance instance) {
-		LivingEntity user = standPower.getUser();
-		if (!user.level().isClientSide()) {
-			instance.withId(EFFECTS_COUNTER.incrementAndGet());
-		}
-		putEffectInstance(instance);
-		if (!user.level().isClientSide()) {
-			PacketDistributor.sendToPlayersTrackingEntity(user, TrTickingEntityAttachmentPacket.add(AttachmentType.STAND_EFFECT, instance, false));
-			if (user instanceof ServerPlayer player) {
-				PacketDistributor.sendToPlayer(player, TrTickingEntityAttachmentPacket.add(AttachmentType.STAND_EFFECT, instance, true));
-			}
-		}
-	}
-
-	protected void putEffectInstance(StandEffectInstance instance) {
-		instance.withStand(standPower);
-		effects.put(instance.getId(), instance);
-		instance.onStart();
-	}
-
-	public void removeEffect(StandEffectInstance instance) {
-		if (instance != null) {
-			onEffectRemoved(instance);
-			effects.remove(instance.getId());
-		}
+	
+	@Override
+	public Entity getEntity() {
+		return standPower.getUser();
 	}
 
 //	public void onUserStandRemoved(LivingEntity user) {
@@ -70,10 +37,6 @@ public class UserStandEffects {
 //			PacketManager.sendToClientsTrackingAndSelf(TrStandEffectPacket.removeAll(user), user);
 //		}
 //	}
-
-	public StandEffectInstance getById(int id) {
-		return effects.get(id);
-	}
 
 
 	@SuppressWarnings("unchecked")
@@ -91,7 +54,7 @@ public class UserStandEffects {
 			return effect.get();
 		}
 		else {
-			T newEffect = effectType.create(standPower.getUser().level());
+			T newEffect = effectType.create(getEntity().level());
 			addEffect(newEffect.withTarget(target));
 			return newEffect;
 		}
@@ -106,7 +69,7 @@ public class UserStandEffects {
 			return effect.get();
 		}
 		else {
-			T newEffect = effectType.create(standPower.getUser().level());
+			T newEffect = effectType.create(getEntity().level());
 			addEffect(newEffect);
 			return newEffect;
 		}
@@ -155,10 +118,6 @@ public class UserStandEffects {
 				.map(Function.identity());
 	}
 
-	public Collection<StandEffectInstance> getEffects() {
-		return effects.values();
-	}
-
 	@SuppressWarnings("unchecked")
 	public static <T extends StandEffectInstance> Stream<T> getEffectsTargetedBy(LivingEntity entity, EntityAttachmentType<T> type) {
 		return (Stream<T>) StandEffectsTarget.getEffectsReadOnly(entity).filter(effect -> effect.effectType == type);
@@ -171,27 +130,7 @@ public class UserStandEffects {
 
 	@ApiStatus.Internal
 	public void setPowerData(StandPower standPower) {
-		this.standPower = standPower;
 		effects.values().forEach(effect -> effect.withStand(standPower));
-	}
-
-	@ApiStatus.Internal
-	public void tick() {
-		if (effects.isEmpty()) {
-			return;
-		}
-
-		var it = effects.int2ObjectEntrySet().iterator();
-		while (it.hasNext()) {
-			StandEffectInstance effect = it.next().getValue();
-			if (!effect.isStopped()) {
-				effect.onTick();
-			}
-			if (effect.isStopped()) {
-				onEffectRemoved(effect);
-				it.remove();
-			}
-		}
 	}
 
 	@ApiStatus.Internal
@@ -236,59 +175,6 @@ public class UserStandEffects {
 				onEffectRemoved(effect);
 				it.remove();
 			}
-		}
-	}
-
-	@ApiStatus.Internal
-	protected void onEffectRemoved(StandEffectInstance instance) {
-		instance.onStop();
-		LivingEntity user = standPower.getUser();
-		if (!user.level().isClientSide()) {
-			PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, TrTickingEntityAttachmentPacket.remove(AttachmentType.STAND_EFFECT, instance));
-		}
-	}
-
-
-	@ApiStatus.Internal
-	public void syncWithUserOnly(ServerPlayer user) {
-		effects.values().forEach(effect -> {
-			effect.syncWithUserOnly(user);
-		});
-	}
-
-	@ApiStatus.Internal
-	public void syncWithTrackingOrUser(ServerPlayer player) {
-		effects.values().forEach(effect -> {
-			PacketDistributor.sendToPlayer(player, TrTickingEntityAttachmentPacket.add(
-					AttachmentType.STAND_EFFECT, effect, player == effect.getStandUser()));
-			effect.syncWithTrackingOrUser(player);
-		});
-	}
-
-	@ApiStatus.Internal
-	public CompoundTag writeNBT() {
-		CompoundTag nbt = new CompoundTag();
-		ListTag effectsList = new ListTag();
-		effects.forEach((id, effect) -> {
-			if (!effect.isStopped()) {
-				effectsList.add(effect.toNBT());
-			}
-		});
-		nbt.put("Effects", effectsList);
-		return nbt;
-	}
-
-	@ApiStatus.Internal
-	public void readNBT(CompoundTag nbt) {
-		if (nbt.contains("Effects", Tag.TAG_LIST)) {
-			Level level = standPower.getUser().level();
-			nbt.getList("Effects", Tag.TAG_COMPOUND).forEach(effectNBT -> {
-				StandEffectInstance effect = (StandEffectInstance) TickingEntityAttachment.fromNBT((CompoundTag) effectNBT, level);
-				if (effect != null) {
-					effect.withId(EFFECTS_COUNTER.incrementAndGet());
-					putEffectInstance(effect);
-				}
-			});
 		}
 	}
 

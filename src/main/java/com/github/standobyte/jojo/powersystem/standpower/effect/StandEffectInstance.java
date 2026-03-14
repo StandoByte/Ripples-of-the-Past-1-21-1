@@ -220,6 +220,11 @@ public abstract class StandEffectInstance extends TickingEntityAttachment {
 	}
 
 	@Override
+	public void syncWithTrackingOrUser(ServerPlayer user) {
+		super.syncWithTrackingOrUser(user);
+	}
+
+	@Override
 	public void writeAdditionalPacketData(FriendlyByteBuf buf, boolean sendingToUser) {
 		buf.writeInt(getTargetEntityId());
 	}

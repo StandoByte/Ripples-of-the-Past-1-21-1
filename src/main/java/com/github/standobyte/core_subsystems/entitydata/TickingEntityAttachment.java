@@ -3,6 +3,7 @@ package com.github.standobyte.core_subsystems.entitydata;
 import javax.annotation.Nonnull;
 
 import com.github.standobyte.jojo.core.JojoRegistries;
+import com.github.standobyte.jojo.util.syncheddata.SynchedDataHelper;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -13,6 +14,8 @@ import net.minecraft.world.level.Level;
 
 public abstract class TickingEntityAttachment {
 	@Nonnull public final EntityAttachmentType<?> effectType;
+
+	public SynchedDataHelper synchedData = new SynchedDataHelper(this, () -> this.level.isClientSide());
 
 	private int id;
 	public int tickCount = 0;
