@@ -7,7 +7,7 @@ import com.github.standobyte.jojo.powersystem.standpower.effect.UserStandEffects
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 
-public enum EntityAttachType {
+public enum EntityAttachmentsClass {
 	STAND_EFFECT {
 		@Override
 		public UserStandEffects get(Entity entity) {

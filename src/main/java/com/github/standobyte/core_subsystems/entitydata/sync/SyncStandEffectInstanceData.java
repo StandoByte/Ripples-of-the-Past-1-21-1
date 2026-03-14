@@ -2,7 +2,7 @@ package com.github.standobyte.core_subsystems.entitydata.sync;
 
 import java.util.List;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityAttachType;
+import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentsClass;
 import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentsHolder;
 import com.github.standobyte.core_subsystems.entitydata.TickingEntityAttachment;
 import com.github.standobyte.jojo.util.syncheddata.SynchedDataExtended;
@@ -15,7 +15,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 public class SyncStandEffectInstanceData {
 	
 	public static void onStartedTracking(ServerPlayer tracking, Entity standUser, 
-			EntityAttachType attachmentType, TickingEntityAttachment effect) {
+			EntityAttachmentsClass attachmentType, TickingEntityAttachment effect) {
 		SynchedDataExtended synchedData = effect.synchedData.getDataSyncher();
 		if (synchedData != null) {
 			List<SynchedEntityData.DataValue<?>> nonDefaultData = synchedData.syncOnStartedTracking();
@@ -25,7 +25,7 @@ public class SyncStandEffectInstanceData {
 		}
 	}
 	
-	public static void tickSyncDirtyData(Entity standUser, EntityAttachType attachmentType, TickingEntityAttachment effect) {
+	public static void tickSyncDirtyData(Entity standUser, EntityAttachmentsClass attachmentType, TickingEntityAttachment effect) {
 		SynchedDataExtended synchedData = effect.synchedData.getDataSyncher();
 		if (synchedData != null) {
 			List<SynchedEntityData.DataValue<?>> dirtyData = synchedData.syncDirtyData();
@@ -36,7 +36,7 @@ public class SyncStandEffectInstanceData {
 	}
 	
 	public static void setDataClientSide(Entity entity, int effectId, 
-			EntityAttachType attachmentType, List<SynchedEntityData.DataValue<?>> packedItems) {
+			EntityAttachmentsClass attachmentType, List<SynchedEntityData.DataValue<?>> packedItems) {
 		EntityAttachmentsHolder<?> standEffects = attachmentType.get(entity);
 		if (standEffects != null) {
 			TickingEntityAttachment effect = standEffects.getById(effectId);

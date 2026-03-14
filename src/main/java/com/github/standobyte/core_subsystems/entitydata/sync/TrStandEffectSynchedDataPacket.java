@@ -3,7 +3,7 @@ package com.github.standobyte.core_subsystems.entitydata.sync;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityAttachType;
+import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentsClass;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.PacketsRegister;
 
@@ -15,7 +15,7 @@ import net.minecraft.world.entity.Entity;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record TrStandEffectSynchedDataPacket(int entityId, int effectId, 
-		EntityAttachType attachmentType, List<SynchedEntityData.DataValue<?>> packedItems) implements CustomPacketPayload {
+		EntityAttachmentsClass attachmentType, List<SynchedEntityData.DataValue<?>> packedItems) implements CustomPacketPayload {
 	private static CustomPacketPayload.Type<TrStandEffectSynchedDataPacket> type;
 
 	public static class Handler implements PacketsRegister.PacketOGHandler<TrStandEffectSynchedDataPacket> {
@@ -45,7 +45,7 @@ public record TrStandEffectSynchedDataPacket(int entityId, int effectId,
 		public TrStandEffectSynchedDataPacket decode(RegistryFriendlyByteBuf buf) {
 			int entityId = buf.readInt();
 			int effectId = buf.readInt();
-			EntityAttachType attachmentType = buf.readEnum(EntityAttachType.class);
+			EntityAttachmentsClass attachmentType = buf.readEnum(EntityAttachmentsClass.class);
 
 			List<SynchedEntityData.DataValue<?>> packedItems = new ArrayList<>();
 			int id;

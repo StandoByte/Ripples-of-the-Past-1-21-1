@@ -20,9 +20,9 @@ import net.neoforged.neoforge.network.PacketDistributor;
 public abstract class EntityAttachmentsHolder<T extends TickingEntityAttachment> {
 	public static final AtomicInteger EFFECTS_COUNTER = new AtomicInteger();
 	protected final Int2ObjectMap<T> effects = new Int2ObjectLinkedOpenHashMap<>();
-	protected final EntityAttachType attachmentsClass;
+	protected final EntityAttachmentsClass attachmentsClass;
 	
-	public EntityAttachmentsHolder(EntityAttachType attachmentsLocation) {
+	public EntityAttachmentsHolder(EntityAttachmentsClass attachmentsLocation) {
 		this.attachmentsClass = attachmentsLocation;
 	}
 	

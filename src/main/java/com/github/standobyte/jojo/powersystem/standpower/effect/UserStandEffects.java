@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityAttachType;
+import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentsClass;
 import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentType;
 import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentsHolder;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -21,7 +21,7 @@ public class UserStandEffects extends EntityAttachmentsHolder<StandEffectInstanc
 	protected StandPower standPower;
 
 	public UserStandEffects(StandPower standPower) {
-		super(EntityAttachType.STAND_EFFECT);
+		super(EntityAttachmentsClass.STAND_EFFECT);
 		this.standPower = standPower;
 	}
 	

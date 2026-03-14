@@ -14,7 +14,7 @@ import net.minecraft.world.entity.Entity;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class TrTickingEntityAttachmentPacket implements CustomPacketPayload {
-	private final EntityAttachType attachmentType;
+	private final EntityAttachmentsClass attachmentType;
 	private final PacketType packetType;
 	private final int userId;
 	private final int effectId;
@@ -23,22 +23,22 @@ public class TrTickingEntityAttachmentPacket implements CustomPacketPayload {
 	private final boolean isUser;
 	private final FriendlyByteBuf buf;
 
-	public static TrTickingEntityAttachmentPacket add(EntityAttachType type, TickingEntityAttachment effect, boolean sentToOwner) {
+	public static TrTickingEntityAttachmentPacket add(EntityAttachmentsClass type, TickingEntityAttachment effect, boolean sentToOwner) {
 		return new TrTickingEntityAttachmentPacket(type, PacketType.ADD, effect.getEntity().getId(), effect.getId(), 
 				effect.effectType, effect, sentToOwner, null);
 	}
 
-	public static TrTickingEntityAttachmentPacket remove(EntityAttachType type, TickingEntityAttachment effect) {
+	public static TrTickingEntityAttachmentPacket remove(EntityAttachmentsClass type, TickingEntityAttachment effect) {
 		return new TrTickingEntityAttachmentPacket(type, PacketType.REMOVE, effect.getEntity().getId(), effect.getId(), 
 				effect.effectType, effect, false, null);
 	}
 
 	public static TrTickingEntityAttachmentPacket updateTarget(StandEffectInstance effect) {
-		return new TrTickingEntityAttachmentPacket(EntityAttachType.STAND_EFFECT, PacketType.UPDATE_TARGET, effect.getEntity().getId(), effect.getId(), 
+		return new TrTickingEntityAttachmentPacket(EntityAttachmentsClass.STAND_EFFECT, PacketType.UPDATE_TARGET, effect.getEntity().getId(), effect.getId(), 
 				effect.effectType, effect, false, null);
 	}
 
-	private TrTickingEntityAttachmentPacket(EntityAttachType attachmentType, PacketType packetType, int userId, int effectId, 
+	private TrTickingEntityAttachmentPacket(EntityAttachmentsClass attachmentType, PacketType packetType, int userId, int effectId, 
 			EntityAttachmentType<?> effectFactory, TickingEntityAttachment effect, boolean isUser, FriendlyByteBuf buf) {
 		this.attachmentType = attachmentType;
 		this.packetType = packetType;
@@ -93,7 +93,7 @@ public class TrTickingEntityAttachmentPacket implements CustomPacketPayload {
 
 		@Override
 		public TrTickingEntityAttachmentPacket decode(RegistryFriendlyByteBuf buf) {
-			EntityAttachType attachmentType = buf.readEnum(EntityAttachType.class);
+			EntityAttachmentsClass attachmentType = buf.readEnum(EntityAttachmentsClass.class);
 			PacketType packetType = buf.readEnum(PacketType.class);
 			return switch (packetType) {
 				case ADD -> {
