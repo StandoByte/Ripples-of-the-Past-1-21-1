@@ -6,9 +6,9 @@ import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentType;
-import com.github.standobyte.core_subsystems.entitydata.TickingEntityAttachment;
-import com.github.standobyte.core_subsystems.entitydata.TrTickingEntityAttachmentPacket;
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectType;
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffect;
+import com.github.standobyte.core_subsystems.entitydata.TrEntityCustomEffectsPacket;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -23,7 +23,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-public abstract class StandEffectInstance extends TickingEntityAttachment {
+public abstract class StandEffectInstance extends EntityCustomEffect {
 	protected StandPower userPower;
 
 	private Entity target;
@@ -40,7 +40,7 @@ public abstract class StandEffectInstance extends TickingEntityAttachment {
 	public EntityActionInstance userAction;
 
 
-	public StandEffectInstance(@Nonnull EntityAttachmentType<?> effectType) {
+	public StandEffectInstance(@Nonnull EntityCustomEffectType<?> effectType) {
 		super(effectType);
 	}
 	
@@ -185,7 +185,7 @@ public abstract class StandEffectInstance extends TickingEntityAttachment {
 			}
 
 			if (!level.isClientSide()) {
-				PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, TrTickingEntityAttachmentPacket.updateTarget(this));
+				PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, TrEntityCustomEffectsPacket.updateTarget(this));
 			}
 		}
 	}

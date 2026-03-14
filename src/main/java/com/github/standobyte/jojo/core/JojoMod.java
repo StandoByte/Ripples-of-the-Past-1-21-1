@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.core;
 
 import org.slf4j.Logger;
 
-import com.github.standobyte.core_subsystems.entitydata.ModTickingEntityAttachments;
+import com.github.standobyte.core_subsystems.entitydata.ModEntityCustomEffects;
 import com.github.standobyte.jojo.core.command.argument.ModCommandArguments;
 import com.github.standobyte.jojo.init.ModBlockEntities;
 import com.github.standobyte.jojo.init.ModBlocks;
@@ -59,7 +59,7 @@ public class JojoMod {
 		ModContainers.CONTAINERS.register(modEventBus);
 		
 		JojoRegistries.ABILITY_TYPES.register(modEventBus);
-		ModTickingEntityAttachments.ATTACHMENT_TYPES.register(modEventBus);
+		ModEntityCustomEffects.CUSTOM_EFFECTS.register(modEventBus);
 		ModPlayerPowers.PLAYER_POWERS.register(modEventBus);
 		ModHamonSkills.HAMON_SKILLS.register(modEventBus);
 		ModHamonSkills.HAMON_CHARACTER_TECHNIQUES.register(modEventBus);

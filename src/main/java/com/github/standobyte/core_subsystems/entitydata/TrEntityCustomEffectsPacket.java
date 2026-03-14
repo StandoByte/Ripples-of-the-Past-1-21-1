@@ -13,34 +13,34 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public class TrTickingEntityAttachmentPacket implements CustomPacketPayload {
-	private final EntityAttachmentsClass attachmentType;
+public class TrEntityCustomEffectsPacket implements CustomPacketPayload {
+	private final EntityCustomEffectsClass effectsClass;
 	private final PacketType packetType;
 	private final int userId;
 	private final int effectId;
-	private final EntityAttachmentType<?> effectFactory;
-	private final TickingEntityAttachment effect;
+	private final EntityCustomEffectType<?> effectFactory;
+	private final EntityCustomEffect effect;
 	private final boolean isUser;
 	private final FriendlyByteBuf buf;
 
-	public static TrTickingEntityAttachmentPacket add(EntityAttachmentsClass type, TickingEntityAttachment effect, boolean sentToOwner) {
-		return new TrTickingEntityAttachmentPacket(type, PacketType.ADD, effect.getEntity().getId(), effect.getId(), 
+	public static TrEntityCustomEffectsPacket add(EntityCustomEffectsClass type, EntityCustomEffect effect, boolean sentToOwner) {
+		return new TrEntityCustomEffectsPacket(type, PacketType.ADD, effect.getEntity().getId(), effect.getId(), 
 				effect.effectType, effect, sentToOwner, null);
 	}
 
-	public static TrTickingEntityAttachmentPacket remove(EntityAttachmentsClass type, TickingEntityAttachment effect) {
-		return new TrTickingEntityAttachmentPacket(type, PacketType.REMOVE, effect.getEntity().getId(), effect.getId(), 
+	public static TrEntityCustomEffectsPacket remove(EntityCustomEffectsClass type, EntityCustomEffect effect) {
+		return new TrEntityCustomEffectsPacket(type, PacketType.REMOVE, effect.getEntity().getId(), effect.getId(), 
 				effect.effectType, effect, false, null);
 	}
 
-	public static TrTickingEntityAttachmentPacket updateTarget(StandEffectInstance effect) {
-		return new TrTickingEntityAttachmentPacket(EntityAttachmentsClass.STAND_EFFECT, PacketType.UPDATE_TARGET, effect.getEntity().getId(), effect.getId(), 
+	public static TrEntityCustomEffectsPacket updateTarget(StandEffectInstance effect) {
+		return new TrEntityCustomEffectsPacket(EntityCustomEffectsClass.STAND_EFFECT, PacketType.UPDATE_TARGET, effect.getEntity().getId(), effect.getId(), 
 				effect.effectType, effect, false, null);
 	}
 
-	private TrTickingEntityAttachmentPacket(EntityAttachmentsClass attachmentType, PacketType packetType, int userId, int effectId, 
-			EntityAttachmentType<?> effectFactory, TickingEntityAttachment effect, boolean isUser, FriendlyByteBuf buf) {
-		this.attachmentType = attachmentType;
+	private TrEntityCustomEffectsPacket(EntityCustomEffectsClass effectsClass, PacketType packetType, int userId, int effectId, 
+			EntityCustomEffectType<?> effectFactory, EntityCustomEffect effect, boolean isUser, FriendlyByteBuf buf) {
+		this.effectsClass = effectsClass;
 		this.packetType = packetType;
 		this.userId = userId;
 		this.effectId = effectId;
@@ -52,28 +52,28 @@ public class TrTickingEntityAttachmentPacket implements CustomPacketPayload {
 
 
 
-	private static CustomPacketPayload.Type<TrTickingEntityAttachmentPacket> type;
+	private static CustomPacketPayload.Type<TrEntityCustomEffectsPacket> type;
 
-	public static class Handler implements PacketsRegister.PacketOGHandler<TrTickingEntityAttachmentPacket> {
+	public static class Handler implements PacketsRegister.PacketOGHandler<TrEntityCustomEffectsPacket> {
 
 		public Handler(ResourceLocation packetId) { 
 			type = new CustomPacketPayload.Type<>(packetId);
 		}
 
 		@Override
-		public Type<TrTickingEntityAttachmentPacket> type() {
+		public Type<TrEntityCustomEffectsPacket> type() {
 			return type;
 		}
 
 		@Override
-		public void encode(TrTickingEntityAttachmentPacket packet, RegistryFriendlyByteBuf buf) {
-			buf.writeEnum(packet.attachmentType);
+		public void encode(TrEntityCustomEffectsPacket packet, RegistryFriendlyByteBuf buf) {
+			buf.writeEnum(packet.effectsClass);
 			buf.writeEnum(packet.packetType);
 			switch (packet.packetType) {
 				case ADD:
 					buf.writeInt(packet.userId);
 					buf.writeInt(packet.effectId);
-					NetworkUtil.registryCodec(JojoRegistries.ENTITY_ATTACHMENTS_REG_KEY).encode(buf, packet.effectFactory);
+					NetworkUtil.registryCodec(JojoRegistries.ENTITY_CUSTOM_EFFECTS_REG_KEY).encode(buf, packet.effectFactory);
 					buf.writeBoolean(packet.isUser);
 	
 					buf.writeVarInt(packet.effect.tickCount);
@@ -92,28 +92,28 @@ public class TrTickingEntityAttachmentPacket implements CustomPacketPayload {
 		}
 
 		@Override
-		public TrTickingEntityAttachmentPacket decode(RegistryFriendlyByteBuf buf) {
-			EntityAttachmentsClass attachmentType = buf.readEnum(EntityAttachmentsClass.class);
+		public TrEntityCustomEffectsPacket decode(RegistryFriendlyByteBuf buf) {
+			EntityCustomEffectsClass effectsClass = buf.readEnum(EntityCustomEffectsClass.class);
 			PacketType packetType = buf.readEnum(PacketType.class);
 			return switch (packetType) {
 				case ADD -> {
 					int userId = buf.readInt();
 					int effectId = buf.readInt();
-					EntityAttachmentType<?> effectFactory = NetworkUtil.registryCodec(JojoRegistries.ENTITY_ATTACHMENTS_REG_KEY).decode(buf);
+					EntityCustomEffectType<?> effectFactory = NetworkUtil.registryCodec(JojoRegistries.ENTITY_CUSTOM_EFFECTS_REG_KEY).decode(buf);
 					boolean isUser = buf.readBoolean();
-					yield new TrTickingEntityAttachmentPacket(attachmentType, packetType, userId, effectId, 
+					yield new TrEntityCustomEffectsPacket(effectsClass, packetType, userId, effectId, 
 							effectFactory, null, isUser, NetworkUtil.extraPacketData(buf));
 				}
 				case REMOVE -> {
 					int userId = buf.readInt();
 					int effectId = buf.readInt();
-					yield new TrTickingEntityAttachmentPacket(attachmentType, packetType, userId, effectId, 
+					yield new TrEntityCustomEffectsPacket(effectsClass, packetType, userId, effectId, 
 							null, null, false, null);
 				}
 				case UPDATE_TARGET -> {
 					int userId = buf.readInt();
 					int effectId = buf.readInt();
-					yield new TrTickingEntityAttachmentPacket(attachmentType, packetType, userId, effectId, 
+					yield new TrEntityCustomEffectsPacket(effectsClass, packetType, userId, effectId, 
 							null, null, false, NetworkUtil.extraPacketData(buf));
 				}
 			};
@@ -121,23 +121,23 @@ public class TrTickingEntityAttachmentPacket implements CustomPacketPayload {
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override
-		public void handle(TrTickingEntityAttachmentPacket payload, IPayloadContext context) {
+		public void handle(TrEntityCustomEffectsPacket payload, IPayloadContext context) {
 			Entity entity = ClientProxy.getEntityById(payload.userId);
-			EntityAttachmentsHolder attachments = payload.attachmentType.get(entity);
-			if (attachments == null) return;
+			EntityCustomEffectsMap effects = payload.effectsClass.get(entity, payload.packetType == PacketType.ADD);
+			if (effects == null) return;
 
 			switch (payload.packetType) {
 				case ADD:
-					TickingEntityAttachment newEffect = payload.effectFactory.create(entity.level()).withId(payload.effectId);
+					EntityCustomEffect newEffect = payload.effectFactory.create(entity.level()).withId(payload.effectId);
 					newEffect.withEntity(entity);
 					newEffect.tickCount = payload.buf.readVarInt();
 					newEffect.readAdditionalPacketData(payload.buf, payload.isUser);
-					attachments.addEffect(newEffect);
+					effects.addEffect(newEffect);
 					break;
 				case REMOVE:
-					attachments.removeEffect(payload.effectId);
+					effects.removeEffect(payload.effectId);
 				case UPDATE_TARGET:
-					StandEffectInstance effect = (StandEffectInstance) attachments.getById(payload.effectId);
+					StandEffectInstance effect = (StandEffectInstance) effects.getById(payload.effectId);
 					if (effect != null) {
 						int targetEntityId = payload.buf.readInt();
 						effect.withTargetEntityId(targetEntityId);

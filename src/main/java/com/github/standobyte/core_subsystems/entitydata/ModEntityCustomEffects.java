@@ -5,6 +5,6 @@ import com.github.standobyte.jojo.core.JojoRegistries;
 
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-public class ModTickingEntityAttachments {
-	public static final DeferredRegister<EntityAttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(JojoRegistries.ENTITY_ATTACHMENTS_REG, JojoMod.MOD_ID);
+public class ModEntityCustomEffects {
+	public static final DeferredRegister<EntityCustomEffectType<?>> CUSTOM_EFFECTS = DeferredRegister.create(JojoRegistries.ENTITY_CUSTOM_EFFECTS_REG, JojoMod.MOD_ID);
 }

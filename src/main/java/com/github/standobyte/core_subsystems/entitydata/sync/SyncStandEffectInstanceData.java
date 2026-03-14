@@ -2,9 +2,9 @@ package com.github.standobyte.core_subsystems.entitydata.sync;
 
 import java.util.List;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentsClass;
-import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentsHolder;
-import com.github.standobyte.core_subsystems.entitydata.TickingEntityAttachment;
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectsClass;
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectsMap;
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffect;
 import com.github.standobyte.jojo.util.syncheddata.SynchedDataExtended;
 
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -15,31 +15,31 @@ import net.neoforged.neoforge.network.PacketDistributor;
 public class SyncStandEffectInstanceData {
 	
 	public static void onStartedTracking(ServerPlayer tracking, Entity standUser, 
-			EntityAttachmentsClass attachmentType, TickingEntityAttachment effect) {
+			EntityCustomEffectsClass effectsClass, EntityCustomEffect effect) {
 		SynchedDataExtended synchedData = effect.synchedData.getDataSyncher();
 		if (synchedData != null) {
 			List<SynchedEntityData.DataValue<?>> nonDefaultData = synchedData.syncOnStartedTracking();
 			if (nonDefaultData != null) {
-				PacketDistributor.sendToPlayer(tracking, new TrStandEffectSynchedDataPacket(standUser.getId(), effect.getId(), attachmentType, nonDefaultData));
+				PacketDistributor.sendToPlayer(tracking, new TrStandEffectSynchedDataPacket(standUser.getId(), effect.getId(), effectsClass, nonDefaultData));
 			}
 		}
 	}
 	
-	public static void tickSyncDirtyData(Entity standUser, EntityAttachmentsClass attachmentType, TickingEntityAttachment effect) {
+	public static void tickSyncDirtyData(Entity standUser, EntityCustomEffectsClass effectsClass, EntityCustomEffect effect) {
 		SynchedDataExtended synchedData = effect.synchedData.getDataSyncher();
 		if (synchedData != null) {
 			List<SynchedEntityData.DataValue<?>> dirtyData = synchedData.syncDirtyData();
 			if (dirtyData != null) {
-				PacketDistributor.sendToPlayersTrackingEntityAndSelf(standUser, new TrStandEffectSynchedDataPacket(standUser.getId(), effect.getId(), attachmentType, dirtyData));
+				PacketDistributor.sendToPlayersTrackingEntityAndSelf(standUser, new TrStandEffectSynchedDataPacket(standUser.getId(), effect.getId(), effectsClass, dirtyData));
 			}
 		}
 	}
 	
 	public static void setDataClientSide(Entity entity, int effectId, 
-			EntityAttachmentsClass attachmentType, List<SynchedEntityData.DataValue<?>> packedItems) {
-		EntityAttachmentsHolder<?> standEffects = attachmentType.get(entity);
+			EntityCustomEffectsClass effectsClass, List<SynchedEntityData.DataValue<?>> packedItems) {
+		EntityCustomEffectsMap<?> standEffects = effectsClass.get(entity, false);
 		if (standEffects != null) {
-			TickingEntityAttachment effect = standEffects.getById(effectId);
+			EntityCustomEffect effect = standEffects.getById(effectId);
 			if (effect != null) {
 				SynchedDataExtended synchedData = effect.synchedData.getDataSyncher();
 				if (synchedData != null) {

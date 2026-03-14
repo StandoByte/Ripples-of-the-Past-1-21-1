@@ -1,5 +1,12 @@
 package com.github.standobyte.jojo.init;
 
+import java.util.function.Supplier;
+
+import org.jetbrains.annotations.ApiStatus;
+
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectsClass;
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectsMap;
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffect;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.KnockbackCollisionImpact;
 import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker;
@@ -25,9 +32,6 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
-import org.jetbrains.annotations.ApiStatus;
-
-import java.util.function.Supplier;
 
 public final class ModDataAttachmentTypes {
 	public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, JojoMod.MOD_ID);
@@ -67,6 +71,9 @@ public final class ModDataAttachmentTypes {
 
 	public static final Supplier<AttachmentType<LivingComponentPossession>> ENTITY_POSSESSION = ATTACHMENT_TYPES.register("possession", 
 			() -> AttachmentType.builder(obj -> obj instanceof Entity entity ? new LivingComponentPossession(entity) : null).build());
+	
+	public static final Supplier<AttachmentType<EntityCustomEffectsMap.Impl<EntityCustomEffect>>> ENTITY_CUSTOM_EFFECTS = ATTACHMENT_TYPES.register("entity_custom_effects", 
+			() -> AttachmentType.builder(obj -> obj instanceof Entity entity ? new EntityCustomEffectsMap.Impl<>(EntityCustomEffectsClass.OTHER, entity) : null).build());
 	
 	
 	public static final Supplier<AttachmentType<StandEffectsTarget>> STAND_EFFECTS_TARGET = ATTACHMENT_TYPES.register("stand_effects_target", 

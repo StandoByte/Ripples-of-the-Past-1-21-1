@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.init.power;
 
 import java.util.function.Supplier;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentType;
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectType;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.DriedBloodDropsEffect;
 
 /**
@@ -12,7 +12,7 @@ import com.github.standobyte.jojoimpl.stands.crazydiamond.DriedBloodDropsEffect;
 public final class ModStandEffects {
 
 
-	public static final Supplier<EntityAttachmentType<DriedBloodDropsEffect>> CRAZY_D_BLOOD_DROPS = ModStandAbilities.EFFECT_CD_BLOOD_DROPS;
+	public static final Supplier<EntityCustomEffectType<DriedBloodDropsEffect>> CRAZY_D_BLOOD_DROPS = ModStandAbilities.EFFECT_CD_BLOOD_DROPS;
 
 
 	public static void load() {}

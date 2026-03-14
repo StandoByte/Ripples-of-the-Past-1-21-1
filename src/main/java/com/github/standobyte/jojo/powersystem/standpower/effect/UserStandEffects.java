@@ -7,9 +7,9 @@ import java.util.stream.Stream;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentsClass;
-import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentType;
-import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentsHolder;
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectsClass;
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectType;
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectsMap;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 
 import net.minecraft.server.level.ServerPlayer;
@@ -17,11 +17,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
-public class UserStandEffects extends EntityAttachmentsHolder<StandEffectInstance> {
+public class UserStandEffects extends EntityCustomEffectsMap<StandEffectInstance> {
 	protected StandPower standPower;
 
 	public UserStandEffects(StandPower standPower) {
-		super(EntityAttachmentsClass.STAND_EFFECT);
+		super(EntityCustomEffectsClass.STAND_EFFECT);
 		this.standPower = standPower;
 	}
 	
@@ -40,7 +40,7 @@ public class UserStandEffects extends EntityAttachmentsHolder<StandEffectInstanc
 
 
 	@SuppressWarnings("unchecked")
-	public <T extends StandEffectInstance> Optional<T> getEffectTargeting(EntityAttachmentType<T> effectType, LivingEntity target) {
+	public <T extends StandEffectInstance> Optional<T> getEffectTargeting(EntityCustomEffectType<T> effectType, LivingEntity target) {
 		Stream<StandEffectInstance> effects = getEffects().stream().filter(effect -> 
 				effect.effectType == effectType && 
 				(target == null ? effect.getTargetUUID() == null : target.getUUID().equals(effect.getTargetUUID())));
@@ -48,7 +48,7 @@ public class UserStandEffects extends EntityAttachmentsHolder<StandEffectInstanc
 		return effect;
 	}
 
-	public <T extends StandEffectInstance> T getOrCreateEffect(EntityAttachmentType<T> effectType, LivingEntity target) {
+	public <T extends StandEffectInstance> T getOrCreateEffect(EntityCustomEffectType<T> effectType, LivingEntity target) {
 		Optional<T> effect = getEffectTargeting(effectType, target);
 		if (effect.isPresent()) {
 			return effect.get();
@@ -61,7 +61,7 @@ public class UserStandEffects extends EntityAttachmentsHolder<StandEffectInstanc
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends StandEffectInstance> T getOrCreateEffect(EntityAttachmentType<T> effectType) {
+	public <T extends StandEffectInstance> T getOrCreateEffect(EntityCustomEffectType<T> effectType) {
 		Optional<T> effect = (Optional<T>) getEffects().stream()
 				.filter(e -> e.effectType == effectType)
 				.findFirst();
@@ -76,27 +76,27 @@ public class UserStandEffects extends EntityAttachmentsHolder<StandEffectInstanc
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends StandEffectInstance> Stream<T> getEffectsOfType(EntityAttachmentType<T> type) {
+	public <T extends StandEffectInstance> Stream<T> getEffectsOfType(EntityCustomEffectType<T> type) {
 		return (Stream<T>) getEffects().stream()
 				.filter(effect -> effect.effectType == type);
 	}
 
-	public <T extends StandEffectInstance> Optional<T> getEffectOfType(EntityAttachmentType<T> type) {
+	public <T extends StandEffectInstance> Optional<T> getEffectOfType(EntityCustomEffectType<T> type) {
 		return getEffectsOfType(type).findFirst();
 	}
 
 
-	public static <T extends StandEffectInstance> Stream<T> getEffectsOfType(LivingEntity user, EntityAttachmentType<T> type) {
+	public static <T extends StandEffectInstance> Stream<T> getEffectsOfType(LivingEntity user, EntityCustomEffectType<T> type) {
 		StandPower power = StandPower.get(user);
 		return power != null ? power.userStandEffects.getEffectsOfType(type) : null;
 	}
 
-	public static <T extends StandEffectInstance> Optional<T> getEffectOfType(LivingEntity user, EntityAttachmentType<T> type) {
+	public static <T extends StandEffectInstance> Optional<T> getEffectOfType(LivingEntity user, EntityCustomEffectType<T> type) {
 		StandPower power = StandPower.get(user);
 		return power != null ? power.userStandEffects.getEffectOfType(type) : null;
 	}
 	
-	public static <T extends StandEffectInstance> Stream<T> getEffectsInRange(StandPower power, EntityAttachmentType<T> type, double range, LivingEntity user) {
+	public static <T extends StandEffectInstance> Stream<T> getEffectsInRange(StandPower power, EntityCustomEffectType<T> type, double range, LivingEntity user) {
 		double rangeSqr = range * range;
 		return power.userStandEffects.getEffectsOfType(type)
 				.filter(effect -> {
@@ -106,7 +106,7 @@ public class UserStandEffects extends EntityAttachmentsHolder<StandEffectInstanc
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends StandEffectInstance> Optional<T> getEffectLookedAt(StandPower power, EntityAttachmentType<T> type, double range, LivingEntity user) {
+	public static <T extends StandEffectInstance> Optional<T> getEffectLookedAt(StandPower power, EntityCustomEffectType<T> type, double range, LivingEntity user) {
 		return (Optional<T>) getTargetLookedAt(getEffectsInRange(power, type, range, user), user);
 	}
 
@@ -119,11 +119,11 @@ public class UserStandEffects extends EntityAttachmentsHolder<StandEffectInstanc
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends StandEffectInstance> Stream<T> getEffectsTargetedBy(LivingEntity entity, EntityAttachmentType<T> type) {
+	public static <T extends StandEffectInstance> Stream<T> getEffectsTargetedBy(LivingEntity entity, EntityCustomEffectType<T> type) {
 		return (Stream<T>) StandEffectsTarget.getEffectsReadOnly(entity).filter(effect -> effect.effectType == type);
 	}
 
-	public static boolean isTargetedBy(LivingEntity entity, EntityAttachmentType<? extends StandEffectInstance> type) {
+	public static boolean isTargetedBy(LivingEntity entity, EntityCustomEffectType<? extends StandEffectInstance> type) {
 		return getEffectsTargetedBy(entity, type).findAny().isPresent();
 	}
 

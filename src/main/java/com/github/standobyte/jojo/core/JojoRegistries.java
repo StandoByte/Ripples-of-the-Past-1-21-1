@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.function.Consumer;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentType;
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectType;
 import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSet;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.StoryCharacter;
@@ -60,13 +60,13 @@ public final class JojoRegistries {
 			.sync(true)
 			.create();
 	
-	public static final ResourceKey<Registry<EntityAttachmentType<?>>> ENTITY_ATTACHMENTS_REG_KEY = ResourceKey.createRegistryKey(
-			JojoMod.resLoc("entity_attachment"));
+	public static final ResourceKey<Registry<EntityCustomEffectType<?>>> ENTITY_CUSTOM_EFFECTS_REG_KEY = ResourceKey.createRegistryKey(
+			JojoMod.resLoc("custom_effects"));
 	
-	public static final Registry<EntityAttachmentType<?>> ENTITY_ATTACHMENTS_REG = new RegistryBuilder<>(ENTITY_ATTACHMENTS_REG_KEY)
+	public static final Registry<EntityCustomEffectType<?>> ENTITY_CUSTOM_EFFECTS_REG = new RegistryBuilder<>(ENTITY_CUSTOM_EFFECTS_REG_KEY)
 			.sync(true)
 			.create();
-	public static final Registry<EntityAttachmentType<?>> STAND_EFFECTS_REG = ENTITY_ATTACHMENTS_REG;
+	public static final Registry<EntityCustomEffectType<?>> STAND_EFFECTS_REG = ENTITY_CUSTOM_EFFECTS_REG;
 	
 	
 	public static final ResourceKey<Registry<StandType>> DEFAULT_STANDS_REG_KEY = ResourceKey.createRegistryKey(

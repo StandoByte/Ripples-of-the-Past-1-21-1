@@ -17,16 +17,28 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-public abstract class EntityAttachmentsHolder<T extends TickingEntityAttachment> {
+public abstract class EntityCustomEffectsMap<T extends EntityCustomEffect> {
 	public static final AtomicInteger EFFECTS_COUNTER = new AtomicInteger();
 	protected final Int2ObjectMap<T> effects = new Int2ObjectLinkedOpenHashMap<>();
-	protected final EntityAttachmentsClass attachmentsClass;
+	protected final EntityCustomEffectsClass effectsClass;
 	
-	public EntityAttachmentsHolder(EntityAttachmentsClass attachmentsLocation) {
-		this.attachmentsClass = attachmentsLocation;
+	public EntityCustomEffectsMap(EntityCustomEffectsClass effectsClass) {
+		this.effectsClass = effectsClass;
 	}
 	
 	protected abstract Entity getEntity();
+	
+	public static class Impl<T extends EntityCustomEffect> extends EntityCustomEffectsMap<T> {
+		protected Entity entity;
+		
+		public Impl(EntityCustomEffectsClass effectsClass, Entity entity) {
+			super(effectsClass);
+			this.entity = entity;
+		}
+		
+		@Override protected Entity getEntity() { return entity; }
+	}
+	
 	
 	public void addEffect(T instance) {
 		Entity entity = getEntity();
@@ -35,9 +47,9 @@ public abstract class EntityAttachmentsHolder<T extends TickingEntityAttachment>
 		}
 		putEffectInstance(instance);
 		if (!entity.level().isClientSide()) {
-			PacketDistributor.sendToPlayersTrackingEntity(entity, TrTickingEntityAttachmentPacket.add(attachmentsClass, instance, false));
+			PacketDistributor.sendToPlayersTrackingEntity(entity, TrEntityCustomEffectsPacket.add(effectsClass, instance, false));
 			if (entity instanceof ServerPlayer player) {
-				PacketDistributor.sendToPlayer(player, TrTickingEntityAttachmentPacket.add(attachmentsClass, instance, true));
+				PacketDistributor.sendToPlayer(player, TrEntityCustomEffectsPacket.add(effectsClass, instance, true));
 			}
 		}
 	}
@@ -78,7 +90,7 @@ public abstract class EntityAttachmentsHolder<T extends TickingEntityAttachment>
 			if (!effect.isStopped()) {
 				effect.onTick();
 				if (!effect.isStopped() && !level.isClientSide()) {
-					SyncStandEffectInstanceData.tickSyncDirtyData(entity, attachmentsClass, effect);
+					SyncStandEffectInstanceData.tickSyncDirtyData(entity, effectsClass, effect);
 				}
 			}
 			if (effect.isStopped()) {
@@ -98,7 +110,7 @@ public abstract class EntityAttachmentsHolder<T extends TickingEntityAttachment>
 		instance.onStop();
 		Entity entity = getEntity();
 		if (!entity.level().isClientSide()) {
-			PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, TrTickingEntityAttachmentPacket.remove(attachmentsClass, instance));
+			PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, TrEntityCustomEffectsPacket.remove(effectsClass, instance));
 		}
 	}
 
@@ -114,10 +126,10 @@ public abstract class EntityAttachmentsHolder<T extends TickingEntityAttachment>
 	public void syncWithTrackingOrUser(ServerPlayer player) {
 		effects.values().forEach(effect -> {
 			Entity entity = effect.getEntity();
-			PacketDistributor.sendToPlayer(player, TrTickingEntityAttachmentPacket.add(
-					attachmentsClass, effect, player == entity));
+			PacketDistributor.sendToPlayer(player, TrEntityCustomEffectsPacket.add(
+					effectsClass, effect, player == entity));
 			SyncStandEffectInstanceData.onStartedTracking(player, entity, 
-					attachmentsClass, effect);
+					effectsClass, effect);
 			effect.syncWithTrackingOrUser(player);
 		});
 	}
@@ -140,7 +152,7 @@ public abstract class EntityAttachmentsHolder<T extends TickingEntityAttachment>
 		if (nbt.contains("Effects", Tag.TAG_LIST)) {
 			Level level = getEntity().level();
 			nbt.getList("Effects", Tag.TAG_COMPOUND).forEach(effectNBT -> {
-				T effect = (T) TickingEntityAttachment.fromNBT((CompoundTag) effectNBT, level);
+				T effect = (T) EntityCustomEffect.fromNBT((CompoundTag) effectNBT, level);
 				if (effect != null) {
 					effect.withId(EFFECTS_COUNTER.incrementAndGet());
 					putEffectInstance(effect);

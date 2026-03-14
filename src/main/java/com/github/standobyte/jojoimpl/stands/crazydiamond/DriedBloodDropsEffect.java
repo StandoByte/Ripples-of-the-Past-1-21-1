@@ -1,6 +1,6 @@
 package com.github.standobyte.jojoimpl.stands.crazydiamond;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentType;
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectType;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
@@ -12,7 +12,7 @@ import net.minecraft.world.entity.LivingEntity;
 public class DriedBloodDropsEffect extends StandEffectInstance {
 	private int disappearTicks = 0;
 
-	public DriedBloodDropsEffect(EntityAttachmentType<?> effectType) {
+	public DriedBloodDropsEffect(EntityCustomEffectType<?> effectType) {
 		super(effectType);
 		needsTarget = true;
 		removeOnUserLogout = false;

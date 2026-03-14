@@ -1,6 +1,6 @@
 package com.github.standobyte.jojoimpl.stands.hierophant;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentType;
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectType;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.event.RipplesAbilityKeyPressEvent;
@@ -29,7 +29,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 @EventBusSubscriber(modid = JojoMod.MOD_ID)
 public class HierophantPuppetEffect extends StandEffectInstance {
 
-	public HierophantPuppetEffect(EntityAttachmentType<?> effectType) {
+	public HierophantPuppetEffect(EntityCustomEffectType<?> effectType) {
 		super(effectType);
 		needsTarget = true;
 	}

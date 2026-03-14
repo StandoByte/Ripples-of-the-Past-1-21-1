@@ -12,8 +12,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 
-public abstract class TickingEntityAttachment {
-	@Nonnull public final EntityAttachmentType<?> effectType;
+public abstract class EntityCustomEffect {
+	@Nonnull public final EntityCustomEffectType<?> effectType;
 
 	public SynchedDataHelper synchedData = new SynchedDataHelper(this, () -> this.level.isClientSide());
 
@@ -28,17 +28,17 @@ public abstract class TickingEntityAttachment {
 	public boolean removeOnUserLogout = true;
 
 
-	public TickingEntityAttachment(@Nonnull EntityAttachmentType<?> effectType) {
+	public EntityCustomEffect(@Nonnull EntityCustomEffectType<?> effectType) {
 		this.effectType = effectType;
 	}
 
-	public TickingEntityAttachment withEntity(Entity entity) {
+	public EntityCustomEffect withEntity(Entity entity) {
 		this.entity = entity;
 		this.level = entity.level();
 		return this;
 	}
 
-	public TickingEntityAttachment withId(int id) {
+	public EntityCustomEffect withId(int id) {
 		this.id = id;
 		return this;
 	}
@@ -95,10 +95,10 @@ public abstract class TickingEntityAttachment {
 		return nbt;
 	}
 
-	public static TickingEntityAttachment fromNBT(CompoundTag nbt, Level level) {
-		EntityAttachmentType<?> effectType = JojoRegistries.STAND_EFFECTS_REG.get(ResourceLocation.parse(nbt.getString("Type")));
+	public static EntityCustomEffect fromNBT(CompoundTag nbt, Level level) {
+		EntityCustomEffectType<?> effectType = JojoRegistries.STAND_EFFECTS_REG.get(ResourceLocation.parse(nbt.getString("Type")));
 		if (effectType == null) return null;
-		TickingEntityAttachment effect = effectType.create(level);
+		EntityCustomEffect effect = effectType.create(level);
 		effect.tickCount = nbt.getInt("TickCount");
 		effect.readAdditionalSaveData(nbt);
 		return effect;

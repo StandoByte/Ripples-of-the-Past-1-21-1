@@ -3,7 +3,7 @@ package com.github.standobyte.core_subsystems.entitydata.sync;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentsClass;
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectsClass;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.PacketsRegister;
 
@@ -15,7 +15,7 @@ import net.minecraft.world.entity.Entity;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record TrStandEffectSynchedDataPacket(int entityId, int effectId, 
-		EntityAttachmentsClass attachmentType, List<SynchedEntityData.DataValue<?>> packedItems) implements CustomPacketPayload {
+		EntityCustomEffectsClass effectsClass, List<SynchedEntityData.DataValue<?>> packedItems) implements CustomPacketPayload {
 	private static CustomPacketPayload.Type<TrStandEffectSynchedDataPacket> type;
 
 	public static class Handler implements PacketsRegister.PacketOGHandler<TrStandEffectSynchedDataPacket> {
@@ -33,7 +33,7 @@ public record TrStandEffectSynchedDataPacket(int entityId, int effectId,
 		public void encode(TrStandEffectSynchedDataPacket packet, RegistryFriendlyByteBuf buf) {
 			buf.writeInt(packet.entityId);
 			buf.writeInt(packet.effectId);
-			buf.writeEnum(packet.attachmentType);
+			buf.writeEnum(packet.effectsClass);
 
 			for (SynchedEntityData.DataValue<?> datavalue : packet.packedItems) {
 				datavalue.write(buf);
@@ -45,7 +45,7 @@ public record TrStandEffectSynchedDataPacket(int entityId, int effectId,
 		public TrStandEffectSynchedDataPacket decode(RegistryFriendlyByteBuf buf) {
 			int entityId = buf.readInt();
 			int effectId = buf.readInt();
-			EntityAttachmentsClass attachmentType = buf.readEnum(EntityAttachmentsClass.class);
+			EntityCustomEffectsClass effectsClass = buf.readEnum(EntityCustomEffectsClass.class);
 
 			List<SynchedEntityData.DataValue<?>> packedItems = new ArrayList<>();
 			int id;
@@ -53,13 +53,13 @@ public record TrStandEffectSynchedDataPacket(int entityId, int effectId,
 				packedItems.add(SynchedEntityData.DataValue.read(buf, id));
 			}
 
-			return new TrStandEffectSynchedDataPacket(entityId, effectId, attachmentType, packedItems);
+			return new TrStandEffectSynchedDataPacket(entityId, effectId, effectsClass, packedItems);
 		}
 
 		@Override
 		public void handle(TrStandEffectSynchedDataPacket payload, IPayloadContext context) {
 			Entity entity = ClientProxy.getEntityById(payload.entityId);
-			SyncStandEffectInstanceData.setDataClientSide(entity, payload.effectId, payload.attachmentType, payload.packedItems);
+			SyncStandEffectInstanceData.setDataClientSide(entity, payload.effectId, payload.effectsClass, payload.packedItems);
 		}
 
 	}

@@ -2,8 +2,8 @@ package com.github.standobyte.jojo.init.power;
 
 import static com.github.standobyte.jojo.core.JojoRegistries.ABILITY_TYPES;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentType;
-import com.github.standobyte.core_subsystems.entitydata.ModTickingEntityAttachments;
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectType;
+import com.github.standobyte.core_subsystems.entitydata.ModEntityCustomEffects;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandBearingShotAbility;
@@ -43,7 +43,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class ModStandAbilities {
-	public static final DeferredRegister<EntityAttachmentType<?>> STAND_EFFECT_TYPES = ModTickingEntityAttachments.ATTACHMENT_TYPES;
+	public static final DeferredRegister<EntityCustomEffectType<?>> STAND_EFFECT_TYPES = ModEntityCustomEffects.CUSTOM_EFFECTS;
 	
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityManualControlToggle>> MANUAL_CONTROL = ABILITY_TYPES.register(
@@ -98,8 +98,8 @@ public final class ModStandAbilities {
 	public static final DeferredHolder<AbilityType<?>, AbilityType<HierophantPuppetAbility>> HG_PUPPET = ABILITY_TYPES.register(
 			"puppet", key -> new AbilityType<>(key, HierophantPuppetAbility::new));
 
-	public static final DeferredHolder<EntityAttachmentType<?>, EntityAttachmentType<HierophantPuppetEffect>> EFFECT_HG_PUPPET = STAND_EFFECT_TYPES.register(
-			"hg_puppet", key -> new EntityAttachmentType<>(key, HierophantPuppetEffect::new));
+	public static final DeferredHolder<EntityCustomEffectType<?>, EntityCustomEffectType<HierophantPuppetEffect>> EFFECT_HG_PUPPET = STAND_EFFECT_TYPES.register(
+			"hg_puppet", key -> new EntityCustomEffectType<>(key, HierophantPuppetEffect::new));
 
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDBloodCutterAbility>> CD_BLOOD_CUTTER = ABILITY_TYPES.register(
@@ -138,17 +138,17 @@ public final class ModStandAbilities {
 	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDAngeloRockPunchInput>> CD_ANGELO_ROCK_ON_PUNCH = ABILITY_TYPES.register(
 			"angelo_rock", key -> new AbilityType<>(key, CrazyDAngeloRockPunchInput::new));
 
-	public static final DeferredHolder<EntityAttachmentType<?>, EntityAttachmentType<DriedBloodDropsEffect>> EFFECT_CD_BLOOD_DROPS = STAND_EFFECT_TYPES.register(
-			"cd_blood_drops", key -> new EntityAttachmentType<>(key, DriedBloodDropsEffect::new));
+	public static final DeferredHolder<EntityCustomEffectType<?>, EntityCustomEffectType<DriedBloodDropsEffect>> EFFECT_CD_BLOOD_DROPS = STAND_EFFECT_TYPES.register(
+			"cd_blood_drops", key -> new EntityCustomEffectType<>(key, DriedBloodDropsEffect::new));
 
-	public static final DeferredHolder<EntityAttachmentType<?>, EntityAttachmentType<CrazyDLeaveObjectPunchEffect>> EFFECT_CD_PUNCH_LEAVE_OBJECT = STAND_EFFECT_TYPES.register(
-			"cd_punch_leave_object", key -> new EntityAttachmentType<>(key, CrazyDLeaveObjectPunchEffect::new));
+	public static final DeferredHolder<EntityCustomEffectType<?>, EntityCustomEffectType<CrazyDLeaveObjectPunchEffect>> EFFECT_CD_PUNCH_LEAVE_OBJECT = STAND_EFFECT_TYPES.register(
+			"cd_punch_leave_object", key -> new EntityCustomEffectType<>(key, CrazyDLeaveObjectPunchEffect::new));
 
-	public static final DeferredHolder<EntityAttachmentType<?>, EntityAttachmentType<CrazyDMisshapingPunchEffect>> EFFECT_CD_PUNCH_MISSHAPING = STAND_EFFECT_TYPES.register(
-			"cd_punch_misshaping", key -> new EntityAttachmentType<>(key, CrazyDMisshapingPunchEffect::new));
+	public static final DeferredHolder<EntityCustomEffectType<?>, EntityCustomEffectType<CrazyDMisshapingPunchEffect>> EFFECT_CD_PUNCH_MISSHAPING = STAND_EFFECT_TYPES.register(
+			"cd_punch_misshaping", key -> new EntityCustomEffectType<>(key, CrazyDMisshapingPunchEffect::new));
 
-	public static final DeferredHolder<EntityAttachmentType<?>, EntityAttachmentType<CrazyDAngeloRockPunchEffect>> EFFECT_CD_PUNCH_ANGELO_ROCK = STAND_EFFECT_TYPES.register(
-			"cd_punch_angelo_rock", key -> new EntityAttachmentType<>(key, CrazyDAngeloRockPunchEffect::new));
+	public static final DeferredHolder<EntityCustomEffectType<?>, EntityCustomEffectType<CrazyDAngeloRockPunchEffect>> EFFECT_CD_PUNCH_ANGELO_ROCK = STAND_EFFECT_TYPES.register(
+			"cd_punch_angelo_rock", key -> new EntityCustomEffectType<>(key, CrazyDAngeloRockPunchEffect::new));
 
 
 
