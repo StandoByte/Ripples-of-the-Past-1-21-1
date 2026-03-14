@@ -12,12 +12,15 @@ import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.core.packet.fromserver.ItemBreakVisualsPacket;
+import com.github.standobyte.jojo.init.ModItemDataComponents;
+import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.mc.entity.projectile.StandArrowEntity;
 import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
+import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.UtilFunctions;
 import com.github.standobyte.jojo.util.mc.StatusEffectUtil;
 
@@ -33,6 +36,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -148,16 +152,33 @@ public class StandArrowItem extends ArrowItem {
     		@Nullable LivingEntity userEntity, @Nullable InteractionHand usedHand,
     		@Nullable Entity itemEntity, @Nullable Vec3 pos, 
     		Item itemConsumerArg) {
+    	// borken item sound and particles
+
     	if (userEntity != null && usedHand != null) {
     		userEntity.onEquippedItemBroken(itemConsumerArg, UtilFunctions.getHandSlot(usedHand));
-    		// TODO spawn arrow shards
     	}
     	else if (pos != null || itemEntity != null) {
     		if (pos == null) pos = itemEntity.getBoundingBox().getCenter();
-    		// TODO spawn arrow shards
     		ItemBreakVisualsPacket packet = ItemBreakVisualsPacket.fromParams(itemEntity, pos, null);
     		if (packet != null) {
     			PacketDistributor.sendToPlayersTrackingChunk(level, AAAAAAAAAAAAAAAAAA(pos), packet);
+    		}
+    	}
+
+    	// spawn arrow shard items
+
+    	if (pos == null && userEntity != null) {
+    		pos = userEntity.getEyePosition().add(new Vec3(0, 0, 0.6)
+    				.xRot(-userEntity.getXRot() * MathUtil.DEG_TO_RAD)
+    				.yRot(-userEntity.getYRot() * MathUtil.DEG_TO_RAD));
+    	}
+    	if (pos != null) {
+    		for (int i = 0; i < 3; i++) {
+    			ItemStack shardItem = ModItems.STAND_ARROW_SHARD.toStack();
+    			shardItem.set(ModItemDataComponents.ARROW_SHARD_VARIANT, i);
+    			ItemEntity shardItemEntity = new ItemEntity(level, pos.x, pos.y, pos.z, shardItem);
+    			level.addFreshEntity(shardItemEntity);
+    			shardItemEntity.setPickUpDelay(40);
     		}
     	}
     }
