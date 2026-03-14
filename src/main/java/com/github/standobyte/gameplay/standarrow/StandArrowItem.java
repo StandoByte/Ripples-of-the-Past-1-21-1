@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.core.packet.fromserver.ItemBreakVisualsPacket;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.init.ModStatusEffects;
+import com.github.standobyte.jojo.init.power.ModStands;
 import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -33,6 +34,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -68,6 +70,40 @@ public class StandArrowItem extends ArrowItem {
     	StandArrowEntity arrow = new StandArrowEntity(level, pos.x(), pos.y(), pos.z(), arrowItem.copyWithCount(1), null);
         arrow.pickup = AbstractArrow.Pickup.ALLOWED;
         return arrow;
+    }
+    
+    
+    public static boolean onPiercedByArrow(Level level, LivingEntity entity, ItemStack arrowItem, 
+    		@Nullable Entity directDamageEntity, @Nullable Entity standGivingCharacter) {
+        if (!level.isClientSide()) {
+        	boolean givePowerTypeStand = entity.getType() == EntityType.PLAYER;
+        	
+        	// TODO event
+        	if (givePowerTypeStand) {
+        		StandPower stand = StandPower.get(entity);
+        		if (!stand.hasPower()) {
+        			StandType standToGive = pickStandToGive(entity);
+        			if (standToGive != null) {
+        				stand.setStand(standToGive);
+        				return true;
+        			}
+        		}
+        	}
+        }
+        return false;
+    }
+
+    public static Stream<StandType> getStandsForPlayer() {
+    	return StandType.getAllEnabledStands().filter(ModStands.PLAYER_CAN_GET_FROM_ARROW::contains);
+    }
+    
+    @Nullable
+    public static StandType pickStandToGive(LivingEntity entity) {
+    	List<StandType> stands = StandArrowItem.getStandsForPlayer().toList();
+    	if (!stands.isEmpty()) {
+    		return stands.get(entity.getRandom().nextInt(stands.size()));
+    	}
+    	return null;
     }
 
 
@@ -134,7 +170,7 @@ public class StandArrowItem extends ArrowItem {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         ItemStack arrow = player.getItemInHand(usedHand);
 
-        if (!level.isClientSide() && GiveStandToEntity.onPiercedByArrow(level, player, arrow, null, player)) {
+        if (!level.isClientSide() && StandArrowItem.onPiercedByArrow(level, player, arrow, null, player)) {
         	if (!isInvulnerable(player)) {
         		dealDamageFromArrow(player, arrow, false);
         	}
@@ -227,7 +263,7 @@ public class StandArrowItem extends ArrowItem {
     public static void addStandNamesToTooltip(List<Component> tooltipComponents, TooltipContext context) {
         Player player = ClientProxy.getClientPlayer();
         if (player != null) {
-            Stream<StandType> stands = GiveStandToEntity.getStandsForPlayer();
+            Stream<StandType> stands = StandArrowItem.getStandsForPlayer();
             stands.map(StandInstance::new)
             .sorted(discsOrder(context.registries()))
             .forEach(stand -> {
