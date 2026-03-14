@@ -3,37 +3,47 @@ package com.github.standobyte.jojo.mc.item;
 import static com.github.standobyte.jojo.init.ModItems.discsOrder;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.jetbrains.annotations.Nullable;
 
 import com.github.standobyte.jojo.client.ClientProxy;
+import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.init.power.ModStands;
 import com.github.standobyte.jojo.mc.entity.projectile.StandArrowEntity;
-import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
-import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
+import com.github.standobyte.jojo.util.UtilFunctions;
+import com.github.standobyte.jojo.util.mc.StatusEffectUtil;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Position;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ArrowItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.phys.Vec3;
 
 public class StandArrowItem extends ArrowItem {
     // dur: 25 | 250; ench: 10 | 25
@@ -58,65 +68,159 @@ public class StandArrowItem extends ArrowItem {
     }
 
 
-    /**
-     * @return  if the entity got the Stand Virus effect or a Stand
-     */
-    public static boolean onPiercedByArrow(Entity target, ItemStack arrowItem, Level level, Optional<Entity> arrowShooter) {
-        if (!level.isClientSide() && target instanceof LivingEntity) {
-            LivingEntity livingEntity = (LivingEntity) target;
-            if (livingEntity.hasEffect(ModStatusEffects.STAND_VIRUS)) {
-                return false;
-            }
+//    /**
+//     * @return  if the entity got the Stand Virus effect or a Stand
+//     */
+//    public static boolean onPiercedByArrow(Entity target, ItemStack arrowItem, Level level, Optional<Entity> arrowShooter) {
+//        if (!level.isClientSide() && target instanceof LivingEntity) {
+//            LivingEntity livingEntity = (LivingEntity) target;
+//            if (livingEntity.hasEffect(ModStatusEffects.STAND_VIRUS)) {
+//                return false;
+//            }
+//
+//            if (livingEntity instanceof StandEntity) {
+//                return false;
+//            }
+//            else if (livingEntity instanceof Player) {
+//                Player player = (Player) livingEntity;
+//                StandType standToGive = ModStands.STAR_PLATINUM.get(); // todo remove this test field
+//                // todo return GeneralUtil.orElseFalse(IStandPower.getStandPowerOptional(livingEntity), standCap -> .. (it would also fail arrow piercing for stand users)
+//                if (player.getAbilities().instabuild) { // instantly give a stand in creative
+//                    return giveStandFromArrow(player, standToGive);
+//                }
+//                else {
+//                    // todo standCap.getStandArrowHandler().startArrowEffectSetStand(standToGive);
+//
+//                    int virusEffectDuration = 600;
+//                    if (virusEffectDuration > 0) {
+//                        int effectLevel = 0;
+//                        player.addEffect(new MobEffectInstance(ModStatusEffects.STAND_VIRUS,
+//                                virusEffectDuration, effectLevel, false, false, true));
+//                    }
+//                    else { // instantly give a stand if there was no stand virus effect given
+//                        return giveStandFromArrow(player, standToGive);
+//                    }
+//
+//                    // todo rememberArrowShooter(livingEntity, arrowShooter, stack);
+//                }
+//
+//                return true;
+//            }
+//            // if the target is a mob
+//            else {
+//                // todo virus inhibition ench
+//                int effectLevel = 0;
+//                livingEntity.addEffect(new MobEffectInstance(ModStatusEffects.STAND_VIRUS,
+//                        600, effectLevel, false, false, true));
+//            }
+//        }
+//        return false;
+//    }
+//
+//    public static boolean giveStandFromArrow(LivingEntity entity, StandType standType) {
+//        PowerClass.STAND.attachPower(entity);
+//        StandPower stand = PowerClass.STAND.get(entity);
+//        if (stand != null) {
+//            stand.setStandInstance(Optional.of(new StandInstance(standType)));
+//            return true;
+//        }
+//        return false;
+//    }
 
-            if (livingEntity instanceof StandEntity) {
-                return false;
-            }
-            else if (livingEntity instanceof Player) {
-                Player player = (Player) livingEntity;
-                StandType standToGive = ModStands.STAR_PLATINUM.get(); // todo remove this test field
-                // todo return GeneralUtil.orElseFalse(IStandPower.getStandPowerOptional(livingEntity), standCap -> .. (it would also fail arrow piercing for stand users)
-                if (player.getAbilities().instabuild) { // instantly give a stand in creative
-                    return giveStandFromArrow(player, standToGive);
-                }
-                else {
-                    // todo standCap.getStandArrowHandler().startArrowEffectSetStand(standToGive);
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+        ItemStack arrow = player.getItemInHand(usedHand);
 
-                    int virusEffectDuration = 600;
-                    if (virusEffectDuration > 0) {
-                        int effectLevel = 0;
-                        player.addEffect(new MobEffectInstance(ModStatusEffects.STAND_VIRUS,
-                                virusEffectDuration, effectLevel, false, false, true));
-                    }
-                    else { // instantly give a stand if there was no stand virus effect given
-                        return giveStandFromArrow(player, standToGive);
-                    }
-
-                    // todo rememberArrowShooter(livingEntity, arrowShooter, stack);
-                }
-
-                return true;
-            }
-            // if the target is a mob
-            else {
-                // todo virus inhibition ench
-                int effectLevel = 0;
-                livingEntity.addEffect(new MobEffectInstance(ModStatusEffects.STAND_VIRUS,
-                        600, effectLevel, false, false, true));
-            }
+        if (!level.isClientSide() && StandArrowItem.onPiercedByArrow(level, player, arrow, null, player)) {
+        	ServerLevel serverLevel = (ServerLevel) level;
+			arrow.hurtAndBreak(1, serverLevel, player, itemType -> onBreakArrow(
+					serverLevel, null, player, usedHand, itemType));
+            return InteractionResultHolder.success(arrow);
+        }
+        return InteractionResultHolder.fail(arrow);
+    }
+    
+    public static boolean onPiercedByArrow(Level level, LivingEntity entity, ItemStack arrowItem, 
+    		@Nullable Entity directDamageEntity, @Nullable Entity standGivingCharacter) {
+        if (!level.isClientSide()) {
+        	boolean givePowerTypeStand = entity.getType() == EntityType.PLAYER;
+        	
+        	// TODO event
+        	if (givePowerTypeStand) {
+        		StandPower stand = StandPower.get(entity);
+        		if (!stand.hasPower()) {
+        			StandType standToGive = StandArrowItem.pickStandToGive(entity);
+        			if (standToGive != null) {
+        				dealDamageFromArrow(entity, stand, arrowItem);
+        				stand.setStand(standToGive);
+        				return true;
+        			}
+        		}
+        	}
         }
         return false;
     }
 
-    public static boolean giveStandFromArrow(LivingEntity entity, StandType standType) {
-        PowerClass.STAND.attachPower(entity);
-        StandPower stand = PowerClass.STAND.get(entity);
-        if (stand != null) {
-            stand.setStandInstance(Optional.of(new StandInstance(standType)));
-            return true;
-        }
-        return false;
+    public static Stream<StandType> getAvailableStands() {
+    	return StandType.getAllEnabledStands().filter(ModStands.PLAYER_CAN_GET_FROM_ARROW::contains);
     }
-
+    
+    public static void onBreakArrow(ServerLevel level, 
+    		@Nullable Vec3 pos,
+    		@Nullable LivingEntity entity, 
+    		@Nullable InteractionHand usedHand,
+    		Item itemConsumerArg) {
+    	if (entity != null && usedHand != null) {
+    		entity.onEquippedItemBroken(itemConsumerArg, UtilFunctions.getHandSlot(usedHand));
+    		// TODO spawn arrow shards
+    	}
+    	else if (pos != null) {
+    		// TODO arrow break particles
+    		// TODO spawn arrow shards
+    	}
+    }
+    
+    public static void dealDamageFromArrow(LivingEntity entity, StandPower entityStandData, ItemStack arrowItem) {
+		// i'm tired of being angry
+		boolean isInvulnerable = entity.isInvulnerable() || entity instanceof Player player && player.getAbilities().invulnerable;
+		if (!isInvulnerable) {
+        	boolean reducedDamage = arrowItem.is(ModItems.STAND_ARROW_SHARD);
+			int bleedingEffect = reducedDamage ? 1 : 2;
+			float dmgAmount = reducedDamage ? 12 : 16;
+			dmgAmount = Math.min(dmgAmount, entity.getHealth() - 1.0F);
+			
+			entity.addEffect(new MobEffectInstance(ModStatusEffects.BLEEDING, 
+					6000 /* it'll heal anyway */, bleedingEffect, false, false, true));
+			// TODO damage source
+			DamageSource dmgSource = entity.damageSources().playerAttack((Player) entity);
+			entity.hurt(dmgSource, dmgAmount);
+			entityStandData.healingDamageFromArrow = true;
+		}
+    }
+    
+    @Nullable
+    public static StandType pickStandToGive(LivingEntity entity) {
+    	List<StandType> stands = StandArrowItem.getAvailableStands().toList();
+    	if (!stands.isEmpty()) {
+    		return stands.get(entity.getRandom().nextInt(stands.size()));
+    	}
+    	return null;
+    }
+    
+    public static boolean healArrowDamage(LivingEntity entity) {
+		if (entity.getHealth() < entity.getMaxHealth()) {
+			entity.heal(0.1F);
+		}
+		
+		MobEffectInstance bleeding = entity.getEffect(ModStatusEffects.BLEEDING);
+		if (bleeding != null) {
+			if (entity.tickCount % 40 == 39) {
+				StatusEffectUtil.reduceEffect(entity, ModStatusEffects.BLEEDING, 0, 1);
+			}
+		}
+		
+		return entity.getHealth() < entity.getMaxHealth() || bleeding != null;
+    }
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
@@ -127,14 +231,20 @@ public class StandArrowItem extends ArrowItem {
     public static void addStandNamesToTooltip(List<Component> tooltipComponents, TooltipContext context) {
         Player player = ClientProxy.getClientPlayer();
         if (player != null) {
-            Stream<StandType> stands = StandType.getAllEnabledStands();
+            Stream<StandType> stands = getAvailableStands();
             stands.map(StandInstance::new)
-            .sorted(discsOrder(context.registries())) // <- It's not a bug when experimental stands are shown at the bottom of the list
+            .sorted(discsOrder(context.registries()))
             .forEach(stand -> {
-                Component partIconAndName = Component.literal(
-                        Character.toString(StandSkinsLoader.getInstance().getSkin(stand).getStoryPart(context.registries()).value().getPartName().getString().charAt(0)))
-                        .append(stand.getStandName(true).plainCopy().withStyle(ChatFormatting.GRAY));
-                tooltipComponents.add(partIconAndName);
+            	StandSkin defaultSkin = StandSkinsLoader.getInstance().getSkin(stand);
+            	Component standName = stand.getStandName(true).plainCopy().withStyle(ChatFormatting.GRAY);
+            	if (defaultSkin != null) {
+            		Holder<StoryPart> storyPart = defaultSkin.getStoryPart(context.registries());
+            		if (storyPart != null) {
+            			Component partIcon = storyPart.value().getPartIconAsText();
+            			standName = partIcon.copy().append(standName);
+            		}
+            	}
+                tooltipComponents.add(standName);
             });
         }
     }

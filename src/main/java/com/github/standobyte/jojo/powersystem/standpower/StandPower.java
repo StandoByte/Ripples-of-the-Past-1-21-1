@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.core.packet.fromserver.TrPowerStandInstancePacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrStandSkinPacket;
 import com.github.standobyte.jojo.init.core.ModEntityAttributes;
+import com.github.standobyte.jojo.mc.item.StandArrowItem;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandAwakening.AwakeningStage;
@@ -43,6 +44,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	
 	public ResolveHandler resolveHandler = new ResolveHandler();
 	public StandAwakening userStandAwakeningState = new StandAwakening();
+	public boolean healingDamageFromArrow = false;
 	
 	public StandPower(LivingEntity user) {
 		super(user);
@@ -58,10 +60,15 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		if (hasPower()) {
 			userStandEffects.tick();
 		}
-		if (!user.level().isClientSide() && !canUsePower()) {
-			StandType type = getPowerType();
-			if (type != null) {
-				type.forceUnsummon(user, this);
+		if (!user.level().isClientSide()) {
+			if (healingDamageFromArrow && !StandArrowItem.healArrowDamage(user)) {
+				healingDamageFromArrow = false;
+			}
+			if (!canUsePower()) {
+				StandType type = getPowerType();
+				if (type != null) {
+					type.forceUnsummon(user, this);
+				}
 			}
 		}
 		if (summonedStand != null) {
@@ -331,6 +338,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		nbt.put("ResolveHandler", resolveHandler.writeNBT());
 		nbt.put("Effects", userStandEffects.writeNBT());
 		nbt.put("Awakening", userStandAwakeningState.serializeNBT());
+		nbt.putBoolean("HealFromArrow", healingDamageFromArrow);
 		return nbt;
 	}
 
@@ -344,6 +352,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		NBTUtil.getCompoundOptional(nbt, "ResolveHandler").ifPresent(resolveHandler::readNBT);
 		NBTUtil.getCompoundOptional(nbt, "Effects").ifPresent(userStandEffects::readNBT);
 		NBTUtil.getCompoundOptional(nbt, "Awakening").ifPresent(userStandAwakeningState::deserializeNBT);
+		healingDamageFromArrow = nbt.getBoolean("HealFromArrow");
 	}
 	
 	/* unlike deserializeNBT, this is called after the entity attributes are read, 

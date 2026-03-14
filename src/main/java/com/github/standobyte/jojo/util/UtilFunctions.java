@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -41,6 +42,10 @@ public class UtilFunctions {
 
 	public static InteractionHand getHand(LivingEntity entity, HumanoidArm handSide) {
 		return entity.getMainArm() == handSide ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+	}
+	
+	public static EquipmentSlot getHandSlot(InteractionHand hand) {
+		return switch (hand) { case MAIN_HAND -> EquipmentSlot.MAINHAND; case OFF_HAND -> EquipmentSlot.OFFHAND; };
 	}
 	
 

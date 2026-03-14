@@ -77,9 +77,9 @@ public class StandVirusEffect extends RotpStatusEffect implements StatusEffectAp
                             if (stand == null) {
                                 // todo null stand error handling
                             }
-                            if (stand != null) {
-                                StandArrowItem.giveStandFromArrow(player, stand);
-                            }
+//                            if (stand != null) {
+//                                StandArrowItem.giveStandFromArrow(player, stand);
+//                            }
                         });
             }
             else {
