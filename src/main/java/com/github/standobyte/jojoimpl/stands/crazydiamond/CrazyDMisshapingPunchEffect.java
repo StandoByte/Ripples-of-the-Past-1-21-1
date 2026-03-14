@@ -1,14 +1,14 @@
 package com.github.standobyte.jojoimpl.stands.crazydiamond;
 
+import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentType;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
-import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectType;
 
 import net.minecraft.world.entity.LivingEntity;
 
 public class CrazyDMisshapingPunchEffect extends StandEffectInstance {
 
-	public CrazyDMisshapingPunchEffect(StandEffectType<?> effectType) {
+	public CrazyDMisshapingPunchEffect(EntityAttachmentType<?> effectType) {
 		super(effectType);
 		isFromStandAction = true;
 	}

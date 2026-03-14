@@ -9,6 +9,10 @@ import java.util.stream.Stream;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentType;
+import com.github.standobyte.core_subsystems.entitydata.TickingEntityAttachment;
+import com.github.standobyte.core_subsystems.entitydata.TrTickingEntityAttachmentPacket;
+import com.github.standobyte.core_subsystems.entitydata.TrTickingEntityAttachmentPacket.AttachmentType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
@@ -39,9 +43,9 @@ public class UserStandEffects {
 		}
 		putEffectInstance(instance);
 		if (!user.level().isClientSide()) {
-			PacketDistributor.sendToPlayersTrackingEntity(user, TrStandEffectPacket.add(instance, false));
-			if (user instanceof ServerPlayer) {
-				PacketDistributor.sendToPlayer((ServerPlayer) user, TrStandEffectPacket.add(instance, true));
+			PacketDistributor.sendToPlayersTrackingEntity(user, TrTickingEntityAttachmentPacket.add(AttachmentType.STAND_EFFECT, instance, false));
+			if (user instanceof ServerPlayer player) {
+				PacketDistributor.sendToPlayer(player, TrTickingEntityAttachmentPacket.add(AttachmentType.STAND_EFFECT, instance, true));
 			}
 		}
 	}
@@ -73,7 +77,7 @@ public class UserStandEffects {
 
 
 	@SuppressWarnings("unchecked")
-	public <T extends StandEffectInstance> Optional<T> getEffectTargeting(StandEffectType<T> effectType, LivingEntity target) {
+	public <T extends StandEffectInstance> Optional<T> getEffectTargeting(EntityAttachmentType<T> effectType, LivingEntity target) {
 		Stream<StandEffectInstance> effects = getEffects().stream().filter(effect -> 
 				effect.effectType == effectType && 
 				(target == null ? effect.getTargetUUID() == null : target.getUUID().equals(effect.getTargetUUID())));
@@ -81,7 +85,7 @@ public class UserStandEffects {
 		return effect;
 	}
 
-	public <T extends StandEffectInstance> T getOrCreateEffect(StandEffectType<T> effectType, LivingEntity target) {
+	public <T extends StandEffectInstance> T getOrCreateEffect(EntityAttachmentType<T> effectType, LivingEntity target) {
 		Optional<T> effect = getEffectTargeting(effectType, target);
 		if (effect.isPresent()) {
 			return effect.get();
@@ -94,7 +98,7 @@ public class UserStandEffects {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends StandEffectInstance> T getOrCreateEffect(StandEffectType<T> effectType) {
+	public <T extends StandEffectInstance> T getOrCreateEffect(EntityAttachmentType<T> effectType) {
 		Optional<T> effect = (Optional<T>) getEffects().stream()
 				.filter(e -> e.effectType == effectType)
 				.findFirst();
@@ -109,27 +113,27 @@ public class UserStandEffects {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends StandEffectInstance> Stream<T> getEffectsOfType(StandEffectType<T> type) {
+	public <T extends StandEffectInstance> Stream<T> getEffectsOfType(EntityAttachmentType<T> type) {
 		return (Stream<T>) getEffects().stream()
 				.filter(effect -> effect.effectType == type);
 	}
 
-	public <T extends StandEffectInstance> Optional<T> getEffectOfType(StandEffectType<T> type) {
+	public <T extends StandEffectInstance> Optional<T> getEffectOfType(EntityAttachmentType<T> type) {
 		return getEffectsOfType(type).findFirst();
 	}
 
 
-	public static <T extends StandEffectInstance> Stream<T> getEffectsOfType(LivingEntity user, StandEffectType<T> type) {
+	public static <T extends StandEffectInstance> Stream<T> getEffectsOfType(LivingEntity user, EntityAttachmentType<T> type) {
 		StandPower power = StandPower.get(user);
 		return power != null ? power.userStandEffects.getEffectsOfType(type) : null;
 	}
 
-	public static <T extends StandEffectInstance> Optional<T> getEffectOfType(LivingEntity user, StandEffectType<T> type) {
+	public static <T extends StandEffectInstance> Optional<T> getEffectOfType(LivingEntity user, EntityAttachmentType<T> type) {
 		StandPower power = StandPower.get(user);
 		return power != null ? power.userStandEffects.getEffectOfType(type) : null;
 	}
 	
-	public static <T extends StandEffectInstance> Stream<T> getEffectsInRange(StandPower power, StandEffectType<T> type, double range, LivingEntity user) {
+	public static <T extends StandEffectInstance> Stream<T> getEffectsInRange(StandPower power, EntityAttachmentType<T> type, double range, LivingEntity user) {
 		double rangeSqr = range * range;
 		return power.userStandEffects.getEffectsOfType(type)
 				.filter(effect -> {
@@ -139,7 +143,7 @@ public class UserStandEffects {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends StandEffectInstance> Optional<T> getEffectLookedAt(StandPower power, StandEffectType<T> type, double range, LivingEntity user) {
+	public static <T extends StandEffectInstance> Optional<T> getEffectLookedAt(StandPower power, EntityAttachmentType<T> type, double range, LivingEntity user) {
 		return (Optional<T>) getTargetLookedAt(getEffectsInRange(power, type, range, user), user);
 	}
 
@@ -156,11 +160,11 @@ public class UserStandEffects {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends StandEffectInstance> Stream<T> getEffectsTargetedBy(LivingEntity entity, StandEffectType<T> type) {
+	public static <T extends StandEffectInstance> Stream<T> getEffectsTargetedBy(LivingEntity entity, EntityAttachmentType<T> type) {
 		return (Stream<T>) StandEffectsTarget.getEffectsReadOnly(entity).filter(effect -> effect.effectType == type);
 	}
 
-	public static boolean isTargetedBy(LivingEntity entity, StandEffectType<?> type) {
+	public static boolean isTargetedBy(LivingEntity entity, EntityAttachmentType<? extends StandEffectInstance> type) {
 		return getEffectsTargetedBy(entity, type).findAny().isPresent();
 	}
 
@@ -240,7 +244,7 @@ public class UserStandEffects {
 		instance.onStop();
 		LivingEntity user = standPower.getUser();
 		if (!user.level().isClientSide()) {
-			PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, TrStandEffectPacket.remove(instance));
+			PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, TrTickingEntityAttachmentPacket.remove(AttachmentType.STAND_EFFECT, instance));
 		}
 	}
 
@@ -255,6 +259,8 @@ public class UserStandEffects {
 	@ApiStatus.Internal
 	public void syncWithTrackingOrUser(ServerPlayer player) {
 		effects.values().forEach(effect -> {
+			PacketDistributor.sendToPlayer(player, TrTickingEntityAttachmentPacket.add(
+					AttachmentType.STAND_EFFECT, effect, player == effect.getStandUser()));
 			effect.syncWithTrackingOrUser(player);
 		});
 	}
@@ -277,9 +283,10 @@ public class UserStandEffects {
 		if (nbt.contains("Effects", Tag.TAG_LIST)) {
 			Level level = standPower.getUser().level();
 			nbt.getList("Effects", Tag.TAG_COMPOUND).forEach(effectNBT -> {
-				StandEffectInstance effect = StandEffectInstance.fromNBT((CompoundTag) effectNBT, level);
+				StandEffectInstance effect = (StandEffectInstance) TickingEntityAttachment.fromNBT((CompoundTag) effectNBT, level);
 				if (effect != null) {
-					putEffectInstance(effect.withId(EFFECTS_COUNTER.incrementAndGet()));
+					effect.withId(EFFECTS_COUNTER.incrementAndGet());
+					putEffectInstance(effect);
 				}
 			});
 		}

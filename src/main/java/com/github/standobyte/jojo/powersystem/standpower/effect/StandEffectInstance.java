@@ -1,11 +1,14 @@
 package com.github.standobyte.jojo.powersystem.standpower.effect;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.core.JojoRegistries;
+import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentType;
+import com.github.standobyte.core_subsystems.entitydata.TickingEntityAttachment;
+import com.github.standobyte.core_subsystems.entitydata.TrTickingEntityAttachmentPacket;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -13,7 +16,6 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -21,15 +23,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-public abstract class StandEffectInstance {
-	@Nonnull public final StandEffectType<?> effectType;
-
-	private int id;
-	public int tickCount = 0;
-	private boolean toBeRemoved = false;
-
-	protected LivingEntity user;
-	public Level level;
+public abstract class StandEffectInstance extends TickingEntityAttachment {
 	protected StandPower userPower;
 
 	private Entity target;
@@ -37,8 +31,6 @@ public abstract class StandEffectInstance {
 	private UUID targetUUID;
 	private int targetNetworkId = -1;
 	
-	public boolean removeOnUserDeath = true;
-	public boolean removeOnUserLogout = true;
 	public boolean removeOnStandChanged = true;
 	public boolean needsTarget = false;
 	
@@ -48,8 +40,8 @@ public abstract class StandEffectInstance {
 	public EntityActionInstance userAction;
 
 
-	public StandEffectInstance(@Nonnull StandEffectType<?> effectType) {
-		this.effectType = effectType;
+	public StandEffectInstance(@Nonnull EntityAttachmentType<?> effectType) {
+		super(effectType);
 	}
 	
 	protected void initStandPower(StandPower userPower) {
@@ -66,22 +58,16 @@ public abstract class StandEffectInstance {
 		}
 	}
 
-	public StandEffectInstance withUser(LivingEntity user) {
-		this.user = user;
-		this.level = user.level();
-		initStandPower(StandPower.get(user));
+	@Override
+	public StandEffectInstance withEntity(Entity entity) {
+		super.withEntity(entity);
+		initStandPower(StandPower.get((LivingEntity) entity));
 		return this;
 	}
 
 	public StandEffectInstance withStand(StandPower stand) {
-		this.user = stand.getUser();
-		this.level = user.level();
+		super.withEntity(stand.getUser());
 		initStandPower(stand);
-		return this;
-	}
-
-	public StandEffectInstance withId(int id) {
-		this.id = id;
 		return this;
 	}
 
@@ -107,7 +93,7 @@ public abstract class StandEffectInstance {
 	}
 
 	public LivingEntity getStandUser() {
-		return user;
+		return (LivingEntity) getEntity();
 	}
 
 	public Entity getTarget() {
@@ -122,6 +108,7 @@ public abstract class StandEffectInstance {
 		return targetUUID;
 	}
 
+	@Override
 	public void onStart() {
 		if (targetLiving != null) {
 			StandEffectsTarget targetEffects = StandEffectsTarget.getList(targetLiving);
@@ -129,22 +116,20 @@ public abstract class StandEffectInstance {
 				targetEffects.addEffectTargetedBy(this);
 			}
 		}
-		start();
+		super.onStart();
 	}
 
+	@Override
 	public void onTick() {
 		if (!toBeRemoved) {
-			tickCount++;
-
 			updateTarget(level);
-
 			if (targetUUID == null && needsTarget) {
 				if (!level.isClientSide()) remove();
 				return;
 			}
-
-			tick();
 		}
+		
+		super.onTick();
 	}
 
 	public void updateTarget(Level level) {
@@ -200,11 +185,16 @@ public abstract class StandEffectInstance {
 			}
 
 			if (!level.isClientSide()) {
-				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, TrStandEffectPacket.updateTarget(this));
+				PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, TrTickingEntityAttachmentPacket.updateTarget(this));
 			}
 		}
 	}
+	
+	public int getTargetEntityId() {
+		return Optional.ofNullable(this.getTarget()).map(Entity::getId).orElse(-1);
+	}
 
+	@Override
 	public void onStop() {
 		if (targetLiving != null) {
 			StandEffectsTarget targetEffects = StandEffectsTarget.getList(targetLiving);
@@ -212,70 +202,48 @@ public abstract class StandEffectInstance {
 				targetEffects.removeEffectTargetedBy(this);
 			}
 		}
-		toBeRemoved = true;
-		stop();
+		super.onStop();
 	}
 
 	protected abstract void start();
 	protected abstract void tick();
 	protected abstract void stop();
 	
-	public void onFrame(float tickDelta) {}
-
 	protected boolean shouldClearTarget(Entity target, @Nullable LivingEntity targetLiving) {
 		return targetLiving != null && targetLiving.isDeadOrDying();
 	}
 
-	public int getId() {
-		return id;
-	}
-
-	public void remove() {
-		toBeRemoved = true;
-	}
-
-	public boolean isStopped() {
-		return toBeRemoved;
-	}
-
+	@Override
 	public void syncWithUserOnly(ServerPlayer user) {
+		super.syncWithUserOnly(user);
 		updateTarget(user.level());
 	}
 
-	public void syncWithTrackingOrUser(ServerPlayer player) {
-		PacketDistributor.sendToPlayer(player, TrStandEffectPacket.add(this, player == user));
+	@Override
+	public void writeAdditionalPacketData(FriendlyByteBuf buf, boolean sendingToUser) {
+		buf.writeInt(getTargetEntityId());
 	}
 
-	public CompoundTag toNBT() {
-		CompoundTag nbt = new CompoundTag();
-		nbt.putString("Type", effectType.registryKey.toString());
-		nbt.putInt("TickCount", tickCount);
+	@Override
+	public void readAdditionalPacketData(FriendlyByteBuf buf, boolean clientIsUser) {
+		int targetEntityId = buf.readInt();
+		if (targetEntityId != -1) {
+			this.withTargetEntityId(targetEntityId);
+			this.updateTarget(entity.level());
+		}
+	}
+
+	@Override
+	protected void writeAdditionalSaveData(CompoundTag nbt) {
 		if (targetUUID != null) {
 			nbt.putUUID("Target", targetUUID);
 		}
-
-		writeAdditionalSaveData(nbt);
-		return nbt;
 	}
 
-	public static StandEffectInstance fromNBT(CompoundTag nbt, Level level) {
-		StandEffectType<?> effectType = JojoRegistries.STAND_EFFECTS_REG.get(ResourceLocation.parse(nbt.getString("Type")));
-		if (effectType == null) return null;
-		StandEffectInstance effect = effectType.create(level);
-		effect.tickCount = nbt.getInt("TickCount");
+	@Override
+	protected void readAdditionalSaveData(CompoundTag nbt) {
 		if (nbt.hasUUID("Target")) {
-			effect.targetUUID = nbt.getUUID("Target");
+			this.targetUUID = nbt.getUUID("Target");
 		}
-
-		effect.readAdditionalSaveData(nbt);
-		return effect;
 	}
-
-	public void writeAdditionalPacketData(FriendlyByteBuf buf, boolean sendingToUser) {}
-
-	public void readAdditionalPacketData(FriendlyByteBuf buf, boolean clientIsUser) {}
-
-	protected void writeAdditionalSaveData(CompoundTag nbt) {}
-
-	protected void readAdditionalSaveData(CompoundTag nbt) {}
 }

@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.core;
 
 import org.slf4j.Logger;
 
+import com.github.standobyte.core_subsystems.entitydata.ModTickingEntityAttachments;
 import com.github.standobyte.jojo.core.command.argument.ModCommandArguments;
 import com.github.standobyte.jojo.init.ModBlockEntities;
 import com.github.standobyte.jojo.init.ModBlocks;
@@ -17,7 +18,6 @@ import com.github.standobyte.jojo.init.core.ModContainers;
 import com.github.standobyte.jojo.init.core.ModEntityAttributes;
 import com.github.standobyte.jojo.init.core.ModEntityDataSerializers;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
-import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.init.power.ModStandEffects;
 import com.github.standobyte.jojo.init.power.ModStands;
 import com.github.standobyte.jojoimpl.powers.hamon.ModHamonSkills;
@@ -32,7 +32,7 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
-// TODO (!) reorganize the packages after merging the two branches
+// TODO (!) reorganize the packages after merging the two branches (+ don't forget to update the readme)
 // XXX allow PowerType to override controls/HUD rendering
 @Mod(JojoMod.MOD_ID)
 public class JojoMod {
@@ -59,10 +59,10 @@ public class JojoMod {
 		ModContainers.CONTAINERS.register(modEventBus);
 		
 		JojoRegistries.ABILITY_TYPES.register(modEventBus);
+		ModTickingEntityAttachments.ATTACHMENT_TYPES.register(modEventBus);
 		ModPlayerPowers.PLAYER_POWERS.register(modEventBus);
 		ModHamonSkills.HAMON_SKILLS.register(modEventBus);
 		ModHamonSkills.HAMON_CHARACTER_TECHNIQUES.register(modEventBus);
-		ModStandAbilities.STAND_EFFECT_TYPES.register(modEventBus);
 		ModStandEffects.load();
 		ModStands.DEFAULT_STANDS.register(modEventBus);
 		ModSpecialActions.ACTIONS.register(modEventBus);

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojoimpl.stands.hierophant;
 
+import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentType;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.event.RipplesAbilityKeyPressEvent;
@@ -13,7 +14,6 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
-import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectType;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity.StandFlag;
 import com.github.standobyte.jojo.util.StandUtil;
@@ -29,14 +29,14 @@ import net.neoforged.fml.common.EventBusSubscriber;
 @EventBusSubscriber(modid = JojoMod.MOD_ID)
 public class HierophantPuppetEffect extends StandEffectInstance {
 
-	public HierophantPuppetEffect(StandEffectType<?> effectType) {
+	public HierophantPuppetEffect(EntityAttachmentType<?> effectType) {
 		super(effectType);
 		needsTarget = true;
 	}
 
 	@Override
 	protected void start() {
-		if (!level.isClientSide() || user == ClientProxy.getClientPlayer()) {
+		if (!level.isClientSide() || this.entity == ClientProxy.getClientPlayer()) {
 			LivingEntity targetEntity = getTargetLiving();
 			if (targetEntity != null) {
 				StandPower standPower = getUserPower();

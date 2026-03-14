@@ -1,13 +1,13 @@
-package com.github.standobyte.jojo.powersystem.standpower.effect;
+package com.github.standobyte.core_subsystems.entitydata;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 
-public class StandEffectType<T extends StandEffectInstance> {
+public class EntityAttachmentType<T extends TickingEntityAttachment> {
 	public final ResourceLocation registryKey;
 	protected IFactory<T> factory;
 
-	public StandEffectType(ResourceLocation registryKey, IFactory<T> factory) {
+	public EntityAttachmentType(ResourceLocation registryKey, IFactory<T> factory) {
 		this.registryKey = registryKey;
 		this.factory = factory;
 	}
@@ -25,7 +25,7 @@ public class StandEffectType<T extends StandEffectInstance> {
 
 
 
-	public interface IFactory<T extends StandEffectInstance> {
-		T create(StandEffectType<T> effect);
+	public interface IFactory<T extends TickingEntityAttachment> {
+		T create(EntityAttachmentType<T> effect);
 	}
 }

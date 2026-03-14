@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.core;
 
+import com.github.standobyte.core_subsystems.entitydata.TrTickingEntityAttachmentPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAbilityInputPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAimTargetPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClDebugCommandPacket;
@@ -47,7 +48,6 @@ import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActio
 import com.github.standobyte.jojo.powersystem.entityaction.syncdata.TrActionSynchedDataPacket;
 import com.github.standobyte.jojo.powersystem.skill.ClLearnSkillPacket;
 import com.github.standobyte.jojo.powersystem.standpower.StandAwakeningDataPacket;
-import com.github.standobyte.jojo.powersystem.standpower.effect.TrStandEffectPacket;
 import com.github.standobyte.jojo.powersystem.standpower.packet.ResolveBoostsPacket;
 import com.github.standobyte.jojo.powersystem.standpower.packet.StandExpPacket;
 import com.github.standobyte.jojo.powersystem.standpower.packet.TrResolvePacket;
@@ -93,7 +93,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrPowerDataPacket.Handler(JojoMod.resLoc("powerdata")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrSetStandEntityPacket.Handler(JojoMod.resLoc("standentity")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrNonEntityStandSummonPacket.Handler(JojoMod.resLoc("nestandsummon")));
-		registerPacket(registrar, PayloadRegistrar::playToClient, new TrStandEffectPacket.Handler(JojoMod.resLoc("standeffect")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new TrTickingEntityAttachmentPacket.Handler(JojoMod.resLoc("standeffect")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrStaminaPacket.Handler(JojoMod.resLoc("stamina")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrResolvePacket.Handler(JojoMod.resLoc("resolve")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new ResolveBoostsPacket.Handler(JojoMod.resLoc("resolveboost")));

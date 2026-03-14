@@ -1,9 +1,9 @@
 package com.github.standobyte.jojoimpl.stands.crazydiamond;
 
+import com.github.standobyte.core_subsystems.entitydata.EntityAttachmentType;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
-import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectType;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
@@ -12,7 +12,7 @@ import net.minecraft.world.entity.LivingEntity;
 public class DriedBloodDropsEffect extends StandEffectInstance {
 	private int disappearTicks = 0;
 
-	public DriedBloodDropsEffect(StandEffectType<?> effectType) {
+	public DriedBloodDropsEffect(EntityAttachmentType<?> effectType) {
 		super(effectType);
 		needsTarget = true;
 		removeOnUserLogout = false;
@@ -49,11 +49,13 @@ public class DriedBloodDropsEffect extends StandEffectInstance {
 
 	@Override
 	protected void writeAdditionalSaveData(CompoundTag nbt) {
+		super.writeAdditionalSaveData(nbt);
 		nbt.putInt("BloodTicks", disappearTicks);
 	}
 
 	@Override
 	protected void readAdditionalSaveData(CompoundTag nbt) {
+		super.readAdditionalSaveData(nbt);
 		disappearTicks = nbt.getInt("BloodTicks");
 	}
 	
