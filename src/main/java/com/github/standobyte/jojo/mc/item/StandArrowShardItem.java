@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.mc.item;
 
 import java.util.List;
 
+import com.github.standobyte.gameplay.standarrow.GiveStandToEntity;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModItems;
 
@@ -31,7 +32,8 @@ public class StandArrowShardItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         ItemStack shard = player.getItemInHand(usedHand);
 
-        if (!level.isClientSide() && StandArrowItem.onPiercedByArrow(level, player, shard, null, player)) {
+        if (!level.isClientSide() && GiveStandToEntity.onPiercedByArrow(level, player, shard, null, player)) {
+        	StandArrowItem.dealDamageFromArrow(player, shard, true);
 			shard.shrink(1);
             return InteractionResultHolder.success(shard);
         }
@@ -51,8 +53,9 @@ public class StandArrowShardItem extends Item {
     	ItemStack item = itemEntity.getItem();
     	if (!item.isEmpty() && item.is(ModItems.STAND_ARROW_SHARD)) {
     		Player player = event.getPlayer();
-    		if (StandArrowItem.onPiercedByArrow(player.level(), player, item, 
+    		if (GiveStandToEntity.onPiercedByArrow(player.level(), player, item, 
     				itemEntity, itemEntity.getOwner())) {
+    			StandArrowItem.dealDamageFromArrow(player, item, true);
     			item.shrink(1);
     			event.setCanPickup(TriState.FALSE);
     		}

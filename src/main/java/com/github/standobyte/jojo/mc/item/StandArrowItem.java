@@ -7,12 +7,11 @@ import java.util.stream.Stream;
 
 import org.jetbrains.annotations.Nullable;
 
+import com.github.standobyte.gameplay.standarrow.GiveStandToEntity;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
-import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.init.ModStatusEffects;
-import com.github.standobyte.jojo.init.power.ModStands;
 import com.github.standobyte.jojo.mc.entity.projectile.StandArrowEntity;
 import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
@@ -31,8 +30,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -131,38 +128,14 @@ public class StandArrowItem extends ArrowItem {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         ItemStack arrow = player.getItemInHand(usedHand);
 
-        if (!level.isClientSide() && StandArrowItem.onPiercedByArrow(level, player, arrow, null, player)) {
+        if (!level.isClientSide() && GiveStandToEntity.onPiercedByArrow(level, player, arrow, null, player)) {
+			dealDamageFromArrow(player, arrow, false);
         	ServerLevel serverLevel = (ServerLevel) level;
 			arrow.hurtAndBreak(1, serverLevel, player, itemType -> onBreakArrow(
 					serverLevel, null, player, usedHand, itemType));
             return InteractionResultHolder.success(arrow);
         }
         return InteractionResultHolder.fail(arrow);
-    }
-    
-    public static boolean onPiercedByArrow(Level level, LivingEntity entity, ItemStack arrowItem, 
-    		@Nullable Entity directDamageEntity, @Nullable Entity standGivingCharacter) {
-        if (!level.isClientSide()) {
-        	boolean givePowerTypeStand = entity.getType() == EntityType.PLAYER;
-        	
-        	// TODO event
-        	if (givePowerTypeStand) {
-        		StandPower stand = StandPower.get(entity);
-        		if (!stand.hasPower()) {
-        			StandType standToGive = StandArrowItem.pickStandToGive(entity);
-        			if (standToGive != null) {
-        				dealDamageFromArrow(entity, stand, arrowItem);
-        				stand.setStand(standToGive);
-        				return true;
-        			}
-        		}
-        	}
-        }
-        return false;
-    }
-
-    public static Stream<StandType> getAvailableStands() {
-    	return StandType.getAllEnabledStands().filter(ModStands.PLAYER_CAN_GET_FROM_ARROW::contains);
     }
     
     public static void onBreakArrow(ServerLevel level, 
@@ -180,11 +153,10 @@ public class StandArrowItem extends ArrowItem {
     	}
     }
     
-    public static void dealDamageFromArrow(LivingEntity entity, StandPower entityStandData, ItemStack arrowItem) {
+    public static void dealDamageFromArrow(LivingEntity entity, ItemStack arrowItem, boolean reducedDamage) {
 		// i'm tired of being angry
 		boolean isInvulnerable = entity.isInvulnerable() || entity instanceof Player player && player.getAbilities().invulnerable;
 		if (!isInvulnerable) {
-        	boolean reducedDamage = arrowItem.is(ModItems.STAND_ARROW_SHARD);
 			int bleedingEffect = reducedDamage ? 1 : 2;
 			float dmgAmount = reducedDamage ? 12 : 16;
 			dmgAmount = Math.min(dmgAmount, entity.getHealth() - 1.0F);
@@ -194,17 +166,8 @@ public class StandArrowItem extends ArrowItem {
 			// TODO damage source
 			DamageSource dmgSource = entity.damageSources().playerAttack((Player) entity);
 			entity.hurt(dmgSource, dmgAmount);
-			entityStandData.healingDamageFromArrow = true;
+			StandPower.get(entity).healingDamageFromArrow = true;
 		}
-    }
-    
-    @Nullable
-    public static StandType pickStandToGive(LivingEntity entity) {
-    	List<StandType> stands = StandArrowItem.getAvailableStands().toList();
-    	if (!stands.isEmpty()) {
-    		return stands.get(entity.getRandom().nextInt(stands.size()));
-    	}
-    	return null;
     }
     
     public static boolean healArrowDamage(LivingEntity entity) {
@@ -231,7 +194,7 @@ public class StandArrowItem extends ArrowItem {
     public static void addStandNamesToTooltip(List<Component> tooltipComponents, TooltipContext context) {
         Player player = ClientProxy.getClientPlayer();
         if (player != null) {
-            Stream<StandType> stands = getAvailableStands();
+            Stream<StandType> stands = GiveStandToEntity.getStandsForPlayer();
             stands.map(StandInstance::new)
             .sorted(discsOrder(context.registries()))
             .forEach(stand -> {
