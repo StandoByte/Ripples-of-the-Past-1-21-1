@@ -20,7 +20,7 @@ import net.minecraft.world.level.Level;
 
 public class StandVirusActualEffect extends EntityCustomEffect implements SyncedDataHolderExtended {
 	public static final EntityDataAccessor<Integer> CONSUMED_LEVELS = SynchedEntityData.defineId(StandVirusActualEffect.class, EntityDataSerializers.INT);
-	public boolean didAMeteoriteReseacherThing = false;
+	public boolean didDyingEntitySideEffect = false;
 
 	public StandVirusActualEffect() {
 		this(ModEntityCustomEffects.STAND_VIRUS.get());
@@ -95,11 +95,17 @@ public class StandVirusActualEffect extends EntityCustomEffect implements Synced
 						damage = Math.min(entity.getHealth() - 0.001f, 0.001f);
 					}
 				}
+				else if (entity.getHealth() < 10) {
+					doDyingEntitySideEffect();
+				}
 			}
 			else if (entity.getHealth() <= damage) {
 				stopEffectOnGaveStand = true;
 				if (StandArrowItem.giveStand(level, entity)) {
 					damage = 0;
+				}
+				else {
+					doDyingEntitySideEffect();
 				}
 			}
 			
@@ -128,18 +134,47 @@ public class StandVirusActualEffect extends EntityCustomEffect implements Synced
 			}
 		}
 	}
+	
+	// TODO stand virus side effect for the entity that's about to die
+	protected void doDyingEntitySideEffect() {
+		if (!didDyingEntitySideEffect) {
+			int effect = entity.getRandom().nextInt(6);
+			// note: make the effects not harm the entity itself
+			switch (effect) {
+				case 0 -> {
+					// ghast fireball explosion
+				}
+				case 1 -> {
+					// harming / poison / wither cloud
+				}
+				case 2 -> {
+					// evoker floor spikes
+				}
+				case 3 -> {
+					// wind charges
+				}
+				case 4 -> {
+					// warden sonic attack
+				}
+				case 5 -> {
+					// freeze spikes
+				}
+			}
+			didDyingEntitySideEffect = true;
+		}
+	}
 
 	
 	@Override
 	protected void writeAdditionalSaveData(CompoundTag nbt) {
 		nbt.putInt("LevelsConsumed", synchedData.get(CONSUMED_LEVELS));
-		nbt.putBoolean("Zap", didAMeteoriteReseacherThing);
+		nbt.putBoolean("DidSideEffect", didDyingEntitySideEffect);
 	}
 
 	@Override
 	protected void readAdditionalSaveData(CompoundTag nbt) {
 		synchedData.set(CONSUMED_LEVELS, nbt.getInt("LevelsConsumed"));
-		didAMeteoriteReseacherThing = nbt.getBoolean("Zap");
+		didDyingEntitySideEffect = nbt.getBoolean("DidSideEffect");
 	}
 
 }
