@@ -1,11 +1,13 @@
-package com.github.standobyte.jojo.mc.statuseffect;
+package com.github.standobyte.gameplay.standarrow;
 
 import com.github.standobyte.jojo.init.power.ModStands;
-import com.github.standobyte.jojo.mc.item.StandArrowItem;
+import com.github.standobyte.jojo.mc.statuseffect.RotpStatusEffect;
+import com.github.standobyte.jojo.mc.statuseffect.StatusEffectApplicable;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.damage.DamageUtil;
+
 import net.minecraft.core.Holder;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;

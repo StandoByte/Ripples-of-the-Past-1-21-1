@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mc.item;
+package com.github.standobyte.gameplay.standarrow;
 
 import static com.github.standobyte.jojo.init.ModItems.discsOrder;
 
@@ -7,7 +7,6 @@ import java.util.stream.Stream;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.github.standobyte.gameplay.standarrow.GiveStandToEntity;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
@@ -15,7 +14,6 @@ import com.github.standobyte.jojo.core.packet.fromserver.ItemBreakVisualsPacket;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.init.ModStatusEffects;
-import com.github.standobyte.jojo.mc.entity.projectile.StandArrowEntity;
 import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;

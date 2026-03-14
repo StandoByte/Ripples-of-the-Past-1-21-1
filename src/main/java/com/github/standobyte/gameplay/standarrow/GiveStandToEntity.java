@@ -5,10 +5,13 @@ import java.util.stream.Stream;
 
 import org.jetbrains.annotations.Nullable;
 
+import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.init.power.ModStands;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
+import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -36,6 +39,16 @@ public class GiveStandToEntity {
         }
         return false;
     }
+	
+	public static void onNearbyVirusSource(LivingEntity entity) {
+    	// TODO event
+		if (!entity.getType().is(EntityTypeTags.UNDEAD)
+				&& entity.getHealth() < entity.getMaxHealth()
+				&& !MeteoriteCoreBlock.isImmuneToMeteoriteStrain(entity)
+				&& !entity.hasEffect(ModStatusEffects.STAND_VIRUS)) {
+			entity.addEffect(new MobEffectInstance(ModStatusEffects.STAND_VIRUS, 600, 0, false, false, true));
+		}
+	}
 
 
     public static Stream<StandType> getStandsForPlayer() {

@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mc.entity.projectile;
+package com.github.standobyte.gameplay.standarrow;
 
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModItems;

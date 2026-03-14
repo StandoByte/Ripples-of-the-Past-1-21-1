@@ -1,8 +1,8 @@
 package com.github.standobyte.jojo.init;
 
+import com.github.standobyte.gameplay.standarrow.StandArrowEntity;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mc.entity.BlockShardEntity;
-import com.github.standobyte.jojo.mc.entity.projectile.StandArrowEntity;
 import com.github.standobyte.jojo.mc.entity.projectile.ThrownNuggetBearingEntity;
 import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinEntity;
 import com.github.standobyte.jojo.mechanics.entity_like_player.npc.PowerUserMobEntity;

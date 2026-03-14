@@ -5,10 +5,10 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.gameplay.standarrow.StandArrowItem;
 import com.github.standobyte.jojo.core.packet.fromserver.TrPowerStandInstancePacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrStandSkinPacket;
 import com.github.standobyte.jojo.init.core.ModEntityAttributes;
-import com.github.standobyte.jojo.mc.item.StandArrowItem;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandAwakening.AwakeningStage;

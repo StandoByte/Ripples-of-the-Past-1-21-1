@@ -1,8 +1,7 @@
-package com.github.standobyte.jojo.mc.item;
+package com.github.standobyte.gameplay.standarrow;
 
 import java.util.List;
 
-import com.github.standobyte.gameplay.standarrow.GiveStandToEntity;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModItems;
 
