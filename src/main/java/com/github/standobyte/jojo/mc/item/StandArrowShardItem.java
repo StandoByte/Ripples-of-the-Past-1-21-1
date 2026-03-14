@@ -33,8 +33,12 @@ public class StandArrowShardItem extends Item {
         ItemStack shard = player.getItemInHand(usedHand);
 
         if (!level.isClientSide() && GiveStandToEntity.onPiercedByArrow(level, player, shard, null, player)) {
-        	StandArrowItem.dealDamageFromArrow(player, shard, true);
-			shard.shrink(1);
+        	if (!StandArrowItem.isInvulnerable(player)) {
+        		StandArrowItem.dealDamageFromArrow(player, shard, true);
+        	}
+        	if (!player.getAbilities().instabuild) {
+        		shard.shrink(1);
+        	}
             return InteractionResultHolder.success(shard);
         }
         return InteractionResultHolder.fail(shard);
@@ -53,8 +57,8 @@ public class StandArrowShardItem extends Item {
     	ItemStack item = itemEntity.getItem();
     	if (!item.isEmpty() && item.is(ModItems.STAND_ARROW_SHARD)) {
     		Player player = event.getPlayer();
-    		if (GiveStandToEntity.onPiercedByArrow(player.level(), player, item, 
-    				itemEntity, itemEntity.getOwner())) {
+    		if (!StandArrowItem.isInvulnerable(player) && 
+    				GiveStandToEntity.onPiercedByArrow(player.level(), player, item, itemEntity, itemEntity.getOwner())) {
     			StandArrowItem.dealDamageFromArrow(player, item, true);
     			item.shrink(1);
     			event.setCanPickup(TriState.FALSE);

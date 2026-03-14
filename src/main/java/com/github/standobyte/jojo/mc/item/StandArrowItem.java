@@ -129,7 +129,9 @@ public class StandArrowItem extends ArrowItem {
         ItemStack arrow = player.getItemInHand(usedHand);
 
         if (!level.isClientSide() && GiveStandToEntity.onPiercedByArrow(level, player, arrow, null, player)) {
-			dealDamageFromArrow(player, arrow, false);
+        	if (!isInvulnerable(player)) {
+        		dealDamageFromArrow(player, arrow, false);
+        	}
         	ServerLevel serverLevel = (ServerLevel) level;
 			arrow.hurtAndBreak(1, serverLevel, player, itemType -> onBreakArrow(
 					serverLevel, null, player, usedHand, itemType));
@@ -153,21 +155,22 @@ public class StandArrowItem extends ArrowItem {
     	}
     }
     
+    // i'm tired of being angry
+    public static boolean isInvulnerable(LivingEntity entity) {
+    	return entity.isInvulnerable() || entity instanceof Player player && player.getAbilities().invulnerable;
+    }
+    
     public static void dealDamageFromArrow(LivingEntity entity, ItemStack arrowItem, boolean reducedDamage) {
-		// i'm tired of being angry
-		boolean isInvulnerable = entity.isInvulnerable() || entity instanceof Player player && player.getAbilities().invulnerable;
-		if (!isInvulnerable) {
-			int bleedingEffect = reducedDamage ? 1 : 2;
-			float dmgAmount = reducedDamage ? 12 : 16;
-			
-			entity.addEffect(new MobEffectInstance(ModStatusEffects.BLEEDING, 
-					6000 /* it'll heal anyway */, bleedingEffect, false, false, true));
-			// TODO damage source
-			DamageSource dmgSource = entity.damageSources().playerAttack((Player) entity);
-			dmgAmount = Math.min(dmgAmount, entity.getHealth() - 1.0F);
-			entity.hurt(dmgSource, dmgAmount);
-			StandPower.get(entity).healingDamageFromArrow = true;
-		}
+    	int bleedingEffect = reducedDamage ? 1 : 2;
+    	float dmgAmount = reducedDamage ? 12 : 16;
+
+    	entity.addEffect(new MobEffectInstance(ModStatusEffects.BLEEDING, 
+    			6000 /* it'll heal anyway */, bleedingEffect, false, false, true));
+    	// TODO damage source
+    	DamageSource dmgSource = entity.damageSources().playerAttack((Player) entity);
+    	dmgAmount = Math.min(dmgAmount, entity.getHealth() - 1.0F);
+    	entity.hurt(dmgSource, dmgAmount);
+    	StandPower.get(entity).healingDamageFromArrow = true;
     }
     
     public static boolean healArrowDamage(LivingEntity entity) {
