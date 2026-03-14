@@ -37,9 +37,9 @@ public class MeteoriteCoreBlock extends Block {
 		double x = pos.getX();
 		double y = pos.getY();
 		double z = pos.getZ();
-		for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, (new AABB(x, y, z, x, y, z)).inflate(2))) {
-			GiveStandToEntity.onNearbyVirusSource(entity);
-		}
+//		for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, (new AABB(x, y, z, x, y, z)).inflate(2))) {
+//			GiveStandToEntity.onNearbyVirusSource(entity);
+//		}
 		level.scheduleTick(pos, this, 10);
 	}
 
