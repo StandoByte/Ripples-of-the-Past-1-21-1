@@ -3,8 +3,6 @@ package com.github.standobyte.gameplay.standarrow;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.init.ModParticles;
-import com.github.standobyte.jojo.powersystem.standpower.StandPower;
-import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -37,9 +35,9 @@ public class MeteoriteCoreBlock extends Block {
 		double x = pos.getX();
 		double y = pos.getY();
 		double z = pos.getZ();
-//		for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, (new AABB(x, y, z, x, y, z)).inflate(2))) {
-//			GiveStandToEntity.onNearbyVirusSource(entity);
-//		}
+		for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, (new AABB(x, y, z, x, y, z)).inflate(2))) {
+			StandVirusEffect.onNearbyVirusSource(entity);
+		}
 		level.scheduleTick(pos, this, 10);
 	}
 
@@ -62,11 +60,5 @@ public class MeteoriteCoreBlock extends Block {
 	@Override
 	public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
 		level.scheduleTick(pos, this, 10);
-	}
-
-	public static boolean isImmuneToMeteoriteStrain(LivingEntity entity) {
-		if (entity instanceof StandEntity) return true;
-		StandPower stand = StandPower.get(entity);
-		return stand != null && (stand.hasPower() || stand.userStandAwakeningState.hadStandBefore);
 	}
 }

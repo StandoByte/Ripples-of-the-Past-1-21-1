@@ -107,65 +107,6 @@ public class StandArrowItem extends ArrowItem {
     }
 
 
-//    /**
-//     * @return  if the entity got the Stand Virus effect or a Stand
-//     */
-//    public static boolean onPiercedByArrow(Entity target, ItemStack arrowItem, Level level, Optional<Entity> arrowShooter) {
-//        if (!level.isClientSide() && target instanceof LivingEntity) {
-//            LivingEntity livingEntity = (LivingEntity) target;
-//            if (livingEntity.hasEffect(ModStatusEffects.STAND_VIRUS)) {
-//                return false;
-//            }
-//
-//            if (livingEntity instanceof StandEntity) {
-//                return false;
-//            }
-//            else if (livingEntity instanceof Player) {
-//                Player player = (Player) livingEntity;
-//                StandType standToGive = ModStands.STAR_PLATINUM.get(); // todo remove this test field
-//                // todo return GeneralUtil.orElseFalse(IStandPower.getStandPowerOptional(livingEntity), standCap -> .. (it would also fail arrow piercing for stand users)
-//                if (player.getAbilities().instabuild) { // instantly give a stand in creative
-//                    return giveStandFromArrow(player, standToGive);
-//                }
-//                else {
-//                    // todo standCap.getStandArrowHandler().startArrowEffectSetStand(standToGive);
-//
-//                    int virusEffectDuration = 600;
-//                    if (virusEffectDuration > 0) {
-//                        int effectLevel = 0;
-//                        player.addEffect(new MobEffectInstance(ModStatusEffects.STAND_VIRUS,
-//                                virusEffectDuration, effectLevel, false, false, true));
-//                    }
-//                    else { // instantly give a stand if there was no stand virus effect given
-//                        return giveStandFromArrow(player, standToGive);
-//                    }
-//
-//                    // todo rememberArrowShooter(livingEntity, arrowShooter, stack);
-//                }
-//
-//                return true;
-//            }
-//            // if the target is a mob
-//            else {
-//                // todo virus inhibition ench
-//                int effectLevel = 0;
-//                livingEntity.addEffect(new MobEffectInstance(ModStatusEffects.STAND_VIRUS,
-//                        600, effectLevel, false, false, true));
-//            }
-//        }
-//        return false;
-//    }
-//
-//    public static boolean giveStandFromArrow(LivingEntity entity, StandType standType) {
-//        PowerClass.STAND.attachPower(entity);
-//        StandPower stand = PowerClass.STAND.get(entity);
-//        if (stand != null) {
-//            stand.setStandInstance(Optional.of(new StandInstance(standType)));
-//            return true;
-//        }
-//        return false;
-//    }
-
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         ItemStack arrow = player.getItemInHand(usedHand);

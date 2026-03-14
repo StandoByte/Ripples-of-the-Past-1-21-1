@@ -1,0 +1,147 @@
+package com.github.standobyte.gameplay.standarrow;
+
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffect;
+import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectType;
+import com.github.standobyte.core_subsystems.entitydata.ModEntityCustomEffects;
+import com.github.standobyte.jojo.init.ModStatusEffects;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
+import com.github.standobyte.jojo.util.damage.DamageUtil;
+import com.github.standobyte.jojo.util.syncheddata.SyncedDataHolderExtended;
+
+import net.minecraft.core.Holder;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+
+public class StandVirusActualEffect extends EntityCustomEffect implements SyncedDataHolderExtended {
+	public static final EntityDataAccessor<Integer> CONSUMED_LEVELS = SynchedEntityData.defineId(StandVirusActualEffect.class, EntityDataSerializers.INT);
+	public boolean didAMeteoriteReseacherThing = false;
+
+	public StandVirusActualEffect() {
+		this(ModEntityCustomEffects.STAND_VIRUS.get());
+	}
+
+	public StandVirusActualEffect(EntityCustomEffectType<?> effectType) {
+		super(effectType);
+	}
+
+
+	@Override
+	public void defineSynchedData(SynchedEntityData.Builder builder) {
+		builder.define(CONSUMED_LEVELS, 0);
+	}
+
+	@Override
+	public <T> void onSyncedDataUpdated(T oldValue, T newValue, EntityDataAccessor<T> dataAccessor) {
+	}
+
+
+	public int getXpLevelsTakenByArrow() {
+		return synchedData.get(CONSUMED_LEVELS);
+	}
+
+	public int incXpLevelsTakenByArrow() {
+		int levels = getXpLevelsTakenByArrow() + 1;
+		synchedData.set(CONSUMED_LEVELS, levels);
+		return levels;
+	}
+
+	public int getStandXpLevelsRequirement() {
+		return 30;
+	}
+
+
+	@Override
+	protected void start() {}
+
+	@Override
+	protected void tick() {
+		if (!level.isClientSide() && tickCount % 10 == 0) {
+			LivingEntity entity = (LivingEntity) this.entity;
+			Holder<MobEffect> vanillaEffect = ModStatusEffects.STAND_VIRUS;
+
+			if (!entity.hasEffect(vanillaEffect)) {
+				remove();
+				return;
+			}
+
+			float damage = 4;
+			// TODO only do the xp reduction in instanceof block
+			if (entity instanceof Player player) {
+				boolean hasXpLevel = player.getAbilities().instabuild || player.experienceLevel > 0;
+				boolean stopEffect = false;
+				if (hasXpLevel) {
+					StandPower power = StandPower.get(player);
+					if (power != null) {
+						int standXpRequirements = this.getStandXpLevelsRequirement();
+						if (this.incXpLevelsTakenByArrow() >= standXpRequirements) {
+							stopEffect = true;
+						}
+					}
+				}
+
+				player.giveExperienceLevels(-1);
+				if (hasXpLevel) {
+					damage /= 10;
+					if (damage > entity.getHealth()) {
+						damage = 0.001F;
+					}
+				}
+				// todo replace "livingEntity.level().damageSources().cactus()" with custom damage source
+				DamageUtil.hurtThroughInvulTicks(entity, entity.level().damageSources().cactus(), damage);
+				if (stopEffect) {
+					entity.removeEffect(vanillaEffect);
+				}
+			}
+
+			else if (entity.getHealth() > damage) {
+				DamageUtil.hurtThroughInvulTicks(entity, entity.level().damageSources().cactus(), damage);
+			}
+			else {
+				entity.removeEffect(vanillaEffect);
+			}
+		}
+	}
+
+	@Override
+	protected void stop() {
+		if (!entity.level().isClientSide() && entity.isAlive()) {
+			// TODO get rid of instanceof
+			if (entity instanceof Player player) {
+				StandPower power = StandPower.get(player);
+				if (power != null && !power.hasPower()) {
+        			StandType standToGive = StandArrowItem.pickStandToGive(player);
+        			if (standToGive != null) {
+        				power.setStand(standToGive);
+        			}
+				}
+			}
+		}
+	}
+
+	public static boolean isImmuneToMeteoriteStrain(LivingEntity entity) {
+		if (entity instanceof StandEntity) return true;
+		StandPower stand = StandPower.get(entity);
+		return stand != null && (stand.hasPower() || stand.userStandAwakeningState.hadStandBefore);
+	}
+
+	
+	@Override
+	protected void writeAdditionalSaveData(CompoundTag nbt) {
+		nbt.putInt("LevelsConsumed", synchedData.get(CONSUMED_LEVELS));
+		nbt.putBoolean("Zap", didAMeteoriteReseacherThing);
+	}
+
+	@Override
+	protected void readAdditionalSaveData(CompoundTag nbt) {
+		synchedData.set(CONSUMED_LEVELS, nbt.getInt("LevelsConsumed"));
+		didAMeteoriteReseacherThing = nbt.getBoolean("Zap");
+	}
+
+}
