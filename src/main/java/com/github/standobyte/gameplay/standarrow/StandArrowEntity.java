@@ -30,5 +30,5 @@ public class StandArrowEntity extends AbstractArrow {
         return new ItemStack(ModItems.STAND_ARROW.get());
     }
 
-    // todo Stand arrow anti-disappear on hitting an entity
+    // TODO Stand arrow anti-disappear on hitting an entity
 }

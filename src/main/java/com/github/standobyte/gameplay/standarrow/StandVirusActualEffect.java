@@ -5,8 +5,6 @@ import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectType;
 import com.github.standobyte.core_subsystems.entitydata.ModEntityCustomEffects;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
-import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
-import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.syncheddata.SyncedDataHolderExtended;
 
@@ -18,6 +16,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 public class StandVirusActualEffect extends EntityCustomEffect implements SyncedDataHolderExtended {
 	public static final EntityDataAccessor<Integer> CONSUMED_LEVELS = SynchedEntityData.defineId(StandVirusActualEffect.class, EntityDataSerializers.INT);
@@ -70,19 +69,22 @@ public class StandVirusActualEffect extends EntityCustomEffect implements Synced
 				remove();
 				return;
 			}
+			StandPower power = StandPower.get(entity);
+			if (power != null && power.hasPower()) {
+				remove();
+				return;
+			}
 
 			float damage = 4;
-			// TODO only do the xp reduction in instanceof block
+			boolean stopEffect = false;
+			
 			if (entity instanceof Player player) {
 				boolean hasXpLevel = player.getAbilities().instabuild || player.experienceLevel > 0;
-				boolean stopEffect = false;
 				if (hasXpLevel) {
-					StandPower power = StandPower.get(player);
-					if (power != null) {
-						int standXpRequirements = this.getStandXpLevelsRequirement();
-						if (this.incXpLevelsTakenByArrow() >= standXpRequirements) {
-							stopEffect = true;
-						}
+					int standXpRequirements = this.getStandXpLevelsRequirement();
+					if (this.incXpLevelsTakenByArrow() >= standXpRequirements) {
+						stopEffectOnGaveStand = true;
+						StandArrowItem.giveStand(level, entity);
 					}
 				}
 
@@ -90,45 +92,41 @@ public class StandVirusActualEffect extends EntityCustomEffect implements Synced
 				if (hasXpLevel) {
 					damage /= 10;
 					if (damage > entity.getHealth()) {
-						damage = 0.001F;
+						damage = Math.min(entity.getHealth() - 0.001f, 0.001f);
 					}
 				}
-				// todo replace "livingEntity.level().damageSources().cactus()" with custom damage source
-				DamageUtil.hurtThroughInvulTicks(entity, entity.level().damageSources().cactus(), damage);
-				if (stopEffect) {
-					entity.removeEffect(vanillaEffect);
+			}
+			else if (entity.getHealth() <= damage) {
+				stopEffectOnGaveStand = true;
+				if (StandArrowItem.giveStand(level, entity)) {
+					damage = 0;
 				}
 			}
-
-			else if (entity.getHealth() > damage) {
+			
+			if (damage > 0) {
+				// TODO replace "livingEntity.level().damageSources().cactus()" with custom damage source
 				DamageUtil.hurtThroughInvulTicks(entity, entity.level().damageSources().cactus(), damage);
 			}
-			else {
+			if (stopEffect || stopEffectOnGaveStand) {
 				entity.removeEffect(vanillaEffect);
+				this.remove();
 			}
 		}
 	}
+	
+	protected float damageAmount() {
+		return 4;
+	}
 
+	protected boolean stopEffectOnGaveStand;
 	@Override
 	protected void stop() {
-		if (!entity.level().isClientSide() && entity.isAlive()) {
-			// TODO get rid of instanceof
-			if (entity instanceof Player player) {
-				StandPower power = StandPower.get(player);
-				if (power != null && !power.hasPower()) {
-        			StandType standToGive = StandArrowItem.pickStandToGive(player);
-        			if (standToGive != null) {
-        				power.setStand(standToGive);
-        			}
-				}
+		if (!stopEffectOnGaveStand) {
+			Level level = entity.level();
+			if (!level.isClientSide() && entity.isAlive()) {
+				StandArrowItem.giveStand(level, (LivingEntity) entity);
 			}
 		}
-	}
-
-	public static boolean isImmuneToMeteoriteStrain(LivingEntity entity) {
-		if (entity instanceof StandEntity) return true;
-		StandPower stand = StandPower.get(entity);
-		return stand != null && (stand.hasPower() || stand.userStandAwakeningState.hadStandBefore);
 	}
 
 	

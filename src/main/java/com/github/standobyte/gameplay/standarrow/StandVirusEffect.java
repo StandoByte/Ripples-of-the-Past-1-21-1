@@ -11,6 +11,8 @@ import com.github.standobyte.core_subsystems.entitydata.ModEntityCustomEffects;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.mc.statuseffect.RotpStatusEffect;
 import com.github.standobyte.jojo.mc.statuseffect.StatusEffectApplicable;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.StandUtil;
 
 import net.minecraft.tags.EntityTypeTags;
@@ -32,11 +34,18 @@ public class StandVirusEffect extends RotpStatusEffect implements StatusEffectAp
     	// TODO event
 		if (!entity.getType().is(EntityTypeTags.UNDEAD)
 				&& entity.getHealth() < entity.getMaxHealth()
-				&& !StandVirusActualEffect.isImmuneToMeteoriteStrain(entity)
+				&& !StandVirusEffect.isImmuneToMeteoriteStrain(entity)
 				&& !entity.hasEffect(ModStatusEffects.STAND_VIRUS)) {
 			entity.addEffect(new MobEffectInstance(ModStatusEffects.STAND_VIRUS, 600, 0, false, false, true));
 		}
 	}
+
+	public static boolean isImmuneToMeteoriteStrain(LivingEntity entity) {
+		if (entity instanceof StandEntity) return true;
+		StandPower stand = StandPower.get(entity);
+		return stand != null && (stand.hasPower() || stand.userStandAwakeningState.hadStandBefore);
+	}
+
 
     @Override
     public boolean isApplicable(LivingEntity entity) {

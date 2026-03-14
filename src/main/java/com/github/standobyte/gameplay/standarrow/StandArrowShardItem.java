@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModItems;
+import com.github.standobyte.jojo.util.StandUtil;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -31,14 +32,17 @@ public class StandArrowShardItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         ItemStack shard = player.getItemInHand(usedHand);
 
-        if (!level.isClientSide() && StandArrowItem.onPiercedByArrow(level, player, shard, null, player)) {
+        if (!level.isClientSide() && !StandUtil.isEntityStandUser(player)) {
+        	boolean gaveStand = StandArrowItem.giveStand(level, player);
         	if (!StandArrowItem.isInvulnerable(player)) {
-        		StandArrowItem.dealDamageFromArrow(player, shard, true);
+        		StandArrowItem.dealDamageFromArrow(player, shard, true, gaveStand);
         	}
-        	if (!player.getAbilities().instabuild) {
-        		shard.shrink(1);
+        	if (gaveStand) {
+        		if (!player.getAbilities().instabuild) {
+        			shard.shrink(1);
+        		}
+        		return InteractionResultHolder.success(shard);
         	}
-            return InteractionResultHolder.success(shard);
         }
         return InteractionResultHolder.fail(shard);
     }
@@ -56,9 +60,9 @@ public class StandArrowShardItem extends Item {
     	ItemStack item = itemEntity.getItem();
     	if (!item.isEmpty() && item.is(ModItems.STAND_ARROW_SHARD)) {
     		Player player = event.getPlayer();
-    		if (!StandArrowItem.isInvulnerable(player) && 
-    				StandArrowItem.onPiercedByArrow(player.level(), player, item, itemEntity, itemEntity.getOwner())) {
-    			StandArrowItem.dealDamageFromArrow(player, item, true);
+    		if (!StandArrowItem.isInvulnerable(player) && !StandUtil.isEntityStandUser(player)) {
+    			boolean gaveStand = StandArrowItem.giveStand(player.level(), player);
+    			StandArrowItem.dealDamageFromArrow(player, item, true, gaveStand);
     			item.shrink(1);
     			event.setCanPickup(TriState.FALSE);
     		}

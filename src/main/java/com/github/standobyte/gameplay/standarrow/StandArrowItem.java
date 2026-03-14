@@ -20,6 +20,7 @@ import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.UtilFunctions;
 import com.github.standobyte.jojo.util.mc.StatusEffectUtil;
 
@@ -73,8 +74,7 @@ public class StandArrowItem extends ArrowItem {
     }
     
     
-    public static boolean onPiercedByArrow(Level level, LivingEntity entity, ItemStack arrowItem, 
-    		@Nullable Entity directDamageEntity, @Nullable Entity standGivingCharacter) {
+    public static boolean giveStand(Level level, LivingEntity entity) {
         if (!level.isClientSide()) {
         	boolean givePowerTypeStand = entity.getType() == EntityType.PLAYER;
         	
@@ -85,6 +85,7 @@ public class StandArrowItem extends ArrowItem {
         			StandType standToGive = pickStandToGive(entity);
         			if (standToGive != null) {
         				stand.setStand(standToGive);
+        				stand.healingDamageFromArrow = true;
         				return true;
         			}
         		}
@@ -111,14 +112,17 @@ public class StandArrowItem extends ArrowItem {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         ItemStack arrow = player.getItemInHand(usedHand);
 
-        if (!level.isClientSide() && StandArrowItem.onPiercedByArrow(level, player, arrow, null, player)) {
+        if (!level.isClientSide() && !StandUtil.isEntityStandUser(player)) {
+        	boolean gaveStand = StandArrowItem.giveStand(level, player);
         	if (!isInvulnerable(player)) {
-        		dealDamageFromArrow(player, arrow, false);
+        		dealDamageFromArrow(player, arrow, false, gaveStand);
         	}
-        	ServerLevel serverLevel = (ServerLevel) level;
-			arrow.hurtAndBreak(1, serverLevel, player, itemType -> onBreakArrow(
-					serverLevel, player, usedHand, null, null, itemType));
-            return InteractionResultHolder.success(arrow);
+        	if (gaveStand) {
+        		ServerLevel serverLevel = (ServerLevel) level;
+        		arrow.hurtAndBreak(1, serverLevel, player, itemType -> onBreakArrow(
+        				serverLevel, player, usedHand, null, null, itemType));
+        		return InteractionResultHolder.success(arrow);
+        	}
         }
         return InteractionResultHolder.fail(arrow);
     }
@@ -167,7 +171,8 @@ public class StandArrowItem extends ArrowItem {
     	return entity.isInvulnerable() || entity instanceof Player player && player.getAbilities().invulnerable;
     }
     
-    public static void dealDamageFromArrow(LivingEntity entity, ItemStack arrowItem, boolean reducedDamage) {
+    public static void dealDamageFromArrow(LivingEntity entity, ItemStack arrowItem, 
+    		boolean reducedDamage, boolean gaveStand) {
     	int bleedingEffect = reducedDamage ? 1 : 2;
     	float dmgAmount = reducedDamage ? 12 : 16;
 
@@ -175,9 +180,10 @@ public class StandArrowItem extends ArrowItem {
     			6000 /* it'll heal anyway */, bleedingEffect, false, false, true));
     	// TODO damage source
     	DamageSource dmgSource = entity.damageSources().playerAttack((Player) entity);
-    	dmgAmount = Math.min(dmgAmount, entity.getHealth() - 1.0F);
+    	if (gaveStand) {
+    		dmgAmount = Math.min(dmgAmount, entity.getHealth() - 1.0F);
+    	}
     	entity.hurt(dmgSource, dmgAmount);
-    	StandPower.get(entity).healingDamageFromArrow = true;
     }
     
     public static boolean healArrowDamage(LivingEntity entity) {
