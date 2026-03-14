@@ -159,12 +159,12 @@ public class StandArrowItem extends ArrowItem {
 		if (!isInvulnerable) {
 			int bleedingEffect = reducedDamage ? 1 : 2;
 			float dmgAmount = reducedDamage ? 12 : 16;
-			dmgAmount = Math.min(dmgAmount, entity.getHealth() - 1.0F);
 			
 			entity.addEffect(new MobEffectInstance(ModStatusEffects.BLEEDING, 
 					6000 /* it'll heal anyway */, bleedingEffect, false, false, true));
 			// TODO damage source
 			DamageSource dmgSource = entity.damageSources().playerAttack((Player) entity);
+			dmgAmount = Math.min(dmgAmount, entity.getHealth() - 1.0F);
 			entity.hurt(dmgSource, dmgAmount);
 			StandPower.get(entity).healingDamageFromArrow = true;
 		}
