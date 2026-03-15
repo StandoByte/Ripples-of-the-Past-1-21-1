@@ -1,8 +1,9 @@
-package com.github.standobyte.core_subsystems.entitydata;
+package com.github.standobyte.jojo.init;
 
-import com.github.standobyte.gameplay.standarrow.StandVirusActualEffect;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectType;
+import com.github.standobyte.jojo.mechanics.standarrow.StandVirusActualEffect;
 
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;

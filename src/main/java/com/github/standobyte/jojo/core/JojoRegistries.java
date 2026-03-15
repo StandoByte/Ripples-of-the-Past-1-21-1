@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.function.Consumer;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectType;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectType;
 import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSet;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.StoryCharacter;

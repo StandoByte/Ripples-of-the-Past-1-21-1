@@ -1,10 +1,10 @@
-package com.github.standobyte.core_subsystems.entitydata.sync;
+package com.github.standobyte.jojo.entityattachment.custom_effect.sync;
 
 import java.util.List;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectsClass;
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectsMap;
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffect;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffect;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectsClass;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectsMap;
 import com.github.standobyte.jojo.util.syncheddata.SynchedDataExtended;
 
 import net.minecraft.network.syncher.SynchedEntityData;

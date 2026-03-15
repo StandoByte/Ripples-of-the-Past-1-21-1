@@ -7,9 +7,9 @@ import java.util.stream.Stream;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectsClass;
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectType;
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectsMap;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectType;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectsClass;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectsMap;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 
 import net.minecraft.server.level.ServerPlayer;

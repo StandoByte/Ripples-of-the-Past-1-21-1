@@ -1,7 +1,7 @@
 package com.github.standobyte.jojoimpl.stands.crazydiamond;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectType;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectType;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
 
 import net.minecraft.world.entity.LivingEntity;

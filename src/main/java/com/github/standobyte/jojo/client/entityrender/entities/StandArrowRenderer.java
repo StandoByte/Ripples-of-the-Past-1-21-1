@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.client.entityrender.entities;
 
-import com.github.standobyte.gameplay.standarrow.StandArrowEntity;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.mechanics.standarrow.StandArrowEntity;
 
 import net.minecraft.client.renderer.entity.ArrowRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;

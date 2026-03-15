@@ -1,4 +1,4 @@
-package com.github.standobyte.gameplay.standarrow;
+package com.github.standobyte.jojo.mechanics.standarrow;
 
 import javax.annotation.Nullable;
 

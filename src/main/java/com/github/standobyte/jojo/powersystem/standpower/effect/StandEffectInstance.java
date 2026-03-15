@@ -6,9 +6,9 @@ import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectType;
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffect;
-import com.github.standobyte.core_subsystems.entitydata.TrEntityCustomEffectsPacket;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffect;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectType;
+import com.github.standobyte.jojo.entityattachment.custom_effect.TrEntityCustomEffectsPacket;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;

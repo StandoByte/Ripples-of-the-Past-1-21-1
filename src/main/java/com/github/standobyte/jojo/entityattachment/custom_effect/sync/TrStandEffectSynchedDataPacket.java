@@ -1,11 +1,11 @@
-package com.github.standobyte.core_subsystems.entitydata.sync;
+package com.github.standobyte.jojo.entityattachment.custom_effect.sync;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectsClass;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.PacketsRegister;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectsClass;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;

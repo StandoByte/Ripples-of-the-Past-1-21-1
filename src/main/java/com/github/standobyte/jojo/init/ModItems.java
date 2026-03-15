@@ -5,8 +5,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
-import com.github.standobyte.gameplay.standarrow.StandArrowItem;
-import com.github.standobyte.gameplay.standarrow.StandArrowShardItem;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.mc.item.DebugItem;
@@ -17,6 +15,8 @@ import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponen
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesPiece;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
 import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinItem;
+import com.github.standobyte.jojo.mechanics.standarrow.StandArrowItem;
+import com.github.standobyte.jojo.mechanics.standarrow.StandArrowShardItem;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.tmp.charactertest.CharacterTestItem;
