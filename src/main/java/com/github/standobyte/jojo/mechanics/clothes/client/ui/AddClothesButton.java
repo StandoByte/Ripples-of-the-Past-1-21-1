@@ -1,11 +1,11 @@
 package com.github.standobyte.jojo.mechanics.clothes.client.ui;
 
+import com.github.standobyte.jojo.client.ui.screen_widgets.ImageButton2;
 import com.github.standobyte.jojo.client.ui.utils.DynamicButtonVisibility;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
-import com.github.standobyte.jojo.client.ui.widgets.ImageButton2;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.core.packet.fromclient.ClNoParamsPacket;
-import com.github.standobyte.jojo.core.packet.fromclient.ClNoParamsPacket.PacketType;
+import com.github.standobyte.jojo.network.c2s.ClNoParamsPacket;
+import com.github.standobyte.jojo.network.c2s.ClNoParamsPacket.PacketType;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;

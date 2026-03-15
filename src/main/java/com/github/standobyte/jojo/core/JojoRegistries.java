@@ -4,14 +4,14 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.function.Consumer;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectType;
-import com.github.standobyte.jojo.mechanics.StoryPart;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectType;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSet;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.StoryCharacter;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.entityaction.type.SpecialEntityActionType;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
+import com.github.standobyte.jojo.subsystems.StoryPart;
 import com.github.standobyte.jojo.util.reflection.CommonReflection;
 import com.github.standobyte.jojoimpl.powers.hamon.HamonSkill;
 import com.github.standobyte.jojoimpl.powers.hamon.HamonTechnique;

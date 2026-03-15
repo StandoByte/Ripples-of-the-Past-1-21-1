@@ -4,9 +4,9 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.mc.item.component.StandWrittenOnDisc;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
-import com.github.standobyte.jojo.mechanics.itemtracking.OriginalItemPosComponent;
+import com.github.standobyte.jojo.mechanics.standdisc.StandWrittenOnDisc;
+import com.github.standobyte.jojo.subsystems.itemtracking.OriginalItemPosComponent;
 import com.github.standobyte.v1_21_4_stuff.itemmodel.__ItemModelComponent;
 
 import net.minecraft.core.UUIDUtil;

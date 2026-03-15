@@ -12,10 +12,10 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import com.github.standobyte.jojo.core.JojoRegistries;
-import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSet;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.StoryCharacter;
 import com.github.standobyte.jojo.mechanics.clothes.sewing.ClSetSewingMachineItemPacket;
+import com.github.standobyte.jojo.subsystems.StoryPart;
 
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;

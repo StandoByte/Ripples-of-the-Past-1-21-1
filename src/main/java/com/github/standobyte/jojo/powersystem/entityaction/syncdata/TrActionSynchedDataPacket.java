@@ -3,8 +3,8 @@ package com.github.standobyte.jojo.powersystem.entityaction.syncdata;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.standobyte.jojo.PacketsRegister;
 import com.github.standobyte.jojo.client.ClientProxy;
-import com.github.standobyte.jojo.core.PacketsRegister;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;

@@ -21,9 +21,9 @@ import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
-import com.github.standobyte.jojo.util.mc.ContainerSlotInput;
-import com.github.standobyte.jojo.util.mc.ItemUtil;
-import com.github.standobyte.jojo.util.network.NetworkUtil;
+import com.github.standobyte.jojo.util.functions.ItemUtil;
+import com.github.standobyte.jojo.util.functions_network.NetworkUtil;
+import com.github.standobyte.jojo.util.objects_mc.ContainerSlotInput;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDRepairItemAbility.ItemRepairResult;
 import com.mojang.datafixers.util.Pair;
 

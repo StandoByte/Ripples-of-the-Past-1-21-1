@@ -6,8 +6,8 @@ import java.util.Optional;
 
 import org.spongepowered.asm.mixin.Mixin;
 
+import com.github.standobyte.jojo.client.entityrender.ModelUtil;
 import com.github.standobyte.jojo.client.entityrender.NamedModelParts;
-import com.github.standobyte.jojo.client.utils.ModelUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 
 import net.minecraft.client.model.Model;

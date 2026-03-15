@@ -4,16 +4,16 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import com.github.standobyte.jojo.core.config.DefaultedValue;
-import com.github.standobyte.jojo.core.packet.fromserver.StandEntitySoundPacket;
-import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
+import com.github.standobyte.jojo.network.s2c.StandEntitySoundPacket;
+import com.github.standobyte.jojo.network.s2c.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.powersystem.MovesetBuilder;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.datapack.StandTypeClass;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
+import com.github.standobyte.jojo.util.objects_java.DefaultedValue;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 

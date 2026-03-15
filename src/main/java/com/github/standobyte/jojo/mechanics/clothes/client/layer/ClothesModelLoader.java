@@ -10,8 +10,8 @@ import com.github.standobyte.jojo.client.entityrender.parsemodel.ParseModEntityM
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader.ModelFileFormatPath;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.util.JSONUtil;
-import com.github.standobyte.jojo.util.StringUtil;
+import com.github.standobyte.jojo.util.functions.JSONUtil;
+import com.github.standobyte.jojo.util.functions.StringUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Zone;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._ProfilerFiller;
 import com.google.gson.JsonElement;

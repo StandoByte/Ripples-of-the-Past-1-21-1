@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
-import com.github.standobyte.jojo.util.StringUtil;
+import com.github.standobyte.jojo.util.functions.StringUtil;
 import com.mojang.datafixers.util.Pair;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;

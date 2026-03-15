@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
-import com.github.standobyte.jojo.mc.entity.BlockShardEntity;
+import com.github.standobyte.jojo.customobjects.entity_projectile.BlockShardEntity;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.client.CrazyDBlockBulletRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;

@@ -2,9 +2,9 @@ package com.github.standobyte.jojo.powersystem.entityaction.syncdata;
 
 import java.util.List;
 
+import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataExtended;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
-import com.github.standobyte.jojo.util.syncheddata.SynchedDataExtended;
 
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;

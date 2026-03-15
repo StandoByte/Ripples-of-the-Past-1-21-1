@@ -10,8 +10,8 @@ import com.github.standobyte.jojo.powersystem.PowerType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
 import com.github.standobyte.jojo.powersystem.standpower.packet.StandExpPacket;
-import com.github.standobyte.jojo.util.NBTUtil;
-import com.github.standobyte.jojo.util.network.NetworkUtil;
+import com.github.standobyte.jojo.util.functions.NBTUtil;
+import com.github.standobyte.jojo.util.functions_network.NetworkUtil;
 
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;

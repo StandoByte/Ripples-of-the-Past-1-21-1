@@ -16,11 +16,11 @@ import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
-import com.github.standobyte.jojo.util.MathUtil;
-import com.github.standobyte.jojo.util.UtilFunctions;
-import com.github.standobyte.jojo.util.mc.ContainerSlotInput;
-import com.github.standobyte.jojo.util.mc.ItemUtil;
-import com.github.standobyte.jojo.util.network.NetworkUtil;
+import com.github.standobyte.jojo.util.functions.ItemUtil;
+import com.github.standobyte.jojo.util.functions.MathUtil;
+import com.github.standobyte.jojo.util.functions.UtilFunctions;
+import com.github.standobyte.jojo.util.functions_network.NetworkUtil;
+import com.github.standobyte.jojo.util.objects_mc.ContainerSlotInput;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;

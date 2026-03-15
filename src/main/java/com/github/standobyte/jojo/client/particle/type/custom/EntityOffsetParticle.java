@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.client.particle.type.custom;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.jojo.util.functions.MathUtil;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.Entity;

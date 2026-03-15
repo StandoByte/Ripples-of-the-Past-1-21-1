@@ -7,11 +7,10 @@ import java.util.Map;
 
 import org.joml.Quaternionf;
 
-import com.github.standobyte.jojo.client.ClientUtil;
+import com.github.standobyte.jojo.client.ui.screen_widgets.FilterList;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
-import com.github.standobyte.jojo.client.ui.widgets.FilterList;
+import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.mechanics.clothes.client.layer.HumanoidClothesLayer;
 import com.github.standobyte.jojo.mechanics.clothes.client.layer.HumanoidClothesRSExtension;
 import com.github.standobyte.jojo.mechanics.clothes.client.ui.PlayerClothesScreen;
@@ -19,6 +18,7 @@ import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSet;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.StoryCharacter;
 import com.github.standobyte.jojo.mechanics.clothes.sewing.SewingMachineContainer;
+import com.github.standobyte.jojo.subsystems.StoryPart;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;

@@ -7,6 +7,7 @@ import com.github.standobyte.jojo.client.sound.sounds.EntityStoppableSoundInstan
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModParticles;
 import com.github.standobyte.jojo.init.ModSoundEvents;
+import com.github.standobyte.jojo.mechanics.JojoDefinitions;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
@@ -15,9 +16,8 @@ import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
-import com.github.standobyte.jojo.util.MathUtil;
-import com.github.standobyte.jojo.util.damage.DamageUtil;
-import com.github.standobyte.jojoimpl.JojoDefinitions;
+import com.github.standobyte.jojo.util.functions.DamageUtil;
+import com.github.standobyte.jojo.util.functions.MathUtil;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;

@@ -6,8 +6,8 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.particle.CustomParticlesHelper;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityStoppableSoundInstance;
+import com.github.standobyte.jojo.init.ModBlocks;
 import com.github.standobyte.jojo.init.ModSoundEvents;
-import com.github.standobyte.jojo.init.ModUtilTags;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -15,9 +15,9 @@ import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
-import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier.ActionAnimIdHandsided;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier.ActionAnimIdHandsided;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.effect.UserStandEffects;
@@ -215,7 +215,7 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 //        material == Material.GLASS || 			// beacon, conduit, stained glass pane, glass pane, glass, sea lantern
 //        material == Material.BUILDABLE_GLASS ||	// redstone lamp
 		
-		return blockState.is(ModUtilTags.Blocks.CRAZY_D_CAN_MAKE_BULLET);
+		return blockState.is(ModBlocks.CRAZY_D_CAN_MAKE_BULLET);
 	}
     
     public static boolean isGlassBlock(BlockState blockState, Level level, @Nullable BlockPos blockPos) {

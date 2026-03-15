@@ -1,8 +1,8 @@
 package com.github.standobyte.jojoimpl.powers.hamon.client.particle.custom;
 
-import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.particle.CustomParticlesHelper;
 import com.github.standobyte.jojo.client.particle.type.custom.EntityOffsetParticle;
+import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.ParticleType;

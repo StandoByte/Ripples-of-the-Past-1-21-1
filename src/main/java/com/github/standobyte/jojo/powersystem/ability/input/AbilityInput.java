@@ -4,10 +4,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.core.event.ModEventHooks;
-import com.github.standobyte.jojo.core.event.RipplesAbilityKeyPressEvent;
-import com.github.standobyte.jojo.core.packet.fromserver.TrAbilityUsePacket;
+import com.github.standobyte.jojo.event.ModEventHooks;
+import com.github.standobyte.jojo.event.RipplesAbilityKeyPressEvent;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
+import com.github.standobyte.jojo.network.s2c.TrAbilityUsePacket;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
@@ -17,8 +17,8 @@ import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbiliti
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer.BufferingState;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState;
-import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState.HeldInputEntry;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState.HeldInputEntry;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.LivingEntity;

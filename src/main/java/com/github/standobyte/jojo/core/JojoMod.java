@@ -2,11 +2,15 @@ package com.github.standobyte.jojo.core;
 
 import org.slf4j.Logger;
 
-import com.github.standobyte.core_subsystems.entitydata.ModEntityCustomEffects;
-import com.github.standobyte.jojo.core.command.argument.ModCommandArguments;
+import com.github.standobyte.jojo.PacketsRegister;
+import com.github.standobyte.jojo.command.argument.ModCommandArguments;
 import com.github.standobyte.jojo.init.ModBlockEntities;
 import com.github.standobyte.jojo.init.ModBlocks;
+import com.github.standobyte.jojo.init.ModContainers;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
+import com.github.standobyte.jojo.init.ModEntityAttributes;
+import com.github.standobyte.jojo.init.ModEntityCustomEffects;
+import com.github.standobyte.jojo.init.ModEntityDataSerializers;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.init.ModItems;
@@ -14,11 +18,8 @@ import com.github.standobyte.jojo.init.ModParticles;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.init.ModSpecialActions;
 import com.github.standobyte.jojo.init.ModStatusEffects;
-import com.github.standobyte.jojo.init.core.ModContainers;
-import com.github.standobyte.jojo.init.core.ModEntityAttributes;
-import com.github.standobyte.jojo.init.core.ModEntityDataSerializers;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
-import com.github.standobyte.jojo.init.power.ModStandEffects;
+import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.init.power.ModStands;
 import com.github.standobyte.jojoimpl.powers.hamon.ModHamonSkills;
 import com.mojang.logging.LogUtils;
@@ -58,12 +59,11 @@ public class JojoMod {
 		ModBlockEntities.BLOCK_ENTITY_TYPES.register(modEventBus);
 		ModContainers.CONTAINERS.register(modEventBus);
 		
-		JojoRegistries.ABILITY_TYPES.register(modEventBus);
+		ModStandAbilities.ABILITY_TYPES.register(modEventBus);
 		ModEntityCustomEffects.CUSTOM_EFFECTS.register(modEventBus);
 		ModPlayerPowers.PLAYER_POWERS.register(modEventBus);
 		ModHamonSkills.HAMON_SKILLS.register(modEventBus);
 		ModHamonSkills.HAMON_CHARACTER_TECHNIQUES.register(modEventBus);
-		ModStandEffects.load();
 		ModStands.DEFAULT_STANDS.register(modEventBus);
 		ModSpecialActions.ACTIONS.register(modEventBus);
 	}

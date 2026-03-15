@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.standobyte.jojo.core.packet.fromserver.EntitySyncMotionBypassingPacket;
-import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.EntityComponentController;
+import com.github.standobyte.jojo.network.s2c.EntitySyncMotionBypassingPacket;
+import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.EntityComponentController;
 
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.world.entity.Entity;

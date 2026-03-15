@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.github.standobyte.jojo.client.ClientPowerCache;
-import com.github.standobyte.jojo.client.ui.hud.marker.MarkerRenderer;
+import com.github.standobyte.jojo.client.ui.marker.MarkerRenderer;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;

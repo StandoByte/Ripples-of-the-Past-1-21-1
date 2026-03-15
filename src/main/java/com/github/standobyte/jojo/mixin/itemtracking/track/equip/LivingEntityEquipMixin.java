@@ -12,11 +12,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.init.ModItemDataComponents;
-import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracker;
-import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracking;
-import com.github.standobyte.jojo.mechanics.itemtracking.KnownItemState;
 import com.github.standobyte.jojo.mixin.entity_like_player.npc.InventoryAccessor;
-import com.github.standobyte.jojo.util.mc.ItemUtil;
+import com.github.standobyte.jojo.subsystems.itemtracking.ItemTracker;
+import com.github.standobyte.jojo.subsystems.itemtracking.ItemTracking;
+import com.github.standobyte.jojo.subsystems.itemtracking.KnownItemState;
+import com.github.standobyte.jojo.util.functions.ItemUtil;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.SimpleContainer;

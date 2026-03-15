@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.mechanics.clothes.sewing.client;
 
+import com.github.standobyte.jojo.client.ui.screen_widgets.FilterList;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
-import com.github.standobyte.jojo.client.ui.widgets.FilterList;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;

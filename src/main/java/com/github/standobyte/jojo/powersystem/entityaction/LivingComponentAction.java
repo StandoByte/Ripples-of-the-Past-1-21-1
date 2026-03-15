@@ -8,14 +8,14 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimatedEntity;
+import com.github.standobyte.jojo.customobjects.LivingReactToNewAction;
+import com.github.standobyte.jojo.entityattachment.SynchronizablePlayerData;
+import com.github.standobyte.jojo.entityattachment.TickingEntityData;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
-import com.github.standobyte.jojo.mc.entity.util.LivingReactToNewAction;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.SyncType;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionInstancePacket;
 import com.github.standobyte.jojo.powersystem.entityaction.syncdata.SyncActionInstanceData;
-import com.github.standobyte.jojo.util.entitycomponent.SynchronizablePlayerData;
-import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
-import com.github.standobyte.jojo.util.target.ActionTargetAim;
+import com.github.standobyte.jojo.subsystems.target.ActionTargetAim;
 
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;

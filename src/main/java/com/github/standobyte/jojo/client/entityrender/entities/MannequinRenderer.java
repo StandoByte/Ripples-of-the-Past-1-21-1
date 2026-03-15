@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.client.entityrender.entities;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.entityrender.ModEntityRenderers;
+import com.github.standobyte.jojo.client.ModEntityTypeRenderers;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -34,9 +34,9 @@ public class MannequinRenderer extends LivingEntityRenderer<MannequinEntity, Man
 	private final MannequinModel mannequinModelSlim;
 
     public MannequinRenderer(EntityRendererProvider.Context ctx) {
-        super(ctx, new MannequinModel(ctx.bakeLayer(ModEntityRenderers.MANNEQUIN)), 0.0F);
+        super(ctx, new MannequinModel(ctx.bakeLayer(ModEntityTypeRenderers.MANNEQUIN)), 0.0F);
         this.mannequinModel = this.getModel();
-		this.mannequinModelSlim = new MannequinModel(ctx.bakeLayer(ModEntityRenderers.MANNEQUIN_SLIM));
+		this.mannequinModelSlim = new MannequinModel(ctx.bakeLayer(ModEntityTypeRenderers.MANNEQUIN_SLIM));
         this.addLayer(
             new HumanoidArmorLayer<>(
                 this,

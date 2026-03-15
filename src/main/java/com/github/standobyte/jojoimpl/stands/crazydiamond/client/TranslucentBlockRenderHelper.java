@@ -7,11 +7,11 @@ import java.util.function.Predicate;
 import org.lwjgl.opengl.GL14;
 
 import com.github.standobyte.jojo.client.ClientPowerCache;
-import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.rendertype.CustomMultiBufferSource;
-import com.github.standobyte.jojo.client.ui.powerhud.PowerHud;
-import com.github.standobyte.jojo.client.ui.powerhud.PowerHud.AbilityHud;
-import com.github.standobyte.jojo.client.utils.ARGBUtil;
+import com.github.standobyte.jojo.client.ui.hud_power.PowerHud;
+import com.github.standobyte.jojo.client.ui.hud_power.PowerHud.AbilityHud;
+import com.github.standobyte.jojo.client.util.functions.ClientUtil;
+import com.github.standobyte.jojo.client.util.functions.RGBUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -161,7 +161,7 @@ public class TranslucentBlockRenderHelper {
 				for (RenderType renderType : bakedModel.getRenderTypes(blockState, RandomSource.create(42), model)) {
 					renderer.getModelRenderer().renderModel(poseStack.last(), buffers.getBuffer(renderType), 
 							blockState, bakedModel, 
-							ARGBUtil.red(color), ARGBUtil.green(color), ARGBUtil.blue(color), 
+							RGBUtil.red(color), RGBUtil.green(color), RGBUtil.blue(color), 
 							ClientUtil.MAX_LIGHT, overlay, model, null);
 				}
 			}

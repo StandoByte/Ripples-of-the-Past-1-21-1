@@ -1,0 +1,58 @@
+package com.github.standobyte.jojo.util.constants;
+
+// I'm ASSUMING these have not changed from 1.16.5
+public class EntityEvents {
+	public static final byte RABBIT_JUMP                    = 1;
+	public static final byte HURT                           = 2;
+	public static final byte MOB_ATTACK_ANIMATION           = 4;
+	public static final byte TAME_FAILED_PARTICLES          = 6;
+	public static final byte ANIMAL_TAMED_PARTICLES         = 7;
+	public static final byte WOLF_SHAKE_ANIMATION           = 8;
+	public static final byte SHEEP_EAT_ANIMATION            = 10;
+	public static final byte IRON_GOLEM_OFFER_FLOWER        = 11;
+	public static final byte VILLAGER_BREEDING              = 12;
+	public static final byte VILLAGER_ANGRY                 = 13;
+	public static final byte VILLAGER_HAPPY                 = 14;
+	public static final byte WITCH_PARTICLES                = 15;
+	public static final byte CURED_ZOMBIE_VILLAGER_SOUND    = 16;
+	public static final byte ANIMAL_HEART_PARTICLES         = 18;
+	public static final byte SQUID_RESET_TENTACLE_MOVEMENT  = 19;
+	public static final byte VILLAGER_PANIC_SWEAT           = 42;
+	public static final byte SILVERFISH_SPAWN_PARTICLES     = 20;
+	public static final byte PLAYER_PERM_LEVEL_0            = 24;
+	public static final byte PLAYER_PERM_LEVEL_1            = 25;
+	public static final byte PLAYER_PERM_LEVEL_2            = 26;
+	public static final byte PLAYER_PERM_LEVEL_3            = 27;
+	public static final byte PLAYER_PERM_LEVEL_4            = 28;
+	public static final byte SHIELD_BLOCK_SOUND             = 29;
+	public static final byte SHIELD_BREAK_SOUND             = 30;
+	public static final byte ARMOR_STAND_HIT                = 32;
+	public static final byte HURT_THORNS                    = 33;
+	public static final byte IRON_GOLEM_FUCK_YOU_NO_FLOWER  = 34;
+	public static final byte HURT_DROWN                     = 36;
+	public static final byte HURT_ON_FIRE                   = 37;
+	public static final byte DOLPHIN_GREEN_PARTICLES_IDK    = 38;
+	public static final byte RAVAGER_STUN_ANIMATION         = 39;
+	public static final byte OCELOT_NOT_TRUSTING_PARTICLES  = 40;
+	public static final byte OCELOT_TRUSTING_PARTICLES      = 41;
+	public static final byte HURT_SWEET_BERRY_BUSH          = 44;
+	public static final byte FOX_PICK_UP_ITEM_PARTICLE      = 45;
+	public static final byte PORTAL_PARTICLES               = 46;
+	public static final byte BREAK_MAIN_HAND_ITEM           = 47;
+	public static final byte BREAK_OFF_HAND_ITEM            = 48;
+	public static final byte BREAK_HEAD_ITEM                = 49;
+	public static final byte BREAK_CHEST_ITEM               = 50;
+	public static final byte BREAK_LEGS_ITEM                = 51;
+	public static final byte BREAK_FEET_ITEM                = 52;
+	public static final byte HONEY_SLIDE_PARTICLES          = 53;
+	public static final byte HONEY_JUMP_PARTICLES           = 54;
+	public static final byte SWAP_HAND_ITEMS                = 55;
+	public static final byte WOLF_STOP_SHAKE_ANIMATION      = 56;
+	public static final byte GOAT_LOWERING_HEAD_POSE        = 58;
+	public static final byte GOAT_RAISE_HEAD                = 59;
+	public static final byte POOF_PARTICLES                 = 60;
+	public static final byte WARDEN_TENDRIL_ANIMATION       = 61;
+	public static final byte WARDEN_SONIC_BOOM_ANIMATION    = 62;
+	public static final byte ARMADILLO_PEEK_SOUND           = 64;
+	public static final byte BREAK_MOB_ARMOR_ITEM           = 65;
+}

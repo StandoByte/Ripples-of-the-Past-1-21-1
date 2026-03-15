@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.client.entityrender.entities;
 
-import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.jojo.util.functions.MathUtil;
 
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;

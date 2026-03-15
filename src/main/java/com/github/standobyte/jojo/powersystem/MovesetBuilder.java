@@ -19,8 +19,8 @@ import com.github.standobyte.jojo.powersystem.ability.controls.InputBindTemplate
 import com.github.standobyte.jojo.powersystem.ability.controls.InputKey;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputUseVanillaMapping;
-import com.github.standobyte.jojo.powersystem.skill.UnlockableSkill;
 import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
+import com.github.standobyte.jojo.powersystem.unlockableskill.UnlockableSkill;
 
 import net.minecraft.resources.ResourceLocation;
 

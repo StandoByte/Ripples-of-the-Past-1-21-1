@@ -12,14 +12,14 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityLingeringSoundInstance;
-import com.github.standobyte.jojo.core.packet.fromserver.BrokenBlocksParticlesAndSoundsPacket;
+import com.github.standobyte.jojo.customobjects.DamageSourceModified;
+import com.github.standobyte.jojo.customobjects.entity_projectile.BlockShardEntity;
+import com.github.standobyte.jojo.customobjects.explosion.CustomExplosion;
 import com.github.standobyte.jojo.init.ModCustomExplosions;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
-import com.github.standobyte.jojo.mc.entity.BlockShardEntity;
 import com.github.standobyte.jojo.mechanics.KnockbackCollisionImpact;
-import com.github.standobyte.jojo.mechanics.explosion.CustomExplosion;
-import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
+import com.github.standobyte.jojo.network.s2c.BrokenBlocksParticlesAndSoundsPacket;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
@@ -32,17 +32,17 @@ import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
-import com.github.standobyte.jojo.util.JojoModUtil;
-import com.github.standobyte.jojo.util.StandUtil;
-import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
-import com.github.standobyte.jojo.util.network.StreamCodecs;
-import com.github.standobyte.jojo.util.target.ActionTarget;
-import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
-import com.github.standobyte.jojo.util.target.AimingEntity;
+import com.github.standobyte.jojo.subsystems.entity_grab.LivingComponentGrab;
+import com.github.standobyte.jojo.subsystems.target.ActionTarget;
+import com.github.standobyte.jojo.subsystems.target.AimingEntity;
+import com.github.standobyte.jojo.subsystems.target.ActionTarget.TargetType;
+import com.github.standobyte.jojo.util.functions.JojoModUtil;
+import com.github.standobyte.jojo.util.functions_network.StreamCodecs;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDBlockBulletAbility;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.BrokenBlocksChunkData;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.PrevBlockInfo;
@@ -247,7 +247,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 		}
 		
 		protected void addKnockback(DamageSource dmgSource) {
-			RipplesModifiedDamageSource knockback = (RipplesModifiedDamageSource) dmgSource;
+			DamageSourceModified knockback = (DamageSourceModified) dmgSource;
 			knockback.jojo_ripples$modifyKnockback(1f, 1);
 		}
 		

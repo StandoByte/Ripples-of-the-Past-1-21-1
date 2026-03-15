@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.powersystem;
 
-import com.github.standobyte.jojo.core.packet.fromserver.TrPowerDataPacket;
+import com.github.standobyte.jojo.network.s2c.TrPowerDataPacket;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;

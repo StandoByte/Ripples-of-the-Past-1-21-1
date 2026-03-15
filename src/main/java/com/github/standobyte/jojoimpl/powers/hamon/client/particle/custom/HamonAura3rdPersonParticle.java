@@ -1,7 +1,7 @@
 package com.github.standobyte.jojoimpl.powers.hamon.client.particle.custom;
 
-import com.github.standobyte.jojo.client.config.ClientModSettings;
-import com.github.standobyte.jojo.core.NotYetImplemented;
+import com.github.standobyte.jojo.config.client.ClientModSettings;
+import com.github.standobyte.jojo.util.NotYetImplemented;
 import com.github.standobyte.jojoimpl.powers.hamon.client.particle.HamonAuraParticle;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 

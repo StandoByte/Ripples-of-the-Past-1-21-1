@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.standobyte.jojo.core.event.client.ModClientEventHooks;
+import com.github.standobyte.jojo.event.client.ModClientEventHooks;
 
 import net.minecraft.client.KeyboardHandler;
 

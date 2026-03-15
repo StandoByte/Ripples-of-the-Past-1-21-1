@@ -11,38 +11,37 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientProxy;
-import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
+import com.github.standobyte.jojo.customobjects.DamageSourceModified;
+import com.github.standobyte.jojo.customobjects.EntityStandVisibility;
+import com.github.standobyte.jojo.customobjects.EntityWithStandSkin;
+import com.github.standobyte.jojo.customobjects.LivingReactToNewAction;
+import com.github.standobyte.jojo.customobjects.entity_projectile.DamagingEntity;
+import com.github.standobyte.jojo.init.ModEntityAttributes;
 import com.github.standobyte.jojo.init.ModSpecialActions;
 import com.github.standobyte.jojo.init.ModStatusEffects;
-import com.github.standobyte.jojo.init.core.ModEntityAttributes;
-import com.github.standobyte.jojo.mc.entity.projectile.DamagingEntity;
-import com.github.standobyte.jojo.mc.entity.util.EntityStandVisibility;
-import com.github.standobyte.jojo.mc.entity.util.EntityWithStandSkin;
-import com.github.standobyte.jojo.mc.entity.util.HandItemsAsInventory;
-import com.github.standobyte.jojo.mc.entity.util.LivingReactToNewAction;
-import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.ClientEntityController;
-import com.github.standobyte.jojo.mechanics.externalcontainer.PlayerExternalContainers;
-import com.github.standobyte.jojo.mechanics.externalcontainer._stand.StandHandsContainerMenu;
-import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
+import com.github.standobyte.jojo.network.s2c.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.SyncType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
+import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
-import com.github.standobyte.jojo.util.MathUtil;
-import com.github.standobyte.jojo.util.MathUtil.AABBDist;
-import com.github.standobyte.jojo.util.StandUtil;
-import com.github.standobyte.jojo.util.UtilFunctions;
-import com.github.standobyte.jojo.util.damage.DamageUtil;
-import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
-import com.github.standobyte.jojo.util.damage.StandLinkDamageSource;
-import com.github.standobyte.jojo.util.java.Lerp;
-import com.github.standobyte.jojo.util.mc.AttributeUtil;
-import com.github.standobyte.jojo.util.mc.PrevRotations;
-import com.github.standobyte.jojo.util.target.ActionTarget;
-import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
+import com.github.standobyte.jojo.subsystems.EntityHandItemsAsInventory;
+import com.github.standobyte.jojo.subsystems.entity_externalcontainer.PlayerExternalContainers;
+import com.github.standobyte.jojo.subsystems.entity_externalcontainer._stand.StandHandsContainerMenu;
+import com.github.standobyte.jojo.subsystems.entity_grab.LivingComponentGrab;
+import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.client.ClientEntityController;
+import com.github.standobyte.jojo.subsystems.target.ActionTarget;
+import com.github.standobyte.jojo.subsystems.target.ActionTarget.TargetType;
+import com.github.standobyte.jojo.util.functions.AttributeUtil;
+import com.github.standobyte.jojo.util.functions.DamageUtil;
+import com.github.standobyte.jojo.util.functions.MathUtil;
+import com.github.standobyte.jojo.util.functions.UtilFunctions;
+import com.github.standobyte.jojo.util.functions.MathUtil.AABBDist;
+import com.github.standobyte.jojo.util.objects_java.Lerp;
+import com.github.standobyte.jojo.util.objects_mc.PrevRotations;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityUnsummonAction;
 
 import net.minecraft.commands.arguments.EntityAnchorArgument;
@@ -972,14 +971,14 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 					motionVec.x / 2 - knockbackVec.x, 
 					this.onGround() ? Math.min(0.4, motionVec.y / 2 + strength) : motionVec.y, 
 					motionVec.z / 2 - knockbackVec.z);
-			RipplesModifiedDamageSource.afterKnockbackApplied(this, curDamage != null ? curDamage.getSource() : null);
+			DamageSourceModified.afterKnockbackApplied(this, curDamage != null ? curDamage.getSource() : null);
 		}
 
 		if (healthLinkedWithUser) {
 			LivingEntity user = getUser();
 			if (user != null && user.isAlive()) {
 				user.knockback(strength, xRatio, zRatio);
-				RipplesModifiedDamageSource.afterKnockbackApplied(user, curDamage != null ? curDamage.getSource() : null);
+				DamageSourceModified.afterKnockbackApplied(user, curDamage != null ? curDamage.getSource() : null);
 				user.hurtMarked = true;
 			}
 		}
@@ -1051,7 +1050,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	
 	
 	protected NonNullList<ItemStack> handItems = NonNullList.withSize(2, ItemStack.EMPTY);
-	public HandItemsAsInventory<StandEntity> handsPseudoInventory = new HandItemsAsInventory<>(this, handItems) {
+	public EntityHandItemsAsInventory<StandEntity> handsPseudoInventory = new EntityHandItemsAsInventory<>(this, handItems) {
 		@Override
 		public boolean stillValid(Player player) {
 			return super.stillValid(player) && player.is(entity.getUser());

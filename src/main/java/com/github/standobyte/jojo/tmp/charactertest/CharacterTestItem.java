@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import com.github.standobyte.jojo.mechanics.entity_like_player.npc.PowerUserMobEntity;
+import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
 import com.mojang.authlib.properties.PropertyMap;
 
 import net.minecraft.ChatFormatting;

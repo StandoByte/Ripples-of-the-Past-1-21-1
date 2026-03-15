@@ -1,0 +1,56 @@
+Top-level packages:
+	jojo - The core functionality of the mod
+		client - Client-side classes, that do not physically exist on a dedicated server. Meant to only be called on the logical client side. Classes like ClientProxy exist to call client-side functions in common code methods (on the logical client side only) without trying to load client-only classes (which would cause dedicated servers to crash).
+		init - Registration of various objects for networking purposes: Minecraft objects (items, blocks, block entities, etc.), ROTP objects (in `init.power` - Stand and power types, ability types) and utility objects (entity data serializers, Neoforge data attachment types, etc.).
+		mixin - All the mixin classes (they need to all be in the same top-level package). 
+		network - Contains some of the network packets. Is being deprecated, in favor of moving each packet to the respective package.
+		
+		powersystem - Power, ability and action systems of the mod. Also contains the logic for Stand entities (in powersystem.standpower.entity).
+		subsystems - Self-contained medium-sized systems, that usually exist for a couple specific JoJo abilities or features.
+		customobjects - Helpers to create subclasses of some vanilla objects (damage types, status effects, projectile entities, explosions, etc.) with extra functionality.
+		entityattachment - Helpers to add ticking and sync logic to Neo attachments that are attached to entities, as well as the "custom entity effects" system.
+		util - Helper functions and classes to write less boilerplate.
+		
+		mechanics - Different somewhat self-contained gameplay mechanics and features (bleeding effect, Resolve mechanic, clothes feature, etc.).
+		adventure - Encompasses the systems for the PvE content.
+		
+		command - Registration and implementation of console commands.
+		config - Mod config system.
+		event - Event hooks added to ROTP.
+		modcompat - Utility functions to add interactions with other mods.
+	
+	jojoimpl - The implementation of each specific power/Stand, groups all that's relevant to each specific power type (abilities, projectile entities, Stand effects, etc.) together. 
+	v1_21_4_stuff - The port started at 1.21.4 and was later backported to 1.21.1, in which some methods are missing. Replicating those should make potential porting to a newer version (for example 26.1) a little bit easier.
+
+Terminology:
+	Power - A collective of data that is attached to a Living entity and describes either its Stand power or "player power" (Hamon/vampirism/etc., previously called "non-Stand power").
+	PowerClass (previously PowerClassification enum) - Use PowerClass#get to get a StandPower or a PlayerPower object of a LivingEntity.
+	PowerType - An object that describes a specific type of power an entity can have (e.g. a single object for Star Platinum, an object for Hamon, etc.), has things like its default moveset, Stand stats, etc.
+	
+	Moveset - A map that contains all of the abilities the player currently has per each power class. Movesets are inherent to power types, but a moveset object is created for each power user entity individually.
+	MovesetBuilder - Describes the moveset of a specific power type, and creates Moveset instances for each user individually.
+	
+	StandInstance - A data object describing the player's Stand (type, selected skin, parts taken away by Boy II Man, etc.)
+	SummonedStand (previously IStandManifestation) - An interface for objects that represents the user's currently summoned Stand. Most commonly it is going to be a StandEntity, but StandType subclasses can override it to use their own class.
+	
+	PowerData - A data object corresponding to a power type (e.g. HamonData would contain stuff like player's Hamon stats). Is saved per each power type that the player has ever had, even if it's removed from the player.
+		PlayerPowerData (previously TypeSpecificData)
+		StandTypePersistentData (previously StandActionLearningProgress served this purpose) - Saves things like Stand exp and learned Stand skills.
+	UnlockableSkill - An object that describes a specific thing the player can unlock (a Hamon/Stand/... ability or passive). Is contained in the MovesetBuilder - only one collection of these objects exists per each power type, so it's not meant to have a mutable state.
+	
+	Ability (previously Action) - a component part of a moveset. Each class extending Ability contains the logic of a specific ability. Because a Moveset object is created per user, unlike the 1.16.5 version, each Ability object is also separate for each player, so now you actually can store temporary variables inside Ability objects - still not recommended, but at least it shouldn't break multiplayer now.
+	AbilityType - a type object that is registered in a NeoForge registry, allows to create multiple different objects of a specific Ability sub-class with different configs (kind of like a relation between EntityType and Entity - each EntityType corresponds to a subclass of Entity, and can create instances of their entity on demand).
+	ConditionCheck (previously ActionConditionResult) - describes if an ability can be used currently - a boolean result of the check, and a message to send to the player if the check failed.
+	
+	EntityActionInstance (previously ContinuousActionInstance/StandEntityTask) - a data object describing the current "entity action" (most commonly an attack) that an entity is doing for multiple ticks. An entity may only have one action at a time.
+	EntityActionType (previously IStandPhasedAbility) - an interface that can implemented by subclasses of Ability, to describe the logic of a multi-tick entity action (e.g. a Stand punch).
+	EntityActionAbility is a convenience class that creates an action and sets it to the player, and also handles configs for the action phases length.
+		StandEntityAbility subclasses it, reusing the phase length config fields, but overriding other methods to set the action to the Stand entity rather than the user.
+	ActionAnimIdentifier (previously StandPose) - an animation id object, they link together each entity action and its model animation.
+	
+	EntityCustomEffect - Can be thought of as an amalgamation of a MobEffectInstance and an Entity. Attaches to an entity, can have ticking logic and contain custom data that uses SynchedEntityData system from Minecraft to sync.
+	EntityCustomEffectType - A type object, once again, with the same relation to EntityCustomEffect as EntityType is to Entity.
+		StandEffectInstance - Sublass of EntityCustomEffect that's attached to the Stand user; the primary goal is to implement persistent effects, which disappear when the Stand user dies, goes out of range or logs out, and which can also target another entity.
+
+    OBB (Oriented Bounding Box) - new hitbox type that can be rotated in 3 axis.
+    ExtendableOBB - OBB with extend/shrink logic (based on OwnerboundProjectile with ExtendableModel). Can be used to add hitboxes to animated parts (Star Finger for example).

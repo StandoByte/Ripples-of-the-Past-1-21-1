@@ -2,13 +2,13 @@ package com.github.standobyte.jojo.mixin.damage;
 
 import org.spongepowered.asm.mixin.Mixin;
 
-import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
+import com.github.standobyte.jojo.customobjects.DamageSourceModified;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 
 @Mixin(DamageSource.class)
-public class DamageSourceMixin implements RipplesModifiedDamageSource {
+public class DamageSourceMixin implements DamageSourceModified {
 	private float jojo_ripples$addKnockback = 0;
 	private float jojo_ripples$knockbackMultiplier = 1;
 	private float jojo_ripples$verticalKnockbackStrength = 0;

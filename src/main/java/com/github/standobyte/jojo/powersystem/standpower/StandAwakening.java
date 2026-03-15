@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.util.NBTUtil;
+import com.github.standobyte.jojo.util.functions.NBTUtil;
 
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;

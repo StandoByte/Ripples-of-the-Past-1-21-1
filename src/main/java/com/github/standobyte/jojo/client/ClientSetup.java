@@ -2,12 +2,12 @@ package com.github.standobyte.jojo.client;
 
 import java.io.File;
 
-import com.github.standobyte.jojo.client.config.ClientModSettings;
 import com.github.standobyte.jojo.client.input.InputHandler;
-import com.github.standobyte.jojo.client.item.ModItemModelOverrides;
-import com.github.standobyte.jojo.client.ui.jojomenu.JojoMenuTabs;
+import com.github.standobyte.jojo.client.itemrender.ModItemModelOverrides;
+import com.github.standobyte.jojo.client.ui.screen_jojomenu.JojoMenuTabs;
+import com.github.standobyte.jojo.config.client.ClientModSettings;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.stand.StandHudElements;
+import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.client.stand.StandHudElements;
 
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
@@ -36,7 +36,7 @@ public class ClientSetup {
 	@SubscribeEvent
 	public static void onClientSetup(FMLClientSetupEvent event) {
 		Minecraft mc = Minecraft.getInstance();
-		InitMarkers.registerMarkers(mc);
+		ModMarkers.registerMarkers(mc);
 		StandHudElements.init();
 		event.enqueueWork(() -> {
 			ModItemModelOverrides.register();

@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.mechanics.clothes.sewing;
 
 import java.util.Map;
 
-import com.github.standobyte.jojo.util.BlockUtil.BoxShapeHorizontalRot;
+import com.github.standobyte.jojo.util.functions.BlockUtil.BoxShapeHorizontalRot;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;

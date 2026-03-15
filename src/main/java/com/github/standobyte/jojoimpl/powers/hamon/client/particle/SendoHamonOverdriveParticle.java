@@ -1,6 +1,6 @@
 package com.github.standobyte.jojoimpl.powers.hamon.client.particle;
 
-import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.Camera;

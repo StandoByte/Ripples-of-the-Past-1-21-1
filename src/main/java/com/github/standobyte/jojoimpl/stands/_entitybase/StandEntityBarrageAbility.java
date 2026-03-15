@@ -5,9 +5,8 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityStoppableSoundInstance;
+import com.github.standobyte.jojo.customobjects.DamageSourceModified;
 import com.github.standobyte.jojo.init.ModSoundEvents;
-import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker;
-import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
@@ -20,15 +19,16 @@ import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
+import com.github.standobyte.jojo.powersystem.standpower.StandUtil.StandStat;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
-import com.github.standobyte.jojo.util.StandUtil;
-import com.github.standobyte.jojo.util.StandUtil.StandStat;
-import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
-import com.github.standobyte.jojo.util.target.ActionTarget;
-import com.github.standobyte.jojo.util.target.AimingEntity;
+import com.github.standobyte.jojo.subsystems.ServerBlockDestroyTracker;
+import com.github.standobyte.jojo.subsystems.entity_grab.LivingComponentGrab;
+import com.github.standobyte.jojo.subsystems.target.ActionTarget;
+import com.github.standobyte.jojo.subsystems.target.AimingEntity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -209,7 +209,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 			Entity targetEntity = target.getMainEntity();
 			if (targetEntity != null) {
 				DamageSource dmgSource = makePunchDamageSource();
-				((RipplesModifiedDamageSource) dmgSource).jojo_ripples$modifyKnockback(0, 0.1f);
+				((DamageSourceModified) dmgSource).jojo_ripples$modifyKnockback(0, 0.1f);
 				float dmgAmount = StandStatFormulas.getBarrageHitDamage(stand.getAttackDamage()) * hitsThisTick;
 				standEntityAttack(stand, targetEntity, dmgSource, dmgAmount);
 				

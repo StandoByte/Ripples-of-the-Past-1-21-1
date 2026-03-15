@@ -2,17 +2,17 @@ package com.github.standobyte.jojoimpl.stands._entitybase;
 
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.input.InputHandler;
+import com.github.standobyte.jojo.entityattachment.ComponentUtil;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
-import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.EntityComponentController;
-import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.ClientEntityController;
-import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.stand.ClientStandController;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
+import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
-import com.github.standobyte.jojo.util.StandUtil;
-import com.github.standobyte.jojo.util.entitycomponent.ComponentUtil;
+import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.EntityComponentController;
+import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.client.ClientEntityController;
+import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.client.stand.ClientStandController;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.network.FriendlyByteBuf;

@@ -11,9 +11,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.github.standobyte.jojo.mechanics.entity_like_player.playerwrapper.EntityAsPlayerWrapper;
-import com.github.standobyte.jojo.mechanics.entity_like_player.useitem.StandCallbackWhenShooting;
-import com.github.standobyte.jojo.util.StandUtil;
+import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
+import com.github.standobyte.jojo.subsystems.entity_playerwrapper.EntityAsPlayerWrapper;
+import com.github.standobyte.jojo.subsystems.entity_useitem.StandCallbackWhenShooting;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;

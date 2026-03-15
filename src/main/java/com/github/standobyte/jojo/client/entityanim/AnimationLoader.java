@@ -11,8 +11,8 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.client.entityanim.gecko.ParseGeckoAnims;
 import com.github.standobyte.jojo.client.entityanim.molang.KeyframesMolangEngine;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.util.JSONUtil;
-import com.github.standobyte.jojo.util.StringUtil;
+import com.github.standobyte.jojo.util.functions.JSONUtil;
+import com.github.standobyte.jojo.util.functions.StringUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 

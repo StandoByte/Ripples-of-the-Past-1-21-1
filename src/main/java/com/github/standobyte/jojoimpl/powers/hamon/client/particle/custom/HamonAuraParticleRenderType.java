@@ -1,6 +1,6 @@
 package com.github.standobyte.jojoimpl.powers.hamon.client.particle.custom;
 
-import com.github.standobyte.jojo.core.NotYetImplemented;
+import com.github.standobyte.jojo.util.NotYetImplemented;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.Tesselator;
 

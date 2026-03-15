@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.standobyte.jojo.client.text.IconSymbols;
+import com.github.standobyte.jojo.client.textsymbols.IconSymbols;
 
 import net.minecraft.client.gui.Font;
 

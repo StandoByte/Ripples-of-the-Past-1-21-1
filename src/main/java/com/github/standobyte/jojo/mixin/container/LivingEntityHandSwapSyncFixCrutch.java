@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.standobyte.jojo.mechanics.externalcontainer._stand.StandHandsContainerMenu.HandSwapSyncFixCrutch;
+import com.github.standobyte.jojo.subsystems.entity_externalcontainer._stand.StandHandsContainerMenu.HandSwapSyncFixCrutch;
 
 import net.minecraft.world.entity.LivingEntity;
 

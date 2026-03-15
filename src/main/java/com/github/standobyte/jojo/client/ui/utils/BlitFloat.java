@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.client.ui.utils;
 
 import org.joml.Matrix4f;
 
-import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;

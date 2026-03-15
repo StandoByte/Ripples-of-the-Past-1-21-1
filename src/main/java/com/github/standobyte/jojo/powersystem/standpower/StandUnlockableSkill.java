@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
-import com.github.standobyte.jojo.powersystem.skill.UnlockableSkill;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData;
+import com.github.standobyte.jojo.powersystem.unlockableskill.UnlockableSkill;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;

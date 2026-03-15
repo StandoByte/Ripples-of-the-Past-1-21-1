@@ -6,8 +6,8 @@ import org.joml.Vector3i;
 
 import com.github.standobyte.jojo.client.entityrender.parsemodel.generic.BlockbenchMeshDefinition;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.generic.BlockbenchMeshDefinition.MeshBuilder;
-import com.github.standobyte.jojo.client.entityrender.parsemodel.generic.BlockbenchMeshDefinition.MeshBuilder.MeshFaceBuilder;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.generic.BlockbenchMeshDefinition.VertexDefinition;
+import com.github.standobyte.jojo.client.entityrender.parsemodel.generic.BlockbenchMeshDefinition.MeshBuilder.MeshFaceBuilder;
 
 // Mesh shapes can be exported in a Bedrock Entity format using Meshy plugin for Blockbench
 // https://github.com/Shadowkitten47/Meshy

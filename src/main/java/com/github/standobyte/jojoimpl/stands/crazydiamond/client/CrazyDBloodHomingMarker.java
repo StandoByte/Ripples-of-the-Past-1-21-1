@@ -2,7 +2,7 @@ package com.github.standobyte.jojoimpl.stands.crazydiamond.client;
 
 import java.util.List;
 
-import com.github.standobyte.jojo.client.ui.hud.marker.MarkerRenderer;
+import com.github.standobyte.jojo.client.ui.marker.MarkerRenderer;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDBlockBulletAbility;

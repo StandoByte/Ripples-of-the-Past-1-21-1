@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.client.particle.type.custom;
 
 import com.github.standobyte.jojo.client.particle.CustomParticlesHelper;
 import com.github.standobyte.jojo.client.particle.type.OnomatopoeiaParticle;
-import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.jojo.util.functions.MathUtil;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;

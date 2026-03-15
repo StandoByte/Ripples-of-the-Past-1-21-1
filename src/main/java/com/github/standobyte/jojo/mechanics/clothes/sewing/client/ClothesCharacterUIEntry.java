@@ -7,9 +7,9 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSet;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.StoryCharacter;
+import com.github.standobyte.jojo.subsystems.StoryPart;
 
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;

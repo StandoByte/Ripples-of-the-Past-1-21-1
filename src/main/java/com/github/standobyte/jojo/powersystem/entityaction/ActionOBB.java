@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.powersystem.entityaction;
 
-import com.github.standobyte.jojo.util.hitboxes.ExtendableOBB;
+import com.github.standobyte.jojo.subsystems.hitboxes.ExtendableOBB;
 
 public interface ActionOBB {
     ExtendableOBB extendableOBB();

@@ -1,12 +1,12 @@
 package com.github.standobyte.jojo.client.entityanim.barrage;
 
-import com.github.standobyte.jojo.client.entityanim.PreFrameEntityAnimCalc.LivingAnimState;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
+import com.github.standobyte.jojo.client.entityanim.PreFrameEntityAnimCalc.LivingAnimState;
 import com.github.standobyte.jojo.client.entityanim.barrage.BarrageSwings.BarrageSwing;
 import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery.AnimMolangVariables;
-import com.github.standobyte.jojo.client.ui.utils.RGBUtil;
+import com.github.standobyte.jojo.client.util.functions.RGBUtil;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
-import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;

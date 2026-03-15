@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.github.standobyte.jojo.client.ui.hud.marker.MarkerRenderer;
-import com.github.standobyte.jojo.mechanics.itemtracking.OriginalItemPosMarker;
+import com.github.standobyte.jojo.client.ui.marker.MarkerRenderer;
+import com.github.standobyte.jojo.subsystems.itemtracking.OriginalItemPosMarker;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.BrokenBlocksChunkData;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.PrevBlockInfo;
 

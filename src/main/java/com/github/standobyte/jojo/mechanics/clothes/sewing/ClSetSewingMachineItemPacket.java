@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.mechanics.clothes.sewing;
 
+import com.github.standobyte.jojo.PacketsRegister;
 import com.github.standobyte.jojo.core.JojoRegistries;
-import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSet;
 
 import net.minecraft.core.Holder;

@@ -4,7 +4,7 @@
   "package": "com.github.standobyte.jojo.mixin",
   "refmap": "mixins.jojo.refmap.json",
   "minVersion": "0.8.5",
-  "plugin": "com.github.standobyte.jojo.RipplesMixinConfigPlugin",
+  "plugin": "com.github.standobyte.jojo.core.RipplesMixinConfigPlugin",
   "mixins": [
     "damage.DamageSourceMixin",
 	"damage.LivingEntityMixin",

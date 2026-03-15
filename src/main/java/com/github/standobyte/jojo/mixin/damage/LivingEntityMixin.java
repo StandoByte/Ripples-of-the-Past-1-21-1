@@ -11,9 +11,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.github.standobyte.jojo.customobjects.DamageSourceModified;
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
-import com.github.standobyte.jojo.util.damage.RipplesModifiedDamageSource;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 
 import net.minecraft.world.damagesource.DamageSource;
@@ -72,7 +72,7 @@ public abstract class LivingEntityMixin extends Entity {
 			shift = At.Shift.AFTER))
 	public void jojo_ripples$modifyKnockback(CallbackInfo ci) {
 		DamageSource curDamage = !damageContainers.isEmpty() ? damageContainers.peek().getSource() : null;
-		RipplesModifiedDamageSource.afterKnockbackApplied((LivingEntity) (Entity) this, curDamage);
+		DamageSourceModified.afterKnockbackApplied((LivingEntity) (Entity) this, curDamage);
 	}
 	
 	

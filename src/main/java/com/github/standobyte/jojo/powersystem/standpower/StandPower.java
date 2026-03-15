@@ -5,10 +5,12 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.gameplay.standarrow.StandArrowItem;
-import com.github.standobyte.jojo.core.packet.fromserver.TrPowerStandInstancePacket;
-import com.github.standobyte.jojo.core.packet.fromserver.TrStandSkinPacket;
-import com.github.standobyte.jojo.init.core.ModEntityAttributes;
+import com.github.standobyte.jojo.entityattachment.PostNbtReadEntityData;
+import com.github.standobyte.jojo.init.ModEntityAttributes;
+import com.github.standobyte.jojo.mechanics.resolve.ResolveHandler;
+import com.github.standobyte.jojo.mechanics.standarrow.StandArrowItem;
+import com.github.standobyte.jojo.network.s2c.TrPowerStandInstancePacket;
+import com.github.standobyte.jojo.network.s2c.TrStandSkinPacket;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandAwakening.AwakeningStage;
@@ -18,10 +20,8 @@ import com.github.standobyte.jojo.powersystem.standpower.packet.TrStaminaPacket;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
-import com.github.standobyte.jojo.util.NBTUtil;
-import com.github.standobyte.jojo.util.StandUtil;
-import com.github.standobyte.jojo.util.entitycomponent.PostNbtReadEntityData;
-import com.github.standobyte.jojo.util.java.Lerp;
+import com.github.standobyte.jojo.util.functions.NBTUtil;
+import com.github.standobyte.jojo.util.objects_java.Lerp;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;

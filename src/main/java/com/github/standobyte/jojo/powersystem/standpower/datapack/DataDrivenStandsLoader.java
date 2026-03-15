@@ -15,12 +15,12 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
-import com.github.standobyte.jojo.core.packet.fromserver.DatapackStandsPacket;
+import com.github.standobyte.jojo.network.s2c.DatapackStandsPacket;
 import com.github.standobyte.jojo.powersystem.MovesetBuilder;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
-import com.github.standobyte.jojo.util.JSONUtil;
+import com.github.standobyte.jojo.util.functions.JSONUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 

@@ -10,7 +10,7 @@ import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeck
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
-import com.github.standobyte.jojo.mc.entity.util.EntityWithStandSkin;
+import com.github.standobyte.jojo.customobjects.EntityWithStandSkin;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 

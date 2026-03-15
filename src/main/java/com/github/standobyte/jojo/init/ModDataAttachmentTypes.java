@@ -4,24 +4,24 @@ import java.util.function.Supplier;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffect;
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectsClass;
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectsMap;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.entityattachment.DataEventListeners;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffect;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectsClass;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectsMap;
 import com.github.standobyte.jojo.mechanics.KnockbackCollisionImpact;
-import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
-import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.EntityComponentController;
-import com.github.standobyte.jojo.mechanics.externalcontainer.PlayerExternalContainers;
-import com.github.standobyte.jojo.mechanics.grab.LivingComponentGrab;
-import com.github.standobyte.jojo.mechanics.possessionv2.LivingComponentPossession;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectsTarget;
-import com.github.standobyte.jojo.util.entitycomponent.DataEventListeners;
+import com.github.standobyte.jojo.subsystems.ServerBlockDestroyTracker;
+import com.github.standobyte.jojo.subsystems.entity_externalcontainer.PlayerExternalContainers;
+import com.github.standobyte.jojo.subsystems.entity_grab.LivingComponentGrab;
+import com.github.standobyte.jojo.subsystems.entity_possessionv2.LivingComponentPossession;
+import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.EntityComponentController;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.BrokenBlocksChunkData;
 
 import net.minecraft.server.level.ServerLevel;

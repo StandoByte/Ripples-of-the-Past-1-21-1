@@ -1,6 +1,6 @@
 package com.github.standobyte.jojoimpl.powers.vampirism.abilities;
 
-import com.github.standobyte.jojo.util.damage.DamageUtil;
+import com.github.standobyte.jojo.util.functions.DamageUtil;
 
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;

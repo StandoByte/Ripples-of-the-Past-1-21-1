@@ -2,16 +2,16 @@ package com.github.standobyte.jojoimpl.stands.crazydiamond;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
+import com.github.standobyte.jojo.customobjects.entity_projectile.ModdedProjectileEntity;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModParticles;
 import com.github.standobyte.jojo.init.ModSoundEvents;
-import com.github.standobyte.jojo.mc.entity.projectile.ModdedProjectileEntity;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
-import com.github.standobyte.jojo.util.damage.DamageUtil;
-import com.github.standobyte.jojo.util.mc.EntityResolver;
-import com.github.standobyte.jojo.util.network.NetworkUtil;
-import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
+import com.github.standobyte.jojo.subsystems.target.ActionTarget.TargetType;
+import com.github.standobyte.jojo.util.functions.DamageUtil;
+import com.github.standobyte.jojo.util.functions_network.NetworkUtil;
+import com.github.standobyte.jojo.util.objects_mc.EntityResolver;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 

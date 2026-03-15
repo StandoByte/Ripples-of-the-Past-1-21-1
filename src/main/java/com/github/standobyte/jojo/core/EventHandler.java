@@ -2,9 +2,9 @@ package com.github.standobyte.jojo.core;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.entityattachment.DataEventListeners;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.powersystem.PowerClass;
-import com.github.standobyte.jojo.util.entitycomponent.DataEventListeners;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;

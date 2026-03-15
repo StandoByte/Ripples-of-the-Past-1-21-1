@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.client;
 
-import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracking;
+import com.github.standobyte.jojo.subsystems.itemtracking.ItemTracking;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;

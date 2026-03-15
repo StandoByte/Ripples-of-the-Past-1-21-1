@@ -11,11 +11,11 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.entityattachment.SynchronizablePlayerData;
+import com.github.standobyte.jojo.entityattachment.TickingEntityData;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
-import com.github.standobyte.jojo.util.NBTUtil;
-import com.github.standobyte.jojo.util.entitycomponent.SynchronizablePlayerData;
-import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
+import com.github.standobyte.jojo.util.functions.NBTUtil;
 import com.mojang.datafixers.util.Either;
 
 import net.minecraft.core.HolderLookup;

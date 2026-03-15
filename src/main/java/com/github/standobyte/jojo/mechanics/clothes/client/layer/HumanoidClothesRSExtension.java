@@ -4,10 +4,10 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.utils.ModelUtil;
-import com.github.standobyte.jojo.core.utils.EnumUtil;
+import com.github.standobyte.jojo.client.entityrender.ModelUtil;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
+import com.github.standobyte.jojo.util.functions.EnumUtil;
 
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;

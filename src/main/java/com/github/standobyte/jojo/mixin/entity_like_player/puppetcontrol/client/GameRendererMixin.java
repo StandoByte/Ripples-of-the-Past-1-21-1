@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.client.ClientEntityController;
+import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.client.ClientEntityController;
 
 import net.minecraft.client.renderer.GameRenderer;
 

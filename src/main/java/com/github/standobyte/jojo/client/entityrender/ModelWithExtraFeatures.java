@@ -4,8 +4,6 @@ import java.util.Collection;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.utils.ModelPartWithName;
-
 import net.minecraft.client.model.geom.ModelPart;
 
 public interface ModelWithExtraFeatures {

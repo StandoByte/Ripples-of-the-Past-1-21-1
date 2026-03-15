@@ -11,7 +11,7 @@ import org.joml.Vector3f;
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.AnimationChannelQuery;
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.IAnimationChannel;
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.KeyframeQuery;
-import com.github.standobyte.jojo.util.FloatUtils;
+import com.github.standobyte.jojo.util.functions.FloatUtils;
 
 import net.minecraft.Util;
 import net.minecraft.client.animation.AnimationChannel;

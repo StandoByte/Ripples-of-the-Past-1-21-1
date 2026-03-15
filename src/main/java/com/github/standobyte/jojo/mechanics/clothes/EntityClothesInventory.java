@@ -10,14 +10,14 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.core.utils.EnumUtil;
+import com.github.standobyte.jojo.entityattachment.SynchronizablePlayerData;
+import com.github.standobyte.jojo.entityattachment.TickingEntityData;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
-import com.github.standobyte.jojo.util.entitycomponent.SynchronizablePlayerData;
-import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
-import com.github.standobyte.jojo.util.mc.ItemUtil;
+import com.github.standobyte.jojo.util.functions.EnumUtil;
+import com.github.standobyte.jojo.util.functions.ItemUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._ItemStack;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;

@@ -4,8 +4,8 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.entityattachment.TickingEntityData;
 import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer;
-import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;

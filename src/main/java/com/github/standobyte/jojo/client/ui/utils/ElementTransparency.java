@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.utils;
 
+import com.github.standobyte.jojo.client.util.functions.RGBUtil;
+
 public class ElementTransparency extends FadeOut {
 	
 	public ElementTransparency() {

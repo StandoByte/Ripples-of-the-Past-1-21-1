@@ -3,7 +3,6 @@ package com.github.standobyte.jojo.client.entityrender.stand;
 import java.util.List;
 import java.util.function.Consumer;
 
-import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.entityanim.AnimationSet;
 import com.github.standobyte.jojo.client.entityanim.PreFrameEntityAnimCalc;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
@@ -15,11 +14,12 @@ import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeck
 import com.github.standobyte.jojo.client.shader.EntityShaders;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
-import com.github.standobyte.jojo.client.ui.jojomenu.StandInfoScreen;
+import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
+import com.github.standobyte.jojo.powersystem.standpower.client_screens.StandInfoScreen;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
-import com.github.standobyte.jojo.util.java.LazyNullable;
+import com.github.standobyte.jojo.util.objects_java.LazyNullable;
 import com.github.standobyte.v1_21_4_stuff.renderstate.ArmedEntityRenderState;
 import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
 import com.github.standobyte.v1_21_4_stuff.renderstate.RenderStateCrutches;

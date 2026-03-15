@@ -1,13 +1,13 @@
 package com.github.standobyte.jojo.client.input;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
-import com.github.standobyte.jojo.core.packet.fromclient.ClAimTargetPacket;
+import com.github.standobyte.jojo.network.c2s.ClAimTargetPacket;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
-import com.github.standobyte.jojo.util.target.ActionTarget;
-import com.github.standobyte.jojo.util.target.ActionTargetAim;
-import com.github.standobyte.jojo.util.target.HitResultUtil;
+import com.github.standobyte.jojo.subsystems.target.ActionTarget;
+import com.github.standobyte.jojo.subsystems.target.ActionTargetAim;
+import com.github.standobyte.jojo.subsystems.target.HitResultUtil;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityPunchAbility;
 
 import net.minecraft.client.Minecraft;

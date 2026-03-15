@@ -4,15 +4,15 @@ import java.util.OptionalInt;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.customobjects.entity_projectile.ModdedProjectileEntity;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
-import com.github.standobyte.jojo.mc.entity.projectile.ModdedProjectileEntity;
-import com.github.standobyte.jojo.mc.statuseffect.BleedingEffect;
+import com.github.standobyte.jojo.mechanics.BleedingEffect;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
-import com.github.standobyte.jojo.util.target.ActionTarget.TargetType;
+import com.github.standobyte.jojo.subsystems.target.ActionTarget.TargetType;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;

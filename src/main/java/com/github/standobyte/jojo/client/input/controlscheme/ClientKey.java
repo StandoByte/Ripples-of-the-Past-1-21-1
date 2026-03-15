@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.client.input.controlscheme;
 
 import org.lwjgl.glfw.GLFW;
 
-import com.github.standobyte.jojo.util.java.LazyNullable;
+import com.github.standobyte.jojo.util.objects_java.LazyNullable;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;

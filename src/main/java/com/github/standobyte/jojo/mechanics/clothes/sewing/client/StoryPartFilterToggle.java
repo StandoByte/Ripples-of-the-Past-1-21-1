@@ -2,9 +2,9 @@ package com.github.standobyte.jojo.mechanics.clothes.sewing.client;
 
 import java.util.function.Consumer;
 
+import com.github.standobyte.jojo.client.ui.screen_widgets.ToggleBox;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
-import com.github.standobyte.jojo.client.ui.widgets.ToggleBox;
-import com.github.standobyte.jojo.mechanics.StoryPart;
+import com.github.standobyte.jojo.subsystems.StoryPart;
 import com.google.common.base.Supplier;
 import com.mojang.blaze3d.vertex.PoseStack;
 

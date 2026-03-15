@@ -5,7 +5,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.JojoRegistries;
-import com.github.standobyte.jojo.core.packet.fromserver.TrPowerTypePacket;
+import com.github.standobyte.jojo.network.s2c.TrPowerTypePacket;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 

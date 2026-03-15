@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.OptionalInt;
 
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
-import com.github.standobyte.jojo.util.StringUtil;
+import com.github.standobyte.jojo.util.functions.StringUtil;
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.world.entity.HumanoidArm;

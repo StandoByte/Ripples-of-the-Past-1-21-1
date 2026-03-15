@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.jojo.client.utils.ModelPartWithName;
+import com.github.standobyte.jojo.client.entityrender.ModelPartWithName;
 
 import net.minecraft.client.model.geom.ModelPart;
 

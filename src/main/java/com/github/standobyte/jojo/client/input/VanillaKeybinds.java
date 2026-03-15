@@ -8,14 +8,14 @@ import java.util.Set;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.lwjgl.glfw.GLFW;
 
-import com.github.standobyte.jojo.client.config.ClientModSettings;
-import com.github.standobyte.jojo.client.ui.jojomenu.IJojoMenuScreen;
-import com.github.standobyte.jojo.client.ui.jojomenu.JojoMenuTabs;
-import com.github.standobyte.jojo.client.ui.jojomenu.Tab;
-import com.github.standobyte.jojo.client.utils.SettingsField;
+import com.github.standobyte.jojo.client.ui.screen_jojomenu.IJojoMenuScreen;
+import com.github.standobyte.jojo.client.ui.screen_jojomenu.JojoMenuTabs;
+import com.github.standobyte.jojo.client.ui.screen_jojomenu.Tab;
+import com.github.standobyte.jojo.config.SettingsField;
+import com.github.standobyte.jojo.config.client.ClientModSettings;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.core.packet.fromclient.ClNoParamsPacket;
-import com.github.standobyte.jojo.core.packet.fromclient.ClNoParamsPacket.PacketType;
+import com.github.standobyte.jojo.network.c2s.ClNoParamsPacket;
+import com.github.standobyte.jojo.network.c2s.ClNoParamsPacket.PacketType;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.mojang.blaze3d.platform.InputConstants;
 

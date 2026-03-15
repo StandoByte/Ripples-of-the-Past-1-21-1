@@ -12,7 +12,7 @@ import com.github.standobyte.jojo.client.entityanim.molang.animelement.IAnimatio
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.KeyframeQuery;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
-import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.jojo.util.functions.MathUtil;
 
 import net.minecraft.client.animation.AnimationChannel;
 import net.minecraft.client.animation.AnimationChannel.Interpolations;

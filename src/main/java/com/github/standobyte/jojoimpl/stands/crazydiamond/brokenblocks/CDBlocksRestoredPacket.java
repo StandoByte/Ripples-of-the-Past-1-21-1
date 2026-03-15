@@ -2,10 +2,10 @@ package com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks;
 
 import java.util.Collection;
 
+import com.github.standobyte.jojo.PacketsRegister;
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientProxy;
-import com.github.standobyte.jojo.core.PacketsRegister;
-import com.github.standobyte.jojo.util.network.NetworkUtil;
+import com.github.standobyte.jojo.util.functions_network.NetworkUtil;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDHealAbility;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDRestoreTerrainAbility;
 

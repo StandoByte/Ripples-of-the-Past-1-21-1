@@ -6,9 +6,9 @@ import javax.annotation.Nonnull;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.jojo.core.config.DefaultedValue;
-import com.github.standobyte.jojo.core.config.JsonConfigurable;
-import com.github.standobyte.jojo.powersystem.skill.UnlockableSkill;
+import com.github.standobyte.jojo.config.JsonConfigurable;
+import com.github.standobyte.jojo.powersystem.unlockableskill.UnlockableSkill;
+import com.github.standobyte.jojo.util.objects_java.DefaultedValue;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 

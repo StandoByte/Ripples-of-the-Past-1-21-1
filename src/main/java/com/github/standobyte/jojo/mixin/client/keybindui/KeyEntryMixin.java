@@ -11,14 +11,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.github.standobyte.jojo.client.config.ClientModSettings;
-import com.github.standobyte.jojo.client.config.ClientModSettingsScreen;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.input.VanillaKeybinds;
+import com.github.standobyte.jojo.client.ui.screen_widgets.IconButton;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
-import com.github.standobyte.jojo.client.ui.widgets.IconButton;
-import com.github.standobyte.jojo.client.utils.SettingsField;
+import com.github.standobyte.jojo.config.SettingsField;
+import com.github.standobyte.jojo.config.client.ClientModSettings;
+import com.github.standobyte.jojo.config.client.ClientModSettingsScreen;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.GuiGraphics;

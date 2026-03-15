@@ -9,6 +9,7 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.ResourcePathChecker;
 import com.github.standobyte.jojo.client.entityanim.AnimationSet;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
@@ -16,10 +17,9 @@ import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderSta
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.standskin.sound.CustomPathSound;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
-import com.github.standobyte.jojo.client.utils.ResourcePathChecker;
 import com.github.standobyte.jojo.core.JojoRegistries;
-import com.github.standobyte.jojo.mechanics.StoryPart;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.subsystems.StoryPart;
 
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.builders.LayerDefinition;

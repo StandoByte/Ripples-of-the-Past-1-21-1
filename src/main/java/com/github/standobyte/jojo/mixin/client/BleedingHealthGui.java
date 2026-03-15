@@ -8,9 +8,9 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import com.github.standobyte.jojo.client.ui.hud.VanillaGuiHelper;
+import com.github.standobyte.jojo.client.ui.hud_misc.VanillaGuiHelper;
 import com.github.standobyte.jojo.init.ModStatusEffects;
-import com.github.standobyte.jojo.mc.statuseffect.BleedingEffect;
+import com.github.standobyte.jojo.mechanics.BleedingEffect;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 

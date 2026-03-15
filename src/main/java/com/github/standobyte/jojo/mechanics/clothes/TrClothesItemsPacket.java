@@ -3,8 +3,8 @@ package com.github.standobyte.jojo.mechanics.clothes;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.standobyte.jojo.PacketsRegister;
 import com.github.standobyte.jojo.client.ClientProxy;
-import com.github.standobyte.jojo.core.PacketsRegister;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
 import com.mojang.datafixers.util.Pair;

@@ -6,9 +6,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracker;
-import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracking;
-import com.github.standobyte.jojo.mechanics.itemtracking.KnownItemState;
+import com.github.standobyte.jojo.subsystems.itemtracking.ItemTracker;
+import com.github.standobyte.jojo.subsystems.itemtracking.ItemTracking;
+import com.github.standobyte.jojo.subsystems.itemtracking.KnownItemState;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;

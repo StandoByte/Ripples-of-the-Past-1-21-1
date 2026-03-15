@@ -2,8 +2,8 @@ package com.github.standobyte.jojo.client.shader;
 
 import java.util.SequencedMap;
 
-import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.rendertype.CustomMultiBufferSource;
+import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
 import com.github.standobyte.v1_21_4_stuff.PostEffectCache;
 import com.mojang.blaze3d.pipeline.MainTarget;

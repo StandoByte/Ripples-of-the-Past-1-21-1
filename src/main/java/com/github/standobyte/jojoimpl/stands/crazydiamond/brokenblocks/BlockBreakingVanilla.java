@@ -2,7 +2,7 @@ package com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker.BlockDestroy;
+import com.github.standobyte.jojo.subsystems.ServerBlockDestroyTracker.BlockDestroy;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;

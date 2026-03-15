@@ -1,9 +1,8 @@
 package com.github.standobyte.jojoimpl.stands._entitybase;
 
 import com.github.standobyte.jojo.client.input.AbilityInputState;
+import com.github.standobyte.jojo.customobjects.entity_projectile.ThrownNuggetBearingEntity;
 import com.github.standobyte.jojo.init.ModSoundEvents;
-import com.github.standobyte.jojo.mc.entity.projectile.ThrownNuggetBearingEntity;
-import com.github.standobyte.jojo.mechanics.entity_like_player.useitem.StandCallbackWhenShooting;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
@@ -12,10 +11,11 @@ import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
-import com.github.standobyte.jojo.util.StandUtil;
+import com.github.standobyte.jojo.subsystems.entity_useitem.StandCallbackWhenShooting;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;

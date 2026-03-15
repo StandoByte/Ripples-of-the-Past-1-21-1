@@ -16,10 +16,10 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
-import com.github.standobyte.jojo.util.MathUtil;
-import com.github.standobyte.jojo.util.hitboxes.ExtendableOBB;
-import com.github.standobyte.jojo.util.hitboxes.OBBCollisionUtil;
-import com.github.standobyte.jojo.util.hitboxes.OrientedBoundingBox;
+import com.github.standobyte.jojo.subsystems.hitboxes.ExtendableOBB;
+import com.github.standobyte.jojo.subsystems.hitboxes.OBBCollisionUtil;
+import com.github.standobyte.jojo.subsystems.hitboxes.OrientedBoundingBox;
+import com.github.standobyte.jojo.util.functions.MathUtil;
 
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;

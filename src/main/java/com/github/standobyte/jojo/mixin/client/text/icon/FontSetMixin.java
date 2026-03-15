@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.github.standobyte.jojo.client.text.sprite.IconGlyphsCache;
+import com.github.standobyte.jojo.client.textsymbols.sprite.IconGlyphsCache;
 import com.mojang.blaze3d.font.GlyphInfo;
 
 import net.minecraft.client.gui.font.FontSet;

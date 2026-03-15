@@ -1,7 +1,7 @@
 package com.github.standobyte.jojoimpl.stands.crazydiamond.client;
 
 import com.github.standobyte.jojo.client.particle.type.custom.EntityPosParticle;
-import com.github.standobyte.jojo.util.MathUtil;
+import com.github.standobyte.jojo.util.functions.MathUtil;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.InteractionHand;

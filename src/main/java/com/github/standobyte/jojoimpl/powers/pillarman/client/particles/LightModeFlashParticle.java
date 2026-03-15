@@ -1,6 +1,6 @@
 package com.github.standobyte.jojoimpl.powers.pillarman.client.particles;
 
-import com.github.standobyte.jojo.client.ClientUtil;
+import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.Camera;

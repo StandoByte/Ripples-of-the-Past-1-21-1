@@ -2,10 +2,6 @@ package com.github.standobyte.jojo.mixin.client.aim;
 
 import java.util.Optional;
 
-import com.github.standobyte.jojo.powersystem.entityaction.ActionOBB;
-import com.github.standobyte.jojo.util.hitboxes.OrientedBoundingBox;
-import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
-import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.renderer.*;
@@ -19,10 +15,13 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.input.ClientsideAim;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
-import com.github.standobyte.jojo.client.ui.utils.RGBUtil;
-import com.github.standobyte.jojo.util.target.ActionTarget;
-import com.github.standobyte.jojo.util.target.HitResultUtil;
-
+import com.github.standobyte.jojo.client.util.functions.RGBUtil;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionOBB;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.subsystems.hitboxes.OrientedBoundingBox;
+import com.github.standobyte.jojo.subsystems.target.ActionTarget;
+import com.github.standobyte.jojo.subsystems.target.HitResultUtil;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;

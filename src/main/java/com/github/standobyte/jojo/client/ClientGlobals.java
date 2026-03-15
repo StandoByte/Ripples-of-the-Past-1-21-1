@@ -2,8 +2,8 @@ package com.github.standobyte.jojo.client;
 
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
-import com.github.standobyte.jojo.util.StandUtil;
 
 import net.minecraft.client.Minecraft;
 

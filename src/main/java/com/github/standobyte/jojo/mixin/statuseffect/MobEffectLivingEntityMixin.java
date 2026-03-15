@@ -7,8 +7,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.github.standobyte.jojo.customobjects.StatusEffectModified;
 import com.github.standobyte.jojo.init.ModStatusEffects;
-import com.github.standobyte.jojo.mc.statuseffect.RotpStatusEffect;
 
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -29,7 +29,7 @@ public abstract class MobEffectLivingEntityMixin extends Entity {
 	public void jojo_ripples$onAddedStatusEffect(MobEffectInstance effect, @Nullable Entity source, CallbackInfo ci) {
 		if (!this.level().isClientSide()) {
 			LivingEntity asLiving = (LivingEntity) (Entity) this;
-			if (effect.getEffect().value() instanceof RotpStatusEffect statusEffect) {
+			if (effect.getEffect().value() instanceof StatusEffectModified statusEffect) {
 				statusEffect.onAdded(asLiving, effect, source);
 			}
 			ModStatusEffects.trackAddEffect(effect, asLiving);
@@ -40,7 +40,7 @@ public abstract class MobEffectLivingEntityMixin extends Entity {
 	public void jojo_ripples$onUpdatedStatusEffect(MobEffectInstance effect, boolean forced, @Nullable Entity source, CallbackInfo ci) {
 		if (!this.level().isClientSide()) {
 			LivingEntity asLiving = (LivingEntity) (Entity) this;
-			if (forced && effect.getEffect().value() instanceof RotpStatusEffect statusEffect) {
+			if (forced && effect.getEffect().value() instanceof StatusEffectModified statusEffect) {
 				statusEffect.onUpdated(asLiving, effect, source);
 			}
 			ModStatusEffects.trackAddEffect(effect, asLiving);
@@ -51,7 +51,7 @@ public abstract class MobEffectLivingEntityMixin extends Entity {
 	public void jojo_ripples$onRemovedStatusEffect(MobEffectInstance effect, CallbackInfo ci) {
 		if (!this.level().isClientSide()) {
 			LivingEntity asLiving = (LivingEntity) (Entity) this;
-			if (effect.getEffect().value() instanceof RotpStatusEffect statusEffect) {
+			if (effect.getEffect().value() instanceof StatusEffectModified statusEffect) {
 				statusEffect.onRemoved(asLiving, effect);
 			}
 			ModStatusEffects.trackRemoveEffect(effect.getEffect(), asLiving);
