@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectType;
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.rendertype.CustomMultiBufferSource;
@@ -17,6 +16,7 @@ import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectType;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;

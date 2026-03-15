@@ -1,4 +1,4 @@
-package com.github.standobyte.core_subsystems.entitydata;
+package com.github.standobyte.jojo.entityattachment.custom_effect;
 
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.JojoRegistries;

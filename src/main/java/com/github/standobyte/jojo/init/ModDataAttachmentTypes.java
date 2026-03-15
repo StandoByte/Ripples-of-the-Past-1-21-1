@@ -4,10 +4,10 @@ import java.util.function.Supplier;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffect;
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectsClass;
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectsMap;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffect;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectsClass;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectsMap;
 import com.github.standobyte.jojo.mechanics.KnockbackCollisionImpact;
 import com.github.standobyte.jojo.mechanics.ServerBlockDestroyTracker;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;

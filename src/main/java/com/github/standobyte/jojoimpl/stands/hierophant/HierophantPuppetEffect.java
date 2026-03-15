@@ -1,9 +1,9 @@
 package com.github.standobyte.jojoimpl.stands.hierophant;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectType;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.event.RipplesAbilityKeyPressEvent;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectType;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.EntityComponentController;

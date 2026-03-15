@@ -1,13 +1,13 @@
-package com.github.standobyte.gameplay.standarrow;
+package com.github.standobyte.jojo.mechanics.standarrow;
 
 import java.util.Optional;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffect;
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectsClass;
-import com.github.standobyte.core_subsystems.entitydata.EntityCustomEffectsMap;
-import com.github.standobyte.core_subsystems.entitydata.ModEntityCustomEffects;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffect;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectsClass;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectsMap;
+import com.github.standobyte.jojo.init.ModEntityCustomEffects;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.mc.statuseffect.RotpStatusEffect;
 import com.github.standobyte.jojo.mc.statuseffect.StatusEffectApplicable;

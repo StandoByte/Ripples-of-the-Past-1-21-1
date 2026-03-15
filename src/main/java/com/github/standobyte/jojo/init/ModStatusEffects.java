@@ -9,10 +9,10 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.gameplay.standarrow.StandVirusEffect;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mc.statuseffect.BleedingEffect;
 import com.github.standobyte.jojo.mc.statuseffect.ResolveModeEffect;
+import com.github.standobyte.jojo.mechanics.standarrow.StandVirusEffect;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;

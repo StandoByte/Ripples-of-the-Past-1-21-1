@@ -1,11 +1,11 @@
-package com.github.standobyte.core_subsystems.entitydata;
+package com.github.standobyte.jojo.entityattachment.custom_effect;
 
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.core_subsystems.entitydata.sync.SyncStandEffectInstanceData;
+import com.github.standobyte.jojo.entityattachment.custom_effect.sync.SyncStandEffectInstanceData;
 import com.github.standobyte.jojo.util.entitycomponent.SynchronizablePlayerData;
 import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
 

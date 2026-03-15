@@ -1,8 +1,8 @@
 package com.github.standobyte.jojo.init;
 
-import com.github.standobyte.gameplay.standarrow.MeteoriteCoreBlock;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.sewing.SewingMachineBlock;
+import com.github.standobyte.jojo.mechanics.standarrow.MeteoriteCoreBlock;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;

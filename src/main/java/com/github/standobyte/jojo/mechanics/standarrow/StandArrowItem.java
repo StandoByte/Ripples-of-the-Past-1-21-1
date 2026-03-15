@@ -1,4 +1,4 @@
-package com.github.standobyte.gameplay.standarrow;
+package com.github.standobyte.jojo.mechanics.standarrow;
 
 import static com.github.standobyte.jojo.init.ModItems.discsOrder;
 

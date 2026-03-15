@@ -1,4 +1,4 @@
-package com.github.standobyte.core_subsystems.entitydata;
+package com.github.standobyte.jojo.entityattachment.custom_effect;
 
 import javax.annotation.Nonnull;
 

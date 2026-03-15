@@ -2,11 +2,11 @@ package com.github.standobyte.jojo.core;
 
 import org.slf4j.Logger;
 
-import com.github.standobyte.core_subsystems.entitydata.ModEntityCustomEffects;
 import com.github.standobyte.jojo.core.command.argument.ModCommandArguments;
 import com.github.standobyte.jojo.init.ModBlockEntities;
 import com.github.standobyte.jojo.init.ModBlocks;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
+import com.github.standobyte.jojo.init.ModEntityCustomEffects;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.init.ModItems;

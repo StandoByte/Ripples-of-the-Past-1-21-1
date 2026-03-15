@@ -1,7 +1,5 @@
 package com.github.standobyte.jojo.core;
 
-import com.github.standobyte.core_subsystems.entitydata.TrEntityCustomEffectsPacket;
-import com.github.standobyte.core_subsystems.entitydata.sync.TrStandEffectSynchedDataPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAbilityInputPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClAimTargetPacket;
 import com.github.standobyte.jojo.core.packet.fromclient.ClDebugCommandPacket;
@@ -25,6 +23,8 @@ import com.github.standobyte.jojo.core.packet.fromserver.TrResetDeathTimePacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrStandSkinPacket;
 import com.github.standobyte.jojo.core.packet.fromserver.TrSyncStandOffsetPacket;
+import com.github.standobyte.jojo.entityattachment.custom_effect.TrEntityCustomEffectsPacket;
+import com.github.standobyte.jojo.entityattachment.custom_effect.sync.TrStandEffectSynchedDataPacket;
 import com.github.standobyte.jojo.mechanics.clothes.TrClothesItemsPacket;
 import com.github.standobyte.jojo.mechanics.clothes.sewing.ClSetSewingMachineItemPacket;
 import com.github.standobyte.jojo.mechanics.entity_like_player.puppetcontrol.SetClientControllerPacket;
