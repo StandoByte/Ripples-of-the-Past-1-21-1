@@ -14,7 +14,6 @@ import net.minecraft.network.chat.MutableComponent;
 public class StandUnlockableSkill extends UnlockableSkill {
 	public boolean isStarting;
 	public int expToUnlock;
-	public boolean NYI = false;
 
 	public StandUnlockableSkill(String name) {
 		super(name);
@@ -63,12 +62,6 @@ public class StandUnlockableSkill extends UnlockableSkill {
 	public StandUnlockableSkill setIsStartingSkill() {
 		this.isStarting = true;
 		setExpToUnlock(0);
-		return this;
-	}
-	
-	@Deprecated
-	public StandUnlockableSkill setNotYetImplemented() {
-		this.NYI = true;
 		return this;
 	}
 	

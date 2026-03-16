@@ -1,6 +1,8 @@
 package com.github.standobyte.jojo.client.ui.jojomenu;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -23,10 +25,12 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.skill.ClLearnSkillPacket;
 import com.github.standobyte.jojo.powersystem.skill.UnlockableSkill;
+import com.github.standobyte.jojo.powersystem.skill.UnlockableSkill.DevStatus;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData;
 import com.google.common.collect.Iterables;
+import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -36,8 +40,10 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
@@ -95,7 +101,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		this.learnSkillButton = this.addRenderableWidget(new PaperButton(x + 144, y + 201, 80, 20, 
 				Component.translatable("jojo_ripples.stand_skills.learn"), 
 				button -> {
-					if (standPower != null && standPower.hasPower() && selectedSkill != null && !selectedSkill.NYI) {
+					if (standPower != null && standPower.hasPower() && selectedSkill != null) {
 						PacketDistributor.sendToServer(ClLearnSkillPacket.learnSkill(
 								PowerClass.STAND, standPower.getPowerType().getId(), selectedSkill.skillName));
 					}
@@ -123,7 +129,9 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		
 		deselectSkillButton = addRenderableWidget(new ImageButton2(x + 68, y + 23, 8, 8, 
 				CROSS, CROSS, CROSS_HIGHLIGHTED, CROSS_HIGHLIGHTED, 
-				button -> setSelectedSkill(null)));
+				button -> setSelectedSkill(null)) {
+			@Override public void playDownSound(SoundManager handler) {}
+		});
 	}
 
 	protected static final int SKILL_LIST_X = 22;
@@ -138,7 +146,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			unlockSkillChecks.put(skill.skillName, skill.canUnlockFromMenu(standPower, levelingData));
 		}
 		
-		learnSkillButton.visible = selectedSkill != null && !selectedSkill.NYI && !levelingData.isSkillUnlocked(selectedSkill.skillName);
+		learnSkillButton.visible = selectedSkill != null && !levelingData.isSkillUnlocked(selectedSkill.skillName);
 		learnSkillButton.active = selectedSkill != null && unlockSkillChecks.get(selectedSkill.skillName).isPositive();
 		
 		int x = getWindowX(this);
@@ -160,23 +168,29 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		int spriteY = skillListY + 4;
 		AbilityIconSprites abilityIconSprites = StandSkinsLoader.getInstance().abilityIcons;
 		UnlockableSkill hovered = getHoveredSkill(mouseX, mouseY);
+		
 		for (StandUnlockableSkill skill : skills) {
-			TextureAtlasSprite icon = abilityIconSprites.getAbilityIcon(skill.skillName, standSkin);
-			BlitFloat.blit(guiGraphics.pose(), minecraft, icon, 
-					spriteX, spriteY, 16, 16, 0, BlitFloat.NO_TINT);
+			boolean isUnlocked = levelingData.isSkillUnlocked(skill.skillName);
+			int expCostColor = !isUnlocked ? getExpCostColor(skill) : STAND_EXP_NUMBER_COLOR;
+			boolean unlockedOrOnlyMissingStandExp = expCostColor == STAND_EXP_NUMBER_COLOR;
+			int skillSpriteColor = unlockedOrOnlyMissingStandExp ? BlitFloat.NO_TINT : 0x40404040;
 			
-			if (skill.NYI) {
-				guiGraphics.drawString(font, String.valueOf(IconSymbols.CROSS), spriteX + 18, spriteY + 4, 0xFFFFFFFF);
+			TextureAtlasSprite icon = abilityIconSprites.getAbilityIcon(skill.skillName, standSkin);
+			RenderSystem.enableBlend();
+			RenderSystem.defaultBlendFunc();
+			BlitFloat.blit(guiGraphics.pose(), minecraft, icon, 
+					spriteX, spriteY, 16, 16, 0, skillSpriteColor);
+			
+			if (isUnlocked) {
+				guiGraphics.drawString(font, String.valueOf(IconSymbols.CHECKMARK), spriteX + 18, spriteY + 4, 0xFFFFFFFF);
 			}
 			else {
-				boolean isUnlocked = levelingData.isSkillUnlocked(skill.skillName);
-				if (isUnlocked) {
-					guiGraphics.drawString(font, String.valueOf(IconSymbols.CHECKMARK), spriteX + 18, spriteY + 4, 0xFFFFFFFF);
-				}
-				else {
-					int expToUnlock = skill.expToUnlock;
-					guiGraphics.drawString(font, String.valueOf(expToUnlock), spriteX + 18, spriteY + 4, getExpCostColor(skill), false);
-				}
+				int expToUnlock = skill.expToUnlock;
+				String expCostLine = expToUnlock > 0 ? String.valueOf(expToUnlock) : "-";
+				guiGraphics.drawString(font, expCostLine, spriteX + 18, spriteY + 4, expCostColor, false);
+			}
+			if (skill.implemented == DevStatus.NYI) {
+				guiGraphics.fill(spriteX - 1, spriteY - 1, spriteX + 37, spriteY + 17, 0x80FF0000);
 			}
 			spriteY += 20;
 		}
@@ -210,8 +224,15 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		renderTabs(guiGraphics, this);
 		
 		if (hovered != null) {
-			TooltipParams.set(TooltipParams.paperStyle());
-			setTooltipForNextRenderPass(hovered.textName.copy().withStyle(ChatFormatting.BLACK));
+			TooltipParams.set(TooltipParams.paperStyle(1));
+			List<FormattedCharSequence> skillNameTooltip = new ArrayList<>();
+			skillNameTooltip.add(hovered.textName.copy().withStyle(ChatFormatting.BLACK).getVisualOrderText());
+			switch (hovered.implemented) {
+				case WIP -> skillNameTooltip.add(Component.translatable("rotp_tag_wip").withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC).getVisualOrderText());
+				case NYI -> skillNameTooltip.add(Component.translatable("rotp_tag_nyi").withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC).getVisualOrderText());
+				default -> {}
+			}
+			setTooltipForNextRenderPass(skillNameTooltip);
 		}
 		else {
 			renderTabTooltip(guiGraphics, this, mouseX, mouseY);

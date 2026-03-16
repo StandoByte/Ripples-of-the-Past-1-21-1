@@ -129,7 +129,7 @@ public class StandInitCrazyDiamond {
 				.addSkill(StandUnlockableSkill.startingAbility("heavy_charged").prerequisiteSkill("heavy_punch"))
 				.addSkill(StandUnlockableSkill.unlockableAbility("leave_object", 200).setNotYetImplemented().prerequisiteSkill("heal", "heavy_charged"))
 
-				.addSkill(StandUnlockableSkill.startingAbility("grab"))
+				.addSkill(StandUnlockableSkill.startingAbility("grab").setIncomplete())
 				.addSkill(StandUnlockableSkill.startingAbility("block_toss").setNotYetImplemented())
 				
 				.addSkill(StandUnlockableSkill.startingAbility("repair_item"))

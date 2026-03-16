@@ -46,6 +46,9 @@
   "death.attack.rotp_stand_virus": "%s caught a lethal virus through their injuries",
   "death.attack.rotp_stand_virus.player": "%s caught a lethal virus through their injuries while fighting %2$s",
   
+  "rotp_tag_wip": "Work in progress",
+  "rotp_tag_nyi": "Not yet implemented",
+  
   "jojo_ripples.options.client.title": "Ripples of the Past client settings",
   "jojo_ripples.options.client.hud": "HUD",
   "jojo_ripples.options.client.stand": "Stand",
@@ -278,7 +281,7 @@
   "jojo_ripples.skill.heavy_charged.controls": "Hold \uEAFE",
   "jojo_ripples.ability.heavy_charged": "Charged Heavy Punch",
   
-  "jojo_ripples.skill.grab": "(WIP) Grab",
+  "jojo_ripples.skill.grab": "Grab",
   "jojo_ripples.skill.grab.desc": "Grab an entity or a placed block. Grabbed entity can be moved around and/or pummeled.",
   "jojo_ripples.skill.grab.controls": "Ctrl + \uEAFE",
   "jojo_ripples.ability.grab": "Grab",
@@ -286,17 +289,17 @@
   "jojo.message.action_condition.grab_block.weird_drops": "This block can't be grabbed",
   "jojo.message.action_condition.grab_block.too_hard": "Your Stand is not strong enough to grab this block",
   
-  "jojo_ripples.skill.block_toss": "(NYI) Block Toss",
+  "jojo_ripples.skill.block_toss": "Block Toss",
   "jojo_ripples.skill.block_toss.desc": "Throw the block held by your Stand as a makeshift ranged weapon.",
   "jojo_ripples.skill.block_toss.controls": "Hold \uEAFE while Stand is holding a block",
   "jojo_ripples.ability.block_toss": "Block Toss",
   
-  "jojo_ripples.skill.grab_throw": "(WIP) Throw",
+  "jojo_ripples.skill.grab_throw": "Throw",
   "jojo_ripples.skill.grab_throw.desc": "Put all of your Stand's strength into throwing the grabbed enemy far away.",
   "jojo_ripples.skill.grab_throw.controls": "Hold \uEAFE while Stand is grabbing an entity",
   "jojo_ripples.ability.grab_throw": "Throw",
 
-  "jojo_ripples.skill.guard": "(NYI) Guard",
+  "jojo_ripples.skill.guard": "Guard",
   "jojo_ripples.skill.guard.desc": "Use your Stand's durability to guard against attacks from the front.",
   "jojo_ripples.skill.guard.controls": "\uEAFF (toggle)",
   "jojo_ripples.ability.guard": "Guard",
@@ -308,12 +311,12 @@
 
   "jojo_ripples.ability.bearing_shot": "Bearing Shot",
 
-  "jojo_ripples.skill.leap": "(NYI) Leap",
+  "jojo_ripples.skill.leap": "Leap",
   "jojo_ripples.skill.leap.desc": "Your Stand puts all its strength into a strong jump, propelling you from the ground.",
   "jojo_ripples.skill.leap.controls": "Shift + Hold Space",
   "jojo_ripples.ability.leap": "Leap",
 
-  "jojo_ripples.skill.ledge_grab": "(NYI) Ledge Grab",
+  "jojo_ripples.skill.ledge_grab": "Ledge Grab",
   "jojo_ripples.skill.ledge_grab.desc": "Your Stand will try to grab a nearby ledge to prevent you from falling down.",
   "jojo_ripples.skill.ledge_grab.controls": "Shift while in the air",
   
@@ -327,22 +330,22 @@
   "jojo_ripples.skill.uppercut.controls": "\uEAFE with 1 finisher bar",
   "jojo_ripples.ability.uppercut": "Uppercut",
 
-  "jojo_ripples.skill.ground_slam": "(NYI) Ground Slam",
+  "jojo_ripples.skill.ground_slam": "Ground Slam",
   "jojo_ripples.skill.ground_slam.desc": "Star Platinum punches downwards, damaging all enemies caught in the shockwave. Any direct target of this attack is hammered into the ground.",
   "jojo_ripples.skill.ground_slam.controls": "\uEAFEx2 with 1 finisher bar",
   "jojo_ripples.ability.ground_slam": "Ground Slam",
 
-  "jojo_ripples.skill.grab_terrain": "(NYI) Terrain Grab",
+  "jojo_ripples.skill.grab_terrain": "Terrain Grab",
   "jojo_ripples.skill.grab_terrain.desc": "Star Platinum's immense strength lets it grab a whole chunk of terrain and hurl it at an enemy.",
   "jojo_ripples.skill.grab_terrain.controls": "Ctrl + \uEAFEx2",
   "jojo_ripples.ability.grab_terrain": "Grab terrain",
 
-  "jojo_ripples.skill.uppercut_ground_throw": "(NYI) Ground Throw",
+  "jojo_ripples.skill.uppercut_ground_throw": "Ground Throw",
   "jojo_ripples.skill.uppercut_ground_throw.desc": "After an uppercut, Star Platinum catches the enemy mid-air and throws them to the ground. A devastating finishing move.",
   "jojo_ripples.skill.uppercut_ground_throw.controls": "Ctrl + \uEAFE while the target is suspended",
   "jojo_ripples.ability.uppercut_ground_throw": "Ground Throw",
   
-  "jojo_ripples.skill.enhanced_eyesight": "(NYI) Enhanced Vision",
+  "jojo_ripples.skill.enhanced_eyesight": "Enhanced Vision",
   "jojo_ripples.skill.enhanced_eyesight.desc": "TBA",
   "jojo_ripples.skill.enhanced_eyesight.controls": "Special ability",
   "jojo_ripples.ability.enhanced_eyesight": "Enhanced Vision",
@@ -358,7 +361,7 @@
   "jojo_ripples.ability.inhale": "Inhale",
   "jojo_ripples.subtitle.inhale": "Inhale",
   
-  "jojo_ripples.skill.time_stop": "(NYI) Star Platinum, The World!",
+  "jojo_ripples.skill.time_stop": "Star Platinum, The World!",
   "jojo_ripples.skill.time_stop.desc": "Star Platinum stops the flow of time for a brief moment, allowing only you to act freely while time is frozen.",
   "jojo_ripples.skill.time_stop.controls": "Special ability",
   "jojo_ripples.ability.time_stop": "Time Stop (%ss)",
@@ -367,7 +370,7 @@
   "stand.jojo_ripples.hierophant_green": "Hierophant Green",
   "stand.jojo_ripples.hierophant_green.desc": "A long-range Stand with average physical strength, more suitable for reconnaissance than for close combat. Its body can unravel into tendrils, allowing the user to set up traps.",
   
-  "jojo_ripples.skill.puppet": "(WIP) Puppet",
+  "jojo_ripples.skill.puppet": "Puppet",
   "jojo_ripples.skill.puppet.desc": "Hierophant Green uncoils its body and slides inside an entity, letting you mechanically control the target's movements.",
   "jojo_ripples.skill.puppet.controls": "Special ability",
   "jojo_ripples.ability.puppet": "Puppet",
@@ -377,70 +380,70 @@
   "stand.jojo_ripples.crazy_diamond": "Crazy Diamond",
   "stand.jojo_ripples.crazy_diamond.desc": "One of the more physically strong power-type Stands, Crazy Diamond's ability is fixing objects and people. This ability has a multitude of various uses and makes the Stand very versatile, however, Crazy Diamond cannot heal the user's own wounds or cure any diseases.",
   
-  "jojo_ripples.skill.hit_armor_fix": "(NYI) Hit & Armor Fix",
+  "jojo_ripples.skill.hit_armor_fix": "Hit & Armor Fix",
   "jojo_ripples.skill.hit_armor_fix.desc": "Crazy Diamond's heavy punch tears off a chunk of the target's armor, and fixes it back together to bring the target back to the melee range.",
   "jojo_ripples.skill.hit_armor_fix.controls": "Heavy Punch + \uEAFE §lon an armored target",
   "jojo_ripples.ability.hit_armor_fix": "Fix armor",
   
-  "jojo_ripples.skill.disfiguring_punch": "(NYI) Disfiguring Punch",
+  "jojo_ripples.skill.disfiguring_punch": "Disfiguring Punch",
   "jojo_ripples.skill.disfiguring_punch.desc": "After a finisher punch, incorrectly restore the attacked body part. This partially heals the injury, but leaves the target unable to correctly control that body part for a short period of time.",
   "jojo_ripples.skill.disfiguring_punch.controls": "Finisher Punch + \uEAFE",
   "jojo_ripples.ability.disfiguring_punch": "Disfiguring Punch",
   
-  "jojo_ripples.skill.leave_object": "(NYI) Leave object",
+  "jojo_ripples.skill.leave_object": "Leave object",
   "jojo_ripples.skill.leave_object.desc": "After punching a hole in the target's abdomen, leave a held item inside of them and partially heal the injury. Some items have special effects.",
   "jojo_ripples.skill.leave_object.controls": "Charged Heavy Punch + \uEAFE",
   "jojo_ripples.ability.leave_object": "Leave object",
   
-  "jojo_ripples.skill.repair_item": "(WIP) Repair item",
+  "jojo_ripples.skill.repair_item": "Repair item",
   "jojo_ripples.skill.repair_item.desc": "Revert a broken item to its original undamaged state. Any enchantments on the item are also reverted.",
   "jojo_ripples.skill.repair_item.controls": "C on a damaged item in the inventory",
   "jojo_ripples.ability.repair_item": "Repair Item",
   
-  "jojo_ripples.skill.heal": "(WIP) Heal",
+  "jojo_ripples.skill.heal": "Heal",
   "jojo_ripples.skill.heal.desc": "Fix the damage and injuries of a damaged entity.",
   "jojo_ripples.skill.heal.controls": "Special ability",
   "jojo_ripples.ability.heal": "Heal",
   "jojo.message.action_condition.cd_heal_self": "You can't heal yourself",
   "jojo.message.action_condition.heal_target": "This entity can't be healed",
   
-  "jojo_ripples.skill.revert_state": "(NYI) Revert state",
+  "jojo_ripples.skill.revert_state": "Revert state",
   "jojo_ripples.skill.revert_state.desc": "Revert the state of some entities and placed blocks. Examples include defusing TNTs and turning glass into sand.",
   "jojo_ripples.skill.revert_state.controls": "Ctrl + Heal",
   "jojo_ripples.ability.revert_state": "Revert state",
   
-  "jojo_ripples.skill.uncraft": "(WIP) Revert into ingredients",
+  "jojo_ripples.skill.uncraft": "Revert into ingredients",
   "jojo_ripples.skill.uncraft.desc": "Revert an item into the original component(s) it was crafted or smelted from.",
   "jojo_ripples.skill.uncraft.controls": "I on an item in the inventory",
   "jojo_ripples.ability.uncraft": "Revert into ingredients",
   
-  "jojo_ripples.skill.restore_terrain": "(WIP) Restore terrain",
+  "jojo_ripples.skill.restore_terrain": "Restore terrain",
   "jojo_ripples.skill.restore_terrain.desc": "Fix blocks that were previously broken, as long as you have the items and experience that were dropped from the blocks.",
   "jojo_ripples.skill.restore_terrain.controls": "Special ability",
   "jojo_ripples.ability.restore_terrain": "Restore terrain",
   
-  "jojo_ripples.skill.block_anchor": "(WIP) Block Anchor",
+  "jojo_ripples.skill.block_anchor": "Block Anchor",
   "jojo_ripples.skill.block_anchor.desc": "Blocks grabbed by Stands keep their original positions, so they can be used as \"anchors\": when fixing an anchor held by someone, the holder will be able to transport to the original position of the anchor.",
   "jojo_ripples.skill.block_anchor.controls": "Restore terrain while holding a block grabbed by a Stand",
   "jojo_ripples.ability.block_anchor": "Move to block's original position",
   
-  "jojo_ripples.skill.create_wall": "(NYI) Wall creation",
+  "jojo_ripples.skill.create_wall": "Wall creation",
   "jojo_ripples.skill.create_wall.desc": "Rather than restoring the original terrain, use broken blocks to create a thin wall in your look direction.",
   "jojo_ripples.skill.create_wall.controls": "Ctrl + Restore terrain",
   "jojo_ripples.ability.create_wall": "Create wall",
   
-  "jojo_ripples.skill.fuse_with_rock": "(NYI) Fuse with terrain",
+  "jojo_ripples.skill.fuse_with_rock": "Fuse with terrain",
   "jojo_ripples.skill.fuse_with_rock.desc": "After punching a target with a finisher punch, if the impact from knockback breaks full blocks, and the target is low on health, fuse the blocks with the target to turn them into a hideous structure resembling a face. It can be broken with a fitting tool.",
   "jojo_ripples.skill.fuse_with_rock.controls": "Finisher Punch + Restore terrain",
   "jojo_ripples.ability.fuse_with_rock": "Fuse with rock",
   
-  "jojo_ripples.skill.block_bullet": "(WIP) Block Bullet",
+  "jojo_ripples.skill.block_bullet": "Block Bullet",
   "jojo_ripples.skill.block_bullet.desc": "Crazy Diamond restructures a block held in your offhand into a sharp projectile and shoots it at a high speed.",
   "jojo_ripples.skill.block_bullet.controls": "Special ability",
   "jojo_ripples.ability.block_bullet": "Block Bullet",
   "jojo_ripples.ability.block_bullet_homing": "Homing Bullet",
   
-  "jojo_ripples.skill.blood_cutter": "(WIP) Blood Cutter",
+  "jojo_ripples.skill.blood_cutter": "Blood Cutter",
   "jojo_ripples.skill.blood_cutter.desc": "A fast projectile made out of your blood. When it hits something, the blood drops remain on nearby entities - this makes your Block Bullets home in on them §7§o(by adding more of your blood drops on Block Bullets, and fixing the blood while the bullet is flying)§r.",
   "jojo_ripples.skill.blood_cutter.controls": "Special ability",
   "jojo_ripples.ability.blood_cutter": "Blood Cutter",

@@ -43,6 +43,9 @@
   "death.attack.rotp_stand_virus": "В раны %s попал смертельный вирус",
   "death.attack.rotp_stand_virus.player": "В раны %s попал смертельный вирус, пока он боролся с %s",
   
+  "rotp_tag_wip": "В разработке",
+  "rotp_tag_nyi": "Пока не реализовано",
+  
   "jojo_ripples.options.client.title": "Клиентские настройки Ripples of the Past",
   "jojo_ripples.options.client.hud": "Интерфейс",
   "jojo_ripples.options.client.stand": "Стенд",
@@ -263,7 +266,7 @@
   "jojo_ripples.skill.heavy_charged.controls": "Удерживайте \uEAFE",
   "jojo_ripples.ability.heavy_charged": "Усиленный тяжёлый удар",
   
-  "jojo_ripples.skill.grab": "(WIP) Захват",
+  "jojo_ripples.skill.grab": "Захват",
   "jojo_ripples.skill.grab.desc": "Схватите сущность или блок. Можно использовать для перемещения сущностей, либо как часть комбинации ударов.",
   "jojo_ripples.skill.grab.controls": "Ctrl + \uEAFE",
   "jojo_ripples.ability.grab": "Захват",
@@ -271,17 +274,17 @@
   "jojo.message.action_condition.grab_block.weird_drops": "Этот блок нельзя взять",
   "jojo.message.action_condition.grab_block.too_hard": "Вашему Стенду недостаёт силы, чтобы взять этот блок",
   
-  "jojo_ripples.skill.block_toss": "(NYI) Бросок блока",
+  "jojo_ripples.skill.block_toss": "Бросок блока",
   "jojo_ripples.skill.block_toss.desc": "Киньте во врага блоком в руке вашего Стенда в качестве импровизированного оружия дальнего боя.",
   "jojo_ripples.skill.block_toss.controls": "Удерживайте \uEAFE, когда Стенд держит блок",
   "jojo_ripples.ability.block_toss": "Бросок блока",
   
-  "jojo_ripples.skill.grab_throw": "(WIP) Бросок",
+  "jojo_ripples.skill.grab_throw": "Бросок",
   "jojo_ripples.skill.grab_throw.desc": "Вложите всю силу вашего Стенда в бросок, который далекот откинет захваченного врага.",
   "jojo_ripples.skill.grab_throw.controls": "Удерживайте \uEAFE, когда Стендом захвачена сущность",
   "jojo_ripples.ability.grab_throw": "Бросок",
 
-  "jojo_ripples.skill.guard": "(NYI) Блокирование",
+  "jojo_ripples.skill.guard": "Блокирование",
   "jojo_ripples.skill.guard.desc": "Используйте выносливость вашего Стенда, чтобы защититься от атак спереди от вас.",
   "jojo_ripples.skill.guard.controls": "\uEAFF (переключение)",
   "jojo_ripples.ability.guard": "Блокирование",
@@ -293,12 +296,12 @@
 
   "jojo_ripples.ability.bearing_shot": "Выстрел кусочком",
 
-  "jojo_ripples.skill.leap": "(NYI) Прыжок",
+  "jojo_ripples.skill.leap": "Прыжок",
   "jojo_ripples.skill.leap.desc": "Ваш Стенд отталкивается от земли, вкладывая всю свою силу в высокий прыжок.",
   "jojo_ripples.skill.leap.controls": "Shift + Удерживайте Пробел",
   "jojo_ripples.ability.leap": "Прыжок",
 
-  "jojo_ripples.skill.ledge_grab": "(NYI) Захват за уступ",
+  "jojo_ripples.skill.ledge_grab": "Захват за уступ",
   "jojo_ripples.skill.ledge_grab.desc": "Стенд будет пытаться ухватиться за ближайший уступ, чтобы не дать вам упасть вниз.",
   "jojo_ripples.skill.ledge_grab.controls": "Shift, находясь в воздухе",
   
@@ -312,22 +315,22 @@
   "jojo_ripples.skill.uppercut.controls": "\uEAFE с 1 шкалой добивающего удара",
   "jojo_ripples.ability.uppercut": "Апперкот",
 
-  "    перевести-jojo_ripples.skill.ground_slam": "(NYI) Ground Slam",
+  "    перевести-jojo_ripples.skill.ground_slam": "Ground Slam",
   "    перевести-jojo_ripples.skill.ground_slam.desc": "Star Platinum punches downwards, damaging all enemies caught in the shockwave. Any direct target of this attack is hammered into the ground.",
   "jojo_ripples.skill.ground_slam.controls": "\uEAFEx2 с 1 шкалой добивающего удара",
   "    перевести-jojo_ripples.ability.ground_slam": "Ground Slam",
 
-  "    перевести-jojo_ripples.skill.grab_terrain": "(NYI) Terrain Grab",
+  "    перевести-jojo_ripples.skill.grab_terrain": "Terrain Grab",
   "    перевести-jojo_ripples.skill.grab_terrain.desc": "Star Platinum's immense strength lets him grab a whole chunk of terrain and hurl it at an enemy.",
   "jojo_ripples.skill.grab_terrain.controls": "Ctrl + \uEAFEx2",
   "    перевести-jojo_ripples.ability.grab_terrain": "Grab terrain",
 
-  "    перевести-jojo_ripples.skill.uppercut_ground_throw": "(NYI) Ground Throw",
+  "    перевести-jojo_ripples.skill.uppercut_ground_throw": "Ground Throw",
   "    перевести-jojo_ripples.skill.uppercut_ground_throw.desc": "After an uppercut, Star Platinum catches the enemy mid-air and throw them to the ground. A devastating finishing move.",
   "jojo_ripples.skill.uppercut_ground_throw.controls": "Ctrl + \uEAFE, когда цель находится в воздухе",
   "    перевести-jojo_ripples.ability.uppercut_ground_throw": "Ground Throw",
   
-  "jojo_ripples.skill.enhanced_eyesight": "(NYI) Суперзрение",
+  "jojo_ripples.skill.enhanced_eyesight": "Суперзрение",
   "jojo_ripples.skill.enhanced_eyesight.desc": "TBA",
   "jojo_ripples.skill.enhanced_eyesight.controls": "Особая способность",
   "jojo_ripples.ability.enhanced_eyesight": "Суперзрение",
@@ -343,7 +346,7 @@
   "jojo_ripples.ability.inhale": "Звёздный вдох",
   "jojo_ripples.subtitle.inhale": "Вдох",
   
-  "jojo_ripples.skill.time_stop": "(NYI) Star Platinum, The World!",
+  "jojo_ripples.skill.time_stop": "Star Platinum, The World!",
   "jojo_ripples.skill.time_stop.desc": "Star Platinum останавливает ход времени на короткий промежуток, позволяя только вам свободно совершать действия, пока время заморожено.",
   "jojo_ripples.skill.time_stop.controls": "Особая способность",
   "jojo_ripples.ability.time_stop": "Star Platinum, The World! (%ss)",
@@ -352,7 +355,7 @@
   "stand.jojo_ripples.hierophant_green": "Hierophant Green",
   "    перевести-stand.jojo_ripples.hierophant_green.desc": "A long-range Stand with average physical strength, more suitable for reconnaissance than for close combat. Its body can unravel into tendrils, allowing the user to set up traps.",
   
-  "jojo_ripples.skill.puppet": "(WIP) Взять под контроль",
+  "jojo_ripples.skill.puppet": "Взять под контроль",
   "jojo_ripples.skill.puppet.desc": "Hierophant Green разматывает своё тело и залезвает внутрь сущности, позволяя вам механически управлять действиями цели.",
   "jojo_ripples.skill.puppet.controls": "Особая способность",
   "jojo_ripples.ability.puppet": "Взять под контроль",
@@ -362,70 +365,70 @@
   "stand.jojo_ripples.crazy_diamond": "Crazy Diamond",
   "stand.jojo_ripples.crazy_diamond.desc": "Один из самых физически сильных Стендов. Способность Crazy Diamond - восстанавливать объекты и лечить раны. Эта способность имеет множество различных применений, но обладатель Crazy Diamond не может лечить самого себя и исцелять болезни.",
   
-  "jojo_ripples.skill.hit_armor_fix": "(NYI) Удар + починка брони",
+  "jojo_ripples.skill.hit_armor_fix": "Удар + починка брони",
   "    перевести-jojo_ripples.skill.hit_armor_fix.desc": "Crazy Diamond's heavy punch tears off a chunk of the target's armor, and fixes it back together to bring the target back to the melee range.",
   "jojo_ripples.skill.hit_armor_fix.controls": "Тяжёлый удар + \uEAFE §lпо цели в броне",
   "jojo_ripples.ability.hit_armor_fix": "Починить броню",
   
-  "jojo_ripples.skill.disfiguring_punch": "(NYI) Деформирующий удар",
+  "jojo_ripples.skill.disfiguring_punch": "Деформирующий удар",
   "    перевести-jojo_ripples.skill.disfiguring_punch.desc": "After a finisher punch, incorrectly restore the attacked body part. This partially heals the injury, but leaves the target unable to correctly control that body part for a short period of time.",
   "jojo_ripples.skill.disfiguring_punch.controls": "Добивающий удар + \uEAFE",
   "jojo_ripples.ability.disfiguring_punch": "Деформирующий удар",
   
-  "jojo_ripples.skill.leave_object": "(NYI) Оставить предмет внутри",
+  "jojo_ripples.skill.leave_object": "Оставить предмет внутри",
   "    перевести-jojo_ripples.skill.leave_object.desc": "After punching a hole in the target's abdomen, leave a held item inside of them and partially heal the injury. Some items have special effects.",
   "jojo_ripples.skill.leave_object.controls": "Усиленный тяжёлый удар + \uEAFE",
   "jojo_ripples.ability.leave_object": "Оставить предмет внутри",
   
-  "jojo_ripples.skill.repair_item": "(WIP) Починка предмета",
+  "jojo_ripples.skill.repair_item": "Починка предмета",
   "    перевести-jojo_ripples.skill.repair_item.desc": "Revert a broken item to its original undamaged state. Any enchantments on the item are also reverted.",
   "jojo_ripples.skill.repair_item.controls": "C на повреждённом предмете в инвентаре",
   "jojo_ripples.ability.repair_item": "Починить предмет",
   
-  "jojo_ripples.skill.heal": "(WIP) Лечение",
+  "jojo_ripples.skill.heal": "Лечение",
   "    перевести-jojo_ripples.skill.heal.desc": "Fix the damage and injuries of a damaged entity.",
   "jojo_ripples.skill.heal.controls": "Особая способность",
   "jojo_ripples.ability.heal": "Лечение",
   "jojo.message.action_condition.cd_heal_self": "Вы не можете исцелить самого себя",
   "jojo.message.action_condition.heal_target": "Эту сущность нельзя исцелить",
   
-  "jojo_ripples.skill.revert_state": "(WIP) Вернуть исходное состояние",
+  "jojo_ripples.skill.revert_state": "Вернуть исходное состояние",
   "    перевести-jojo_ripples.skill.revert_state.desc": "Revert the state of some entities and placed blocks. Examples include defusing TNTs and turning glass into sand.",
   "jojo_ripples.skill.revert_state.controls": "Ctrl + Лечение",
   "jojo_ripples.ability.revert_state": "Вернуть исходное состояние",
   
-  "jojo_ripples.skill.uncraft": "(WIP) Разборка до ингредиентов",
+  "jojo_ripples.skill.uncraft": "Разборка до ингредиентов",
   "    перевести-jojo_ripples.skill.uncraft.desc": "Revert an item into the original component(s) it was crafted or smelted from.",
   "jojo_ripples.skill.uncraft.controls": "Z на предмете в инвентаре",
   "jojo_ripples.ability.uncraft": "Разобрать до ингредиентов",
   
-  "jojo_ripples.skill.restore_terrain": "(WIP) Восстановление местности",
+  "jojo_ripples.skill.restore_terrain": "Восстановление местности",
   "    перевести-jojo_ripples.skill.restore_terrain.desc": "Fix blocks that were previously broken, as long as you have the items and experience that were dropped from the blocks.",
   "jojo_ripples.skill.restore_terrain.controls": "Особая способность",
   "jojo_ripples.ability.restore_terrain": "Восстановить местность",
   
-  "jojo_ripples.skill.block_anchor": "(WIP) Блок-якорь",
+  "jojo_ripples.skill.block_anchor": "Блок-якорь",
   "    перевести-jojo_ripples.skill.block_anchor.desc": "Блоки, взятые Стендом, сохраняют свою исходную позицию, что позволяет использовать их как \"якоря\": при восстановлении блока-якоря игрок, который его держит, будет перемещаться в исходное положение якоря.",
   "jojo_ripples.skill.block_anchor.controls": "Восстановление местности, держа в руках блок, взятый Стендом",
   "jojo_ripples.ability.block_anchor": "Переместиться к исходной точке блока",
   
-  "jojo_ripples.skill.create_wall": "(NYI) Создание стен",
+  "jojo_ripples.skill.create_wall": "Создание стен",
   "    перевести-jojo_ripples.skill.create_wall.desc": "Rather than restoring the original terrain, use broken blocks to create a thin wall in your look direction.",
   "jojo_ripples.skill.create_wall.controls": "Ctrl + Восстановить местность",
   "jojo_ripples.ability.create_wall": "Создать стену",
   
-  "jojo_ripples.skill.fuse_with_rock": "(NYI) Слить цель с блоками",
+  "jojo_ripples.skill.fuse_with_rock": "Слить цель с блоками",
   "jojo_ripples.skill.fuse_with_rock.desc": "После добивающего удара, если от отдачи цель проломила собой полные блоки, и у цели мало здоровья, вы можете слить цель с блоками и превратить её в безобразную структуру, напоминающую лицо. Она может быть сломана подходящим инструментон.",
   "jojo_ripples.skill.fuse_with_rock.controls": "Добивающий удар + Восстановить местность",
   "jojo_ripples.ability.fuse_with_rock": "Слить цель с камнем",
   
-  "jojo_ripples.skill.block_bullet": "(WIP) Снаряд из блока",
+  "jojo_ripples.skill.block_bullet": "Снаряд из блока",
   "    перевести-jojo_ripples.skill.block_bullet.desc": "Crazy Diamond restructures a block held in your offhand into a sharp projectile and shoots it at a high speed.",
   "jojo_ripples.skill.block_bullet.controls": "Особая способность",
   "jojo_ripples.ability.block_bullet": "Снаряд из блока",
   "jojo_ripples.ability.block_bullet_homing": "Самонаводящийся снаряд",
   
-  "jojo_ripples.skill.blood_cutter": "(WIP) Резак из крови",
+  "jojo_ripples.skill.blood_cutter": "Резак из крови",
   "    перевести-jojo_ripples.skill.blood_cutter.desc": "Быстрый снаряд из вашей крови. После всплеска от попадания, капли крови остаются на сущностях рядом - ваши снаряды из блоков могут самонаводиться на них §7§o(добавляя капли крови к самим снарядам и восстанавливая кровь, пока снаряд летит)§r.",
   "jojo_ripples.skill.blood_cutter.controls": "Особая способность",
   "jojo_ripples.ability.blood_cutter": "Резак из крови",
