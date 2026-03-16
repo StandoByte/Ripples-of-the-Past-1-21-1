@@ -31,10 +31,16 @@ public class MultipleTargetsCommandResult {
 	public int trySend(CommandSourceStack source, boolean logToServerConsole,
 			Collection<? extends Entity> targets, int successful, 
 			Object... successTlArgs) throws CommandSyntaxException {
+		return trySend(source, logToServerConsole, targets, successful, successTlArgs, successTlArgs);
+	}
+	
+	public int trySend(CommandSourceStack source, boolean logToServerConsole,
+			Collection<? extends Entity> targets, int successful, 
+			Object[] successTlArgsSingle, Object[] successTlArgsMultiple) throws CommandSyntaxException {
 		if (successful <= 0) {
 			throw fail.create(targets);
 		}
-		return success.send(source, logToServerConsole, targets, successful, successTlArgs);
+		return success.send(source, logToServerConsole, targets, successful, successTlArgsSingle, successTlArgsMultiple);
 	}
 
 	public static class Fail {
@@ -62,25 +68,34 @@ public class MultipleTargetsCommandResult {
 			this.tlKeyMultiple = key + ".multiple";
 		}
 		
-		public Component create(Collection<? extends Entity> targets, int successful, 
-				Object... tlArgs) {
-			Object[] args = new Object[tlArgs.length + 1];
-			System.arraycopy(tlArgs, 0, args, 0, tlArgs.length);
+		public Component create(Collection<? extends Entity> targets, int successfulCount, 
+				Object[] tlArgsSingle, Object[] tlArgsMultiple) {
+			String tlKey;
+			Object[] argsOriginal;
+			Object lastArg;
+			
 			if (targets.size() > 1) {
-				args[args.length - 1] = successful;
-				return Component.translatable(tlKeyMultiple, args);
+				tlKey = tlKeyMultiple;
+				argsOriginal = tlArgsMultiple;
+				lastArg = successfulCount;
 			}
 			else {
-				args[args.length - 1] = targets.iterator().next().getDisplayName();
-				return Component.translatable(tlKeySingle, args);
+				tlKey = tlKeySingle;
+				argsOriginal = tlArgsSingle;
+				lastArg = targets.iterator().next().getDisplayName();
 			}
+			
+			Object[] args = new Object[argsOriginal.length + 1];
+			System.arraycopy(argsOriginal, 0, args, 0, argsOriginal.length);
+			args[args.length - 1] = lastArg;
+			return Component.translatable(tlKey, args);
 		}
 		
 		public int send(CommandSourceStack source, boolean logToServerConsole,
-				Collection<? extends Entity> targets, int successful, 
-				Object... tlArgs) {
-			source.sendSuccess(() -> create(targets, successful, tlArgs), logToServerConsole);
-			return successful;
+				Collection<? extends Entity> targets, int successfulCount, 
+				Object[] tlArgsSingle, Object[] tlArgsMultiple) {
+			source.sendSuccess(() -> create(targets, successfulCount, tlArgsSingle, tlArgsMultiple), logToServerConsole);
+			return successfulCount;
 		}
 	}
 }

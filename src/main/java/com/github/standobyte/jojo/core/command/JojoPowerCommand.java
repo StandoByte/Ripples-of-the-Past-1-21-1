@@ -79,16 +79,20 @@ public class JojoPowerCommand {
 	
 	private static int removePower(CommandSourceStack src, Collection<? extends Entity> targets) throws CommandSyntaxException {
 		int i = 0;
+		PlayerPowerType<?> singlePrevType = null;
 		for (Entity entity : targets) {
 			if (entity instanceof LivingEntity living) {
 				PlayerPower power = PlayerPower.get(living);
 				if (power != null && power.hasPower()) {
+					singlePrevType = power.getPowerType();
 					power.setPowerType(null);
 					i++;
 				}
 			}
 		}
 		
-		return REMOVE_MSG.trySend(src, true, targets, i);
+		return REMOVE_MSG.trySend(src, true, targets, i, 
+				singlePrevType != null ? new Object[] { singlePrevType.name.get() } : new Object[] {},
+				new Object[] {});
 	}
 }

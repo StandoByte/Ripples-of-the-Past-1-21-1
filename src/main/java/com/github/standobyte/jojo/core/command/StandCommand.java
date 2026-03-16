@@ -95,16 +95,20 @@ public class StandCommand {
 	
 	private static int removeStand(CommandSourceStack src, Collection<? extends Entity> targets) throws CommandSyntaxException {
 		int i = 0;
+		StandType singlePrevType = null;
 		for (Entity entity : targets) {
 			if (entity instanceof LivingEntity living) {
 				StandPower stand = StandPower.get(living);
 				if (stand != null && stand.hasPower()) {
+					singlePrevType = stand.getPowerType();
 					stand.setStand(null);
 					i++;
 				}
 			}
 		}
 		
-		return REMOVE_MSG.trySend(src, true, targets, i);
+		return REMOVE_MSG.trySend(src, true, targets, i, 
+				singlePrevType != null ? new Object[] { singlePrevType.name.get() } : new Object[] {},
+				new Object[] {});
 	}
 }
