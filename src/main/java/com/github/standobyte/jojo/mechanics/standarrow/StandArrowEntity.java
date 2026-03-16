@@ -197,7 +197,8 @@ public class StandArrowEntity extends AbstractArrow {
     			if (!StandUtil.isEntityStandUser(target)) {
     				boolean gaveStand = StandArrowItem.giveStand(level, target);
     				if (!StandArrowItem.isInvulnerable(target)) {
-    					StandArrowItem.dealDamageFromArrow(target, arrowItem, false, gaveStand);
+    					StandArrowItem.dealDamageFromArrow(target, arrowItem, 
+    							this, getOwner(), false, gaveStand);
     				}
     			}
     		}

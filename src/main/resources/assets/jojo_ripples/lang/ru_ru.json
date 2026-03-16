@@ -38,6 +38,10 @@
   "death.attack.rotp_entityFlewInto.item": "%s преобразовал кинетическую энергию %s во внутреннюю",
   "death.attack.rotp_bleeding": "%s истёк кровью",
   "death.attack.rotp_bleeding.player": "%s истёк кровью, пока боролся с %s",
+  "death.attack.rotp_stand_arrow": "%s не прошёл испытание Стрелы",
+  "death.attack.rotp_stand_arrow.player": "%s не прошёл испытание Стрелы",
+  "death.attack.rotp_stand_virus": "В раны %s попал смертельный вирус",
+  "death.attack.rotp_stand_virus.player": "В раны %s попал смертельный вирус, пока он боролся с %s",
   
   "jojo_ripples.options.client.title": "Клиентские настройки Ripples of the Past",
   "jojo_ripples.options.client.hud": "Интерфейс",

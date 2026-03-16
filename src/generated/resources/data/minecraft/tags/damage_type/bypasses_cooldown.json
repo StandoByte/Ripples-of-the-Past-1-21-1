@@ -4,6 +4,8 @@
     "jojo_ripples:stand_projectile",
     "jojo_ripples:projectile",
     "jojo_ripples:stand_health_link",
-    "jojo_ripples:bleeding"
+    "jojo_ripples:bleeding",
+    "jojo_ripples:stand_arrow",
+    "jojo_ripples:stand_arrow_virus"
   ]
 }

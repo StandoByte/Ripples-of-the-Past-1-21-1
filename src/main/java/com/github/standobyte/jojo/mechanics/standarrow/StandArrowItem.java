@@ -11,6 +11,7 @@ import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.core.packet.fromserver.ItemBreakVisualsPacket;
+import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.init.ModStatusEffects;
@@ -22,6 +23,7 @@ import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.MathUtil;
 import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.UtilFunctions;
+import com.github.standobyte.jojo.util.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mc.StatusEffectUtil;
 
 import net.minecraft.ChatFormatting;
@@ -34,6 +36,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -116,7 +119,8 @@ public class StandArrowItem extends ArrowItem {
         if (!level.isClientSide() && !StandUtil.isEntityStandUser(player)) {
         	boolean gaveStand = StandArrowItem.giveStand(level, player);
         	if (!StandArrowItem.isInvulnerable(player)) {
-        		StandArrowItem.dealDamageFromArrow(player, arrowItem, false, gaveStand);
+        		StandArrowItem.dealDamageFromArrow(player, arrowItem, 
+        				player, player, false, gaveStand);
         	}
         	if (gaveStand) {
         		ServerLevel serverLevel = (ServerLevel) level;
@@ -170,14 +174,14 @@ public class StandArrowItem extends ArrowItem {
     }
     
     public static void dealDamageFromArrow(LivingEntity entity, ItemStack arrowItem, 
+    		Entity directEntity, Entity responsibleEntity, 
     		boolean reducedDamage, boolean gaveStand) {
     	int bleedingEffect = reducedDamage ? 1 : 2;
     	float dmgAmount = reducedDamage ? 12 : 16;
 
     	entity.addEffect(new MobEffectInstance(ModStatusEffects.BLEEDING, 
     			6000 /* it'll heal anyway */, bleedingEffect, false, false, true));
-    	// TODO damage source
-    	DamageSource dmgSource = entity.damageSources().playerAttack((Player) entity);
+    	DamageSource dmgSource = DamageUtil.make(entity.level(), ModDamageTypes.STAND_ARROW, directEntity, responsibleEntity);
     	if (gaveStand) {
     		dmgAmount = Math.min(dmgAmount, entity.getHealth() - 1.0F);
     	}
