@@ -44,13 +44,13 @@ public abstract class PlayerPowerType<D extends PlayerPowerData> extends PowerTy
 		return PowerClass.PLAYER_POWER;
 	}
 	
-	protected Lazy<Component> name = Lazy.of(() -> Component.translatable(Util.makeDescriptionId("power", this.getId())));
+	public Lazy<Component> name = Lazy.of(() -> Component.translatable(Util.makeDescriptionId("power", this.getId())));
 	@Override
 	public Component getName(Power<?> playerPowerData) {
 		return name.get();
 	}
 
-    public static Stream<PlayerPowerType> getAllEnabledPlayerPowers() {
+    public static Stream<PlayerPowerType<?>> getAllEnabledPlayerPowers() {
         return JojoRegistries.PLAYER_POWER_TYPES_REG.entrySet().stream().map(Map.Entry::getValue);
     }
 }
