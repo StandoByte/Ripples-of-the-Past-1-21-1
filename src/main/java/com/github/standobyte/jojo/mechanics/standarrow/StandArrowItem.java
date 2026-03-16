@@ -104,6 +104,8 @@ public class StandArrowItem extends ArrowItem {
     
     @Nullable
     public static StandType pickStandToGive(LivingEntity entity) {
+    	// TODO use StandAwakening#fatedFutureStands
+    	// TODO use a ServerDuplicateCounter
     	List<StandType> stands = StandArrowItem.getStandsForPlayer().toList();
     	if (!stands.isEmpty()) {
     		return stands.get(entity.getRandom().nextInt(stands.size()));
