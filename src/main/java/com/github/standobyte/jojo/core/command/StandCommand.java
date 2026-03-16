@@ -19,6 +19,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 
+// XXX "/jojo_ripples stand random"
 public class StandCommand {
 	public static final MultipleTargetsCommandResult GIVE_MSG = new MultipleTargetsCommandResult(
 			"rotp.commands.stand.give");
