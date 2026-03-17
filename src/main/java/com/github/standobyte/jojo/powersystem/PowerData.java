@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.powersystem;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.jetbrains.annotations.ApiStatus;
@@ -41,9 +42,13 @@ public abstract class PowerData implements INBTSerializable<CompoundTag> {
 		return powerType;
 	}
 	
+	protected Map<String, ? extends UnlockableSkill> getAllSkills() {
+		return powerType.getUnlockableSkills();
+	}
+	
 	
 	public void onInit(Power<?> userPower) {
-		for (var skillEntry : getPowerType().getUnlockableSkills().entrySet()) {
+		for (var skillEntry : getAllSkills().entrySet()) {
 			UnlockableSkill skill = skillEntry.getValue();
 			if (skill.isStarting) {
 				String skillName = skillEntry.getKey();
@@ -62,7 +67,7 @@ public abstract class PowerData implements INBTSerializable<CompoundTag> {
 		
 		PowerType powerType = userPower.getPowerType();
 		if (powerType != null && !isSkillUnlocked(skillName)) {
-			UnlockableSkill skill = powerType.getUnlockableSkills().get(skillName);
+			UnlockableSkill skill = getAllSkills().get(skillName);
 			if (skill != null) {
 				ConditionCheck canUnlock = skill.canUnlockFromMenu(userPower, this);
 				if (canUnlock.isPositive()) {
@@ -79,7 +84,7 @@ public abstract class PowerData implements INBTSerializable<CompoundTag> {
 		LivingEntity user = userPower.getUser();
 		if (user.level().isClientSide()) return;
 		
-		for (var skillEntry : getPowerType().getUnlockableSkills().entrySet()) {
+		for (var skillEntry : getAllSkills().entrySet()) {
 			UnlockableSkill skill = skillEntry.getValue();
 			if (!skill.isStarting) {
 				String skillName = skillEntry.getKey();
@@ -92,7 +97,7 @@ public abstract class PowerData implements INBTSerializable<CompoundTag> {
 	
 	@ApiStatus.NonExtendable
 	public boolean _setSkillUnlocked(String skillName, boolean unlocked, boolean inGameplay) {
-		UnlockableSkill skill = getPowerType().getUnlockableSkills().get(skillName);
+		UnlockableSkill skill = getAllSkills().get(skillName);
 		return skill != null ? _setSkillUnlocked(skill, unlocked, inGameplay) : false;
 	}
 	
