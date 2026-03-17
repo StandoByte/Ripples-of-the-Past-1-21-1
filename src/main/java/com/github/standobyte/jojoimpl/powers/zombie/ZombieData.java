@@ -1,7 +1,6 @@
 package com.github.standobyte.jojoimpl.powers.zombie;
 
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerData;
-import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -9,6 +8,10 @@ import net.minecraft.network.FriendlyByteBuf;
 
 public class ZombieData extends PlayerPowerData {
 	
+	public ZombieData() {
+		super(ZombiePowerType.ZOMBIE.get());
+	}
+
 	@Override
 	public CompoundTag serializeNBT(HolderLookup.Provider provider) {
 		CompoundTag nbt = new CompoundTag();
@@ -31,8 +34,4 @@ public class ZombieData extends PlayerPowerData {
 		
 	}
 
-	@Override
-	public PlayerPowerType<?> getType() {
-		return ZombiePowerType.ZOMBIE.get();
-	}
 }

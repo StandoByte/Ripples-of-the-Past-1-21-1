@@ -66,6 +66,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 	protected ScrollingText skillControls;
 	
 	protected Button learnSkillButton;
+	protected Button resetSkillsButton;
 	protected MutableTooltipWrapper learnSkillTooltip;
 	protected Map<String, ConditionCheck> unlockSkillChecks = new HashMap<>();
 	
@@ -98,7 +99,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		skillListScrolling = new Scrolling(162, Iterables.size(skills) * 20 + 2);
 		standSkin = StandSkinsLoader.getInstance().getSkin(standPower);
 
-		this.learnSkillButton = this.addRenderableWidget(new PaperButton(x + 144, y + 201, 80, 20, 
+		learnSkillButton = this.addRenderableWidget(new PaperButton(x + 144, y + 201, 80, 20, 
 				Component.translatable("jojo_ripples.stand_skills.learn"), 
 				button -> {
 					if (standPower != null && standPower.hasPower() && selectedSkill != null) {
@@ -107,7 +108,6 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 					}
 				}));
 		learnSkillButton.setTooltip(learnSkillTooltip = new MutableTooltipWrapper() {
-
 			@Override
 			public Tooltip updateToolip() {
 				if (selectedSkill != null) {
@@ -123,6 +123,16 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			}
 			
 		});
+		
+		resetSkillsButton = this.addRenderableWidget(new PaperButton(x + 144, y + 201, 80, 20, 
+				Component.translatable("jojo_ripples.stand_skills.reset"), 
+				button -> {
+					if (standPower != null && standPower.hasPower()) {
+						PacketDistributor.sendToServer(ClLearnSkillPacket.resetAll(
+								PowerClass.STAND, standPower.getPowerType().getId()));
+					}
+				}));
+		
 		skillDescription = new ScrollingText(x + 86, y + 87, 124, 105);
 		skillControls = new ScrollingText(x + 100, y + 49, 117, 31);
 		setSelectedSkill(this.selectedSkill);
@@ -148,6 +158,8 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		
 		learnSkillButton.visible = selectedSkill != null && !levelingData.isSkillUnlocked(selectedSkill.skillName);
 		learnSkillButton.active = selectedSkill != null && unlockSkillChecks.get(selectedSkill.skillName).isPositive();
+		
+		resetSkillsButton.visible = selectedSkill == null && minecraft.player.isCreative();
 		
 		int x = getWindowX(this);
 		int y = getWindowY(this);

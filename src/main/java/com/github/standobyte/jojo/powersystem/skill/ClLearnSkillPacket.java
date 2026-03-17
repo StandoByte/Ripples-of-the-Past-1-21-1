@@ -21,6 +21,10 @@ public class ClLearnSkillPacket implements CustomPacketPayload {
 		return new ClLearnSkillPacket(powerClass, powerType, PacketType.LEARN, skillName);
 	}
 	
+	public static ClLearnSkillPacket resetAll(PowerClass<?> powerClass, ResourceLocation powerType) {
+		return new ClLearnSkillPacket(powerClass, powerType, PacketType.RESET_ALL, null);
+	}
+	
 	public ClLearnSkillPacket(PowerClass<?> powerClass, ResourceLocation powerType, PacketType packetType, String skillName) {
 		this.powerClass = powerClass;
 		this.powerType = powerType;
@@ -94,9 +98,9 @@ public class ClLearnSkillPacket implements CustomPacketPayload {
 //						case RESET -> {
 //							// remove skill
 //						}
-//						case RESET_ALL -> {
-//							// remove all skills and sync
-//						}
+						case RESET_ALL -> {
+							powerData.resetUnlockedSkills(power);
+						}
 					}
 				}
 			}
