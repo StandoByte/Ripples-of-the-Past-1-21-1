@@ -42,7 +42,7 @@ public abstract class PowerData implements INBTSerializable<CompoundTag> {
 		return powerType;
 	}
 	
-	protected Map<String, ? extends UnlockableSkill> getAllSkills() {
+	public Map<String, ? extends UnlockableSkill> getAllSkills() {
 		return powerType.getUnlockableSkills();
 	}
 	

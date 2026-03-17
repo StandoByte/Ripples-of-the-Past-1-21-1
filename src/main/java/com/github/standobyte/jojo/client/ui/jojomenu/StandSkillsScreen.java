@@ -68,6 +68,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 	
 	protected Button learnSkillButton;
 	protected Button resetSkillsButton;
+	protected Button learnAllSkillsButton;
 	protected MutableTooltipWrapper learnSkillTooltip;
 	protected Map<String, ConditionCheck> unlockSkillChecks = new HashMap<>();
 	
@@ -125,7 +126,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			
 		});
 		
-		resetSkillsButton = this.addRenderableWidget(new PaperButton(x + 144, y + 201, 80, 20, 
+		resetSkillsButton = this.addRenderableWidget(new PaperButton(x + 154, y + 201, 70, 20, 
 				Component.translatable("jojo_ripples.stand_skills.reset"), 
 				button -> {
 					if (standPower != null && standPower.hasPower()) {
@@ -133,6 +134,17 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 								PowerClass.STAND, standPower.getPowerType().getId()));
 					}
 				}));
+		resetSkillsButton.setTooltip(Tooltip.create(Component.translatable("jojo_ripples.note.creative_only")));
+		
+		learnAllSkillsButton = this.addRenderableWidget(new PaperButton(x + 80, y + 201, 70, 20, 
+				Component.translatable("jojo_ripples.stand_skills.learn_all"), 
+				button -> {
+					if (standPower != null && standPower.hasPower()) {
+						PacketDistributor.sendToServer(ClLearnSkillPacket.learnAll(
+								PowerClass.STAND, standPower.getPowerType().getId()));
+					}
+				}));
+		learnAllSkillsButton.setTooltip(Tooltip.create(Component.translatable("jojo_ripples.note.creative_only")));
 		
 		skillDescription = new ScrollingText(x + 86, y + 87, 124, 105);
 		skillControls = new ScrollingText(x + 100, y + 49, 117, 31);
@@ -162,6 +174,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		learnSkillButton.active = selectedSkill != null && unlockSkillChecks.get(selectedSkill.skillName).isPositive();
 		
 		resetSkillsButton.visible = selectedSkill == null && minecraft.player.isCreative();
+		learnAllSkillsButton.visible = selectedSkill == null && minecraft.player.isCreative();
 		
 		int x = getWindowX(this);
 		int y = getWindowY(this);
@@ -222,8 +235,9 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			skillControls.drawSmallScrollBar(guiGraphics);
 		}
 		
-		int exp = Math.min(levelingData.getExp(), expSummary.total);
-		Component expLine = exp < expSummary.total ? Component.literal(String.valueOf(exp)) : Component.translatable("jojo_ripples.stand_exp.max");
+		int maxExp = expSummary.total - expSummary.spent;
+		int exp = Math.min(levelingData.getExp(), maxExp);
+		Component expLine = exp < maxExp ? Component.literal(String.valueOf(exp)) : Component.translatable("jojo_ripples.stand_exp.max");
 		expLine = Component.literal(String.valueOf(IconSymbols.STAND_EXP)).append(expLine);
 		guiGraphics.drawString(font, expLine, x + 41 - font.width(expLine) / 2, y + 33, STAND_EXP_NUMBER_COLOR, false);
 		
