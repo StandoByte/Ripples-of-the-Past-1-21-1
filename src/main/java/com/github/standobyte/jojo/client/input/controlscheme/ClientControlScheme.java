@@ -37,6 +37,7 @@ import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.settings.KeyModifier;
+import net.neoforged.neoforge.common.util.TriState;
 
 public class ClientControlScheme {
 	public PowerClass<?> powerClassCosmetic;
@@ -89,7 +90,13 @@ public class ClientControlScheme {
 		}
 	}
 	
-	public static record AbilityControlsEntry(PowerClass<?> powerClass, String abilityName) {}
+	public static record AbilityControlsEntry(PowerClass<?> powerClass, String abilityName) {
+		
+		public AbilityConditionCheck getAbility() {
+			AvailableAbilities allAbilities = ClientPowerCache.getAvailableAbilities(this.powerClass);
+			return allAbilities.getContextVariationContainer(this.abilityName);
+		}
+	}
 	
 	public static class Bind {
 		public ClientInputBind input;
@@ -121,10 +128,40 @@ public class ClientControlScheme {
 	}
 	
 	public static class HotbarSlot {
+		public int index;
 		public final InputsByKeyModifier binds = new InputsByKeyModifier();
+		
+		public HotbarSlot(int index) {
+			this.index = index;
+		}
 		
 		public InputsByKeyModifier getBinds() {
 			return binds;
+		}
+		
+		@Nullable
+		public AbilityConditionCheck showAbility(KeyModifier curModifier) {
+			for (InputMethod inputMethod : InputMethod.values()) {
+				AbilityControlsEntry abilityEntry = this.binds.getFirst(curModifier, inputMethod);
+				if (abilityEntry != null) {
+					AbilityConditionCheck ability = abilityEntry.getAbility();
+					if (ability != null) {
+						boolean showAbility = AbilityInputState.showAbilityInHUD(ability, TriState.FALSE);
+						if (showAbility) {
+							return ability;
+						}
+					}
+				}
+			}
+			return null;
+		}
+		
+		public static int numberKey(int slotIndex) {
+			if (slotIndex >= 0 && slotIndex < 9) {
+				return slotIndex + 1;
+			}
+			if (slotIndex == 9) return 0;
+			return -1;
 		}
 	}
 	
@@ -288,12 +325,13 @@ public class ClientControlScheme {
 			}
 			
 			// ability hotbars
+			int i = 0;
 			for (AbilitiesHotbar hotbarTemplate : groupTemplate.hotbars) {
 				Hotbar clientHotbar = new Hotbar(
 						ClientInputBind.toClientInput(hotbarTemplate.useAbilityKey), 
 						ClientInputBind.toClientInput(hotbarTemplate.switchAbilityKey));
 				for (Map<InputKey.Modifier, Map<InputMethod, String>> slotTemplate : hotbarTemplate.slots) {
-					HotbarSlot slot = new HotbarSlot();
+					HotbarSlot slot = new HotbarSlot(i++);
 					for (var slotVariation : slotTemplate.entrySet()) {
 						InputKey.Modifier modifier = slotVariation.getKey();
 						for (var abilityEntry : slotVariation.getValue().entrySet()) {
