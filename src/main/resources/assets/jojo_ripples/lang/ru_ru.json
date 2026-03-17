@@ -249,6 +249,11 @@
   "jojo.message.action_condition.stand_user_too_far": "Вы и ваш Стенд слишком далеко друг от друга",
   
   "jojo_ripples.stand_exp": "Опыт Стенда",
+  "jojo_ripples.stand_exp.total": "Получено опыта: %s/%s",
+  "jojo_ripples.stand_exp.skills_left": "Осталось навыков: %s",
+  "jojo_ripples.stand_exp.skills_left.hidden": "Осталось навыков: %s (%s скрытых)",
+  "jojo_ripples.stand_exp.max": "МАКС",
+  "jojo_ripples.stand_exp.desc": "Вы получаете опыт Стенда, используя ваш Стенд в бою, либо же использую его особые способности. За опыт Стенда вы можете приобрести новые навыки по вашему выбору.",
   "jojo_ripples.stand_skills.learn": "Получить навык",
   "jojo_ripples.stand_skills.reset": "Сбросить навыки",
   "jojo_ripples.stand_skills.not_enough_exp": "У вас недостаточно опыта Стенда",

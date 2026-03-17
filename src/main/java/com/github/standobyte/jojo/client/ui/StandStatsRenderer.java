@@ -31,6 +31,8 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData.StandExpSummary;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -294,14 +296,16 @@ public class StandStatsRenderer {
 		DEV_POTENTIAL   ("jojo_ripples.stand_stat.dev_potential", -58, -39) {
 			@Override
 			float getValueConverted(StandPower standData, StandStats stats, float levelRatio) {
-				float value = 0;
-//				if (levelRatio < 1) {
-//					value = 1 + (1 - levelRatio) * standData.getMaxResolveLevel();
-//				}
-//				else if (standData.hasUnlockedMatching(action -> action.isTrained() && standData.getLearningProgressRatio(action) < 1)) {
-//					value = 1;
-//				}
-				return value;
+				StandTypePersistentData levelingData = standData.getCurTypeData();
+				if (levelingData != null) {
+					StandExpSummary exp = levelingData.expSummary(standData);
+					if (exp.devPotential == 0) {
+						return exp.remainingSkills == 0 ? 0 : 0.001f;
+					}
+					return (float) exp.devPotential / 300;
+				}
+				
+				return 0;
 			}
 		};
 

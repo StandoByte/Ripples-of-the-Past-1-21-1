@@ -13,9 +13,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
 // XXX tick the unlocked stand skills
+// TODO hidden skills
 public abstract class UnlockableSkill {
 	public final String skillName;
 	public boolean isStarting;
+	public boolean hidden;
 	public List<String> prerequisiteSkills;
 	public Optional<String> mainSkill;
 	public List<String> unlocksAbilities;

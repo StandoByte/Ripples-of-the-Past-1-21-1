@@ -32,6 +32,13 @@ public class StandUnlockableSkill extends UnlockableSkill {
 		return ConditionCheck.POSITIVE;
 	}
 	
+	public int getDevPotentialCosmeticPoints(StandPower userPower, StandTypePersistentData data, boolean isUnlocked) {
+		if (isUnlocked) return 0;
+		if (expToUnlock > 0) return expToUnlock;
+		if (hidden) return 250;
+		return 1;
+	}
+	
 	// Initialization methods
 	
 	@Deprecated

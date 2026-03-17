@@ -29,6 +29,7 @@ import com.github.standobyte.jojo.powersystem.skill.UnlockableSkill.DevStatus;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData.StandExpSummary;
 import com.google.common.collect.Iterables;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -149,6 +150,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float p_283123_) {
 		deselectSkillButton.visible = selectedSkill != null;
+		StandExpSummary expSummary = levelingData.expSummary(standPower);
 		
 		this.renderBackground(guiGraphics, mouseX, mouseY, p_283123_);
 		
@@ -220,8 +222,10 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			skillControls.drawSmallScrollBar(guiGraphics);
 		}
 		
-		Component exp = Component.literal(IconSymbols.STAND_EXP + " " + String.valueOf(levelingData.getExp()));
-		guiGraphics.drawString(font, exp, x + 41 - font.width(exp) / 2, y + 32, STAND_EXP_NUMBER_COLOR, false);
+		int exp = Math.min(levelingData.getExp(), expSummary.total);
+		Component expLine = exp < expSummary.total ? Component.literal(String.valueOf(exp)) : Component.translatable("jojo_ripples.stand_exp.max");
+		expLine = Component.literal(String.valueOf(IconSymbols.STAND_EXP)).append(expLine);
+		guiGraphics.drawString(font, expLine, x + 41 - font.width(expLine) / 2, y + 33, STAND_EXP_NUMBER_COLOR, false);
 		
 		if (learnSkillButton.visible && selectedSkill != null) {
 			int expCostColor = getExpCostColor(selectedSkill);
@@ -240,11 +244,32 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			List<FormattedCharSequence> skillNameTooltip = new ArrayList<>();
 			skillNameTooltip.add(hovered.textName.copy().withStyle(ChatFormatting.BLACK).getVisualOrderText());
 			switch (hovered.implemented) {
-				case WIP -> skillNameTooltip.add(Component.translatable("rotp_tag_wip").withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC).getVisualOrderText());
-				case NYI -> skillNameTooltip.add(Component.translatable("rotp_tag_nyi").withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC).getVisualOrderText());
+				case WIP -> skillNameTooltip.add(Component.translatable("rotp_tag_wip")
+						.withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC).getVisualOrderText());
+				case NYI -> skillNameTooltip.add(Component.translatable("rotp_tag_nyi")
+						.withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC).getVisualOrderText());
 				default -> {}
 			}
 			setTooltipForNextRenderPass(skillNameTooltip);
+		}
+		else if (mouseX - x >= 22 && mouseX - x <= 59 && mouseY - y >= 30 && mouseY - y <= 43) {
+			TooltipParams.set(TooltipParams.paperStyle(1));
+			List<FormattedCharSequence> standExpTooltip = new ArrayList<>();
+			standExpTooltip.add(Component.translatable("jojo_ripples.stand_exp")
+					.withStyle(ChatFormatting.BLACK).getVisualOrderText());
+			standExpTooltip.add(Component.translatable("jojo_ripples.stand_exp.total", expSummary.spent + exp, expSummary.total)
+					.withStyle(ChatFormatting.BLACK).getVisualOrderText());
+			if (expSummary.remainingHiddenSkills > 0) {
+				standExpTooltip.add(Component.translatable("jojo_ripples.stand_exp.skills_left.hidden", expSummary.remainingSkills, expSummary.remainingHiddenSkills)
+						.withStyle(ChatFormatting.BLACK).getVisualOrderText());
+			}
+			else {
+				standExpTooltip.add(Component.translatable("jojo_ripples.stand_exp.skills_left", expSummary.remainingSkills)
+						.withStyle(ChatFormatting.BLACK).getVisualOrderText());
+			}
+			standExpTooltip.addAll(Tooltip.splitTooltip(minecraft, Component.translatable("jojo_ripples.stand_exp.desc")
+					.withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC)));
+			setTooltipForNextRenderPass(standExpTooltip);
 		}
 		else {
 			renderTabTooltip(guiGraphics, this, mouseX, mouseY);

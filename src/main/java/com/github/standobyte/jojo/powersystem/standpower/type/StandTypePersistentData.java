@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.powersystem.standpower.type;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerData;
 import com.github.standobyte.jojo.powersystem.skill.UnlockableSkill;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
 import com.github.standobyte.jojo.powersystem.standpower.packet.StandExpPacket;
 
@@ -66,6 +67,31 @@ public class StandTypePersistentData extends PowerData {
 		if (standUser instanceof ServerPlayer player) {
 			PacketDistributor.sendToPlayer(player, new StandExpPacket(this.exp));
 		}
+	}
+	
+	
+	public static class StandExpSummary {
+		static StandExpSummary instance = new StandExpSummary();
+		public int spent, total, devPotential, remainingSkills, remainingHiddenSkills;
+		StandExpSummary clear() { spent = 0; total = 0; devPotential = 0; remainingSkills = 0; remainingHiddenSkills = 0; return this; }
+	}
+	public StandExpSummary expSummary(StandPower userPower) {
+		StandExpSummary obj = StandExpSummary.instance.clear();
+		for (var skillEntry : getAllSkills().entrySet()) {
+			StandUnlockableSkill skill = (StandUnlockableSkill) skillEntry.getValue();
+			boolean isUnlocked = isSkillUnlocked(skill.skillName);
+			if (skill.expToUnlock > 0) {
+				obj.total += skill.expToUnlock;
+				if (isUnlocked) {
+					obj.spent += skill.expToUnlock;
+				}
+			}
+			if (!isUnlocked) {
+				obj.remainingSkills++;
+			}
+			obj.devPotential += skill.getDevPotentialCosmeticPoints(userPower, this, isUnlocked);
+		}
+		return obj;
 	}
 	
 
