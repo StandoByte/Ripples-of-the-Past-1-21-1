@@ -536,11 +536,13 @@ public class InputHandler {
 	}
 	
 	public boolean hotbarScroll(double scrollDelta) {
+		@Nullable AbilitySelectionWheel curWheel = mc.screen instanceof AbilitySelectionWheel w ? w : null;
+		if (mc.screen != null && curWheel == null) return false;
+		
 		boolean scrolledAHotbar = false;
 		ClientControlScheme controlScheme = getActiveControlScheme();
 		if (controlScheme != null) {
 			ClientControlScheme.MoveGroup curControls = controlScheme.getCurGroup();
-			@Nullable AbilitySelectionWheel curWheel = mc.screen instanceof AbilitySelectionWheel w ? w : null;
 			for (Hotbar hotbar : curControls.hotbars) {
 				if (isSelectingAbility(hotbar)) {
 					int newIndex = hotbar.slotIndex;
