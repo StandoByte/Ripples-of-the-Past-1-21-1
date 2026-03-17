@@ -202,7 +202,7 @@
   "item.jojo_ripples.stand_disc.addon_author": "Addon created by: %s",
   "item.jojo_ripples.stand_disc.data_pack": "Data pack Stand",
   "jojo_ripples.menu.stand.info": "Stand Info",
-  "jojo_ripples.menu.stand.skills": "Skills (NYI)",
+  "jojo_ripples.menu.stand.skills": "Skills",
   "jojo_ripples.menu.stand.skins": "Stand Skins",
   "moveset_default_group": "Moveset",
   "moveset_group.stand.tooltip": "This enables the controls of your Stand without immediately summoning it - some of the abilies let you summon just your Stand's arms this way.",

@@ -202,7 +202,7 @@
   "item.jojo_ripples.stand_disc.addon_author": "Автор(ы) аддона: %s",
   "item.jojo_ripples.stand_disc.data_pack": "Стенд из датапака",
   "jojo_ripples.menu.stand.info": "Информация о Стенде",
-  "jojo_ripples.menu.stand.skills": "Навыки (NYI)",
+  "jojo_ripples.menu.stand.skills": "Навыки",
   "jojo_ripples.menu.stand.skins": "Скины Стенда",
   "moveset_default_group": "Способности",
   "moveset_group.stand.tooltip": "Эта клавиша активирует управление Стендом, но не призывает его сразу же - с помощью этого некоторые из способностей можно использовать, призвав только руки Стенда.",
