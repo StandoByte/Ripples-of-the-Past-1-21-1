@@ -12,7 +12,7 @@
   "item.jojo_ripples.meteoric_scrap": "Метеоритный лом",
   "item.jojo_ripples.meteoric_ingot": "Метеоритный слиток",
   
-  "itemGroup.jojo_ripples_main": "ДжоДжо: Ripples of the Past",
+  "key.categories.jojo_ripples": "ДжоДжо: Ripples of the Past",
   "jojo_ripples.key.toggle_stand": "Призвать/отозвать Стенд",
   "jojo_ripples.key.toggle_stand.desc": "Также включает режим управления Стендом.",
   "jojo_ripples.key.stand_mode": "(WIP) Режим: Стенд (без призыва)",
@@ -28,11 +28,14 @@
   "jojo_ripples.key.jojo_menu": "Меню ДжоДжо",
   "jojo_ripples.key.jojo_menu.desc": "Меню механик мода ROTP, таких как открываемые навыки, кастомизация схем управления, скины Стендов и т.д.",
   
+  "itemGroup.jojo_ripples_main": "ДжоДжо: Ripples of the Past",
+  
   "jojo_ripples.subtitle.blood_drain": "Кровь поглощена",
   "jojo_ripples.subtitle.liquid_splash": "Брызг жидкости",
   "jojo_ripples.subtitle.clothes_sewed": "Одежда сшита",
   
   "death.attack.rotp_suffocation": "%s был задушен %s",
+  "death.attack.rotp_suffocation.player": "%s задохнулся, пока боролся с %s",
   "death.attack.rotp_suffocation.item": "%s был задушен %s с помощью %s",
   "death.attack.rotp_entityFlewInto": "%s преобразовал кинетическую энергию %s во внутреннюю",
   "death.attack.rotp_entityFlewInto.item": "%s преобразовал кинетическую энергию %s во внутреннюю",
@@ -245,7 +248,12 @@
   "jojo_ripples.key.swap_items": "Поменяться предметами со Стендом",
   "jojo.message.action_condition.stand_user_too_far": "Вы и ваш Стенд слишком далеко друг от друга",
   
+  "jojo_ripples.stand_exp": "Опыт Стенда",
   "jojo_ripples.stand_skills.learn": "Получить навык",
+  "jojo_ripples.stand_skills.reset": "Сбросить навыки",
+  "jojo_ripples.stand_skills.not_enough_exp": "У вас недостаточно опыта Стенда",
+  "jojo_ripples.stand_skills.prerequisites": "Сначала нужно получить эти навыки: %s",
+  "jojo_ripples.note.creative_only": "Только в творческом",
   
   "stand.unknown": "Неизвестный Стенд: %s",
   "effect.jojo_ripples.resolve": "Решимость",
