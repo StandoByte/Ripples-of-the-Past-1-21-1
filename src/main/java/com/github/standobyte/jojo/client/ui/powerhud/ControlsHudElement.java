@@ -290,7 +290,7 @@ public class ControlsHudElement extends HudElement {
 				HotbarSlot selectedSlot = hotbar.getSelected();
 				
 				hotbarUI.isSelectingAbility = modInput.isSelectingAbility(hotbar);
-				hotbarUI.highlight = hotbarUI.isSelectingAbility && hotbar.switchAbilityKey != null;
+				hotbarUI.highlight = hotbarUI.isSelectingAbility && !hotbar.alwaysSwitchAbility();
 
 				for (ClientControlScheme.HotbarSlot slot : hotbar.slots) {
 					HotbarSlotUI slotUI = new HotbarSlotUI();
@@ -328,10 +328,14 @@ public class ControlsHudElement extends HudElement {
 
 				ClientKey hotbarKey = input.getKey();
 				hotbarUI.keybind = getKeyName(hotbarKey, KeyModifier.NONE);
-				hotbarUI.switchHint = hotbar.switchAbilityKey != null ? 
-						Component.translatable("ripples_hud.hotbar_switch", 
-								getKeyName(hotbar.switchAbilityKey.getKey(), hotbar.switchAbilityKey.getKeyModifier()))
-						: null;
+				hotbarUI.switchHint = null;
+				if (hotbar.switchAbilityKey != null) {
+					ClientKey boundKey = hotbar.switchAbilityKey.getKey();
+					if (boundKey != null) {
+						hotbarUI.switchHint = Component.translatable("ripples_hud.hotbar_switch", 
+								getKeyName(boundKey, hotbar.switchAbilityKey.getKeyModifier()));
+					}
+				}
 				
 				hotbarUI.keybindWidth = font.width(hotbarUI.keybind) + 4;
 				hotbarUI.width = hotbarUI.keybindWidth + hotbarUI.slots.size() * SLOT_WIDTH + 4;

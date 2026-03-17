@@ -125,6 +125,10 @@ public class ClientControlScheme {
 		public HotbarSlot getSelected() {
 			return this.slotIndex >= 0 && this.slotIndex < this.slots.size() ? this.slots.get(this.slotIndex) : null;
 		}
+		
+		public boolean alwaysSwitchAbility() {
+			return switchAbilityKey == null || switchAbilityKey.getKey() == null;
+		}
 	}
 	
 	public static class HotbarSlot {

@@ -605,7 +605,8 @@ public class InputHandler {
 	}
 	
 	public boolean isSelectingAbility(Hotbar hotbar) {
-		return hotbar.switchAbilityKey == null && !inputsDisabled || hotbarsSelection.containsKey(hotbar);
+		return !inputsDisabled && hotbar.alwaysSwitchAbility()
+				|| hotbarsSelection.containsKey(hotbar);
 	}
 	
 	public void setSelectingAbility(Hotbar hotbar, ClientKey key, boolean selecting) {
