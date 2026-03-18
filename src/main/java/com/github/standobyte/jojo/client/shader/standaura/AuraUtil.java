@@ -4,18 +4,15 @@ import javax.annotation.Nullable;
 
 import org.joml.Matrix4f;
 
-import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.client.standskin.StandSkin;
+import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.init.ModStatusEffects;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.Sheep;
-import net.minecraft.world.entity.monster.Creeper;
-import net.minecraft.world.entity.monster.EnderMan;
-import net.minecraft.world.entity.monster.Husk;
-import net.minecraft.world.entity.monster.Skeleton;
-import net.minecraft.world.entity.monster.Spider;
-import net.minecraft.world.entity.player.Player;
 
 /* another way could be to apply a morphological dilation, 
  * but then the aura would look too large from the distance
@@ -58,28 +55,27 @@ public class AuraUtil {
 	}
 
 
-	public static int getStandAuraColor(LivingEntity entity) {
-		if (entity instanceof Player || entity instanceof StandEntity) {
-			return 0xFFFFD000;
+	public static class ResolveAuraVars { public int color; public float inflate; static ResolveAuraVars instance = new ResolveAuraVars(); }
+	@Nullable
+	public static ResolveAuraVars getStandAuraColor(LivingEntity entity) {
+		ResolveAuraVars vars = ResolveAuraVars.instance;
+		
+		MobEffectInstance resolve = entity.getEffect(ModStatusEffects.RESOLVE);
+		if (resolve != null) {
+			StandPower standPower = StandPower.get(entity);
+			if (standPower != null) {
+				StandSkin standSkin = StandSkinsLoader.getInstance().getSkin(standPower);
+				if (standSkin != null) {
+					vars.color = standSkin.getColor();
+					vars.inflate = Math.min(resolve.amplifier * 0.5f, 2);
+					return vars;
+				}
+			}
+			vars.color = 0xFF00FF;
+			vars.inflate = 0;
+			return vars;
 		}
-		if (entity instanceof Skeleton) {
-			return 0xFFCB00FF;
-		}
-		if (entity instanceof Creeper) {
-			return 0xFF00CE00;
-		}
-		if (entity instanceof Sheep) {
-			return 0xFFFF00F6;
-		}
-		if (entity instanceof Husk) {
-			return 0xFF80B000;
-		}
-		if (entity instanceof Spider) {
-			return 0xFFFF0000;
-		}
-		if (entity instanceof EnderMan) {
-			return 0xFFFF00FF;
-		}
-		return -1;
+		
+		return null;
 	}
 }

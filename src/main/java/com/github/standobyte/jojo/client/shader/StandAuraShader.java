@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.client.config.ClientModSettings;
 import com.github.standobyte.jojo.client.shader.core.BufferWithSource;
 import com.github.standobyte.jojo.client.shader.core.RotpShader;
 import com.github.standobyte.jojo.client.shader.standaura.AuraUtil;
+import com.github.standobyte.jojo.client.shader.standaura.AuraUtil.ResolveAuraVars;
 import com.github.standobyte.jojo.client.shader.standaura.BufferSourceRecolor;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -203,19 +204,19 @@ public class StandAuraShader extends RotpShader {
 	protected List<EntityAuraColor> entitiesToRender = new ArrayList<>();
 	protected static record EntityAuraColor(LivingEntity entity, 
 			LivingEntityRenderer renderer, float partialTick, PoseStack.Pose pose, 
-			int auraColor) {}
+			int auraColor, float auraInflate) {}
 	
 	@SubscribeEvent
 	public <T extends LivingEntity, M extends EntityModel<T>> void afterEntityRender(RenderLivingEvent.Post<T, M> event) {
 		if (this._renderingNow) return;
 		
 		LivingEntity entity = event.getEntity();
-		int color = AuraUtil.getStandAuraColor(entity);
-		if (color != -1) {
-			color &= 0xFFFFFF;
+		ResolveAuraVars color = AuraUtil.getStandAuraColor(entity);
+		if (color != null) {
+			color.color &= 0xFFFFFF;
 			entitiesToRender.add(new EntityAuraColor(entity, 
 					event.getRenderer(), event.getPartialTick(), event.getPoseStack().last().copy(), 
-					color));
+					color.color, color.inflate));
 		}
 	}
 	
@@ -243,9 +244,8 @@ public class StandAuraShader extends RotpShader {
 				poseStack.pushPose();
 				RenderSystem.enableBlend();
 				RenderSystem.defaultBlendFunc();
-				// TODO variable stand aura intensity
 				for (float inflate = 5; inflate >= 1; inflate--) {
-					AuraUtil.inflateEachCube = inflate;
+					AuraUtil.inflateEachCube = inflate + noted.auraInflate;
 					float alphaAdditive = 0.05f;
 					this.auraColor.setColor(FastColor.ARGB32.color(FastColor.as8BitChannel(alphaAdditive), color));
 					// render
