@@ -40,7 +40,7 @@ public class StandInitHierophantGreen {
 				.finalizeControlScheme()
 
 
-				.addSkill(StandUnlockableSkill.unlockableAbility("puppet", 500))
+				.addSkill(StandUnlockableSkill.unlockableAbility("puppet", 500).setIncomplete())
 
 				, id)
 			.discTooltipExperimental();

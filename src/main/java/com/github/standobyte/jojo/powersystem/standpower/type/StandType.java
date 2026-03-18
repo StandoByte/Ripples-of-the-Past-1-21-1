@@ -170,7 +170,7 @@ public class StandType extends PowerType {
 	@Nonnull
 	@Override
 	public StandTypePersistentData newDataInstance() {
-		return new StandTypePersistentData();
+		return new StandTypePersistentData(this);
 	}
 	
 	

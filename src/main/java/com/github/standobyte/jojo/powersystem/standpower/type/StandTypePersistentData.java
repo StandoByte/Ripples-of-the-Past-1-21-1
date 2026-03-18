@@ -1,79 +1,48 @@
 package com.github.standobyte.jojo.powersystem.standpower.type;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerData;
-import com.github.standobyte.jojo.powersystem.PowerType;
+import com.github.standobyte.jojo.powersystem.skill.UnlockableSkill;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
 import com.github.standobyte.jojo.powersystem.standpower.packet.StandExpPacket;
-import com.github.standobyte.jojo.util.NBTUtil;
-import com.github.standobyte.jojo.util.network.NetworkUtil;
 
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class StandTypePersistentData extends PowerData {
-	public Set<String> unlockedSkills = new HashSet<>();
 	protected float exp;
 	
-	
-	public boolean isSkillUnlocked(String skillName) {
-		return unlockedSkills.contains(skillName);
-	}
-	
-	public boolean setSkillUnlocked(String skillName, boolean unlocked) {
-		if (unlocked) {
-			return unlockedSkills.add(skillName);
-		}
-		else {
-			return unlockedSkills.remove(skillName);
-		}
-	}
-
-	
-	@Override
-	public void onInit(PowerType powerType, Power<?> userPower) {
-		LivingEntity user = userPower.getUser();
-		if (!user.level().isClientSide()) {
-			StandType standType = (StandType) powerType;
-			for (var skillEntry : standType.getUnlockableSkills().entrySet()) {
-				StandUnlockableSkill skill = skillEntry.getValue();
-				if (skill.isStarting) {
-					String skillName = skillEntry.getKey();
-					unlockedSkills.add(skillName);
-				}
-			}
-		}
+	public StandTypePersistentData(StandType powerType) {
+		super(powerType);
 	}
 	
 	@Override
-	public boolean unlockSkill(Power<?> userPower, String skillName) {
-		LivingEntity user = userPower.getUser();
-		if (user.level().isClientSide()) return false;
-		
-		StandPower standPower = PowerClass.STAND.cast(userPower);
-		StandType standType = standPower.getPowerType();
-		if (standType != null && !isSkillUnlocked(skillName)) {
-			StandUnlockableSkill skill = standType.getUnlockableSkills().get(skillName);
-			if (skill != null && skill.canUnlockFromMenu(standPower, this).isPositive()) {
-				setSkillUnlocked(skillName, true);
-				this.exp -= skill.expToUnlock;
-				syncOnUpdate(user);
-				return true;
+	public StandType getPowerType() {
+		return (StandType) super.getPowerType();
+	}
+	
+	//@Override
+	//public void onInit(Power<?> userPower) {
+	//	super.onInit(userPower);
+	//}
+	
+	@Override
+	public boolean _setSkillUnlocked(UnlockableSkill skill, boolean unlocked, boolean inGameplay) {
+		boolean changed = super._setSkillUnlocked(skill, unlocked, inGameplay);
+		if (changed && inGameplay) {
+			if (unlocked) {
+				this.exp -= ((StandUnlockableSkill) skill).expToUnlock;
+			}
+			else {
+				this.exp += ((StandUnlockableSkill) skill).expToUnlock;
 			}
 		}
-		return false;
+		return changed;
 	}
 	
 	
@@ -100,47 +69,58 @@ public class StandTypePersistentData extends PowerData {
 		}
 	}
 	
+	
+	public static class StandExpSummary {
+		static StandExpSummary instance = new StandExpSummary();
+		public int spent, total, devPotential, remainingSkills, remainingHiddenSkills;
+		StandExpSummary clear() { spent = 0; total = 0; devPotential = 0; remainingSkills = 0; remainingHiddenSkills = 0; return this; }
+	}
+	public StandExpSummary expSummary(StandPower userPower) {
+		StandExpSummary obj = StandExpSummary.instance.clear();
+		for (var skillEntry : getAllSkills().entrySet()) {
+			StandUnlockableSkill skill = (StandUnlockableSkill) skillEntry.getValue();
+			boolean isUnlocked = isSkillUnlocked(skill.skillName);
+			if (skill.expToUnlock > 0) {
+				obj.total += skill.expToUnlock;
+				if (isUnlocked) {
+					obj.spent += skill.expToUnlock;
+				}
+			}
+			if (!isUnlocked) {
+				obj.remainingSkills++;
+			}
+			obj.devPotential += skill.getDevPotentialCosmeticPoints(userPower, this, isUnlocked);
+		}
+		return obj;
+	}
+	
 
 	@Override
 	public CompoundTag serializeNBT(Provider provider) {
-		CompoundTag nbt = new CompoundTag();
-		
-		ListTag skillsNbt = new ListTag();
-		unlockedSkills.forEach(skillName -> skillsNbt.add(StringTag.valueOf(skillName)));
-		nbt.put("skills", skillsNbt);
-
+		CompoundTag nbt = super.serializeNBT(provider);
 		nbt.putFloat("exp", exp);
 		return nbt;
 	}
 	
 	@Override
 	public void deserializeNBT(Provider provider, CompoundTag nbt) {
-		unlockedSkills.clear();
-		NBTUtil.getElementOptional(nbt, "skills", ListTag.class).ifPresent(skillsNbt -> {
-			if (skillsNbt.getElementType() == Tag.TAG_STRING) {
-				for (Tag element : skillsNbt) {
-					unlockedSkills.add(element.getAsString());
-				}
-			}
-		});
-		
+		super.deserializeNBT(provider, nbt);
 		this.exp = nbt.getFloat("exp");
 	}
 	
 	@Override
 	public void toBuf(FriendlyByteBuf buf, boolean isSentToTracking) {
+		super.toBuf(buf, isSentToTracking);
 		if (!isSentToTracking) {
 			buf.writeFloat(exp);
-			NetworkUtil.writeCollection(buf, unlockedSkills, FriendlyByteBuf::writeUtf);
 		}
 	}
 
 	@Override
 	public void fromBuf(FriendlyByteBuf buf, boolean isSentToTracking) {
+		super.fromBuf(buf, isSentToTracking);
 		if (!isSentToTracking) {
 			exp = buf.readFloat();
-			this.unlockedSkills.clear();
-			this.unlockedSkills.addAll(NetworkUtil.readCollection(buf, FriendlyByteBuf::readUtf));
 		}
 	}
 	

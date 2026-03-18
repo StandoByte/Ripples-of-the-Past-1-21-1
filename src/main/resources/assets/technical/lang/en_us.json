@@ -32,5 +32,7 @@
   "neoforge.controlsgui.shift.nospace": "SHIFT+%s",
   "neoforge.controlsgui.control.nospace": "CTRL+%s",
   "neoforge.controlsgui.control.mac.nospace": "CMD+%s",
-  "neoforge.controlsgui.alt.nospace": "ALT+%s"
+  "neoforge.controlsgui.alt.nospace": "ALT+%s",
+  
+  "ripples_hud.key_ability": "%s: %s"
 }

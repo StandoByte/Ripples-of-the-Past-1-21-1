@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.mechanics.standarrow;
 
 import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffect;
 import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectType;
+import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModEntityCustomEffects;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -110,8 +111,7 @@ public class StandVirusActualEffect extends EntityCustomEffect implements Synced
 			}
 			
 			if (damage > 0) {
-				// TODO replace "livingEntity.level().damageSources().cactus()" with custom damage source
-				DamageUtil.hurtThroughInvulTicks(entity, entity.level().damageSources().cactus(), damage);
+				entity.hurt(DamageUtil.make(level, ModDamageTypes.STAND_ARROW_VIRUS), damage);
 			}
 			if (stopEffect || stopEffectOnGaveStand) {
 				entity.removeEffect(vanillaEffect);

@@ -1,7 +1,6 @@
 package com.github.standobyte.jojoimpl.powers.vampirism;
 
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerData;
-import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -9,6 +8,10 @@ import net.minecraft.network.FriendlyByteBuf;
 
 public class VampirismData extends PlayerPowerData {
 	
+	public VampirismData() {
+		super(VampirismPowerType.VAMPIRISM.get());
+	}
+
 	@Override
 	public CompoundTag serializeNBT(HolderLookup.Provider provider) {
 		CompoundTag nbt = new CompoundTag();
@@ -31,8 +34,4 @@ public class VampirismData extends PlayerPowerData {
 		
 	}
 
-	@Override
-	public PlayerPowerType<?> getType() {
-		return VampirismPowerType.VAMPIRISM.get();
-	}
 }

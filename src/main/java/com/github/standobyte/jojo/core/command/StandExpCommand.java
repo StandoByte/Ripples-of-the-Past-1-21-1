@@ -21,6 +21,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 
 public class StandExpCommand {
+	public static final MultipleTargetsCommandResult SET_MSG = new MultipleTargetsCommandResult(
+			"rotp.commands.standexp.set", StandCommand.QUERY_MSG.fail);
+	public static final MultipleTargetsCommandResult ADD_MSG = new MultipleTargetsCommandResult(
+			"rotp.commands.standexp.add", StandCommand.QUERY_MSG.fail);
 
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
 		dispatcher.register(
@@ -80,7 +84,7 @@ public class StandExpCommand {
 	private static int getStandExp(CommandSourceStack source, Entity target) throws CommandSyntaxException {
 		StandPower stand = getStands(Util.make(new ArrayList<>(), list -> list.add(target))).iterator().next();
 		int level = stand.getCurTypeData().getExp();
-		source.sendSuccess(() -> Component.translatable("commands.standexp.query.success", 
+		source.sendSuccess(() -> Component.translatable("rotp.commands.standexp.query.success", 
 				target.getDisplayName(), level, stand.getPowerType().name.get()), false);
 		return level;
 	}
@@ -92,13 +96,7 @@ public class StandExpCommand {
 			standData.setExp(standData.getExp() + exp, stand.getUser());
 		}
 
-		if (stands.size() == 1) {
-			source.sendSuccess(() -> Component.translatable("commands.standexp.add.success.single", exp, targets.iterator().next().getDisplayName()), true);
-		} else {
-			source.sendSuccess(() -> Component.translatable("commands.standexp.add.success.multiple", exp, stands.size()), true);
-		}
-
-		return stands.size();
+		return ADD_MSG.trySend(source, true, targets, stands.size(), exp);
 	}
 
 	private static int setStandExp(CommandSourceStack source, Collection<? extends Entity> targets, int exp) throws CommandSyntaxException {
@@ -108,13 +106,7 @@ public class StandExpCommand {
 			standData.setExp(exp, stand.getUser());
 		}
 
-		if (stands.size() == 1) {
-			source.sendSuccess(() -> Component.translatable("commands.standexp.set.success.single", exp, targets.iterator().next().getDisplayName()), true);
-		} else {
-			source.sendSuccess(() -> Component.translatable("commands.standexp.set.success.multiple", exp, stands.size()), true);
-		}
-
-		return stands.size();
+		return SET_MSG.trySend(source, true, targets, stands.size(), exp);
 	}
 
 	private static Collection<StandPower> getStands(Collection<? extends Entity> targets) throws CommandSyntaxException {
@@ -128,12 +120,7 @@ public class StandExpCommand {
 			}
 		}
 		if (stands.isEmpty()) {
-			if (targets.size() == 1) {
-				throw StandCommand.NO_STAND_SINGLE_EXCEPTION.create(targets.iterator().next().getName());
-			}
-			else {
-				throw StandCommand.NO_STAND_MULTIPLE_EXCEPTION.create(targets.size());
-			}
+			throw StandCommand.QUERY_MSG.fail.create(targets);
 		}
 		else {
 			return stands;

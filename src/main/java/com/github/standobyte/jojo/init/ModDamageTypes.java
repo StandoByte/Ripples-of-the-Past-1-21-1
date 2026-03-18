@@ -94,6 +94,26 @@ public class ModDamageTypes {
 			DamageTypeTags.NO_KNOCKBACK,
 			DamageTypeTags.WITHER_IMMUNE_TO,
 			Tags.DamageTypes.IS_ENVIRONMENT);
+
+	public static final ResourceKey<DamageType> STAND_ARROW = DAMAGE_TYPES.withTags(JojoMod.resLoc("stand_arrow"),
+			DamageTypeTags.BYPASSES_ARMOR,
+			DamageTypeTags.BYPASSES_WOLF_ARMOR,
+			DamageTypeTags.BYPASSES_SHIELD,
+			DamageTypeTags.BYPASSES_COOLDOWN,
+			DamageTypeTags.BYPASSES_EFFECTS,
+			DamageTypeTags.PANIC_CAUSES,
+			DamageTypeTags.NO_KNOCKBACK,
+			Tags.DamageTypes.IS_PHYSICAL);
+
+	public static final ResourceKey<DamageType> STAND_ARROW_VIRUS = DAMAGE_TYPES.withTags(JojoMod.resLoc("stand_arrow_virus"),
+			DamageTypeTags.BYPASSES_ARMOR,
+			DamageTypeTags.BYPASSES_WOLF_ARMOR,
+			DamageTypeTags.BYPASSES_SHIELD,
+			DamageTypeTags.BYPASSES_COOLDOWN,
+			DamageTypeTags.BYPASSES_EFFECTS,
+			DamageTypeTags.PANIC_CAUSES,
+			DamageTypeTags.NO_KNOCKBACK,
+			Tags.DamageTypes.IS_ENVIRONMENT);
 	
 	static {
 		DAMAGE_TYPES.addToTag(CAN_HURT_STANDS, ResourceLocation.fromNamespaceAndPath("jojowor", "stand"), false);
