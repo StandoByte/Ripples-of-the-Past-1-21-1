@@ -8,8 +8,9 @@ import com.github.standobyte.jojo.client.sound.bgmloop.BgmPlayer;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackLoader;
 import com.github.standobyte.jojo.client.sound.bgmloop.DebugBgm;
+import com.github.standobyte.jojo.client.standskin.StandSkin;
+import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.ui.DebugFunctionsScreen;
-import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracker;
 import com.github.standobyte.jojo.mechanics.itemtracking.ItemTracking;
@@ -76,10 +77,13 @@ public class DebugItem extends Item {
 			case "cycle_bgm" -> {
 				switch (mouseButton) {
 					case 0 -> {
-						Weighted<BgmTrackInfo> track = DebugBgm.cycleVariation(DebugBgm.BgmTrackType.STAND_SKINS, JojoMod.resLoc("crazy_diamond"));
-						if (track != null) {
-							BgmPlayer player = new BgmPlayer(track);
-							player.start();
+						StandSkin standSkin = StandSkinsLoader.getCurSkin();
+						if (standSkin != null) {
+							Weighted<BgmTrackInfo> track = DebugBgm.cycleVariation(DebugBgm.BgmTrackType.STAND_SKINS, standSkin.skinId);
+							if (track != null) {
+								BgmPlayer player = new BgmPlayer(track);
+								player.start();
+							}
 						}
 					}
 					case 1 -> {
