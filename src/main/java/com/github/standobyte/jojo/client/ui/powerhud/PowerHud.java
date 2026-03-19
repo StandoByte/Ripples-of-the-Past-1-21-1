@@ -485,7 +485,7 @@ public class PowerHud {
 			}
 			
 			if (resolveEffect == null) {
-				float multiplier = resolve.getTotalBoostVisible(standPower.getUser());
+				float multiplier = resolve.totalMultiplier(standPower.getUser());
 				if (multiplier > 1) {
 					Component multiplierText = Component.literal("x" + String.format("%.2f", multiplier));
 					StandSkin skin = StandSkinsLoader.getCurSkin();

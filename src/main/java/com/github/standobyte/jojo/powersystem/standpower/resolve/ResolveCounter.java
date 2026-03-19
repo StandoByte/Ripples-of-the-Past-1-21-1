@@ -38,6 +38,7 @@ public class ResolveCounter {
 	public static final int[] RESOLVE_EFFECT_MAX = { 600, 1200, 1800, 2400 };
 
 	public static final float RESOLVE_FOR_DMG_POINT = 1F;
+	public static final float RESOLVE_FOR_DMG_TAKEN = 2F;
 	
 	protected float value;
 	protected int unlockedStage = 0;
@@ -199,16 +200,8 @@ public class ResolveCounter {
 			resolveModeTimer.value = Math.max(resolveModeTimer.value, resolveModeTimer.defaultValue / 2);
 		}
 		// will also sync the timer above
-		setResolveValue(stand, getResolveValue() + boostAddedValue(resolve, user));
+		setResolveValue(stand, getResolveValue() + resolve);
 		
-	}
-
-	protected float boostAddedValue(float value, LivingEntity entity) {
-		return value;
-	}
-
-	public float getTotalBoostVisible(LivingEntity user) {
-		return 1;
 	}
 	
 	
@@ -320,8 +313,10 @@ public class ResolveCounter {
 	public static void addResolve(StandPower attackerStand, LivingEntity attackTarget, float dmgAmount) {
 		if (attackerStand == null || !attackerStand.usesResolve()) return;
 		attackTarget = StandUtil.getStandUser(attackTarget);
-		boolean hitSelf = attackTarget != null && attackerStand.getUser() != null && attackTarget.is(attackerStand.getUser());
+		LivingEntity attacker = attackerStand.getUser();
+		boolean hitSelf = attackTarget != null && attacker != null && attackTarget.is(attacker);
 		if (!hitSelf && attackingTargetGivesResolve(attackTarget)) {
+			ResolveCounter resolve = attackerStand.getResolveCounter();
 			float points = dmgAmount * RESOLVE_FOR_DMG_POINT;
 
 			//for (PowerClass<?> classification : PowerClass.values()) {
@@ -334,10 +329,11 @@ public class ResolveCounter {
 			//}
 
 			if (ResolveModeEffect.getResolveEffectLvl(attackTarget) >= 0) {
-				points *= 1 + attackerStand.getResolveCounter().getResolveBarFill() * 3;
+				points *= 1 + resolve.getResolveBarFill() * 3;
 			}
 
-			attackerStand.getResolveCounter().addResolveValue(attackerStand, points);
+			float multiplier = resolve.totalMultiplier(attacker);
+			resolve.addResolveValue(attackerStand, points * multiplier);
 		}
 	}
 
@@ -359,6 +355,10 @@ public class ResolveCounter {
 		return false;
 	}
 	
+	
+	public float totalMultiplier(LivingEntity user) {
+		return missingHpMultiplier(user, 0);
+	}
 	
 	public float missingHpMultiplier(LivingEntity user, float dmgBeingTaken) {
 		float hpResulting = Math.max(user.getHealth() - dmgBeingTaken, 0);
@@ -383,9 +383,12 @@ public class ResolveCounter {
     		
     		Entity attacker = dmgSource.getEntity();
     		if (attacker != null && !attacker.level().isClientSide() && stand.usesResolve() && attacker != null && !attacker.is(user)) {
-    			float ratio = resolve.missingHpMultiplier(user, dmgAmount);
-    			if (ratio > 1) {
-    				resolve.addResolveValue(stand, dmgAmount * ratio * 2);
+    			float missingHpMult = resolve.missingHpMultiplier(user, dmgAmount);
+    			if (missingHpMult > 1) {
+    				float points = dmgAmount * RESOLVE_FOR_DMG_TAKEN;
+    				float multiplier = resolve.totalMultiplier(user)
+    						/ resolve.missingHpMultiplier(user, 0) * missingHpMult; // correcting the multiplier to count for the user's hp *after* the hit
+    				resolve.addResolveValue(stand, points * multiplier);
     			}
     		}
     	}
