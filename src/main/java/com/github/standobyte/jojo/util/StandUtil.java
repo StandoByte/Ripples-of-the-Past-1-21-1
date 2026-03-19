@@ -10,7 +10,7 @@ import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
-import com.github.standobyte.jojo.powersystem.standpower.resolve.ResolveModeEffect;
+import com.github.standobyte.jojo.powersystem.standpower.resolve.ResolveStageBuffs;
 import com.github.standobyte.jojo.util.mc.AttributeUtil;
 
 import net.minecraft.core.Holder;
@@ -95,12 +95,8 @@ public class StandUtil {
 		return null;
 	}
 	
-	public static boolean standIgnoresStaminaDebuff(LivingEntity standUser) {
-		return ResolveModeEffect.getResolveEffectLvl(standUser) >= 0;
-	}
-	
 	public static double staminaCondition(StandPower standPower) {
-		return standIgnoresStaminaDebuff(standPower.getUser()) ? 1
+		return ResolveStageBuffs.ignoreStaminaDebuff(standPower.getUser()) ? 1
 				: 0.25 + Math.min((double) (standPower.getStamina() / standPower.getMaxStamina()) * 1.5, 0.75);
 	}
 	

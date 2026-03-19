@@ -4,8 +4,6 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.config.DefaultedValue;
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModStatusEffects;
-import com.github.standobyte.jojo.init.power.ModPlayerPowers;
-import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.StandUtil;
@@ -214,6 +212,9 @@ public class ResolveCounter {
 		}
 		// will also sync the timer above
 		setResolveValue(stand, getResolveValue() + resolve);
+		//if (!user.level().isClientSide() && getResolveValue() >= getMaxResolveUnlocked(user)) {
+		//	startResolveMode(stand);
+		//}
 		
 	}
 	
@@ -415,30 +416,11 @@ public class ResolveCounter {
         LivingEntity target = event.getEntity();
         StandPower stand = StandPower.get(target);
         if (stand != null) {
-        	float dmgReduction = stand.resolveCounter.getResolveDmgReduction(stand, target);
+        	float dmgReduction = ResolveStageBuffs.getDamageResistance(stand, stand.resolveCounter, target);
         	if (dmgReduction > 0) {
         		event.setNewDamage(event.getNewDamage() * (1 - dmgReduction));
         	}
         }
     }
     
-    public float getResolveDmgReduction(StandPower stand, LivingEntity user) {
-    	if (!stand.usesResolve()) return 0;
-    	
-    	PlayerPower playerPower = PlayerPower.get(user);
-    	if (playerPower != null && playerPower.getPowerType() == ModPlayerPowers.VAMPIRISM.get()) {
-    		return 0;
-    	}
-    	
-    	int unlockedStage = getUnlockedStage();
-    	if (unlockedStage >= 3 || ResolveModeEffect.getResolveEffectLvl(user) >= 2) {
-    		return 0.6f * getResolveBarFill();
-    	}
-    	if (unlockedStage == 2 || ResolveModeEffect.getResolveEffectLvl(user) >= 1) {
-    		return 0.4f * getResolveBarFill();
-    	}
-    	
-        return 0;
-    }
-	
 }

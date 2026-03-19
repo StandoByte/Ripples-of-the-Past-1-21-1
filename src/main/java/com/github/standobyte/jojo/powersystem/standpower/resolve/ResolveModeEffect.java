@@ -18,6 +18,10 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -37,6 +41,7 @@ public class ResolveModeEffect extends RotpStatusEffect {
 		StandPower standPower = StandPower.get(entity);
 		if (standPower != null && standPower.usesResolve()) {
 			standPower.resolveCounter.onResolveEffectStart(standPower, entity, instance);
+			addStandAttributeModifiers(entity, instance.getAmplifier());
 		}
 	}
 
@@ -46,6 +51,7 @@ public class ResolveModeEffect extends RotpStatusEffect {
 		StandPower standPower = StandPower.get(entity);
 		if (standPower != null && standPower.usesResolve()) {
 			standPower.resolveCounter.onResolveEffectStart(standPower, entity, instance);
+			addStandAttributeModifiers(entity, instance.getAmplifier());
 		}
 	}
 
@@ -55,8 +61,42 @@ public class ResolveModeEffect extends RotpStatusEffect {
 		StandPower standPower = StandPower.get(entity);
 		if (standPower != null) {
 			standPower.resolveCounter.onResolveEffectEnd(standPower, entity, instance);
+			removeStandAttributeModifiers(entity);
 		}
 	}
+	
+	
+	public void addStandAttributeModifiers(LivingEntity user, int effectLvl) {
+		if (!user.level().isClientSide()) {
+			var modifiers = ResolveStageBuffs.getModifiers(effectLvl);
+			if (modifiers != null) {
+				AttributeMap attributeMap = user.getAttributes();
+				for (var modifierEntry : modifiers.entrySet()) {
+					AttributeInstance attribute = attributeMap.getInstance(modifierEntry.getKey());
+					if (attribute != null) {
+						AttributeModifier modifier = modifierEntry.getValue();
+		                attribute.removeModifier(modifier.id());
+		                attribute.addPermanentModifier(modifier);
+					}
+				}
+				//user.refreshDirtyAttributes();
+			}
+		}
+	}
+	
+	public void removeStandAttributeModifiers(LivingEntity user) {
+		if (!user.level().isClientSide()) {
+			AttributeMap attributeMap = user.getAttributes();
+			for (var modifierEntry : ResolveStageBuffs.EFFECT_MODIFIER_IDS.entrySet()) {
+				AttributeInstance attribute = attributeMap.getInstance(modifierEntry.getKey());
+				if (attribute != null) {
+					attribute.removeModifier(modifierEntry.getValue());
+				}
+			}
+			//user.refreshDirtyAttributes();
+		}
+	}
+	
 
 	@Override
 	public boolean applyEffectTick(LivingEntity entity, int amplifier) {
@@ -70,6 +110,18 @@ public class ResolveModeEffect extends RotpStatusEffect {
 	@Override
 	public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
 		return duration % 3 == 0;
+	}
+	
+	
+	public static void addAttributes(LivingEntity entity, Map<Holder<Attribute>, AttributeModifier> attributeModifiers) {
+		AttributeMap entityAttributes = entity.getAttributes();
+		for (var modifierEntry : attributeModifiers.entrySet()) {
+			AttributeInstance attribute = entityAttributes.getInstance(modifierEntry.getKey());
+			if (attribute != null) {
+				attribute.removeModifier(modifierEntry.getValue().id());
+				attribute.addPermanentModifier(modifierEntry.getValue());
+			}
+		}
 	}
 
 

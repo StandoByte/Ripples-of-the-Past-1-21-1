@@ -16,11 +16,11 @@ import com.github.standobyte.jojo.powersystem.standpower.effect.UserStandEffects
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.packet.TrStaminaPacket;
 import com.github.standobyte.jojo.powersystem.standpower.resolve.ResolveCounter;
+import com.github.standobyte.jojo.powersystem.standpower.resolve.ResolveStageBuffs;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
 import com.github.standobyte.jojo.util.NBTUtil;
-import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.jojo.util.entitycomponent.PostNbtReadEntityData;
 import com.github.standobyte.jojo.util.java.Lerp;
 
@@ -222,7 +222,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		}
 		else {
 			setStamina(0);
-			return StandUtil.standIgnoresStaminaDebuff(getUser());
+			return ResolveStageBuffs.ignoreStaminaDebuff(getUser());
 		}
 	}
 	

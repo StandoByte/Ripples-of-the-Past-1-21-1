@@ -27,8 +27,8 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.resolve.ResolveCounter;
 import com.github.standobyte.jojo.powersystem.standpower.resolve.ResolveModeEffect;
+import com.github.standobyte.jojo.powersystem.standpower.resolve.ResolveStageBuffs;
 import com.github.standobyte.jojo.util.MathUtil;
-import com.github.standobyte.jojo.util.StandUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -575,7 +575,7 @@ public class PowerHud {
 			float staminaRatio = standPower.getStaminaRatio(ClientUtil.partialTick(deltaTracker, false));
 			int x = getX() + 8;
 			int y = getY();
-			float alpha = StandUtil.standIgnoresStaminaDebuff(Minecraft.getInstance().player) ? 0.5f : 1;
+			float alpha = ResolveStageBuffs.ignoreStaminaDebuff(Minecraft.getInstance().player) ? 0.5f : 1;
 			Bars.renderHorizontalBar(guiGraphics.pose(), x, y, staminaRatio, BAR_HORIZONTAL_FILL, BlitFloat.NO_TINT, alpha);
 			BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), ICON, 
 					x - 12, y - 6, 20, 20, 0, ARGB.white(alpha));
@@ -585,7 +585,7 @@ public class PowerHud {
 		protected void checkTooltip(double mouseX, double mouseY, DeltaTracker deltaTracker) {
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 			
-			if (StandUtil.standIgnoresStaminaDebuff(Minecraft.getInstance().player)) {
+			if (ResolveStageBuffs.ignoreStaminaDebuff(Minecraft.getInstance().player)) {
 				this.tooltip.set(this.tooltipResolve);
 			}
 			else {
