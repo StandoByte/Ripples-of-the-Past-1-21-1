@@ -22,7 +22,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 public class ResolveStageBuffs {
 	
 	public static boolean ignoreStaminaDebuff(LivingEntity standUser) {
-		return ResolveModeEffect.getResolveEffectLvl(standUser) >= 0;
+		return standUser != null && ResolveModeEffect.getResolveEffectLvl(standUser) >= 0;
 	}
 	
 	public static boolean keepResolveModeAtHalfPassively(StandPower standPower, ResolveCounter resolve) {
@@ -83,4 +83,9 @@ public class ResolveStageBuffs {
 			default -> EFFECTS_IV;
 		};
 	}
+	
+	public static boolean maxRangeIsEffectiveRange(LivingEntity standUser) {
+		return standUser != null && ResolveModeEffect.getResolveEffectLvl(standUser) >= 3;
+	}
+	
 }

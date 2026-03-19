@@ -29,6 +29,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.netcode.SyncType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.resolve.ResolveModeEffect;
+import com.github.standobyte.jojo.powersystem.standpower.resolve.ResolveStageBuffs;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
 import com.github.standobyte.jojo.util.MathUtil;
@@ -749,6 +750,9 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 	public double getEffectiveRange() {
+		if (ResolveStageBuffs.maxRangeIsEffectiveRange(getUser())) {
+			return getMaxRange();
+		}
 		return getAttributeValue(ModEntityAttributes.STAND_EFFECTIVE_RANGE);
 	}
 	
