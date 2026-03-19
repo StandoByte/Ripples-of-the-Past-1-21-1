@@ -430,13 +430,15 @@ public class PowerHud {
 			if (resolveEffect != null) {
 				// resolve mode timer circle
 				int duration = resolveEffect.getDuration();
-				var resolveModeTimer = resolve.resolveModeTimer;
-				if (resolveModeTimer.defaultValue > -1 && resolveModeTimer.value > -1) {
-					duration = Math.min(resolveModeTimer.value, duration);
+				int timer = resolve.resolveModeTimer;
+				int timerInitial = resolve.resolveModeInitial;
+				
+				if (timerInitial > -1 && timer > -1) {
+					duration = Math.min(timer, duration);
 				}
 				float value = duration + 1 - partialTick;
 				if (value > 0) {
-					float resolveModeDurationRatio = resolveModeTimer.defaultValue > 0 ? value / resolveModeTimer.defaultValue : 1;
+					float resolveModeDurationRatio = timerInitial > 0 ? value / timerInitial : 1;
 					BlitFloat.blitRadial(guiGraphics.pose(), mc, RESOLVE_MODE.file, 
 							x + (width - RESOLVE_MODE.width) / 2, y + (height - RESOLVE_MODE.height) / 2, RESOLVE_MODE.width, RESOLVE_MODE.height, 0, 
 							0, resolveModeDurationRatio, BlitFloat.NO_TINT);
@@ -508,7 +510,7 @@ public class PowerHud {
 			
 			MultiLineScreenTooltip tooltipText = (MultiLineScreenTooltip) this.tooltip.get();
 			ResolveCounter resolve = standPower.resolveCounter;
-			int resolveModeTimer = resolve.resolveModeTimer.value;
+			int resolveModeTimer = resolve.resolveModeTimer;
 			if (resolveModeTimer > 0) {
 				tooltipText.setTitle(Component.translatable("ripples_hud.resolve_mode",
 						Component.literal(StringUtil.formatTickDuration(resolveModeTimer, Minecraft.getInstance().level.tickRateManager().tickrate()))

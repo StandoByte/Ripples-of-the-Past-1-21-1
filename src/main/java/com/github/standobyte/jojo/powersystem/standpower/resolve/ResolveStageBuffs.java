@@ -24,6 +24,10 @@ public class ResolveStageBuffs {
 	public static boolean ignoreStaminaDebuff(LivingEntity standUser) {
 		return ResolveModeEffect.getResolveEffectLvl(standUser) >= 0;
 	}
+	
+	public static boolean keepResolveModeAtHalfPassively(StandPower standPower, ResolveCounter resolve) {
+		return resolve.passedLastStageUnlock() && standPower.isSummoned();
+	}
 
 	
 	

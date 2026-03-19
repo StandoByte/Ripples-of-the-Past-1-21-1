@@ -1,7 +1,6 @@
 package com.github.standobyte.jojo.powersystem.standpower.resolve;
 
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.core.config.DefaultedValue;
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -42,7 +41,8 @@ public class ResolveCounter {
 	protected float value;
 	protected int unlockedStage = 0;
 	protected boolean passedLastStage = false;
-	public DefaultedValue.Int resolveModeTimer = new DefaultedValue.Int(-1);
+	public int resolveModeTimer = -1;
+	public int resolveModeInitial = -1;
 
 
 	public ResolveCounter() {}
@@ -52,6 +52,7 @@ public class ResolveCounter {
 			this.value = prev.value;
 			this.unlockedStage = prev.unlockedStage;
 			this.resolveModeTimer = prev.resolveModeTimer;
+			this.resolveModeInitial = prev.resolveModeInitial;
 		}
 	}
 
@@ -79,8 +80,8 @@ public class ResolveCounter {
 		buf.writeFloat(value);
 		buf.writeVarInt(unlockedStage);
 		if (sendToUser) {
-			buf.writeInt(resolveModeTimer.value);
-			buf.writeInt(resolveModeTimer.defaultValue);
+			buf.writeInt(resolveModeTimer);
+			buf.writeInt(resolveModeInitial);
 			buf.writeBoolean(passedLastStage);
 		}
 	}
@@ -89,8 +90,8 @@ public class ResolveCounter {
 		value = buf.readFloat();
 		unlockedStage = buf.readVarInt();
 		if (sentToUser) {
-			resolveModeTimer.value = buf.readInt();
-			resolveModeTimer.defaultValue = buf.readInt();
+			resolveModeTimer = buf.readInt();
+			resolveModeInitial = buf.readInt();
 			passedLastStage = buf.readBoolean();
 		}
 	}
@@ -99,8 +100,8 @@ public class ResolveCounter {
 		CompoundTag nbt = new CompoundTag();
 		nbt.putFloat("Resolve", value);
 		nbt.putInt("Stage", unlockedStage);
-		nbt.putInt("ResolveModeMax", resolveModeTimer.defaultValue);
-		nbt.putInt("ResolveMode", resolveModeTimer.value);
+		nbt.putInt("ResolveModeInitial", resolveModeInitial);
+		nbt.putInt("ResolveMode", resolveModeTimer);
 		nbt.putBoolean("PassedLast", passedLastStage);
 
 		return nbt;
@@ -110,8 +111,8 @@ public class ResolveCounter {
 		value = nbt.getFloat("Resolve");
 		setUnlockedStage(nbt.getInt("Stage"));
 		passedLastStage = nbt.getBoolean("PassedLast");
-		resolveModeTimer.defaultValue = nbt.getInt("ResolveModeMax");
-		resolveModeTimer.value = nbt.getInt("ResolveMode");
+		resolveModeInitial = nbt.getInt("ResolveModeInitial");
+		resolveModeTimer = nbt.getInt("ResolveMode");
 	}
 	
 	public void reset(LivingEntity user) {
@@ -121,8 +122,8 @@ public class ResolveCounter {
 		value = 0;
 		setUnlockedStage(0);
 		passedLastStage = false;
-		resolveModeTimer.defaultValue = 0;
-		resolveModeTimer.value = 0;
+		resolveModeInitial = -1;
+		resolveModeTimer = -1;
 		sync(user, true);
 	}
 
@@ -144,15 +145,18 @@ public class ResolveCounter {
 		if (stand.usesResolve()) {
 			LivingEntity user = stand.getUser();
 			
-			if (resolveModeTimer.value > 0) {
-				resolveModeTimer.value--;
+			if (resolveModeTimer > 0) {
+				resolveModeTimer--;
+				if (ResolveStageBuffs.keepResolveModeAtHalfPassively(stand, this)) {
+					keepResolveModeMinTimerAtHalf();
+				}
 			}
-			else {
+			else if (resolveModeTimer == 0) {
 				if (!user.level().isClientSide()) {
 					user.removeEffect(ModStatusEffects.RESOLVE);
 				}
-				resolveModeTimer.defaultValue = -1;
-				resolveModeTimer.reset();
+				resolveModeInitial = -1;
+				resolveModeTimer = -1;
 			}
 		}
 	}
@@ -168,6 +172,10 @@ public class ResolveCounter {
 	
 	public int getUnlockedStage() {
 		return unlockedStage;
+	}
+	
+	public boolean passedLastStageUnlock() {
+		return passedLastStage;
 	}
 	
 	protected void setUnlockedStage(int stage) {
@@ -204,18 +212,17 @@ public class ResolveCounter {
 		MobEffectInstance resolveMode = user.getEffect(ModStatusEffects.RESOLVE);
 		
 		if (resolveMode != null) {
-			int resolveLevel = resolveMode.getAmplifier();
-			if (resolveLevel < RESOLVE_EFFECT_MAX.length) {
-				resolveModeTimer.value = Math.max(resolveModeTimer.value, resolveModeTimer.defaultValue / 2);
-			}
-			resolveModeTimer.value = Math.max(resolveModeTimer.value, resolveModeTimer.defaultValue / 2);
+			keepResolveModeMinTimerAtHalf();
 		}
 		// will also sync the timer above
 		setResolveValue(stand, getResolveValue() + resolve);
 		//if (!user.level().isClientSide() && getResolveValue() >= getMaxResolveUnlocked(user)) {
 		//	startResolveMode(stand);
 		//}
-		
+	}
+	
+	protected void keepResolveModeMinTimerAtHalf() {
+		resolveModeTimer = Math.max(resolveModeTimer, resolveModeInitial / 2);
 	}
 	
 	
@@ -245,16 +252,16 @@ public class ResolveCounter {
 				int resolveLevel = resolveEffect.getAmplifier();
 				if (resolveLevel < RESOLVE_EFFECT_MAX.length) {
 					hasMinDuration = true;
-					resolveModeTimer.defaultValue = RESOLVE_EFFECT_MIN[resolveLevel];
+					resolveModeInitial = RESOLVE_EFFECT_MIN[resolveLevel];
 				}
 
 				int stage = resolveLevel + 1;
 				setUnlockedStage(Math.max(getUnlockedStage(), stage));
 			}
 			if (!hasMinDuration) {
-				resolveModeTimer.defaultValue = resolveEffect.getDuration();
+				resolveModeInitial = resolveEffect.getDuration();
 			}
-			resolveModeTimer.reset();
+			resolveModeTimer = resolveModeInitial;
 			
 			if (!user.level().isClientSide()) {
 				sync(user, true);
@@ -268,10 +275,9 @@ public class ResolveCounter {
 		//}
 		//else {
 			this.value = 0;
-			resolveModeTimer.defaultValue = -1;
-			resolveModeTimer.reset();
+			resolveModeInitial = -1;
+			resolveModeTimer = -1;
 			int stage = resolveEffect.getAmplifier() + 1;
-			setUnlockedStage(Math.max(getUnlockedStage(), stage));
 			if (stage >= MAX_STAGE) { // after Resolve IV is over
 				passedLastStage = true;
 			}
