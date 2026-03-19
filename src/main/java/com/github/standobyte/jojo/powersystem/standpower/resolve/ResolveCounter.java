@@ -165,7 +165,7 @@ public class ResolveCounter {
 		return value;
 	}
 	
-	public float getMaxResolveUnlocked(LivingEntity user) {
+	public float getMaxResolveUnlocked() {
 		int stage = getUnlockedStage();
 		return getMaxResolveValue(stage);
 	}
@@ -192,13 +192,13 @@ public class ResolveCounter {
 	}
 	
 	protected static float getMaxResolveValue(int stage) {
-		return DEFAULT_MAX_RESOLVE_VALUES[stage].floatValue();
+		return DEFAULT_MAX_RESOLVE_VALUES[Mth.clamp(stage, 0, DEFAULT_MAX_RESOLVE_VALUES.length - 1)].floatValue();
 	}
 
 
 
 	public void setResolveValue(StandPower stand, float resolve) {
-		resolve = Mth.clamp(resolve, 0, getMaxResolveUnlocked(stand.getUser()));
+		resolve = Mth.clamp(resolve, 0, getMaxResolveUnlocked());
 		this.value = resolve;
 
 		LivingEntity user = stand.getUser();
@@ -236,9 +236,9 @@ public class ResolveCounter {
 			LivingEntity user = stand.getUser();
 			if (!user.level().isClientSide()) {
 				int resolveLevel = getCurStage();
+				int duration = RESOLVE_EFFECT_MAX[Mth.clamp(resolveLevel, 0, RESOLVE_EFFECT_MAX.length - 1)];
 				stand.getUser().addEffect(new MobEffectInstance(ModStatusEffects.RESOLVE, 
-						RESOLVE_EFFECT_MAX[resolveLevel], resolveLevel, false, 
-						false, true));
+						duration, resolveLevel, false, false, true));
 			}
 			return true;
 		}
@@ -250,7 +250,7 @@ public class ResolveCounter {
 			boolean hasMinDuration = false;
 			if (resolveEffect.is(ModStatusEffects.RESOLVE)) {
 				int resolveLevel = resolveEffect.getAmplifier();
-				if (resolveLevel < RESOLVE_EFFECT_MAX.length) {
+				if (resolveLevel < RESOLVE_EFFECT_MIN.length) {
 					hasMinDuration = true;
 					resolveModeInitial = RESOLVE_EFFECT_MIN[resolveLevel];
 				}

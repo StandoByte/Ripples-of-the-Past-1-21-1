@@ -40,8 +40,15 @@ public class ResolveModeEffect extends RotpStatusEffect {
 		super.onAdded(entity, instance, source);
 		StandPower standPower = StandPower.get(entity);
 		if (standPower != null && standPower.usesResolve()) {
-			standPower.resolveCounter.onResolveEffectStart(standPower, entity, instance);
+			ResolveCounter resolve = standPower.resolveCounter;
+			resolve.onResolveEffectStart(standPower, entity, instance);
 			addStandAttributeModifiers(entity, instance.getAmplifier());
+			if (!entity.level().isClientSide()) {
+				float supposedToHaveResolve = ResolveCounter.getMaxResolveValue(instance.getAmplifier());
+				if (resolve.getResolveValue() < supposedToHaveResolve) {
+					resolve.setResolveValue(standPower, supposedToHaveResolve);
+				}
+			}
 		}
 	}
 
@@ -50,7 +57,8 @@ public class ResolveModeEffect extends RotpStatusEffect {
 		super.onUpdated(entity, instance, source);
 		StandPower standPower = StandPower.get(entity);
 		if (standPower != null && standPower.usesResolve()) {
-			standPower.resolveCounter.onResolveEffectStart(standPower, entity, instance);
+			ResolveCounter resolve = standPower.resolveCounter;
+			resolve.onResolveEffectStart(standPower, entity, instance);
 			addStandAttributeModifiers(entity, instance.getAmplifier());
 		}
 	}
@@ -60,7 +68,8 @@ public class ResolveModeEffect extends RotpStatusEffect {
 		super.onRemoved(entity, instance);
 		StandPower standPower = StandPower.get(entity);
 		if (standPower != null) {
-			standPower.resolveCounter.onResolveEffectEnd(standPower, entity, instance);
+			ResolveCounter resolve = standPower.resolveCounter;
+			resolve.onResolveEffectEnd(standPower, entity, instance);
 			removeStandAttributeModifiers(entity);
 		}
 	}
