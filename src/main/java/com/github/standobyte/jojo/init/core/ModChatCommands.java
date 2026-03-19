@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.init.core;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.command.JojoPowerCommand;
 import com.github.standobyte.jojo.core.command.PlayBgmCommand;
+import com.github.standobyte.jojo.core.command.ResolveCommand;
 import com.github.standobyte.jojo.core.command.StandCommand;
 import com.github.standobyte.jojo.core.command.StandExpCommand;
 import com.mojang.brigadier.CommandDispatcher;
@@ -23,6 +24,7 @@ public class ModChatCommands {
 		
 		StandCommand.register(dispatcher, context);		// "stand"
 		StandExpCommand.register(dispatcher, context);	// "stand_exp"
+		ResolveCommand.register(dispatcher, context);	// "resolve"
 		JojoPowerCommand.register(dispatcher, context);	// "power"
 		PlayBgmCommand.register(dispatcher, context);	// "bgm"
 

@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.StandUtil;
 
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -113,6 +114,18 @@ public class ResolveCounter {
 		passedLastStage = nbt.getBoolean("PassedLast");
 		resolveModeTimer.defaultValue = nbt.getInt("ResolveModeMax");
 		resolveModeTimer.value = nbt.getInt("ResolveMode");
+	}
+	
+	public void reset(LivingEntity user) {
+		for (var resolveEffect : ResolveModeEffect.RESOLVE_EFFECTS) {
+			user.removeEffect((Holder) resolveEffect);
+		}
+		value = 0;
+		setUnlockedStage(0);
+		passedLastStage = false;
+		resolveModeTimer.defaultValue = 0;
+		resolveModeTimer.value = 0;
+		sync(user, true);
 	}
 
 
