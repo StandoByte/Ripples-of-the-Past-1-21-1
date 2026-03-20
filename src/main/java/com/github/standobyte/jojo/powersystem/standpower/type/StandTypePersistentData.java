@@ -1,21 +1,30 @@
 package com.github.standobyte.jojo.powersystem.standpower.type;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerData;
 import com.github.standobyte.jojo.powersystem.skill.UnlockableSkill;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
 import com.github.standobyte.jojo.powersystem.standpower.packet.StandExpPacket;
+import com.github.standobyte.jojo.util.NBTUtil;
 
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class StandTypePersistentData extends PowerData {
 	protected float exp;
+	public Set<UUID> defeatedCharacters = new HashSet<>();
+	public Set<ResourceLocation> defeatedStands = new HashSet<>();
 	
 	public StandTypePersistentData(StandType powerType) {
 		super(powerType);
@@ -106,6 +115,8 @@ public class StandTypePersistentData extends PowerData {
 		CompoundTag nbt = super.serializeNBT(provider);
 		nbt.putFloat("exp", exp);
 		nbt.putInt("resolveReached", resolveReached);
+		nbt.put("defeatedChars", NBTUtil.toList(defeatedCharacters, NbtUtils::createUUID));
+		nbt.put("defeatedStands", NBTUtil.toList(defeatedStands, ResourceLocation.CODEC));
 		return nbt;
 	}
 	
@@ -114,6 +125,8 @@ public class StandTypePersistentData extends PowerData {
 		super.deserializeNBT(provider, nbt);
 		this.exp = nbt.getFloat("exp");
 		this.resolveReached = nbt.getInt("resolveReached");
+		NBTUtil.fromList(nbt, "defeatedChars", defeatedCharacters::add, NbtUtils::loadUUID);
+		NBTUtil.fromList(nbt, "defeatedStands", defeatedStands, ResourceLocation.CODEC);
 	}
 	
 	@Override

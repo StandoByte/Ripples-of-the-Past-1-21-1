@@ -442,7 +442,7 @@ public class ResolveHandler {
 		if (attackerStand == null) return;
 		attackTarget = StandUtil.getStandUser(attackTarget);
 		boolean hitSelf = attackTarget != null && attackerStand.getUser() != null && attackTarget.is(attackerStand.getUser());
-		if (!hitSelf && attackingTargetGivesResolve(attackTarget)) {
+		if (!hitSelf && attackTarget.isAlive() && attackingTargetGivesResolve(attackTarget)) {
 //			for (PowerClass<?> classification : PowerClass.values()) {
 //				points *= classification.getOptional(attackTarget).map(power -> {
 //					if (power.hasPower()) {
@@ -460,9 +460,6 @@ public class ResolveHandler {
 	}
 
 	public static boolean attackingTargetGivesResolve(Entity target) {
-		if (!target.isAlive()) {
-			return false;
-		}
 		if (target.getClassification(false) == MobCategory.MONSTER || target.getType() == EntityType.PLAYER) {
 			return true;
 		}
