@@ -6,16 +6,19 @@ import java.util.function.Supplier;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientPowerCache;
+import com.github.standobyte.jojo.client.ClientTickHandler;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.client.text.IconSymbols;
 import com.github.standobyte.jojo.client.ui.powerhud.ControlsHudElement.AbilityBindUI;
 import com.github.standobyte.jojo.client.ui.powerhud.ControlsHudElement.BindUI;
 import com.github.standobyte.jojo.client.ui.powerhud.ControlsHudElement.HotbarUILine;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
+import com.github.standobyte.jojo.client.ui.utils.TextUtil;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
@@ -445,16 +448,31 @@ public class PowerHud {
 				}
 			}
 			
-			// resolve kanji fill
-			BlitFloat.blit(guiGraphics.pose(), mc, emptySprite.file, 
-					x, y, width, height, 0, 
-					BlitFloat.NO_TINT);
-			float resolveRatio = resolve.getResolveBarFill();
-			float fillWidth = resolveRatio >= 1 ? width : 2 + (width - 6) * resolveRatio;
-			BlitFloat.blit(guiGraphics.pose(), mc, fullSprite.file, 
-					x, y, fillWidth, height, 0, 
-					0, 0, fillWidth, height, width, height, 
-					BlitFloat.NO_TINT);
+			float lmbRmbFadeIn = 0;
+			if (resolveEffect == null && resolve.getCurStage() >= 0) {
+				float tick = ClientTickHandler.tickCount + partialTick;
+				lmbRmbFadeIn = 2 * Mth.sin(tick * 0.05f) - 0.75f;
+				lmbRmbFadeIn = Mth.clamp(lmbRmbFadeIn, 0, 1);
+			}
+			if (lmbRmbFadeIn < 1) {
+				// resolve kanji fill
+				float alpha = 1 - lmbRmbFadeIn;
+				BlitFloat.blit(guiGraphics.pose(), mc, emptySprite.file, 
+						x, y, width, height, 0, 
+						ARGB.white(alpha));
+				float resolveRatio = resolve.getResolveBarFill();
+				float fillWidth = resolveRatio >= 1 ? width : 2 + (width - 6) * resolveRatio;
+				BlitFloat.blit(guiGraphics.pose(), mc, fullSprite.file, 
+						x, y, fillWidth, height, 0, 
+						0, 0, fillWidth, height, width, height, 
+						ARGB.white(alpha));
+			}
+			if (lmbRmbFadeIn > 0) {
+				// LMB + RMB prompt fading in and out
+				String resolveActivationPrompt = IconSymbols.LMB_CLICK_LARGE + "+" + IconSymbols.RMB_CLICK_LARGE;
+				guiGraphics.drawCenteredString(mc.font, Component.literal(resolveActivationPrompt), 
+						x + width / 2, y + 4, ARGB.white(TextUtil.fixAlpha(lmbRmbFadeIn)));
+			}
 			
 			int lvlX = x;
 			int lvlY = y + 16;

@@ -52,6 +52,7 @@ import com.github.standobyte.jojo.powersystem.skill.ClLearnSkillPacket;
 import com.github.standobyte.jojo.powersystem.standpower.StandAwakeningDataPacket;
 import com.github.standobyte.jojo.powersystem.standpower.packet.StandExpPacket;
 import com.github.standobyte.jojo.powersystem.standpower.packet.TrStaminaPacket;
+import com.github.standobyte.jojo.powersystem.standpower.resolve.ClActivateResolvePacket;
 import com.github.standobyte.jojo.powersystem.standpower.resolve.TrResolvePacket;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.BrokenChunkBlocksPacket;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.CDBlocksRestoredPacket;
@@ -77,6 +78,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClMobControlMovementPacket.Handler(JojoMod.resLoc("clmobctrlmove")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClControlledMobCommandPacket.Handler(JojoMod.resLoc("clmobitemslot")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClStandClickPacket.Handler(JojoMod.resLoc("clstandclick")));
+		registerPacket(registrar, PayloadRegistrar::playToServer, new ClActivateResolvePacket.Handler(JojoMod.resLoc("clresolvemode")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClDebugCommandPacket.Handler(JojoMod.resLoc("cldebug")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClStandItemInputPacket.Handler(JojoMod.resLoc("clstanditem")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClSetSewingMachineItemPacket.Handler(JojoMod.resLoc("clsewingitem")));

@@ -46,6 +46,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.powersystem.standpower.resolve.ClActivateResolvePacket;
 import com.github.standobyte.jojo.util.CommonEnums.Direction2D;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.InputConstants.Key;
@@ -79,6 +80,10 @@ import net.neoforged.neoforge.network.PacketDistributor;
 public class InputHandler {
 	private static InputHandler instance;
 	private final Minecraft mc = Minecraft.getInstance();
+	
+	public static final ClientKey LMB = ClientKey.make(InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_LEFT);
+	public static final ClientKey RMB = ClientKey.make(InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_RIGHT);
+	public static final ClientKey MMB = ClientKey.make(InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_MIDDLE);
 	
 	public static void init(RegisterKeyMappingsEvent event) {
 		if (instance == null) {
@@ -237,6 +242,18 @@ public class InputHandler {
 				ClientControlScheme controlScheme = getActiveControlScheme();
 				if (controlScheme == null) return false;
 				
+				boolean secondKeyInDualPress = checkDualPress(key);
+				if (secondKeyInDualPress) {
+					cancelVanilla = true;
+					return true;
+				}
+				
+				StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+				boolean canEnterResolveMode = (key == LMB || key == RMB) 
+						&& standPower != null 
+						&& PowerHud.abilityHUDInstance.resolveBar.shouldRender() 
+						&& standPower.resolveCounter.getCurStage() >= 0;
+				
 				cancelVanilla |= hotbarPickSlot(key);
 				
 				KeyModifier keyModifier = getCurModifier();
@@ -245,16 +262,31 @@ public class InputHandler {
 				@Nullable BaseAndActiveAbility heldAbility = input.heldAbility.curActiveAbility != null ? input.heldAbility : null;
 				@Nullable BaseAndActiveAbility clickAbility = input.clickAbility.curActiveAbility != null ? input.clickAbility : null;
 				
-				boolean ambiguousClickOrHold = heldAbility != null && clickAbility != null;
 				cancelVanilla |= heldAbility != null || clickAbility != null;
 				HeldKeyTimer heldKeyTimer = new HeldKeyTimer(key, cancelVanilla, keyModifier);
 				
-				if (ambiguousClickOrHold) {
-					AmbiguousKeyPress resolveInputMethod = new AmbiguousKeyPress();
+				int ambiguity = 0;
+				if (canEnterResolveMode) ambiguity++;
+				if (heldAbility != null) ambiguity++;
+				if (clickAbility != null) ambiguity++;
+				
+				AmbiguousKeyPress ambiguousKeyPress = null;
+				if (ambiguity >= 2) {
+					ambiguousKeyPress = new AmbiguousKeyPress();
+					
+					if (canEnterResolveMode) {
+						ambiguousKeyPress.onDualKeyClick = (ClientKey secondKeyPressed, float timeTook) -> {
+							if (key == LMB && secondKeyPressed == RMB || key == RMB && secondKeyPressed == LMB) {
+								PacketDistributor.sendToServer(new ClActivateResolvePacket(true));
+								return true;
+							}
+							return false;
+						};
+					}
 
 					if (heldAbility != null) {
 						Ability heldBaseAbility = heldAbility.baseAbility;
-						resolveInputMethod.onHold = (float ticksToResolveHeld) -> {
+						ambiguousKeyPress.onHold = (float ticksToResolveHeld) -> {
 							AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(heldBaseAbility.abilityId.powerClass());
 							AbilityConditionCheck abilityResolved = curAbilities.getContextVariationContainer(heldBaseAbility);
 							doClickInput(InputEventType.PRESS_HOLD, keyId, heldBaseAbility, abilityResolved, ticksToResolveHeld);
@@ -263,16 +295,17 @@ public class InputHandler {
 					
 					if (clickAbility != null) {
 						Ability clickBaseAbility = clickAbility.baseAbility;
-						resolveInputMethod.onClick = (float ticksToResolveClick) -> {
+						ambiguousKeyPress.onClick = (float ticksToResolveClick) -> {
 							AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(clickBaseAbility.abilityId.powerClass());
 							AbilityConditionCheck abilityResolved = curAbilities.getContextVariationContainer(clickBaseAbility);
 							doClickInput(InputEventType.PRESS_CLICK, keyId, clickBaseAbility, abilityResolved, ticksToResolveClick);
 						};
 					}
-					
-					heldKeyTimer.setAmbiguousInputMethod(resolveInputMethod);
 				}
 				
+				if (ambiguousKeyPress != null) {
+					heldKeyTimer.setAmbiguousInputMethod(ambiguousKeyPress);
+				}
 				else {
 					InputMethod inputMethod = 
 							heldAbility != null ? InputMethod.HOLD : 
@@ -392,7 +425,7 @@ public class InputHandler {
 			AmbiguousKeyPress.Result wasItClick = inputResolution.keyReleased();
 			if (wasItClick != null && wasItClick.input() == AmbiguousKeyPress.InputState.CLICK) {
 				if (inputResolution.onClick != null) {
-					inputResolution.onClick.accept(wasItClick.timeTook());
+					inputResolution.onClick.handleInput(wasItClick.timeTook());
 				}
 				heldKeyTimer.setAmbiguousInputMethod(null);
 				onResolvedKeyAsClick(heldKeyTimer.key);
@@ -409,7 +442,7 @@ public class InputHandler {
 					case ASSUME_HOLD -> {}
 					case HOLD -> {
 						if (inputResolution.onHold != null) {
-							inputResolution.onHold.accept(changedState.timeTook());
+							inputResolution.onHold.handleInput(changedState.timeTook());
 						}
 						timer.setAmbiguousInputMethod(null);
 					}
@@ -417,6 +450,21 @@ public class InputHandler {
 				}
 			}
 		}
+	}
+	
+	private boolean checkDualPress(ClientKey pressedKey) {
+		boolean result = false;
+		var iter = _heldKeys.entrySet().iterator();
+		while (iter.hasNext()) {
+			var heldKeyEntry = iter.next();
+			HeldKeyTimer timer = heldKeyEntry.getValue();
+			if (!timer.isDefinitelyHold() && timer.ambiguousInputMethod.onDualKeyClick != null
+					&& timer.ambiguousInputMethod.onDualKeyClick.checkHandleInput(pressedKey, timer.timeHeld)) {
+				result = true;
+				iter.remove();
+			}
+		}
+		return result;
 	}
 	
 	
