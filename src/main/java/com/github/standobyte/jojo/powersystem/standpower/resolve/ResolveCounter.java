@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.powersystem.standpower.resolve;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModDamageTypes;
+import com.github.standobyte.jojo.init.ModParticles;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -43,6 +44,7 @@ public class ResolveCounter {
 	protected boolean passedLastStage = false;
 	public int resolveModeTimer = -1;
 	public int resolveModeInitial = -1;
+	protected boolean activatedEffectOnMaxStage = false;
 
 
 	public ResolveCounter() {}
@@ -54,6 +56,7 @@ public class ResolveCounter {
 			this.value = prev.value;
 			this.resolveModeTimer = prev.resolveModeTimer;
 			this.resolveModeInitial = prev.resolveModeInitial;
+			this.activatedEffectOnMaxStage = prev.activatedEffectOnMaxStage;
 		}
 	}
 
@@ -80,6 +83,7 @@ public class ResolveCounter {
 	public void toBuf(FriendlyByteBuf buf, boolean sendToUser) {
 		buf.writeFloat(value);
 		buf.writeVarInt(unlockedStage);
+		buf.writeBoolean(activatedEffectOnMaxStage);
 		if (sendToUser) {
 			buf.writeInt(resolveModeTimer);
 			buf.writeInt(resolveModeInitial);
@@ -90,6 +94,7 @@ public class ResolveCounter {
 	public void fromBuf(FriendlyByteBuf buf, boolean sentToUser) {
 		value = buf.readFloat();
 		unlockedStage = buf.readVarInt();
+		activatedEffectOnMaxStage = buf.readBoolean();
 		if (sentToUser) {
 			resolveModeTimer = buf.readInt();
 			resolveModeInitial = buf.readInt();
@@ -101,9 +106,10 @@ public class ResolveCounter {
 		CompoundTag nbt = new CompoundTag();
 		nbt.putFloat("Resolve", value);
 		nbt.putInt("Stage", unlockedStage);
+		nbt.putBoolean("PassedLast", passedLastStage);
 		nbt.putInt("ResolveModeInitial", resolveModeInitial);
 		nbt.putInt("ResolveMode", resolveModeTimer);
-		nbt.putBoolean("PassedLast", passedLastStage);
+		nbt.putBoolean("DododoEffect", activatedEffectOnMaxStage);
 
 		return nbt;
 	}
@@ -111,9 +117,10 @@ public class ResolveCounter {
 	public void readNBT(CompoundTag nbt) {
 		value = nbt.getFloat("Resolve");
 		setUnlockedStage(nbt.getInt("Stage"));
+		resolveModeTimer = nbt.getInt("ResolveMode");
 		passedLastStage = nbt.getBoolean("PassedLast");
 		resolveModeInitial = nbt.getInt("ResolveModeInitial");
-		resolveModeTimer = nbt.getInt("ResolveMode");
+		activatedEffectOnMaxStage = nbt.getBoolean("DododoEffect");
 	}
 	
 	public void reset(LivingEntity user) {
@@ -125,6 +132,7 @@ public class ResolveCounter {
 		passedLastStage = false;
 		resolveModeInitial = -1;
 		resolveModeTimer = -1;
+		activatedEffectOnMaxStage = false;
 		sync(user, true);
 	}
 
@@ -158,6 +166,14 @@ public class ResolveCounter {
 				}
 				resolveModeInitial = -1;
 				resolveModeTimer = -1;
+			}
+			
+			if (user.level().isClientSide()) {
+				if (!user.isInvisible() && user.tickCount % 3 == 0 && 
+						(getResolveValue() >= getMaxResolveUnlocked() || activatedEffectOnMaxStage)) {
+					user.level().addParticle(ModParticles.KATAKANA_DO.get(), 
+							user.getRandomX(2.5), user.getY(user.getRandom().nextDouble() * 1.5), user.getRandomZ(2.5), 0, 0, 0);
+				}
 			}
 		}
 	}
@@ -257,6 +273,7 @@ public class ResolveCounter {
 				}
 
 				int stage = resolveLevel + 1;
+				activatedEffectOnMaxStage = stage > getUnlockedStage();
 				setUnlockedStage(Math.max(getUnlockedStage(), stage));
 			}
 			if (!hasMinDuration) {
@@ -278,6 +295,7 @@ public class ResolveCounter {
 			this.value = 0;
 			resolveModeInitial = -1;
 			resolveModeTimer = -1;
+			activatedEffectOnMaxStage = false;
 			int stage = resolveEffect.getAmplifier() + 1;
 			if (stage >= MAX_STAGE) { // after Resolve IV is over
 				passedLastStage = true;

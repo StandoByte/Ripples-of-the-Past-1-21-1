@@ -47,7 +47,7 @@ public class ClientParticles {
 		event.registerSpriteSet(ModParticles.BOILING_BLOOD_POP.get(),	LavaParticle.Provider::new);
 		event.registerSpriteSet(ModParticles.METEORITE_VIRUS.get(),		MeteoriteVirusParticle.Factory::new);
 		event.registerSpriteSet(ModParticles.MENACING.get(),			OnomatopoeiaParticle.GoFactory::new);
-		event.registerSpriteSet(ModParticles.RESOLVE.get(),				OnomatopoeiaParticle.DoFactory::new);
+		event.registerSpriteSet(ModParticles.KATAKANA_DO.get(),			OnomatopoeiaParticle.DoFactory::new);
 		event.registerSpriteSet(ModParticles.SOUL_CLOUD.get(),			SoulCloudParticleFactory::new);
 		event.registerSpriteSet(ModParticles.AIR_STREAM.get(),			AirStreamParticle.Factory::new);
 		event.registerSpriteSet(ModParticles.CD_RESTORATION.get(),		CrazyDRestorationParticle.Factory::new);
