@@ -25,19 +25,26 @@ public class ResolveStageBuffs {
 		return standUser != null && ResolveModeEffect.getResolveEffectLvl(standUser) >= 0;
 	}
 	
+	public static float finisherGainMultiplier(LivingEntity standUser) {
+		if (standUser != null && ResolveModeEffect.getResolveEffectLvl(standUser) >= 0) {
+			return 2;
+		}
+		return 1;
+	}
+	
 	public static boolean keepResolveModeAtHalfPassively(StandPower standPower, ResolveCounter resolve) {
 		return resolve.passedLastStageUnlock() && standPower.isSummoned();
 	}
 
 	
 	
+	public static boolean getsDamageResFromResolve(LivingEntity entity) {
+    	PlayerPower playerPower = PlayerPower.get(entity);
+    	return !(playerPower != null && playerPower.getPowerType() == ModPlayerPowers.VAMPIRISM.get());
+	}
+	
 	public static float getDamageResistance(StandPower stand, ResolveCounter resolve, LivingEntity user) {
-    	if (!stand.usesResolve()) return 0;
-    	
-    	PlayerPower playerPower = PlayerPower.get(user);
-    	if (playerPower != null && playerPower.getPowerType() == ModPlayerPowers.VAMPIRISM.get()) {
-    		return 0;
-    	}
+    	if (!stand.usesResolve() || !getsDamageResFromResolve(user)) return 0;
     	
     	int unlockedStage = resolve.getUnlockedStage();
     	if (unlockedStage == 2) {

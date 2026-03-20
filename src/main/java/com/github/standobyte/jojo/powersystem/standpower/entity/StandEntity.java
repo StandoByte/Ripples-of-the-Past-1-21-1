@@ -1349,10 +1349,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	
 	public void addFinisherMeter(float value) {
 		if (value > 0) {
-			LivingEntity user = getUser();
-			if (user != null && ResolveModeEffect.getResolveEffectLvl(user) >= 0) {
-				value *= 2;
-			}
+			value *= ResolveStageBuffs.finisherGainMultiplier(getUser());
 		}
 		float prev = getFinisherMeter();
 		setFinisherMeter(prev + value);

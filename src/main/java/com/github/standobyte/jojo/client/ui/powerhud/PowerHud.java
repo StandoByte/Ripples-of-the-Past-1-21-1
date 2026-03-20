@@ -21,11 +21,9 @@ import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.TextUtil;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerType;
-import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.resolve.ResolveCounter;
@@ -384,21 +382,8 @@ public class PowerHud {
 			super(name, snappingHorizontal, snappingVertical, xOffset, yOffset, width, height);
 		}
 		
-		public MultiLineScreenTooltip tooltipVampire;
-		
 		@Override
 		protected void initText() {
-			this.tooltipText = new MultiLineScreenTooltip(
-					Component.translatable("ripples_hud." + name).withStyle(ChatFormatting.BLACK), 
-					Component.translatable("ripples_hud." + name + ".desc", 
-							Component.translatable("ripples_hud." + name + ".desc1.regular"))
-					.withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY));
-			this.tooltipVampire = new MultiLineScreenTooltip(
-					Component.translatable("ripples_hud." + name).withStyle(ChatFormatting.BLACK), 
-					Component.translatable("ripples_hud." + name + ".desc", 
-							Component.translatable("ripples_hud." + name + ".desc1.vamp"))
-					.withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY));
-			this.tooltip.set(this.tooltipText);
 		}
 
 		@Override
@@ -419,13 +404,15 @@ public class PowerHud {
 			float partialTick = ClientUtil.partialTick(deltaTracker, false);
 			Minecraft mc = Minecraft.getInstance();
 			
-			int x = getX();
-			int y = getY();
 			int width = getWidth();
 			int height = getHeight();
 			
 			GuiIcon emptySprite = HORIZONTAL_EMPTY;
 			GuiIcon fullSprite = HORIZONTAL_FULL;
+			int spriteWidth = 32;
+			int spriteHeight = 16;
+			int x = getX() + (width - spriteWidth) / 2;
+			int y = getY() + (height - spriteHeight) / 2;
 
 			LivingEntity user = standPower.getUser();
 			ResolveCounter resolve = standPower.resolveCounter;
@@ -443,7 +430,7 @@ public class PowerHud {
 				if (value > 0) {
 					float resolveModeDurationRatio = timerInitial > 0 ? value / timerInitial : 1;
 					BlitFloat.blitRadial(guiGraphics.pose(), mc, RESOLVE_MODE.file, 
-							x + (width - RESOLVE_MODE.width) / 2, y + (height - RESOLVE_MODE.height) / 2, RESOLVE_MODE.width, RESOLVE_MODE.height, 0, 
+							x + (spriteWidth - RESOLVE_MODE.width) / 2, y + (spriteHeight - RESOLVE_MODE.height) / 2, RESOLVE_MODE.width, RESOLVE_MODE.height, 0, 
 							0, resolveModeDurationRatio, BlitFloat.NO_TINT);
 				}
 			}
@@ -458,20 +445,22 @@ public class PowerHud {
 				// resolve kanji fill
 				float alpha = 1 - lmbRmbFadeIn;
 				BlitFloat.blit(guiGraphics.pose(), mc, emptySprite.file, 
-						x, y, width, height, 0, 
+						x, y, spriteWidth, spriteHeight, 0, 
 						ARGB.white(alpha));
 				float resolveRatio = resolve.getResolveBarFill();
-				float fillWidth = resolveRatio >= 1 ? width : 2 + (width - 6) * resolveRatio;
+				float fillWidth = resolveRatio >= 1 ? spriteWidth : 2 + (spriteWidth - 6) * resolveRatio;
 				BlitFloat.blit(guiGraphics.pose(), mc, fullSprite.file, 
-						x, y, fillWidth, height, 0, 
-						0, 0, fillWidth, height, width, height, 
+						x, y, fillWidth, spriteHeight, 0, 
+						0, 0, fillWidth, spriteHeight, spriteWidth, spriteHeight, 
 						ARGB.white(alpha));
 			}
 			if (lmbRmbFadeIn > 0) {
 				// LMB + RMB prompt fading in and out
 				String resolveActivationPrompt = IconSymbols.LMB_CLICK_LARGE + "+" + IconSymbols.RMB_CLICK_LARGE;
 				guiGraphics.drawCenteredString(mc.font, Component.literal(resolveActivationPrompt), 
-						x + width / 2, y + 4, ARGB.white(TextUtil.fixAlpha(lmbRmbFadeIn)));
+						x + spriteWidth / 2, y + 4, ARGB.white(TextUtil.fixAlpha(lmbRmbFadeIn)));
+				RenderSystem.enableBlend();
+				RenderSystem.defaultBlendFunc();
 			}
 			
 			int lvlX = x;
@@ -509,7 +498,7 @@ public class PowerHud {
 				if (multiplier > 1) {
 					Component multiplierText = Component.literal("x" + String.format("%.2f", multiplier));
 					StandSkin skin = StandSkinsLoader.getCurSkin();
-					guiGraphics.drawCenteredString(mc.font, multiplierText, x + width / 2, y - 10, skin != null ? skin.getColor() : 0xFFFFFFFF);
+					guiGraphics.drawCenteredString(mc.font, multiplierText, x + width / 2, y - 8, skin != null ? skin.getColor() : 0xFFFFFFFF);
 				}
 			}
 		}
@@ -517,28 +506,61 @@ public class PowerHud {
 		@Override
 		protected void checkTooltip(double mouseX, double mouseY, DeltaTracker deltaTracker) {
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
-			
-			PlayerPower playerPower = ClientPowerCache.getPower(PowerClass.PLAYER_POWER);
-			if (playerPower != null && playerPower.getPowerType() == ModPlayerPowers.VAMPIRISM.get()) {
-				this.tooltip.set(this.tooltipVampire);
-			}
-			else {
-				this.tooltip.set(this.tooltipText);
-			}
-			
-			MultiLineScreenTooltip tooltipText = (MultiLineScreenTooltip) this.tooltip.get();
 			ResolveCounter resolve = standPower.resolveCounter;
-			int resolveModeTimer = resolve.resolveModeTimer;
-			if (resolveModeTimer > 0) {
-				tooltipText.setTitle(Component.translatable("ripples_hud.resolve_mode",
-						Component.literal(StringUtil.formatTickDuration(resolveModeTimer, Minecraft.getInstance().level.tickRateManager().tickrate()))
-						).withStyle(ChatFormatting.BOLD).withStyle(style -> style.withColor(0xFFC6151F)));
+			Minecraft mc = Minecraft.getInstance();
+			
+			this.yOffsetU = 4;
+			updateRectangle(32, 32);
+			
+			MultiLineScreenTooltip tooltip;
+			double y = mouseY - this.getY();
+			if (y <= 8) {
+				// Resolve multiplier
+				tooltip = new MultiLineScreenTooltip(
+						Component.translatable("ripples_hud.resolve_multiplier")
+										.withStyle(ChatFormatting.BLACK), 
+						Component.translatable("ripples_hud.resolve_multiplier.hp",
+								String.format("%.2f", resolve.missingHpMultiplier(standPower.getUser(), 0)))
+										.withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY));
+			}
+			else if (y > 24) {
+				// Resolve stage
+				boolean vampire = !ResolveStageBuffs.getsDamageResFromResolve(mc.player);
+				tooltip = new MultiLineScreenTooltip(
+						Component.translatable("ripples_hud.resolve_stage",
+								resolve.getCurStage() + 1,
+								resolve.getUnlockedStage() + 1)
+										.withStyle(ChatFormatting.BLACK), 
+						Component.translatable("ripples_hud.resolve_stage.desc")
+										.withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY),
+						Component.translatable("ripples_hud.resolve_stage.desc1" + (vampire ? ".vamp" : ""))
+										.withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY));
 			}
 			else {
-				tooltipText.setTitle(Component.translatable("ripples_hud.resolve_bar",
-						Component.literal(String.valueOf((int) (resolve.getResolveBarFill() * 100)))
-						).withStyle(ChatFormatting.BLACK));
+				int resolveModeTimer = resolve.resolveModeTimer;
+				if (resolveModeTimer > 0) {
+					// Resolve mode timer
+					boolean passedAllStages = ResolveStageBuffs.keepResolveModeAtHalfPassively(standPower, resolve);
+					tooltip = new MultiLineScreenTooltip(
+							Component.translatable("ripples_hud.resolve_mode",
+									Component.literal(StringUtil.formatTickDuration(resolveModeTimer, mc.level.tickRateManager().tickrate())))
+											.withStyle(ChatFormatting.BOLD).withStyle(style -> style.withColor(0xFFC6151F)), 
+							Component.translatable("ripples_hud.resolve_mode.desc" + (passedAllStages ? ".free" : ""))
+											.withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY));
+				}
+				else {
+					// Resolve bar fill
+					tooltip = new MultiLineScreenTooltip(
+							Component.translatable("ripples_hud.resolve_bar",
+									Component.literal(String.valueOf((int) (resolve.getResolveBarFill() * 100))))
+											.withStyle(ChatFormatting.BLACK), 
+							Component.translatable("ripples_hud.resolve_bar.desc")
+											.withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY),
+							Component.translatable("ripples_hud.resolve_bar.desc1")
+											.withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY));
+				}
 			}
+			this.tooltip.set(tooltip);
 			super.checkTooltip(mouseX, mouseY, deltaTracker);
 		}
 	}
