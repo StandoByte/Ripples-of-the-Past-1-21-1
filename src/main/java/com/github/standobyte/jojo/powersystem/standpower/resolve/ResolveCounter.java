@@ -48,9 +48,10 @@ public class ResolveCounter {
 	public ResolveCounter() {}
 	
 	public void copyValues(ResolveCounter prev, boolean wasDeath) {
+		this.unlockedStage = prev.unlockedStage;
+		this.passedLastStage = prev.passedLastStage;
 		if (!wasDeath) {
 			this.value = prev.value;
-			this.unlockedStage = prev.unlockedStage;
 			this.resolveModeTimer = prev.resolveModeTimer;
 			this.resolveModeInitial = prev.resolveModeInitial;
 		}
