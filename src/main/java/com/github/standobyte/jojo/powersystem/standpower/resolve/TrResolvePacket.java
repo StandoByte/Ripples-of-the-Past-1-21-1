@@ -9,6 +9,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -62,9 +63,9 @@ public class TrResolvePacket implements CustomPacketPayload {
 
 		@Override
 		public void handle(TrResolvePacket payload, IPayloadContext context) {
-			LivingEntity player = ClientProxy.getClientPlayer();
-			if (player != null) {
-				StandPower standPower = StandPower.get(player);
+			Entity entity = ClientProxy.getEntityById(payload.userId);
+			if (entity instanceof LivingEntity living) {
+				StandPower standPower = StandPower.get(living);
 				if (standPower != null) {
 					ResolveCounter resolveCounter = standPower.resolveCounter;
 					resolveCounter.fromBuf(payload.multipliersReadData, payload.toPlayerUser);
