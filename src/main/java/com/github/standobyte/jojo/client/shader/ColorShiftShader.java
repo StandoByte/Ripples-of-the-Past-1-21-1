@@ -16,7 +16,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
 public class ColorShiftShader extends RotpShader {
-	protected ColorShiftEffect glslShaderChain;
+	public ColorShiftEffect glslShaderChain;
 	@Nullable public ColorShiftEffect.Parameters parameters;
 
 	public ColorShiftShader() {}

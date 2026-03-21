@@ -87,6 +87,20 @@ public class StandTranslucencyShader extends RotpShader {
 				
 				endBatch((MultiBufferSource.BufferSource) this.frameBuffer.bufferSource);
 				
+				// resolve color shift is done manually on this buffer, not the best way to go about it, but if it works - it works
+				if (frameBuffer.buffer != null) {
+					ColorShiftShader colorShift = ModShaders.getInstance().colorShift;
+					if (colorShift != null && colorShift.parameters != null) {
+						ColorShiftEffect colorShiftChain = colorShift.glslShaderChain;
+						if (colorShiftChain != null) {
+							var prev = colorShiftChain.screenTarget;
+							colorShiftChain.setMainBuffer(frameBuffer.buffer);
+							colorShiftChain.process(colorShift.parameters, mc.getTimer().getGameTimeDeltaTicks());
+							colorShiftChain.setMainBuffer(prev);
+						}
+					}
+				}
+				
 				if (glslShaderChain != null) {
 					RenderSystem.disableBlend();
 					RenderSystem.disableDepthTest();

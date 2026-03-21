@@ -113,7 +113,7 @@ public class ColorShiftEffect extends ManualInitPostChain {
 				dummy, dummy, false, null, null), textureManager);
 		
 		colorConvolve = addPassNode(this, new PassDefinition(
-				"color_convolve", 
+				JojoMod.resLoc("color_convolve").toString(), 
 				dummy, dummy, false, null, 
 				new UniformDefinition[] { new UniformDefinition("Saturation", new float[] { 1.4f }) }), textureManager);
 		
@@ -130,7 +130,7 @@ public class ColorShiftEffect extends ManualInitPostChain {
 				dummy, dummy, false, null, null), textureManager);
 		
 		blitFromSwap = addPassNode(this, new PassDefinition(
-				JojoMod.resLoc("hue_shift").toString(), 
+				"blit", 
 				"swap", MAIN_RENDER_TARGET, false, null, null), textureManager);
 	}
 

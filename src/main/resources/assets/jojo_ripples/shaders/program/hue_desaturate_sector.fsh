@@ -55,5 +55,5 @@ void main() {
         hsv.y *= distance / SectorHalfSize;
     }
     
-    gl_FragColor = vec4(HSVtoRGB(hsv), 1.0);
+    gl_FragColor = vec4(HSVtoRGB(hsv), rgb.a);
 }

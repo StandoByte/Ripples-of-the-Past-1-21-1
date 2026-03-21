@@ -48,5 +48,5 @@ void main() {
     
     hsv.x = fract(hsv.x + ShiftAmount);
     
-    gl_FragColor = vec4(HSVtoRGB(hsv), 1.0);
+    gl_FragColor = vec4(HSVtoRGB(hsv), rgb.a);
 }

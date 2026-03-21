@@ -51,8 +51,8 @@ public class ModShaders implements ResourceManagerReloadListener, AutoCloseable 
 		Minecraft mc = Minecraft.getInstance();
 		SequencedMap<RenderType, ByteBufferBuilder> fixedRenderBuffers = ClientReflection.getFixedBuffers(mc.renderBuffers().bufferSource());
 
-		_allShaders.add(colorShift = new ColorShiftShader());
 		_allShaders.add(firstPersonStandTranslucency = new StandTranslucencyShader(mc, fixedRenderBuffers));
+		_allShaders.add(colorShift = new ColorShiftShader());
 		_allShaders.add(standAura = new StandAuraShader(mc, fixedRenderBuffers));
 	}
 	

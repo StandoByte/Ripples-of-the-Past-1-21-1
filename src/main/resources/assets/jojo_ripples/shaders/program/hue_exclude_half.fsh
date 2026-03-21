@@ -66,5 +66,5 @@ void main() {
     }
     hsv.x = hue;
     
-    gl_FragColor = vec4(HSVtoRGB(hsv), 1.0);
+    gl_FragColor = vec4(HSVtoRGB(hsv), rgb.a);
 }

@@ -159,6 +159,15 @@ public class ManualInitPostChain implements AutoCloseable {
 			return target.equals(MAIN_RENDER_TARGET) ? this.screenTarget : this.customRenderTargets.get(target);
 		}
 	}
+	
+	
+	public void setMainBuffer(RenderTarget target) {
+		for (PostPass pass : passes) {
+			if (pass.inTarget == this.screenTarget) pass.inTarget = target;
+			if (pass.outTarget == this.screenTarget) pass.outTarget = target;
+		}
+		this.screenTarget = target;
+	}
 
 
 

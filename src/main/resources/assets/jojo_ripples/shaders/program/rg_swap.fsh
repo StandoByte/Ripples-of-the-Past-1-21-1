@@ -11,5 +11,5 @@ void main() {
     float rTmp = rgb.r;
     rgb.r = rgb.g;
     rgb.g = rTmp;
-    gl_FragColor = vec4(rgb.rgb, 1.0);
+    gl_FragColor = rgb;
 }
