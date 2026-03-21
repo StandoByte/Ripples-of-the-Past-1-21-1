@@ -75,6 +75,7 @@ public class ColorShiftShader extends RotpShader {
 				RenderSystem.disableDepthTest();
 				RenderSystem.resetTextureMatrix();
 				glslShaderChain.process(colorShift, mc.getTimer().getGameTimeDeltaTicks());
+				mc.getMainRenderTarget().bindWrite(true);
 			}
 		}
 	}
