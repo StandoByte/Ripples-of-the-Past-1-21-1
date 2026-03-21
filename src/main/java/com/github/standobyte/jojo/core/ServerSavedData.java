@@ -12,11 +12,15 @@ import net.minecraft.world.level.storage.DimensionDataStorage;
 
 public class ServerSavedData extends SavedData {
     public ItemTracking itemsTracker = new ItemTracking(this);
+    public boolean foundFirstArrows = false;
+    public boolean foundBeetleArrow = false;
 
 	@Override
 	public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
 		CompoundTag nbt = new CompoundTag();
 		nbt.put("ItemTrackers", itemsTracker.serializeNBT(registries));
+		nbt.putBoolean("foundFirstArrows", foundFirstArrows);
+		nbt.putBoolean("foundBeetleArrow", foundBeetleArrow);
 		return nbt;
 	}
 	
@@ -24,6 +28,8 @@ public class ServerSavedData extends SavedData {
     	ServerSavedData data = new ServerSavedData();
     	NBTUtil.getElementOptional(nbt, "ItemTrackers", ListTag.class).ifPresent(
     			trackersNbt -> data.itemsTracker.deserializeNBT(registries, trackersNbt));
+    	data.foundFirstArrows = nbt.getBoolean("foundFirstArrows");
+    	data.foundBeetleArrow = nbt.getBoolean("foundBeetleArrow");
         return data;
     }
     

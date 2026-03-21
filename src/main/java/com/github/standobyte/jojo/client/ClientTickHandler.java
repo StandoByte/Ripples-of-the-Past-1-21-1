@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.client;
 
 import com.github.standobyte.jojo.client.input.ClientsideAim;
+import com.github.standobyte.jojo.client.ui.hud.BottomLeftNotifications;
 import com.github.standobyte.jojo.client.ui.utils.FadeOut;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
@@ -45,6 +46,8 @@ public class ClientTickHandler {
 		if (!mc.isPaused()) {
 			for (var fadeOut : FadeOut.__TO_TICK) fadeOut.__tick();
 		}
+		BottomLeftNotifications._tick();
+		ClientTickables._tick();
 	}
 
 	@SubscribeEvent

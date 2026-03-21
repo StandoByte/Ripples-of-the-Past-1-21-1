@@ -157,6 +157,19 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		return (StandTypePersistentData) super.getCurTypeData();
 	}
 	
+	public static int addExp(LivingEntity user, float exp) {
+		if (user != null && !user.level().isClientSide()) {
+			StandPower stand = StandPower.get(user);
+			return stand != null ? stand.addExp(exp) : null;
+		}
+		return 0;
+	}
+	
+	public int addExp(float exp) {
+		StandTypePersistentData data = getCurTypeData();
+		return data != null ? data.addExp(exp, user) : 0;
+	}
+	
 	public void skipProgression() {}
 	
 	

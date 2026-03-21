@@ -30,8 +30,36 @@
   
   "itemGroup.jojo_ripples_main": "ДжоДжо: Ripples of the Past",
   
+  "jojo_ripples.subtitle.stone_mask_activation_entity": "Каменная маска активирована",
+  "jojo_ripples.subtitle.stone_mask_activation": "Каменная маска среагировала",
+  "    перевести-jojo_ripples.subtitle.stone_mask_deactivation": "Stone Mask deactivates",
   "jojo_ripples.subtitle.blood_drain": "Кровь поглощена",
+  "jojo_ripples.subtitle.freeze": "Что-то заморожено",
+  "jojo_ripples.subtitle.vampire_cure_start": "Вампир сопит",
+  "jojo_ripples.subtitle.vampire_cure_end": "Вампир кричит",
+  "jojo_ripples.subtitle.block.boiling_blood.ambient": "Бурление кипящей крови",
+  "jojo_ripples.subtitle.blade_hat_throw": "Шляпа с лезвием брошена",
+  "jojo_ripples.subtitle.blade_hat_spinning": "Шляпа с лезвием вращается",
+  "jojo_ripples.subtitle.blade_hat_entity_hit": "Лезвие попало в кость",
+  "jojo_ripples.subtitle.pillar_man_awakening": "Пробуждение Человека из Колонны",
+  "jojo_ripples.subtitle.devouring": "Поглощение плоти",
+  "jojo_ripples.subtitle.hamon_sparks": "Искры Хамона",
+  "jojo_ripples.subtitle.hamon_concentration": "Заряд Хамона",
+  "jojo_ripples.subtitle.hamon_healing": "Исцеление Хамоном",
+  "jojo_ripples.subtitle.hamon_syo_charge": "Заряд Хамона",
+  "jojo_ripples.subtitle.aja_stone_charging": "Свет фокусируется",
+  "    перевести-jojo_ripples.subtitle.aja_stone_beam": "Light beam emitted",
+  "    перевести-jojo_ripples.subtitle.clackers": "Clackers clack",
+  "jojo_ripples.subtitle.tommy_gun_shot": "Автоматная очередь",
+  "jojo_ripples.subtitle.tommy_gun_trigger": "Щелчок спускового крючка",
+  "jojo_ripples.subtitle.molotov_throw": "Бомба брошена",
+  "jojo_ripples.subtitle.knife_throw": "Нож брошен",
+  "jojo_ripples.subtitle.knives_throw": "Ножи брошены",
+  "jojo_ripples.subtitle.knife_hit": "Попадание ножом",
   "jojo_ripples.subtitle.liquid_splash": "Брызг жидкости",
+  "jojo_ripples.subtitle.shot": "Выстрел",
+  "jojo_ripples.subtitle.pillar_man_regen": "Рана исцелена",
+  "jojo_ripples.subtitle.attack_evasion": "Уклонение от атаки",
   "jojo_ripples.subtitle.clothes_sewed": "Одежда сшита",
   
   "death.attack.rotp_suffocation": "%s был задушен %s",
@@ -192,6 +220,7 @@
   "ripples_hud.stand_range": "Расстояние до обладателя",
   "ripples_hud.stand_range.desc": "Если вы уведёте ваш Стенд за пределы его эффективной дальности, он станет слабее.\nКак правило, чем сильнее Стенд, тем меньше его дальность, из-за чего самые сильные Стенды наиболее эффективны только для ближнего боя.",
   "jojo_ripples.overlay.stand_strength": "Сила Стенда: %s",
+  "jojo_ripples.notification.stand_skill": "Доступны новые навыки Стенда:",
   
   "ripples_hud.energy_hamon": "Энергия Хамона",
   "ripples_hud.energy_hamon.desc": "",
@@ -296,7 +325,6 @@
   "jojo_ripples.subtitle.stand_attack_barrage": "Удар",
   "jojo_ripples.subtitle.stand_punch_swing": "Замах",
   "jojo_ripples.subtitle.stand_damage_block": "Урон заблокирован",
-  "jojo_ripples.subtitle.shot": "Выстрел",
   "jojo_ripples.subtitle.ora": "ОРА",
   "jojo_ripples.subtitle.ora_rush": "ОРА ОРА ОРА",
   "jojo_ripples.subtitle.muda": "МУДА",
@@ -425,6 +453,9 @@
   
   "stand.jojo_ripples.crazy_diamond": "Crazy Diamond",
   "stand.jojo_ripples.crazy_diamond.desc": "Один из самых физически сильных Стендов. Способность Crazy Diamond - восстанавливать объекты и лечить раны. Эта способность имеет множество различных применений, но обладатель Crazy Diamond не может лечить самого себя и исцелять болезни.",
+  "jojo.subtitle.fixed": "Что-то восстанавливается",
+  "jojo.subtitle.blood_splash": "Кровь разбрызгивается",
+  "    перевести-а-как-это-вообще-перевести-kekw-jojo.subtitle.angelo_rock_grunt": "UGH",
   
   "jojo_ripples.skill.hit_armor_fix": "Удар + починка брони",
   "    перевести-jojo_ripples.skill.hit_armor_fix.desc": "Crazy Diamond's heavy punch tears off a chunk of the target's armor, and fixes it back together to bring the target back to the melee range.",
@@ -495,5 +526,11 @@
   "jojo_ripples.ability.blood_cutter": "Резак из крови",
   
   "jojo.message.action_condition.block_offhand": "Нужно держать блок во второстепенной руке",
-  "jojo.message.action_condition.item_hard_material": "Вам нужен блок из твёрдого материала"
+  "jojo.message.action_condition.item_hard_material": "Вам нужен блок из твёрдого материала",
+  
+  
+  "jojo_ripples.subtitle.life_created": "Жизнь создана",
+  "jojo_ripples.subtitle.life_reverted": "Жизнь обращена назад",
+  "jojo_ripples.subtitle.life_item": "Предмет наполнен жизнью",
+  "jojo_ripples.subtitle.ge_heal": "Рана залечена"
 }

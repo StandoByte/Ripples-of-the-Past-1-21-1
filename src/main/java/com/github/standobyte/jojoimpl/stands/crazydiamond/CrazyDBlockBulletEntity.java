@@ -85,14 +85,17 @@ public class CrazyDBlockBulletEntity extends ModdedProjectileEntity {
 				this.homingTarget.setEntity(null);
 			}
 			else if (tickCount >= 10) {
+				Level level = level();
 				Vec3 targetPos = target.getBoundingBox().getCenter();
 				Vec3 vecToTarget = targetPos.subtract(this.position());
 				setDeltaMovement(vecToTarget.normalize().scale(this.getDeltaMovement().length()));
 				StandPower standPower = userStandPower.get();
 				if (standPower != null) {
 					standPower.consumeStamina(homingStaminaCost, true);
+					if (!level.isClientSide()) {
+						standPower.addExp(0.05f);
+					}
 				}
-				Level level = level();
 				if (level.isClientSide()) {
 					if (ClientGlobals.canSeeStands) {
 						CrazyDHealAbility.addParticlesAround(this);

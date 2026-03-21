@@ -115,6 +115,7 @@ public class CrazyDAnchorBlockAbility extends StandEntityAbility {
 		                boolean isCloseToAnchorPos = isCloseToAnchorPos(entity, pos);
 		                if (!isCloseToAnchorPos) {
 		                	moveWithAnchor(entity, pos);
+		                	standPower.addExp(0.04f);
 		                }
 		                else {
 		                	ItemStack heldItem = anchor.item;

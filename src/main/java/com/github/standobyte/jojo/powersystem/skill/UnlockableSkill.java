@@ -51,7 +51,7 @@ public abstract class UnlockableSkill {
 			for (int i = 0; i < count; i++) {
 				String skill = missingPrerequsites.get(i);
 				MutableComponent skillName = skillName(skill);
-				allNames = allNames.append(Component.translatable("commands.neoforge.data_components.list.entry", skillName));
+				allNames = allNames.append(Component.translatable("jojo_ripples.list.entry", skillName));
 			}
 			Component fullMessage = Component.translatable("jojo_ripples.stand_skills.prerequisites", allNames);
 			return ConditionCheck.createNegative(fullMessage);

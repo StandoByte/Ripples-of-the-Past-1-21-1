@@ -202,6 +202,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 				synchedData.set(IS_RESTORING, result.isRestoring);
 				if (result.blockForStaminaCost > 0) {
 					userPower.consumeStamina(staminaPerBlock * result.blockForStaminaCost);
+					userPower.addExp(result.blockForStaminaCost * 0.04f);
 				}
 			}
 		}

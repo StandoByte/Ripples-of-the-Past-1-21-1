@@ -354,7 +354,7 @@ public class ResolveCounter {
 		attackTarget = StandUtil.getStandUser(attackTarget);
 		LivingEntity attacker = attackerStand.getUser();
 		boolean hitSelf = attackTarget != null && attacker != null && attackTarget.is(attacker);
-		if (!hitSelf && attackingTargetGivesResolve(attackTarget)) {
+		if (!hitSelf && attackTarget.isAlive() && attackingTargetGivesResolve(attackTarget)) {
 			ResolveCounter resolve = attackerStand.getResolveCounter();
 			float points = dmgAmount * RESOLVE_FOR_DMG_POINT;
 
@@ -377,9 +377,6 @@ public class ResolveCounter {
 	}
 
 	public static boolean attackingTargetGivesResolve(Entity target) {
-		if (!target.isAlive()) {
-			return false;
-		}
 		if (target.getClassification(false) == MobCategory.MONSTER || target.getType() == EntityType.PLAYER) {
 			return true;
 		}

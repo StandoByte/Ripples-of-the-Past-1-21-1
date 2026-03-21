@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.util;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
@@ -83,9 +84,16 @@ public class NBTUtil {
 	}
 	
 	public static <V> ListTag toList(Iterable<V> collection, Encoder<V> elementCodec) {
+		return toList(collection, element -> elementCodec.encodeStart(NbtOps.INSTANCE, element).result().orElse(null));
+	}
+	
+	public static <V> ListTag toList(Iterable<V> collection, Function<V, Tag> encoder) {
 		ListTag listNbt = new ListTag();
 		for (V value : collection) {
-			elementCodec.encodeStart(NbtOps.INSTANCE, value).ifSuccess(listNbt::add);
+			Tag elementNbt = encoder.apply(value);
+			if (elementNbt != null) {
+				listNbt.add(elementNbt);
+			}
 		}
 		return listNbt;
 	}
@@ -95,10 +103,17 @@ public class NBTUtil {
 	}
 	
 	public static <V> void fromList(CompoundTag nbt, String key, Consumer<V> destination, Decoder<V> elementCodec) {
+		fromList(nbt, key, destination, elementNbt -> elementCodec.decode(NbtOps.INSTANCE, elementNbt).result().map(Pair::getFirst).orElse(null));
+	}
+	
+	public static <V> void fromList(CompoundTag nbt, String key, Consumer<V> destination, Function<Tag, V> decoder) {
 		ListTag listNbt = NBTUtil.getElementOptional(nbt, key, ListTag.class).orElse(null);
 		if (listNbt != null) {
 			for (Tag elementNbt : listNbt) {
-				elementCodec.decode(NbtOps.INSTANCE, elementNbt).ifSuccess(daOtstanUzhe -> destination.accept(daOtstanUzhe.getFirst()));
+				V element = decoder.apply(elementNbt);
+				if (element != null) {
+					destination.accept(element);
+				}
 			}
 		}
 	}

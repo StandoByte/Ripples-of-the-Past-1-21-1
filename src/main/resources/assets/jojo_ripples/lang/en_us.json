@@ -30,8 +30,38 @@
   
   "itemGroup.jojo_ripples_main": "JoJo: Ripples of the Past",
   
+  "jojo_ripples.subtitle.stone_mask_activation_entity": "Stone Mask activates",
+  "jojo_ripples.subtitle.stone_mask_activation": "Stone Mask reacts",
+  "jojo_ripples.subtitle.stone_mask_deactivation": "Stone Mask deactivates",
   "jojo_ripples.subtitle.blood_drain": "Blood drained",
+  "jojo_ripples.subtitle.freeze": "Something freezes",
+  "jojo_ripples.subtitle.vampire_cure_start": "Vampire snuffles",
+  "jojo_ripples.subtitle.vampire_cure_end": "Vampire vociferates",
+  "jojo_ripples.subtitle.block.boiling_blood.ambient": "Boiling blood pops",
+  "jojo_ripples.subtitle.blade_hat_throw": "Blade hat thrown",
+  "jojo_ripples.subtitle.blade_hat_spinning": "Blade hat spins",
+  "jojo_ripples.subtitle.blade_hat_entity_hit": "Blade reaches a bone",
+  "jojo_ripples.subtitle.pillar_man_awakening": "Pillar Man awakened",
+  "jojo_ripples.subtitle.pillar_man_regen": "Wound healed",
+  "jojo_ripples.subtitle.attack_evasion": "Attack evaded",
+  "jojo_ripples.subtitle.devouring": "Flesh devoured",
+  "jojo_ripples.subtitle.hamon_sparks": "Hamon sparks",
+  "jojo_ripples.subtitle.hamon_concentration": "Hamon charged",
+  "jojo_ripples.subtitle.hamon_healing": "Hamon healing",
+  "jojo_ripples.subtitle.hamon_syo_charge": "Hamon charged",
+  "jojo_ripples.subtitle.aja_stone_charging": "Light concentrates",
+  "jojo_ripples.subtitle.aja_stone_beam": "Light beam emitted",
+  "jojo_ripples.subtitle.clackers": "Clackers clack",
+  "jojo_ripples.subtitle.tommy_gun_shot": "Bullet fired",
+  "jojo_ripples.subtitle.tommy_gun_trigger": "Trigger clicks",
+  "jojo_ripples.subtitle.molotov_throw": "Firebomb thrown",
+  "jojo_ripples.subtitle.knife_throw": "Knife thrown",
+  "jojo_ripples.subtitle.knives_throw": "Knives thrown",
+  "jojo_ripples.subtitle.knife_hit": "Knife hits",
+  "jojo_ripples.subtitle.road_roller_land": "Road roller lands",
+  "jojo_ripples.subtitle.road_roller_hit": "Road roller hit",
   "jojo_ripples.subtitle.liquid_splash": "Liquid splashes",
+  "jojo_ripples.subtitle.shot": "Something shot",
   "jojo_ripples.subtitle.clothes_sewed": "Clothes sewed",
   
   "death.attack.rotp_suffocation": "%s was suffocated by %s",
@@ -191,6 +221,7 @@
   "ripples_hud.stand_range": "Distance from user",
   "ripples_hud.stand_range.desc": "If you move your Stand beyond its effective range, it gets weaker.\nAs a rule of thumb, stronger Stands have much lower range, which limits their high power to melee combat.",
   "jojo_ripples.overlay.stand_strength": "Stand Strength: %s",
+  "jojo_ripples.notification.stand_skill": "New Stand skills available:",
   
   "ripples_hud.energy_hamon": "Hamon Energy",
   "ripples_hud.energy_hamon.desc": "",
@@ -295,7 +326,6 @@
   "jojo_ripples.subtitle.stand_attack_barrage": "Attack",
   "jojo_ripples.subtitle.stand_punch_swing": "Punch swing",
   "jojo_ripples.subtitle.stand_damage_block": "Damage blocked",
-  "jojo_ripples.subtitle.shot": "Something shot",
   "jojo_ripples.subtitle.ora": "ORA",
   "jojo_ripples.subtitle.ora_rush": "ORA ORA ORA",
   "jojo_ripples.subtitle.muda": "MUDA",
@@ -424,6 +454,9 @@
   
   "stand.jojo_ripples.crazy_diamond": "Crazy Diamond",
   "stand.jojo_ripples.crazy_diamond.desc": "One of the more physically strong power-type Stands, Crazy Diamond's ability is fixing objects and people. This ability has a multitude of various uses and makes the Stand very versatile, however, Crazy Diamond cannot heal the user's own wounds or cure any diseases.",
+  "jojo_ripples.subtitle.fixed": "Something being fixed",
+  "jojo_ripples.subtitle.blood_splash": "Blood splashes",
+  "jojo_ripples.subtitle.angelo_rock_grunt": "UGH",
   
   "jojo_ripples.skill.hit_armor_fix": "Hit & Armor Fix",
   "jojo_ripples.skill.hit_armor_fix.desc": "Crazy Diamond's heavy punch tears off a chunk of the target's armor, and fixes it back together to bring the target back to the melee range.",
@@ -494,5 +527,11 @@
   "jojo_ripples.ability.blood_cutter": "Blood Cutter",
   
   "jojo.message.action_condition.block_offhand": "You need to hold a block in your hand",
-  "jojo.message.action_condition.item_hard_material": "You need a block made of a hard material"
+  "jojo.message.action_condition.item_hard_material": "You need a block made of a hard material",
+  
+  
+  "jojo_ripples.subtitle.life_created": "Life created",
+  "jojo_ripples.subtitle.life_reverted": "Life reverted",
+  "jojo_ripples.subtitle.life_item": "Item imbued with life",
+  "jojo_ripples.subtitle.ge_heal": "Injury mended"
 }

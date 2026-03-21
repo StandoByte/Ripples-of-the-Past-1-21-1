@@ -222,11 +222,11 @@ public final class ReflectionUtil {
 	
 	
 	
-	public static List<Field> getFieldsIncludingSuperclasses(Class<?> clazz) {
+	public static List<Field> getFieldsIncludingSuperclasses(Class<?> clazz, @Nullable Class<?> until) {
 		List<Field> fields = new ArrayList<>(Arrays.asList(clazz.getDeclaredFields()));
 		Class<?> superclass = clazz.getSuperclass();
-		if (superclass != null) {
-			fields.addAll(getFieldsIncludingSuperclasses(superclass));
+		if (superclass != null && superclass != until) {
+			fields.addAll(getFieldsIncludingSuperclasses(superclass, until));
 		}
 		return fields;
 	}

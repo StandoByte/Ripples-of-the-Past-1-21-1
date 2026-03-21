@@ -43,7 +43,7 @@ public record StandExpPacket(float exp) implements CustomPacketPayload {
 			if (standPower != null) {
 				StandTypePersistentData data = standPower.getCurTypeData();
 				if (data != null) {
-					data.setExp(payload.exp, standPower.getUser());
+					data.setExp(payload.exp, standPower, true);
 				}
 			}
 		}
