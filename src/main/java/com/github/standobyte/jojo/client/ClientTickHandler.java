@@ -45,6 +45,7 @@ public class ClientTickHandler {
 		if (!mc.isPaused()) {
 			for (var fadeOut : FadeOut.__TO_TICK) fadeOut.__tick();
 		}
+		ClientTickables._tick();
 	}
 
 	@SubscribeEvent

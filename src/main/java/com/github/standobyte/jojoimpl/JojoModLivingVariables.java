@@ -1,19 +1,76 @@
 package com.github.standobyte.jojoimpl;
 
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.phys.Vec3;
+import javax.annotation.Nullable;
 
-public class JojoModLivingVariables {
-	public static final JojoModLivingVariables DUMMY_INSTANCE = new JojoModLivingVariables();
+import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
+import com.github.standobyte.jojo.util.entitycomponent.ComponentUtil;
+import com.github.standobyte.jojo.util.entitycomponent.SynchronizablePlayerData;
+import com.github.standobyte.jojo.util.entitycomponent.TickingEntityData;
+
+import net.minecraft.core.HolderLookup.Provider;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.util.INBTSerializable;
+
+public class JojoModLivingVariables implements INBTSerializable<CompoundTag>, TickingEntityData, SynchronizablePlayerData {
+	protected final LivingEntity entity;
 	
 	public boolean isDyingBody = false;
 	public Vec3 bleedingParticlesPos = null;
 	
-	public void tick() {
-		bleedingParticlesPos = null;
+	public boolean foundAnArrow;
+	public int findMoreArrowsTimer = -1;
+	
+	public JojoModLivingVariables(LivingEntity entity) {
+		this.entity = entity;
 	}
 	
-	public static JojoModLivingVariables get(LivingEntity entity) {
-		return JojoModLivingVariables.DUMMY_INSTANCE;
+	public void tick() {
+		bleedingParticlesPos = null;
+		if (findMoreArrowsTimer >= 0) findMoreArrowsTimer--;
 	}
+
+	@Override
+	public void syncToTracking(ServerPlayer trackingPlayer) {
+	}
+
+	@Override
+	public void syncToPlayer(ServerPlayer entityAsPlayer) {
+	}
+
+	@Override
+	public void onPlayerClone(Player newPlayer, boolean wasDeath) {
+		JojoModLivingVariables newData = get(newPlayer);
+		newData.foundAnArrow = this.foundAnArrow;
+	}
+
+	@Override
+	public CompoundTag serializeNBT(Provider provider) {
+		CompoundTag nbt = new CompoundTag();
+		nbt.putBoolean("DyingBody", isDyingBody);
+		nbt.putBoolean("FoundArrow", foundAnArrow);
+		nbt.putInt("FindMoreArrowsTimer", findMoreArrowsTimer);
+		return nbt;
+	}
+
+	@Override
+	public void deserializeNBT(Provider provider, CompoundTag nbt) {
+		isDyingBody = nbt.getBoolean("DyingBody");
+		foundAnArrow = nbt.getBoolean("FoundArrow");
+		findMoreArrowsTimer = nbt.getInt("FindMoreArrowsTimer");
+	}
+	
+	
+	public static JojoModLivingVariables get(LivingEntity entity) {
+		return entity.getData(ModDataAttachmentTypes.LIVING_VARS);
+	}
+	
+	@Nullable
+	public static JojoModLivingVariables getIfPresent(LivingEntity entity) {
+		return ComponentUtil.getExistingDataOrNull(entity, ModDataAttachmentTypes.LIVING_VARS);
+	}
+	
 }

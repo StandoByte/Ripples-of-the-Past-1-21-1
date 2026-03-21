@@ -45,6 +45,10 @@ public final class ClientProxy {
 		Minecraft.getInstance().gui.setOverlayMessage(message, animateColor);
 	}
 	
+	public static boolean isClientPaused() {
+		return Minecraft.getInstance().isPaused();
+	}
+	
     public static final ItemTracking clientTrackedItems = new ItemTracking(null);
 	
 }
