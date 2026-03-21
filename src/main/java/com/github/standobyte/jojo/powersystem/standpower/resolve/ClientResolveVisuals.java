@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.powersystem.standpower.resolve;
 
+import com.github.standobyte.jojo.client.config.ClientModSettings;
 import com.github.standobyte.jojo.client.shader.ColorShiftEffect;
 import com.github.standobyte.jojo.client.shader.ModShaders;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmPlayer;
@@ -36,7 +37,9 @@ public class ClientResolveVisuals {
 					player.start();
 				}
 			}
-			ModShaders.getInstance().colorShift.colorShift = ColorShiftEffect.Parameters.createRandom(OOPMoment.RANDOM);
+			if (ClientModSettings.getSettingsReadOnly().resolveShaders) {
+				ModShaders.getInstance().colorShift.colorShift = ColorShiftEffect.Parameters.createRandom(OOPMoment.RANDOM);
+			}
 		}
 		else if (!resolveEffect && prevTickResolveEffect) {
 			BgmPlayer curPlaying = BgmTrackLoader.getInstance().bgmPlaying;
@@ -47,4 +50,14 @@ public class ClientResolveVisuals {
 		}
 		prevTickResolveEffect = resolveEffect;
 	}
+	
+	public static void onColorShiftSettingUpdated(boolean value) {
+		if (!value) {
+			ModShaders.getInstance().colorShift.colorShift = null;
+		}
+		else if (prevTickResolveEffect) {
+			ModShaders.getInstance().colorShift.colorShift = ColorShiftEffect.Parameters.createRandom(OOPMoment.RANDOM);
+		}
+	}
+	
 }

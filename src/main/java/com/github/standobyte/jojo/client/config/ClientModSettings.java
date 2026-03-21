@@ -28,7 +28,7 @@ public class ClientModSettings {
 //		public boolean showLockedSlots = false;
 		public boolean abilitySelectionWheel = true;
 
-//		public boolean resolveShaders = true;
+		public boolean resolveShaders = true;
 //		public boolean timeStopAnimation = true;
 		public boolean standMotionTilt = true;
 //		public boolean poseOnLmbRmb = true;
