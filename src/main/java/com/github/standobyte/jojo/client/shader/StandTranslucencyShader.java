@@ -80,7 +80,7 @@ public class StandTranslucencyShader extends RotpShader {
 		// then entities render
 		
 		else if (this.usedThisFrame) {
-			if (isLastInLevelRender(stage)) {
+			if (stage == RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) {
 				// render the frame and apply the shader
 				Minecraft mc = Minecraft.getInstance();
 				frameBuffer.copyDepthFrom(mc.getMainRenderTarget());
