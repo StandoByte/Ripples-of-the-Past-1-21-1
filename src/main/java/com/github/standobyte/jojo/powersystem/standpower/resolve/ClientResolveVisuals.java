@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.powersystem.standpower.resolve;
 
 import com.github.standobyte.jojo.client.config.ClientModSettings;
 import com.github.standobyte.jojo.client.shader.ColorShiftEffect;
+import com.github.standobyte.jojo.client.shader.ColorShiftShader;
 import com.github.standobyte.jojo.client.shader.ModShaders;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmPlayer;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo;
@@ -25,6 +26,7 @@ public class ClientResolveVisuals {
 	@SubscribeEvent
 	public static void onTick(ClientTickEvent.Pre event) {
 		Minecraft mc = Minecraft.getInstance();
+		ColorShiftShader colorShift = ModShaders.getInstance().colorShift;
 		boolean resolveEffect = mc.player != null
 				&& mc.player.isAlive()
 				&& ResolveModeEffect.getResolveEffectLvl(mc.player) >= 0;
@@ -37,26 +39,32 @@ public class ClientResolveVisuals {
 					player.start();
 				}
 			}
-			if (ClientModSettings.getSettingsReadOnly().resolveShaders) {
-				ModShaders.getInstance().colorShift.colorShift = ColorShiftEffect.Parameters.createRandom(OOPMoment.RANDOM);
+			if (colorShift != null && ClientModSettings.getSettingsReadOnly().resolveShaders) {
+				colorShift.parameters = ColorShiftEffect.Parameters.createRandom(OOPMoment.RANDOM);
 			}
 		}
 		else if (!resolveEffect && prevTickResolveEffect) {
+			// TODO make sure the BGM is from resolve and not smth else
 			BgmPlayer curPlaying = BgmTrackLoader.getInstance().bgmPlaying;
 			if (curPlaying != null) {
 				curPlaying.finishWithOutro();
 			}
-			ModShaders.getInstance().colorShift.colorShift = null;
+			if (colorShift != null) {
+				colorShift.parameters = null;
+			}
 		}
 		prevTickResolveEffect = resolveEffect;
 	}
 	
 	public static void onColorShiftSettingUpdated(boolean value) {
-		if (!value) {
-			ModShaders.getInstance().colorShift.colorShift = null;
-		}
-		else if (prevTickResolveEffect) {
-			ModShaders.getInstance().colorShift.colorShift = ColorShiftEffect.Parameters.createRandom(OOPMoment.RANDOM);
+		ColorShiftShader colorShiftShader = ModShaders.getInstance().colorShift;
+		if (colorShiftShader != null) {
+			if (!value) {
+				colorShiftShader.parameters = null;
+			}
+			else if (prevTickResolveEffect) {
+				colorShiftShader.parameters = ColorShiftEffect.Parameters.createRandom(OOPMoment.RANDOM);
+			}
 		}
 	}
 	

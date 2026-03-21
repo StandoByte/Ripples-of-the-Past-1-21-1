@@ -17,7 +17,7 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
 public class ColorShiftShader extends RotpShader {
 	protected ColorShiftEffect glslShaderChain;
-	@Nullable public ColorShiftEffect.Parameters colorShift;
+	@Nullable public ColorShiftEffect.Parameters parameters;
 
 	public ColorShiftShader() {}
 
@@ -64,7 +64,7 @@ public class ColorShiftShader extends RotpShader {
 	// FIXME (color shift) doesn't apply to the stand rendered with StandTranslucencyShader
 	@Override
 	public void frameRenderCallback(RenderLevelStageEvent event) {
-		if (colorShift == null) return;
+		if (parameters == null) return;
 		
 		RenderLevelStageEvent.Stage stage = event.getStage();
 		if (isLastInLevelRender(stage)) {
@@ -74,7 +74,7 @@ public class ColorShiftShader extends RotpShader {
 				RenderSystem.disableBlend();
 				RenderSystem.disableDepthTest();
 				RenderSystem.resetTextureMatrix();
-				glslShaderChain.process(colorShift, mc.getTimer().getGameTimeDeltaTicks());
+				glslShaderChain.process(parameters, mc.getTimer().getGameTimeDeltaTicks());
 				mc.getMainRenderTarget().bindWrite(true);
 			}
 		}
