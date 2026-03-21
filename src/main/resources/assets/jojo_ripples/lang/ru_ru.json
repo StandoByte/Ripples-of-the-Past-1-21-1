@@ -171,6 +171,7 @@
   "ripples_hud.stand_range": "Расстояние до обладателя",
   "ripples_hud.stand_range.desc": "Если вы уведёте ваш Стенд за пределы его эффективной дальности, он станет слабее.\nКак правило, чем сильнее Стенд, тем меньше его дальность, из-за чего самые сильные Стенды наиболее эффективны только для ближнего боя.",
   "jojo_ripples.overlay.stand_strength": "Сила Стенда: %s",
+  "jojo_ripples.notification.stand_skill": "Доступны новые навыки Стенда:",
   
   "ripples_hud.energy_hamon": "Энергия Хамона",
   "ripples_hud.energy_hamon.desc": "",

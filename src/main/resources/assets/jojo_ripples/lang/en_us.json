@@ -171,6 +171,7 @@
   "ripples_hud.stand_range": "Distance from user",
   "ripples_hud.stand_range.desc": "If you move your Stand beyond its effective range, it gets weaker.\nAs a rule of thumb, stronger Stands have much lower range, which limits their high power to melee combat.",
   "jojo_ripples.overlay.stand_strength": "Stand Strength: %s",
+  "jojo_ripples.notification.stand_skill": "New Stand skills available:",
   
   "ripples_hud.energy_hamon": "Hamon Energy",
   "ripples_hud.energy_hamon.desc": "",

@@ -8,6 +8,7 @@ public class ElementTransparency extends FadeOut {
 	
 	public ElementTransparency(int ticksMax, int ticksStartFadeOut) {
 		super(ticksMax, ticksStartFadeOut);
+		reset();
 	}
 	
 	public boolean shouldRender() {

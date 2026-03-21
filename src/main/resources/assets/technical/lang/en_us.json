@@ -34,5 +34,7 @@
   "neoforge.controlsgui.control.mac.nospace": "CMD+%s",
   "neoforge.controlsgui.alt.nospace": "ALT+%s",
   
-  "ripples_hud.key_ability": "%s: %s"
+  "ripples_hud.key_ability": "%s: %s",
+  "jojo_ripples.list.entry": "\n  - %s",
+  "jojo_ripples.list.entry.no_newline": "- %s"
 }

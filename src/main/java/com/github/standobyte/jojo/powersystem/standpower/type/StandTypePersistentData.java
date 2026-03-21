@@ -1,9 +1,12 @@
 package com.github.standobyte.jojo.powersystem.standpower.type;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import com.github.standobyte.jojo.client.ui.hud.BottomLeftNotifications;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerData;
 import com.github.standobyte.jojo.powersystem.skill.UnlockableSkill;
@@ -16,6 +19,7 @@ import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
@@ -67,9 +71,30 @@ public class StandTypePersistentData extends PowerData {
 		return newInt - prevInt;
 	}
 	
-	public void setExp(float exp, LivingEntity standUser) {
-		this.exp = exp;
-		syncExp(standUser);
+	public void setExp(float exp, StandPower userPower) {
+		setExp(exp, userPower, false);
+	}
+	
+	public void setExp(float exp, StandPower userPower, boolean clientSideNewSkillNotification) {
+		if (clientSideNewSkillNotification) {
+			Collection<? extends UnlockableSkill> couldUnlock = getAllSkills().values().stream()
+					.filter(skill -> skill.canUnlockFromMenu(userPower, this).isPositive()).collect(Collectors.toSet());
+			
+			this.exp = exp;
+			
+			Collection<? extends UnlockableSkill> newSkillsToUnlock = getAllSkills().values().stream()
+					.filter(skill -> skill.canUnlockFromMenu(userPower, this).isPositive() && !couldUnlock.contains(skill)).toList();
+			if (!newSkillsToUnlock.isEmpty()) {
+				BottomLeftNotifications.add(Component.translatable("jojo_ripples.notification.stand_skill"));
+				for (UnlockableSkill skill : newSkillsToUnlock) {
+					BottomLeftNotifications.add(Component.translatable("jojo_ripples.list.entry.no_newline", skill.textName));
+				}
+			}
+		}
+		else {
+			this.exp = exp;
+			syncExp(userPower.getUser());
+		}
 	}
 	
 	protected void syncExp(LivingEntity standUser) {
