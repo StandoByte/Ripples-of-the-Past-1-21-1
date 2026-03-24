@@ -129,17 +129,10 @@ public class StandTypePersistentData extends PowerData {
 	}
 	
 
-	// I guess I'll keep this just as a stat
-	protected int resolveReached;
-	public void incResolveReached(LivingEntity standUser) {
-		++resolveReached;
-	}
-
 	@Override
 	public CompoundTag serializeNBT(Provider provider) {
 		CompoundTag nbt = super.serializeNBT(provider);
 		nbt.putFloat("exp", exp);
-		nbt.putInt("resolveReached", resolveReached);
 		nbt.put("defeatedChars", NBTUtil.toList(defeatedCharacters, NbtUtils::createUUID));
 		nbt.put("defeatedStands", NBTUtil.toList(defeatedStands, ResourceLocation.CODEC));
 		return nbt;
@@ -149,7 +142,6 @@ public class StandTypePersistentData extends PowerData {
 	public void deserializeNBT(Provider provider, CompoundTag nbt) {
 		super.deserializeNBT(provider, nbt);
 		this.exp = nbt.getFloat("exp");
-		this.resolveReached = nbt.getInt("resolveReached");
 		NBTUtil.fromList(nbt, "defeatedChars", defeatedCharacters::add, NbtUtils::loadUUID);
 		NBTUtil.fromList(nbt, "defeatedStands", defeatedStands, ResourceLocation.CODEC);
 	}
@@ -159,7 +151,6 @@ public class StandTypePersistentData extends PowerData {
 		super.toBuf(buf, isSentToTracking);
 		if (!isSentToTracking) {
 			buf.writeFloat(exp);
-			buf.writeVarInt(resolveReached);
 		}
 	}
 
@@ -168,7 +159,6 @@ public class StandTypePersistentData extends PowerData {
 		super.fromBuf(buf, isSentToTracking);
 		if (!isSentToTracking) {
 			exp = buf.readFloat();
-			resolveReached = buf.readVarInt();
 		}
 	}
 	

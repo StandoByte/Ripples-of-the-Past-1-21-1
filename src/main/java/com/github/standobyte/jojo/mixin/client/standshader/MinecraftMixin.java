@@ -7,8 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.standobyte.jojo.client.shader.EntityShaders;
-import com.github.standobyte.v1_21_4_stuff.PostEffectCache;
+import com.github.standobyte.jojo.client.shader.ModShaders;
 import com.mojang.blaze3d.platform.Window;
 
 import net.minecraft.client.Minecraft;
@@ -21,7 +20,8 @@ public class MinecraftMixin {
 	public void jojo_ripples$onResize(CallbackInfo ci) {
 		int width = this.window.getWidth();
 		int height = this.window.getHeight();
-		EntityShaders.resize(width, height);
-		PostEffectCache.resize(width, height);
+		
+		ModShaders shaders = ModShaders.getInstance();
+		if (shaders != null) shaders.resize(width, height);
 	}
 }

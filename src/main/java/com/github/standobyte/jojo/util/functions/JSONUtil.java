@@ -4,10 +4,16 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.util.objects_java.OptionalFloat;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.Strictness;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -19,8 +25,6 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.github.standobyte.jojo.util.objects_java.OptionalFloat;
-import com.github.standobyte.v1_21_4_stuff.missingmethods.Strictness;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -87,7 +91,26 @@ public class JSONUtil {
 			mergeWithObjMember(existing, entry.getKey(), entry.getValue());
 		}
 	}
-
+	
+	
+	public static <J extends JsonElement, T> List<T> parseArrayOrSingleElement(JsonElement element, Function<J, T> parse) {
+		if (element == null) return null;
+		
+		List<T> list;
+		if (element.isJsonArray()) {
+			JsonArray jsonArray = element.getAsJsonArray();
+			list = new ArrayList<>(jsonArray.size());
+			for (JsonElement arrayElement : jsonArray) {
+				list.add(parse.apply((J) arrayElement));
+			}
+		}
+		else {
+			T object = parse.apply((J) element);
+			list = Collections.singletonList(object);
+		}
+		return list;
+	}
+	
 	
 	public static final TypeAdapter<ResourceLocation> RES_LOC_ADAPTER =
 			new TypeAdapter<ResourceLocation>() {

@@ -1,12 +1,13 @@
 package com.github.standobyte.jojo;
 
+import com.github.standobyte.jojo.command.commands.PlayBgmCommand;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.customobjects.explosion.CustomExplosionPacket;
 import com.github.standobyte.jojo.entityattachment.custom_effect.TrEntityCustomEffectsPacket;
 import com.github.standobyte.jojo.entityattachment.custom_effect.sync.TrStandEffectSynchedDataPacket;
 import com.github.standobyte.jojo.mechanics.clothes.TrClothesItemsPacket;
 import com.github.standobyte.jojo.mechanics.clothes.sewing.ClSetSewingMachineItemPacket;
-import com.github.standobyte.jojo.mechanics.resolve.ResolveBoostsPacket;
+import com.github.standobyte.jojo.mechanics.resolve.ClActivateResolvePacket;
 import com.github.standobyte.jojo.mechanics.resolve.TrResolvePacket;
 import com.github.standobyte.jojo.network.c2s.ClAbilityInputPacket;
 import com.github.standobyte.jojo.network.c2s.ClAimTargetPacket;
@@ -78,6 +79,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClMobControlMovementPacket.Handler(JojoMod.resLoc("clmobctrlmove")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClControlledMobCommandPacket.Handler(JojoMod.resLoc("clmobitemslot")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClStandClickPacket.Handler(JojoMod.resLoc("clstandclick")));
+		registerPacket(registrar, PayloadRegistrar::playToServer, new ClActivateResolvePacket.Handler(JojoMod.resLoc("clresolvemode")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClDebugCommandPacket.Handler(JojoMod.resLoc("cldebug")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClStandItemInputPacket.Handler(JojoMod.resLoc("clstanditem")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClSetSewingMachineItemPacket.Handler(JojoMod.resLoc("clsewingitem")));
@@ -99,7 +101,6 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrStandEffectSynchedDataPacket.Handler(JojoMod.resLoc("steffdata")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrStaminaPacket.Handler(JojoMod.resLoc("stamina")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrResolvePacket.Handler(JojoMod.resLoc("resolve")));
-		registerPacket(registrar, PayloadRegistrar::playToClient, new ResolveBoostsPacket.Handler(JojoMod.resLoc("resolveboost")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new StandAwakeningDataPacket.Handler(JojoMod.resLoc("standawake")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrAimTargetPacket.Handler(JojoMod.resLoc("aim")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrStandSkinPacket.Handler(JojoMod.resLoc("standskin")));
@@ -124,6 +125,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new BloodParticlesPacket.Handler(JojoMod.resLoc("blood")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new BrokenChunkBlocksPacket.Handler(JojoMod.resLoc("brokenblocks")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new CDBlocksRestoredPacket.Handler(JojoMod.resLoc("restoreblocks")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new PlayBgmCommand.PlayBgmCommandPacket.Handler(JojoMod.resLoc("bgm")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new ItemBreakVisualsPacket.Handler(JojoMod.resLoc("itemparticle")));
 	}
 

@@ -1,6 +1,8 @@
 package com.github.standobyte.jojo.command.commands;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import com.github.standobyte.jojo.command.MultipleTargetsCommandResult;
 import com.github.standobyte.jojo.command.argument.StandArgument;
@@ -112,5 +114,24 @@ public class StandCommand {
 		return REMOVE_MSG.trySend(src, true, targets, i, 
 				singlePrevType != null ? new Object[] { singlePrevType.name.get() } : new Object[] {},
 				new Object[] {});
+	}
+
+
+	public static Collection<StandPower> getStands(Collection<? extends Entity> targets) throws CommandSyntaxException {
+		List<StandPower> stands = new ArrayList<>();
+		for (Entity entity : targets) {
+			if (entity instanceof LivingEntity living) {
+				StandPower stand = StandPower.get(living);
+				if (stand != null && stand.hasPower()) {
+					stands.add(stand);
+				}
+			}
+		}
+		if (stands.isEmpty()) {
+			throw StandCommand.QUERY_MSG.fail.create(targets);
+		}
+		else {
+			return stands;
+		}
 	}
 }

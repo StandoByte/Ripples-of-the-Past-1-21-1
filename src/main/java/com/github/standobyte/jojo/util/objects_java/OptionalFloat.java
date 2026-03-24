@@ -1,7 +1,10 @@
 package com.github.standobyte.jojo.util.objects_java;
 
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
+
+import it.unimi.dsi.fastutil.floats.FloatUnaryOperator;
 
 public class OptionalFloat {
 	private static final OptionalFloat EMPTY = new OptionalFloat(false);
@@ -49,7 +52,16 @@ public class OptionalFloat {
 	public float orElseGet(FloatSupplier supplier) {
 		return isPresent ? value : supplier.get();
 	}
-	
+
+	public OptionalFloat map(FloatUnaryOperator operator) {
+		Objects.requireNonNull(operator);
+		if (!isPresent()) {
+			return empty();
+		} else {
+			return OptionalFloat.of(operator.apply(value));
+		}
+	}
+
 	public Optional<Float> toOptional() {
 		return isPresent ? Optional.of(value) : Optional.empty();
 	}

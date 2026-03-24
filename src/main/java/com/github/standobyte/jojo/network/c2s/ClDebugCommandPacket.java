@@ -11,9 +11,11 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class ClDebugCommandPacket implements CustomPacketPayload {
 	private final String command;
+	private final int mouseButton;
 	
-	public ClDebugCommandPacket(String command) {
+	public ClDebugCommandPacket(String command, int mouseButton) {
 		this.command = command;
+		this.mouseButton = mouseButton;
 	}
 	
 	
@@ -34,18 +36,20 @@ public class ClDebugCommandPacket implements CustomPacketPayload {
 		@Override
 		public void encode(ClDebugCommandPacket packet, RegistryFriendlyByteBuf buf) {
 			buf.writeUtf(packet.command);
+			buf.writeVarInt(packet.mouseButton);
 		}
 
 		@Override
 		public ClDebugCommandPacket decode(RegistryFriendlyByteBuf buf) {
 			String command = buf.readUtf();
-			return new ClDebugCommandPacket(command);
+			int mouseButton = buf.readVarInt();
+			return new ClDebugCommandPacket(command, mouseButton);
 		}
 
 		@Override
 		public void handle(ClDebugCommandPacket payload, IPayloadContext context) {
 			Player player = context.player();
-			DebugItem.handleServer(payload.command, player);
+			DebugItem.handleServer(payload.command, player, payload.mouseButton);
 		}
 		
 	}

@@ -15,11 +15,13 @@ import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
+import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo;
 import com.github.standobyte.jojo.client.standskin.sound.CustomPathSound;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.subsystems.StoryPart;
+import com.github.standobyte.jojo.util.objects_mc.WeightsList;
 
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
@@ -53,6 +55,8 @@ public class StandSkin {
 	protected Map<ResourceLocation, WeighedSoundEvents> soundEvents = new HashMap<>();
 	protected Map<ResourceLocation, ResourceLocation> existingSounds = new HashMap<>();
 	protected Map<ResourceLocation, Sound> remappedSound = new HashMap<>();
+	
+	protected WeightsList<BgmTrackInfo> resolveBGM;
 	
 	protected Optional<GuiIcon> standIcon;
 	protected final Map<ResourceLocation, ResourcePathChecker> remapPathCache = new HashMap<>();
@@ -96,6 +100,10 @@ public class StandSkin {
 	
 	protected void withSounds(Map<ResourceLocation, ResourceLocation> sounds) {
 		this.existingSounds = sounds;
+	}
+	
+	protected void withResolveBGM(WeightsList<BgmTrackInfo> tracks) {
+		this.resolveBGM = tracks;
 	}
 
 	
@@ -296,6 +304,17 @@ public class StandSkin {
 		
 		if (this != defaultSkin) {
 			return defaultSkin.overrideSound(sound);
+		}
+		return null;
+	}
+	
+	@Nullable
+	public WeightsList<BgmTrackInfo> getResolveBGM() {
+		if (this.resolveBGM != null) {
+			return this.resolveBGM;
+		}
+		if (this != defaultSkin && defaultSkin != null && defaultSkin.resolveBGM != null) {
+			return defaultSkin.resolveBGM;
 		}
 		return null;
 	}

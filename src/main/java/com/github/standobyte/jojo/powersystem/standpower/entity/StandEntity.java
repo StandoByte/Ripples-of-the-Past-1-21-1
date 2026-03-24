@@ -18,7 +18,8 @@ import com.github.standobyte.jojo.customobjects.LivingReactToNewAction;
 import com.github.standobyte.jojo.customobjects.entity_projectile.DamagingEntity;
 import com.github.standobyte.jojo.init.ModEntityAttributes;
 import com.github.standobyte.jojo.init.ModSpecialActions;
-import com.github.standobyte.jojo.init.ModStatusEffects;
+import com.github.standobyte.jojo.mechanics.resolve.ResolveModeEffect;
+import com.github.standobyte.jojo.mechanics.resolve.ResolveStageBuffs;
 import com.github.standobyte.jojo.network.s2c.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
@@ -38,8 +39,8 @@ import com.github.standobyte.jojo.subsystems.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.functions.AttributeUtil;
 import com.github.standobyte.jojo.util.functions.DamageUtil;
 import com.github.standobyte.jojo.util.functions.MathUtil;
-import com.github.standobyte.jojo.util.functions.UtilFunctions;
 import com.github.standobyte.jojo.util.functions.MathUtil.AABBDist;
+import com.github.standobyte.jojo.util.functions.UtilFunctions;
 import com.github.standobyte.jojo.util.objects_java.Lerp;
 import com.github.standobyte.jojo.util.objects_mc.PrevRotations;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityUnsummonAction;
@@ -748,6 +749,9 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 	public double getEffectiveRange() {
+		if (ResolveStageBuffs.maxRangeIsEffectiveRange(getUser())) {
+			return getMaxRange();
+		}
 		return getAttributeValue(ModEntityAttributes.STAND_EFFECTIVE_RANGE);
 	}
 	
@@ -1344,10 +1348,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	
 	public void addFinisherMeter(float value) {
 		if (value > 0) {
-			LivingEntity user = getUser();
-			if (user != null && ModStatusEffects.isInResolveEffect(user)) {
-				value *= 2;
-			}
+			value *= ResolveStageBuffs.finisherGainMultiplier(getUser());
 		}
 		float prev = getFinisherMeter();
 		setFinisherMeter(prev + value);
@@ -1378,7 +1379,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 						decay *= 0.5F;
 					}
 					LivingEntity user = getUser();
-					if (user != null && ModStatusEffects.isInResolveEffect(user)) {
+					if (user != null && ResolveModeEffect.getResolveEffectLvl(user) >= 0) {
 						decay *= 0.5F;
 					}
 					setFinisherMeter(Math.max(value - decay, 0));

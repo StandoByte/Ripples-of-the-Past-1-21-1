@@ -7,7 +7,8 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.entityattachment.PostNbtReadEntityData;
 import com.github.standobyte.jojo.init.ModEntityAttributes;
-import com.github.standobyte.jojo.mechanics.resolve.ResolveHandler;
+import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
+import com.github.standobyte.jojo.mechanics.resolve.ResolveStageBuffs;
 import com.github.standobyte.jojo.mechanics.standarrow.StandArrowItem;
 import com.github.standobyte.jojo.network.s2c.TrPowerStandInstancePacket;
 import com.github.standobyte.jojo.network.s2c.TrStandSkinPacket;
@@ -38,11 +39,11 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	protected Optional<StandInstance> standInstance = Optional.empty();
 	protected SummonedStand summonedStand;
 	
-	public UserStandEffects userStandEffects = new UserStandEffects(this);
 	protected Lerp.FloatValue staminaLerp = new Lerp.FloatValue();
 	protected float staminaAddNextTick = 0;
 	
-	public ResolveHandler resolveHandler = new ResolveHandler();
+	public ResolveCounter resolveCounter = new ResolveCounter();
+	public UserStandEffects userStandEffects = new UserStandEffects(this);
 	public StandAwakening userStandAwakeningState = new StandAwakening();
 	public boolean healingDamageFromArrow = false;
 	
@@ -234,7 +235,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		}
 		else {
 			setStamina(0);
-			return StandUtil.standIgnoresStaminaDebuff(getUser());
+			return ResolveStageBuffs.ignoreStaminaDebuff(getUser());
 		}
 	}
 	
@@ -251,27 +252,12 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		return hasPower() && getPowerType().usesResolve(this) && userStandAwakeningState.stage == AwakeningStage.FULL_CONTROL;
 	}
 	
-	public float getResolve() {
-		return resolveHandler.getResolveValue();
-	}
-	
-	public float getMaxResolve() {
-		return hasPower() ? resolveHandler.getMaxResolveValue(this) : 0;
-	}
-	
-	public float getResolveRatio() { return getResolveRatio(1); }
-	
-	public float getResolveRatio(float partialTick) {
-		float maxResolve = getMaxResolve();
-		return maxResolve > 0 ? resolveHandler.resolveLerp.lerp(partialTick) / maxResolve : 0;
-	}
-	
-	public ResolveHandler getResolveHandler() {
-		return resolveHandler;
+	public ResolveCounter getResolveCounter() {
+		return resolveCounter;
 	}
 	
 	protected void tickResolve() {
-		resolveHandler.tick(this);
+		resolveCounter.tick(this);
 	}
 	
 	
@@ -304,7 +290,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		PacketDistributor.sendToPlayer(user, new TrPowerStandInstancePacket(user.getId(), standInstance));
 		super.syncToPlayer(user);
 		syncStaminaFixed(user, user);
-		resolveHandler.syncToUser(user);
+		resolveCounter.syncToUser(user);
 		PacketDistributor.sendToPlayer(user, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
 		userStandEffects.syncToPlayer(user);
 		userStandAwakeningState.syncToUser(user);
@@ -315,7 +301,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		PacketDistributor.sendToPlayer(player, new TrPowerStandInstancePacket(user.getId(), standInstance));
 		super.syncToTracking(player);
 		syncStaminaFixed(player, user);
-		resolveHandler.syncToTracking(user, player);
+		resolveCounter.syncToTracking(user, player);
 		PacketDistributor.sendToPlayer(player, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
 		userStandEffects.syncToTracking(player);
 	}
@@ -339,7 +325,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		super.onPlayerCloneData(newEntityData, wasDeath);
 		newEntityData.standInstance = this.standInstance;
 		newEntityData.staminaLerp = this.staminaLerp;
-		newEntityData.resolveHandler.copyValues(this.resolveHandler, wasDeath);
+		newEntityData.resolveCounter.copyValues(this.resolveCounter, wasDeath);
 		newEntityData.userStandEffects = this.userStandEffects;
 		newEntityData.userStandEffects.setPowerData(newEntityData);
 		newEntityData.userStandAwakeningState = this.userStandAwakeningState;
@@ -353,7 +339,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 				stand -> StandInstance.CODEC.encodeStart(NbtOps.INSTANCE, stand)
 				.ifSuccess(standNbt -> nbt.put("StandInstance", standNbt)));
 		nbt.putFloat("Stamina", staminaLerp.get());
-		nbt.put("ResolveHandler", resolveHandler.writeNBT());
+		nbt.put("Resolve", resolveCounter.writeNBT());
 		nbt.put("Effects", userStandEffects.serializeNBT(provider));
 		nbt.put("Awakening", userStandAwakeningState.serializeNBT());
 		nbt.putBoolean("HealFromArrow", healingDamageFromArrow);
@@ -367,7 +353,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 				.flatMap(standNbt -> StandInstance.CODEC.decode(NbtOps.INSTANCE, standNbt).result())
 				.map(pair -> pair.getFirst());
 		staminaLerp.set(nbt.getFloat("Stamina"), false);
-		NBTUtil.getCompoundOptional(nbt, "ResolveHandler").ifPresent(resolveHandler::readNBT);
+		NBTUtil.getCompoundOptional(nbt, "Resolve").ifPresent(resolveCounter::readNBT);
 		NBTUtil.getCompoundOptional(nbt, "Effects").ifPresent(effectsNbt -> userStandEffects.deserializeNBT(provider, effectsNbt));
 		NBTUtil.getCompoundOptional(nbt, "Awakening").ifPresent(userStandAwakeningState::deserializeNBT);
 		healingDamageFromArrow = nbt.getBoolean("HealFromArrow");

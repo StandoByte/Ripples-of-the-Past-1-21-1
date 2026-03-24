@@ -28,13 +28,14 @@ public class ClientModSettings {
 //		public boolean showLockedSlots = false;
 		public boolean abilitySelectionWheel = true;
 
-//		public boolean resolveShaders = true;
+		public boolean resolveShaders = true;
 //		public boolean timeStopAnimation = true;
 		public boolean standMotionTilt = true;
 //		public boolean poseOnLmbRmb = true;
 //		public boolean autoResolveActivation = true;
 //		public boolean standOutline = true;
 		public boolean standAimMarker = false;
+		public boolean standAura = false;
 //
 //		public boolean menacingParticles = true;
 //		public boolean characterVoiceLines = true;

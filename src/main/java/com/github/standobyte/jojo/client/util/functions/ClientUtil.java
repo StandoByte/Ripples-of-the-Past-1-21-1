@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.util.functions;
 
+import com.github.standobyte.jojo.client.ClientTickHandler;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -47,6 +48,10 @@ public class ClientUtil {
 	public static float partialTick(DeltaTracker deltaTracker, Entity entity) {
 		TickRateManager tickRateManager = Minecraft.getInstance().level.tickRateManager();
 		return deltaTracker.getGameTimeDeltaPartialTick(!tickRateManager.isEntityFrozen(entity));
+	}
+	
+	public static float getTime(boolean worksInPauseToo) {
+		return ClientTickHandler.tickCount + partialTick(Minecraft.getInstance().getTimer(), worksInPauseToo);
 	}
 
 	public static int getScreenMouseX() {

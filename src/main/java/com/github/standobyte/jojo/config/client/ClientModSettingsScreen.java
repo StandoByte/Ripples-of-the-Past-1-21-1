@@ -16,6 +16,7 @@ import com.github.standobyte.jojo.client.ui.utils.Alignment;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.config.SettingsField;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.mechanics.resolve.ClientResolveVisuals;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
 import com.github.standobyte.v1_21_4_stuff.GuiScissor;
 
@@ -189,21 +190,37 @@ public class ClientModSettingsScreen extends Screen {
 			@Override public void set(Boolean value) {  settingsValues.standAimMarker = value; }
 		}.withIcon(toIconPath("stand_aim_marker"), iconPath -> new IconGlyphInfo(new GuiIcon(iconPath, 17, 17), 17, 17, 0, -5, 5));
 		addRenderableWidget(standAimMarker.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
+		
+		Setting<Boolean> standMotionTilt = new BooleanSetting(settings, 
+				Component.translatable("jojo_ripples.config.client.standMotionTilt"), 
+				Component.translatable("jojo_ripples.config.client.standMotionTilt.tooltip")
+				) {
+			@Override public Boolean get() { return settingsValues.standMotionTilt; }
+			@Override public void set(Boolean value) { settingsValues.standMotionTilt = value; }
+		};
+		addRenderableWidget(standMotionTilt.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
 
-//		BooleanSetting resolveShaders = new BooleanSetting(settings, 
-//				Component.translatable("jojo_ripples.config.client.resolveShaders"), 
-//				Component.translatable("jojo_ripples.config.client.resolveShaders.tooltip")
-//				) {
-//			@Override public Boolean get() { return settingsValues.resolveShaders; }
-//			@Override public void set(Boolean value) { 
-//				settingsValues.resolveShaders = value;
-//				if (!value) {
-//					ShaderEffectApplier.getInstance().stopResolveShader();
-//				}
-//			}
-//		};
-//		addRenderableWidget(resolveShaders.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
-//
+		Setting<Boolean> standAura = new BooleanSetting(settings, 
+				Component.translatable("jojo_ripples.config.client.standAura"), 
+				Component.translatable("jojo_ripples.config.client.standAura.tooltip")
+				) {
+			@Override public Boolean get() { return settingsValues.standAura; }
+			@Override public void set(Boolean value) {  settingsValues.standAura = value; }
+		};
+		addRenderableWidget(standAura.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
+
+		BooleanSetting resolveShaders = new BooleanSetting(settings, 
+				Component.translatable("jojo_ripples.config.client.resolveShaders"), 
+				Component.translatable("jojo_ripples.config.client.resolveShaders.tooltip")
+				) {
+			@Override public Boolean get() { return settingsValues.resolveShaders; }
+			@Override public void set(Boolean value) { 
+				settingsValues.resolveShaders = value;
+				ClientResolveVisuals.onColorShiftSettingUpdated(value);
+			}
+		};
+		addRenderableWidget(resolveShaders.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
+
 //		BooleanSetting timeStopAnimation = new BooleanSetting(settings, 
 //				Component.translatable("jojo_ripples.config.client.timeStopAnimation"), 
 //				Component.translatable("jojo_ripples.config.client.timeStopAnimation.tooltip")
@@ -224,14 +241,6 @@ public class ClientModSettingsScreen extends Screen {
 //		.setBroadcasted();
 //		addRenderableWidget(standSide.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
 //
-		Setting<Boolean> standMotionTilt = new BooleanSetting(settings, 
-				Component.translatable("jojo_ripples.config.client.standMotionTilt"), 
-				Component.translatable("jojo_ripples.config.client.standMotionTilt.tooltip")
-				) {
-			@Override public Boolean get() { return settingsValues.standMotionTilt; }
-			@Override public void set(Boolean value) { settingsValues.standMotionTilt = value; }
-		};
-		addRenderableWidget(standMotionTilt.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
 //
 //		BooleanSetting standOutline = new BooleanSetting(settings, 
 //				Component.translatable("jojo_ripples.config.client.standOutline"), 
