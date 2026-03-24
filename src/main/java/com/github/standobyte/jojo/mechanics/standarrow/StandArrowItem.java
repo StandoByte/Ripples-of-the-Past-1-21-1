@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.init.ModStatusEffects;
@@ -20,6 +21,7 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.subsystems.StoryPart;
+import com.github.standobyte.jojo.util.functions.DamageUtil;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.jojo.util.functions.StatusEffectUtil;
 import com.github.standobyte.jojo.util.functions.UtilFunctions;
@@ -45,6 +47,8 @@ import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
@@ -100,6 +104,8 @@ public class StandArrowItem extends ArrowItem {
     
     @Nullable
     public static StandType pickStandToGive(LivingEntity entity) {
+    	// TODO use StandAwakening#fatedFutureStands
+    	// TODO use a ServerDuplicateCounter
     	List<StandType> stands = StandArrowItem.getStandsForPlayer().toList();
     	if (!stands.isEmpty()) {
     		return stands.get(entity.getRandom().nextInt(stands.size()));
@@ -110,47 +116,45 @@ public class StandArrowItem extends ArrowItem {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
-        ItemStack arrow = player.getItemInHand(usedHand);
+        ItemStack arrowItem = player.getItemInHand(usedHand);
 
         if (!level.isClientSide() && !StandUtil.isEntityStandUser(player)) {
         	boolean gaveStand = StandArrowItem.giveStand(level, player);
-        	if (!isInvulnerable(player)) {
-        		dealDamageFromArrow(player, arrow, false, gaveStand);
+        	if (!StandArrowItem.isInvulnerable(player)) {
+        		StandArrowItem.dealDamageFromArrow(player, arrowItem, 
+        				player, player, false, gaveStand);
         	}
         	if (gaveStand) {
         		ServerLevel serverLevel = (ServerLevel) level;
-        		arrow.hurtAndBreak(1, serverLevel, player, itemType -> onBreakArrow(
-        				serverLevel, player, usedHand, null, null, itemType));
-        		return InteractionResultHolder.success(arrow);
+        		arrowItem.hurtAndBreak(1, serverLevel, player, itemType -> StandArrowItem.onBreakArrow(
+        				serverLevel, player, usedHand, null, itemType));
+        		return InteractionResultHolder.success(arrowItem);
         	}
         }
-        return InteractionResultHolder.fail(arrow);
+        return InteractionResultHolder.fail(arrowItem);
     }
     
     public static void onBreakArrow(ServerLevel level, 
     		@Nullable LivingEntity userEntity, @Nullable InteractionHand usedHand,
-    		@Nullable Entity itemEntity, @Nullable Vec3 pos, 
-    		Item itemConsumerArg) {
-    	// borken item sound and particles
-
-    	if (userEntity != null && usedHand != null) {
-    		userEntity.onEquippedItemBroken(itemConsumerArg, UtilFunctions.getHandSlot(usedHand));
-    	}
-    	else if (pos != null || itemEntity != null) {
-    		if (pos == null) pos = itemEntity.getBoundingBox().getCenter();
-    		ItemBreakVisualsPacket packet = ItemBreakVisualsPacket.fromParams(itemEntity, pos, null);
-    		if (packet != null) {
-    			PacketDistributor.sendToPlayersTrackingChunk(level, AAAAAAAAAAAAAAAAAA(pos), packet);
-    		}
-    	}
-
-    	// spawn arrow shard items
-
+    		@Nullable Vec3 pos, 
+    		Item item) {
     	if (pos == null && userEntity != null) {
     		pos = userEntity.getEyePosition().add(new Vec3(0, 0, 0.6)
     				.xRot(-userEntity.getXRot() * MathUtil.DEG_TO_RAD)
     				.yRot(-userEntity.getYRot() * MathUtil.DEG_TO_RAD));
     	}
+
+    	// broken item sound and particles
+
+    	if (userEntity != null && usedHand != null) {
+    		userEntity.onEquippedItemBroken(item, UtilFunctions.getHandSlot(usedHand));
+    	}
+    	else if (pos != null) {
+			PacketDistributor.sendToPlayersTrackingChunk(level, chunkPos(pos), new ItemBreakVisualsPacket(pos, item));
+    	}
+
+    	// spawn arrow shard items
+
     	if (pos != null) {
     		for (int i = 0; i < 3; i++) {
     			ItemStack shardItem = ModItems.STAND_ARROW_SHARD.toStack();
@@ -162,7 +166,7 @@ public class StandArrowItem extends ArrowItem {
     	}
     }
     
-    public static ChunkPos AAAAAAAAAAAAAAAAAA(Vec3 pos) {
+    public static ChunkPos chunkPos(Vec3 pos) {
     	return new ChunkPos(((int) pos.x) >> 4, ((int) pos.z) >> 4);
     }
 
@@ -172,14 +176,14 @@ public class StandArrowItem extends ArrowItem {
     }
     
     public static void dealDamageFromArrow(LivingEntity entity, ItemStack arrowItem, 
+    		Entity directEntity, Entity responsibleEntity, 
     		boolean reducedDamage, boolean gaveStand) {
     	int bleedingEffect = reducedDamage ? 1 : 2;
     	float dmgAmount = reducedDamage ? 12 : 16;
 
     	entity.addEffect(new MobEffectInstance(ModStatusEffects.BLEEDING, 
     			6000 /* it'll heal anyway */, bleedingEffect, false, false, true));
-    	// TODO damage source
-    	DamageSource dmgSource = entity.damageSources().playerAttack((Player) entity);
+    	DamageSource dmgSource = DamageUtil.make(entity.level(), ModDamageTypes.STAND_ARROW, directEntity, responsibleEntity);
     	if (gaveStand) {
     		dmgAmount = Math.min(dmgAmount, entity.getHealth() - 1.0F);
     	}
@@ -231,5 +235,11 @@ public class StandArrowItem extends ArrowItem {
     @Override
     public int getEnchantmentValue(ItemStack stack) {
         return enchantability;
+    }
+    
+    // this shit is impossible with purely data-driven enchantments
+    @Override
+    public boolean supportsEnchantment(ItemStack stack, Holder<Enchantment> enchantment) {
+    	return enchantment.is(Enchantments.LOYALTY) || super.supportsEnchantment(stack, enchantment);
     }
 }

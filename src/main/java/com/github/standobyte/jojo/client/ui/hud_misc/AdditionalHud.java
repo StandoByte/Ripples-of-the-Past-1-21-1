@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.hud_misc;
 
+import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.client.ClientEntityController;
 
@@ -32,6 +33,9 @@ public class AdditionalHud {
 			if (entityControl != null) {
 				entityControl.renderExtraHud(guiGraphics, deltaTracker);
 			}
+			
+			float partialTick = ClientUtil.partialTick(deltaTracker, true);
+			BottomLeftNotifications.render(guiGraphics, partialTick);
 		}
 	}
 }

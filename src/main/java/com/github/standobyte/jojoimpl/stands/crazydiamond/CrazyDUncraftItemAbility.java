@@ -19,6 +19,7 @@ import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.util.functions.ItemUtil;
@@ -146,6 +147,10 @@ public class CrazyDUncraftItemAbility extends StandEntityAbility {
 								repairedStack.shrink(itemsAndCount.getSecond());
 							}
 						});
+						StandPower userPower = stand.getUserPower();
+						if (userPower != null) {
+							userPower.addExp(0.02f);
+						}
 					}
 				}
 			}

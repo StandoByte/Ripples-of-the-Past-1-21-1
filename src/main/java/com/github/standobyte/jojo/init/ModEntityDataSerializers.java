@@ -25,10 +25,10 @@ public class ModEntityDataSerializers {
 				@Override public ActionTarget copy(ActionTarget value) { return value.copy(); }
 			});
 
-	public static final Supplier<EntityDataSerializer<CrazyDHealAbility.HealingAction.HealResult>> CD_HEAL_RESULT = SERIALIZERS.register("cd_heal_result", 
-			() -> new EntityDataSerializer<CrazyDHealAbility.HealingAction.HealResult>() {
-				@Override public StreamCodec<? super RegistryFriendlyByteBuf, CrazyDHealAbility.HealingAction.HealResult> codec() { return CrazyDHealAbility.HealingAction.HealResult.STREAM_CODEC; }
-				@Override public CrazyDHealAbility.HealingAction.HealResult copy(CrazyDHealAbility.HealingAction.HealResult value) { return value.copy(); }
+	public static final Supplier<EntityDataSerializer<CrazyDHealAbility.HealingAction.HealResult.Synched>> CD_HEAL_RESULT = SERIALIZERS.register("cd_heal_result", 
+			() -> new EntityDataSerializer<CrazyDHealAbility.HealingAction.HealResult.Synched>() {
+				@Override public StreamCodec<? super RegistryFriendlyByteBuf, CrazyDHealAbility.HealingAction.HealResult.Synched> codec() { return CrazyDHealAbility.HealingAction.HealResult.Synched.STREAM_CODEC; }
+				@Override public CrazyDHealAbility.HealingAction.HealResult.Synched copy(CrazyDHealAbility.HealingAction.HealResult.Synched value) { return value.copy(); }
 			});
 	
 	public static final Supplier<EntityDataSerializer<Optional<ResolvableProfile>>> RESOLVABLE_PROFILE_OPTIONAL = SERIALIZERS.register("player_profile", 

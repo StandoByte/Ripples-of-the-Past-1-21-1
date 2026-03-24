@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.ui.hud_power.WindupIndicator;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.powersystem.Power;
+import com.github.standobyte.jojo.powersystem.PowerData;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
@@ -126,7 +127,8 @@ public class Ability {
 	}
 	
 	public boolean isAbilityUnlocked(Power<?> context) {
-		return true;
+		PowerData skillsData = context.getCurTypeData();
+		return skillsData != null && !skillsData._lockedAbilities.contains(name());
 	}
 	
 	/**

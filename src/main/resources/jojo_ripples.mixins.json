@@ -65,6 +65,7 @@
 	"ProjectileHighSpeedSync",
 	"attributes.EntityMixin",
 	"modcompat.MthInitBeforeLithium",
+	"SusBlocksLoot",
 	
 	"EntityMixinSuperclass",
 	

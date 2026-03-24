@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.mechanics;
 
-import com.github.standobyte.jojo.LivingEntityVariables;
+import com.github.standobyte.jojo.JojoModLivingVariables;
 import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
@@ -70,7 +70,7 @@ public class JojoDefinitions {
 					|| entity instanceof Zoglin
 					|| entity instanceof ZombieHorse;
 		}
-		if (LivingEntityVariables.get(entity).isDyingBody) {
+		if (JojoModLivingVariables.get(entity).isDyingBody) {
 			return false;
 		}
 		return entity instanceof Player

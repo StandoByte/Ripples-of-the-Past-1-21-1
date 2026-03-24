@@ -20,6 +20,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.TraceableEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -40,6 +41,11 @@ public class DamageUtil {
 	public static DamageSource make(Level level, ResourceKey<DamageType> damageType, Entity entity) { return make(level, damageType, entity, entity, null); }
 	public static DamageSource make(Level level, ResourceKey<DamageType> damageType, Entity directEntity, Entity causingEntity) { return make(level, damageType, directEntity, causingEntity, null); }
 	public static DamageSource make(Level level, ResourceKey<DamageType> damageType, Vec3 sourcePosition) { return make(level, damageType, null, null, sourcePosition); }
+	public static DamageSource makeProjectile(Level level, ResourceKey<DamageType> damageType, TraceableEntity entity) {
+		Entity projectile = (Entity) entity;
+		Entity owner = entity.getOwner();
+		return make(level, damageType, projectile, owner != null ? owner : projectile); 
+	}
 	
 	public static DamageSource make(Level level, ResourceKey<DamageType> damageType, 
 			@Nullable Entity directEntity, @Nullable Entity causingEntity, @Nullable Vec3 sourcePosition) {

@@ -3,7 +3,7 @@ package com.github.standobyte.jojo.customobjects;
 import static net.neoforged.neoforge.event.entity.living.MobEffectEvent.Applicable.Result.APPLY;
 import static net.neoforged.neoforge.event.entity.living.MobEffectEvent.Applicable.Result.DO_NOT_APPLY;
 
-import com.github.standobyte.jojo.LivingEntityVariables;
+import com.github.standobyte.jojo.JojoModLivingVariables;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.JojoDefinitions;
 
@@ -26,7 +26,7 @@ public interface StatusEffectApplicable {
 		public static void onPotionApply(MobEffectEvent.Applicable event) {
 			LivingEntity entity = event.getEntity();
 			MobEffectInstance effect = event.getEffectInstance();
-			if (LivingEntityVariables.get(entity).isDyingBody) {
+			if (JojoModLivingVariables.get(entity).isDyingBody) {
 				if (effect.is(MobEffects.HUNGER) || effect.is(MobEffects.POISON) || effect.is(MobEffects.REGENERATION)) {
 					event.setResult(MobEffectEvent.Applicable.Result.DO_NOT_APPLY);
 				}

@@ -35,7 +35,8 @@ public class StandArrowShardItem extends Item {
         if (!level.isClientSide() && !StandUtil.isEntityStandUser(player)) {
         	boolean gaveStand = StandArrowItem.giveStand(level, player);
         	if (!StandArrowItem.isInvulnerable(player)) {
-        		StandArrowItem.dealDamageFromArrow(player, shard, true, gaveStand);
+        		StandArrowItem.dealDamageFromArrow(player, shard, 
+        				player, player, true, gaveStand);
         	}
         	if (gaveStand) {
         		if (!player.getAbilities().instabuild) {
@@ -62,7 +63,8 @@ public class StandArrowShardItem extends Item {
     		Player player = event.getPlayer();
     		if (!StandArrowItem.isInvulnerable(player) && !StandUtil.isEntityStandUser(player)) {
     			boolean gaveStand = StandArrowItem.giveStand(player.level(), player);
-    			StandArrowItem.dealDamageFromArrow(player, item, true, gaveStand);
+    			StandArrowItem.dealDamageFromArrow(player, item, 
+    					itemEntity, itemEntity.getOwner(), true, gaveStand);
     			item.shrink(1);
     			event.setCanPickup(TriState.FALSE);
     		}

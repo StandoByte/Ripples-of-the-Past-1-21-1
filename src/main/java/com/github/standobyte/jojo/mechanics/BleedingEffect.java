@@ -6,7 +6,7 @@ import java.util.OptionalInt;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.LivingEntityVariables;
+import com.github.standobyte.jojo.JojoModLivingVariables;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.customobjects.StatusEffectApplicable;
 import com.github.standobyte.jojo.customobjects.StatusEffectModified;
@@ -90,7 +90,7 @@ public class BleedingEffect extends StatusEffectModified implements StatusEffect
 
 						level.broadcastDamageEvent(entity, DamageUtil.make(level, ModDamageTypes.BLEED_OUT_DEATH));
 
-						Vec3 particlesPos = LivingEntityVariables.get(entity).bleedingParticlesPos;
+						Vec3 particlesPos = JojoModLivingVariables.get(entity).bleedingParticlesPos;
 						if (particlesPos == null) {
 							particlesPos = entity.getBoundingBox().getCenter();
 						}
@@ -116,7 +116,7 @@ public class BleedingEffect extends StatusEffectModified implements StatusEffect
 
 
 	public static void setNextParticlesPos(LivingEntity entity, Vec3 pos) {
-		LivingEntityVariables.get(entity).bleedingParticlesPos = pos;
+		JojoModLivingVariables.get(entity).bleedingParticlesPos = pos;
 	}
 
 	public static boolean splashBlood(Level level, Vec3 splashPos, double radius, 

@@ -24,6 +24,7 @@ import com.github.standobyte.jojo.powersystem.Moveset;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
+import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
@@ -137,7 +138,18 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 			angleStep = -angleStep;
 			fill = -fill;
 		}
+		
+		AbilityIconSprites abilityIconSprites = StandSkinsLoader.getInstance().abilityIcons;
 		for (int i = 0; i < n; i++) {
+			HotbarSlot slot = abilities.slots.get(i);
+			KeyModifier curModifier = InputHandler.getInstance().getCurModifier();
+			AbilityConditionCheck ability = slot.showAbility(curModifier);
+			boolean showAbility = ability != null;
+			TextureAtlasSprite abilitySprite = ability != null ? abilityIconSprites.getAbilityIcon(ability.ability.name(), standSkin) : null;
+			
+			if (i == hoveredSlotIndex && !showAbility) { 
+				hoveredSlotIndex = -1;
+			}
 			boolean highlight = i == hoveredSlotIndex;
 			float alpha = highlight ? 0.5f : 0.25f;
 			if (highlight) {
@@ -154,21 +166,6 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 				pose.popPose();
 			}
 			
-			
-			HotbarSlot slot = abilities.slots.get(i);
-			KeyModifier curModifier = InputHandler.getInstance().getCurModifier();
-			AbilityIconSprites abilityIconSprites = StandSkinsLoader.getInstance().abilityIcons;
-
-			TextureAtlasSprite abilitySprite = null;
-			
-			for (InputMethod inputMethod : InputMethod.values()) {
-				AbilityControlsEntry ability = slot.getBinds().getFirst(curModifier, inputMethod);
-				if (ability != null) {
-					abilitySprite = abilityIconSprites.getAbilityIcon(ability.abilityName(), standSkin);
-					break;
-				}
-			}
-			
 			if (abilitySprite != null) {
 				int[] iconPos = posAtSector(i, n, 75);
 				float iconWidth = 16;
@@ -177,12 +174,16 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 						iconPos[0] - iconWidth / 2, iconPos[1] - iconHeight / 2, iconWidth, iconHeight, 0, BlitFloat.NO_TINT);
 			}
 			
-			if (i < 10) {
-				int[] digitPos = posAtSector(i, n, 90);
-				guiGraphics.drawCenteredString(minecraft.font, String.valueOf(i + 1), 
-						digitPos[0], digitPos[1] - minecraft.font.lineHeight / 2, textColor);
-				RenderSystem.enableBlend();
-				RenderSystem.defaultBlendFunc();
+
+			if (showAbility) {
+				int numberKey = HotbarSlot.numberKey(slot.index);
+				if (numberKey != -1) {
+					int[] digitPos = posAtSector(i, n, 90);
+					guiGraphics.drawCenteredString(minecraft.font, String.valueOf(numberKey), 
+							digitPos[0], digitPos[1] - minecraft.font.lineHeight / 2, textColor);
+					RenderSystem.enableBlend();
+					RenderSystem.defaultBlendFunc();
+				}
 			}
 		}
 		RenderSystem.disableBlend();

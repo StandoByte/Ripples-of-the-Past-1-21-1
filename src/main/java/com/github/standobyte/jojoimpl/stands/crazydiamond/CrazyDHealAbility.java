@@ -19,14 +19,15 @@ import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.StandUtil.StandAndUserEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 import com.github.standobyte.jojo.subsystems.target.ActionTarget;
-import com.github.standobyte.jojo.subsystems.target.AimingEntity;
 import com.github.standobyte.jojo.subsystems.target.ActionTarget.TargetType;
+import com.github.standobyte.jojo.subsystems.target.AimingEntity;
 import com.github.standobyte.jojo.util.functions.JojoModUtil;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.jojo.util.functions.StatusEffectUtil;
@@ -85,11 +86,18 @@ public class CrazyDHealAbility extends StandEntityAbility {
 		public void actionTick() {
 			Level level = level();
 			
-			HealResult curHealing;
+			HealResult.Synched curHealing;
 			if (!level.isClientSide()) {
 				ActionTarget aimTarget = LivingComponentAction.getAim(performer).getTarget();
 				StandEntity standEntity = performer instanceof StandEntity s ? s : null;
-				curHealing = restoreTarget(aimTarget, standEntity);
+				HealResult healResult = restoreTarget(aimTarget, standEntity);
+				curHealing = healResult.synched;
+				if (healResult.hpForExp > 0) {
+					StandPower userPower = standEntity.getUserPower();
+					if (userPower != null) {
+						userPower.addExp(healResult.hpForExp * 0.1f);
+					}
+				}
 				synchedData.set(HEAL_RESULT, curHealing);
 			}
 			
@@ -106,7 +114,7 @@ public class CrazyDHealAbility extends StandEntityAbility {
 							if (standAndUser.standEntity != null) 
 								addParticlesAround(standAndUser.standEntity);
 							
-							if (curHealing.deathTime != HealResult.NO_DEATH_TIME_CHANGE) {
+							if (curHealing.deathTime != HealResult.Synched.NO_DEATH_TIME_CHANGE) {
 								if (standAndUser.standUser != null) standAndUser.standUser.deathTime = curHealing.deathTime;
 								if (standAndUser.standEntity != null) standAndUser.standEntity.deathTime = curHealing.deathTime;
 							}
@@ -120,7 +128,7 @@ public class CrazyDHealAbility extends StandEntityAbility {
 			userWalkSpeed = curHealing.isHealing ? 0.6f : 1;
 		}
 		
-		public void onHealResultUpdated(HealResult old, HealResult cur) {
+		public void onHealResultUpdated(HealResult.Synched old, HealResult.Synched cur) {
 			Level level = level();
 			cur.target.resolveEntityId(level);
 			
@@ -183,9 +191,9 @@ public class CrazyDHealAbility extends StandEntityAbility {
 
 		public HealResult restoreTarget(ActionTarget target, StandEntity crazyDiamond) {
 			HealResult result = new HealResult();
-			result.target = target;
+			result.synched.target = target;
 			LivingEntity user = getPowerUser();
-			result.barrageVisuals = user != null && ModStatusEffects.isInResolveEffect(user);
+			result.synched.barrageVisuals = user != null && ModStatusEffects.isInResolveEffect(user);
 			
 			if (target.getType() == TargetType.ENTITY) {
 				Entity targetEntity = target.getEntity();
@@ -203,9 +211,11 @@ public class CrazyDHealAbility extends StandEntityAbility {
 					else if (targetEntity instanceof ModEntityWithHealth toHeal) {
 						if (toHeal.getHealth() < toHeal.getMaxHealth()) {
 							if (!level.isClientSide()) {
-								toHeal.setHealth(toHeal.getHealth() + toHeal.getMaxHealth() / 40 * (float) healSpeedWithConfig(crazyDiamond));
+								float hpToHeal = toHeal.getMaxHealth() / 40 * (float) healSpeedWithConfig(crazyDiamond);
+								toHeal.setHealth(toHeal.getHealth() + hpToHeal);
+								result.hpForExp = hpToHeal;
 							}
-							result.isHealing = true;
+							result.synched.isHealing = true;
 							return result;
 						}
 					}
@@ -213,9 +223,11 @@ public class CrazyDHealAbility extends StandEntityAbility {
 					else if (targetEntity instanceof Boat toHeal) {
 						if (toHeal.getDamage() > 0) {
 							if (!level.isClientSide()) {
-								toHeal.setDamage(Math.max(toHeal.getDamage() - (float) healSpeedWithConfig(crazyDiamond), 0));
+								float hpToHeal = (float) healSpeedWithConfig(crazyDiamond);
+								toHeal.setDamage(Math.max(toHeal.getDamage() - hpToHeal, 0));
+								result.hpForExp = hpToHeal;
 							}
-							result.isHealing = true;
+							result.synched.isHealing = true;
 							return result;
 						}
 					}
@@ -234,14 +246,15 @@ public class CrazyDHealAbility extends StandEntityAbility {
 				// }
 
 				toHeal.deathTime = Math.max(toHeal.deathTime - 2, 0);
-				result.deathTime = entity.deathTime;
+				result.synched.deathTime = entity.deathTime;
 				
 				if (!level.isClientSide() && toHeal.deathTime <= 0 && toHeal.getHealth() <= 0) {
 					toHeal.setHealth(0.001F);
 					JojoModUtil.onLivingResurrect(toHeal);
 				}
-				result.isHealing = true;
-				result.barrageVisuals = true;
+				result.synched.isHealing = true;
+				result.synched.barrageVisuals = true;
+				result.hpForExp = 1;
 			}
 			else {
 				float healingSpeed = (float) healSpeedWithConfig(crazyDiamond);
@@ -249,17 +262,19 @@ public class CrazyDHealAbility extends StandEntityAbility {
 				float maxHealth = toHeal.getMaxHealth();
 				
 				if (toHeal.getHealth() < toHeal.getMaxHealth()) {
-					result.isHealing = true;
-					result.barrageVisuals |= health < maxHealth * 0.5f;
+					result.synched.isHealing = true;
+					result.synched.barrageVisuals |= health < maxHealth * 0.5f;
 					if (!level.isClientSide()) {
-						toHeal.setHealth(health + 0.5F * healingSpeed);
+						float hpToHeal = 0.5F * healingSpeed;
+						toHeal.setHealth(health + hpToHeal);
+						result.hpForExp = hpToHeal;
 					}
 				}
 				
 				MobEffectInstance bleeding = toHeal.getEffect(ModStatusEffects.BLEEDING);
 				if (bleeding != null) {
-					result.isHealing = true;
-					result.barrageVisuals |= bleeding.getAmplifier() > 1;
+					result.synched.isHealing = true;
+					result.synched.barrageVisuals |= bleeding.getAmplifier() > 1;
 					if (!level.isClientSide()) {
 						int reduceBleedingTime = (int) (20 / healingSpeed);
 						int reduceBleeding = MathUtil.fractionRandomInc(healingSpeed * 4);
@@ -270,6 +285,7 @@ public class CrazyDHealAbility extends StandEntityAbility {
 							// once every 14 ticks, reduce bleeding level by 1, unless it's already at the lowest level
 							StatusEffectUtil.reduceEffect(toHeal, ModStatusEffects.BLEEDING, 0, 1);
 						}
+						result.hpForExp += healingSpeed;
 					}
 				}
 			}
@@ -278,64 +294,69 @@ public class CrazyDHealAbility extends StandEntityAbility {
 		}
 
 
-		public static final EntityDataAccessor<HealResult> HEAL_RESULT = SynchedEntityData.defineId(HealingAction.class, ModEntityDataSerializers.CD_HEAL_RESULT.get());
+		public static final EntityDataAccessor<HealResult.Synched> HEAL_RESULT = SynchedEntityData.defineId(HealingAction.class, ModEntityDataSerializers.CD_HEAL_RESULT.get());
 		public static class HealResult {
-			public ActionTarget target;
-			public boolean isHealing;
-			public boolean barrageVisuals;
-			public int deathTime;
+			public final Synched synched = new Synched();
+			public float hpForExp;
 			
-			public static final int NO_DEATH_TIME_CHANGE = 67;
-			
-			public HealResult() {
-				this(ActionTarget.EMPTY, false, false, NO_DEATH_TIME_CHANGE);
-			}
-			
-			public HealResult(ActionTarget target, boolean isHealing, boolean barrageVisuals, int deathTime) {
-				this.target = target;
-				this.isHealing = isHealing;
-				this.barrageVisuals = barrageVisuals;
-				this.deathTime = deathTime;
-			}
-			
-			@Override
-			public boolean equals(Object obj) {
-				if (obj.getClass() == HealResult.class) {
-					HealResult other = (HealResult) obj;
-					return this.target.equals(other.target) 
-							&& this.isHealing == other.isHealing
-							&& this.barrageVisuals == other.barrageVisuals
-							&& this.deathTime == other.deathTime;
+			public static class Synched {
+				public ActionTarget target;
+				public boolean isHealing;
+				public boolean barrageVisuals;
+				public int deathTime;
+				
+				public static final int NO_DEATH_TIME_CHANGE = 67;
+				
+				public Synched() {
+					this(ActionTarget.EMPTY, false, false, NO_DEATH_TIME_CHANGE);
 				}
-				return false;
-			}
-			
-			@Override
-			public int hashCode() {
-				return Objects.hashCode(target, isHealing, barrageVisuals, deathTime);
-			}
-			
-			public static final StreamCodec<? super RegistryFriendlyByteBuf, HealResult> STREAM_CODEC = StreamCodec.composite(
-					ActionTarget.STREAM_CODEC_UNRESOLVED_ENTITY_ID, heal -> heal.target, 
-					ByteBufCodecs.BOOL, heal -> heal.isHealing, 
-					ByteBufCodecs.BOOL, heal -> heal.barrageVisuals, 
-					ByteBufCodecs.VAR_INT, heal -> heal.deathTime, 
-					HealResult::new);
-
-			public HealResult copy() {
-				return new HealResult(this.target.copy(), this.isHealing, this.barrageVisuals, this.deathTime);
+				
+				public Synched(ActionTarget target, boolean isHealing, boolean barrageVisuals, int deathTime) {
+					this.target = target;
+					this.isHealing = isHealing;
+					this.barrageVisuals = barrageVisuals;
+					this.deathTime = deathTime;
+				}
+				
+				@Override
+				public boolean equals(Object obj) {
+					if (obj.getClass() == HealResult.Synched.class) {
+						HealResult.Synched other = (HealResult.Synched) obj;
+						return this.target.equals(other.target) 
+								&& this.isHealing == other.isHealing
+								&& this.barrageVisuals == other.barrageVisuals
+								&& this.deathTime == other.deathTime;
+					}
+					return false;
+				}
+				
+				@Override
+				public int hashCode() {
+					return Objects.hashCode(target, isHealing, barrageVisuals, deathTime);
+				}
+				
+				public static final StreamCodec<? super RegistryFriendlyByteBuf, HealResult.Synched> STREAM_CODEC = StreamCodec.composite(
+						ActionTarget.STREAM_CODEC_UNRESOLVED_ENTITY_ID, heal -> heal.target, 
+						ByteBufCodecs.BOOL, heal -> heal.isHealing, 
+						ByteBufCodecs.BOOL, heal -> heal.barrageVisuals, 
+						ByteBufCodecs.VAR_INT, heal -> heal.deathTime, 
+						HealResult.Synched::new);
+				
+				public HealResult.Synched copy() {
+					return new HealResult.Synched(this.target.copy(), this.isHealing, this.barrageVisuals, this.deathTime);
+				}
 			}
 		}
 		
 		@Override
 		public void defineSynchedData(SynchedEntityData.Builder builder) {
-			builder.define(HEAL_RESULT, new HealResult());
+			builder.define(HEAL_RESULT, new HealResult.Synched());
 		}
 		
 		@Override
 		public <T> void onSyncedDataUpdated(T oldValue, T newValue, EntityDataAccessor<T> dataKey) {
 			if (dataKey == HEAL_RESULT) {
-				onHealResultUpdated((HealResult) oldValue, (HealResult) newValue);
+				onHealResultUpdated((HealResult.Synched) oldValue, (HealResult.Synched) newValue);
 			}
 		}
 		

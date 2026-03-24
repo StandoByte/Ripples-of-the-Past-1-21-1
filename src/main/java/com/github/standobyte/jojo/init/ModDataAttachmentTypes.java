@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.JojoModLivingVariables;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.entityattachment.DataEventListeners;
 import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffect;
@@ -43,6 +44,9 @@ public final class ModDataAttachmentTypes {
 	public static final Supplier<AttachmentType<DataEventListeners>> DATA_EVENT_HELPER = ATTACHMENT_TYPES.register("event_listener", 
 			() -> AttachmentType.builder(DataEventListeners::new).build());
 	
+	public static final Supplier<AttachmentType<JojoModLivingVariables>> LIVING_VARS = ATTACHMENT_TYPES.register("living_vars", 
+			() -> AttachmentType.serializable(obj -> obj instanceof LivingEntity entity ? new JojoModLivingVariables(entity) : null).build());
+	 
 	public static final Supplier<AttachmentType<StandPower>> STAND_POWER = ATTACHMENT_TYPES.register("stand_power", 
 			() -> AttachmentType.serializable(entity -> PowerClass._tryAttach(entity, StandPower::new)).build());
 

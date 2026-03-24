@@ -25,7 +25,8 @@ public class Moveset {
 	@ApiStatus.Internal public final Map<String, Ability> abilities;
 	@ApiStatus.Internal public ControlSchemeTemplate controlScheme = new ControlSchemeTemplate();
 	
-	public Moveset(Map<String, Ability> abilities, PowerClass<?> powerClass, ResourceLocation powerTypeId) {
+	public Moveset(Map<String, Ability> abilities, 
+			PowerClass<?> powerClass, ResourceLocation powerTypeId) {
 		this.abilities = abilities;
 	}
 	

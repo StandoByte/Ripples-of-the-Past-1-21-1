@@ -103,14 +103,14 @@ public class StandInitStarPlatinum {
 				.addSkill(StandUnlockableSkill.startingAbility("punch"))
 				.addSkill(StandUnlockableSkill.startingAbility("barrage"))
 				.addSkill(StandUnlockableSkill.startingAbility("heavy_punch"))
-				.addSkill(StandUnlockableSkill.startingAbility("uppercut").prerequisiteSkill("heavy_punch"))
+				.addSkill(StandUnlockableSkill.startingAbility("uppercut").prerequisiteSkill("heavy_punch").setIncomplete())
 				.addSkill(StandUnlockableSkill.unlockableAbility("ground_slam", 200).setNotYetImplemented().prerequisiteSkill("heavy_punch"))
 				.addSkill(StandUnlockableSkill.unlockableAbility("uppercut_ground_throw", 200).setNotYetImplemented().prerequisiteSkill("uppercut", "ground_slam"))
 				.addSkill(StandUnlockableSkill.startingAbility("heavy_charged").prerequisiteSkill("heavy_punch"))
 
 				.addSkill(StandUnlockableSkill.startingAbility("grab"))
 				.addSkill(StandUnlockableSkill.startingAbility("block_toss").setNotYetImplemented())
-				.addSkill(StandUnlockableSkill.unlockableAbility("grab_throw", 100).prerequisiteSkill("grab"))
+				.addSkill(StandUnlockableSkill.unlockableAbility("grab_throw", 100).prerequisiteSkill("grab").setIncomplete())
 				.addSkill(StandUnlockableSkill.unlockableAbility("grab_terrain", 150).setNotYetImplemented().withAbility("terrain_throw").prerequisiteSkill("grab"))
 
 				.addSkill(StandUnlockableSkill.startingAbility("enhanced_eyesight").setNotYetImplemented())

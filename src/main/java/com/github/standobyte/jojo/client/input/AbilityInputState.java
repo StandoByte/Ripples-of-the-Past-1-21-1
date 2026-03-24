@@ -2,6 +2,8 @@ package com.github.standobyte.jojo.client.input;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
+
 import net.neoforged.neoforge.common.util.TriState;
 
 public class AbilityInputState {
@@ -37,6 +39,11 @@ public class AbilityInputState {
 				|| state.getFlag(AbilityInputState.VISIBLE_WHEN_INACTIVE);
 		showAbility &= state.getFlag(AbilityInputState.ONLY_IN_CONTAINER) == forContainerMenu.isTrue();
 		return showAbility;
+	}
+	
+	public static boolean showAbilityInHUD(AbilityConditionCheck ability, TriState forContainerMenu) {
+		AbilityInputState state = AbilityInputState.withValue(ability.clientInputState);
+		return AbilityInputState.showAbilityInHUD(state, forContainerMenu);
 	}
 
 

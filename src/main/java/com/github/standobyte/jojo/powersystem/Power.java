@@ -80,7 +80,7 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 		Either<PowerData, CompoundTag> dataEntry = powerData.get(id);
 		if (dataEntry == null) {
 			PowerData data = powerType.newDataInstance();
-			data.onInit(powerType, this);
+			data.onInit(this);
 			this.powerData.put(id, Either.left(data));
 			return data;
 		}

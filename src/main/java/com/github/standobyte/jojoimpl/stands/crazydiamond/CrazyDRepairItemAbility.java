@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.util.functions.ItemUtil;
@@ -122,7 +123,13 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 					syncPhaseChanges();
 				}
 				else if (performer instanceof StandEntity stand) {
-					repairTick(powerUser.getEntityLiving(level), stand, repairedStack, curPhaseTick);
+					ItemRepairResult result = repairTick(powerUser.getEntityLiving(level), stand, repairedStack, curPhaseTick);
+					if (result.uncraftLearnPoints > 0) {
+						StandPower userPower = stand.getUserPower();
+						if (userPower != null) {
+							userPower.addExp(result.uncraftLearnPoints * 75);
+						}
+					}
 				}
 			}
 		}

@@ -1,13 +1,16 @@
 package com.github.standobyte.jojoimpl.powers.hamon;
 
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerData;
-import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 
 public class HamonData extends PlayerPowerData {
+
+	public HamonData() {
+		super(HamonPowerType.HAMON.get());
+	}
 
 	@Override
 	public CompoundTag serializeNBT(HolderLookup.Provider provider) {
@@ -31,8 +34,4 @@ public class HamonData extends PlayerPowerData {
 		
 	}
 
-	@Override
-	public PlayerPowerType<?> getType() {
-		return HamonPowerType.HAMON.get();
-	}
 }
