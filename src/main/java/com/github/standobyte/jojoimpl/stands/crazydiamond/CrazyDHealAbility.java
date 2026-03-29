@@ -68,10 +68,7 @@ public class CrazyDHealAbility extends StandEntityAbility {
 		
 		@Override
 		public void onButtonStopHold() {
-			if (getPhase() != ActionPhase.RECOVERY) {
-				setPhaseStart(ActionPhase.RECOVERY);
-				syncPhaseChanges();
-			}
+			startRecovery();
 		}
 		
 		// TODO !! (CD heal) pose only when it has a target (start counting animation ticks from there)

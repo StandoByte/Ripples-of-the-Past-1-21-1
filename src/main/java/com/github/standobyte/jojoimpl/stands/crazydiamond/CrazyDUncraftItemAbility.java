@@ -158,10 +158,7 @@ public class CrazyDUncraftItemAbility extends StandEntityAbility {
 
 		@Override
 		public void onButtonStopHold() {
-			if (getPhase() != ActionPhase.RECOVERY) {
-				setPhaseStart(ActionPhase.RECOVERY);
-				syncPhaseChanges();
-			}
+			startRecovery();
 		}
 
 		@Override

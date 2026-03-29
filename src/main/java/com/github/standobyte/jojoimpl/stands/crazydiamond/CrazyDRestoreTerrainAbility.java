@@ -144,10 +144,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 
 		@Override
 		public void onButtonStopHold() {
-			if (getPhase() != ActionPhase.RECOVERY) {
-				setPhaseStart(ActionPhase.RECOVERY);
-				syncPhaseChanges();
-			}
+			startRecovery();
 		}
 
 		// FIXME (1.16.5) try to mitigate the fps drops when lots of blocks are restored simultaneously

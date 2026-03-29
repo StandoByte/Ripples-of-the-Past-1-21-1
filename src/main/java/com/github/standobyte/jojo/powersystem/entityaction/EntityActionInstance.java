@@ -260,6 +260,13 @@ public class EntityActionInstance implements HeldInput {
 		return sum;
 	}
 	
+	public void startRecovery() {
+		if (getPhase() != ActionPhase.RECOVERY) {
+			setPhaseStart(ActionPhase.RECOVERY);
+			syncPhaseChanges();
+		}
+	}
+	
 	/**
 	 * A function to time the punch swing sounds a few ticks before the actual punch impact
 	 */
