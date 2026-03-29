@@ -50,11 +50,11 @@ public class DebugItem extends Item {
 	
 	
 	public static String[] OPTIONS = new String[] {
-			"test1",
-			"test2",
-			"test3",
-			"test4",
-			"test5",
+			"__blank1",
+			"__blank2",
+			"__blank3",
+			"__blank4",
+			"__blank5",
 			"track_offhand",
 			"drop_tracked"
 	};
