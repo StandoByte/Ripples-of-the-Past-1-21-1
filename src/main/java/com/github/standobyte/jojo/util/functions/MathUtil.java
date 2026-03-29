@@ -298,5 +298,9 @@ public final class MathUtil {
 			return value > i ? i + 1 : i - 1;
 		}
 	}
+	
+	public static float ratioSafe(float value, float maxValue) {
+		return value >= maxValue ? 1 : maxValue > 0 ? value / maxValue : 0;
+	}
 
 }

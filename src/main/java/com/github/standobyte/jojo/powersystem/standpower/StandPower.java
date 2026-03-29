@@ -20,6 +20,7 @@ import com.github.standobyte.jojo.powersystem.standpower.packet.TrStaminaPacket;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
+import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.jojo.util.functions.NBTUtil;
 import com.github.standobyte.jojo.util.objects_java.Lerp;
 
@@ -190,7 +191,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	public float getStaminaRatio() {
 		float maxStamina = getMaxStamina();
 		float stamina = getStamina();
-		return stamina == maxStamina ? 1 : maxStamina > 0 ? stamina / maxStamina : 0;
+		return MathUtil.ratioSafe(stamina, maxStamina);
 	}
 	
 	public float getStaminaRatio(float partialTick) {
