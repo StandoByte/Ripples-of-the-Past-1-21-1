@@ -59,11 +59,11 @@ public final class ModItems {
 	public static final DeferredItem<ClothesItem> CLOTHES_BASE_ITEM = ITEMS.registerItem("clothes", props -> new ClothesItem(props));
 
 	public static final DeferredItem<Item> STAND_ARROW = ITEMS.registerItem("stand_arrow", props -> new StandArrowItem(props), 
-			new Item.Properties().stacksTo(1).rarity(Rarity.RARE).durability(25));
+			new Item.Properties().stacksTo(1).rarity(Rarity.RARE).durability(5));
 	public static final DeferredItem<Item> STAND_ARROW_BEETLE = ITEMS.registerItem("stand_arrow_beetle", props -> new StandArrowItem(props), 
 			new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
 	public static final DeferredItem<Item> STAND_ARROW_METEORITE = ITEMS.registerItem("stand_arrow_meteorite", props -> new StandArrowItem(props), 
-			new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON).durability(5));
+			new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON).durability(25));
 
 	public static final DeferredItem<Item> STAND_ARROW_SHARD = ITEMS.register("stand_arrow_shard", () -> new StandArrowShardItem(new Item.Properties().rarity(Rarity.UNCOMMON)));
 	public static final DeferredItem<BlockItem> METEORIC_IRON = ITEMS.register("meteoric_iron", props -> new BlockItem(ModBlocks.METEORIC_IRON.get(), new Item.Properties()));
