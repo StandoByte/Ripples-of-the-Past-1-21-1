@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.powersystem.playerpower;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
@@ -45,9 +46,9 @@ public class PlayerPower extends Power<PlayerPower> {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T extends PlayerPowerType<D>, D extends PlayerPowerData> Optional<D> getData(@Nullable T matchCurrentType) {
+	public <T extends PlayerPowerType<D>, D extends PlayerPowerData> Optional<D> getCurTypeData(Supplier<T> matchCurrentType) {
 		return this.curPowerType
-				.filter(curType -> matchCurrentType == null || matchCurrentType == curType)
+				.filter(curType -> matchCurrentType != null && matchCurrentType.get() == curType)
 				.map(type -> (D) getPowerTypeData(type));
 	}
 	
@@ -108,9 +109,9 @@ public class PlayerPower extends Power<PlayerPower> {
 		return PowerClass.PLAYER_POWER.getOptional(entity);
 	}
 
-	public static <T extends PlayerPowerType<D>, D extends PlayerPowerData> Optional<D> getPowerData(LivingEntity user, @Nullable T specificType) {
+	public static <T extends PlayerPowerType<D>, D extends PlayerPowerData> Optional<D> getPowerData(LivingEntity user, Supplier<T> specificType) {
 		PlayerPower playerPower = get(user);
-		return playerPower != null ? playerPower.getData(specificType) : Optional.empty();
+		return playerPower != null ? playerPower.getCurTypeData(specificType) : Optional.empty();
 	}
 
 }
