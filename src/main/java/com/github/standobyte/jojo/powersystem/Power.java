@@ -45,6 +45,10 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	@Override
 	public void tick() {
 		cachedMovesThisTick = false;
+		PowerData curPowerData = getCurTypeData();
+		if (curPowerData != null) {
+			curPowerData.tick(this);
+		}
 	}
 	
 	public boolean canUsePower() {

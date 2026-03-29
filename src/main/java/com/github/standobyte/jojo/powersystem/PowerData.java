@@ -57,6 +57,9 @@ public abstract class PowerData implements INBTSerializable<CompoundTag> {
 		}
 	}
 	
+	public void tick(Power<?> userPower) {}
+	
+	
 	public boolean isSkillUnlocked(String skillName) {
 		return unlockedSkills.contains(skillName);
 	}

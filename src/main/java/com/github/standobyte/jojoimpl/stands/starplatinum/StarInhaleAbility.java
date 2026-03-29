@@ -107,8 +107,7 @@ public class StarInhaleAbility extends StandEntityAbility {
 
         @Override
         public void onButtonStopHold() {
-            setPhaseStart(ActionPhase.RECOVERY);
-            syncPhaseChanges();
+			startRecovery();
         }
 
         @Override

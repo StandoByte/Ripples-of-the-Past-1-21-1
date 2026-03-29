@@ -567,7 +567,7 @@ public class PowerHud {
 	
 	
 	public static class Stamina extends HudElement {
-		public static final ResourceLocation ICON = JojoMod.resLoc("textures/hud/stand_stamina.png");
+		public static final GuiIcon ICON = new GuiIcon(JojoMod.resLoc("textures/hud/stand_stamina.png"), 20, 20);
 		public static final ResourceLocation BAR_HORIZONTAL_FILL = JojoMod.resLoc("textures/hud/bars/bar_horizontal_stamina.png");
 		public static final ResourceLocation BAR_HORIZONTAL_MINI_FILL = JojoMod.resLoc("textures/hud/bars/bar_horizontal_mini_stamina.png");
 		public static final ResourceLocation BAR_VERTICAL_FILL = JojoMod.resLoc("textures/hud/bars/bar_vertical_stamina.png");
@@ -619,8 +619,7 @@ public class PowerHud {
 			int y = getY();
 			float alpha = ResolveStageBuffs.ignoreStaminaDebuff(Minecraft.getInstance().player) ? 0.5f : 1;
 			Bars.renderHorizontalBar(guiGraphics.pose(), x, y, staminaRatio, BAR_HORIZONTAL_FILL, BlitFloat.NO_TINT, alpha);
-			BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), ICON, 
-					x - 12, y - 6, 20, 20, 0, ARGB.white(alpha));
+			ICON.render(guiGraphics.pose(), x - 12, y - 6, ARGB.white(alpha));
 		}
 		
 		@Override
@@ -635,9 +634,12 @@ public class PowerHud {
 			}
 			
 			MultiLineScreenTooltip tooltipText = (MultiLineScreenTooltip) this.tooltip.get();
+			float value = standPower.getStamina();
+			float maxValue = standPower.getMaxStamina();
+			float ratio = standPower.getStaminaRatio();
 			tooltipText.setTitle(Component.translatable("ripples_hud.stamina_bar",
-					Component.literal(String.valueOf((int) standPower.getStamina())).withStyle(style -> style.withColor(color(standPower.getStaminaRatio()))),
-					Component.literal(String.valueOf((int) standPower.getMaxStamina()))
+					Component.literal(String.valueOf((int) value)).withStyle(style -> style.withColor(color(ratio))),
+					Component.literal(String.valueOf((int) maxValue))
 					).withStyle(ChatFormatting.BLACK));
 			super.checkTooltip(mouseX, mouseY, deltaTracker);
 		}
