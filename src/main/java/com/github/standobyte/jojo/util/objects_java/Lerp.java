@@ -26,6 +26,9 @@ public class Lerp {
 			return partialTick == 1 ? value : Mth.lerp(partialTick, prevValue, value);
 		}
 		
+		/**
+		 * @param lerp false if lerpTick() is called from an outside ticking method, true if it's not
+		 */
 		public boolean set(float value, boolean lerp) {
 			if (lerp) {
 				this.prevValue = this.value;
@@ -67,7 +70,10 @@ public class Lerp {
 		public double lerp(float partialTick) {
 			return partialTick == 1 ? value : Mth.lerp(partialTick, prevValue, value);
 		}
-		
+
+		/**
+		 * @param lerp false if lerpTick() is called from an outside ticking method, true if it's not
+		 */
 		public boolean set(double value, boolean lerp) {
 			if (this.value != value) {
 				if (lerp) {
