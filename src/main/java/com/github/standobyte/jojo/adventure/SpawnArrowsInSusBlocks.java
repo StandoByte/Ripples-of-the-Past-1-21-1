@@ -36,10 +36,13 @@ public class SpawnArrowsInSusBlocks {
 		RandomSource random = OOPMoment.RANDOM;
 
 		if (!playerVars.foundAnArrow || playerVars.findMoreArrowsTimer > 0) {
-			if (!serverVars.foundFirstArrows || playerVars.findMoreArrowsTimer > 0) {
+			boolean firstArrowEver = serverVars.foundFirstArrows <= 0;
+			if (firstArrowEver || (serverVars.foundFirstArrows < 5 && playerVars.findMoreArrowsTimer > 0)) {
 				if (random.nextInt(4) == 0) {
 					arrowToPut = ModItems.STAND_ARROW;
-					serverVars.foundFirstArrows = true;
+					serverVars.foundFirstArrows++;
+					serverVars.setDirty();
+					
 					if (playerVars.findMoreArrowsTimer == -1) {
 						playerVars.findMoreArrowsTimer = 5 * 60 * 20;
 					}
