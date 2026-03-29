@@ -24,7 +24,6 @@ import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.init.power.ModStands;
-import com.github.standobyte.jojoimpl.powers.hamon.ModHamonSkills;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.resources.ResourceLocation;
@@ -65,8 +64,6 @@ public class JojoMod {
 		ModStandAbilities.ABILITY_TYPES.register(modEventBus);
 		ModEntityCustomEffects.CUSTOM_EFFECTS.register(modEventBus);
 		ModPlayerPowers.PLAYER_POWERS.register(modEventBus);
-		ModHamonSkills.HAMON_SKILLS.register(modEventBus);
-		ModHamonSkills.HAMON_CHARACTER_TECHNIQUES.register(modEventBus);
 		ModStands.DEFAULT_STANDS.register(modEventBus);
 		ModSpecialActions.ACTIONS.register(modEventBus);
 	}

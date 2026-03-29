@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.powersystem.ability.controls.InputKey;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputUseVanillaMapping;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
+import com.github.standobyte.jojoimpl.powers.hamon.abilities.HamonBreathAbility;
 import com.github.standobyte.jojoimpl.powers.hamon.abilities.HamonOverdriveBeatAbility;
 import com.github.standobyte.jojoimpl.powers.hamon.abilities.HamonRebuffOverdriveAbility;
 import com.github.standobyte.jojoimpl.powers.hamon.abilities.HamonSunlightYellowOverdriveAbility;
@@ -18,6 +19,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class HamonPowerType extends PlayerPowerType<HamonData> {
+	public static final int UI_COLOR = 0xFFFFFF00;
+
+	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> HAMON_BREATH = ABILITY_TYPES.register(
+			"hamon_breath", key -> new AbilityType<>(key, HamonBreathAbility::new));
 
 	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> HAMON_BEAT = ABILITY_TYPES.register(
 			"hamon_beat", key -> new AbilityType<>(key, HamonOverdriveBeatAbility::new));
@@ -30,13 +35,15 @@ public class HamonPowerType extends PlayerPowerType<HamonData> {
 
 	public static final DeferredHolder<PlayerPowerType<?>, HamonPowerType> HAMON = PLAYER_POWERS.register(
 			"hamon", key -> new HamonPowerType(key, new MovesetBuilder()
-					
+
+					.addAbility("hamon_breath", HAMON_BREATH)
 					.addAbility("hamon_beat", HAMON_BEAT)
 					.addAbility("sunlight_yellow_overdrive", SUNLIGHT_YELLOW_OVERDRIVE)
 					.addAbility("rebuff_overdrive", REBUFF_OVERDRIVE)
 					
 					.makeControlScheme("default")
 						.makeMovesetGroup("moveset_group.hamon.combat", new InputUseVanillaMapping("jojo_ripples.key.non_stand_mode"))
+							.bind("hamon_breath", InputMethod.HOLD, InputKey.MMB)
 							.bind("hamon_beat", InputMethod.CLICK, InputKey.LMB)
 							.bind("sunlight_yellow_overdrive", InputMethod.HOLD, InputKey.LMB)
 							.bind("rebuff_overdrive", InputMethod.CLICK, InputKey.RMB)

@@ -270,7 +270,7 @@
   "jojo_ripples.notification.stand_skill": "Доступны новые навыки Стенда:",
   
   "ripples_hud.energy_hamon": "Энергия Хамона",
-  "ripples_hud.energy_hamon.desc": "",
+  "ripples_hud.energy_hamon.desc": "В разработке",
   
   "ripples_hud.hold_key": "Удерж. %s",
   "ripples_hud.hotbar_switch": "(%s - выбрать способность)",

@@ -270,7 +270,7 @@
   "jojo_ripples.notification.stand_skill": "New Stand skills available:",
   
   "ripples_hud.energy_hamon": "Hamon Energy",
-  "ripples_hud.energy_hamon.desc": "",
+  "ripples_hud.energy_hamon.desc": "WIP",
   
   "ripples_hud.hold_key": "Hold %s",
   "ripples_hud.hotbar_switch": "(%s to switch ability)",
