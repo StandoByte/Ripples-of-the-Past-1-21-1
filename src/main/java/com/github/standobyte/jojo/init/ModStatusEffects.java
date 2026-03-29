@@ -1,11 +1,7 @@
 package com.github.standobyte.jojo.init;
 
-import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-
-import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
@@ -38,8 +34,6 @@ public class ModStatusEffects {
 
 	public static final Set<Holder<? extends MobEffect>> TRACKED_EFFECTS = new HashSet<>();
 
-	public static final Set<Holder<? extends MobEffect>> RESOLVE_EFFECTS = new HashSet<>();
-
 	public static final DeferredHolder<MobEffect, ResolveModeEffect> RESOLVE = STATUS_EFFECTS.register("resolve", 
 			id -> new ResolveModeEffect(MobEffectCategory.BENEFICIAL, 0xC6151F));
 
@@ -52,27 +46,11 @@ public class ModStatusEffects {
 
 	@SubscribeEvent
 	public static void afterRegister(FMLCommonSetupEvent event) {
-		TRACKED_EFFECTS.add(RESOLVE);
-		TRACKED_EFFECTS.add(BLEEDING);
-		TRACKED_EFFECTS.add(STAND_VIRUS);
-
-		RESOLVE_EFFECTS.add(RESOLVE);
-	}
-	
-	
-	@Nullable
-	public static MobEffectInstance maxDurationResolveEffect(LivingEntity entity) {
-		return entity.getActiveEffectsMap().entrySet().stream()
-				.filter(effect -> ModStatusEffects.RESOLVE_EFFECTS.contains(effect.getKey()))
-				.max(Comparator.comparingInt(effect -> effect.getValue().getDuration()))
-				.map(Map.Entry::getValue)
-				.orElse(null);
-	}
-	
-	public static boolean isInResolveEffect(LivingEntity entity) {
-		return entity.getActiveEffectsMap().entrySet().stream()
-				.filter(effect -> ModStatusEffects.RESOLVE_EFFECTS.contains(effect.getKey()))
-				.findAny().isPresent();
+		event.enqueueWork(() -> {
+			TRACKED_EFFECTS.add(RESOLVE);
+			TRACKED_EFFECTS.add(BLEEDING);
+			TRACKED_EFFECTS.add(STAND_VIRUS);
+		});
 	}
 	
 	

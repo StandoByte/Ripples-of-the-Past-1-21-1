@@ -15,7 +15,7 @@ import com.github.standobyte.jojo.customobjects.explosion.CustomExplosion;
 import com.github.standobyte.jojo.entityattachment.TickingEntityData;
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
-import com.github.standobyte.jojo.mechanics.resolve.ResolveHandler;
+import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -24,11 +24,11 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormula
 import com.github.standobyte.jojo.subsystems.target.ActionTarget;
 import com.github.standobyte.jojo.util.functions.AttributeUtil;
 import com.github.standobyte.jojo.util.functions.CollisionHelper;
+import com.github.standobyte.jojo.util.functions.CollisionHelper.BlockCollisionResult;
 import com.github.standobyte.jojo.util.functions.DamageUtil;
 import com.github.standobyte.jojo.util.functions.JojoModUtil;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.jojo.util.functions.NBTUtil;
-import com.github.standobyte.jojo.util.functions.CollisionHelper.BlockCollisionResult;
 import com.github.standobyte.jojo.util.objects_java.ReuseableStream;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityHeavyPunchAbility.HeavyPunchExplosion;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDBlockBulletAbility;
@@ -402,7 +402,7 @@ public class KnockbackCollisionImpact implements TickingEntityData, INBTSerializ
 		if (attackerIsStand && attackerStandUser != null && target instanceof LivingEntity targetLiving) {
 			StandPower attackerStand = StandPower.get(attackerStandUser);
 			if (attackerStand != null) {
-				ResolveHandler.addResolve(attackerStand, targetLiving, amount);
+				ResolveCounter.addResolve(attackerStand, targetLiving, amount);
 			}
 		}
 		return hurt;

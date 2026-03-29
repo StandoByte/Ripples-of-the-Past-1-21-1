@@ -2,7 +2,8 @@ package com.github.standobyte.jojo.client.input.clickhold;
 
 import javax.annotation.Nullable;
 
-import it.unimi.dsi.fastutil.floats.FloatConsumer;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientKey;
+
 import net.minecraft.client.Minecraft;
 
 public class AmbiguousKeyPress {
@@ -11,8 +12,9 @@ public class AmbiguousKeyPress {
 	private InputState curState = null;
 	private float timeHeld;
 	
-	public FloatConsumer onHold;
-	public FloatConsumer onClick;
+	public InputResolved onHold;
+	public InputResolved onClick;
+	public DualClickHandler onDualKeyClick;
 	
 	@Nullable
 	public Result frameUpdate(float tickDelta) {
@@ -43,4 +45,11 @@ public class AmbiguousKeyPress {
 	}
 	
 	public static record Result(InputState input, float timeTook) {}
+	
+	@FunctionalInterface public static interface InputResolved {
+		void handleInput(float timeTook);
+	}
+	@FunctionalInterface public static interface DualClickHandler {
+		boolean checkHandleInput(ClientKey secondKeyPressed, float timeTook);
+	}
 }

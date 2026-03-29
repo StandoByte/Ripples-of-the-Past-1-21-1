@@ -37,7 +37,6 @@ import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
-import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
 
@@ -627,13 +626,13 @@ public class PowerHudControlsElement extends HudElement {
 	public static Component getKeyName(@Nullable ClientKey key, KeyModifier modifier) { return getKeyName(key, getKeyName(key), modifier); }
 
 	public static Component getKeyName(ClientKey key) {
-		if (key == ClientKey.make(InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_LEFT)) {
+		if (key == InputHandler.LMB) {
 			return Component.literal(Character.toString(IconSymbols.LMB_CLICK_LARGE));
 		}
-		else if (key == ClientKey.make(InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_RIGHT)) {
+		else if (key == InputHandler.RMB) {
 			return Component.literal(Character.toString(IconSymbols.RMB_CLICK_LARGE));
 		}
-		else if (key == ClientKey.make(InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_MIDDLE)) {
+		else if (key == InputHandler.MMB) {
 			return Component.literal(Character.toString(IconSymbols.MMB_CLICK_LARGE));
 		}
 		else {

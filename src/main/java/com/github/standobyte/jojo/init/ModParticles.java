@@ -34,7 +34,7 @@ public class ModParticles {
 
 	public static final DeferredHolder<ParticleType<?>, SimpleParticleType> MENACING = PARTICLES.register("menacing", () -> new SimpleParticleType(false));
 
-	public static final DeferredHolder<ParticleType<?>, SimpleParticleType> RESOLVE = PARTICLES.register("resolve", () -> new SimpleParticleType(false));
+	public static final DeferredHolder<ParticleType<?>, SimpleParticleType> KATAKANA_DO = PARTICLES.register("katakana_do", () -> new SimpleParticleType(false));
 
 	public static final DeferredHolder<ParticleType<?>, SimpleParticleType> SOUL_CLOUD = PARTICLES.register("soul_cloud", () -> new SimpleParticleType(false));
 

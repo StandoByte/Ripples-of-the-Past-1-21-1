@@ -14,7 +14,7 @@ import net.minecraft.util.RandomSource;
 import net.neoforged.neoforge.common.util.Lazy;
 
 public class EventlessSound extends AbstractSoundInstance {
-	protected static RandomSource iNahuya = RandomSource.create();
+	protected static RandomSource random = RandomSource.create();
 	protected Component subtitle;
 	protected Lazy<? extends WeighedSoundEvents> accessor = Lazy.of(
 			() -> new EventlessSoundAccessor(sound.getLocation(), subtitle, sound));
@@ -24,7 +24,7 @@ public class EventlessSound extends AbstractSoundInstance {
 	}
 
 	public EventlessSound(Sound sound, SoundSource source, @Nullable Component subtitle) {
-		super((sound != null ? sound : SoundManager.EMPTY_SOUND).getLocation(), source, iNahuya);
+		super((sound != null ? sound : SoundManager.EMPTY_SOUND).getLocation(), source, random);
 		this.sound = sound != null ? sound : SoundManager.EMPTY_SOUND;
 		this.subtitle = subtitle;
 	}
@@ -32,7 +32,7 @@ public class EventlessSound extends AbstractSoundInstance {
 	public EventlessSound(Sound sound, SoundSource source, @Nullable Component subtitle,
 			float volume, float pitch, boolean looping, int delay, 
 			SoundInstance.Attenuation attenuation, double x, double y, double z, boolean relative) {
-		super((sound != null ? sound : SoundManager.EMPTY_SOUND).getLocation(), source, iNahuya);
+		super((sound != null ? sound : SoundManager.EMPTY_SOUND).getLocation(), source, random);
 		this.sound = sound != null ? sound : SoundManager.EMPTY_SOUND;
 		this.subtitle = subtitle;
 

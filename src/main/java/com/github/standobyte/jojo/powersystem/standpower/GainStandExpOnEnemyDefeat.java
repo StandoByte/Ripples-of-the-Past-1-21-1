@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.powersystem.standpower;
 
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.mechanics.resolve.ResolveHandler;
+import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData;
@@ -29,7 +29,7 @@ public class GainStandExpOnEnemyDefeat {
 		if (!level.isClientSide()) {
 			DamageSource dmgSource = event.getSource();
 			Entity attacker = dmgSource.getEntity();
-			if (attacker instanceof StandEntity standEntity && ResolveHandler.attackingTargetGivesResolve(target)) {
+			if (attacker instanceof StandEntity standEntity && ResolveCounter.attackingTargetGivesResolve(target)) {
 				StandPower userPower = standEntity.getUserPower();
 				if (userPower != null) {
 					LivingEntity user = userPower.getUser();

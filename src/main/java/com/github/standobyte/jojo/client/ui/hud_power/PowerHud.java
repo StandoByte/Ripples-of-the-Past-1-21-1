@@ -19,12 +19,12 @@ import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
+import com.github.standobyte.jojo.mechanics.resolve.ResolveModeEffect;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerType;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
-import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
@@ -380,14 +380,14 @@ public class PowerHud {
 			GuiIcon emptySprite = HORIZONTAL_EMPTY;
 			GuiIcon fullSprite = HORIZONTAL_FULL;
 			
-			float resolveMode = standPower.resolveHandler.getResolveModeTimerRatio(standPower, partialTick);
+			float resolveMode = standPower.resolveCounter.getResolveModeTimerRatio(standPower, partialTick);
 			if (resolveMode > 0) {
 				BlitFloat.blitRadial(guiGraphics.pose(), mc, RESOLVE_MODE.file, 
 						x + (width - RESOLVE_MODE.width) / 2, y + (height - RESOLVE_MODE.height) / 2, RESOLVE_MODE.width, RESOLVE_MODE.height, 0, 
 						0, resolveMode, BlitFloat.NO_TINT);
 			}
 			
-			float resolveRatio = standPower.getResolveRatio(partialTick);
+			float resolveRatio = standPower.resolveCounter.getResolveRatio(standPower, partialTick);
 			BlitFloat.blit(guiGraphics.pose(), mc, emptySprite.file, 
 					x, y, width, height, 0, 
 					BlitFloat.NO_TINT);
@@ -398,7 +398,7 @@ public class PowerHud {
 					BlitFloat.NO_TINT);
 			
 			if (resolveMode < 0) {
-				float multiplier = standPower.resolveHandler.getTotalBoostVisible(standPower.getUser());
+				float multiplier = standPower.resolveCounter.getTotalBoostVisible(standPower.getUser());
 				if (multiplier > 1) {
 					Component multiplierText = Component.literal("x" + String.format("%.2f", multiplier));
 					StandSkin skin = StandSkinsLoader.getCurSkin();
@@ -420,7 +420,7 @@ public class PowerHud {
 			}
 			
 			MultiLineScreenTooltip tooltipText = (MultiLineScreenTooltip) this.tooltip.get();
-			int resolveModeTimer = standPower.resolveHandler.resolveModeTimer.value;
+			int resolveModeTimer = standPower.resolveCounter.resolveModeTimer.value;
 			if (resolveModeTimer > 0) {
 				tooltipText.setTitle(Component.translatable("ripples_hud.resolve_mode",
 						Component.literal(StringUtil.formatTickDuration(resolveModeTimer, Minecraft.getInstance().level.tickRateManager().tickrate()))
@@ -428,7 +428,7 @@ public class PowerHud {
 			}
 			else {
 				tooltipText.setTitle(Component.translatable("ripples_hud.resolve_bar",
-						Component.literal(String.valueOf((int) (standPower.getResolveRatio() * 100)))
+						Component.literal(String.valueOf((int) (standPower.resolveCounter.getResolveRatio(standPower) * 100)))
 						).withStyle(ChatFormatting.BLACK));
 			}
 			super.checkTooltip(mouseX, mouseY, deltaTracker);
@@ -487,7 +487,7 @@ public class PowerHud {
 			float staminaRatio = standPower.getStaminaRatio(ClientUtil.partialTick(deltaTracker, false));
 			int x = getX() + 8;
 			int y = getY();
-			float alpha = StandUtil.standIgnoresStaminaDebuff(Minecraft.getInstance().player) ? 0.5f : 1;
+			float alpha = ResolveModeEffect.getResolveEffectLvl(Minecraft.getInstance().player) >= 0 ? 0.5f : 1;
 			Bars.renderHorizontalBar(guiGraphics.pose(), x, y, staminaRatio, BAR_HORIZONTAL_FILL, BlitFloat.NO_TINT, alpha);
 			ICON.render(guiGraphics.pose(), x - 12, y - 6, ARGB.white(alpha));
 		}
@@ -496,7 +496,7 @@ public class PowerHud {
 		protected void checkTooltip(double mouseX, double mouseY, DeltaTracker deltaTracker) {
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 			
-			if (StandUtil.standIgnoresStaminaDebuff(Minecraft.getInstance().player)) {
+			if (ResolveModeEffect.getResolveEffectLvl(Minecraft.getInstance().player) >= 0) {
 				this.tooltip.set(this.tooltipResolve);
 			}
 			else {

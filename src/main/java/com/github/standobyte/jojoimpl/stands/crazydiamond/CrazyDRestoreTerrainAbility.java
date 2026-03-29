@@ -29,7 +29,7 @@ import com.github.standobyte.jojo.entityattachment.syncheddata.SyncedDataHolderE
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModParticles;
 import com.github.standobyte.jojo.init.ModSoundEvents;
-import com.github.standobyte.jojo.init.ModStatusEffects;
+import com.github.standobyte.jojo.mechanics.resolve.ResolveModeEffect;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
@@ -54,8 +54,8 @@ import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.BlockBrea
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.BrokenBlocksChunkData;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.CDBlocksRestoredPacket;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.EntityMadeFromBlock;
-import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.PrevBlockInfo;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.EntityMadeFromBlock.EntityReference;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.PrevBlockInfo;
 
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -160,7 +160,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 				Player playerUser = user instanceof Player ? (Player) user : null;
 				boolean creative = playerUser != null ? playerUser.getAbilities().instabuild : false;
 				Entity cameraEntity = restorationCenterEntity(user, userPower);
-				boolean resolveEffect = ModStatusEffects.isInResolveEffect(user);
+				boolean resolveEffect = ResolveModeEffect.getResolveEffectLvl(user) >= 0;
 				int manhattanRange = restorationDistManhattan(resolveEffect);
 				Vec3i eyePos = eyePos(cameraEntity);
 				Vec3 lookVec = cameraEntity.getLookAngle();
@@ -829,7 +829,7 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 	public String getSpriteName(Power<?> context) {
 		if (context != null) {
 			LivingEntity user = context.getUser();
-			if (user != null && ModStatusEffects.isInResolveEffect(user)) {
+			if (user != null && ResolveModeEffect.getResolveEffectLvl(user) >= 0) {
 				return resolveSpriteName;
 			}
 		}

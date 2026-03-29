@@ -1,11 +1,9 @@
 package com.github.standobyte.jojo.powersystem.standpower;
 
-import java.util.function.Consumer;
-
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.init.ModEntityAttributes;
-import com.github.standobyte.jojo.init.ModStatusEffects;
+import com.github.standobyte.jojo.mechanics.resolve.ResolveModeEffect;
 import com.github.standobyte.jojo.modcompat.JojoModsInteraction;
 import com.github.standobyte.jojo.network.s2c.StandSkinSoundPacket;
 import com.github.standobyte.jojo.powersystem.Power;
@@ -96,12 +94,8 @@ public class StandUtil {
 		return null;
 	}
 	
-	public static boolean standIgnoresStaminaDebuff(LivingEntity standUser) {
-		return ModStatusEffects.isInResolveEffect(standUser);
-	}
-	
 	public static double staminaCondition(StandPower standPower) {
-		return standIgnoresStaminaDebuff(standPower.getUser()) ? 1
+		return ResolveModeEffect.getResolveEffectLvl(standPower.getUser()) >= 0 ? 1
 				: 0.25 + Math.min((double) (standPower.getStamina() / standPower.getMaxStamina()) * 1.5, 0.75);
 	}
 	

@@ -39,7 +39,6 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.functions.JSONUtil;
 import com.github.standobyte.jojo.util.functions.StringUtil;
-import com.github.standobyte.jojo.util.reflection.ClientReflection;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Zone;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._ProfilerFiller;
 import com.google.gson.Gson;
@@ -223,7 +222,7 @@ public class StandSkinsLoader implements PreparableReloadListener {
 						}
 					}
 					else {
-						loadResource(resourceEntry.getValue(), resPath, skinBuilder, JojoMod.getLogger(), filePath, preps);
+						loadResource(resourceEntry.getValue(), resPath, skinBuilder, JojoMod.getLogger(), filePath, preps, resourceManager);
 					}
 				}
 			}
@@ -282,6 +281,10 @@ public class StandSkinsLoader implements PreparableReloadListener {
 		
 		public String getResPathPart(int index) {
 			return pathByParts[4 + index];
+		}
+		
+		public String getFileName() {
+			return pathByParts[pathByParts.length - 1];
 		}
 	}
 	
@@ -343,7 +346,7 @@ public class StandSkinsLoader implements PreparableReloadListener {
 	private static final String SOUND_EXTENSION = ".ogg";
 	private void loadResource(List<Resource> resource, SkinResPath resPath, 
 			StandSkinResourceBuilder builder, Logger logger, ResourceLocation fullFilePath, 
-			Preps resourcePreps) {
+			Preps resourcePreps, ResourceManager resourceManager) {
 		for (ModelFileFormatPath format : RotpGeckoModelLoader.PATHS) {
 			if (resPath.assetPathWDirAndExtension.startsWith(format.directory()) /* is in the correct directory */
 					&& resPath.assetPathWDirAndExtension.endsWith(format.extension()) /* has the correct extension */ ) {
@@ -380,7 +383,7 @@ public class StandSkinsLoader implements PreparableReloadListener {
 					}
 					ResourceLocation soundLocation = ResourceLocation.fromNamespaceAndPath(resPath.assetNamespace, 
 							StringUtil.substrBack(resPath.assetPathWExtension, SOUND_EXTENSION.length()));
-					Resource soundResource = resource.get(resource.size() - 1);
+					Resource soundResource = getLastResource(resource);
 					builder.soundFiles.put(soundLocation, Pair.of(fullFilePath, soundResource));
 				}
 			}
@@ -391,13 +394,17 @@ public class StandSkinsLoader implements PreparableReloadListener {
 		}
 	}
 	
+	static Resource getLastResource(List<Resource> resourceStack) {
+		return resourceStack.get(resourceStack.size() - 1);
+	}
+	
 	
 	@Nullable
 	private <T> Pair<ResourceLocation, T> readLastResource(List<Resource> resource, 
 			@Nullable Function<Resource, T> add, @Nullable Function<BufferedReader, T> read, 
 			ResourceLocation skinId, String resNamespace, String resPathWithExt, String... fileExtensions) {
 		Pair<ResourceLocation, List<T>> resourceRead = readResources(
-				Collections.singletonList(resource.get(resource.size() - 1)), 
+				Collections.singletonList(getLastResource(resource)), 
 				add, read, skinId, resNamespace, resPathWithExt, fileExtensions);
 		return resourceRead != null ? resourceRead.mapSecond(list -> list.get(0)) : null;
 	}
@@ -523,8 +530,8 @@ public class StandSkinsLoader implements PreparableReloadListener {
 	protected void apply(Preps preps, ResourceManager resourceManager, ProfilerFiller profiler) {
 		Minecraft mc = Minecraft.getInstance();
 		SoundManager soundManager = mc.getSoundManager();
-		Map<ResourceLocation, Resource> soundCache = ClientReflection.getSoundCache(soundManager);
-		SoundEngine soundEngine = ClientReflection.getSoundEngine(soundManager);
+		Map<ResourceLocation, Resource> soundCache = soundManager.soundCache;
+		SoundEngine soundEngine = soundManager.soundEngine;
 		
 		this.skins.clear();
 		for (var skinBuilder : preps.skinsRead.values()) {

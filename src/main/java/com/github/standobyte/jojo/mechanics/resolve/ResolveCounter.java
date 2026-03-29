@@ -33,7 +33,7 @@ import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID)
-public class ResolveHandler {
+public class ResolveCounter {
 	public static final float RESOLVE_DMG_REDUCTION = 0.6F;
 //	public static final Double[] DEFAULT_MAX_RESOLVE_VALUES = { 5000.0, 10000.0, 20000.0, 30000.0 };
 	public static final float RESOLVE_FOR_DMG_POINT = 1F;
@@ -69,9 +69,9 @@ public class ResolveHandler {
 	public int noBoostDecayTicks = 0;
 
 
-	public ResolveHandler() {}
+	public ResolveCounter() {}
 	
-	public void copyValues(ResolveHandler prev, boolean wasDeath) {
+	public void copyValues(ResolveCounter prev, boolean wasDeath) {
 		this.resolveLerp = prev.resolveLerp;
 		this.resolveModeTimer = prev.resolveModeTimer;
 		if (!wasDeath) {
@@ -136,7 +136,15 @@ public class ResolveHandler {
 		return resolveLerp.get();
 	}
 	
-	public float getMaxResolveValue(StandPower stand) {
+	public float getResolveRatio(StandPower stand) { return getResolveRatio(stand, 1); }
+	
+	public float getResolveRatio(StandPower stand, float partialTick) {
+		if (!stand.usesResolve()) return 0;
+		float maxResolve = getMaxResolveValue();
+		return maxResolve > 0 ? resolveLerp.lerp(partialTick) / maxResolve : 0;
+	}
+	
+	public float getMaxResolveValue() {
 //		StandTypePersistentData data = stand.getCurTypeData();
 //		int alreadyHadResolveWithThisStand = data != null ? data.getResolveReached() : 0;
 //		int index = Mth.clamp(alreadyHadResolveWithThisStand, 0, DEFAULT_MAX_RESOLVE_VALUES.length - 1);
@@ -146,7 +154,7 @@ public class ResolveHandler {
 	
 	public float getResolveModeTimerRatio(StandPower stand, float partialTick) {
 		LivingEntity user = stand.getUser();
-		MobEffectInstance resolveEffect = ModStatusEffects.maxDurationResolveEffect(user);
+		MobEffectInstance resolveEffect = ResolveModeEffect.maxDurationResolveEffect(user);
 		if (resolveEffect != null) {
 			int duration = resolveEffect.getDuration();
 			if (resolveModeTimer.defaultValue > -1 && resolveModeTimer.value > -1) {
@@ -166,7 +174,7 @@ public class ResolveHandler {
 
 
 	public void setResolveValue(StandPower stand, float resolve) {
-		resolve = Mth.clamp(resolve, 0, getMaxResolveValue(stand));
+		resolve = Mth.clamp(resolve, 0, getMaxResolveValue());
 		resolveLerp.set(resolve, true);
 
 		LivingEntity user = stand.getUser();
@@ -231,7 +239,7 @@ public class ResolveHandler {
 	
 	public boolean canEnterResolveMode(StandPower stand) {
 		LivingEntity user = stand.getUser();
-		return user != null && getResolveValue() >= getMaxResolveValue(stand) && !ModStatusEffects.isInResolveEffect(user);
+		return user != null && getResolveValue() >= getMaxResolveValue() && ResolveModeEffect.getResolveEffectLvl(user) < 0;
 	}
 	
 	public boolean startResolveMode(StandPower stand) {
@@ -254,9 +262,8 @@ public class ResolveHandler {
 	public void onResolveEffectStart(StandPower stand, LivingEntity user, MobEffectInstance resolveEffect) {
 		if (user != null) {
 			var data = stand.getCurTypeData();
-			data.incResolveReached(user);
 			data.syncOnUpdate(user);
-			setResolveValue(stand, stand.getMaxResolve());
+			setResolveValue(stand, stand.resolveCounter.getMaxResolveValue());
 			
 			boolean hasMinDuration = false;
 			if (resolveEffect.is(ModStatusEffects.RESOLVE)) {
@@ -450,11 +457,11 @@ public class ResolveHandler {
 //					return 1F;
 //				}).orElse(1F);
 //			}
-			if (ModStatusEffects.isInResolveEffect(attackTarget)) {
-				dmgAmount *= Math.max(1 / (attackerStand.getResolveRatio() + 0.2F), 1);
+			if (ResolveModeEffect.getResolveEffectLvl(attackTarget) >= 0) {
+				dmgAmount *= Math.max(1 / (attackerStand.resolveCounter.getResolveRatio(attackerStand) + 0.2F), 1);
 			}
 
-			attackerStand.resolveHandler.addResolveOnAttack(attackerStand, dmgAmount);
+			attackerStand.resolveCounter.addResolveOnAttack(attackerStand, dmgAmount);
 		}
 	}
 
@@ -480,7 +487,7 @@ public class ResolveHandler {
     	LivingEntity target = event.getEntity();
     	StandPower stand = StandPower.get(target);
     	if (stand != null && stand.usesResolve()) {
-    		stand.getResolveHandler().onGettingAttacked(event.getSource(), event.getNewDamage(), stand, target);
+    		stand.resolveCounter.onGettingAttacked(event.getSource(), event.getNewDamage(), stand, target);
     	}
     }
 
@@ -492,7 +499,7 @@ public class ResolveHandler {
         LivingEntity target = event.getEntity();
         StandPower stand = StandPower.get(target);
         if (stand != null) {
-        	float dmgReduction = stand.resolveHandler.getResolveDmgReduction(stand, target);
+        	float dmgReduction = stand.resolveCounter.getResolveDmgReduction(stand, target);
         	if (dmgReduction > 0F) {
         		event.setNewDamage(event.getNewDamage() * (1 - dmgReduction));
         	}
@@ -504,11 +511,11 @@ public class ResolveHandler {
     	if (playerPower != null && playerPower.getPowerType() == ModPlayerPowers.VAMPIRISM.get()) {
     		return 0;
     	}
-        if (ModStatusEffects.isInResolveEffect(user)) {
+        if (ResolveModeEffect.getResolveEffectLvl(user) >= 0) {
             return RESOLVE_DMG_REDUCTION;
         }
         if (stand.usesResolve()) {
-            return stand.getResolveRatio() * RESOLVE_DMG_REDUCTION;
+            return stand.resolveCounter.getResolveRatio(stand) * RESOLVE_DMG_REDUCTION;
         }
         return 0;
     }
@@ -519,7 +526,7 @@ public class ResolveHandler {
 		LivingEntity entity = event.getPlayer();
 		StandPower stand = StandPower.get(entity);
 		if (stand != null) {
-			stand.resolveHandler.onChatMessage(stand, event.getRawText());
+			stand.resolveCounter.onChatMessage(stand, event.getRawText());
 		}
 	}
 	

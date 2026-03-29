@@ -22,7 +22,7 @@ public record ResolveBoostsPacket(
 		int resolveModeTimerMax) implements CustomPacketPayload {
 	private static CustomPacketPayload.Type<ResolveBoostsPacket> type;
 	
-	public ResolveBoostsPacket(ResolveHandler boosts) {
+	public ResolveBoostsPacket(ResolveCounter boosts) {
 		this(
 				boosts.boostAttack, 
 				boosts.boostRemoteControl, 
@@ -73,13 +73,13 @@ public record ResolveBoostsPacket(
 			if (player != null) {
 				StandPower standPower = StandPower.get(player);
 				if (standPower != null) {
-					standPower.resolveHandler.boostAttack = payload.boostAttack;
-					standPower.resolveHandler.boostRemoteControl = payload.boostRemoteControl;
-					standPower.resolveHandler.boostChat = payload.boostChat;
-					standPower.resolveHandler.hpOnGettingAttacked = payload.hpOnGettingAttacked;
-					standPower.resolveHandler.noBoostDecayTicks = payload.noBoostDecayTicks;
-					standPower.resolveHandler.resolveModeTimer.value = payload.resolveModeTimer;
-					standPower.resolveHandler.resolveModeTimer.defaultValue = payload.resolveModeTimerMax;
+					standPower.resolveCounter.boostAttack = payload.boostAttack;
+					standPower.resolveCounter.boostRemoteControl = payload.boostRemoteControl;
+					standPower.resolveCounter.boostChat = payload.boostChat;
+					standPower.resolveCounter.hpOnGettingAttacked = payload.hpOnGettingAttacked;
+					standPower.resolveCounter.noBoostDecayTicks = payload.noBoostDecayTicks;
+					standPower.resolveCounter.resolveModeTimer.value = payload.resolveModeTimer;
+					standPower.resolveCounter.resolveModeTimer.defaultValue = payload.resolveModeTimerMax;
 				}
 			}
 		}

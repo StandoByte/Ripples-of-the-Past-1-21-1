@@ -12,6 +12,7 @@ import com.github.standobyte.jojo.init.ModEntityDataSerializers;
 import com.github.standobyte.jojo.init.ModParticles;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.init.ModStatusEffects;
+import com.github.standobyte.jojo.mechanics.resolve.ResolveModeEffect;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
@@ -190,7 +191,7 @@ public class CrazyDHealAbility extends StandEntityAbility {
 			HealResult result = new HealResult();
 			result.synched.target = target;
 			LivingEntity user = getPowerUser();
-			result.synched.barrageVisuals = user != null && ModStatusEffects.isInResolveEffect(user);
+			result.synched.barrageVisuals = user != null && ResolveModeEffect.getResolveEffectLvl(user) >= 0;
 			
 			if (target.getType() == TargetType.ENTITY) {
 				Entity targetEntity = target.getEntity();
@@ -237,7 +238,7 @@ public class CrazyDHealAbility extends StandEntityAbility {
 			LivingEntity toHeal = StandUtil.getStandUser(entity);
 			// FIXME (1.16.5) disable it if the target is a dead body already
 			if (entity.deathTime > 0) {
-				// boolean resolveEffect = standEntity.getUser() != null && ModStatusEffects.isInResolveEffect(standEntity.getUser());
+				// boolean resolveEffect = standEntity.getUser() != null && ResolveModeEffect.isInResolveEffect(standEntity.getUser());
 				// if (!resolveEffect && entity.deathTime > 1 || entity.deathTime > 15) {
 				// 	return false;
 				// }

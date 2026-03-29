@@ -43,7 +43,7 @@ public record TrResolvePacket(int entityId, float resolve) implements CustomPack
 			Entity entity = ClientProxy.getEntityById(payload.entityId);
 			if (entity instanceof LivingEntity living) {
 				StandPower standPower = StandPower.get(living);
-				if (standPower != null) standPower.resolveHandler.setResolveValue(standPower, payload.resolve);
+				if (standPower != null) standPower.resolveCounter.setResolveValue(standPower, payload.resolve);
 			}
 		}
 
