@@ -63,11 +63,11 @@ public class DebugItem extends Item {
 	public static String[] OPTIONS = new String[] {
 			"cycle_bgm",
 			"color_shift",
-			"__blank",
-			"__blank",
-			"__blank",
-			"__blank",
-			"__blank",
+			"__blank1",
+			"__blank2",
+			"__blank3",
+			"__blank4",
+			"__blank5",
 			"track_offhand",
 			"drop_tracked"
 	};
