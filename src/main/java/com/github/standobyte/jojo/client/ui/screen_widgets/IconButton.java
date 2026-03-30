@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.client.ui.screen_widgets;
 
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
+import com.github.standobyte.jojo.core.JojoMod;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.gui.Font;
@@ -52,11 +53,11 @@ public class IconButton extends Button {
 	public void renderString(GuiGraphics guiGraphics, Font font, int color) {}
 	
 	
-	public static final GuiIcon CHECKMARK = new GuiIcon(ResourceLocation.withDefaultNamespace("textures/gui/sprites/pending_invite/accept.png"), 18, 18);
-	public static final GuiIcon CROSS = new GuiIcon(ResourceLocation.withDefaultNamespace("textures/gui/sprites/pending_invite/reject.png"), 18, 18);
+	public static final GuiIcon CHECKMARK = new GuiIcon(JojoMod.resLoc("textures/gui/sprites/checkmark.png"), 16, 16);
+	public static final GuiIcon CROSS = new GuiIcon(JojoMod.resLoc("textures/gui/sprites/cross.png"), 16, 16);
 	public static void renderCheckmarkOrCross(AbstractWidget button, boolean value, PoseStack poseStack) {
-		int x = button.getRight() - 9;
-		int y = button.getBottom() - 15;
+		int x = button.getRight() - 8;
+		int y = button.getBottom() - 14;
 		GuiIcon icon = value ? CHECKMARK : CROSS;
 		icon.render(poseStack, x, y);
 	}
