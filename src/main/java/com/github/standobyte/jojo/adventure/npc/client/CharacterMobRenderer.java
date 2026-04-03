@@ -3,8 +3,16 @@ package com.github.standobyte.jojo.adventure.npc.client;
 import java.text.DecimalFormat;
 
 import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
+import com.github.standobyte.jojo.client.entityanim.PlayerRendererCallbacks;
+import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState;
+import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
+import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojoimpl.stands.scarymonsters.client.ReplacePlayerModelWithDino;
+import com.github.standobyte.v1_21_4_stuff.renderstate.HumanoidRenderState;
+import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
+import com.github.standobyte.v1_21_4_stuff.renderstate.RenderStateCrutches;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
@@ -27,6 +35,7 @@ import net.minecraft.util.FastColor;
 public class CharacterMobRenderer<T extends PowerUserMobEntity> extends LivingEntityRenderer<T, EntityModel<T>> {
 	protected EntityModel<T> regularPlayerModel;
 	protected EntityModel<T> slimPlayerModel;
+	protected HumanoidRenderState reusedState = new HumanoidRenderState();
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public CharacterMobRenderer(Context context) {
@@ -54,7 +63,10 @@ public class CharacterMobRenderer<T extends PowerUserMobEntity> extends LivingEn
 			case WIDE -> regularPlayerModel;
 			case SLIM -> slimPlayerModel;
 		};
+		
+		PlayerRendererCallbacks.beforeLivingRender(entity, reusedState, this, entityRenderDispatcher, partialTick);
 		super.render(entity, entityYaw, partialTick, poseStack, buffer, packedLight);
+		PlayerRendererCallbacks.afterLivingRender();
 		
 		if (entity.isDebugDummy()) {
 			renderDummyStuff(entity, partialTick, poseStack, buffer, packedLight, entityRenderDispatcher);
