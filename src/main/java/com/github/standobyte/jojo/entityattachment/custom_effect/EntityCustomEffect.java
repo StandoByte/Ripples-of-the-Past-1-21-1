@@ -2,6 +2,8 @@ package com.github.standobyte.jojo.entityattachment.custom_effect;
 
 import javax.annotation.Nonnull;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataHelper;
 
@@ -43,6 +45,7 @@ public abstract class EntityCustomEffect {
 		return this;
 	}
 
+	@ApiStatus.Internal
 	public EntityCustomEffect withId(int id) {
 		this.id = id;
 		return this;
