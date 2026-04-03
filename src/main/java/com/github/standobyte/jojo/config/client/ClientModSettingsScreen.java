@@ -41,6 +41,8 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 
+// just noticed that, when the screen is opened, the main menu panorama rotates twice as fast
+// obviously that's not worth anyone's brain cells to go and figure out why, but that's so random
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class ClientModSettingsScreen extends Screen {
     protected final Screen lastScreen;
