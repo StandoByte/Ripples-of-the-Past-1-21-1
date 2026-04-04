@@ -4,12 +4,14 @@ import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState;
 import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.LivingEntity;
 
 public class RenderStateCrutches {
-	public static LivingEntityRenderState currentEntityRenderState;
+	public static HumanoidRenderState currentEntityRenderState;
 	public static StandEntityRenderState currentStandEntityRenderState;
 
 	public static void beforeLivingRender(LivingEntity entity, HumanoidRenderState reusedState, 
@@ -18,6 +20,13 @@ public class RenderStateCrutches {
 		HumanoidRenderState.extractHumanoidRenderState(entity, reusedState, partialTick);
 		RipplesPlayerRenderState.extract(entity, reusedState, ((RipplesRenderStateExtensionMixin) reusedState).get(), partialTick);
         RenderStateCrutches.currentEntityRenderState = reusedState;
+        
+        if (!reusedState.isCrouching && entity.isCrouching()) {
+        	EntityModel<?> model = renderer.getModel();
+        	if (model instanceof HumanoidModel humanoidModel) {
+        		humanoidModel.crouching = false;
+        	}
+        }
 	}
 	
 	public static void afterLivingRender() {
