@@ -55,7 +55,7 @@ public class CustomItemRenderer extends BlockEntityWithoutLevelRenderer implemen
 	@Override
 	public void renderByItem(ItemStack itemStack, ItemDisplayContext displayContext, PoseStack poseStack, 
 			MultiBufferSource renderTypeBuffer, int light, int overlay) {
-		ModelPart modelRoot = model.modelRoot;
+		ModelPart modelRoot = model.getModelRoot();
 		if (modelRoot != null) {
 			poseStack.pushPose();
 			poseStack.scale(-1.0F, -1.0F, 1.0F);
@@ -77,7 +77,7 @@ public class CustomItemRenderer extends BlockEntityWithoutLevelRenderer implemen
 			MultiBufferSource renderTypeBuffer, int light, int overlay) {
 		VertexConsumer vertexBuilder = ItemRenderer.getFoilBufferDirect(
 				renderTypeBuffer, renderType(texture), false, itemStack.hasFoil());
-		model.modelRoot.render(poseStack, vertexBuilder, light, overlay, 0xFFFFFFFF);
+		model.getModelRoot().render(poseStack, vertexBuilder, light, overlay, 0xFFFFFFFF);
 	}
 
 	protected RenderType renderType(ResourceLocation texture) {

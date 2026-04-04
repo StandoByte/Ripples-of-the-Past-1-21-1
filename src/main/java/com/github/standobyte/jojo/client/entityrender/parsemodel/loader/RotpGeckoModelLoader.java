@@ -64,7 +64,7 @@ public class RotpGeckoModelLoader extends SimplePreparableReloadListener<Map<Res
 	
 	@Nullable
 	public LayerDefinition getModelDefinition(ResourceLocation path) {
-		return getModelContainer(path).modelDefinition;
+		return getModelContainer(path).getModelDefinition();
 	}
 	
 
@@ -108,7 +108,7 @@ public class RotpGeckoModelLoader extends SimplePreparableReloadListener<Map<Res
 	@Override
 	protected void apply(Map<ResourceLocation, LayerDefinition> modelsRead, ResourceManager resourceManager, ProfilerFiller profiler) {
 		for (var oldModel : this.models.values()) {
-			oldModel.reset();
+			oldModel.clear();
 		}
 		for (var readEntry : modelsRead.entrySet()) {
 			ResourceLocation key = readEntry.getKey();

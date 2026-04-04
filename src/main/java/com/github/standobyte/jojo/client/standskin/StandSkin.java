@@ -12,12 +12,14 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.client.ResourcePathChecker;
 import com.github.standobyte.jojo.client.entityanim.AnimationSet;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
+import com.github.standobyte.jojo.client.entityrender.ModelCast;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.standskin.sound.CustomPathSound;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.core.JojoRegistries;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.subsystems.StoryPart;
 
@@ -44,7 +46,7 @@ public class StandSkin {
 	
 	protected Map<ResourceLocation, LayerDefinition> models = new HashMap<>();
 	protected LayerDefinition standModel;
-	protected Map<ResourceLocation, Optional<Model>> createdModelsCache = new HashMap<>();
+	protected Map<ResourceLocation, Optional<ModelCast>> createdModelsCache = new HashMap<>();
 	protected Optional<StandEntityModel<?, ?>> createdStandModelCache;
 	
 	protected Map<ResourceLocation, AnimationSet> animations = new HashMap<>();
@@ -153,21 +155,26 @@ public class StandSkin {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	public <M extends Model> M getModel(ResourceLocation modelPath, Function<LayerDefinition, M> newModelFactory) {
-		Optional<Model> cached = createdModelsCache.get(modelPath);
-		if (cached != null) {
-			return (M) cached.orElse(null);
-		}
-		LayerDefinition modelDefinition = models.get(modelPath);
-		if (modelDefinition != null) {
-			cached = Optional.ofNullable(newModelFactory.apply(modelDefinition));
+		ModelCast model = getModel(modelPath);
+		return model != null ? model.getMainModel(newModelFactory) : null;
+	}
+	
+	public ModelCast getModel(ResourceLocation modelPath) {
+		Optional<ModelCast> cached = createdModelsCache.get(modelPath);
+		if (cached == null) {
+			LayerDefinition modelDefinition = models.get(modelPath);
+			ModelCast modelCast = modelDefinition != null ? new ModelCast(modelDefinition) : null;
+			cached = Optional.ofNullable(modelCast);
 			createdModelsCache.put(modelPath, cached);
-			return (M) cached.orElse(null);
+		}
+		
+		if (cached.isPresent()) {
+			return cached.get();
 		}
 		
 		if (this != defaultSkin) {
-			return defaultSkin.getModel(modelPath, newModelFactory);
+			return defaultSkin.getModel(modelPath);
 		}
 		
 		return null;
@@ -232,6 +239,10 @@ public class StandSkin {
 			return defaultSkin.getAnimation(modelId, getAnim);
 		}
 		return null;
+	}
+	
+	public RotpAnimDefinition getAnimation(ResourceLocation modelId, ActionAnimIdentifier animId) {
+		return getAnimation(modelId, animSet -> animSet.getNamedAnim(animId));
 	}
 	
 	public RotpAnimDefinition getStandAnimation(Function<AnimationSet, RotpAnimDefinition> getAnim) {

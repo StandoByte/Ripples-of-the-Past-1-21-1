@@ -68,78 +68,78 @@ public class PreFrameEntityAnimCalc {
 	// TODO get rid of instanceof
 	// TODO get rid of newFrame argument
 	public static AnimFramePose getLivingPose(LivingEntity living, float partialTick, boolean newFrame) {
-		AnimFramePose pose = null;
 		LivingComponentAction actionComponent = LivingComponentAction.getExistingComponent(living);
 		EntityActionInstance action = actionComponent != null ? actionComponent.getAction() : null;
 		@Nullable StandEntity stand = living instanceof StandEntity __ ? __ : null;
 		
 		LivingAnimState animVariables = LivingAnimState.reusedInstance;
-		if (action != null || stand != null) {
-			if (action != null) {
-				action.extractAnim(animVariables, living, partialTick);
-			}
-			else {
-				animVariables.reset();
-			}
+		if (action != null) {
+			action.extractAnim(animVariables, living, partialTick);
+		}
+		else {
+			animVariables.reset();
+		}
 
-			RotpAnimDefinition anim;
-			if (stand != null) {
-				StandSkin standSkin = StandSkinsLoader.getInstance().getSkin(stand);
-				boolean isGrabbing = LivingComponentGrab.getEntityGrabbedBy(stand) != null;
-				ActionAnimIdentifier idleAnim = isGrabbing ? StandEntityRenderer.GRAB_IDLE_ANIM : StandEntityRenderer.IDLE_ANIM;
+		RotpAnimDefinition anim;
+		if (stand != null) {
+			StandSkin standSkin = StandSkinsLoader.getInstance().getSkin(stand);
+			boolean isGrabbing = LivingComponentGrab.getEntityGrabbedBy(stand) != null;
+			ActionAnimIdentifier idleAnim = isGrabbing ? StandEntityRenderer.GRAB_IDLE_ANIM : StandEntityRenderer.IDLE_ANIM;
 
-				if (animVariables.animId == null) {
-					float idleTime = stand.tickCount - stand.nonIdlePoseTimeStamp + partialTick;
-					// FIXME for a bit after grabbing, the grabbed entity is not yet synced to the client, causing it to use regular idle anim for a few frames
-					if (isGrabbing) {
-						animVariables.animId = idleAnim;
-						animVariables.actionPhase = ActionPhase.PERFORM;
-						animVariables.phaseTime = idleTime;
-					}
-					else {
-						animVariables.animId = idleAnim;
-						animVariables.time = idleTime;
-					}
+			if (animVariables.animId == null) {
+				float idleTime = stand.tickCount - stand.nonIdlePoseTimeStamp + partialTick;
+				// FIXME for a bit after grabbing, the grabbed entity is not yet synced to the client, causing it to use regular idle anim for a few frames
+				if (isGrabbing) {
+					animVariables.animId = idleAnim;
+					animVariables.actionPhase = ActionPhase.PERFORM;
+					animVariables.phaseTime = idleTime;
 				}
-				if (newFrame && !animVariables.animId.isIdle()) {
-					stand.nonIdlePoseTimeStamp = stand.tickCount;
+				else {
+					animVariables.animId = idleAnim;
+					animVariables.time = idleTime;
 				}
-
-				AnimWithId animPossiblyReplaced = getStandAnim(standSkin, animVariables.animId, idleAnim);
-				anim = animPossiblyReplaced.anim;
-				animVariables.animId = animPossiblyReplaced.animId;
 			}
-			else {
-				anim = getPlayerAnim(animVariables.animSet, animVariables.animId);
+			if (newFrame && !animVariables.animId.isIdle()) {
+				stand.nonIdlePoseTimeStamp = stand.tickCount;
+			}
+
+			AnimWithId animPossiblyReplaced = getStandAnim(standSkin, animVariables.animId, idleAnim);
+			anim = animPossiblyReplaced.anim;
+			animVariables.animId = animPossiblyReplaced.animId;
+		}
+		else {
+			anim = getPlayerAnim(animVariables.animSet, animVariables.animId);
+		}
+		
+		if (anim != null) {
+			float timeSeconds = anim.getAnimTime(animVariables);
+			AnimFramePose pose = anim.calcAnimPose(AnimMolangVariables.extract(living, partialTick), 
+					actionComponent != null ? actionComponent.clPrevPunchPose : null, timeSeconds, 1);
+			
+			if (newFrame) {
+				BarrageSwings barrageSwings = getBarrageSwings(living);
+				if (barrageSwings != null) {
+					barrageSwings.frameStandBarrage(Minecraft.getInstance(), anim, timeSeconds, living, living.tickCount + partialTick);
+				}
 			}
 			
-			if (anim != null) {
-				float timeSeconds = anim.getAnimTime(animVariables);
-				pose = anim.calcAnimPose(AnimMolangVariables.extract(living, partialTick), 
-						actionComponent != null ? actionComponent.clPrevPunchPose : null, timeSeconds, 1);
-				
-				if (newFrame) {
-					BarrageSwings barrageSwings = getBarrageSwings(living);
-					if (barrageSwings != null) {
-						barrageSwings.frameStandBarrage(Minecraft.getInstance(), anim, timeSeconds, living, living.tickCount + partialTick);
-					}
-				}
-				
-				if (ClientModSettings.getSettingsReadOnly().standMotionTilt && stand != null) {
-					// FIXME save the pose without motion tilt separately (fixes punch combo interpolation)
-					EntityRenderer renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(living);
-					if (renderer instanceof StandEntityRenderer standEntityRenderer) {
-						StandEntityModel model = standEntityRenderer.getEntityModel(stand);
-						if (model != null) {
-							Vec3 motionTiltVec = model.prepareMotionTilt(stand, partialTick);
-							boolean idlePose = animVariables.animId != null && animVariables.animId.isIdle();
-							model.doMotionTilt(motionTiltVec, pose, idlePose);
-						}
+			if (ClientModSettings.getSettingsReadOnly().standMotionTilt && stand != null) {
+				// FIXME save the pose without motion tilt separately (fixes punch combo interpolation)
+				EntityRenderer renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(living);
+				if (renderer instanceof StandEntityRenderer standEntityRenderer) {
+					StandEntityModel model = standEntityRenderer.getEntityModel(stand);
+					if (model != null) {
+						Vec3 motionTiltVec = model.prepareMotionTilt(stand, partialTick);
+						boolean idlePose = animVariables.animId != null && animVariables.animId.isIdle();
+						model.doMotionTilt(motionTiltVec, pose, idlePose);
 					}
 				}
 			}
+			
+			return pose;
 		}
-		return pose;
+		
+		return null;
 	}
 	
 	public static RotpAnimDefinition getPlayerAnim(ResourceLocation animSetPath, ActionAnimIdentifier animId) {
