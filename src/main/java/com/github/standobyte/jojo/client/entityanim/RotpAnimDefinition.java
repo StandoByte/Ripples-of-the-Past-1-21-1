@@ -116,6 +116,10 @@ public class RotpAnimDefinition {
 		Model_1_21_2plus backportModelCast = (Model_1_21_2plus) model;
 		ModelWithExtraFeatures rotpModelCast = (ModelWithExtraFeatures) model;
 		
+		if (humanoidModelCast != null) {
+			PlayerModelBends.beforePlayerAnim(humanoidModelCast);
+		}
+		
 		for (var modelPartEntry : frame.pose.entrySet()) {
 			String modelPartName = modelPartEntry.getKey();
 			ModelPart modelPart = getModelPart(modelPartName, model, humanoidModelCast, backportModelCast);

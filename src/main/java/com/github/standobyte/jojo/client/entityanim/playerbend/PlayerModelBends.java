@@ -33,6 +33,13 @@ public class PlayerModelBends {
 		return cube.maxY - cube.minY;
 	}
 	
+	public static void beforePlayerAnim(HumanoidModel<?> playerModel) {
+		/* This vanilla part is not referenced in playerAnimator format, so we just reset it, 
+		 * in order to get rid of things like y rotation from the vanilla punch animation.
+		 */
+		playerModel.body.loadPose(playerModel.body.getInitialPose());
+	}
+	
 	@Nullable
 	public static ModelPart getModelPartForPlayerAnim(HumanoidModel<?> playerModel, String animBoneName) {
 		return switch (animBoneName) {
