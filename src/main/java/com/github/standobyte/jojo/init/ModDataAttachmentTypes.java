@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.JojoModLivingVariables;
+import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.entityattachment.DataEventListeners;
 import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffect;
@@ -23,6 +24,7 @@ import com.github.standobyte.jojo.subsystems.entity_externalcontainer.PlayerExte
 import com.github.standobyte.jojo.subsystems.entity_grab.LivingComponentGrab;
 import com.github.standobyte.jojo.subsystems.entity_possessionv2.LivingComponentPossession;
 import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.EntityComponentController;
+import com.github.standobyte.jojo.subsystems.movement_input_sync.PlayerMovementInputData;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.BrokenBlocksChunkData;
 
 import net.minecraft.server.level.ServerLevel;
@@ -85,6 +87,9 @@ public final class ModDataAttachmentTypes {
 	
 	public static final Supplier<AttachmentType<PlayerExternalContainers>> EXTERNAL_CONTAINERS = ATTACHMENT_TYPES.register("external_containers", 
 			() -> AttachmentType.builder(entity -> entity instanceof Player player ? new PlayerExternalContainers(player) : null).build());
+	
+	public static final Supplier<AttachmentType<PlayerMovementInputData>> SYNCHED_MOVEMENT_INPUT = ATTACHMENT_TYPES.register("synched_movement_input", 
+			() -> AttachmentType.builder(entity -> entity instanceof Player || entity instanceof PowerUserMobEntity ? new PlayerMovementInputData() : null).build());
 	
 	
 	// Level
