@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mixin.client.modelanim;
+package com.github.standobyte.jojo.mixin.client;
 
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.standobyte.jojo.client.entityanim.PreFrameEntityAnimCalc;
+import com.github.standobyte.jojo.client.entityrender.PreFrameEntityRenderCallback;
 
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
@@ -27,6 +27,6 @@ public class LevelRendererMixin {
 	public void beforeEntitiesRender(DeltaTracker deltaTracker, boolean renderBlockOutline, 
 			Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, 
 			Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
-		PreFrameEntityAnimCalc.onBeforeEntitiesRender(level);
+		PreFrameEntityRenderCallback.onBeforeEntitiesRender(level);
 	}
 }

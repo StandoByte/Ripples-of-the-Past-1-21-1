@@ -12,7 +12,6 @@ import javax.annotation.Nullable;
 
 import org.joml.Vector3f;
 
-import com.github.standobyte.jojo.client.entityanim.PreFrameEntityAnimCalc.LivingAnimState;
 import com.github.standobyte.jojo.client.entityanim.action.AnimActionPhase;
 import com.github.standobyte.jojo.client.entityanim.action.AnimInstructionTimelines;
 import com.github.standobyte.jojo.client.entityanim.action.AnimObjTimeline;

@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.adventure.npc.client;
 import java.text.DecimalFormat;
 
 import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
+import com.github.standobyte.jojo.client.entityrender.ReplacePlayerModel;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.v1_21_4_stuff.renderstate.HumanoidRenderState;
@@ -47,6 +48,10 @@ public class CharacterMobRenderer<T extends PowerUserMobEntity> extends LivingEn
 
 	@Override
 	public ResourceLocation getTextureLocation(T entity) {
+		ResourceLocation replacementTexture = ReplacePlayerModel.getTexture(entity);
+		if (replacementTexture != null) {
+			return replacementTexture;
+		}
 		return entity.clientStuff.getTexture(entity);
 	}
 
@@ -57,6 +62,11 @@ public class CharacterMobRenderer<T extends PowerUserMobEntity> extends LivingEn
 			case WIDE -> regularPlayerModel;
 			case SLIM -> slimPlayerModel;
 		};
+		
+		PlayerModel replacementModel = ReplacePlayerModel.getModel(entity);
+		if (replacementModel != null) {
+			this.model = replacementModel;
+		}
 		
 		RenderStateCrutches.beforeLivingRender(entity, reusedState, this, entityRenderDispatcher, partialTick);
 		super.render(entity, entityYaw, partialTick, poseStack, buffer, packedLight);
