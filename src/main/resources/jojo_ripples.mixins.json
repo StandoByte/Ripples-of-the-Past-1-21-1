@@ -89,6 +89,7 @@
     "client.model.ModelExtraFeatures",
     "client.model.PlayerAnimModelPartMixin",
 	"client.model.ReplacePlayerModelMixin",
+	"client.model.ReplaceLivingModelMixin",
     
 	"client.controls.KeyboardHandlerMixin",
 	

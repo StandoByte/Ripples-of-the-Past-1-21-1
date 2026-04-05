@@ -16,20 +16,14 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
-import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({ "rawtypes" })
 @Mixin(PlayerRenderer.class)
-public abstract class ReplacePlayerModelMixin extends LivingEntityRenderer {
+public abstract class ReplacePlayerModelMixin extends ReplaceLivingModelMixin {
 	@Unique protected EntityModel prevModel;
-    
-	public ReplacePlayerModelMixin(Context context, EntityModel model, float shadowRadius) {
-		super(context, model, shadowRadius);
-	}
 	
 	
 	@Unique protected void setReplacementModel(Entity entity) {
@@ -47,6 +41,11 @@ public abstract class ReplacePlayerModelMixin extends LivingEntityRenderer {
 			this.model = this.prevModel;
 			this.prevModel = null;
 		}
+	}
+	
+	@Override
+	protected boolean isUsingCustomModel() {
+		return prevModel != null;
 	}
 
 
