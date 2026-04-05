@@ -17,6 +17,7 @@ import net.minecraft.world.entity.HumanoidArm;
 public class CustomPlayerModel extends PlayerModel {
 	public ModelPart root;
 
+	@Deprecated
 	public CustomPlayerModel(ModelPart root, boolean slim) {
 		super(root, slim);
 	}
@@ -67,6 +68,15 @@ public class CustomPlayerModel extends PlayerModel {
 	    model.jacket = findAnyDescendantsOrMakePlaceholder(modelThatDoesntSuck, "jacket");
 	    model.cloak = findAnyDescendantsOrMakePlaceholder(modelThatDoesntSuck, "cloak");
 	    model.ear = findAnyDescendantsOrMakePlaceholder(modelThatDoesntSuck, "ear");
+	    
+	    /* Still doesn't seem to work with StuckInModyLayer correctly,
+	     * because its code doesn't consider parent model parts, 
+	     * and should instead be done with ModelWithExtraFeatures#jojo_ripples$getPathToModelPart.
+	     * A *really* small thing though, I'd rather not spend dev time and performance on that
+	     */
+	    model.parts = modelThatDoesntSuck.jojo_ripples$allParts().stream()
+	    		.filter(part -> !part.cubes.isEmpty()).toList();
+	    
 	    return model;
 	}
 	

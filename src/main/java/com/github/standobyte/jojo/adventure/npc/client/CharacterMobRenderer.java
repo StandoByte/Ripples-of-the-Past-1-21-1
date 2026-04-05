@@ -19,6 +19,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.layers.ArrowLayer;
+import net.minecraft.client.renderer.entity.layers.BeeStingerLayer;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.PlayerItemInHandLayer;
@@ -44,6 +46,8 @@ public class CharacterMobRenderer<T extends PowerUserMobEntity> extends LivingEn
 				context.getModelManager()));
 		this.addLayer(new PlayerItemInHandLayer(this, context.getItemInHandRenderer()));
 		this.addLayer(new CustomHeadLayer(this, context.getModelSet(), context.getItemInHandRenderer()));
+        this.addLayer(new ArrowLayer(context, this));
+        this.addLayer(new BeeStingerLayer(this));
 	}
 
 	@Override
