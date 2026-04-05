@@ -596,15 +596,16 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		Quaternionf rotation = new Quaternionf()
 				.rotateX(-xRot)
 				.rotateY(-yRot);
-		
-		gui.pose().pushPose();
-		gui.pose().translate(posX, posY, 350.0);
-		gui.pose().translate(xOffsetRatio, yOffsetRatio, 0);
-		gui.pose().scale(scale, -scale, scale);
-		gui.pose().translate(0, 1.25, 0);
-		gui.pose().scale(scaleZoom, scaleZoom, scaleZoom);
-		gui.pose().mulPose(rotation);
-		gui.pose().translate(0, -1.25, 0);
+
+		PoseStack poseStack = gui.pose();
+		poseStack.pushPose();
+		poseStack.translate(posX, posY, 350.0);
+		poseStack.translate(xOffsetRatio, yOffsetRatio, 0);
+		poseStack.scale(scale, -scale, scale);
+		poseStack.translate(0, 1.25, 0);
+		poseStack.scale(scaleZoom, scaleZoom, scaleZoom);
+		poseStack.mulPose(rotation);
+		poseStack.translate(0, -1.25, 0);
 		gui.flush();
 		Lighting.setupForEntityInInventory();
 		EntityRenderDispatcher renderManager = Minecraft.getInstance().getEntityRenderDispatcher();
@@ -614,14 +615,14 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		renderManager.setRenderShadow(false);
 //		gui.drawSpecial(bufferSource -> renderer.renderWithRenderState(renderState -> {
 //			renderer.extractSkinMenuRenderState(renderState, standSkin, standType.getId(), ticks);
-//		}, gui.pose(), bufferSource, 0xF000F0));
+//		}, poseStack, bufferSource, 0xF000F0));
 		RenderSystem.runAsFancy(() -> renderer.renderForStandSkinUI(
-				gui.pose(), Minecraft.getInstance().renderBuffers().bufferSource(), 
+				poseStack, Minecraft.getInstance().renderBuffers().bufferSource(), 
 				rs -> extractRenderState.accept(renderer, rs)));
 		
 		gui.flush();
 		renderManager.setRenderShadow(true);
-		gui.pose().popPose();
+		poseStack.popPose();
 		
 		Lighting.setupFor3DItems();
 	}

@@ -13,7 +13,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 public class ModelCast {
 	@ApiStatus.Internal public LayerDefinition modelDefinition;
 	@ApiStatus.Internal public ModelPart rootPart;
-	@ApiStatus.Internal public Model mainModelCached;
+	@ApiStatus.Internal public Model _mainModelCached;
 	
 	@ApiStatus.Internal public PlayerModel asPlayerModel;
 	
@@ -29,16 +29,16 @@ public class ModelCast {
 	
 	@SuppressWarnings("unchecked")
 	public <M extends Model> M getMainModel(Function<LayerDefinition, M> modelConstructor) {
-		if (mainModelCached == null && modelDefinition != null) {
-			mainModelCached = modelConstructor.apply(modelDefinition);
+		if (_mainModelCached == null && modelDefinition != null) {
+			_mainModelCached = modelConstructor.apply(modelDefinition);
 		}
-		return (M) mainModelCached;
+		return (M) _mainModelCached;
 	}
 	
 	public void clear() {
 		modelDefinition = null;
 		rootPart = null;
-		mainModelCached = null;
+		_mainModelCached = null;
 		
 		asPlayerModel = null;
 	}
