@@ -12,6 +12,7 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.world.entity.HumanoidArm;
 
 public class CustomPlayerModel extends PlayerModel {
 	public ModelPart root;
@@ -72,5 +73,25 @@ public class CustomPlayerModel extends PlayerModel {
 	public static ModelPart findAnyDescendantsOrMakePlaceholder(Model_1_21_2plus model, String partName) {
 		return model.jojo_ripples$getAnyDescendantWithName(partName)
 				.orElseGet(() -> DUMMY_ROOT.children.get(partName));
+	}
+
+
+	@Override
+	public void translateToHand(HumanoidArm side, PoseStack poseStack) {
+		translateToItemHoldPos(side, poseStack, (ModelWithExtraFeatures) this);
+	}
+	
+	public static void translateToItemHoldPos(HumanoidArm side, PoseStack poseStack, ModelWithExtraFeatures model) {
+		var modelParts = switch (side) {
+			case LEFT -> model.jojo_ripples$getPathToModelPart("left_item");
+			case RIGHT -> model.jojo_ripples$getPathToModelPart("right_item");
+		};
+		if (modelParts != null) {
+			for (ModelPartWithName part : modelParts) {
+				part.part().translateAndRotate(poseStack);
+			}
+			// counteract the vanilla transforms hardcoded in ItemInHandLayer
+			poseStack.translate((float)(side == HumanoidArm.LEFT ? -1 : 1) / 16.0F, -0.5F, 0.125F);
+		}
 	}
 }
