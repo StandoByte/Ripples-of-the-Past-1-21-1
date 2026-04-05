@@ -84,11 +84,11 @@
 	"client.v1_21_1_itemmodel.ItemModelShaperMixin",
 	
     "client.LevelRendererMixin",
-    "client.modelanim.AnimatedEntityMixin",
+    "client.model.AnimatedEntityInterfaceMixin",
     "client.model.ModelAnimOptimization",
     "client.model.ModelExtraFeatures",
-    "client.model.playeranim.ModelPartMixin",
-	"client.renderer.ReplacePlayerModelMixin",
+    "client.model.PlayerAnimModelPartMixin",
+	"client.model.ReplacePlayerModelMixin",
     
 	"client.controls.KeyboardHandlerMixin",
 	

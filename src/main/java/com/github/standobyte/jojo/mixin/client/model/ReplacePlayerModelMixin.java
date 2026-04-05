@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mixin.client.renderer;
+package com.github.standobyte.jojo.mixin.client.model;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;

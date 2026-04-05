@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mixin.client.model.playeranim;
+package com.github.standobyte.jojo.mixin.client.model;
 
 import java.util.List;
 import java.util.Map;
@@ -20,7 +20,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 
 @Mixin(ModelPart.class)
-public class ModelPartMixin implements IPlayerLimbBend {
+public class PlayerAnimModelPartMixin implements IPlayerLimbBend {
 	@Shadow @Final private List<ModelPart.Cube> cubes;
 	@Shadow @Final private Map<String, ModelPart> children;
 	@Shadow PartPose initialPose;
@@ -62,7 +62,7 @@ public class ModelPartMixin implements IPlayerLimbBend {
 		this.jojo_ripples$invertBend = invertBend;
 		for (ModelPart modelPart : children.values()) {
 			if (modelPart != bendBone) {
-				((ModelPartMixin) (Object) modelPart).jojo_ripples$setBendBone(bendBone, 
+				((PlayerAnimModelPartMixin) (Object) modelPart).jojo_ripples$setBendBone(bendBone, 
 						bendOffsetX - this.initialPose.x, 
 						bendOffsetY - this.initialPose.y, 
 						bendOffsetZ - this.initialPose.z, 
@@ -86,7 +86,7 @@ public class ModelPartMixin implements IPlayerLimbBend {
 	@Inject(method = "copyFrom", at = @At("TAIL"))
 	public void jojo_ripples$onCopyPose(ModelPart modelPart, CallbackInfo ci) {
 		if (this.jojo_ripples$bendBone != null) {
-			ModelPart bend = ((ModelPartMixin) (Object) modelPart).jojo_ripples$bendBone;
+			ModelPart bend = ((PlayerAnimModelPartMixin) (Object) modelPart).jojo_ripples$bendBone;
 			if (bend != null) {
 				this.jojo_ripples$bendBone.copyFrom(bend);
 			}

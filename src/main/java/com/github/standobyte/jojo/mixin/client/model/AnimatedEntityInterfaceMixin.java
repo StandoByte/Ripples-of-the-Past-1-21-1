@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mixin.client.modelanim;
+package com.github.standobyte.jojo.mixin.client.model;
 
 import javax.annotation.Nullable;
 
@@ -11,7 +11,7 @@ import com.github.standobyte.jojo.client.entityanim.pose.AnimatedEntity;
 import net.minecraft.world.entity.Entity;
 
 @Mixin(Entity.class)
-public class AnimatedEntityMixin implements AnimatedEntity {
+public class AnimatedEntityInterfaceMixin implements AnimatedEntity {
 	@Unique private AnimFramePose modelPose;
 	@Unique private boolean hasPose = false;
 
