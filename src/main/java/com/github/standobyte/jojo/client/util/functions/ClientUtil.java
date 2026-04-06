@@ -18,7 +18,7 @@ import net.minecraft.world.entity.player.PlayerModelPart;
 
 public class ClientUtil {
 	public static final int MAX_LIGHT = 0xF000F0;
-	public static final int NO_OVERLAY = OverlayTexture.pack(OverlayTexture.u(0), OverlayTexture.v(false)); // 0xA0000
+	public static final int NO_OVERLAY = OverlayTexture.NO_OVERLAY;
 
 	public static void setCameraEntityPreventShaderSwitch(Entity entity) {
 		Minecraft mc = Minecraft.getInstance();
