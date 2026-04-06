@@ -420,7 +420,7 @@ public class FirstPersonRender {
 
 	public static void renderHand(LivingEntityRenderer renderer, LivingEntity entity, PoseStack poseStack, 
 			MultiBufferSource buffer, int light, HumanoidArm handSide, boolean isInvisible) {
-		if (!isInvisible && entity instanceof AbstractClientPlayer player && !ClientHooks.renderSpecificFirstPersonArm(poseStack, buffer, light, player, handSide)) return;
+		if (!isInvisible && entity instanceof AbstractClientPlayer player && ClientHooks.renderSpecificFirstPersonArm(poseStack, buffer, light, player, handSide)) return;
 
 		if (renderer.getModel() instanceof HumanoidModel humanoidModel) {
 			HumanoidModel.ArmPose mainArmPose = getArmPose(entity, InteractionHand.MAIN_HAND);
