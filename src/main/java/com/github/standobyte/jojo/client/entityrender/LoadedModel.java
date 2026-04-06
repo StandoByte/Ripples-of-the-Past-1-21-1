@@ -4,20 +4,22 @@ import java.util.function.Function;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.client.entityrender.replace_player_model.CustomPlayerModel;
+
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 
 @SuppressWarnings("rawtypes")
-public class ModelCast {
+public class LoadedModel {
 	@ApiStatus.Internal public LayerDefinition modelDefinition;
 	@ApiStatus.Internal public ModelPart rootPart;
 	@ApiStatus.Internal public Model _mainModelCached;
 	
 	@ApiStatus.Internal public PlayerModel asPlayerModel;
 	
-	public ModelCast(LayerDefinition modelDefinition) {
+	public LoadedModel(LayerDefinition modelDefinition) {
 		setModelDefinition(modelDefinition);
 	}
 

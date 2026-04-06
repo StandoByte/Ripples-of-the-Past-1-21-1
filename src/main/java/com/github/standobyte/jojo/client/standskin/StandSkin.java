@@ -12,7 +12,7 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.client.ResourcePathChecker;
 import com.github.standobyte.jojo.client.entityanim.AnimationSet;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
-import com.github.standobyte.jojo.client.entityrender.ModelCast;
+import com.github.standobyte.jojo.client.entityrender.LoadedModel;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
@@ -46,7 +46,7 @@ public class StandSkin {
 	
 	protected Map<ResourceLocation, LayerDefinition> models = new HashMap<>();
 	protected LayerDefinition standModel;
-	protected Map<ResourceLocation, Optional<ModelCast>> createdModelsCache = new HashMap<>();
+	protected Map<ResourceLocation, Optional<LoadedModel>> createdModelsCache = new HashMap<>();
 	protected Optional<StandEntityModel<?, ?>> createdStandModelCache;
 	
 	protected Map<ResourceLocation, AnimationSet> animations = new HashMap<>();
@@ -156,15 +156,15 @@ public class StandSkin {
 	}
 	
 	public <M extends Model> M getModel(ResourceLocation modelPath, Function<LayerDefinition, M> newModelFactory) {
-		ModelCast model = getModel(modelPath);
+		LoadedModel model = getModel(modelPath);
 		return model != null ? model.getMainModel(newModelFactory) : null;
 	}
 	
-	public ModelCast getModel(ResourceLocation modelPath) {
-		Optional<ModelCast> cached = createdModelsCache.get(modelPath);
+	public LoadedModel getModel(ResourceLocation modelPath) {
+		Optional<LoadedModel> cached = createdModelsCache.get(modelPath);
 		if (cached == null) {
 			LayerDefinition modelDefinition = models.get(modelPath);
-			ModelCast modelCast = modelDefinition != null ? new ModelCast(modelDefinition) : null;
+			LoadedModel modelCast = modelDefinition != null ? new LoadedModel(modelDefinition) : null;
 			cached = Optional.ofNullable(modelCast);
 			createdModelsCache.put(modelPath, cached);
 		}

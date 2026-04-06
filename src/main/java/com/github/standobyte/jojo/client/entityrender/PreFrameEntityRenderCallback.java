@@ -11,6 +11,7 @@ import com.github.standobyte.jojo.client.entityanim.barrage.BarrageSwings;
 import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery.AnimMolangVariables;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimatedEntity;
+import com.github.standobyte.jojo.client.entityrender.replace_player_model.ReplacePlayerModel;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.standskin.StandSkin;

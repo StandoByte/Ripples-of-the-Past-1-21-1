@@ -1,8 +1,10 @@
-package com.github.standobyte.jojo.client.entityrender;
+package com.github.standobyte.jojo.client.entityrender.replace_player_model;
 
 import java.util.Collections;
 import java.util.HashMap;
 
+import com.github.standobyte.jojo.client.entityrender.ModelPartWithName;
+import com.github.standobyte.jojo.client.entityrender.ModelWithExtraFeatures;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;

@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.jojo.client.entityrender.ModelCast;
+import com.github.standobyte.jojo.client.entityrender.LoadedModel;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 
 import net.minecraft.client.model.Model;
@@ -18,7 +18,7 @@ import net.minecraft.world.entity.Entity;
 
 public class ResourceModelEntry {
 	public final ResourceLocation modelPath;
-	public ModelCast _model;
+	public LoadedModel _model;
 	public Function<LayerDefinition, ? extends Model> _modelConstructor;
 	
 	public ResourceModelEntry(ResourceLocation modelPath) {
@@ -70,7 +70,7 @@ public class ResourceModelEntry {
 	
 	@ApiStatus.Internal
 	public void onModelLoad(@Nonnull LayerDefinition newModelLoaded) {
-		_model = new ModelCast(newModelLoaded);
+		_model = new LoadedModel(newModelLoaded);
 	}
 	
 }

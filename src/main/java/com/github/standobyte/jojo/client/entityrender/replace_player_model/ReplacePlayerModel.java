@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.entityrender;
+package com.github.standobyte.jojo.client.entityrender.replace_player_model;
 
 import javax.annotation.Nullable;
 
