@@ -5,16 +5,14 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
+import com.github.standobyte.jojo.client.entityrender.replace_player_model.ReplacePlayerModel;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.client.renderer.entity.layers.SpinAttackEffectLayer;
-import net.minecraft.client.renderer.entity.layers.StuckInBodyLayer;
 import net.minecraft.world.entity.Entity;
 
 /* The name is just as a reminder that it's supposed to work alongside ReplacePlayerModelMixin, 
@@ -45,10 +43,10 @@ public class ReplaceLivingModelMixin {
 			float netHeadYaw,
 			float headPitch) {
 		if (isUsingCustomModel()) {
-			Class<?> layerClass = layer.getClass();
-			return layer instanceof StuckInBodyLayer
-					|| layer instanceof ItemInHandLayer
-					|| layerClass == SpinAttackEffectLayer.class;
+			var filter = ReplacePlayerModel.getRendererLayerFilter(livingEntity);
+			if (filter != null) {
+				return filter.test(layer);
+			}
 		}
 		return true;
 	}
