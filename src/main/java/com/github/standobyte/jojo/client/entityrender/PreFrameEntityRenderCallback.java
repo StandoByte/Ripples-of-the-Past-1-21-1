@@ -110,10 +110,10 @@ public class PreFrameEntityRenderCallback {
 		if (model instanceof PlayerModel playerModel) {
 			ReplacePlayerModelEvent event = ModClientEventHooks.preRenderReplacePlayerModel(
 					living, renderer, partialTick, animVariables);
+			event.afterEvent();
 			if (event.animation != null) {
 				anim = event.animation;
 			}
-			ReplacePlayerModel.afterEvent(event);
 		}
 		
 		if (anim != null) {

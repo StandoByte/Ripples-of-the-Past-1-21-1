@@ -6,6 +6,8 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.entityanim.LivingAnimState;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
+import com.github.standobyte.jojo.client.entityrender.replace_player_model.ReplacePlayerModel;
+import com.github.standobyte.jojo.client.standskin.StandSkin;
 
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -22,8 +24,12 @@ public class ReplacePlayerModelEvent extends Event {
 	@Nullable public PlayerModel replacingModel;
 	@Nullable public ResourceLocation texture;
 	@Nullable public RotpAnimDefinition animation;
-	@Nullable public Predicate<RenderLayer> rendererLayerFilter;
 	public LivingAnimState animVariables;
+	
+	@Nullable public Predicate<RenderLayer> rendererLayerFilter;
+	
+	@Nullable public StandSkin standSkin;
+	@Nullable public ResourceLocation context;
 	
 	public ReplacePlayerModelEvent(LivingEntity entity, 
 			LivingEntityRenderer<?, ? extends PlayerModel<?>> renderer, 
@@ -64,6 +70,11 @@ public class ReplacePlayerModelEvent extends Event {
 	
 	public void setRendererLayerFilter(Predicate<RenderLayer> filter) {
 		this.rendererLayerFilter = filter;
+	}
+	
+	
+	public final void afterEvent() {
+		ReplacePlayerModel.afterEvent(this);
 	}
 	
 }

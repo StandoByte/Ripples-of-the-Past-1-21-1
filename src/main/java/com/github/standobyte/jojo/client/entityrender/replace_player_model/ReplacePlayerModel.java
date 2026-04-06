@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
+import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.event.client.ReplacePlayerModelEvent;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
@@ -19,19 +20,23 @@ public class ReplacePlayerModel {
 	public ResourceLocation texture = null;
 	public RotpAnimDefinition animation = null;
 	public Predicate<RenderLayer> rendererLayerFilter = null;
+	public StandSkin standSkin = null;
+	public ResourceLocation context = null;
 
 	public static void afterEvent(ReplacePlayerModelEvent event) {
 		int entityId = event.entity.getId();
 		if (
 				event.replacingModel != null || 
 				event.texture != null || 
-				event.animation != null ||
-				event.rendererLayerFilter != null) {
+				event.animation != null) {
 			ReplacePlayerModel replacement = byEntityId.computeIfAbsent(entityId, __ -> new ReplacePlayerModel());
 			replacement.model = event.replacingModel;
 			replacement.texture = event.texture;
 			replacement.animation = event.animation;
+			
 			replacement.rendererLayerFilter = event.rendererLayerFilter;
+			replacement.standSkin = event.standSkin;
+			replacement.context = event.context;
 		}
 		else {
 			ReplacePlayerModel replacement = byEntityId.get(entityId);
@@ -39,7 +44,10 @@ public class ReplacePlayerModel {
 				replacement.model = null;
 				replacement.texture = null;
 				replacement.animation = null;
+				
 				replacement.rendererLayerFilter = null;
+				replacement.standSkin = null;
+				replacement.context = null;
 			}
 		}
 	}
