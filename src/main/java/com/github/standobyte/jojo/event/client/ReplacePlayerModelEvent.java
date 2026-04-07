@@ -29,7 +29,7 @@ public class ReplacePlayerModelEvent extends Event {
 	@Nullable public Predicate<RenderLayer> rendererLayerFilter;
 	
 	@Nullable public StandSkin standSkin;
-	@Nullable public ResourceLocation context;
+	@Nullable public Object anchor;
 	
 	public ReplacePlayerModelEvent(LivingEntity entity, 
 			LivingEntityRenderer<?, ? extends PlayerModel<?>> renderer, 

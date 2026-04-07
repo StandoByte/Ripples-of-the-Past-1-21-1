@@ -21,7 +21,7 @@ public class ReplacePlayerModel {
 	public RotpAnimDefinition animation = null;
 	public Predicate<RenderLayer> rendererLayerFilter = null;
 	public StandSkin standSkin = null;
-	public ResourceLocation context = null;
+	public Object anchor = null;
 
 	public static void afterEvent(ReplacePlayerModelEvent event) {
 		int entityId = event.entity.getId();
@@ -36,7 +36,7 @@ public class ReplacePlayerModel {
 			
 			replacement.rendererLayerFilter = event.rendererLayerFilter;
 			replacement.standSkin = event.standSkin;
-			replacement.context = event.context;
+			replacement.anchor = event.anchor;
 		}
 		else {
 			ReplacePlayerModel replacement = byEntityId.get(entityId);
@@ -47,7 +47,7 @@ public class ReplacePlayerModel {
 				
 				replacement.rendererLayerFilter = null;
 				replacement.standSkin = null;
-				replacement.context = null;
+				replacement.anchor = null;
 			}
 		}
 	}
