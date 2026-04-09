@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.tmp.charactertest;
+package com.github.standobyte.jojo.adventure.tmp_charactertest;
 
 import java.util.Collections;
 import java.util.Comparator;

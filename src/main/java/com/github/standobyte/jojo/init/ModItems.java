@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import com.github.standobyte.jojo.DebugItem;
+import com.github.standobyte.jojo.adventure.tmp_charactertest.CharacterTestItem;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.mechanics.clothes.ClothesItem;
@@ -19,7 +20,6 @@ import com.github.standobyte.jojo.mechanics.standdisc.StandDiscItem;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.subsystems.StoryPart;
-import com.github.standobyte.jojo.tmp.charactertest.CharacterTestItem;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;

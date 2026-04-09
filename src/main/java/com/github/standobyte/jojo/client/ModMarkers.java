@@ -1,10 +1,10 @@
 package com.github.standobyte.jojo.client;
 
+import com.github.standobyte.jojo.adventure.tmp_charactertest.CloneCharactersMarker;
 import com.github.standobyte.jojo.client.ui.marker.MarkerRenderer;
 import com.github.standobyte.jojo.client.ui.marker.StandAimMarker;
 import com.github.standobyte.jojo.subsystems.itemtracking.ItemTrackDebugMarker;
 import com.github.standobyte.jojo.subsystems.itemtracking.OriginalItemPosMarker;
-import com.github.standobyte.jojo.tmp.charactertest.CloneCharactersMarker;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.client.CrazyDBloodHomingMarker;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.client.CrazyDOriginPosAnchorMarker;
 import com.github.standobyte.jojoimpl.stands.hierophant.client.HierophantPuppetMarker;
