@@ -236,7 +236,8 @@ public class PowerHud {
 
 		@Override
 		public boolean shouldRender() {
-			standSummoned = ClientPowerCache.getPower(PowerClass.STAND).isSummoned();
+			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+			standSummoned = standPower != null && standPower.isSummoned();
 			powerClass = null;
 			
 			if (!hud.forContainerMenu.isTrue()) {

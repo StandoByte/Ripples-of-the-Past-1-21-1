@@ -55,6 +55,7 @@ public class StandType extends PowerType {
 	protected final ResourceLocation standTypeId;
 	protected StandStats stats;
 	protected boolean isEnabled;
+	public boolean hasSummonMechanic = true;
 	protected boolean playSummonSound = true;
 	protected boolean playUnsummonSound = true;
 	
@@ -221,7 +222,7 @@ public class StandType extends PowerType {
 	 * If this is overriden to return null, the Stand type will have no summon/unsummon mechanic.
 	 */
 	protected SummonedStand makeSummonedStand() {
-		return new BlankSummonedStand();
+		return hasSummonMechanic ? new BlankSummonedStand() : null;
 	}
 	
 	public void unsummon(LivingEntity user, StandPower standPower) {

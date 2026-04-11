@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.client.entityanim.barrage;
 
+import com.github.standobyte.jojo.client.entityanim.LivingAnimState;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
-import com.github.standobyte.jojo.client.entityanim.PreFrameEntityAnimCalc.LivingAnimState;
 import com.github.standobyte.jojo.client.entityanim.barrage.BarrageSwings.BarrageSwing;
 import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery.AnimMolangVariables;
 import com.github.standobyte.jojo.client.util.functions.RGBUtil;

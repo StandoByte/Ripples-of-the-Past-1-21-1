@@ -12,7 +12,6 @@ import javax.annotation.Nullable;
 
 import org.joml.Vector3f;
 
-import com.github.standobyte.jojo.client.entityanim.PreFrameEntityAnimCalc.LivingAnimState;
 import com.github.standobyte.jojo.client.entityanim.action.AnimActionPhase;
 import com.github.standobyte.jojo.client.entityanim.action.AnimInstructionTimelines;
 import com.github.standobyte.jojo.client.entityanim.action.AnimObjTimeline;
@@ -115,6 +114,10 @@ public class RotpAnimDefinition {
 		HumanoidModel<?> humanoidModelCast = model instanceof HumanoidModel __ ? __ : null;
 		Model_1_21_2plus backportModelCast = (Model_1_21_2plus) model;
 		ModelWithExtraFeatures rotpModelCast = (ModelWithExtraFeatures) model;
+		
+		if (humanoidModelCast != null) {
+			PlayerModelBends.beforePlayerAnim(humanoidModelCast);
+		}
 		
 		for (var modelPartEntry : frame.pose.entrySet()) {
 			String modelPartName = modelPartEntry.getKey();

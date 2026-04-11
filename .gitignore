@@ -5,6 +5,8 @@ bin
 .metadata
 .classpath
 .project
+.factorypath
+/.apt_generated/
 
 # idea
 out

@@ -8,6 +8,7 @@ import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.subsystems.entity_possessionv2.LivingComponentPossession;
 import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.client.ClientEntityController;
+import com.github.standobyte.jojo.util.functions.UtilFunctions;
 import com.google.common.base.MoreObjects;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -42,6 +43,7 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.neoforged.neoforge.client.ClientHooks;
+import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" }) // Silence, Java generics.
@@ -420,7 +422,7 @@ public class FirstPersonRender {
 
 	public static void renderHand(LivingEntityRenderer renderer, LivingEntity entity, PoseStack poseStack, 
 			MultiBufferSource buffer, int light, HumanoidArm handSide, boolean isInvisible) {
-		if (!isInvisible && entity instanceof AbstractClientPlayer player && !ClientHooks.renderSpecificFirstPersonArm(poseStack, buffer, light, player, handSide)) return;
+		if (!isInvisible && entity instanceof AbstractClientPlayer player && ClientHooks.renderSpecificFirstPersonArm(poseStack, buffer, light, player, handSide)) return;
 
 		if (renderer.getModel() instanceof HumanoidModel humanoidModel) {
 			HumanoidModel.ArmPose mainArmPose = getArmPose(entity, InteractionHand.MAIN_HAND);
@@ -633,5 +635,21 @@ public class FirstPersonRender {
 
 	public static LivingEntityRenderer getLivingRenderer(LivingEntity entity) {
 		return (LivingEntityRenderer) instance.mc.getEntityRenderDispatcher().getRenderer(entity);
+	}
+	
+	
+	public static void renderOnEvent(RenderHandEvent event, LivingEntity entity) {
+		InteractionHand hand = event.getHand();
+		PoseStack poseStack = event.getPoseStack();
+		MultiBufferSource bufferSource = event.getMultiBufferSource();
+		int light = event.getPackedLight();
+		float equipProgress = event.getEquipProgress();
+		float swingProgress = event.getSwingProgress();
+		
+		poseStack.pushPose();
+		FirstPersonRender.renderEntityArm(FirstPersonRender.getLivingRenderer(entity), entity, 
+				poseStack, bufferSource, light, equipProgress, swingProgress, 
+				UtilFunctions.getHandSide(entity, hand));
+		poseStack.popPose();
 	}
 }

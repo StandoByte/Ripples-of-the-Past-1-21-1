@@ -83,11 +83,13 @@
 	"client.v1_21_1_modelanim.barrage.HumanoidModelMixin",
 	"client.v1_21_1_itemmodel.ItemModelShaperMixin",
 	
-    "client.modelanim.LevelRendererMixin",
-    "client.modelanim.AnimatedEntityMixin",
+    "client.LevelRendererMixin",
+    "client.model.AnimatedEntityInterfaceMixin",
     "client.model.ModelAnimOptimization",
     "client.model.ModelExtraFeatures",
-    "client.model.playeranim.ModelPartMixin",
+    "client.model.PlayerAnimModelPartMixin",
+	"client.model.ReplacePlayerModelMixin",
+	"client.model.ReplaceLivingModelMixin",
     
 	"client.controls.KeyboardHandlerMixin",
 	

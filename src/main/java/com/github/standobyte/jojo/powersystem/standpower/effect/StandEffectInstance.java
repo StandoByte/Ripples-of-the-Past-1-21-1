@@ -110,7 +110,7 @@ public abstract class StandEffectInstance extends EntityCustomEffect {
 
 	@Override
 	public void onStart() {
-		if (targetLiving != null) {
+		if (!level.isClientSide() && targetLiving != null) {
 			StandEffectsTarget targetEffects = StandEffectsTarget.getList(targetLiving);
 			if (targetEffects != null) {
 				targetEffects.addEffectTargetedBy(this);

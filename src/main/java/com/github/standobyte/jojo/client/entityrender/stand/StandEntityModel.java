@@ -13,8 +13,8 @@ import com.github.standobyte.jojo.client.entityanim.barrage.BarrageSwings;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
 import com.github.standobyte.jojo.client.entityrender.HiddenModelPartsUtil;
-import com.github.standobyte.jojo.client.entityrender.ModelPartWithName;
 import com.github.standobyte.jojo.client.entityrender.ModelWithExtraFeatures;
+import com.github.standobyte.jojo.client.entityrender.replace_player_model.CustomPlayerModel;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.v1_21_4_stuff.Reminder;
@@ -162,17 +162,7 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 
 	@Override
 	public void translateToHand(HumanoidArm side, PoseStack poseStack) {
-		var modelParts = switch (side) {
-			case LEFT -> ((ModelWithExtraFeatures) this).jojo_ripples$getPathToModelPart("left_item");
-			case RIGHT -> ((ModelWithExtraFeatures) this).jojo_ripples$getPathToModelPart("right_item");
-		};
-		if (modelParts != null) {
-			for (ModelPartWithName part : modelParts) {
-				part.part().translateAndRotate(poseStack);
-			}
-			// counteract the vanilla transforms hardcoded in ItemInHandLayer
-			poseStack.translate((float)(side == HumanoidArm.LEFT ? -1 : 1) / 16.0F, -0.5F, 0.125F);
-		}
+		CustomPlayerModel.translateToItemHoldPos(side, poseStack, (ModelWithExtraFeatures) this);
 	}
 
 

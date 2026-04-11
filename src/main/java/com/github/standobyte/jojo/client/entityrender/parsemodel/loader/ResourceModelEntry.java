@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.client.entityrender.LoadedModel;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 
 import net.minecraft.client.model.Model;
@@ -17,62 +18,59 @@ import net.minecraft.world.entity.Entity;
 
 public class ResourceModelEntry {
 	public final ResourceLocation modelPath;
-	@Nullable public LayerDefinition modelDefinition;
-	@Nullable public ModelPart modelRoot;
-	@Nullable public Model model;
-	
-	@ApiStatus.Internal
-	public Function<LayerDefinition, ? extends Model> modelConstructor;
+	public LoadedModel _model;
+	public Function<LayerDefinition, ? extends Model> _modelConstructor;
 	
 	public ResourceModelEntry(ResourceLocation modelPath) {
 		this.modelPath = modelPath;
 	}
 	
 	public <T extends Entity> void rendererInit(Function<ModelPart, ? extends Model> modelClass) {
-		this.modelConstructor = (LayerDefinition modelDefinition) -> modelClass.apply(modelDefinition.bakeRoot());
+		_modelConstructor = (LayerDefinition modelDefinition) -> modelClass.apply(modelDefinition.bakeRoot());
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Nullable
 	public <M extends Model> M getModel(@Nullable StandSkin standSkin) {
 		if (standSkin != null) {
-			M modelFromSkin = (M) standSkin.getModel(this.modelPath, this.modelConstructor);
+			M modelFromSkin = (M) standSkin.getModel(this.modelPath, _modelConstructor);
 			if (modelFromSkin != null) {
 				return modelFromSkin;
 			}
 		}
 		
-		M modelFromResource = (M) this.getModel(this.modelConstructor);
+		M modelFromResource = (M) this.getModel(_modelConstructor);
 		return modelFromResource;
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Nullable
 	public <M extends Model> M getModel() {
-		return (M) this.getModel(this.modelConstructor);
+		return (M) this.getModel(_modelConstructor);
 	}
 
-	@SuppressWarnings("unchecked")
 	@ApiStatus.Internal
 	public <M extends Model> M getModel(Function<LayerDefinition, M> modelConstructor) {
-		if (model == null && modelDefinition != null) {
-			this.model = modelConstructor.apply(modelDefinition);
-		}
-		return (M) model;
+		return (_model != null) ? _model.getMainModel(modelConstructor) : null;
+	}
+	
+	public LayerDefinition getModelDefinition() {
+		return (_model != null) ? _model.modelDefinition : null;
+	}
+	
+	public ModelPart getModelRoot() {
+		return (_model != null) ? _model.rootPart : null;
 	}
 	
 	
 	@ApiStatus.Internal
-	public void reset() {
-		this.modelDefinition = null;
-		this.modelRoot = null;
-		this.model = null;
+	public void clear() {
+		if (_model != null) _model.clear();
 	}
 	
 	@ApiStatus.Internal
 	public void onModelLoad(@Nonnull LayerDefinition newModelLoaded) {
-		this.modelDefinition = newModelLoaded;
-		this.modelRoot = modelDefinition.bakeRoot();
+		_model = new LoadedModel(newModelLoaded);
 	}
 	
 }

@@ -3,8 +3,11 @@ package com.github.standobyte.jojo.adventure.npc.client;
 import java.text.DecimalFormat;
 
 import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
+import com.github.standobyte.jojo.client.entityrender.replace_player_model.ReplacePlayerModel;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.v1_21_4_stuff.renderstate.HumanoidRenderState;
+import com.github.standobyte.v1_21_4_stuff.renderstate.RenderStateCrutches;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
@@ -16,6 +19,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.layers.ArrowLayer;
+import net.minecraft.client.renderer.entity.layers.BeeStingerLayer;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.PlayerItemInHandLayer;
@@ -27,6 +32,7 @@ import net.minecraft.util.FastColor;
 public class CharacterMobRenderer<T extends PowerUserMobEntity> extends LivingEntityRenderer<T, EntityModel<T>> {
 	protected EntityModel<T> regularPlayerModel;
 	protected EntityModel<T> slimPlayerModel;
+	protected HumanoidRenderState reusedState = new HumanoidRenderState();
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public CharacterMobRenderer(Context context) {
@@ -40,10 +46,16 @@ public class CharacterMobRenderer<T extends PowerUserMobEntity> extends LivingEn
 				context.getModelManager()));
 		this.addLayer(new PlayerItemInHandLayer(this, context.getItemInHandRenderer()));
 		this.addLayer(new CustomHeadLayer(this, context.getModelSet(), context.getItemInHandRenderer()));
+        this.addLayer(new ArrowLayer(context, this));
+        this.addLayer(new BeeStingerLayer(this));
 	}
 
 	@Override
 	public ResourceLocation getTextureLocation(T entity) {
+		ResourceLocation replacementTexture = ReplacePlayerModel.getTexture(entity);
+		if (replacementTexture != null) {
+			return replacementTexture;
+		}
 		return entity.clientStuff.getTexture(entity);
 	}
 
@@ -54,7 +66,15 @@ public class CharacterMobRenderer<T extends PowerUserMobEntity> extends LivingEn
 			case WIDE -> regularPlayerModel;
 			case SLIM -> slimPlayerModel;
 		};
+		
+		PlayerModel replacementModel = ReplacePlayerModel.getModel(entity);
+		if (replacementModel != null) {
+			this.model = replacementModel;
+		}
+		
+		RenderStateCrutches.beforeLivingRender(entity, reusedState, this, entityRenderDispatcher, partialTick);
 		super.render(entity, entityYaw, partialTick, poseStack, buffer, packedLight);
+		RenderStateCrutches.afterLivingRender();
 		
 		if (entity.isDebugDummy()) {
 			renderDummyStuff(entity, partialTick, poseStack, buffer, packedLight, entityRenderDispatcher);

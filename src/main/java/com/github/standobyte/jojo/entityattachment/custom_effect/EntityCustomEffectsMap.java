@@ -31,8 +31,10 @@ public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements Tic
 	public EntityCustomEffectsMap(EntityCustomEffectsClass effectsClass, Entity entity) {
 		this.effectsClass = effectsClass;
 		this.entity = entity;
-		addTicking(entity);
-		addSynchronization(entity);
+		if (effectsClass != EntityCustomEffectsClass.STAND_EFFECT) {
+			addTicking(entity);
+			addSynchronization(entity);
+		}
 	}
 	
 	protected Entity getEntity() {

@@ -1,7 +1,9 @@
 package com.github.standobyte.jojo.client.entityrender;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
@@ -11,11 +13,13 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
-import com.github.standobyte.jojo.client.entityanim.pose.AnimatedEntity;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
+import com.github.standobyte.jojo.client.entityanim.pose.AnimatedEntity;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._PartDefinition;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._PartPose;
 
 import net.minecraft.client.Minecraft;
@@ -23,6 +27,10 @@ import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.model.geom.builders.MaterialDefinition;
+import net.minecraft.client.model.geom.builders.MeshDefinition;
+import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -49,6 +57,71 @@ public class ModelUtil {
 			ModelPart childModelPart = childEntry.getValue();
 			String childName = childEntry.getKey();
 			putChildrenRecursive(childModelPart, childName, dest, wrap);
+		}
+	}
+
+	// LayerDefinition stuff
+	
+	public static LayerDefinition merge(LayerDefinition src, LayerDefinition dest) {
+		MaterialDefinition destTex = dest.material;
+		MaterialDefinition srcTex = src.material;
+		if (destTex.xTexSize != srcTex.xTexSize || destTex.yTexSize != srcTex.yTexSize) {
+			JojoMod.getLogger().warn("Trying to merge two model definitions with different texture sizes ({}x{} and {}x{}). You probably do not want that.", 
+					destTex.xTexSize, destTex.yTexSize, srcTex.xTexSize, srcTex.yTexSize);
+		}
+		mergeModelParts(src.mesh.getRoot(), dest.mesh.getRoot());
+		return dest;
+	}
+	
+	public static void mergeModelParts(PartDefinition src, PartDefinition dest) {
+		dest.cubes.addAll(src.cubes);
+		for (var srcChildEntry : src.children.entrySet()) {
+			String modelPartName = srcChildEntry.getKey();
+			PartDefinition destChild = dest.getChild(modelPartName);
+			PartDefinition srcChild = srcChildEntry.getValue();
+			if (destChild != null) {
+				mergeModelParts(srcChild, destChild);
+			}
+			else {
+				_PartDefinition.addOrReplaceChild(dest, modelPartName, srcChild);
+			}
+		}
+	}
+	
+	public static LayerDefinition copy(LayerDefinition src) {
+		MeshDefinition newMesh = new MeshDefinition();
+		PartDefinition oldRoot = src.mesh.getRoot();
+		PartDefinition newRoot = newMesh.getRoot();
+		copyChildren(oldRoot, newRoot);
+		LayerDefinition newModel = LayerDefinition.create(newMesh, 
+				src.material.xTexSize,
+				src.material.yTexSize);
+		return newModel;
+	}
+	
+	static void copyChildren(PartDefinition src, PartDefinition dest) {
+		for (var childEntry : src.children.entrySet()) {
+			String childName = childEntry.getKey();
+			PartDefinition oldChild = childEntry.getValue();
+			PartDefinition newChild = new PartDefinition(new ArrayList<>(oldChild.cubes), oldChild.partPose);
+			dest.children.put(childName, newChild);
+			copyChildren(oldChild, newChild);
+		}
+	}
+	
+	public static LayerDefinition copyMaterial(LayerDefinition src, MeshDefinition newMesh) {
+		return LayerDefinition.create(newMesh, src.material.xTexSize, src.material.yTexSize);
+	}
+	
+	public static void forAllDescendants(LayerDefinition modelDefinition, BiConsumer<String, PartDefinition> action) {
+		PartDefinition root = modelDefinition.mesh.getRoot();
+		forPartAndChildren(root, "root", action);
+	}
+	
+	static void forPartAndChildren(PartDefinition modelPart, String modelPartName, BiConsumer<String, PartDefinition> action) {
+		action.accept(modelPartName, modelPart);
+		for (var childEntry : modelPart.children.entrySet()) {
+			forPartAndChildren(childEntry.getValue(), childEntry.getKey(), action);
 		}
 	}
 	

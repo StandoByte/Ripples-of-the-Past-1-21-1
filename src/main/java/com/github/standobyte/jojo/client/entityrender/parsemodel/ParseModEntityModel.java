@@ -41,33 +41,6 @@ public class ParseModEntityModel {
 			case GENERIC -> GenericModelFormat.parseGenericModel(json);
 		};
 	}
-
-	
-	public static LayerDefinition merge(LayerDefinition dest, LayerDefinition src) {
-		MaterialDefinition destTex = dest.material;
-		MaterialDefinition srcTex = src.material;
-		if (destTex.xTexSize != srcTex.xTexSize || destTex.yTexSize != srcTex.yTexSize) {
-			JojoMod.getLogger().warn("Trying to merge two model definitions with different texture sizes ({}x{} and {}x{}). You probably do not want that.", 
-					destTex.xTexSize, destTex.yTexSize, srcTex.xTexSize, srcTex.yTexSize);
-		}
-		mergeModelParts(dest.mesh.getRoot(), src.mesh.getRoot());
-		return dest;
-	}
-	
-	protected static void mergeModelParts(PartDefinition dest, PartDefinition src) {
-		dest.cubes.addAll(src.cubes);
-		for (var srcChildEntry : src.children.entrySet()) {
-			String modelPartName = srcChildEntry.getKey();
-			PartDefinition destChild = dest.getChild(modelPartName);
-			PartDefinition srcChild = srcChildEntry.getValue();
-			if (destChild != null) {
-				mergeModelParts(destChild, srcChild);
-			}
-			else {
-				_PartDefinition.addOrReplaceChild(dest, modelPartName, srcChild);
-			}
-		}
-	}
 	
 	
 	public static class UnbakedModelGeometry {
@@ -79,7 +52,7 @@ public class ParseModEntityModel {
 		private final Map<PartDefinition, String> orphanage = new HashMap<>();
 		public void addModelPart(String name, PartDefinition modelPart, @Nullable String parentName) {
 			allModelParts.put(name, modelPart);
-			if (parentName == null) {
+			if (parentName == null || "root".equals(parentName)) {
 				_PartDefinition.addOrReplaceChild(vanillaGeomDefinition.getRoot(), name, modelPart);
 			}
 			else {

@@ -8,6 +8,7 @@ import java.util.Set;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.lwjgl.glfw.GLFW;
 
+import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.IJojoMenuScreen;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.JojoMenuTabs;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.Tab;
@@ -17,6 +18,9 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.network.c2s.ClNoParamsPacket;
 import com.github.standobyte.jojo.network.c2s.ClNoParamsPacket.PacketType;
 import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.KeyMapping;
@@ -71,20 +75,35 @@ public class VanillaKeybinds {
 	}
 
 	public void handleTick() {
+		Minecraft mc = Minecraft.getInstance();
 		InputHandler inputHandler = InputHandler.getInstance();
+		StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+		PlayerPower playerPower = ClientPowerCache.getPower(PowerClass.PLAYER_POWER);
+		
 		if (standArmsOnlyHUD.consumeClick()) {
-			inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.STAND ? PowerClass.STAND : null;
+			if (standPower != null && standPower.hasPower() && !standPower.isSummoned()) {
+				inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.STAND ? PowerClass.STAND : null;
+			}
 		}
 		
 		if (playerPowerHUD.consumeClick()) {
-			inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.PLAYER_POWER ? PowerClass.PLAYER_POWER : null;
+			if (playerPower != null && playerPower.hasPower()) {
+				inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.PLAYER_POWER ? PowerClass.PLAYER_POWER : null;
+			}
 		}
-//		
+		
 		if (summonStand.consumeClick()) {
-//			if (standPower.hasPower() && !standPower.isActive()) {
-//				actionsOverlay.onStandSummon();
-//			}
-			PacketDistributor.sendToServer(ClNoParamsPacket.of(PacketType.SUMMON_STAND));
+			if (standPower != null && standPower.hasPower()) {
+				StandType standType = standPower.getPowerType();
+				if (standType != null) {
+					if (standType.hasSummonMechanic) {
+						PacketDistributor.sendToServer(ClNoParamsPacket.of(PacketType.SUMMON_STAND));
+					}
+					else {
+						inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.STAND ? PowerClass.STAND : null;
+					}
+				}
+			}
 		}
 		
 		if (ClientModSettings.getSettingsReadOnly().toggleDisableHotbars && disableHUDControls.consumeClick()) {
@@ -92,7 +111,6 @@ public class VanillaKeybinds {
 		}
 		
 		if (jojoStuffMenu.consumeClick()) {
-			Minecraft mc = Minecraft.getInstance();
 			if (mc.screen instanceof IJojoMenuScreen) {
 				mc.popGuiLayer();
 			}

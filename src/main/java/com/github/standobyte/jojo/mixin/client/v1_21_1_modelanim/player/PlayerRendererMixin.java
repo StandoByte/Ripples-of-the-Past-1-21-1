@@ -5,10 +5,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState;
-import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
 import com.github.standobyte.v1_21_4_stuff.renderstate.HumanoidRenderState;
-import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
 import com.github.standobyte.v1_21_4_stuff.renderstate.RenderStateCrutches;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -39,11 +36,7 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
 			+ "I)V"))
 	public void jojo_ripples$extractPlayerRenderState(AbstractClientPlayer entity, float entityYaw, float partialTick, 
 			PoseStack poseStack, MultiBufferSource buffer, int light, CallbackInfo ci) {
-		final HumanoidRenderState reusedState = jojo_ripples$reusedState;
-		LivingEntityRenderState.extract(entity, reusedState, this, entityRenderDispatcher, partialTick);
-		HumanoidRenderState.extractHumanoidRenderState(entity, reusedState, partialTick);
-		RipplesPlayerRenderState.extract(entity, reusedState, ((RipplesRenderStateExtensionMixin) reusedState).get(), partialTick);
-        RenderStateCrutches.currentEntityRenderState = reusedState;
+		RenderStateCrutches.beforeLivingRender(entity, jojo_ripples$reusedState, this, entityRenderDispatcher, partialTick);
 	}
 
 	@Inject(method = "render", at = @At(value = "INVOKE", 
@@ -56,7 +49,7 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
 			+ "I)V", shift = At.Shift.AFTER))
 	public void jojo_ripples$resetPlayerRenderState(AbstractClientPlayer entity, float entityYaw, float partialTick, 
 			PoseStack poseStack, MultiBufferSource buffer, int light, CallbackInfo ci) {
-        RenderStateCrutches.currentEntityRenderState = null;
+		RenderStateCrutches.afterLivingRender();
 	}
 	
 	
