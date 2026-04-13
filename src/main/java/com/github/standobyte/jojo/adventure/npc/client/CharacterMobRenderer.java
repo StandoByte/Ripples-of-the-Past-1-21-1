@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.adventure.npc.client;
 import java.text.DecimalFormat;
 
 import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
+import com.github.standobyte.jojo.adventure.npc.debug.NpcFlags;
 import com.github.standobyte.jojo.client.entityrender.replace_player_model.ReplacePlayerModel;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -76,9 +77,7 @@ public class CharacterMobRenderer<T extends PowerUserMobEntity> extends LivingEn
 		super.render(entity, entityYaw, partialTick, poseStack, buffer, packedLight);
 		RenderStateCrutches.afterLivingRender();
 		
-		if (entity.isDebugDummy()) {
-			renderDummyStuff(entity, partialTick, poseStack, buffer, packedLight, entityRenderDispatcher);
-		}
+		renderDummyStuff(entity, partialTick, poseStack, buffer, packedLight, entityRenderDispatcher);
 	}
 
 	@Override
@@ -88,9 +87,10 @@ public class CharacterMobRenderer<T extends PowerUserMobEntity> extends LivingEn
 
 	public void renderDummyStuff(T entity, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight, EntityRenderDispatcher entityRenderDispatcher) {
 		poseStack.pushPose();
-		poseStack.translate(0, -0.25, 0);
+		//poseStack.translate(0, -0.25, 0);
 
-		if (Minecraft.renderNames() && entity == entityRenderDispatcher.crosshairPickEntity) {
+		if (Minecraft.renderNames() && entity == entityRenderDispatcher.crosshairPickEntity
+				&& entity.getFlag(NpcFlags.SHOW_POWER_VARIABLES)) {
 			StandPower stand = StandPower.get(entity);
 			if (stand != null && stand.hasPower()) {
 				poseStack.translate(0, 0.25, 0);
@@ -118,13 +118,24 @@ public class CharacterMobRenderer<T extends PowerUserMobEntity> extends LivingEn
 			}
 		}
 
-		DecimalFormat format = new DecimalFormat("#.##");
-		poseStack.translate(0, 0.25, 0);
-		String hp = format.format(entity.getHealth());
-		String maxHp = format.format(entity.getMaxHealth());
-		renderNameTag(entity, 
-				Component.translatable("❤ " + hp + "/" + maxHp), 
-				poseStack, buffer, packedLight, partialTick);
+		if (entity.getFlag(NpcFlags.SHOW_HUNGER)) {
+			poseStack.translate(0, 0.25, 0);
+			int hunger = entity.getFoodLevel();
+			float saturation = entity.getSaturationLevel();
+			renderNameTag(entity, 
+					Component.translatable("🍖 " + hunger + "/20 (" + (int) saturation + ")"), 
+					poseStack, buffer, packedLight, partialTick);
+		}
+
+		if (entity.getFlag(NpcFlags.SHOW_HP)) {
+			DecimalFormat format = new DecimalFormat("#.##");
+			poseStack.translate(0, 0.25, 0);
+			String hp = format.format(entity.getHealth());
+			String maxHp = format.format(entity.getMaxHealth());
+			renderNameTag(entity, 
+					Component.translatable("❤ " + hp + "/" + maxHp), 
+					poseStack, buffer, packedLight, partialTick);
+		}
 
 		poseStack.popPose();
 	}

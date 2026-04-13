@@ -8,12 +8,14 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.adventure.npc.ai.NpcCombatAiPrototype;
 import com.github.standobyte.jojo.adventure.npc.ai.inventory.ItemManageAI;
 import com.github.standobyte.jojo.adventure.npc.debug.DummyStuff;
+import com.github.standobyte.jojo.adventure.npc.debug.NpcFlags;
 import com.github.standobyte.jojo.init.ModEntityDataSerializers;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.mixin.entity_like_player.npc.PlayerAccessor;
 import com.github.standobyte.jojo.subsystems.entity_playerwrapper.EntityAsPlayerWrapper;
 import com.github.standobyte.jojo.subsystems.entity_playerwrapper.RemoteClientPlayerLivingWrapper;
 import com.github.standobyte.jojo.subsystems.entity_playerwrapper.ServerPlayerLivingWrapper;
+import com.github.standobyte.jojo.util.functions.BitwiseFlagUtil;
 import com.github.standobyte.jojo.util.functions.NBTUtil;
 
 import net.minecraft.nbt.CompoundTag;
@@ -45,6 +47,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
@@ -82,8 +85,9 @@ import net.neoforged.neoforge.entity.XpOrbTargetingEvent;
 public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 	public static final EntityDataAccessor<Optional<ResolvableProfile>> DATA_PROFILE = SynchedEntityData.defineId(PowerUserMobEntity.class, 
 			ModEntityDataSerializers.RESOLVABLE_PROFILE_OPTIONAL.get());
-	public static final EntityDataAccessor<Boolean> IS_DEBUG_DUMMY = SynchedEntityData.defineId(PowerUserMobEntity.class, 
-			EntityDataSerializers.BOOLEAN);
+	public static final EntityDataAccessor<Long> NPC_FLAGS = SynchedEntityData.defineId(PowerUserMobEntity.class, EntityDataSerializers.LONG);
+	public static final EntityDataAccessor<Integer> SYNC_HUNGER = SynchedEntityData.defineId(PowerUserMobEntity.class, EntityDataSerializers.INT);
+	public static final EntityDataAccessor<Float> SYNC_SATURATION = SynchedEntityData.defineId(PowerUserMobEntity.class, EntityDataSerializers.FLOAT);
 	public ClientHumanoidCharacterStuff clientStuff;
 	public EntityAsPlayerWrapper playerWrapper;
 
@@ -140,7 +144,9 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		super.defineSynchedData(builder);
 		builder.define(DATA_PROFILE, Optional.empty());
-		builder.define(IS_DEBUG_DUMMY, false);
+		builder.define(NPC_FLAGS, 0L);
+		builder.define(SYNC_HUNGER, 0);
+		builder.define(SYNC_SATURATION, 0f);
 	}
 
 	@Override
@@ -160,7 +166,14 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 		if (playerWrapper != null) {
 			Player asPlayer = playerWrapper.asPlayer();
 			if (asPlayer instanceof ServerPlayer asServerPlayer) {
+				asPlayer.setHealth(this.getHealth());
+				
 				asServerPlayer.doTick();
+				
+				this.setHealth(asPlayer.getHealth());
+				FoodData foodData = asPlayer.getFoodData();
+				entityData.set(SYNC_HUNGER, foodData.getFoodLevel());
+				entityData.set(SYNC_SATURATION, foodData.getSaturationLevel());
 			}
 			else {
 				asPlayer.tick();
@@ -185,6 +198,8 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 			ListTag inventoryNbt = player.getInventory().save(new ListTag());
 			playerData.put("Inventory", inventoryNbt);
 			
+			player.getFoodData().addAdditionalSaveData(playerData);
+			
 			nbt.put("Player", playerData);
 		}
 		
@@ -194,7 +209,7 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 			});
 		});
 		
-		nbt.putBoolean("Dummy", entityData.get(IS_DEBUG_DUMMY));
+		nbt.putLong("Flags", entityData.get(NPC_FLAGS));
 	}
 
 	@Override
@@ -215,6 +230,8 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 				if (!inventoryNbt.isEmpty()) {
 					player.getInventory().load(inventoryNbt);
 				}
+				
+				player.getFoodData().readAdditionalSaveData(playerData);
 			}
 		}
 		
@@ -224,7 +241,7 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 			});
 		});
 		
-		entityData.set(IS_DEBUG_DUMMY, nbt.getBoolean("Dummy"));
+		entityData.set(NPC_FLAGS, nbt.getLong("Flags"));
 	}
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -410,22 +427,48 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 	public boolean canAttackType(EntityType<?> type) {
 		return true;
 	}
+	
+	
+	public int getFoodLevel() {
+		if (!level().isClientSide()) {
+			Player asPlayer = this.asPlayer();
+			if (asPlayer != null) {
+				return asPlayer.getFoodData().getFoodLevel();
+			}
+		}
+		return entityData.get(SYNC_HUNGER);
+	}
+	
+	public float getSaturationLevel() {
+		if (!level().isClientSide()) {
+			Player asPlayer = this.asPlayer();
+			if (asPlayer != null) {
+				return asPlayer.getFoodData().getSaturationLevel();
+			}
+		}
+		return entityData.get(SYNC_SATURATION);
+	}
 
 
 	@Override
 	public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
 		@SuppressWarnings("deprecation")
 		var ret = super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
-		setDummyFlag(spawnType);
+		if (spawnType == MobSpawnType.COMMAND) {
+			setDummyFlag(true);
+		}
 		return ret;
 	}
-
-	public void setDummyFlag(MobSpawnType spawnType) {
-		entityData.set(IS_DEBUG_DUMMY, spawnType == MobSpawnType.COMMAND);
+	
+	public void setFlag(NpcFlags flag, boolean value) {
+		long stored = entityData.get(NPC_FLAGS);
+		stored = BitwiseFlagUtil.set(stored, flag, value);
+		entityData.set(NPC_FLAGS, stored);
 	}
 	
-	public boolean isDebugDummy() {
-		return entityData.get(IS_DEBUG_DUMMY);
+	public boolean getFlag(NpcFlags flag) {
+		long stored = entityData.get(NPC_FLAGS);
+		return BitwiseFlagUtil.get(stored, flag);
 	}
 
 
@@ -440,5 +483,8 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 	public void setCharacterName(@Nullable Component name) {
 		super.setCustomName(name);
 	}
+	
+	@Deprecated boolean isDebugDummy() { return false; }
+	@Deprecated void setDummyFlag(boolean dummy) {}
 
 }
