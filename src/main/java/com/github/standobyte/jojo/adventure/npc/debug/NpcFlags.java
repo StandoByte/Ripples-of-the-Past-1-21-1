@@ -14,7 +14,7 @@ public enum NpcFlags {
 	DISABLE_AI_EQUIP_CLOTHES(true),
 	CAN_USE_STAND_DISC(true),
 	CAN_TEST_ACTIONS(true),
-	DISABLE_ARMOR_RENDER(true);
+	DISABLE_ARMOR_RENDER(false);
 	
 	public final boolean trueForDebugDummy;
 	
