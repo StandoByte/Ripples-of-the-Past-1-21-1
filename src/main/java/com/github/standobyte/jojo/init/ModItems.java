@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import com.github.standobyte.jojo.DebugItem;
-import com.github.standobyte.jojo.adventure.tmp_charactertest.CharacterTestItem;
+import com.github.standobyte.jojo.adventure.npc.debug.CharacterTestItem;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.mechanics.clothes.ClothesItem;

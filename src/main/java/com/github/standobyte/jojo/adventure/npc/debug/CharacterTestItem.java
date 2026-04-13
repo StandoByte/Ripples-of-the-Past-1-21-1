@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.adventure.tmp_charactertest;
+package com.github.standobyte.jojo.adventure.npc.debug;
 
 import java.util.Collections;
 import java.util.Comparator;

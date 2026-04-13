@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.adventure.npc.ai.NpcCombatAiPrototype;
 import com.github.standobyte.jojo.adventure.npc.ai.inventory.ItemManageAI;
+import com.github.standobyte.jojo.adventure.npc.debug.DummyStuff;
 import com.github.standobyte.jojo.init.ModEntityDataSerializers;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.mixin.entity_like_player.npc.PlayerAccessor;
