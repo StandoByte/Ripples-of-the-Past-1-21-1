@@ -364,6 +364,7 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 
 			((PlayerAccessor) fakePlayer).invokeDestroyVanishingCursedItems();
 			inventory.dropAll();
+			LeFunnyNPCEasterEggs.dropLootOnDeath(this, fakePlayer, true, false);
 		}
 	}
 
