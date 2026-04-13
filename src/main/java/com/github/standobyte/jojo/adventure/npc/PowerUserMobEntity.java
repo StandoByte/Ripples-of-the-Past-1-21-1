@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.adventure.npc.ai.NpcCombatAiPrototype;
 import com.github.standobyte.jojo.adventure.npc.ai.inventory.ItemManageAI;
-import com.github.standobyte.jojo.adventure.npc.debug.DummyStuff;
 import com.github.standobyte.jojo.adventure.npc.debug.NpcFlags;
 import com.github.standobyte.jojo.init.ModEntityDataSerializers;
 import com.github.standobyte.jojo.init.ModEntityTypes;
@@ -17,7 +16,9 @@ import com.github.standobyte.jojo.subsystems.entity_playerwrapper.RemoteClientPl
 import com.github.standobyte.jojo.subsystems.entity_playerwrapper.ServerPlayerLivingWrapper;
 import com.github.standobyte.jojo.util.functions.BitwiseFlagUtil;
 import com.github.standobyte.jojo.util.functions.NBTUtil;
+import com.mojang.authlib.properties.PropertyMap;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
@@ -39,6 +40,7 @@ import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
@@ -49,9 +51,11 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodData;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.ItemAbilities;
@@ -262,7 +266,9 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 	protected void customServerAiStep() {
 		if (playerWrapper != null) {
 			Player asPlayer = playerWrapper.asPlayer();
-			foo.customServerAiStep(this, asPlayer);
+			if (!getFlag(NpcFlags.DISABLE_AI_EQUIPMENT)) {
+				foo.customServerAiStep(this, asPlayer);
+			}
 		}
 		bar.tick();
 	}
@@ -405,11 +411,81 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 
 
 	@Override
-	protected InteractionResult mobInteract(Player player, InteractionHand hand) {
-		if (isDebugDummy()) {
-			return DummyStuff.mobInteract(this, player, hand);
+	public InteractionResult interact(Player player, InteractionHand hand) {
+		InteractionResult result = doInteract(player, hand);
+		if (result.consumesAction()) {
+			this.gameEvent(GameEvent.ENTITY_INTERACT, player);
 		}
-		return super.mobInteract(player, hand);
+		return result;
+	}
+
+	public InteractionResult doInteract(Player player, InteractionHand hand) {
+		ItemStack item = player.getItemInHand(hand);
+		if (!item.isEmpty()) {
+			if (item.is(Items.NAME_TAG)) {
+				if (this.isAlive()) {
+					boolean canRename = player.isCreative();
+					boolean changeSkin = true;
+					if (canRename) {
+						Component name = item.get(DataComponents.CUSTOM_NAME);
+						if (name != null) {
+							this.setCustomName(name);
+							if (changeSkin) {
+								entityData.set(PowerUserMobEntity.DATA_PROFILE, Optional.of(
+										new ResolvableProfile(Optional.of(name.getString()), Optional.empty(), new PropertyMap())));
+							}
+						}
+						return InteractionResult.sidedSuccess(player.level().isClientSide());
+					}
+				}
+				
+				return InteractionResult.CONSUME_PARTIAL;
+			}
+		}
+		
+		if (!this.isAlive()) {
+			return InteractionResult.PASS;
+		}
+		else {
+			InteractionResult result = InteractionResult.PASS;
+
+//			//if (isDebugDummy()) {
+//			//	return DummyStuff.mobInteract(this, player, hand);
+//			//}
+			
+			// this is empty, but who knows, maybe someone else injects smth into Mob#mobInteract for whatever reason
+			result = this.mobInteract(player, hand);
+			if (result.consumesAction()) {
+				return result;
+			}
+
+			return InteractionResult.PASS;
+		}
+	}
+
+	public InteractionResult leashableInteract(Player player, InteractionHand hand) {
+		if (this.isAlive() && this instanceof Leashable leashable) {
+			if (leashable.getLeashHolder() == player) {
+				if (!this.level().isClientSide()) {
+					leashable.dropLeash(true, !player.hasInfiniteMaterials());
+					this.gameEvent(GameEvent.ENTITY_INTERACT, player);
+				}
+
+				return InteractionResult.sidedSuccess(this.level().isClientSide);
+			}
+
+			ItemStack itemstack = player.getItemInHand(hand);
+			if (itemstack.is(Items.LEAD) && leashable.canHaveALeashAttachedToIt()) {
+				if (!this.level().isClientSide()) {
+					leashable.setLeashedTo(player, true);
+				}
+
+				itemstack.shrink(1);
+				return InteractionResult.sidedSuccess(this.level().isClientSide);
+			}
+		}
+
+		return InteractionResult.PASS;
 	}
 
 	@Override
@@ -454,8 +530,13 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 	public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
 		@SuppressWarnings("deprecation")
 		var ret = super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
-		if (spawnType == MobSpawnType.COMMAND) {
-			setDummyFlag(true);
+		boolean isDebugDummy = spawnType == MobSpawnType.COMMAND;
+		if (isDebugDummy) {
+			for (NpcFlags flag : NpcFlags.values()) {
+				if (flag.trueForDebugDummy) {
+					setFlag(flag, true);
+				}
+			}
 		}
 		return ret;
 	}
@@ -470,21 +551,5 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 		long stored = entityData.get(NPC_FLAGS);
 		return BitwiseFlagUtil.get(stored, flag);
 	}
-
-
-	// prevents name tags from working on actual characters
-	@Override
-	public void setCustomName(@Nullable Component name) {
-		if (isDebugDummy()) {
-			super.setCustomName(name);
-		}
-	}
-
-	public void setCharacterName(@Nullable Component name) {
-		super.setCustomName(name);
-	}
-	
-	@Deprecated boolean isDebugDummy() { return false; }
-	@Deprecated void setDummyFlag(boolean dummy) {}
 
 }

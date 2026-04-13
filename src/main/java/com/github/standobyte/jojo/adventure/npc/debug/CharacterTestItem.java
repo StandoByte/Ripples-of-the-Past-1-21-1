@@ -36,7 +36,7 @@ public class CharacterTestItem extends Item {
 			if (level instanceof ServerLevel serverLevel) {
 				String name = "Player" + player.getRandom().nextInt(10000);
 				PowerUserMobEntity entity = new PowerUserMobEntity(serverLevel);
-				entity.setCharacterName(Component.literal(name));
+				entity.setCustomName(Component.literal(name));
 				entity.copyPosition(player);
 				entity.setLeftHanded(level.getRandom().nextFloat() < 0.05f);
 				entity.getEntityData().set(PowerUserMobEntity.DATA_PROFILE, Optional.of(new ResolvableProfile(Optional.of(name), Optional.empty(), new PropertyMap())));
