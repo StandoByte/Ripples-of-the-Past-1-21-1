@@ -37,6 +37,7 @@ import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.client.ClientE
 import com.github.standobyte.jojo.subsystems.target.ActionTarget;
 import com.github.standobyte.jojo.subsystems.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.functions.AttributeUtil;
+import com.github.standobyte.jojo.util.functions.BitwiseFlagUtil;
 import com.github.standobyte.jojo.util.functions.DamageUtil;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.jojo.util.functions.MathUtil.AABBDist;
@@ -480,11 +481,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	
 	protected void setStandFlag(StandFlag flag, boolean value) {
 		byte i = entityData.get(STAND_FLAGS);
-		if (value) {
-			i |= flag.bit;
-		} else {
-			i &= ~flag.bit;
-		}
+		i = BitwiseFlagUtil.set(i, flag, value);
 		entityData.set(STAND_FLAGS, i);
 	}
 	
@@ -492,21 +489,17 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		byte i = 0;
 		for (StandFlag flag : StandFlag.values()) {
 			if (flag.defaultValue) {
-				i |= flag.bit;
+				i |= BitwiseFlagUtil.set(i, flag, flag.defaultValue);
 			}
 		}
 		
-		if (standCanHaveNoPhysics) {
-			i |= StandFlag.NO_PHYSICS.bit;
-		} else {
-			i &= ~StandFlag.NO_PHYSICS.bit;
-		}
+		i = BitwiseFlagUtil.set(i, StandFlag.NO_PHYSICS, standCanHaveNoPhysics);
 		
 		return i;
 	}
 
 	public boolean getStandFlag(StandFlag flag) {
-		return (entityData.get(STAND_FLAGS) & flag.bit) != 0;
+		return BitwiseFlagUtil.get(entityData.get(STAND_FLAGS), flag);
 	}
 
 	public static enum StandFlag {
@@ -515,10 +508,8 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		BEING_RETRACTED(false),
 		NO_PHYSICS(true);
 
-		public final byte bit;
 		public final boolean defaultValue;
 		private StandFlag(boolean defaultValue) {
-			this.bit = (byte) (1 << ordinal());
 			this.defaultValue = defaultValue;
 		}
 	}
