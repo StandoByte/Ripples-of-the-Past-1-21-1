@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.adventure.npc.ai;
+package com.github.standobyte.jojo.adventure.npc.ai.inventory;
 
 import javax.annotation.Nullable;
 

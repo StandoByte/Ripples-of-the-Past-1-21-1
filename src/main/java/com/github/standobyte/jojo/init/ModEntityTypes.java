@@ -14,7 +14,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -29,7 +28,7 @@ public final class ModEntityTypes {
 	
 	@SubscribeEvent
 	public static void registerAttributes(EntityAttributeCreationEvent event) {
-		event.put(CHARACTER.get(), Player.createAttributes().add(Attributes.FOLLOW_RANGE, 16.0).build());
+		event.put(CHARACTER.get(), PowerUserMobEntity.createAttributes().build());
 		event.put(HUMANOID_STAND.get(), StandEntity.createAttributes().build());
 		event.put(MANNEQUIN.get(), ArmorStand.createAttributes().build());
 	}

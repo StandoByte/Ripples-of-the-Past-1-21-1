@@ -5,7 +5,8 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.adventure.npc.ai.ItemManageAI;
+import com.github.standobyte.jojo.adventure.npc.ai.NpcCombatAiPrototype;
+import com.github.standobyte.jojo.adventure.npc.ai.inventory.ItemManageAI;
 import com.github.standobyte.jojo.init.ModEntityDataSerializers;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.mixin.entity_like_player.npc.PlayerAccessor;
@@ -38,6 +39,8 @@ import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -152,6 +155,7 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 	@Override
 	public void tick() {
 		super.tick();
+        this.updateSwingTime();
 		if (playerWrapper != null) {
 			Player asPlayer = playerWrapper.asPlayer();
 			if (asPlayer instanceof ServerPlayer asServerPlayer) {
@@ -221,10 +225,20 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 		
 		entityData.set(IS_DEBUG_DUMMY, nbt.getBoolean("Dummy"));
 	}
+
+    public static AttributeSupplier.Builder createAttributes() {
+    	return Player.createAttributes()
+    			// okay, so, WHY IN THE FLYING FUCK IS THEIR FUCKING CODE *SO* DAMN INCONSISTENT
+    			// players have 0.1, but the mob is walking SO slowly with that
+    			// the mobs' regular speed is 0.25, but that it still not as fast as player's walking speed
+                .add(Attributes.MOVEMENT_SPEED, 0.3)
+    			.add(Attributes.FOLLOW_RANGE, 16.0);
+    }
 	
-	// Some pseudo AI, just for testing
+	// Prototype AI
 	
 	protected ItemManageAI foo = new ItemManageAI();
+	protected NpcCombatAiPrototype bar = new NpcCombatAiPrototype(this);
 	
 	@Override
 	protected void customServerAiStep() {
@@ -232,6 +246,7 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 			Player asPlayer = playerWrapper.asPlayer();
 			foo.customServerAiStep(this, asPlayer);
 		}
+		bar.tick();
 	}
 
 

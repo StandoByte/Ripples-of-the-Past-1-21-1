@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo;
 
+import com.github.standobyte.jojo.adventure.tmp_charactertest.ClTakeGroupMemberControlPacket;
 import com.github.standobyte.jojo.command.commands.PlayBgmCommand;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.customobjects.explosion.CustomExplosionPacket;
@@ -78,6 +79,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClLearnSkillPacket.Handler(JojoMod.resLoc("cllearnskill")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClSetStandSkinPacket.Handler(JojoMod.resLoc("clskin")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClPlayerMovementInputPacket.Handler(JojoMod.resLoc("clmovinput")));
+		registerPacket(registrar, PayloadRegistrar::playToServer, new ClTakeGroupMemberControlPacket.Handler(JojoMod.resLoc("clgroupctrl")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClStandManualMovementPacket.Handler(JojoMod.resLoc("clstandmove")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClMobControlMovementPacket.Handler(JojoMod.resLoc("clmobctrlmove")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClControlledMobCommandPacket.Handler(JojoMod.resLoc("clmobitemslot")));
