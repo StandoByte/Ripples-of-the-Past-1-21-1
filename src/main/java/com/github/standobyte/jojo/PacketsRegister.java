@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo;
 
+import com.github.standobyte.jojo.adventure.npc.debug.ClNpcDebugFlagTogglePacket;
 import com.github.standobyte.jojo.adventure.tmp_charactertest.ClTakeGroupMemberControlPacket;
 import com.github.standobyte.jojo.command.commands.PlayBgmCommand;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -86,6 +87,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClStandClickPacket.Handler(JojoMod.resLoc("clstandclick")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClActivateResolvePacket.Handler(JojoMod.resLoc("clresolvemode")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClDebugCommandPacket.Handler(JojoMod.resLoc("cldebug")));
+		registerPacket(registrar, PayloadRegistrar::playToServer, new ClNpcDebugFlagTogglePacket.Handler(JojoMod.resLoc("clnpcdebug")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClStandItemInputPacket.Handler(JojoMod.resLoc("clstanditem")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClSetSewingMachineItemPacket.Handler(JojoMod.resLoc("clsewingitem")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClExtendedContainerClickPacket.Handler(JojoMod.resLoc("clslotclick")));

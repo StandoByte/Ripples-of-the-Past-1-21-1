@@ -1,0 +1,155 @@
+package com.github.standobyte.jojo.adventure.npc.debug;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
+import com.github.standobyte.jojo.mechanics.clothes.client.ui.PlayerClothesScreen;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ContainerObjectSelectionList;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.neoforged.neoforge.network.PacketDistributor;
+
+public class NpcDebugSettingsScreen extends Screen {
+	public PowerUserMobEntity npc;
+
+	public NpcDebugSettingsScreen(PowerUserMobEntity npc) {
+		super(CommonComponents.EMPTY);
+		this.npc = npc;
+	}
+
+	@Override
+	public void init() {
+		super.init();
+		
+		int WIDTH = 150;
+		ScrolleableList scrolleableList = new ScrolleableList(minecraft, WIDTH, 
+				minecraft.getWindow().getGuiScaledHeight(), 0, 25);
+		NpcFlags[] flags = NpcFlags.values();
+		for (int i = 0; i < flags.length; ++i) {
+			NpcFlags flag = flags[i];
+			SettingButton button = new SettingButton(this, 5, 5 + i * 25, WIDTH, 20);
+			button.setBooleanFlag(flag);
+			EntryWithLiterallyJustAButton entry = new EntryWithLiterallyJustAButton(button);
+			scrolleableList.addEntry(entry);
+		}
+		addRenderableWidget(scrolleableList);
+	}
+
+	public static void onDebugItemUsed(PowerUserMobEntity npc) {
+		Minecraft.getInstance().setScreen(new NpcDebugSettingsScreen(npc));
+	}
+	
+    @Override
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    	if (npc == null || !npc.isAlive()) {
+    		onClose();
+    		return;
+    	}
+    	super.render(guiGraphics, mouseX, mouseY, partialTick);
+
+		PlayerClothesScreen.renderEntityInInventoryFollowsMouse(guiGraphics, 
+				150, 0, 350, 300, 60, 0.0625F, mouseX, mouseY, npc);
+    }
+
+	public static class SettingButton extends Button {
+		public NpcDebugSettingsScreen screen;
+		public NpcFlags flag;
+
+		public SettingButton(NpcDebugSettingsScreen screen, int x, int y, int width, int height) {
+			super(x, y, width, height, CommonComponents.EMPTY, b -> {}, Button.DEFAULT_NARRATION);
+			this.screen = screen;
+		}
+		
+		public void setBooleanFlag(NpcFlags flag) {
+			this.flag = flag;
+			setMessage(Component.literal(flag.name().toLowerCase()));
+		}
+
+		@Override
+		protected boolean isValidClickButton(int button) {
+			return true;
+		}
+
+		@Override
+		public void onClick(double mouseX, double mouseY, int button) {
+			if (flag != null && screen != null && screen.npc != null) {
+				boolean curValue = screen.npc.getFlag(flag);
+				if (screen.minecraft.isPaused()) {
+					screen.npc.setFlag(flag, !curValue);
+				}
+				PacketDistributor.sendToServer(new ClNpcDebugFlagTogglePacket(screen.npc.getId(), flag, !curValue));
+			}
+		}
+
+		@Override
+	    public void renderString(GuiGraphics guiGraphics, Font font, int color) {
+			if (flag != null && screen != null && screen.npc != null) {
+				boolean value = screen.npc.getFlag(flag);
+				color = value ? 0xFF00FF00 : 0xFFFF0000;
+			}
+			super.renderString(guiGraphics, font, color);
+	    }
+
+	}
+	
+	
+	
+	public static class ScrolleableList extends ContainerObjectSelectionList<EntryWithLiterallyJustAButton> {
+
+		public ScrolleableList(Minecraft minecraft, int width, int height, int y, int itemHeight) {
+			super(minecraft, width, height, y, itemHeight);
+		}
+
+		@Override
+	    public int getRowWidth() {
+	    	return this.width - 10;
+	    }
+
+		// what's the point of making it protected...
+		@Override
+	    public int addEntry(EntryWithLiterallyJustAButton entry) {
+	    	return super.addEntry(entry);
+	    }
+		
+	}
+	
+	public static class EntryWithLiterallyJustAButton extends ContainerObjectSelectionList.Entry<EntryWithLiterallyJustAButton> {
+		public Button button;
+		public final List<Button> allButtons = new ArrayList<>(1);
+		
+		public EntryWithLiterallyJustAButton(Button button) {
+			this.button = button;
+			this.allButtons.add(button);
+		}
+
+		@Override
+		public void render(GuiGraphics guiGraphics, int index, 
+				int top, int left, int width, int height, 
+				int mouseX, int mouseY, boolean hovering, float partialTick) {
+			int i = left - 2 - (button.getWidth() - width) / 2;
+			int j = top - 2;
+			this.button.setPosition(i, j);
+			this.button.render(guiGraphics, mouseX, mouseY, partialTick);
+		}
+		
+        @Override
+        public List<? extends GuiEventListener> children() {
+            return allButtons;
+        }
+
+        @Override
+        public List<? extends NarratableEntry> narratables() {
+            return allButtons;
+        }
+		
+	}
+}
