@@ -2,24 +2,33 @@ package com.github.standobyte.jojo.adventure.npc.debug;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.mechanics.clothes.client.ui.PlayerClothesScreen;
+import com.mojang.authlib.properties.PropertyMap;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.component.ResolvableProfile;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class NpcDebugSettingsScreen extends Screen {
 	public PowerUserMobEntity npc;
+
+	public ScrolleableList flagsList;
+	public EditBox name;
+	public Button setName;
+	public Button setSkin;
 
 	public NpcDebugSettingsScreen(PowerUserMobEntity npc) {
 		super(CommonComponents.EMPTY);
@@ -31,7 +40,7 @@ public class NpcDebugSettingsScreen extends Screen {
 		super.init();
 		
 		int WIDTH = 150;
-		ScrolleableList scrolleableList = new ScrolleableList(minecraft, WIDTH, 
+		flagsList = new ScrolleableList(minecraft, WIDTH, 
 				minecraft.getWindow().getGuiScaledHeight(), 0, 25);
 		NpcFlags[] flags = NpcFlags.values();
 		for (int i = 0; i < flags.length; ++i) {
@@ -39,9 +48,27 @@ public class NpcDebugSettingsScreen extends Screen {
 			SettingButton button = new SettingButton(this, 5, 5 + i * 25, WIDTH, 20);
 			button.setBooleanFlag(flag);
 			EntryWithLiterallyJustAButton entry = new EntryWithLiterallyJustAButton(button);
-			scrolleableList.addEntry(entry);
+			flagsList.addEntry(entry);
 		}
-		addRenderableWidget(scrolleableList);
+		addRenderableWidget(flagsList);
+		
+		name = addRenderableWidget(new EditBox(minecraft.font, WIDTH + 15, 2, 150, 20, CommonComponents.EMPTY));
+		if (npc.hasCustomName()) {
+			name.setValue(npc.getDisplayName().getString());
+		}
+		
+		setName = addRenderableWidget(Button.builder(Component.literal("name"), b -> {
+			String newName = name.getValue();
+			npc.setCustomName(Component.literal(newName));
+			PacketDistributor.sendToServer(ClNpcDebugFlagTogglePacket.name(npc.getId(), newName));
+		}).bounds(320, 2, 40, 20).build());
+		
+		setSkin = addRenderableWidget(Button.builder(Component.literal("skin"), b -> {
+			String newName = name.getValue();
+			npc.getEntityData().set(PowerUserMobEntity.DATA_PROFILE, Optional.of(
+					new ResolvableProfile(Optional.of(newName), Optional.empty(), new PropertyMap())));
+			PacketDistributor.sendToServer(ClNpcDebugFlagTogglePacket.skin(npc.getId(), newName));
+		}).bounds(365, 2, 40, 20).build());
 	}
 
 	public static void onDebugItemUsed(PowerUserMobEntity npc) {
@@ -86,7 +113,7 @@ public class NpcDebugSettingsScreen extends Screen {
 				if (screen.minecraft.isPaused()) {
 					screen.npc.setFlag(flag, !curValue);
 				}
-				PacketDistributor.sendToServer(new ClNpcDebugFlagTogglePacket(screen.npc.getId(), flag, !curValue));
+				PacketDistributor.sendToServer(ClNpcDebugFlagTogglePacket.flag(screen.npc.getId(), flag, !curValue));
 			}
 		}
 
