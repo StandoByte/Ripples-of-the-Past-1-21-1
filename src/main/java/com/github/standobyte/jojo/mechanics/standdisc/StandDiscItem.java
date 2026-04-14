@@ -21,6 +21,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -82,7 +83,14 @@ public class StandDiscItem extends Item {
 			PowerClass.STAND.attachPower(player);
 			StandPower stand = PowerClass.STAND.get(player);
 			if (stand != null) {
+				Optional<StandInstance> prevStand = stand.getStandInstance();
 				stand.setStandInstance(Optional.of(discStand.copyStandInstance()));
+				discItem.shrink(1);
+				if (prevStand.isPresent()) {
+					ItemEntity discItemEntity = player.drop(withStand(prevStand.get()), false);
+					discItemEntity.setPickUpDelay(5);
+					discItemEntity.setTarget(player.getUUID());
+				}
 			}
 			return InteractionResultHolder.success(discItem);
 		}
