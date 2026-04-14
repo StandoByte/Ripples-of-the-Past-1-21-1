@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.adventure.npc.debug;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.standobyte.jojo.adventure.npc.NpcInventoryExchangeContainer;
 import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.mechanics.clothes.client.ui.PlayerClothesScreen;
 
@@ -14,12 +15,13 @@ import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-public class NpcDebugSettingsScreen extends Screen {
+public class NpcDebugSettingsScreen extends AbstractContainerScreen<NpcInventoryExchangeContainer> {
 	public PowerUserMobEntity npc;
 
 	public ScrolleableList flagsList;
@@ -27,14 +29,18 @@ public class NpcDebugSettingsScreen extends Screen {
 	public Button setName;
 	public Button setSkin;
 
-	public NpcDebugSettingsScreen(PowerUserMobEntity npc) {
-		super(CommonComponents.EMPTY);
-		this.npc = npc;
+	public NpcDebugSettingsScreen(NpcInventoryExchangeContainer menu, Inventory playerInventory, Component name) {
+		super(menu, playerInventory, menu.character.getDisplayName());
+		this.npc = menu.character;
 	}
 
 	@Override
 	public void init() {
 		super.init();
+		
+        this.leftPos = 250;
+        this.topPos = 60;
+        this.titleLabelY -= 34;
 		
 		int WIDTH = 150;
 		flagsList = new ScrolleableList(minecraft, WIDTH, 
@@ -56,21 +62,13 @@ public class NpcDebugSettingsScreen extends Screen {
 		
 		setName = addRenderableWidget(Button.builder(Component.literal("name"), b -> {
 			String newName = name.getValue();
-			// these are also called on the client side in oreder to update the NPC in singleplayer while the game is paused
-			ClNpcDebugFlagTogglePacket.setName(npc, newName);
 			PacketDistributor.sendToServer(ClNpcDebugFlagTogglePacket.name(npc.getId(), newName));
 		}).bounds(320, 2, 40, 20).build());
 		
 		setSkin = addRenderableWidget(Button.builder(Component.literal("skin"), b -> {
 			String newName = name.getValue();
-			if (ClNpcDebugFlagTogglePacket.setProfileForSkin(npc, newName)) {
-				PacketDistributor.sendToServer(ClNpcDebugFlagTogglePacket.skin(npc.getId(), newName));
-			}
+			PacketDistributor.sendToServer(ClNpcDebugFlagTogglePacket.skin(npc.getId(), newName));
 		}).bounds(365, 2, 40, 20).build());
-	}
-
-	public static void onDebugItemUsed(PowerUserMobEntity npc) {
-		Minecraft.getInstance().setScreen(new NpcDebugSettingsScreen(npc));
 	}
 	
     @Override
@@ -79,12 +77,22 @@ public class NpcDebugSettingsScreen extends Screen {
     		onClose();
     		return;
     	}
+    	// WHAT'S THE POINT OF MAKING THEM FINAL
+    	//this.playerInventoryTitle = minecraft.player.getDisplayName();
+    	//this.title = npc.getDisplayName();
     	super.render(guiGraphics, mouseX, mouseY, partialTick);
 
     	setSkin.active = PowerUserMobEntity.isLegitPlayerName(name.getValue());
 		PlayerClothesScreen.renderEntityInInventoryFollowsMouse(guiGraphics, 
-				150, 0, 350, 300, 60, 0.0625F, mouseX, mouseY, npc);
+				100, 0, 270, 180, 30, 0.0625F, mouseX, mouseY, npc);
+		PlayerClothesScreen.renderEntityInInventoryFollowsMouse(guiGraphics, 
+				100, 100, 270, 280, 30, 0.0625F, mouseX, mouseY, minecraft.player);
+
+		this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
+
+	@Override
+	protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {}
 
 	public static class SettingButton extends Button {
 		public NpcDebugSettingsScreen screen;

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.init;
 
+import com.github.standobyte.jojo.adventure.npc.NpcInventoryExchangeContainer;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.container.PlayerClothesMenu;
 import com.github.standobyte.jojo.mechanics.clothes.sewing.SewingMachineContainer;
@@ -21,6 +22,9 @@ public class ModContainers {
 
 	public static final DeferredHolder<MenuType<?>, MenuType<SewingMachineContainer>> SEWING_MACHINE = CONTAINERS.register("sewing_machine", 
 			key -> new MenuType<>((id, inventory) -> new SewingMachineContainer(id, inventory, ContainerLevelAccess.NULL), FeatureFlags.DEFAULT_FLAGS));
+
+	public static final DeferredHolder<MenuType<?>, MenuType<NpcInventoryExchangeContainer>> NPC_INV_EXCHANGE = CONTAINERS.register("npc_inv_exchange", 
+			key -> new MenuType<>(NpcInventoryExchangeContainer.CLIENT_FACTORY, FeatureFlags.DEFAULT_FLAGS));
 
 	public static final DeferredHolder<MenuType<?>, MenuType<StandHandsContainerMenu>> STAND_HANDS = CONTAINERS.register("stand_hands", 
 			key -> new MenuType<>(StandHandsContainerMenu.CLIENT_FACTORY, FeatureFlags.DEFAULT_FLAGS));

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.init;
 
+import com.github.standobyte.jojo.adventure.npc.client.NpcInventoryExchangeScreen;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.client.ui.PlayerClothesScreen;
 import com.github.standobyte.jojo.mechanics.clothes.sewing.client.SewingMachineScreen;
@@ -16,6 +17,7 @@ public class ModContainerScreensClient {
 	public static void registerScreens(RegisterMenuScreensEvent event) {
 		event.register(ModContainers.PLAYER_CLOTHES.get(), PlayerClothesScreen::new);
 		event.register(ModContainers.SEWING_MACHINE.get(), SewingMachineScreen::new);
+		event.register(ModContainers.NPC_INV_EXCHANGE.get(), NpcInventoryExchangeScreen.SCREEN_FACTORY);
 	}
 	
 }

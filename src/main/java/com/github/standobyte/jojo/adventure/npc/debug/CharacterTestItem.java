@@ -4,9 +4,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import com.github.standobyte.jojo.adventure.npc.NpcInventoryExchangeContainer;
 import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
-import com.github.standobyte.jojo.client.input.ClientsideAim;
+import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.subsystems.target.ActionTarget;
+import com.github.standobyte.jojo.subsystems.target.ActionTargetAim;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -44,20 +46,23 @@ public class CharacterTestItem extends Item {
 			return InteractionResultHolder.consume(item);
 		}
 		else {
-	        if (level.isClientSide()) {
-	        	PowerUserMobEntity npc;
-	        	ActionTarget target = ClientsideAim.cameraEntityAimTarget;
-	        	if (target != null && target.getEntity() instanceof PowerUserMobEntity crosshairNpc) {
-	        		npc = crosshairNpc;
+	        if (!level.isClientSide()) {
+	        	PowerUserMobEntity npc = null;
+	        	ActionTargetAim aim = LivingComponentAction.getAim(player);
+	        	if (aim != null) {
+	        		ActionTarget target = aim.getTarget();
+	        		if (target != null && target.getEntity() instanceof PowerUserMobEntity crosshairNpc) {
+	        			npc = crosshairNpc;
+	        		}
 	        	}
-	        	else {
+	        	if (npc == null) {
 	        		npc = level.getEntitiesOfClass(PowerUserMobEntity.class, player.getBoundingBox().inflate(16), e -> e.isAlive())
 	        				.stream()
 	        				.min(Comparator.comparingDouble(e -> e.distanceToSqr(player)))
 	        				.orElse(null);
 	        	}
 	        	if (npc != null) {
-	        		NpcDebugSettingsScreen.onDebugItemUsed(npc);
+	        		player.openMenu(NpcInventoryExchangeContainer.createServerSide(npc, true));
 	        	}
 	        }
 	        

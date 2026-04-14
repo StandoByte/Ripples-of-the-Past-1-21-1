@@ -18,14 +18,15 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerSynchronizer;
-import net.minecraft.world.inventory.MenuConstructor;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.client.extensions.IMenuProviderExtension;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.FriendlyByteBufUtil;
 import net.neoforged.neoforge.event.entity.player.PlayerContainerEvent;
@@ -81,7 +82,9 @@ public class PlayerExternalContainers implements TickingEntityData {
 		}
 	}
 	
-	public static interface MenuConstructor_ extends MenuConstructor, IMenuProviderExtension {}
+	public static interface MenuConstructor_ extends MenuProvider {
+		@Override default Component getDisplayName() { return CommonComponents.EMPTY; }
+	}
 
 	public void closeMenu(int containerMenuId) {
 		if (!player.level().isClientSide() && containers.remove(containerMenuId) != null) {

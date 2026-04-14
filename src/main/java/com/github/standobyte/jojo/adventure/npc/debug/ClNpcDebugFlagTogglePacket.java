@@ -95,33 +95,21 @@ public class ClNpcDebugFlagTogglePacket implements CustomPacketPayload {
 		@Override
 		public void handle(ClNpcDebugFlagTogglePacket payload, IPayloadContext context) {
 			Player player = context.player();
-			if (player.getInventory().contains(item -> item.is(ModItems.CHARACTER_TEST.get()))
-					&& player.level().getEntity(payload.entityId) instanceof PowerUserMobEntity npc) {
+			boolean canEdit = player.isCreative() || player.getInventory().contains(item -> item.is(ModItems.CHARACTER_TEST.get()));
+			if (canEdit && player.level().getEntity(payload.entityId) instanceof PowerUserMobEntity npc) {
 				switch (payload.packetType) {
 					case FLAG -> {
-						setFlag(npc, payload.flag, payload.flagValue);
+						npc.setFlag(payload.flag, payload.flagValue);
 					}
 					case NAME -> {
-						setName(npc, payload.newName);
+						npc.setCustomName(Component.literal(payload.newName));
 					}
 					case SKIN -> {
-						setProfileForSkin(npc, payload.newName);
+						npc.setSkinFromPlayerName(payload.newName);
 					}
 				}
 			}
 		}
-	}
-	
-	public static void setFlag(PowerUserMobEntity npc, NpcFlags flag, boolean value) {
-		npc.setFlag(flag, value);
-	}
-	
-	public static void setName(PowerUserMobEntity npc, String newName) {
-		npc.setCustomName(Component.literal(newName));
-	}
-	
-	public static boolean setProfileForSkin(PowerUserMobEntity npc, String playerName) {
-		return npc.setSkinFromPlayerName(playerName);
 	}
 	
 	@Override

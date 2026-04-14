@@ -41,6 +41,7 @@ import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.HasCustomInventoryScreen;
 import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
@@ -87,7 +88,7 @@ import net.neoforged.neoforge.entity.XpOrbTargetingEvent;
 ⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠛⢛⢿⣿⣿⣿⣿⣿⣿⣷⡿⠁⠄⠄⠄
 ⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠉⠉⠉⠉⠈⠄⠄⠄⠄⠄⠄
  */
-public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
+public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper, HasCustomInventoryScreen {
 	public static final EntityDataAccessor<Optional<ResolvableProfile>> DATA_PROFILE = SynchedEntityData.defineId(PowerUserMobEntity.class, 
 			ModEntityDataSerializers.RESOLVABLE_PROFILE_OPTIONAL.get());
 	public static final EntityDataAccessor<Long> NPC_FLAGS = SynchedEntityData.defineId(PowerUserMobEntity.class, EntityDataSerializers.LONG);
@@ -493,6 +494,14 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 	@Override
 	public boolean canBeLeashed() {
 		return false;
+	}
+	
+
+	@Override
+	public void openCustomInventoryScreen(Player player) {
+        if (!this.level().isClientSide()) {
+        	player.openMenu(NpcInventoryExchangeContainer.createServerSide(this, false));
+        }
 	}
 
 
