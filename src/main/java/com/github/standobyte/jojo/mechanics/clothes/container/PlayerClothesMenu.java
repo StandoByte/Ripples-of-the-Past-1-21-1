@@ -19,6 +19,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -67,38 +68,44 @@ public class PlayerClothesMenu extends AbstractContainerMenu {
 	}
 	
 	protected void initSlots(Inventory playerInventory, Player player) {
-		int slotInContainer;
-		int x;
-		int y;
-
-		// armor
-		for (int i = 0; i < 4; i++) {
-			EquipmentSlot slot = ARMOR_SLOT_IDS[i];
-			ResourceLocation slotIcon = ARMOR_TEXTURE_EMPTY_SLOTS.get(slot);
-			slotInContainer = 39 - i;
-			x = 8;
-			y = 8 + i * 18;
-			
-			this.addSlot(new ArmorSlot(playerInventory, player, slot, slotInContainer, x, y, slotIcon));
+		for (Slot slot : armorSlots(playerInventory, player, 8, 8)) {
+			this.addSlot(slot);
 		}
-
-		// clothes
-		for (int i = 0; i < 4; i++) {
-			ClothesSlotType slot = ClothesSlotType.values()[i];
-			ResourceLocation slotIcon = CLOTHES_TEXTURE_EMPTY_SLOTS.get(slot);
-			slotInContainer = i;
-			x = 77;
-			y = 8 + i * 18;
-			
-			this.addSlot(new ClothesSlot(clothesInventory, player, slot, slotInContainer, x, y, slotIcon));
+		for (Slot slot : clothesSlots(clothesInventory, player, 77, 8)) {
+			this.addSlot(slot);
 		}
-
-		// offhand
-		slotInContainer = 40;
-		x = 95;
-		y = 62;
+		this.addSlot(offhandSlot(playerInventory, player, 95, 62));
+		for (Slot slot : inventorySlots(playerInventory, 8, 84)) {
+			this.addSlot(slot);
+		}
+	}
+	
+	public static Slot[] inventorySlots(Inventory playerInventory, int x, int y) {
+		Slot[] slots = new Slot[36];
 		
-		this.addSlot(new Slot(playerInventory, slotInContainer, x, y) {
+		// inventory
+		for (int row = 0; row < 3; row++) {
+			for (int i = 0; i < 9; i++) {
+				int slotIndex = i + (row + 1) * 9;
+				int slotX = x + i * 18;
+				int slotY = y + row * 18;
+				slots[slotIndex] = new Slot(playerInventory, slotIndex, slotX, slotY);
+			}
+		}
+
+		// hotbar
+		for (int i = 0; i < 9; i++) {
+			int slotIndex = i;
+			int slotX = x + i * 18;
+			int slotY = y + 58;
+			slots[slotIndex] = new Slot(playerInventory, slotIndex, slotX, slotY);
+		}
+		
+		return slots;
+	}
+	
+	public static Slot offhandSlot(Inventory playerInventory, LivingEntity player, int x, int y) {
+		return new Slot(playerInventory, 40, x, y) {
 			@Override
 			public void setByPlayer(ItemStack newStack, ItemStack oldStack) {
 				player.onEquipItem(EquipmentSlot.OFFHAND, oldStack, newStack);
@@ -109,28 +116,38 @@ public class PlayerClothesMenu extends AbstractContainerMenu {
 			public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
 				return Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD);
 			}
-		});
-
-		// inventory
-		for (int row = 0; row < 3; row++) {
-			for (int i = 0; i < 9; i++) {
-				slotInContainer = i + (row + 1) * 9;
-				x = 8 + i * 18;
-				y = 84 + row * 18;
-				
-				this.addSlot(new Slot(playerInventory, slotInContainer, x, y));
-			}
-		}
-
-		// hotbar
-		for (int i = 0; i < 9; i++) {
-			slotInContainer = i;
-			x = 8 + i * 18;
-			y = 142;
-			
-			this.addSlot(new Slot(playerInventory, i, x, y));
-		}
+		};
 	}
+	
+	public static Slot[] armorSlots(Inventory playerInventory, LivingEntity player, int x, int y) {
+		Slot[] slots = new Slot[4];
+		for (int i = 0; i < 4; i++) {
+			EquipmentSlot slot = ARMOR_SLOT_IDS[i];
+			ResourceLocation slotIcon = ARMOR_TEXTURE_EMPTY_SLOTS.get(slot);
+			int slotIndex = 39 - i;
+			int slotX = x;
+			int slotY = y + i * 18;
+			
+			slots[i] = new ArmorSlot(playerInventory, player, slot, slotIndex, slotX, slotY, slotIcon);
+		}
+		return slots;
+		
+	}
+	
+	public static Slot[] clothesSlots(EntityClothesInventory clothesInventory, LivingEntity player, int x, int y) {
+		Slot[] slots = new Slot[4];
+		for (int i = 0; i < 4; i++) {
+			ClothesSlotType slot = ClothesSlotType.values()[i];
+			ResourceLocation slotIcon = CLOTHES_TEXTURE_EMPTY_SLOTS.get(slot);
+			int slotIndex = i;
+			int slotX = x;
+			int slotY = y + i * 18;
+			
+			slots[i] = new ClothesSlot(clothesInventory, player, slot, slotIndex, slotX, slotY, slotIcon);
+		}
+		return slots;
+	}
+	
 
 	@Override
 	public boolean stillValid(Player player) {

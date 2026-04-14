@@ -84,9 +84,9 @@ public class NpcDebugSettingsScreen extends AbstractContainerScreen<NpcInventory
 
     	setSkin.active = PowerUserMobEntity.isLegitPlayerName(name.getValue());
 		PlayerClothesScreen.renderEntityInInventoryFollowsMouse(guiGraphics, 
-				100, 0, 270, 180, 30, 0.0625F, mouseX, mouseY, npc);
+				100, -7, 270, 173, 30, 0.0625F, mouseX, mouseY, npc);
 		PlayerClothesScreen.renderEntityInInventoryFollowsMouse(guiGraphics, 
-				100, 100, 270, 280, 30, 0.0625F, mouseX, mouseY, minecraft.player);
+				100, 93, 270, 273, 30, 0.0625F, mouseX, mouseY, minecraft.player);
 
 		this.renderTooltip(guiGraphics, mouseX, mouseY);
     }

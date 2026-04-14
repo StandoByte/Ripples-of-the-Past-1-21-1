@@ -2,6 +2,9 @@ package com.github.standobyte.jojo.adventure.npc;
 
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.init.ModContainers;
+import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
+import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
+import com.github.standobyte.jojo.mechanics.clothes.container.PlayerClothesMenu;
 import com.github.standobyte.jojo.subsystems.entity_externalcontainer.PlayerExternalContainers.MenuConstructor_;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -22,54 +25,36 @@ public class NpcInventoryExchangeContainer extends AbstractContainerMenu {
 	public NpcInventoryExchangeContainer(int containerId, Inventory inventory, PowerUserMobEntity character, boolean isDebug) {
 		super(ModContainers.NPC_INV_EXCHANGE.get(), containerId);
 		this.charInventory = character.asPlayer().getInventory();
-		//this.charClothes = character.getBodyArmorAccess();
 		this.character = character;
 		charInventory.startOpen(inventory.player);
 		this.isDebug = isDebug;
 		
-		int x0 = 8;
-		int y0 = 102;
-		int NPC_INV_OFFSET = -100;
-		
-		int index;
-		int x;
-		int y;
-		
 		// npc inventory
-		for (int row = 0; row < 3; row++) {
-			for (int col = 0; col < 9; col++) {
-				index = col + row * 9 + 9;
-				x = x0 + col * 18;
-				y = y0 + row * 18 + -18 + NPC_INV_OFFSET;
-				this.addSlot(new Slot(charInventory, index, x, y));
-			}
+		for (Slot slot : PlayerClothesMenu.inventorySlots(charInventory, 8, -16)) {
+			this.addSlot(slot);
 		}
-		for (int col = 0; col < 9; col++) {
-			index = col;
-			x = x0 + col * 18;
-			y = y0 + 40 + NPC_INV_OFFSET;
-			this.addSlot(new Slot(charInventory, index, x, y));
+		this.addSlot(PlayerClothesMenu.offhandSlot(charInventory, character, -10, 42));
+		for (Slot slot : PlayerClothesMenu.armorSlots(charInventory, character, -28, -12)) {
+			this.addSlot(slot);
+		}
+		EntityClothesInventory npcClothes = character.getData(ModDataAttachmentTypes.HUMANOID_CLOTHES.get());
+		for (Slot slot : PlayerClothesMenu.clothesSlots(npcClothes, character, -46, -12)) {
+			this.addSlot(slot);
 		}
 
 		// player inventory
-		for (int row = 0; row < 3; row++) {
-			for (int col = 0; col < 9; col++) {
-				index = col + row * 9 + 9;
-				x = x0 + col * 18;
-				y = y0 + row * 18 + -18;
-				this.addSlot(new Slot(inventory, index, x, y));
-			}
+		Player player = inventory.player;
+		for (Slot slot : PlayerClothesMenu.inventorySlots(inventory, 12, 84)) {
+			this.addSlot(slot);
 		}
-		// hotbar
-		for (int col = 0; col < 9; col++) {
-			index = col;
-			x = x0 + col * 18;
-			y = y0 + 40;
-			this.addSlot(new Slot(inventory, index, x, y));
+		this.addSlot(PlayerClothesMenu.offhandSlot(inventory, player, -10, 142));
+		for (Slot slot : PlayerClothesMenu.armorSlots(inventory, player, -28, 88)) {
+			this.addSlot(slot);
 		}
-		// TODO offhand slot
-		// TODO armor
-		// TODO clothes
+		EntityClothesInventory playerClothes = player.getData(ModDataAttachmentTypes.HUMANOID_CLOTHES.get());
+		for (Slot slot : PlayerClothesMenu.clothesSlots(playerClothes, player, -46, 88)) {
+			this.addSlot(slot);
+		}
 	}
 
 	public static MenuConstructor_ createServerSide(PowerUserMobEntity character, boolean isDebug) {
