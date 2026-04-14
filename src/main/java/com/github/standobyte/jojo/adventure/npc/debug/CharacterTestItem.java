@@ -15,6 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -40,6 +41,7 @@ public class CharacterTestItem extends Item {
 				entity.copyPosition(player);
 				entity.setLeftHanded(level.getRandom().nextFloat() < 0.05f);
 				entity.getEntityData().set(PowerUserMobEntity.DATA_PROFILE, Optional.of(new ResolvableProfile(Optional.of(name), Optional.empty(), new PropertyMap())));
+				entity.finalizeSpawn(serverLevel, level.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.COMMAND, null);
 				serverLevel.addFreshEntity(entity);
 			}
 			return InteractionResultHolder.consume(item);
