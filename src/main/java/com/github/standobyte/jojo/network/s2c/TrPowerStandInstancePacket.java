@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import com.github.standobyte.jojo.PacketsRegister;
 import com.github.standobyte.jojo.client.ClientProxy;
+import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 
@@ -66,7 +67,7 @@ public class TrPowerStandInstancePacket implements CustomPacketPayload {
 		public void handle(TrPowerStandInstancePacket payload, IPayloadContext context) {
 			Entity entity = ClientProxy.getEntityById(payload.entityId);
 			if (entity instanceof LivingEntity living) {
-				StandPower standPower = StandPower.get(living);
+				StandPower standPower = PowerClass.STAND.attachGet(living);
 				if (standPower != null) {
 					standPower.setStandInstance(payload.standInstance.map(StandInstance.NetworkData::get));
 				}

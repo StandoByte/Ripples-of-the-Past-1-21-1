@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.adventure.npc;
 
+import com.github.standobyte.jojo.adventure.StandAsDiscSlot;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.init.ModContainers;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
@@ -16,8 +17,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.IContainerFactory;
 
-// TODO (NPC inventory) "forced" equipment
-// TODO (NPC inventory) Stand as a disc item in the debug mode?
+// TODO (NPC inventory AI) "forced" equipment
 public class NpcInventoryExchangeContainer extends AbstractContainerMenu {
 	public PowerUserMobEntity character;
 	public Inventory charInventory;
@@ -42,6 +42,9 @@ public class NpcInventoryExchangeContainer extends AbstractContainerMenu {
 		EntityClothesInventory npcClothes = character.getData(ModDataAttachmentTypes.HUMANOID_CLOTHES.get());
 		for (Slot slot : PlayerClothesMenu.clothesSlots(npcClothes, character, -46, -12)) {
 			this.addSlot(slot);
+		}
+		if (isDebug) {
+			this.addSlot(new StandAsDiscSlot(character, -10, -12));
 		}
 
 		// player inventory

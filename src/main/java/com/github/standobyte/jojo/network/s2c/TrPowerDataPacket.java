@@ -73,7 +73,7 @@ public class TrPowerDataPacket implements CustomPacketPayload {
 		public void handle(TrPowerDataPacket payload, IPayloadContext context) {
 			Entity entity = ClientProxy.getEntityById(payload.entityId);
 			if (entity instanceof LivingEntity living) {
-				Power<?> power = payload.powerClass.get(living);
+				Power<?> power = payload.powerClass.attachGet(living);
 				if (power != null) {
 					PowerData perTypePlayerData = power.getCurTypeData();
 					if (perTypePlayerData != null) {
