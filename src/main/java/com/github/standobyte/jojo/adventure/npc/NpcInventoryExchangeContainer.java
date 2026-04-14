@@ -16,6 +16,8 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.IContainerFactory;
 
+// TODO (NPC inventory) "forced" equipment
+// TODO (NPC inventory) Stand as a disc item in the debug mode?
 public class NpcInventoryExchangeContainer extends AbstractContainerMenu {
 	public PowerUserMobEntity character;
 	public Inventory charInventory;

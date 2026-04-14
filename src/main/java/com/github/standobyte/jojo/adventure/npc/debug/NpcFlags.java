@@ -11,6 +11,7 @@ public enum NpcFlags {
 	SHOW_POWER_VARIABLES(true),
 	DISABLE_AI_COMBAT(true),
 	DISABLE_AI_EQUIPMENT(true),
+	// TODO make the NPC pick clothes matching their moveset
 	DISABLE_AI_EQUIP_CLOTHES(true),
 	CAN_USE_STAND_DISC(true),
 	CAN_TEST_ACTIONS(true),
