@@ -12,6 +12,7 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimatedEntity;
@@ -221,7 +222,8 @@ public class ModelUtil {
 	
 	public static boolean isSlimModel(LivingEntity entity) {
 		return entity instanceof MannequinEntity mannequin && mannequin.isSlim()
-				|| entity instanceof AbstractClientPlayer player && player.getSkin().model() == PlayerSkin.Model.SLIM;
+				|| entity instanceof AbstractClientPlayer player && player.getSkin().model() == PlayerSkin.Model.SLIM
+				|| entity instanceof PowerUserMobEntity npc && npc.clientStuff.getModelType(entity) == PlayerSkin.Model.SLIM;
 	}
 	
 }
