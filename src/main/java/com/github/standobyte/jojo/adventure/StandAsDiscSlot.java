@@ -14,6 +14,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
+// XXX store the actual disc item in StandPower?
 public class StandAsDiscSlot extends Slot {
 	public LivingEntity entity;
 	public StandPower standData;
