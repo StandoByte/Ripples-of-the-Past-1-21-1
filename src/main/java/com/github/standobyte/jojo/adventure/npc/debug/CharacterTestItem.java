@@ -3,12 +3,10 @@ package com.github.standobyte.jojo.adventure.npc.debug;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.client.input.ClientsideAim;
 import com.github.standobyte.jojo.subsystems.target.ActionTarget;
-import com.mojang.authlib.properties.PropertyMap;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -19,7 +17,6 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -40,7 +37,7 @@ public class CharacterTestItem extends Item {
 				entity.setCustomName(Component.literal(name));
 				entity.copyPosition(player);
 				entity.setLeftHanded(level.getRandom().nextFloat() < 0.05f);
-				entity.getEntityData().set(PowerUserMobEntity.DATA_PROFILE, Optional.of(new ResolvableProfile(Optional.of(name), Optional.empty(), new PropertyMap())));
+				entity.setSkinFromPlayerName(name);
 				entity.finalizeSpawn(serverLevel, level.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.COMMAND, null);
 				serverLevel.addFreshEntity(entity);
 			}
