@@ -2,11 +2,9 @@ package com.github.standobyte.jojo.adventure.npc.debug;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.mechanics.clothes.client.ui.PlayerClothesScreen;
-import com.mojang.authlib.properties.PropertyMap;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -19,7 +17,6 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.component.ResolvableProfile;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class NpcDebugSettingsScreen extends Screen {
@@ -59,15 +56,16 @@ public class NpcDebugSettingsScreen extends Screen {
 		
 		setName = addRenderableWidget(Button.builder(Component.literal("name"), b -> {
 			String newName = name.getValue();
-			npc.setCustomName(Component.literal(newName));
+			// these are also called on the client side in oreder to update the NPC in singleplayer while the game is paused
+			ClNpcDebugFlagTogglePacket.setName(npc, newName);
 			PacketDistributor.sendToServer(ClNpcDebugFlagTogglePacket.name(npc.getId(), newName));
 		}).bounds(320, 2, 40, 20).build());
 		
 		setSkin = addRenderableWidget(Button.builder(Component.literal("skin"), b -> {
 			String newName = name.getValue();
-			npc.getEntityData().set(PowerUserMobEntity.DATA_PROFILE, Optional.of(
-					new ResolvableProfile(Optional.of(newName), Optional.empty(), new PropertyMap())));
-			PacketDistributor.sendToServer(ClNpcDebugFlagTogglePacket.skin(npc.getId(), newName));
+			if (ClNpcDebugFlagTogglePacket.setProfileForSkin(npc, newName)) {
+				PacketDistributor.sendToServer(ClNpcDebugFlagTogglePacket.skin(npc.getId(), newName));
+			}
 		}).bounds(365, 2, 40, 20).build());
 	}
 
@@ -83,6 +81,7 @@ public class NpcDebugSettingsScreen extends Screen {
     	}
     	super.render(guiGraphics, mouseX, mouseY, partialTick);
 
+    	setSkin.active = PowerUserMobEntity.isLegitPlayerName(name.getValue());
 		PlayerClothesScreen.renderEntityInInventoryFollowsMouse(guiGraphics, 
 				150, 0, 350, 300, 60, 0.0625F, mouseX, mouseY, npc);
     }

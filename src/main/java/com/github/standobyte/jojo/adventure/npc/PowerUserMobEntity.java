@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.adventure.npc;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
@@ -551,6 +552,20 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 	public boolean getFlag(NpcFlags flag) {
 		long stored = entityData.get(NPC_FLAGS);
 		return BitwiseFlagUtil.get(stored, flag);
+	}
+
+	public static Pattern PLAYER_NAME_REGEX = Pattern.compile("^[a-zA-Z0-9_]{3,16}$");
+	public static boolean isLegitPlayerName(String playerName) {
+		return PLAYER_NAME_REGEX.matcher(playerName).matches();
+	}
+	
+	public boolean setSkinFromPlayerName(String playerName) {
+		if (isLegitPlayerName(playerName)) {
+			entityData.set(PowerUserMobEntity.DATA_PROFILE, Optional.of(
+					new ResolvableProfile(Optional.of(playerName), Optional.empty(), new PropertyMap())));
+			return true;
+		}
+		return false;
 	}
 
 }

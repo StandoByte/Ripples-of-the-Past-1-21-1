@@ -1,18 +1,14 @@
 package com.github.standobyte.jojo.adventure.npc.debug;
 
-import java.util.Optional;
-
 import com.github.standobyte.jojo.PacketsRegister;
 import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.init.ModItems;
-import com.mojang.authlib.properties.PropertyMap;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.component.ResolvableProfile;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class ClNpcDebugFlagTogglePacket implements CustomPacketPayload {
@@ -103,19 +99,29 @@ public class ClNpcDebugFlagTogglePacket implements CustomPacketPayload {
 					&& player.level().getEntity(payload.entityId) instanceof PowerUserMobEntity npc) {
 				switch (payload.packetType) {
 					case FLAG -> {
-						npc.setFlag(payload.flag, payload.flagValue);
+						setFlag(npc, payload.flag, payload.flagValue);
 					}
 					case NAME -> {
-						npc.setCustomName(Component.literal(payload.newName));
+						setName(npc, payload.newName);
 					}
 					case SKIN -> {
-						npc.getEntityData().set(PowerUserMobEntity.DATA_PROFILE, Optional.of(
-								new ResolvableProfile(Optional.of(payload.newName), Optional.empty(), new PropertyMap())));
+						setProfileForSkin(npc, payload.newName);
 					}
 				}
 			}
 		}
-		
+	}
+	
+	public static void setFlag(PowerUserMobEntity npc, NpcFlags flag, boolean value) {
+		npc.setFlag(flag, value);
+	}
+	
+	public static void setName(PowerUserMobEntity npc, String newName) {
+		npc.setCustomName(Component.literal(newName));
+	}
+	
+	public static boolean setProfileForSkin(PowerUserMobEntity npc, String playerName) {
+		return npc.setSkinFromPlayerName(playerName);
 	}
 	
 	@Override
