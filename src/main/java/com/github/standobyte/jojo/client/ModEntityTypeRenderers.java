@@ -2,7 +2,9 @@ package com.github.standobyte.jojo.client;
 
 import java.util.Optional;
 
+import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.adventure.npc.client.CharacterMobRenderer;
+import com.github.standobyte.jojo.adventure.npc.debug.NpcFlags;
 import com.github.standobyte.jojo.client.entityrender.entities.BlockShardRenderer;
 import com.github.standobyte.jojo.client.entityrender.entities.MannequinRenderer;
 import com.github.standobyte.jojo.client.entityrender.entities.SimpleEntityModel;
@@ -117,4 +119,11 @@ public class ModEntityTypeRenderers {
 		}
 		return Optional.empty();
 	}
+	
+	
+	
+	public static boolean cancelRenderArmor(LivingEntity entity) {
+		return entity instanceof PowerUserMobEntity npc && npc.getFlag(NpcFlags.DISABLE_ARMOR_RENDER);
+	}
+	
 }

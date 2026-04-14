@@ -90,6 +90,8 @@
     "client.model.PlayerAnimModelPartMixin",
 	"client.model.ReplacePlayerModelMixin",
 	"client.model.ReplaceLivingModelMixin",
+	
+	"client.HumanoidArmorLayerMixin",
     
 	"client.controls.KeyboardHandlerMixin",
 	
