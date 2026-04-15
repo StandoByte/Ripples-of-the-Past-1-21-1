@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
 import com.github.standobyte.jojo.util.functions.ContainerMenuUtil;
+import com.github.standobyte.jojo.util.functions.ContainerMenuUtil.SlotIndices;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -35,39 +36,22 @@ public class PlayerClothesMenu extends AbstractContainerMenu {
 	}
 	
 	protected void initSlots(Inventory playerInventory, Player player) {
-		ARMOR_START = slots.size();
-		for (Slot slot : ContainerMenuUtil.armorSlots(playerInventory, player, 8, 8)) {
+		for (Slot slot : ContainerMenuUtil.armorSlots(playerInventory, player, 8, 8, slotIndices)) {
 			this.addSlot(slot);
 		}
-		ARMOR_END = slots.size();
 		
-		CLOTHES_START = slots.size();
-		for (Slot slot : ContainerMenuUtil.clothesSlots(clothesInventory, player, 77, 8)) {
+		for (Slot slot : ContainerMenuUtil.clothesSlots(clothesInventory, player, 77, 8, slotIndices)) {
 			this.addSlot(slot);
 		}
-		CLOTHES_END = slots.size();
 		
-		SHIELD_SLOT = slots.size();
-		this.addSlot(ContainerMenuUtil.offhandSlot(playerInventory, player, 95, 62));
+		this.addSlot(ContainerMenuUtil.offhandSlot(playerInventory, player, 95, 62, slotIndices));
 		
-		INV_START = slots.size();
-		for (Slot slot : ContainerMenuUtil.inventorySlots(playerInventory, 8, 84)) {
+		for (Slot slot : ContainerMenuUtil.inventorySlots(playerInventory, 8, 84, slotIndices)) {
 			this.addSlot(slot);
 		}
-		INV_END = slots.size() - 9;
-		HOTBAR_START = INV_END;
-		HOTBAR_END = HOTBAR_START + 9;
 	}
 	
-	public int ARMOR_START = 0;
-	public int ARMOR_END = 4;
-	public int CLOTHES_START = 4;
-	public int CLOTHES_END = 8;
-	public int SHIELD_SLOT = 8;
-	public int INV_START = 9;
-	public int INV_END = 36;
-	public int HOTBAR_START = 36;
-	public int HOTBAR_END = 45;
+	public SlotIndices slotIndices = new SlotIndices(this);
 	
 	/**
 	 * Handle when the stack in slot {@code index} is shift-clicked. Normally this moves the stack between the player inventory and the other inventory(s).
@@ -84,58 +68,60 @@ public class PlayerClothesMenu extends AbstractContainerMenu {
 			@Nullable ClothesSlotType clothesSlot = clothes != null ? clothes.getSlot() : null;
 
 			// take off clothes
-			if (clickedSlot >= CLOTHES_START && clickedSlot < CLOTHES_END) {
-				if (!this.moveItemStackTo(item, INV_START, HOTBAR_END, false)) {
+			if (clickedSlot >= slotIndices.CLOTHES_START && clickedSlot < slotIndices.CLOTHES_END) {
+				if (!this.moveItemStackTo(item, slotIndices.INV_START, slotIndices.INV_END, false)) {
 					return ItemStack.EMPTY;
 				}
 			}
 			
 			// put on clothes
-			else if (clothesSlot != null && isClothesStackable(item, this.slots.get(CLOTHES_START + clothesSlot.ordinal()).getItem())) {
-				int clothesSlotIndex = CLOTHES_START + clothesSlot.ordinal();
+			else if (clothesSlot != null && isClothesStackable(item, 
+					this.slots.get(slotIndices.CLOTHES_START + clothesSlot.ordinal()).getItem())) {
+				int clothesSlotIndex = slotIndices.CLOTHES_START + clothesSlot.ordinal();
 				if (!this.stackClothes(item, clothesSlotIndex)) {
 					return ItemStack.EMPTY;
 				}
 			} 
 			
 			// unequip armor
-			else if (clickedSlot >= ARMOR_START && clickedSlot < ARMOR_END) {
-				if (!this.moveItemStackTo(item, INV_START, HOTBAR_END, false)) {
+			else if (clickedSlot >= slotIndices.ARMOR_START && clickedSlot < slotIndices.ARMOR_END) {
+				if (!this.moveItemStackTo(item, slotIndices.INV_START, slotIndices.INV_END, false)) {
 					return ItemStack.EMPTY;
 				}
 			}
 			
 			// equip armor
-			else if (equipSlot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR && !this.slots.get(ARMOR_END - 1 - equipSlot.getIndex()).hasItem()) {
-				int armorSlotIndex = ARMOR_END - 1 - equipSlot.getIndex();
+			else if (equipSlot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR && 
+					!this.slots.get(slotIndices.ARMOR_END - 1 - equipSlot.getIndex()).hasItem()) {
+				int armorSlotIndex = slotIndices.ARMOR_END - 1 - equipSlot.getIndex();
 				if (!this.moveItemStackTo(item, armorSlotIndex, armorSlotIndex + 1, false)) {
 					return ItemStack.EMPTY;
 				}
 			}
 			
 			// equip shield
-			else if (equipSlot == EquipmentSlot.OFFHAND && !this.slots.get(SHIELD_SLOT).hasItem()) {
-				if (!this.moveItemStackTo(item, SHIELD_SLOT, false)) {
+			else if (equipSlot == EquipmentSlot.OFFHAND && !this.slots.get(slotIndices.SHIELD_SLOT).hasItem()) {
+				if (!this.moveItemStackTo(item, slotIndices.SHIELD_SLOT, false)) {
 					return ItemStack.EMPTY;
 				}
 			}
 			
 			// move from inventory to hotbar
-			else if (clickedSlot >= INV_START && clickedSlot < INV_END) {
-				if (!this.moveItemStackTo(item, HOTBAR_START, HOTBAR_END, false)) {
+			else if (clickedSlot >= slotIndices.INV_27_START && clickedSlot < slotIndices.INV_27_END) {
+				if (!this.moveItemStackTo(item, slotIndices.HOTBAR_START, slotIndices.HOTBAR_END, false)) {
 					return ItemStack.EMPTY;
 				}
 			}
 			
 			// move from hotbar to inventory
-			else if (clickedSlot >= HOTBAR_START && clickedSlot < HOTBAR_END) {
-				if (!this.moveItemStackTo(item, INV_START, INV_END, false)) {
+			else if (clickedSlot >= slotIndices.HOTBAR_START && clickedSlot < slotIndices.HOTBAR_END) {
+				if (!this.moveItemStackTo(item, slotIndices.INV_27_START, slotIndices.INV_27_END, false)) {
 					return ItemStack.EMPTY;
 				}
 			}
 			
 			// move to inventory/hotbar
-			else if (!this.moveItemStackTo(item, INV_START, HOTBAR_END, false)) {
+			else if (!this.moveItemStackTo(item, slotIndices.INV_START, slotIndices.INV_END, false)) {
 				return ItemStack.EMPTY;
 			}
 			

@@ -35,14 +35,14 @@ public class SewingMachineContainer extends AbstractContainerMenu {
 		Player player = inventory.player;
 		EntityClothesInventory clothes = player.getData(ModDataAttachmentTypes.HUMANOID_CLOTHES.get());
 
-		for (Slot slot : ContainerMenuUtil.clothesSlots(clothes, player, 26, 178)) {
+		for (Slot slot : ContainerMenuUtil.clothesSlots(clothes, player, 26, 178, null)) {
 			addSlot(slot);
 		}
-		for (Slot slot : ContainerMenuUtil.armorSlots(inventory, player, 95, 178)) {
+		for (Slot slot : ContainerMenuUtil.armorSlots(inventory, player, 95, 178, null)) {
 			addSlot(slot);
 		}
-		addSlot(ContainerMenuUtil.offhandSlot(inventory, player, 113, 232));
-		for (Slot slot : ContainerMenuUtil.inventorySlots(inventory, 181, 176)) {
+		addSlot(ContainerMenuUtil.offhandSlot(inventory, player, 113, 232, null));
+		for (Slot slot : ContainerMenuUtil.inventorySlots(inventory, 181, 176, null)) {
 			addSlot(slot);
 		}
 
