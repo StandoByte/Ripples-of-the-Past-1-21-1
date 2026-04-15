@@ -109,6 +109,7 @@ public class NpcInventoryExchangeContainer extends AbstractContainerMenu {
 				&& player.canInteractWithEntity(this.character, 4.0);
 	}
 
+	// XXX quickMoveStack in NPC inventory screen
 	@Override
 	public ItemStack quickMoveStack(Player player, int index) {
 		return ItemStack.EMPTY;
