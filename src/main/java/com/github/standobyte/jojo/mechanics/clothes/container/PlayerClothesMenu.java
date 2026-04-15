@@ -1,10 +1,7 @@
 package com.github.standobyte.jojo.mechanics.clothes.container;
 
-import java.util.Map;
-
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModContainers;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
@@ -12,50 +9,19 @@ import com.github.standobyte.jojo.mechanics.clothes.ClothesItem;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
-import com.mojang.datafixers.util.Pair;
+import com.github.standobyte.jojo.util.functions.ContainerMenuUtil;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ArmorSlot;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 public class PlayerClothesMenu extends AbstractContainerMenu {
-	public static final Map<EquipmentSlot, ResourceLocation> ARMOR_TEXTURE_EMPTY_SLOTS = Map.of(
-			EquipmentSlot.FEET,
-			InventoryMenu.EMPTY_ARMOR_SLOT_BOOTS,
-			EquipmentSlot.LEGS,
-			InventoryMenu.EMPTY_ARMOR_SLOT_LEGGINGS,
-			EquipmentSlot.CHEST,
-			InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE,
-			EquipmentSlot.HEAD,
-			InventoryMenu.EMPTY_ARMOR_SLOT_HELMET);
-	
-	public static final EquipmentSlot[] ARMOR_SLOT_IDS = new EquipmentSlot[] {
-			EquipmentSlot.HEAD,
-			EquipmentSlot.CHEST,
-			EquipmentSlot.LEGS,
-			EquipmentSlot.FEET };
-
-	
-	public static final Map<ClothesSlotType, ResourceLocation> CLOTHES_TEXTURE_EMPTY_SLOTS = Map.of(
-			ClothesSlotType.FEET,
-			JojoMod.resLoc("gui/container/emptyslots/clothes_feet"),
-			ClothesSlotType.LEGS,
-			JojoMod.resLoc("gui/container/emptyslots/clothes_legs"),
-			ClothesSlotType.CHEST,
-			JojoMod.resLoc("gui/container/emptyslots/clothes_chest"),
-			ClothesSlotType.HEAD,
-			JojoMod.resLoc("gui/container/emptyslots/clothes_head"));
-
 	public EntityClothesInventory clothesInventory;
 	
 	public PlayerClothesMenu(int containerId, Inventory playerInventory) {
@@ -69,101 +35,39 @@ public class PlayerClothesMenu extends AbstractContainerMenu {
 	}
 	
 	protected void initSlots(Inventory playerInventory, Player player) {
-		for (Slot slot : armorSlots(playerInventory, player, 8, 8)) {
+		ARMOR_START = slots.size();
+		for (Slot slot : ContainerMenuUtil.armorSlots(playerInventory, player, 8, 8)) {
 			this.addSlot(slot);
 		}
-		for (Slot slot : clothesSlots(clothesInventory, player, 77, 8)) {
+		ARMOR_END = slots.size();
+		
+		CLOTHES_START = slots.size();
+		for (Slot slot : ContainerMenuUtil.clothesSlots(clothesInventory, player, 77, 8)) {
 			this.addSlot(slot);
 		}
-		this.addSlot(offhandSlot(playerInventory, player, 95, 62));
-		for (Slot slot : inventorySlots(playerInventory, 8, 84)) {
+		CLOTHES_END = slots.size();
+		
+		SHIELD_SLOT = slots.size();
+		this.addSlot(ContainerMenuUtil.offhandSlot(playerInventory, player, 95, 62));
+		
+		INV_START = slots.size();
+		for (Slot slot : ContainerMenuUtil.inventorySlots(playerInventory, 8, 84)) {
 			this.addSlot(slot);
 		}
+		INV_END = slots.size() - 9;
+		HOTBAR_START = INV_END;
+		HOTBAR_END = HOTBAR_START + 9;
 	}
 	
-	public static Slot[] inventorySlots(Inventory playerInventory, int x, int y) {
-		Slot[] slots = new Slot[36];
-		
-		// inventory
-		for (int row = 0; row < 3; row++) {
-			for (int i = 0; i < 9; i++) {
-				int slotIndex = i + (row + 1) * 9;
-				int slotX = x + i * 18;
-				int slotY = y + row * 18;
-				slots[slotIndex] = new Slot(playerInventory, slotIndex, slotX, slotY);
-			}
-		}
-
-		// hotbar
-		for (int i = 0; i < 9; i++) {
-			int slotIndex = i;
-			int slotX = x + i * 18;
-			int slotY = y + 58;
-			slots[slotIndex] = new Slot(playerInventory, slotIndex, slotX, slotY);
-		}
-		
-		return slots;
-	}
-	
-	public static Slot offhandSlot(Inventory playerInventory, LivingEntity player, int x, int y) {
-		return new Slot(playerInventory, 40, x, y) {
-			@Override
-			public void setByPlayer(ItemStack newStack, ItemStack oldStack) {
-				player.onEquipItem(EquipmentSlot.OFFHAND, oldStack, newStack);
-				super.setByPlayer(newStack, oldStack);
-			}
-
-			@Override
-			public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
-				return Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD);
-			}
-		};
-	}
-	
-	public static Slot[] armorSlots(Inventory playerInventory, LivingEntity player, int x, int y) {
-		Slot[] slots = new Slot[4];
-		for (int i = 0; i < 4; i++) {
-			EquipmentSlot slot = ARMOR_SLOT_IDS[i];
-			ResourceLocation slotIcon = ARMOR_TEXTURE_EMPTY_SLOTS.get(slot);
-			int slotIndex = 39 - i;
-			int slotX = x;
-			int slotY = y + i * 18;
-			
-			slots[i] = new ArmorSlot(playerInventory, player, slot, slotIndex, slotX, slotY, slotIcon);
-		}
-		return slots;
-		
-	}
-	
-	public static Slot[] clothesSlots(EntityClothesInventory clothesInventory, LivingEntity player, int x, int y) {
-		Slot[] slots = new Slot[4];
-		for (int i = 0; i < 4; i++) {
-			ClothesSlotType slot = ClothesSlotType.values()[i];
-			ResourceLocation slotIcon = CLOTHES_TEXTURE_EMPTY_SLOTS.get(slot);
-			int slotIndex = i;
-			int slotX = x;
-			int slotY = y + i * 18;
-			
-			slots[i] = new ClothesSlot(clothesInventory, player, slot, slotIndex, slotX, slotY, slotIcon);
-		}
-		return slots;
-	}
-	
-
-	@Override
-	public boolean stillValid(Player player) {
-		return true;
-	}
-
-	public static final int ARMOR_START = 0;
-	public static final int ARMOR_END = 4;
-	public static final int CLOTHES_START = 4;
-	public static final int CLOTHES_END = 8;
-	public static final int SHIELD_SLOT = 8;
-	public static final int INV_START = 9;
-	public static final int INV_END = 36;
-	public static final int HOTBAR_START = 36;
-	public static final int HOTBAR_END = 45;
+	public int ARMOR_START = 0;
+	public int ARMOR_END = 4;
+	public int CLOTHES_START = 4;
+	public int CLOTHES_END = 8;
+	public int SHIELD_SLOT = 8;
+	public int INV_START = 9;
+	public int INV_END = 36;
+	public int HOTBAR_START = 36;
+	public int HOTBAR_END = 45;
 	
 	/**
 	 * Handle when the stack in slot {@code index} is shift-clicked. Normally this moves the stack between the player inventory and the other inventory(s).
@@ -275,6 +179,12 @@ public class PlayerClothesMenu extends AbstractContainerMenu {
 		}
 		
 		return false;
+	}
+
+
+	@Override
+	public boolean stillValid(Player player) {
+		return true;
 	}
 	
 	

@@ -9,29 +9,21 @@ import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
-import com.github.standobyte.jojo.mechanics.clothes.container.PlayerClothesMenu;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSet;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
-import com.mojang.datafixers.util.Pair;
+import com.github.standobyte.jojo.util.functions.ContainerMenuUtil;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.neoforged.neoforge.items.SlotItemHandler;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
 
 public class SewingMachineContainer extends AbstractContainerMenu {
 	public final ContainerLevelAccess access;
@@ -42,86 +34,16 @@ public class SewingMachineContainer extends AbstractContainerMenu {
 
 		Player player = inventory.player;
 		EntityClothesInventory clothes = player.getData(ModDataAttachmentTypes.HUMANOID_CLOTHES.get());
-		InvWrapper forgeClothesInventory = new InvWrapper(clothes);
 
-		for (ClothesSlotType clothesSlot : ClothesSlotType.values()) {
-			int i = clothesSlot.ordinal();
-			addSlot(new SlotItemHandler(forgeClothesInventory, i, 26, 178 + i * 18) {
-
-				@Override
-				public int getMaxStackSize() {
-					return 1;
-				}
-
-				@Override
-				public boolean mayPlace(ItemStack pStack) {
-					if (!pStack.isEmpty() && pStack.get(ModItemDataComponents.CLOTHES_PIECE) instanceof ClothesDataComponent clothes) {
-						return clothes.getSlot() == clothesSlot;
-					}
-					return false;
-				}
-
-				@Override
-				public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
-					return Pair.of(InventoryMenu.BLOCK_ATLAS, PlayerClothesMenu.CLOTHES_TEXTURE_EMPTY_SLOTS.get(clothesSlot));
-				}
-			});
+		for (Slot slot : ContainerMenuUtil.clothesSlots(clothes, player, 26, 178)) {
+			addSlot(slot);
 		}
-
-		for(int k = 0; k < 4; ++k) {
-			final EquipmentSlot equipmentslottype = PlayerClothesMenu.ARMOR_SLOT_IDS[k];
-			addSlot(new Slot(inventory, 39 - k, 95, 178 + k * 18) {
-
-				@Override
-				public int getMaxStackSize() {
-					return 1;
-				}
-
-				@Override
-				public boolean mayPlace(ItemStack pStack) {
-					return pStack.canEquip(equipmentslottype, player);
-				}
-
-				@Override
-				public boolean mayPickup(Player pPlayer) {
-					ItemStack itemstack = this.getItem();
-					return !itemstack.isEmpty() && !pPlayer.isCreative() && EnchantmentHelper.has(itemstack, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE) ? false : super.mayPickup(pPlayer);
-				}
-
-				@Override
-				public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
-					return Pair.of(InventoryMenu.BLOCK_ATLAS, PlayerClothesMenu.ARMOR_TEXTURE_EMPTY_SLOTS.get(equipmentslottype));
-				}
-			});
+		for (Slot slot : ContainerMenuUtil.armorSlots(inventory, player, 95, 178)) {
+			addSlot(slot);
 		}
-
-		this.addSlot(new Slot(inventory, 40, 113, 232) {
-
-			@Override
-			public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
-				return Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD);
-			}
-		});
-
-		for (int row = 0; row < 3; ++row) {
-			for (int col = 0; col < 9; ++col) {
-				addSlot(new Slot(inventory, 
-						col + row * 9 + 9, 
-						8 + col * 18
-						+ 173, 
-						84 + row * 18
-						+ 92
-						));
-			}
-		}
-		for (int hotbarCol = 0; hotbarCol < 9; ++hotbarCol) {
-			addSlot(new Slot(inventory, 
-					hotbarCol, 
-					8 + hotbarCol * 18
-					+ 173, 
-					142
-					+ 92
-					));
+		addSlot(ContainerMenuUtil.offhandSlot(inventory, player, 113, 232));
+		for (Slot slot : ContainerMenuUtil.inventorySlots(inventory, 181, 176)) {
+			addSlot(slot);
 		}
 
 		craftingSlots = new CraftSlots(this, player, 26, 143);
@@ -137,11 +59,6 @@ public class SewingMachineContainer extends AbstractContainerMenu {
 
 
 		this.access = access;
-	}
-
-	@Override
-	public boolean stillValid(Player player) {
-		return stillValid(access, player, ModBlocks.SEWING_MACHINE.get());
 	}
 
 	/*
@@ -161,7 +78,7 @@ public class SewingMachineContainer extends AbstractContainerMenu {
 		if (slot != null && slot.hasItem()) {
 			ItemStack clickedItem = slot.getItem();
 			itemstack = clickedItem.copy();
-			EquipmentSlot armorSlot = getEquipmentSlotForItem(itemstack);
+			EquipmentSlot armorSlot = ContainerMenuUtil.getEquipmentSlotForItem(itemstack);
 			if (pIndex >= 0 && pIndex < 4) { // clothes
 				if (!this.moveItemStackTo(clickedItem, 9, 45, false)) {
 					return ItemStack.EMPTY;
@@ -222,18 +139,10 @@ public class SewingMachineContainer extends AbstractContainerMenu {
 		return itemstack;
 	}
 
-	public static EquipmentSlot getEquipmentSlotForItem(ItemStack stack) {
-		final EquipmentSlot slot = stack.getEquipmentSlot();
-		if (slot != null) {
-			return slot;
-		}
-		Equipable equipable = Equipable.get(stack);
-		if (equipable != null) {
-			EquipmentSlot equipmentSlot = equipable.getEquipmentSlot();
-			return equipmentSlot;
-		}
 
-		return EquipmentSlot.MAINHAND;
+	@Override
+	public boolean stillValid(Player player) {
+		return stillValid(access, player, ModBlocks.SEWING_MACHINE.get());
 	}
 
 

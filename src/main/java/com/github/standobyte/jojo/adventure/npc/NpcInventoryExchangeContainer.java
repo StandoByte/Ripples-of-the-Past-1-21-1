@@ -5,8 +5,8 @@ import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.init.ModContainers;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
-import com.github.standobyte.jojo.mechanics.clothes.container.PlayerClothesMenu;
 import com.github.standobyte.jojo.subsystems.entity_externalcontainer.PlayerExternalContainers.MenuConstructor_;
+import com.github.standobyte.jojo.util.functions.ContainerMenuUtil;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
@@ -32,15 +32,15 @@ public class NpcInventoryExchangeContainer extends AbstractContainerMenu {
 		this.isDebug = isDebug;
 		
 		// npc inventory
-		for (Slot slot : PlayerClothesMenu.inventorySlots(charInventory, 8, -16)) {
+		for (Slot slot : ContainerMenuUtil.inventorySlots(charInventory, 8, -16)) {
 			this.addSlot(slot);
 		}
-		this.addSlot(PlayerClothesMenu.offhandSlot(charInventory, character, -10, 42));
-		for (Slot slot : PlayerClothesMenu.armorSlots(charInventory, character, -28, -12)) {
+		this.addSlot(ContainerMenuUtil.offhandSlot(charInventory, character, -10, 42));
+		for (Slot slot : ContainerMenuUtil.armorSlots(charInventory, character, -28, -12)) {
 			this.addSlot(slot);
 		}
 		EntityClothesInventory npcClothes = character.getData(ModDataAttachmentTypes.HUMANOID_CLOTHES.get());
-		for (Slot slot : PlayerClothesMenu.clothesSlots(npcClothes, character, -46, -12)) {
+		for (Slot slot : ContainerMenuUtil.clothesSlots(npcClothes, character, -46, -12)) {
 			this.addSlot(slot);
 		}
 		if (isDebug) {
@@ -49,15 +49,15 @@ public class NpcInventoryExchangeContainer extends AbstractContainerMenu {
 
 		// player inventory
 		Player player = inventory.player;
-		for (Slot slot : PlayerClothesMenu.inventorySlots(inventory, 12, 84)) {
+		for (Slot slot : ContainerMenuUtil.inventorySlots(inventory, 12, 84)) {
 			this.addSlot(slot);
 		}
-		this.addSlot(PlayerClothesMenu.offhandSlot(inventory, player, -10, 142));
-		for (Slot slot : PlayerClothesMenu.armorSlots(inventory, player, -28, 88)) {
+		this.addSlot(ContainerMenuUtil.offhandSlot(inventory, player, -10, 142));
+		for (Slot slot : ContainerMenuUtil.armorSlots(inventory, player, -28, 88)) {
 			this.addSlot(slot);
 		}
 		EntityClothesInventory playerClothes = player.getData(ModDataAttachmentTypes.HUMANOID_CLOTHES.get());
-		for (Slot slot : PlayerClothesMenu.clothesSlots(playerClothes, player, -46, 88)) {
+		for (Slot slot : ContainerMenuUtil.clothesSlots(playerClothes, player, -46, 88)) {
 			this.addSlot(slot);
 		}
 	}
@@ -97,53 +97,9 @@ public class NpcInventoryExchangeContainer extends AbstractContainerMenu {
 				&& player.canInteractWithEntity(this.character, 4.0);
 	}
 
-	// FIXME quick move
 	@Override
 	public ItemStack quickMoveStack(Player player, int index) {
-		ItemStack itemstack = ItemStack.EMPTY;
-		Slot slot = this.slots.get(index);
-		if (slot != null && slot.hasItem()) {
-			ItemStack itemstack1 = slot.getItem();
-			itemstack = itemstack1.copy();
-			int i = this.charInventory.getContainerSize() + 1;
-			if (index < i) {
-				if (!this.moveItemStackTo(itemstack1, i, this.slots.size(), true)) {
-					return ItemStack.EMPTY;
-				}
-			} else if (this.getSlot(1).mayPlace(itemstack1) && !this.getSlot(1).hasItem()) {
-				if (!this.moveItemStackTo(itemstack1, 1, 2, false)) {
-					return ItemStack.EMPTY;
-				}
-			} else if (this.getSlot(0).mayPlace(itemstack1)) {
-				if (!this.moveItemStackTo(itemstack1, 0, 1, false)) {
-					return ItemStack.EMPTY;
-				}
-			} else if (i <= 1 || !this.moveItemStackTo(itemstack1, 2, i, false)) {
-				int j = i + 27;
-				int k = j + 9;
-				if (index >= j && index < k) {
-					if (!this.moveItemStackTo(itemstack1, i, j, false)) {
-						return ItemStack.EMPTY;
-					}
-				} else if (index >= i && index < j) {
-					if (!this.moveItemStackTo(itemstack1, j, k, false)) {
-						return ItemStack.EMPTY;
-					}
-				} else if (!this.moveItemStackTo(itemstack1, j, j, false)) {
-					return ItemStack.EMPTY;
-				}
-
-				return ItemStack.EMPTY;
-			}
-
-			if (itemstack1.isEmpty()) {
-				slot.setByPlayer(ItemStack.EMPTY);
-			} else {
-				slot.setChanged();
-			}
-		}
-
-		return itemstack;
+		return ItemStack.EMPTY;
 	}
 
 	@Override
