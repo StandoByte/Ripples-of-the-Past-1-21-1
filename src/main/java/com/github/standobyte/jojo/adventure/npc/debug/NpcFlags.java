@@ -4,18 +4,14 @@ package com.github.standobyte.jojo.adventure.npc.debug;
  * so that the default value for NPCs actually being added in Surival gameplay is false
  */
 public enum NpcFlags {
-	AGGRESSIVE_TO_PLAYERS(false),
-	NON_AGGRESSIVE_TO_MOBS(true),
+	DISABLE_HUNT_MONSTERS(true),
+	DISABLE_AI_COMBAT(true),
+	DISABLE_AI_EQUIPMENT(true),
+	DISABLE_AI_CHANGE_CLOTHES(true), // TODO make the NPC pick clothes matching their moveset
 	SHOW_HP(true),
 	SHOW_HUNGER(true),
 	SHOW_POWER_VARIABLES(true),
-	DISABLE_AI_COMBAT(true),
-	DISABLE_AI_EQUIPMENT(true),
-	// TODO make the NPC pick clothes matching their moveset
-	DISABLE_AI_EQUIP_CLOTHES(true),
-	CAN_USE_STAND_DISC(true),
-	CAN_TEST_ACTIONS(true),
-	DISABLE_ARMOR_RENDER(false);
+	DISABLE_RENDER_ARMOR(false);
 	
 	public final boolean trueForDebugDummy;
 	

@@ -123,7 +123,7 @@ public class ModEntityTypeRenderers {
 	
 	
 	public static boolean cancelRenderArmor(LivingEntity entity) {
-		return entity instanceof PowerUserMobEntity npc && npc.getFlag(NpcFlags.DISABLE_ARMOR_RENDER);
+		return entity instanceof PowerUserMobEntity npc && npc.getFlag(NpcFlags.DISABLE_RENDER_ARMOR);
 	}
 	
 }
