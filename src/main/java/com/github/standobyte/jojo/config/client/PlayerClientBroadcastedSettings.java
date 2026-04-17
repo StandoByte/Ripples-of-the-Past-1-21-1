@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Player;
 
 // TODO (client config) attach this to the server players
 // TODO (client config) send to server when edited
+@Deprecated
 public class PlayerClientBroadcastedSettings {
 	public HumanoidArm standSide = HumanoidArm.RIGHT;
 	public boolean vampireGlowingEyes = true;

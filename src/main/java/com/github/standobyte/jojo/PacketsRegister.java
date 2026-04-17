@@ -1,5 +1,9 @@
 package com.github.standobyte.jojo;
 
+import com.github.standobyte.jojo.config.internal.packets.ClCommonServerConfigEditPacket;
+import com.github.standobyte.jojo.config.internal.packets.ClPlayerBroadcastConfigPacket;
+import com.github.standobyte.jojo.config.internal.packets.PlayerBroadcastConfigPacket;
+import com.github.standobyte.jojo.config.internal.packets.RemoteCommonConfigPacket;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.customobjects.explosion.CustomExplosionPacket;
 import com.github.standobyte.jojo.entityattachment.custom_effect.TrEntityCustomEffectsPacket;
@@ -85,6 +89,8 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClStandItemInputPacket.Handler(JojoMod.resLoc("clstanditem")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClSetSewingMachineItemPacket.Handler(JojoMod.resLoc("clsewingitem")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClExtendedContainerClickPacket.Handler(JojoMod.resLoc("clslotclick")));
+		registerPacket(registrar, PayloadRegistrar::playToServer, new ClCommonServerConfigEditPacket.Handler(JojoMod.resLoc("clcfgedit")));
+		registerPacket(registrar, PayloadRegistrar::playToServer, new ClPlayerBroadcastConfigPacket.Handler(JojoMod.resLoc("clcfgsend")));
 
 		registerPacket(registrar, PayloadRegistrar::playToClient, new DatapackStandsPacket.Handler(JojoMod.resLoc("datastands")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrAbilityUsePacket.Handler(JojoMod.resLoc("abilityuse")));
@@ -129,6 +135,8 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new BrokenChunkBlocksPacket.Handler(JojoMod.resLoc("brokenblocks")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new CDBlocksRestoredPacket.Handler(JojoMod.resLoc("restoreblocks")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new ItemBreakVisualsPacket.Handler(JojoMod.resLoc("itemparticle")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new RemoteCommonConfigPacket.Handler(JojoMod.resLoc("cfgcommon")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new PlayerBroadcastConfigPacket.Handler(JojoMod.resLoc("cfgplayer")));
 	}
 
 	

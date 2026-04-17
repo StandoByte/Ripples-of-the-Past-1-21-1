@@ -14,6 +14,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.logging.LogUtils;
 
+@Deprecated
 public class ClientModSettings {
 
 	public static class Settings {
