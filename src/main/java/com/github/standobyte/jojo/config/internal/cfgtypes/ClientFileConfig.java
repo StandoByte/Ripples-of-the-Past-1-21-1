@@ -37,8 +37,11 @@ public class ClientFileConfig<C1, C2> {
 				if (localOnly != null) {
 					localOnly.fromJson(json);
 				}
+				
 				if (broadcast != null) {
-					broadcast.fromJson(json);
+					JsonObject broadcastJson = json.getAsJsonObject("broadcasted");
+					if (broadcastJson == null) broadcastJson = new JsonObject();
+					broadcast.fromJson(broadcastJson);
 				}
 			});
 		}
@@ -47,13 +50,9 @@ public class ClientFileConfig<C1, C2> {
 	public void saveToFileSystem() {
 		if (localOnly != null || broadcast != null) {
 			CommonFileConfig.serialize(file, writer -> {
-				JsonObject json;
-				if (localOnly != null && broadcast != null) {
-					json = localOnly.toJson();
-					JSONUtil.merge(json, broadcast.toJson());
-				}
-				else {
-					json = localOnly != null ? localOnly.toJson() : broadcast.toJson();
+				JsonObject json = localOnly != null ? localOnly.toJson() : new JsonObject();
+				if (broadcast != null) {
+					json.add("broadcasted", broadcast.toJson());
 				}
 				CommonFileConfig.GSON.toJson(json, writer);
 			});
