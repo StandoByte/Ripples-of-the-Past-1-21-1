@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.config.core;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -9,6 +10,7 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.config.ModConfigInterface;
 import com.github.standobyte.jojo.config.internal.cfgtypes.ClientFileConfig;
 import com.github.standobyte.jojo.config.internal.cfgtypes.CommonConfig;
@@ -90,7 +92,8 @@ public class ModConfig<C1, C2, C3> implements ModConfigInterface<C1, C2, C3> {
 		if (clientBroadcast == null) clientBroadcast = () -> null;
 		if (common == null) common = () -> null;
 		
-		this.commonConfig = new CommonFileConfig<>(common.get(), modId);
+		File mainDir = getMainDirectory(currentEnvironment);
+		this.commonConfig = new CommonFileConfig<>(common.get(), mainDir, modId);
 		this.commonConfig.loadFromFileSystem();
 		this.broadcastFactory = clientBroadcast;
 		switch (currentEnvironment) {
@@ -98,12 +101,21 @@ public class ModConfig<C1, C2, C3> implements ModConfigInterface<C1, C2, C3> {
 				this.clientConfig = new ClientFileConfig<>(
 						client.get(), 
 						clientBroadcast.get(), 
-						modId);
+						mainDir, modId);
 				this.clientConfig.loadFromFileSystem();
 				this.commonFactory = common;
 			}
 			case DEDICATED_SERVER -> {}
 		}
+	}
+	
+	
+	@Nullable
+	public static File getMainDirectory(Dist environment) {
+		return switch (environment) {
+			case CLIENT -> ClientProxy.getGameDirectory();
+			case DEDICATED_SERVER -> null;
+		};
 	}
 	
 }
