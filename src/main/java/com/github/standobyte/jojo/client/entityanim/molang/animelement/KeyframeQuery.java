@@ -5,7 +5,7 @@ import javax.annotation.Nullable;
 import org.joml.Vector3f;
 
 import com.github.standobyte.jojo.client.entityanim.molang.KeyframesMolangEngine;
-import com.github.standobyte.jojo.config.MolangValue;
+import com.github.standobyte.jojo.config.util.MolangValue;
 import com.google.gson.JsonArray;
 
 import net.minecraft.client.animation.AnimationChannel.Interpolation;

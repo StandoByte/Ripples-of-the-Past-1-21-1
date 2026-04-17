@@ -16,7 +16,7 @@ import com.github.standobyte.jojo.client.input.VanillaKeybinds;
 import com.github.standobyte.jojo.client.ui.screen_widgets.IconButton;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
-import com.github.standobyte.jojo.config.SettingsField;
+import com.github.standobyte.jojo.config.SettingsUIEntry;
 import com.github.standobyte.jojo.config.client.ClientModSettings;
 import com.github.standobyte.jojo.config.client.ClientModSettingsScreen;
 
@@ -45,7 +45,7 @@ public abstract class KeyEntryMixin {
 		String keyName = key.getName();
 		boolean refreshAgain = false;
 		
-		SettingsField<Boolean> holdOrToggle = VanillaKeybinds.HOLD_OR_TOGGLE.get(keyName);
+		SettingsUIEntry<Boolean> holdOrToggle = VanillaKeybinds.HOLD_OR_TOGGLE.get(keyName);
 		if (holdOrToggle != null) {
 			jojo_ripples$holdToggleButton = Button.builder(name, button -> {
 				holdOrToggle.set(!holdOrToggle.get());
@@ -103,7 +103,7 @@ public abstract class KeyEntryMixin {
             CallbackInfo ci) {
 		if (jojo_ripples$holdToggleButton != null) {
 			String keyName = this.key.getName();
-			SettingsField<Boolean> holdOrToggle = VanillaKeybinds.HOLD_OR_TOGGLE.get(keyName);
+			SettingsUIEntry<Boolean> holdOrToggle = VanillaKeybinds.HOLD_OR_TOGGLE.get(keyName);
 			Component message = holdOrToggle != null ? Component.translatable(holdOrToggle.get() ? "options.key.toggle" : "options.key.hold") : null;
 			jojo_ripples$holdToggleButton.setMessage(message != null ? message : CommonComponents.EMPTY);
 			

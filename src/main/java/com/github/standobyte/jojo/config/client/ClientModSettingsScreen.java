@@ -14,7 +14,7 @@ import com.github.standobyte.jojo.client.ui.screen_widgets.ButtonInLayout;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ItemButton;
 import com.github.standobyte.jojo.client.ui.utils.Alignment;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
-import com.github.standobyte.jojo.config.SettingsField;
+import com.github.standobyte.jojo.config.SettingsUIEntry;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
 import com.github.standobyte.v1_21_4_stuff.GuiScissor;
@@ -618,7 +618,7 @@ public class ClientModSettingsScreen extends Screen {
 		return JojoMod.resLoc("textures/gui/sprites/settings/" + fileName + ".png");
 	}
 	
-	public static abstract class Setting<T> implements SettingsField<T>{
+	public static abstract class Setting<T> implements SettingsUIEntry<T>{
 		protected ClientModSettings settings;
 		protected Component name;
 		protected Component nameWithSprite;

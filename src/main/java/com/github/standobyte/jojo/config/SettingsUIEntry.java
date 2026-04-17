@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.config;
 
-public interface SettingsField<T> {
+public interface SettingsUIEntry<T> {
 	T get();
 	void set(T value);
 }

@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
-import com.github.standobyte.jojo.config.JsonConfigurable;
+import com.github.standobyte.jojo.config.util.JsonConfigurable;
 import com.github.standobyte.jojo.init.ModEntityAttributes;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.functions.AttributeUtil;

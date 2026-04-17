@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.ui.hud_power.WindupIndicator;
-import com.github.standobyte.jojo.config.MolangValue;
+import com.github.standobyte.jojo.config.util.MolangValue;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer.BufferingState;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;

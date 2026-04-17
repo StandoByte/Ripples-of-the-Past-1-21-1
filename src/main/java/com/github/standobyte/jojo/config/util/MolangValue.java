@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.config;
+package com.github.standobyte.jojo.config.util;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
