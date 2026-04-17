@@ -18,8 +18,16 @@ public abstract class ConfigOption<T> {
 
 
 	@ApiStatus.Internal
-	public void init() {}
+	public void init(String fieldName) {
+		this.fieldName = fieldName;
+	}
 
+	@ApiStatus.Internal
+	public String getFieldName() {
+		return fieldName;
+	}
+
+	protected String fieldName;
 	protected Codec<T> jsonCodec;
 	protected StreamCodec<? super RegistryFriendlyByteBuf, T> networkCodec;
 

@@ -4,6 +4,7 @@ import java.io.File;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
 import com.github.standobyte.jojo.config.internal.ConfigObjSerialization;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.functions.JSONUtil;
@@ -20,6 +21,13 @@ public class ClientFileConfig<C1, C2> {
 		
 		String filePrefix = modId.equals(JojoMod.MOD_ID) ? "" : (modId + "_");
 		this.file = new File(mainDirectory, "config/jojo_rotp/" + filePrefix + "client_settings.json");
+	}
+	
+	public void sendToServer() {
+		if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
+			ConfigNetworkFunctions.clSendPlayerBroadcastConfigToServer(true, 
+					JojoMod.MOD_ID, this);
+		}
 	}
 	
 	public void loadFromFileSystem() {

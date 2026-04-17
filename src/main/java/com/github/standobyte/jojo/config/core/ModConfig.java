@@ -23,6 +23,7 @@ import net.neoforged.api.distmarker.Dist;
 @ApiStatus.Internal
 public class ModConfig<C1, C2, C3> implements ModConfigInterface<C1, C2, C3> {
 	public final Dist currentEnvironment;
+	public final String modId;
 	public ClientFileConfig<C1, C2> clientConfig;
 	public Map<UUID, PlayerBroadcastConfig<C2>> serverBroadcast = new HashMap<>();
 	public CommonFileConfig<C3> commonConfig;
@@ -85,6 +86,7 @@ public class ModConfig<C1, C2, C3> implements ModConfigInterface<C1, C2, C3> {
 			@Nullable Supplier<C3> common,
 			String modId) {
 		this.currentEnvironment = currentEnvironment;
+		this.modId = modId;
 		this.hasClient = client != null;
 		this.hasClientBroadcast = clientBroadcast != null;
 		this.hasCommon = common != null;

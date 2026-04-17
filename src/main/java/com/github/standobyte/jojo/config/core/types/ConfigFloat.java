@@ -9,7 +9,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 public class ConfigFloat extends ConfigOption<Float> {
 	protected DefaultedValue.Float value;
 
-	public ConfigFloat(int defaultValue) {
+	public ConfigFloat(float defaultValue) {
 		super(PrimitiveCodec.FLOAT, ByteBufCodecs.FLOAT);
 		this.value = new DefaultedValue.Float(defaultValue);
 	}

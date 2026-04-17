@@ -110,8 +110,9 @@ public class ConfigObjSerialization<C> {
 		try {
 			for (Field field : fields) {
 				ConfigOption<?> option = (ConfigOption<?>) field.get(configObj);
-				option.init();
-				configOptions.put(field.getName(), option);
+				String fieldName = field.getName();
+				option.init(fieldName);
+				configOptions.put(fieldName, option);
 			}
 			return new ConfigObjSerialization<>(configObj, configOptions);
 		}

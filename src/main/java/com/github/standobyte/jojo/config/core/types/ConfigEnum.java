@@ -7,10 +7,12 @@ import com.github.standobyte.jojo.util.objects_java.DefaultedValue;
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
 public class ConfigEnum<T extends Enum<T>> extends ConfigOption<T> {
+	public final Class<T> enumClass;
 	protected DefaultedValue<T> value;
 
 	public ConfigEnum(Class<T> enumClass, T defaultValue) {
 		super(CodecUtil.enumCodec(enumClass), NeoForgeStreamCodecs.enumCodec(enumClass));
+		this.enumClass = enumClass;
 		this.value = new DefaultedValue<>(defaultValue);
 	}
 
