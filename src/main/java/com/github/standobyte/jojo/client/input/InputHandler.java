@@ -29,7 +29,7 @@ import com.github.standobyte.jojo.client.input.controlscheme.ClientKey;
 import com.github.standobyte.jojo.client.ui.AbilitySelectionWheel;
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHud;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
-import com.github.standobyte.jojo.config.client.ClientModSettings;
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.event.client.PreKeyInputEvent;
 import com.github.standobyte.jojo.network.c2s.ClAbilityInputPacket;
 import com.github.standobyte.jojo.powersystem.Power;
@@ -114,7 +114,7 @@ public class InputHandler {
 	
 	@SubscribeEvent(priority = EventPriority.HIGH)
 	public void onFrameUpdate(RenderFrameEvent.Pre event) {
-		if (!ClientModSettings.getSettingsReadOnly().toggleDisableHotbars) {
+		if (!JojoMod.config.getClient().toggleDisableHotbars.getAsBoolean()) {
 			inputsDisabled = _heldKeys.containsKey(ClientKey.fromVanillaKeybind(vanillaKeybinds.disableHUDControls));
 		}
 		
@@ -546,7 +546,7 @@ public class InputHandler {
 					setSelectingAbility(abilityHotbar, pressedKey, true);
 				}
 			}
-			if (ClientModSettings.getSettingsReadOnly().abilitySelectionWheel && wheelHotbar != null) {
+			if (JojoMod.config.getClient().abilitySelectionWheel.getAsBoolean() && wheelHotbar != null) {
 				mc.setScreen(new AbilitySelectionWheel(wheelHotbar));
 			}
 		}

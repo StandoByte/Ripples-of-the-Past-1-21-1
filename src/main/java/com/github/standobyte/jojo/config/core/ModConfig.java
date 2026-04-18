@@ -47,6 +47,21 @@ public class ModConfig<C1, C2, C3> implements ModConfigInterface<C1, C2, C3> {
 	public C3 getCommon() {
 		return getCommonCfgState().configState.configObj;
 	}
+
+	@Override
+	public void saveClient() {
+		clientConfig.saveToFileSystem();
+	}
+
+	@Override
+	public void sendClientBroadcast() {
+		clientConfig.sendToServer();
+	}
+
+	@Override
+	public void saveCommon() {
+		commonConfig.saveToFileSystem();
+	}
 	
 	
 	public CommonConfig<C3> getCommonCfgState() {

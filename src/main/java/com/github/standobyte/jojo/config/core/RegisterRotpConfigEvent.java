@@ -12,11 +12,11 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.Event;
 import net.neoforged.fml.event.IModBusEvent;
 
-public class ModRotpConfigEvent extends Event implements IModBusEvent {
+public class RegisterRotpConfigEvent extends Event implements IModBusEvent {
 	public final Dist environment;
 	public final Map<String, ModConfig<?, ?, ?>> configs = new HashMap<>();
 	
-	public ModRotpConfigEvent(Dist environment) {
+	public RegisterRotpConfigEvent(Dist environment) {
 		this.environment = environment;
 	}
 
@@ -29,9 +29,4 @@ public class ModRotpConfigEvent extends Event implements IModBusEvent {
 		return config;
 	}
 	
-	public static class ConfigsPrep {
-		public @Nullable Supplier<?> client;
-		public @Nullable Supplier<?> clientBroadcast; 
-		public @Nullable Supplier<?> common;
-	}
 }

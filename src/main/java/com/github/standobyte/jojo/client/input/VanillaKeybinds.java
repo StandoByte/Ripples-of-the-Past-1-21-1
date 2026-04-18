@@ -12,8 +12,7 @@ import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.IJojoMenuScreen;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.JojoMenuTabs;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.Tab;
-import com.github.standobyte.jojo.config.SettingsUIEntry;
-import com.github.standobyte.jojo.config.client.ClientModSettings;
+import com.github.standobyte.jojo.config.core.types.ConfigBool;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.network.c2s.ClNoParamsPacket;
 import com.github.standobyte.jojo.network.c2s.ClNoParamsPacket.PacketType;
@@ -60,14 +59,7 @@ public class VanillaKeybinds {
 				.inInitOrder().withDescTooltip());
 		event.register(binds.disableHUDControls = new Jokerge(
 				JojoMod.MOD_ID + ".key.disable_hotbars", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT, MAIN_CATEGORY)
-				.inInitOrder().withDescTooltip().canBeHoldOrToggle(new SettingsUIEntry<Boolean>() {
-					@Override public Boolean get() { return ClientModSettings.getSettingsReadOnly().toggleDisableHotbars; }
-					@Override public void set(Boolean value) {
-						ClientModSettings.edit(settings -> {
-							settings.toggleDisableHotbars = value;
-						}, false);
-					}
-				}));
+				.inInitOrder().withDescTooltip().canBeHoldOrToggle(JojoMod.config.getClient().toggleDisableHotbars));
 		event.register(binds.jojoStuffMenu = new Jokerge(
 				JojoMod.MOD_ID + ".key.jojo_menu", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_BACKSLASH, MAIN_CATEGORY)
 				.inInitOrder().withDescTooltip());
@@ -106,7 +98,7 @@ public class VanillaKeybinds {
 			}
 		}
 		
-		if (ClientModSettings.getSettingsReadOnly().toggleDisableHotbars && disableHUDControls.consumeClick()) {
+		if (JojoMod.config.getClient().toggleDisableHotbars.getAsBoolean() && disableHUDControls.consumeClick()) {
 			InputHandler.inputsDisabled = !InputHandler.inputsDisabled;
 		}
 		
@@ -126,7 +118,7 @@ public class VanillaKeybinds {
 	
 	
 	public static final Set<String> ADD_DESC_TOOLTIP = new HashSet<>();
-	public static final Map<String, SettingsUIEntry<Boolean>> HOLD_OR_TOGGLE = new HashMap<>();
+	public static final Map<String, ConfigBool> HOLD_OR_TOGGLE = new HashMap<>();
 	
 	public static class Jokerge extends KeyMapping {
 		protected static Map<String, MutableInt> PER_CATEGORY = new HashMap<String, MutableInt>();
@@ -149,7 +141,7 @@ public class VanillaKeybinds {
 			return this;
 		}
 		
-		public Jokerge canBeHoldOrToggle(SettingsUIEntry<Boolean> clientSetting) {
+		public Jokerge canBeHoldOrToggle(ConfigBool clientSetting) {
 			HOLD_OR_TOGGLE.put(this.getName(), clientSetting);
 			return this;
 		}

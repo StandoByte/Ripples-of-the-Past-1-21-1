@@ -3,8 +3,10 @@ package com.github.standobyte.jojo.config.internal;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.github.standobyte.jojo.config.client.ClientModSettingsScreen;
+import com.github.standobyte.jojo.config.client.RegisterRotpConfigScreenTabEvent;
 import com.github.standobyte.jojo.config.core.ModConfig;
-import com.github.standobyte.jojo.config.core.ModRotpConfigEvent;
+import com.github.standobyte.jojo.config.core.RegisterRotpConfigEvent;
 import com.github.standobyte.jojo.core.JojoMod;
 
 import net.minecraft.server.level.ServerPlayer;
@@ -15,6 +17,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
@@ -93,7 +96,7 @@ public class ConfigEventHandler {
 		
 		@SubscribeEvent
 		public static void serverSetup(FMLDedicatedServerSetupEvent event) {
-			ModRotpConfigEvent serverConfigsEvent = new ModRotpConfigEvent(Dist.DEDICATED_SERVER);
+			RegisterRotpConfigEvent serverConfigsEvent = new RegisterRotpConfigEvent(Dist.DEDICATED_SERVER);
 			ModLoader.postEvent(serverConfigsEvent);
 			ALL_CONFIGS.putAll(serverConfigsEvent.configs);
 			ALL_CONFIGS.entrySet().forEach(cfgEntry -> {
@@ -107,8 +110,8 @@ public class ConfigEventHandler {
 	public static class ClientStartup {
 
 		@SubscribeEvent
-		public static void clientSetup(FMLClientSetupEvent event) {
-			ModRotpConfigEvent clientConfigsEvent = new ModRotpConfigEvent(Dist.CLIENT);
+		public static void veryEarlyClientSetup(RegisterClientReloadListenersEvent event) {
+			RegisterRotpConfigEvent clientConfigsEvent = new RegisterRotpConfigEvent(Dist.CLIENT);
 			ModLoader.postEvent(clientConfigsEvent);
 			ALL_CONFIGS.putAll(clientConfigsEvent.configs);
 			ALL_CONFIGS.entrySet().forEach(cfgEntry -> {
@@ -116,6 +119,13 @@ public class ConfigEventHandler {
 				config.commonConfig.loadFromFileSystem();
 				config.clientConfig.loadFromFileSystem();
 			});
+		}
+
+		@SubscribeEvent
+		public static void clientSetup(FMLClientSetupEvent event) {
+			RegisterRotpConfigScreenTabEvent registerLayoutEvent = new RegisterRotpConfigScreenTabEvent();
+			ModLoader.postEvent(registerLayoutEvent);
+			ClientModSettingsScreen.CONFIG_GUI_LAYOUTS.putAll(registerLayoutEvent.configGuiLayouts);
 		}
 	}
 }

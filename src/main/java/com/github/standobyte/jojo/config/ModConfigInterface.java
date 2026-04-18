@@ -6,4 +6,8 @@ public interface ModConfigInterface<C1, C2, C3> {
 	C1 getClient();
 	C2 getPlayerBroadcast(Player player);
 	C3 getCommon();
+	
+	void saveClient();
+	void sendClientBroadcast();
+	void saveCommon();
 }

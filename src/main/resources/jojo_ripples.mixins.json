@@ -111,6 +111,7 @@
 	"client.screen.ScreenMixin",
 	"client.screen.KeyMappingMixin",
 	"client.screen.MinecraftMixin",
+	"client.screen.ScreenAccessor",
     "client.standskin.SoundInstanceMixin",
     "client.aim.GameRendererMixin",
     "client.aim.HitboxRenderingMixin",

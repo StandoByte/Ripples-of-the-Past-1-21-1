@@ -16,9 +16,9 @@ import com.github.standobyte.jojo.client.input.VanillaKeybinds;
 import com.github.standobyte.jojo.client.ui.screen_widgets.IconButton;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
-import com.github.standobyte.jojo.config.SettingsUIEntry;
-import com.github.standobyte.jojo.config.client.ClientModSettings;
 import com.github.standobyte.jojo.config.client.ClientModSettingsScreen;
+import com.github.standobyte.jojo.config.core.types.ConfigBool;
+import com.github.standobyte.jojo.core.JojoMod;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.GuiGraphics;
@@ -45,10 +45,11 @@ public abstract class KeyEntryMixin {
 		String keyName = key.getName();
 		boolean refreshAgain = false;
 		
-		SettingsUIEntry<Boolean> holdOrToggle = VanillaKeybinds.HOLD_OR_TOGGLE.get(keyName);
+		ConfigBool holdOrToggle = VanillaKeybinds.HOLD_OR_TOGGLE.get(keyName);
 		if (holdOrToggle != null) {
 			jojo_ripples$holdToggleButton = Button.builder(name, button -> {
 				holdOrToggle.set(!holdOrToggle.get());
+				JojoMod.config.saveClient();
 			})
 			.bounds(0, 0, 90, 20)
 			.build();
@@ -62,9 +63,9 @@ public abstract class KeyEntryMixin {
 			jojo_ripples$left20x20Button = new IconButton(0, 0, 20, 20, 
 					new GuiIcon(ClientModSettingsScreen.toIconPath("ability_selection_wheel"), 16, 16), 
 					button -> {
-						ClientModSettings.edit(settings -> {
-							settings.abilitySelectionWheel = !settings.abilitySelectionWheel;
-						}, false);
+						ConfigBool abilitySelectionWheel = JojoMod.config.getClient().abilitySelectionWheel;
+						abilitySelectionWheel.set(!abilitySelectionWheel.getAsBoolean());
+						JojoMod.config.saveClient();
 					},
 					new MultiLineScreenTooltip(
 							Component.translatable("jojo_ripples.config.client.abilitySelectionWheel"),
@@ -103,7 +104,7 @@ public abstract class KeyEntryMixin {
             CallbackInfo ci) {
 		if (jojo_ripples$holdToggleButton != null) {
 			String keyName = this.key.getName();
-			SettingsUIEntry<Boolean> holdOrToggle = VanillaKeybinds.HOLD_OR_TOGGLE.get(keyName);
+			ConfigBool holdOrToggle = VanillaKeybinds.HOLD_OR_TOGGLE.get(keyName);
 			Component message = holdOrToggle != null ? Component.translatable(holdOrToggle.get() ? "options.key.toggle" : "options.key.hold") : null;
 			jojo_ripples$holdToggleButton.setMessage(message != null ? message : CommonComponents.EMPTY);
 			
@@ -125,7 +126,7 @@ public abstract class KeyEntryMixin {
 		
 		if (this.key == InputHandler.getInstance().vanillaKeybinds.switchSpecial) {
 			IconButton.renderCheckmarkOrCross(jojo_ripples$left20x20Button, 
-					ClientModSettings.getSettingsReadOnly().abilitySelectionWheel, guiGraphics.pose());
+					JojoMod.config.getClient().abilitySelectionWheel.getAsBoolean(), guiGraphics.pose());
 		}
 	}
 	

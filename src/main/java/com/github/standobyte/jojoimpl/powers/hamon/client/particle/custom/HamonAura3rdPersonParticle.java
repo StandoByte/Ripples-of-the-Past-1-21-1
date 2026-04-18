@@ -1,6 +1,6 @@
 package com.github.standobyte.jojoimpl.powers.hamon.client.particle.custom;
 
-import com.github.standobyte.jojo.config.client.ClientModSettings;
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.NotYetImplemented;
 import com.github.standobyte.jojoimpl.powers.hamon.client.particle.HamonAuraParticle;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -30,7 +30,7 @@ public class HamonAura3rdPersonParticle extends HamonAuraParticle {
 
 	@Override
 	public void render(VertexConsumer vertexBuilder, Camera camera, float partialTick) {
-		if (!ClientModSettings.getSettingsReadOnly().thirdPersonHamonAura) return;
+		if (!JojoMod.config.getClient().thirdPersonHamonAura.getAsBoolean()) return;
 
 		if (user != null) {
 			Minecraft mc = Minecraft.getInstance();
