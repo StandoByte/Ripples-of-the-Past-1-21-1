@@ -35,8 +35,8 @@ public class ModConfig<C1, C2, C3> implements ModConfigInterface<C1, C2, C3> {
 	}
 
 	@Override
-	public C2 getPlayerBroadcast(Player player) {
-		if (player.isLocalPlayer()) {
+	public C2 getPlayerBroadcast(@Nullable Player player) {
+		if (player == null || player.isLocalPlayer()) {
 			return clientConfig.broadcast.configObj;
 		}
 		PlayerBroadcastConfig<C2> broadcast = getBroadcastPlayerState(player.getUUID());
