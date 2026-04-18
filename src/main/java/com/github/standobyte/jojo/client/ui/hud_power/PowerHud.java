@@ -472,7 +472,7 @@ public class PowerHud {
 
 		@Override
 		public boolean shouldRender() {
-			if (hud.forContainerMenu.isTrue()) return false;
+			if (hud.forContainerMenu.isTrue() || !JojoMod.config.getCommon().standStamina.getAsBoolean()) return false;
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 			if (standPower != null && !standPower.isUserCreative() && standPower.usesStamina()) {
 				ClientControlScheme controlScheme = InputHandler.getInstance().getActiveControlScheme();

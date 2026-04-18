@@ -15,9 +15,12 @@ import com.github.standobyte.jojo.config.internal.packets.PlayerBroadcastConfigP
 import com.github.standobyte.jojo.config.internal.packets.RemoteCommonConfigPacket;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameRules;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -150,12 +153,22 @@ public class ConfigNetworkFunctions {
 	}
 	
 	public static void srvAcceptCommonSettingEdit(ServerPlayer sender, ClCommonServerConfigEditPacket payload) {
+		MinecraftServer server = sender.level().getServer();
 		if (playerHasPermissions(sender)) {
 			String configModId = payload.modId;
 			String fieldName = payload.fieldName;
 			ModConfig<?, ?, ?> config = getConfig(configModId);
 			CommonFileConfig<?> commonConfig = config.commonConfig;
 			ConfigOption<?> field = commonConfig.configState.configOptions.get(fieldName);
+			
+			if (server.getGameRules().getBoolean(GameRules.RULE_SENDCOMMANDFEEDBACK)) {
+				CommandSourceStack srcStack = sender.createCommandSourceStack();
+				srcStack.sendSuccess(() -> Component.translatable("jojo_ripples.config_common.set", 
+						Component.translatable(configModId + ".config.title"), 
+						fieldName, 
+						field.get().toString()), true);
+			}
+			
 			field.fromBuf(payload.read);
 			commonConfig.saveToFileSystem();
 			
@@ -167,6 +180,9 @@ public class ConfigNetworkFunctions {
 				}
 			}
 			
+		}
+		else {
+			sender.connection.disconnect(Component.literal("Unauthorized attempt of ROTP config editing"));
 		}
 	}
 	

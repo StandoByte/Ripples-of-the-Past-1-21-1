@@ -113,19 +113,30 @@ public class RotpConfig {
 				ModConfigInterface<RotpConfig.Client, RotpConfig.ClientBroadcast, RotpConfig.Common> config = JojoMod.config;
 				ConfigGuiHelper helper = new ConfigGuiHelper(screen, RotpConfig.ID, config);
 				
-				RotpConfig.Client client = config.getClient();
-				RotpConfig.ClientBroadcast clientBroadcast = config.getPlayerBroadcast(null);
-				
-				helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.hud"));
-				helper.addBooleanOptionButton(client.abilitySelectionWheel, ModConfigType.CLIENT, "ability_selection_wheel");
-				
-				helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.stand"));
-				helper.addBooleanOptionButton(config.getClient().standAimMarker, ModConfigType.CLIENT, "stand_aim_marker");
-				helper.addBooleanOptionButton(config.getClient().standMotionTilt, ModConfigType.CLIENT, null);
-				
-				helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.hamon"));
-				
-				helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.vampirism"));
+				switch (configTab) {
+					case CLIENT -> {
+						RotpConfig.Client client = config.getClient();
+						RotpConfig.ClientBroadcast clientBroadcast = config.getPlayerBroadcast(null);
+						
+						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.hud"));
+						helper.addBooleanOptionButton(client.abilitySelectionWheel, ModConfigType.CLIENT, "ability_selection_wheel");
+						
+						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.stand"));
+						helper.addBooleanOptionButton(config.getClient().standAimMarker, ModConfigType.CLIENT, "stand_aim_marker");
+						helper.addBooleanOptionButton(config.getClient().standMotionTilt, ModConfigType.CLIENT, null);
+						
+						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.hamon"));
+						
+						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.vampirism"));
+					}
+					case COMMON -> {
+						RotpConfig.Common common = config.getCommon();
+						
+						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.stand"));
+						helper.addBooleanOptionButton(common.dropStandAsDisc, ModConfigType.COMMON, "stand_disc");
+						helper.addBooleanOptionButton(common.standStamina, ModConfigType.COMMON, "stand_stamina");
+					}
+				}
 				
 			});
 		}

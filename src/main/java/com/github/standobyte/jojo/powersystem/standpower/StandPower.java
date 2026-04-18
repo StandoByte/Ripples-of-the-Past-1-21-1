@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.entityattachment.PostNbtReadEntityData;
 import com.github.standobyte.jojo.init.ModEntityAttributes;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
@@ -179,7 +180,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	}
 	
 	public float getStamina() {
-		if (isUserCreative()) {
+		if (isUserCreative() || !JojoMod.config.getCommon().standStamina.getAsBoolean()) {
 			return getMaxStamina();
 		}
 		return staminaLerp.get();
@@ -221,7 +222,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	}
 	
 	public boolean consumeStamina(float amount, boolean ticking) {
-		if (isUserCreative()) {
+		if (isUserCreative() || !JojoMod.config.getCommon().standStamina.getAsBoolean()) {
 			return true;
 		}
 		float curAmount = getStamina();

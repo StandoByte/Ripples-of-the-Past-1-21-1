@@ -79,7 +79,20 @@
   "rotp_tag_wip": "Work in progress",
   "rotp_tag_nyi": "Not yet implemented",
   
-  "jojo_ripples.options.client.title": "Ripples of the Past client settings",
+  "jojo_ripples.config_category.client": "Client",
+  "jojo_ripples.config_category.common": "Gameplay",
+  "jojo_ripples.config_category.stands": "Stands",
+  "jojo_ripples.config_common.query": "[%s] Config option %s is currently set to: %s",
+  "jojo_ripples.config_common.set": "[%s] Config option %s is now set to: %s",
+  "jojo_ripples.config.reset": "Reset",
+  
+  "jojo_ripples.config.title": "ROTP",
+  
+  "jojo_ripples.config.dropStandAsDisc": "Drop Stand as Disc",
+  "jojo_ripples.config.dropStandAsDisc.tooltip": "If enabled, Stand users also drop their Stand in form of a Disc item upon death.",
+  "jojo_ripples.config.standStamina": "Stand Stamina",
+  "jojo_ripples.config.standStamina.tooltip": "Whether or not Stand stamina mechanic is enabled.",
+  
   "jojo_ripples.options.client.hud": "HUD",
   "jojo_ripples.options.client.stand": "Stand",
   "jojo_ripples.options.client.hamon": "Hamon",

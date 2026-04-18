@@ -12,16 +12,21 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.client.itemrender.ItemIconModels;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ButtonInLayout;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ItemButton;
+import com.github.standobyte.jojo.config.ModConfigInterface;
 import com.github.standobyte.jojo.config.RotpConfig;
+import com.github.standobyte.jojo.config.internal.ConfigEventHandler;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mixin.client.screen.ScreenAccessor;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
+import com.mojang.blaze3d.systems.RenderSystem;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.Layout;
 import net.minecraft.client.gui.narration.NarratableEntry;
@@ -29,6 +34,8 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -70,17 +77,10 @@ public class ClientModSettingsScreen extends Screen {
 
 	@Override
 	protected void init() {
+		addPermanentButtons();
 		if (this.curModId != null && this.configType != null) {
 			updateConfigButtons(this.curModId, this.configType);
 		}
-
-		// back button
-		addRenderableWidget(new Button.Builder(
-				CommonComponents.GUI_DONE, button -> minecraft.setScreen(lastScreen))
-				.bounds(this.width / 2 - 100, 
-						this.height - 26, 
-						200, 20)
-				.build(/*Button::new*/));
 	}
 
 	//@Override
@@ -95,6 +95,83 @@ public class ClientModSettingsScreen extends Screen {
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 
+	protected void addPermanentButtons() {
+		ModConfigInterface<?, ?, ?> config = ConfigEventHandler.ALL_CONFIGS.get(curModId);
+		// Client/Gameplay tab buttons
+		if (config != null) {
+			int buttonWidth = Math.min((width / 4 - 10), 100);
+			
+			Button clientButton = new ConfigTypeButton(new Button.Builder(
+					Component.translatable("jojo_ripples.config_category.client"), button -> this.setConfigTab(this.curModId, ConfigTabType.CLIENT))
+					.bounds(this.width / 2 - 5 - buttonWidth, 
+							4, 
+							buttonWidth, 20), 
+					this, ConfigTabType.CLIENT);
+
+			Button commonButton = new ConfigTypeButton(new Button.Builder(
+					Component.translatable("jojo_ripples.config_category.common"), button -> this.setConfigTab(this.curModId, ConfigTabType.COMMON))
+					.bounds(this.width / 2 + 5, 
+							4, 
+							buttonWidth, 20), 
+					this, ConfigTabType.COMMON);
+
+			clientButton.active = config.getClient() != null || config.getCommon() != null;
+			commonButton.active = config.getCommon() != null;
+			addRenderableWidget(clientButton);
+			addRenderableWidget(commonButton);
+		}
+
+		// back button
+		addRenderableWidget(new Button.Builder(
+				CommonComponents.GUI_DONE, button -> minecraft.setScreen(lastScreen))
+				.bounds(this.width / 2 - 50, 
+						this.height - 26, 
+						100, 20)
+				.build(/*Button::new*/));
+
+		// reset button
+		//addRenderableWidget(new Button.Builder(
+		//		Component.translatable("jojo_ripples.config.reset"), button -> {})
+		//		.bounds(this.width - 66, 
+		//				this.height - 26, 
+		//				60, 20)
+		//		.build(/*Button::new*/));
+	}
+	
+	public static final WidgetSprites SPRITES_BLUE_DABADEE_DABADI = new WidgetSprites(
+			JojoMod.resLoc("widget/button_blue"),
+	        ResourceLocation.withDefaultNamespace("widget/button_disabled"),
+			JojoMod.resLoc("widget/button_blue_highlighted"));
+
+	public static class ConfigTypeButton extends Button {
+		protected ClientModSettingsScreen screen;
+		protected ConfigTabType cfgTab;
+
+		public ConfigTypeButton(Builder builder, ClientModSettingsScreen screen, ConfigTabType cfgTab) {
+			super(builder);
+			this.screen = screen;
+			this.cfgTab = cfgTab;
+		}
+
+		protected ConfigTypeButton(int x, int y, int width, int height, 
+				Component message, OnPress onPress, CreateNarration createNarration) {
+			super(x, y, width, height, message, onPress, createNarration);
+		}
+
+		@Override
+		protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+			Minecraft minecraft = Minecraft.getInstance();
+			guiGraphics.setColor(1.0F, 1.0F, 1.0F, this.alpha);
+			RenderSystem.enableBlend();
+			RenderSystem.enableDepthTest();
+			WidgetSprites sprites = cfgTab == screen.configType ? SPRITES_BLUE_DABADEE_DABADI : SPRITES;
+			guiGraphics.blitSprite(sprites.get(this.active, this.isHoveredOrFocused()), 
+					this.getX(), this.getY(), this.getWidth(), this.getHeight());
+			guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+			int i = getFGColor();
+			this.renderString(guiGraphics, minecraft.font, i | Mth.ceil(this.alpha * 255.0F) << 24);
+		}
+	}
 
 	
 	public enum ConfigTabType {

@@ -77,7 +77,20 @@
   "rotp_tag_wip": "В разработке",
   "rotp_tag_nyi": "Пока не реализовано",
   
-  "jojo_ripples.options.client.title": "Клиентские настройки Ripples of the Past",
+  "jojo_ripples.config_category.client": "Клиент",
+  "jojo_ripples.config_category.common": "Геймплей",
+  "jojo_ripples.config_category.stands": "Стенды",
+  "jojo_ripples.config_common.query": "[%s] Значение настройки конфига %s: %s",
+  "jojo_ripples.config_common.set": "[%s] Установлено значение настройки конфига %s: %s",
+  "jojo_ripples.config.reset": "Сбросить",
+  
+  "jojo_ripples.config.title": "ROTP",
+  
+  "jojo_ripples.config.dropStandAsDisc": "Выпадение Стенда в Диске",
+  "jojo_ripples.config.dropStandAsDisc.tooltip": "При включении, после смерти обладателя Стенда его Стенд выпадает в виде Диска.",
+  "jojo_ripples.config.standStamina": "Стойкость Стенда",
+  "jojo_ripples.config.standStamina.tooltip": "Включает/отключает механику полоски стойкости Стенда.",
+  
   "jojo_ripples.options.client.hud": "Интерфейс",
   "jojo_ripples.options.client.stand": "Стенд",
   "jojo_ripples.options.client.hamon": "Хамон",
