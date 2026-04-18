@@ -16,7 +16,7 @@ import com.github.standobyte.jojo.client.input.VanillaKeybinds;
 import com.github.standobyte.jojo.client.ui.screen_widgets.IconButton;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
-import com.github.standobyte.jojo.config.client.ClientModSettingsScreen;
+import com.github.standobyte.jojo.config.client.ConfigGuiHelper;
 import com.github.standobyte.jojo.config.core.types.ConfigBool;
 import com.github.standobyte.jojo.core.JojoMod;
 
@@ -61,7 +61,7 @@ public abstract class KeyEntryMixin {
 		
 		if (key == InputHandler.getInstance().vanillaKeybinds.switchSpecial) {
 			jojo_ripples$left20x20Button = new IconButton(0, 0, 20, 20, 
-					new GuiIcon(ClientModSettingsScreen.toIconPath("ability_selection_wheel"), 16, 16), 
+					new GuiIcon(ConfigGuiHelper.toIconPath("ability_selection_wheel"), 16, 16), 
 					button -> {
 						ConfigBool abilitySelectionWheel = JojoMod.config.getClient().abilitySelectionWheel;
 						abilitySelectionWheel.set(!abilitySelectionWheel.getAsBoolean());

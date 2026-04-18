@@ -17,8 +17,6 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mixin.client.screen.ScreenAccessor;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -31,7 +29,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -46,13 +43,13 @@ public class ClientModSettingsScreen extends Screen {
 	public final Screen lastScreen;
 	
 	public String curModId;
-	public ConfigType configType;
+	public ConfigTabType configType;
 
 	public ClientModSettingsScreen(Screen lastScreen) {
-		this(lastScreen, RotpConfig.ID, ConfigType.CLIENT);
+		this(lastScreen, RotpConfig.ID, ConfigTabType.CLIENT);
 	}
 
-	public ClientModSettingsScreen(Screen lastScreen, String curModId, ConfigType configType) {
+	public ClientModSettingsScreen(Screen lastScreen, String curModId, ConfigTabType configType) {
 		super(CommonComponents.EMPTY);
 		this.lastScreen = lastScreen;
 		this.curModId = curModId;
@@ -60,7 +57,7 @@ public class ClientModSettingsScreen extends Screen {
 		ScrollingStringButton.onScreenOpened();
 	}
 	
-	protected void setConfigTab(String curModId, ConfigType configType) {
+	protected void setConfigTab(String curModId, ConfigTabType configType) {
 		this.curModId = curModId;
 		this.configType = configType;
 		updateConfigButtons(curModId, configType);
@@ -100,7 +97,7 @@ public class ClientModSettingsScreen extends Screen {
 
 
 	
-	public enum ConfigType {
+	public enum ConfigTabType {
 		CLIENT,
 		COMMON
 	}
@@ -119,33 +116,13 @@ public class ClientModSettingsScreen extends Screen {
 		this.configButtons.add(widget);
 	}
 	
-	public void addCategoryTitle(Component title, int y) {
-		addConfigWidget(new Title(title, y));
-	}
-
-	protected static record Title(Component title, int y) implements Renderable {
-
-		@Override
-		public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-			Minecraft mc = Minecraft.getInstance();
-			Font font = mc.font;
-			int width = mc.getWindow().getGuiScaledWidth();
-			guiGraphics.drawCenteredString(font, title, width / 2, y, 0xC0C0C0);
-		}
-
-	}
-
-	public static ResourceLocation toIconPath(String fileName) {
-		return JojoMod.resLoc("textures/gui/sprites/settings/" + fileName + ".png");
-	}
-	
 
 	
-	public static final Map<String, BiConsumer<ConfigType, ClientModSettingsScreen>> CONFIG_GUI_LAYOUTS = new LinkedHashMap<>();
+	public static final Map<String, BiConsumer<ConfigTabType, ClientModSettingsScreen>> CONFIG_GUI_LAYOUTS = new LinkedHashMap<>();
 	
 	protected Collection<Object> configButtons = new ArrayList<>();
 	
-	protected void updateConfigButtons(String curModId, ConfigType configType) {
+	protected void updateConfigButtons(String curModId, ConfigTabType configType) {
 		clearConfigButtons();
 		if (curModId != null && configType != null) {
 			var layout = CONFIG_GUI_LAYOUTS.get(curModId);
