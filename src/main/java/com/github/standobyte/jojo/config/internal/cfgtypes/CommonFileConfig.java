@@ -25,7 +25,7 @@ public class CommonFileConfig<C3> extends CommonConfig<C3> {
 	}
 	
 	public void loadFromFileSystem() {
-		if (configState != null) {
+		if (exists()) {
 			CommonFileConfig.deserialize(file, reader -> {
 				JsonObject json = JSONUtil.parse(reader);
 				configState.fromJson(json);
@@ -34,7 +34,7 @@ public class CommonFileConfig<C3> extends CommonConfig<C3> {
 	}
 	
 	public void saveToFileSystem() {
-		if (configState != null) {
+		if (exists()) {
 			CommonFileConfig.serialize(file, writer -> {
 				JsonObject json = configState.toJson();
 				CommonFileConfig.GSON.toJson(json, writer);

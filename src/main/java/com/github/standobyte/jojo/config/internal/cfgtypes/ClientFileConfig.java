@@ -30,8 +30,12 @@ public class ClientFileConfig<C1, C2> {
 		}
 	}
 	
+	public boolean exists() {
+		return localOnly != null || broadcast != null;
+	}
+	
 	public void loadFromFileSystem() {
-		if (localOnly != null || broadcast != null) {
+		if (exists()) {
 			CommonFileConfig.deserialize(file, reader -> {
 				JsonObject json = JSONUtil.parse(reader);
 				if (localOnly != null) {
@@ -48,7 +52,7 @@ public class ClientFileConfig<C1, C2> {
 	}
 	
 	public void saveToFileSystem() {
-		if (localOnly != null || broadcast != null) {
+		if (exists()) {
 			CommonFileConfig.serialize(file, writer -> {
 				JsonObject json = localOnly != null ? localOnly.toJson() : new JsonObject();
 				if (broadcast != null) {

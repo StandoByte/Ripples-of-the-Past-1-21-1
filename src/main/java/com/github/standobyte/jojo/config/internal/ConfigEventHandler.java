@@ -3,6 +3,8 @@ package com.github.standobyte.jojo.config.internal;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.github.standobyte.jojo.client.ui.screen_widgets.utils.ButtonDecoration;
+import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.config.client.ClientModSettingsScreen;
 import com.github.standobyte.jojo.config.client.RegisterRotpConfigScreenTabEvent;
 import com.github.standobyte.jojo.config.core.ModConfig;
@@ -126,6 +128,11 @@ public class ConfigEventHandler {
 			RegisterRotpConfigScreenTabEvent registerLayoutEvent = new RegisterRotpConfigScreenTabEvent();
 			ModLoader.postEvent(registerLayoutEvent);
 			ClientModSettingsScreen.CONFIG_GUI_LAYOUTS.putAll(registerLayoutEvent.configGuiLayouts);
+			
+			for (var iconEntry : registerLayoutEvent.configIcons.entrySet()) {
+				ClientModSettingsScreen.CONFIG_TAB_ICONS.put(iconEntry.getKey(), iconEntry.getValue()
+						.map(icon -> ButtonDecoration.icon(new GuiIcon(icon, 16, 16)), ButtonDecoration::item));
+			}
 		}
 	}
 }

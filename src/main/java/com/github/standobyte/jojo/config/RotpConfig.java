@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.config;
 
+import com.github.standobyte.jojo.client.itemrender.ItemIconModels;
 import com.github.standobyte.jojo.config.client.ClientModSettingsScreen;
 import com.github.standobyte.jojo.config.client.ClientModSettingsScreen.ConfigTabType;
 import com.github.standobyte.jojo.config.client.ConfigGuiHelper;
@@ -139,6 +140,8 @@ public class RotpConfig {
 				}
 				
 			});
+
+			event.registerIcon(RotpConfig.ID, ItemIconModels.makeIconItem(ItemIconModels.MOD_LOGO));
 		}
 	}
 	

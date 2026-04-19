@@ -11,4 +11,8 @@ public class CommonConfig<C3> {
 		this.configState = ConfigObjSerialization.create(remoteState);
 	}
 	
+	public boolean exists() {
+		return configState != null;
+	}
+	
 }

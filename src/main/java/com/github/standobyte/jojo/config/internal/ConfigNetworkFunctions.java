@@ -66,7 +66,7 @@ public class ConfigNetworkFunctions {
 		if (!playerIsIntegratedServerHost(loggingIn)) {
 			if (config.hasCommon) {
 				CommonFileConfig<?> commonConfig = config.commonConfig;
-				if (commonConfig.configState != null) {
+				if (commonConfig.exists()) {
 					RemoteCommonConfigPacket commonPacket = new RemoteCommonConfigPacket(
 							configModId, commonConfig.configState::toBuf);
 					PacketDistributor.sendToPlayer(loggingIn, commonPacket);
@@ -90,7 +90,7 @@ public class ConfigNetworkFunctions {
 	}
 	
 	public static void srvSendCommonConfigStateToAllPlayers(MinecraftServer server, String configModId, CommonConfig<?> commonConfig) {
-		if (commonConfig.configState != null) {
+		if (commonConfig.exists()) {
 			RemoteCommonConfigPacket commonPacket = new RemoteCommonConfigPacket(
 					configModId, commonConfig.configState::toBuf);
 			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
