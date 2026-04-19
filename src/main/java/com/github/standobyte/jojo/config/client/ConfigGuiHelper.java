@@ -113,6 +113,9 @@ public class ConfigGuiHelper {
 						ConfigNetworkFunctions.clSendCommonSettingEditToServer(
 								modId, option.getFieldName(), option);
 					}
+					else {
+						config.saveCommon();
+					}
 				}
 			}
 		};

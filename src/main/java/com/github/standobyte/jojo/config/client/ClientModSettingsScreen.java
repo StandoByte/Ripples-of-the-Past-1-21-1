@@ -191,6 +191,9 @@ public class ClientModSettingsScreen extends Screen {
 							if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
 								ConfigNetworkFunctions.clSendCommonConfigResetToServer(curModId);
 							}
+							else {
+								config.saveCommon();
+							}
 						}
 					}
 				})
