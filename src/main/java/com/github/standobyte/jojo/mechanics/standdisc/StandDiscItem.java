@@ -83,6 +83,7 @@ public class StandDiscItem extends Item {
 			StandPower stand = PowerClass.STAND.get(player);
 			if (stand != null) {
 				stand.setStandInstance(Optional.of(discStand.copyStandInstance()));
+				discItem.shrink(1);
 			}
 			return InteractionResultHolder.success(discItem);
 		}
