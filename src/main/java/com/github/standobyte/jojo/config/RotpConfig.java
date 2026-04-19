@@ -50,7 +50,7 @@ public class RotpConfig {
 
 	public final static class ClientBroadcast {
 		//public final ConfigEnum<HumanoidArm> standSide = HumanoidArm.LEFT;
-		public final ConfigBool vampireGlowingEyes = new ConfigBool(true);
+		public final ConfigBool vampireGlowingEyes_tmp = new ConfigBool(false);
 	}
 	
 	public static class Common {
@@ -129,6 +129,7 @@ public class RotpConfig {
 						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.hamon"));
 						
 						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.vampirism"));
+						helper.addBooleanOptionButton(clientBroadcast.vampireGlowingEyes_tmp, ModConfigType.CLIENT_BROADCAST, "vampire_glowing_eyes");
 					}
 					case COMMON -> {
 						RotpConfig.Common common = config.getCommon();

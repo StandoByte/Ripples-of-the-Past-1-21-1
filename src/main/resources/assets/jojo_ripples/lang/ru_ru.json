@@ -146,8 +146,8 @@
   "jojo_ripples.config.client.firstPersonHamonAura.tooltip": "Отображать частицы ауры Хамона вокруг руки игрока от 1 лица",
   "jojo_ripples.config.client.hamonAuraBlur": "Размытие ауры Хамона",
   "jojo_ripples.config.client.hamonAuraBlur.tooltip": "Размытие частиц ауры Хамона",
-  "jojo_ripples.config.client.vampireGlowingEyes": "Светящиеся глаза",
-  "jojo_ripples.config.client.vampireGlowingEyes.tooltip": "Красные светящиеся в темноте глаза от 3 лица, когда у вас 80% или больше энергии",
+  "jojo_ripples.config.client.vampireGlowingEyes_tmp": "Светящиеся глаза",
+  "jojo_ripples.config.client.vampireGlowingEyes_tmp.tooltip": "§8§oПока что, чтобы протестировать сетевой код конфигов, настройка применяется к любому игроку, не только к вампирам.§r\nКрасные светящиеся в темноте глаза от 3 лица, когда у вас 80% или больше энергии",
   
   "rotp.commands.stand.give.success.single": "Выдан %s игроку %s",
   "rotp.commands.stand.give.success.multiple": "Выдан %s %s игрокам",

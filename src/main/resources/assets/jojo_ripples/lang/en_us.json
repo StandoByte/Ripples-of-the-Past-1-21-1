@@ -149,8 +149,8 @@
   "jojo_ripples.config.client.firstPersonHamonAura.tooltip": "Render Hamon aura particles around the player's hand",
   "jojo_ripples.config.client.hamonAuraBlur": "Hamon aura blur",
   "jojo_ripples.config.client.hamonAuraBlur.tooltip": "Blur Hamon aura particles",
-  "jojo_ripples.config.client.vampireGlowingEyes": "Glowing eyes",
-  "jojo_ripples.config.client.vampireGlowingEyes.tooltip": "Red eyes glowing in the dark in 3rd person when you have 80% or more energy",
+  "jojo_ripples.config.client.vampireGlowingEyes_tmp": "Glowing eyes",
+  "jojo_ripples.config.client.vampireGlowingEyes_tmp.tooltip": "§8§oFor now, in order to test the config net code, the setting applies to anyone, not just vampires.§r\nRed eyes glowing in the dark in 3rd person when you have 80% or more energy",
   
   "rotp.commands.stand.give.success.single": "Gave %s to %s",
   "rotp.commands.stand.give.success.multiple": "Gave %s to %s players",
