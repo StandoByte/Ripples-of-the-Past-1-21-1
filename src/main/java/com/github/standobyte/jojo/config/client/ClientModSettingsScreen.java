@@ -331,7 +331,7 @@ public class ClientModSettingsScreen extends Screen {
 					.map(b -> (AbstractWidget) b)
 					.toList();
 			
-			Component tooltip = Component.translatable("jojo_ripples.options.client.title");
+			Component tooltip = Component.translatable("jojo_ripples.config");
 			ItemButton settingsButton = new ItemButton(-1, -1, 20, 20, 
 					ItemIconModels.makeIconItem(ItemIconModels.MOD_LOGO),
 					__ -> optionsScreen.getMinecraft().setScreen(new ClientModSettingsScreen(optionsScreen)),

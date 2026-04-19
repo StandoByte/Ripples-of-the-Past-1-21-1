@@ -79,6 +79,7 @@
   "rotp_tag_wip": "Work in progress",
   "rotp_tag_nyi": "Not yet implemented",
   
+  "jojo_ripples.config": "ROTP & addons config",
   "jojo_ripples.config_category.client": "Client",
   "jojo_ripples.config_category.common": "Gameplay",
   "jojo_ripples.config_category.stands": "Stands",
