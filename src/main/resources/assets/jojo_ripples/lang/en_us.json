@@ -85,6 +85,7 @@
   "jojo_ripples.config_category.stands": "Stands",
   "jojo_ripples.config_common.query": "[%s] Config option %s is currently set to: %s",
   "jojo_ripples.config_common.set": "[%s] Config option %s is now set to: %s",
+  "jojo_ripples.config_common.reset": "[%s] Reset config options",
   "jojo_ripples.config.reset": "Reset",
   "jojo_ripples.config.common_preset": "Preset:",
   "jojo_ripples.config.common_preset.default": "Adventure",

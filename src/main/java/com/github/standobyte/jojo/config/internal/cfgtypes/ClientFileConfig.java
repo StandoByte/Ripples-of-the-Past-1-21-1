@@ -63,4 +63,13 @@ public class ClientFileConfig<C1, C2> {
 		}
 	}
 	
+	public void reset() {
+		if (localOnly != null) {
+			localOnly.reset();
+		}
+		if (broadcast != null) {
+			broadcast.reset();
+		}
+	}
+	
 }

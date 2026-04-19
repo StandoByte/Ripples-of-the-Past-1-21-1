@@ -97,11 +97,9 @@ public class ConfigGuiHelper {
 					__ -> IconGlyphsCache.makeCharCodeFor(spriteGlyph));
 			nameWithSprite = Component.literal(String.valueOf(spriteCode)).append(name);
 		}
-		Component nameFinal = nameWithSprite;
 		
 		Button.OnPress onPress = b -> {
 			changeValueOnClick.accept(option);
-			b.setMessage(getValueMessage.apply(nameFinal, option.get()));
 			switch (type) {
 				case CLIENT -> {
 					config.saveClient();
@@ -126,19 +124,10 @@ public class ConfigGuiHelper {
 			default -> throw new IllegalStateException();
 		};
 		
-		ScrollingStringButton button = new ScrollingStringButton(-1, -1, buttonWidth, 20, 
-				getValueMessage.apply(nameFinal, option.get()), 
-				onPress, Tooltip.create(tooltip)) {
-
-			@Override
-			public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-				if (type == ModConfigType.COMMON) {
-					this.active = !ConfigNetworkFunctions.clientIsConnectedToAServer()
-							|| ConfigNetworkFunctions.clientHasPermissions();
-				}
-		    	super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
-		    }
-		};
+		ConfigButton button = new ConfigButton(-1, -1, buttonWidth, 20, 
+				nameWithSprite, 
+				onPress, Tooltip.create(tooltip), 
+				type, option, getValueMessage);
 		if (curEntry.children().size() == 0) {
 			button.setAlignment(Alignment.RIGHT);
 		}
@@ -147,6 +136,53 @@ public class ConfigGuiHelper {
 		if (curEntry.children().size() >= 2) {
 			curEntry = null;
 		}
+	}
+	
+	public static class ConfigButton extends ScrollingStringButton {
+		protected ModConfigType configType;
+		protected ConfigOption<?> configOption;
+		protected Component optionName;
+		protected BiFunction<Component, ?, Component> getValueMessage;
+		protected Object prevValue;
+
+		public ConfigButton(int pX, int pY, int pWidth, int pHeight, 
+				Component optionName, OnPress pOnPress, Tooltip pOnTooltip,
+				ModConfigType type, ConfigOption<?> configOption, BiFunction<Component, ?, Component> getValueMessage) {
+			super(pX, pY, pWidth, pHeight, makeMessage(getValueMessage, optionName, configOption.get()), pOnPress, pOnTooltip);
+			this.configType = type;
+			this.configOption = configOption;
+			this.optionName = optionName;
+			this.getValueMessage = getValueMessage;
+		}
+		
+		protected static <T> Component makeMessage(BiFunction<Component, T, Component> getValueMessage, Component optionName, Object optionValue) {
+			return getValueMessage.apply(optionName, (T) optionValue);
+		}
+		
+		protected <T> Component makeMessage() {
+			return makeMessage(this.getValueMessage, this.optionName, this.configOption);
+		}
+		
+		protected void updateMessage(Object newValue) {
+			Component message = makeMessage(getValueMessage, optionName, newValue);
+			this.setMessage(message);
+		}
+
+		@Override
+		public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+			if (configType == ModConfigType.COMMON) {
+				this.active = clientCanEditCommonConfig();
+			}
+			
+			Object newValue = configOption.get();
+			if (prevValue != null && !prevValue.equals(newValue)) {
+				updateMessage(newValue);
+			}
+			this.prevValue = newValue;
+			
+	    	super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+	    }
+		
 	}
 	
 	public static String getPrefix(String modId, ModConfigType type) {
@@ -184,6 +220,10 @@ public class ConfigGuiHelper {
 	}
 	
 
+	
+	public static boolean clientCanEditCommonConfig() {
+		return !ConfigNetworkFunctions.clientIsConnectedToAServer() || ConfigNetworkFunctions.clientHasPermissions();
+	}
 
 	public static ResourceLocation toIconPath(String fileName) {
 		return JojoMod.resLoc("textures/gui/sprites/settings/" + fileName + ".png");

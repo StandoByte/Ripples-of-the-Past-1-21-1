@@ -20,6 +20,9 @@ import com.github.standobyte.jojo.config.ModConfigInterface;
 import com.github.standobyte.jojo.config.RotpConfig;
 import com.github.standobyte.jojo.config.core.ModConfig;
 import com.github.standobyte.jojo.config.internal.ConfigEventHandler;
+import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
+import com.github.standobyte.jojo.config.internal.cfgtypes.ClientFileConfig;
+import com.github.standobyte.jojo.config.internal.cfgtypes.CommonFileConfig;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mixin.client.screen.ScreenAccessor;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
@@ -57,6 +60,8 @@ public class ClientModSettingsScreen extends Screen {
 	public ModConfig<?, ?, ?> curConfig;
 	public String curModId;
 	public ConfigTabType configType;
+	
+	protected Button resetButton;
 
 	public ClientModSettingsScreen(Screen lastScreen) {
 		this(lastScreen, RotpConfig.ID, ConfigTabType.CLIENT);
@@ -130,6 +135,9 @@ public class ClientModSettingsScreen extends Screen {
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 		guiGraphics.drawCenteredString(font, title, width / 2, 15, 0xFFFFFF);
+		if (resetButton != null) {
+			resetButton.active = ConfigGuiHelper.clientCanEditCommonConfig();
+		}
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 
@@ -168,12 +176,28 @@ public class ClientModSettingsScreen extends Screen {
 				.build(/*Button::new*/));
 
 		// reset button
-		//addRenderableWidget(new Button.Builder(
-		//		Component.translatable("jojo_ripples.config.reset"), button -> {})
-		//		.bounds(this.width - 66, 
-		//				this.height - 26, 
-		//				60, 20)
-		//		.build(/*Button::new*/));
+		resetButton = addRenderableWidget(new Button.Builder(
+				Component.translatable("jojo_ripples.config.reset"), 
+				button -> {
+					switch (this.configType) {
+						case CLIENT -> {
+							ClientFileConfig<?, ?> clientConfig = this.curConfig.clientConfig;
+							clientConfig.reset();
+							clientConfig.saveToFileSystem();
+						}
+						case COMMON -> {
+							CommonFileConfig<?> commonConfig = this.curConfig.commonConfig;
+							commonConfig.configState.reset();
+							if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
+								ConfigNetworkFunctions.clSendCommonConfigResetToServer(curModId);
+							}
+						}
+					}
+				})
+				.bounds(this.width - 66, 
+						this.height - 26, 
+						60, 20)
+				.build(/*Button::new*/));
 		
 		// mod switch buttons
 		ScrolleableButtonList modsList = new ScrolleableButtonList(minecraft, 0, 33, 30, height - 66, 18);

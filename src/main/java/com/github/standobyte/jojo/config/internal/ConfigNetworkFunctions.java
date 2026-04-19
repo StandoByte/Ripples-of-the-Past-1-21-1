@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.config.internal.cfgtypes.CommonConfig;
 import com.github.standobyte.jojo.config.internal.cfgtypes.CommonFileConfig;
 import com.github.standobyte.jojo.config.internal.cfgtypes.PlayerBroadcastConfig;
 import com.github.standobyte.jojo.config.internal.packets.ClCommonServerConfigEditPacket;
+import com.github.standobyte.jojo.config.internal.packets.ClCommonServerConfigResetPacket;
 import com.github.standobyte.jojo.config.internal.packets.ClPlayerBroadcastConfigPacket;
 import com.github.standobyte.jojo.config.internal.packets.PlayerBroadcastConfigPacket;
 import com.github.standobyte.jojo.config.internal.packets.RemoteCommonConfigPacket;
@@ -66,7 +67,7 @@ public class ConfigNetworkFunctions {
 		if (!playerIsIntegratedServerHost(loggingIn)) {
 			if (config.hasCommon) {
 				CommonFileConfig<?> commonConfig = config.commonConfig;
-				if (commonConfig.exists()) {
+				if (commonConfig.exists() && !commonConfig.configState.isDefault()) {
 					RemoteCommonConfigPacket commonPacket = new RemoteCommonConfigPacket(
 							configModId, commonConfig.configState::toBuf);
 					PacketDistributor.sendToPlayer(loggingIn, commonPacket);
@@ -168,6 +169,44 @@ public class ConfigNetworkFunctions {
 						Component.translatable(configModId + ".config.title"), 
 						fieldName, 
 						field.get().toString()), true);
+			}
+			
+			commonConfig.saveToFileSystem();
+			
+			RemoteCommonConfigPacket commonPacket = new RemoteCommonConfigPacket(
+					configModId, commonConfig.configState::toBuf);
+			for (ServerPlayer player : sender.server.getPlayerList().getPlayers()) {
+				if (!playerIsIntegratedServerHost(player)) {
+					PacketDistributor.sendToPlayer(player, commonPacket);
+				}
+			}
+			
+		}
+		else {
+			sender.connection.disconnect(Component.literal("Unauthorized attempt of ROTP config editing"));
+		}
+	}
+	
+	public static void clSendCommonConfigResetToServer(String configModId) {
+		if (clientHasPermissions()) {
+			ClCommonServerConfigResetPacket packet = new ClCommonServerConfigResetPacket(
+					configModId);
+			PacketDistributor.sendToServer(packet);
+		}
+	}
+	
+	public static void srvAcceptCommonSettingsReset(ServerPlayer sender, ClCommonServerConfigResetPacket payload) {
+		MinecraftServer server = sender.level().getServer();
+		if (playerHasPermissions(sender)) {
+			String configModId = payload.modId;
+			ModConfig<?, ?, ?> config = getConfig(configModId);	
+			CommonFileConfig<?> commonConfig = config.commonConfig;
+			commonConfig.configState.reset();
+			
+			if (server.getGameRules().getBoolean(GameRules.RULE_SENDCOMMANDFEEDBACK)) {
+				CommandSourceStack srcStack = sender.createCommandSourceStack();
+				srcStack.sendSuccess(() -> Component.translatable("jojo_ripples.config_common.reset", 
+						Component.translatable(configModId + ".config.title")), true);
 			}
 			
 			commonConfig.saveToFileSystem();

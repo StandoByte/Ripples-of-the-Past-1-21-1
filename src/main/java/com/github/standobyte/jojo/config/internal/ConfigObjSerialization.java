@@ -77,6 +77,12 @@ public class ConfigObjSerialization<C> {
 		return true;
 	}
 	
+	public void reset() {
+		for (ConfigOption<?> option : configOptions.values()) {
+			option.reset();
+		}
+	}
+	
 	
 
 	static Map<Class<?>, Field[]> FIELDS_CACHE = new IdentityHashMap<>();

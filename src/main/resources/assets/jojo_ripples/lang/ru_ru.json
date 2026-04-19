@@ -82,6 +82,7 @@
   "jojo_ripples.config_category.stands": "Стенды",
   "jojo_ripples.config_common.query": "[%s] Значение настройки конфига %s: %s",
   "jojo_ripples.config_common.set": "[%s] Установлено значение настройки конфига %s: %s",
+  "jojo_ripples.config_common.reset": "[%s] Сброшены настройки конфига",
   "jojo_ripples.config.reset": "Сбросить",
   "jojo_ripples.config.common_preset": "Шаблон:",
   "jojo_ripples.config.common_preset.default": "Приключение",
