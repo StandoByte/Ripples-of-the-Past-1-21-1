@@ -184,6 +184,9 @@ public class ClientModSettingsScreen extends Screen {
 							ClientFileConfig<?, ?> clientConfig = this.curConfig.clientConfig;
 							clientConfig.reset();
 							clientConfig.saveToFileSystem();
+							if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
+								config.sendClientBroadcast();
+							}
 						}
 						case COMMON -> {
 							CommonFileConfig<?> commonConfig = this.curConfig.commonConfig;
