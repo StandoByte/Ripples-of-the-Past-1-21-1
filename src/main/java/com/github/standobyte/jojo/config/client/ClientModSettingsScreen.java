@@ -322,6 +322,7 @@ public class ClientModSettingsScreen extends Screen {
 
 
 
+	// FIXME do we need this button now that you can always open the mod list into the config screen?
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public static void addToScreen(ScreenEvent.Init.Post event) {
 		Screen screen = event.getScreen();
