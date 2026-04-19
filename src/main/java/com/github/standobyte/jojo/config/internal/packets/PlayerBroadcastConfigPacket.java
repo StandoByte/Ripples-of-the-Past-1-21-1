@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.config.internal.packets;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -15,16 +16,20 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 public class PlayerBroadcastConfigPacket implements CustomPacketPayload {
 	public UUID playerId;
 	public String modId;
-	public Consumer<RegistryFriendlyByteBuf> write;
-	public RegistryFriendlyByteBuf read;
+	public Optional<Consumer<RegistryFriendlyByteBuf>> write;
+	public Optional<RegistryFriendlyByteBuf> read;
 	
 	public PlayerBroadcastConfigPacket(UUID playerId, String modId, Consumer<RegistryFriendlyByteBuf> write) {
 		this.playerId = playerId;
 		this.modId = modId;
-		this.write = write;
+		this.write = Optional.ofNullable(write);
 	}
 	
-	protected PlayerBroadcastConfigPacket(UUID playerId, String modId, RegistryFriendlyByteBuf read) {
+	public static PlayerBroadcastConfigPacket reset(UUID playerId, String modId) {
+		return new PlayerBroadcastConfigPacket(playerId, modId, (Consumer<RegistryFriendlyByteBuf>) null);
+	}
+	
+	protected PlayerBroadcastConfigPacket(UUID playerId, String modId, Optional<RegistryFriendlyByteBuf> read) {
 		this.playerId = playerId;
 		this.modId = modId;
 		this.read = read;
@@ -48,14 +53,15 @@ public class PlayerBroadcastConfigPacket implements CustomPacketPayload {
 		public void encode(PlayerBroadcastConfigPacket packet, RegistryFriendlyByteBuf buf) {
 			buf.writeUUID(packet.playerId);
 			buf.writeUtf(packet.modId);
-			packet.write.accept(buf);
+			NetworkUtil.writeOptional(packet.write, buf, (buffer, writer) -> writer.accept(buffer));
 		}
 
 		@Override
 		public PlayerBroadcastConfigPacket decode(RegistryFriendlyByteBuf buf) {
 			UUID playerId = buf.readUUID();
 			String modId = buf.readUtf();
-			RegistryFriendlyByteBuf read = NetworkUtil.extraPacketData(buf, buf.registryAccess());
+			Optional<RegistryFriendlyByteBuf> read = NetworkUtil.readOptional(buf, 
+					buffer -> NetworkUtil.extraPacketData(buffer, buffer.registryAccess()));
 			return new PlayerBroadcastConfigPacket(playerId, modId, read);
 		}
 

@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.config.internal;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import com.github.standobyte.jojo.client.ui.screen_widgets.utils.ButtonDecoration;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
@@ -11,6 +12,7 @@ import com.github.standobyte.jojo.config.core.ModConfig;
 import com.github.standobyte.jojo.config.core.RegisterRotpConfigEvent;
 import com.github.standobyte.jojo.core.JojoMod;
 
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -44,10 +46,14 @@ public class ConfigEventHandler {
 		@SubscribeEvent
 		public static void onServerPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
 			ServerPlayer player = (ServerPlayer) event.getEntity();
+			MinecraftServer server = player.serverLevel().getServer();
+			UUID playerId = player.getUUID();
 			ALL_CONFIGS.entrySet().forEach(configEntry -> {
 				ModConfig<?, ?, ?> config = configEntry.getValue();
 				if (config.serverBroadcast != null) {
-					config.serverBroadcast.remove(player.getUUID());
+					config.serverBroadcast.remove(playerId);
+					ConfigNetworkFunctions.srvResetPlayerBroadcastConfigForAllPlayers(
+							server, player, configEntry.getKey());
 				}
 			});
 		}

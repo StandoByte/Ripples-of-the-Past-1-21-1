@@ -135,12 +135,28 @@ public class ConfigNetworkFunctions {
 		}
 	}
 	
+	public static void srvResetPlayerBroadcastConfigForAllPlayers(MinecraftServer server, ServerPlayer player, String modId) {
+		PlayerBroadcastConfigPacket playerBroadcastPacket = PlayerBroadcastConfigPacket.reset(
+				player.getUUID(), modId);
+		for (ServerPlayer otherPlayer : server.getPlayerList().getPlayers()) {
+			if (otherPlayer != player && !playerIsIntegratedServerHost(otherPlayer)) {
+				PacketDistributor.sendToPlayer(otherPlayer, playerBroadcastPacket);
+			}
+		}
+	}
+	
 	public static void clAcceptAnotherPlayerBroadcastConfig(PlayerBroadcastConfigPacket payload) {
 		UUID playerId = payload.playerId;
 		String configModId = payload.modId;
 		ModConfig<?, ?, ?> config = getConfig(configModId);
 		PlayerBroadcastConfig<?> broadcast = config.getBroadcastPlayerState(playerId);
-		broadcast.broadcast.fromBuf(payload.read);
+		boolean reset = payload.read.isEmpty();
+		if (reset) {
+			broadcast.broadcast.reset();
+		}
+		else {
+			broadcast.broadcast.fromBuf(payload.read.get());
+		}
 	}
 	
 	
