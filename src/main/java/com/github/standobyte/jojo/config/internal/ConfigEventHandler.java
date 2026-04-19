@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.config.internal;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.github.standobyte.jojo.client.ui.screen_widgets.utils.ButtonDecoration;
@@ -25,7 +25,7 @@ import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 
 public class ConfigEventHandler {
-	public static final Map<String, ModConfig<?, ?, ?>> ALL_CONFIGS = new HashMap<>();
+	public static final Map<String, ModConfig<?, ?, ?>> ALL_CONFIGS = new LinkedHashMap<>();
 	
 	
 	@EventBusSubscriber(modid = JojoMod.MOD_ID)
