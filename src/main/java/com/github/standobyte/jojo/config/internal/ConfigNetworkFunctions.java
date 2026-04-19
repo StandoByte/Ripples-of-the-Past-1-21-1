@@ -160,6 +160,7 @@ public class ConfigNetworkFunctions {
 			ModConfig<?, ?, ?> config = getConfig(configModId);
 			CommonFileConfig<?> commonConfig = config.commonConfig;
 			ConfigOption<?> field = commonConfig.configState.configOptions.get(fieldName);
+			field.fromBuf(payload.read);
 			
 			if (server.getGameRules().getBoolean(GameRules.RULE_SENDCOMMANDFEEDBACK)) {
 				CommandSourceStack srcStack = sender.createCommandSourceStack();
@@ -169,7 +170,6 @@ public class ConfigNetworkFunctions {
 						field.get().toString()), true);
 			}
 			
-			field.fromBuf(payload.read);
 			commonConfig.saveToFileSystem();
 			
 			RemoteCommonConfigPacket commonPacket = new RemoteCommonConfigPacket(
