@@ -86,6 +86,13 @@
   "jojo_ripples.config_common.query": "[%s] Config option %s is currently set to: %s",
   "jojo_ripples.config_common.set": "[%s] Config option %s is now set to: %s",
   "jojo_ripples.config.reset": "Reset",
+  "jojo_ripples.config.common_preset": "Preset:",
+  "jojo_ripples.config.common_preset.default": "Adventure",
+  "jojo_ripples.config.common_preset.default.edited": "Adventure (custom)",
+  "jojo_ripples.config.common_preset.canon": "Canon",
+  "jojo_ripples.config.common_preset.canon.edited": "Canon (custom)",
+  "jojo_ripples.config.common_preset.pvp": "PvP",
+  "jojo_ripples.config.common_preset.pvp.edited": "PvP (custom)",
   
   "jojo_ripples.config.title": "ROTP",
   

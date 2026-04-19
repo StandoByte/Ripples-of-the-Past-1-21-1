@@ -83,6 +83,13 @@
   "jojo_ripples.config_common.query": "[%s] Значение настройки конфига %s: %s",
   "jojo_ripples.config_common.set": "[%s] Установлено значение настройки конфига %s: %s",
   "jojo_ripples.config.reset": "Сбросить",
+  "jojo_ripples.config.common_preset": "Шаблон:",
+  "jojo_ripples.config.common_preset.default": "Приключение",
+  "jojo_ripples.config.common_preset.default.edited": "Приключение (польз.)",
+  "jojo_ripples.config.common_preset.canon": "Канон",
+  "jojo_ripples.config.common_preset.canon.edited": "Канон (польз.)",
+  "jojo_ripples.config.common_preset.pvp": "ПвП",
+  "jojo_ripples.config.common_preset.pvp.edited": "ПвП (польз.)",
   
   "jojo_ripples.config.title": "ROTP",
   
