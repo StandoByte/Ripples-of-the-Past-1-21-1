@@ -93,6 +93,7 @@ public class ConfigEventHandler {
 	}
 	
 
+	// TODO "loading" and "reloading" events?
 	@EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.DEDICATED_SERVER)
 	public static class ServerStartup {
 		
