@@ -13,6 +13,8 @@ import com.github.standobyte.jojo.client.itemrender.ItemIconModels;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ButtonInLayout;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ButtonWithImage;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ItemButton;
+import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList;
+import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList.EntryWithButtons;
 import com.github.standobyte.jojo.client.ui.screen_widgets.utils.ButtonDecoration;
 import com.github.standobyte.jojo.config.ModConfigInterface;
 import com.github.standobyte.jojo.config.RotpConfig;
@@ -174,14 +176,13 @@ public class ClientModSettingsScreen extends Screen {
 		//		.build(/*Button::new*/));
 		
 		// mod switch buttons
-		int y = 0;
+		ScrolleableButtonList modsList = new ScrolleableButtonList(minecraft, 0, 33, 30, height - 66, 18);
 		for (var modEntry : ConfigEventHandler.ALL_CONFIGS.entrySet()) {
 			String modId = modEntry.getKey();
-			SelectModButton button = new SelectModButton(0, y, 18, 18, 
-					CONFIG_TAB_ICONS.get(modId), this, modId);
-			addRenderableWidget(button);
-			y += 18;
+			SelectModButton button = new SelectModButton(CONFIG_TAB_ICONS.get(modId), this, modId);
+			modsList.addEntry(new EntryWithButtons().add(button, 0, 0));
 		}
+		addRenderableWidget(modsList);
 	}
 
 	
@@ -292,9 +293,8 @@ public class ClientModSettingsScreen extends Screen {
 		public ClientModSettingsScreen screen;
 		public String modId;
 		
-		public SelectModButton(int pX, int pY, int pWidth, int pHeight, 
-				@Nullable ButtonDecoration icon, ClientModSettingsScreen screen, String modId) {
-			super(pX, pY, pWidth, pHeight, icon, 
+		public SelectModButton(@Nullable ButtonDecoration icon, ClientModSettingsScreen screen, String modId) {
+			super(-1, -1, 18, 18, icon, 
 					b -> {
 						if (!modId.equals(screen.curModId)) {
 							screen.switchMod(modId);
