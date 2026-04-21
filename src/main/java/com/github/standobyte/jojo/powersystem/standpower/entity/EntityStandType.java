@@ -96,9 +96,9 @@ public class EntityStandType extends StandType {
 	}
 
 	public boolean summon(LivingEntity user, StandPower standPower, Consumer<StandEntity> beforeTheSummon, boolean addToWorld) {
-//		if (!standPower.canUsePower()) {
-//			return false;
-//		}
+		if (!standPower.canUsePower()) {
+			return false;
+		}
 //		if (!withoutNameVoiceLine && !user.isShiftKeyDown()) {
 //			SoundEvent shout = summonShoutSupplier.get();
 //			if (shout != null) {
@@ -109,21 +109,25 @@ public class EntityStandType extends StandType {
 		
 		Level level = user.level();
 		if (!level.isClientSide()) {
-			StandEntity standEntity = entityType.value.create(level/*, EntitySpawnReason.NATURAL*/)
-					.withStandType(this);
-			standEntity.copyPosition(user);
-			standEntity.copyStandUserRotation(user);
-			standEntity.setCustomName(standPower.getName());
-			standPower.setSummonedStand(standEntity);
-			beforeTheSummon.accept(standEntity);
-			
-			if (addToWorld) {
-				finalizeStandSummonFromAction(user, standPower, standEntity, true);
+			if (!standPower.isSummoned()) {
+				StandEntity standEntity = entityType.value.create(level/*, EntitySpawnReason.NATURAL*/)
+						.withStandType(this);
+				standEntity.copyPosition(user);
+				standEntity.copyStandUserRotation(user);
+				standEntity.setCustomName(standPower.getName());
+				standPower.setSummonedStand(standEntity);
+				beforeTheSummon.accept(standEntity);
+				
+				if (addToWorld) {
+					finalizeStandSummonFromAction(user, standPower, standEntity, true);
+				}
+				return true;
 			}
 			
 //			standEntity.onStandSummonServerSide();
 		}
-		return true;
+		
+		return false;
 	}
 	
 	public void finalizeStandSummonFromAction(LivingEntity user, StandPower standPower, StandEntity standEntity, boolean addToWorld) {
