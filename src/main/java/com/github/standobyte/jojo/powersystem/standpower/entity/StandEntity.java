@@ -100,6 +100,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	protected ResourceLocation standId;
 	protected static final EntityDataAccessor<Byte> STAND_FLAGS = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.BYTE);
 	protected static final EntityDataAccessor<Integer> USER_ID = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> DATA_BABY_ID = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.BOOLEAN);
 	protected WeakReference<LivingEntity> userRef = new WeakReference<>(null);
 	protected StandPower userPower;
 	protected final LivingComponentAction standAction;
@@ -135,6 +136,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		super.defineSynchedData(builder);
 		builder.define(USER_ID, -1);
 		builder.define(STAND_FLAGS, defaultStandFlags());
+		builder.define(DATA_BABY_ID, false);
 		builder.define(FINISHER_VALUE, 0f);
 	}
 	
@@ -176,6 +178,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			updatePosition(user);
 			if (!level.isClientSide()) {
 				tickHealth(user);
+				this.entityData.set(DATA_BABY_ID, user.isBaby());
 			}
 			updateUserOffset(user);
 		}
@@ -1316,6 +1319,12 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			default -> {}
 		}
 
+	}
+	
+	
+	@Override
+	public boolean isBaby() {
+		return entityData.get(DATA_BABY_ID);
 	}
 	
 

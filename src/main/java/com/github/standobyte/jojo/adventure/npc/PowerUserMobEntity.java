@@ -6,9 +6,11 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.adventure.character.CharacterPersonData;
 import com.github.standobyte.jojo.adventure.npc.ai.NpcCombatAiPrototype;
 import com.github.standobyte.jojo.adventure.npc.ai.inventory.ItemManageAI;
 import com.github.standobyte.jojo.adventure.npc.debug.NpcFlags;
+import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModEntityDataSerializers;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.mixin.entity_like_player.npc.PlayerAccessor;
@@ -61,6 +63,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.ItemAbilities;
+import net.neoforged.neoforge.common.util.Lazy;
 import net.neoforged.neoforge.entity.XpOrbTargetingEvent;
 
 // TODO (character mob) player mechanics
@@ -96,6 +99,7 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper, Ha
 	public static final EntityDataAccessor<Float> SYNC_SATURATION = SynchedEntityData.defineId(PowerUserMobEntity.class, EntityDataSerializers.FLOAT);
 	public ClientHumanoidCharacterStuff clientStuff;
 	public EntityAsPlayerWrapper playerWrapper;
+	public Lazy<CharacterPersonData> characterData;
 
 	public PowerUserMobEntity(EntityType<? extends PowerUserMobEntity> entityType, Level level) {
 		super(entityType, level);
@@ -110,6 +114,7 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper, Ha
 		PlayerAccessor fakePlayerEntityAccess = (PlayerAccessor) fakePlayerEntity;
 		fakePlayerEntityAccess.setInventory(new MobAsPlayerInventory(fakePlayerEntity, this));
 		
+		characterData = Lazy.of(() -> this.getData(ModDataAttachmentTypes.CHARACTER_DATA));
 		this.setPersistenceRequired();
 	}
 
@@ -257,6 +262,11 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper, Ha
     			// the mobs' regular speed is 0.25, but that it still not as fast as player's walking speed
                 .add(Attributes.MOVEMENT_SPEED, 0.3)
     			.add(Attributes.FOLLOW_RANGE, 16.0);
+    }
+    
+    
+    public CharacterPersonData getCharacterData() {
+    	return characterData.get();
     }
 	
 	// Prototype AI
@@ -534,6 +544,23 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper, Ha
 			}
 		}
 		return entityData.get(SYNC_SATURATION);
+	}
+	
+	
+	@Override
+	public boolean isBaby() {
+		return characterData.get().age < 0;
+	}
+	
+	@Override
+	public void setBaby(boolean baby) {
+		CharacterPersonData characterData = this.characterData.get();
+		if (characterData.age < 0 && !baby) {
+			characterData.setAge(0);
+		}
+		else if (characterData.age >= 0 && baby) {
+			characterData.setAge(CharacterPersonData.BABY_START_AGE);
+		}
 	}
 
 

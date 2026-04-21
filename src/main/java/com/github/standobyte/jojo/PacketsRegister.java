@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo;
 
+import com.github.standobyte.jojo.adventure.character.TrCharacterDataPacket;
 import com.github.standobyte.jojo.adventure.npc.debug.ClNpcDebugFlagTogglePacket;
 import com.github.standobyte.jojo.adventure.tmp_charactertest.ClTakeGroupMemberControlPacket;
 import com.github.standobyte.jojo.command.commands.PlayBgmCommand;
@@ -120,6 +121,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new CustomExplosionPacket.Handler(JojoMod.resLoc("expl")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new BrokenBlocksParticlesAndSoundsPacket.Handler(JojoMod.resLoc("blbreak")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrackedItemPacket.Handler(JojoMod.resLoc("itemtrack")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new TrCharacterDataPacket.Handler(JojoMod.resLoc("char")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrClothesItemsPacket.Handler(JojoMod.resLoc("clothes")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrSetGrabbedEntityPacket.Handler(JojoMod.resLoc("grab")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new ExternalContainerOpenPacket.Handler(JojoMod.resLoc("extcopen")));

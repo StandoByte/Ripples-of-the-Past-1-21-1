@@ -61,6 +61,11 @@ public class NetworkUtil {
 	}
 	
 	@Nullable
+	public static RegistryFriendlyByteBuf extraPacketData(RegistryFriendlyByteBuf remainingData) {
+		return extraPacketData(remainingData, remainingData.registryAccess());
+	}
+	
+	@Nullable
 	public static RegistryFriendlyByteBuf extraPacketData(FriendlyByteBuf remainingData, RegistryAccess registryAccess) {
 		int extraInputBytes = remainingData.readableBytes();
 		return extraInputBytes > 0 ? new RegistryFriendlyByteBuf(remainingData.readBytes(extraInputBytes), registryAccess, ConnectionType.NEOFORGE) : null;
