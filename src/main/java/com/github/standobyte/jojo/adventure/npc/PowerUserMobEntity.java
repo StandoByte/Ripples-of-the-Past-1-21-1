@@ -549,16 +549,16 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper, Ha
 	
 	@Override
 	public boolean isBaby() {
-		return characterData.get().age < 0;
+		return characterData.get().getAge() < 0;
 	}
 	
 	@Override
 	public void setBaby(boolean baby) {
 		CharacterPersonData characterData = this.characterData.get();
-		if (characterData.age < 0 && !baby) {
+		if (characterData.getAge() < 0 && !baby) {
 			characterData.setAge(0);
 		}
-		else if (characterData.age >= 0 && baby) {
+		else if (characterData.getAge() >= 0 && baby) {
 			characterData.setAge(CharacterPersonData.BABY_START_AGE);
 		}
 	}

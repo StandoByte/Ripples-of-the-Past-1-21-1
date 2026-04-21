@@ -33,7 +33,8 @@ public class CharacterPersonData implements SynchronizablePlayerData, TickingEnt
 
 	
 	public static long BABY_START_AGE = -384000;
-	public long age = 0;
+	protected long prevAge = 0;
+	protected long age = 0;
 	
 	public long getAge() {
 		return age;
@@ -47,6 +48,10 @@ public class CharacterPersonData implements SynchronizablePlayerData, TickingEnt
 	@Override
 	public void tick() {
 		this.age++;
+		if (prevAge < 0 && age >= 0 || prevAge >= 0 && age < 0) {
+			entity.refreshDimensions();
+		}
+		this.prevAge = age;
 	}
 
 	

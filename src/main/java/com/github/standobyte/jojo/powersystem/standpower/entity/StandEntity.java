@@ -225,6 +225,9 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		else if (USER_ID.equals(dataParameter)) {
 			updateUserFromNetwork(entityData.get(USER_ID));
 		}
+		else if (DATA_BABY_ID.equals(dataParameter)) {
+			this.refreshDimensions();
+		}
 	}
 	
 	@Override
