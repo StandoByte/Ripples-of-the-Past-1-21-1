@@ -1,24 +1,24 @@
-package com.github.standobyte.jojo.tmp.charactertest;
+package com.github.standobyte.jojo.adventure.npc.debug;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
+import com.github.standobyte.jojo.adventure.npc.NpcInventoryExchangeContainer;
 import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
-import com.mojang.authlib.properties.PropertyMap;
+import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
+import com.github.standobyte.jojo.subsystems.target.ActionTarget;
+import com.github.standobyte.jojo.subsystems.target.ActionTargetAim;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -36,15 +36,36 @@ public class CharacterTestItem extends Item {
 			if (level instanceof ServerLevel serverLevel) {
 				String name = "Player" + player.getRandom().nextInt(10000);
 				PowerUserMobEntity entity = new PowerUserMobEntity(serverLevel);
-				entity.setCharacterName(Component.literal(name));
+				entity.setCustomName(Component.literal(name));
 				entity.copyPosition(player);
 				entity.setLeftHanded(level.getRandom().nextFloat() < 0.05f);
-				entity.getEntityData().set(PowerUserMobEntity.DATA_PROFILE, Optional.of(new ResolvableProfile(Optional.of(name), Optional.empty(), new PropertyMap())));
+				entity.setSkinFromPlayerName(name);
+				entity.finalizeSpawn(serverLevel, level.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.COMMAND, null);
 				serverLevel.addFreshEntity(entity);
 			}
 			return InteractionResultHolder.consume(item);
 		}
 		else {
+	        if (!level.isClientSide()) {
+	        	PowerUserMobEntity npc = null;
+	        	ActionTargetAim aim = LivingComponentAction.getAim(player);
+	        	if (aim != null) {
+	        		ActionTarget target = aim.getTarget();
+	        		if (target != null && target.getEntity() instanceof PowerUserMobEntity crosshairNpc) {
+	        			npc = crosshairNpc;
+	        		}
+	        	}
+	        	if (npc == null) {
+	        		npc = level.getEntitiesOfClass(PowerUserMobEntity.class, player.getBoundingBox().inflate(16), e -> e.isAlive())
+	        				.stream()
+	        				.min(Comparator.comparingDouble(e -> e.distanceToSqr(player)))
+	        				.orElse(null);
+	        	}
+	        	if (npc != null) {
+	        		player.openMenu(NpcInventoryExchangeContainer.createServerSide(npc, true));
+	        	}
+	        }
+	        
 //			Entity hovered = getHovered(player);
 //			if (hovered != null) {
 //				if (!level.isClientSide()) {
@@ -83,11 +104,4 @@ public class CharacterTestItem extends Item {
 				.max(Comparator.comparingDouble(e -> e.getBoundingBox().getCenter().subtract(playerPos).normalize().dot(playerLook)))
 				.orElse(null);
 	}
-
-	
-	@Override
-	public void appendHoverText(ItemStack item, Item.TooltipContext ctx, List<Component> tooltip, TooltipFlag flags) {
-		tooltip.add(Component.literal("this is probably really broken currently").withStyle(ChatFormatting.GRAY));
-	}
-
 }

@@ -2,18 +2,26 @@ package com.github.standobyte.jojo.adventure.npc;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.adventure.npc.ai.ItemManageAI;
+import com.github.standobyte.jojo.adventure.character.CharacterPersonData;
+import com.github.standobyte.jojo.adventure.npc.ai.NpcCombatAiPrototype;
+import com.github.standobyte.jojo.adventure.npc.ai.inventory.ItemManageAI;
+import com.github.standobyte.jojo.adventure.npc.debug.NpcFlags;
+import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModEntityDataSerializers;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.mixin.entity_like_player.npc.PlayerAccessor;
 import com.github.standobyte.jojo.subsystems.entity_playerwrapper.EntityAsPlayerWrapper;
 import com.github.standobyte.jojo.subsystems.entity_playerwrapper.RemoteClientPlayerLivingWrapper;
 import com.github.standobyte.jojo.subsystems.entity_playerwrapper.ServerPlayerLivingWrapper;
+import com.github.standobyte.jojo.util.functions.BitwiseFlagUtil;
 import com.github.standobyte.jojo.util.functions.NBTUtil;
+import com.mojang.authlib.properties.PropertyMap;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
@@ -35,19 +43,27 @@ import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.HasCustomInventoryScreen;
+import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodData;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.ItemAbilities;
+import net.neoforged.neoforge.common.util.Lazy;
 import net.neoforged.neoforge.entity.XpOrbTargetingEvent;
 
 // TODO (character mob) player mechanics
@@ -75,13 +91,15 @@ import net.neoforged.neoforge.entity.XpOrbTargetingEvent;
 ⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠛⢛⢿⣿⣿⣿⣿⣿⣿⣷⡿⠁⠄⠄⠄
 ⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠉⠉⠉⠉⠈⠄⠄⠄⠄⠄⠄
  */
-public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
+public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper, HasCustomInventoryScreen {
 	public static final EntityDataAccessor<Optional<ResolvableProfile>> DATA_PROFILE = SynchedEntityData.defineId(PowerUserMobEntity.class, 
 			ModEntityDataSerializers.RESOLVABLE_PROFILE_OPTIONAL.get());
-	public static final EntityDataAccessor<Boolean> IS_DEBUG_DUMMY = SynchedEntityData.defineId(PowerUserMobEntity.class, 
-			EntityDataSerializers.BOOLEAN);
+	public static final EntityDataAccessor<Long> NPC_FLAGS = SynchedEntityData.defineId(PowerUserMobEntity.class, EntityDataSerializers.LONG);
+	public static final EntityDataAccessor<Integer> SYNC_HUNGER = SynchedEntityData.defineId(PowerUserMobEntity.class, EntityDataSerializers.INT);
+	public static final EntityDataAccessor<Float> SYNC_SATURATION = SynchedEntityData.defineId(PowerUserMobEntity.class, EntityDataSerializers.FLOAT);
 	public ClientHumanoidCharacterStuff clientStuff;
 	public EntityAsPlayerWrapper playerWrapper;
+	public Lazy<CharacterPersonData> characterData;
 
 	public PowerUserMobEntity(EntityType<? extends PowerUserMobEntity> entityType, Level level) {
 		super(entityType, level);
@@ -96,6 +114,7 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 		PlayerAccessor fakePlayerEntityAccess = (PlayerAccessor) fakePlayerEntity;
 		fakePlayerEntityAccess.setInventory(new MobAsPlayerInventory(fakePlayerEntity, this));
 		
+		characterData = Lazy.of(() -> this.getData(ModDataAttachmentTypes.CHARACTER_DATA));
 		this.setPersistenceRequired();
 	}
 
@@ -136,7 +155,9 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		super.defineSynchedData(builder);
 		builder.define(DATA_PROFILE, Optional.empty());
-		builder.define(IS_DEBUG_DUMMY, false);
+		builder.define(NPC_FLAGS, 0L);
+		builder.define(SYNC_HUNGER, 0);
+		builder.define(SYNC_SATURATION, 0f);
 	}
 
 	@Override
@@ -152,10 +173,18 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 	@Override
 	public void tick() {
 		super.tick();
+        this.updateSwingTime();
 		if (playerWrapper != null) {
 			Player asPlayer = playerWrapper.asPlayer();
 			if (asPlayer instanceof ServerPlayer asServerPlayer) {
+				asPlayer.setHealth(this.getHealth());
+				
 				asServerPlayer.doTick();
+				
+				this.setHealth(asPlayer.getHealth());
+				FoodData foodData = asPlayer.getFoodData();
+				entityData.set(SYNC_HUNGER, foodData.getFoodLevel());
+				entityData.set(SYNC_SATURATION, foodData.getSaturationLevel());
 			}
 			else {
 				asPlayer.tick();
@@ -180,6 +209,8 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 			ListTag inventoryNbt = player.getInventory().save(new ListTag());
 			playerData.put("Inventory", inventoryNbt);
 			
+			player.getFoodData().addAdditionalSaveData(playerData);
+			
 			nbt.put("Player", playerData);
 		}
 		
@@ -189,7 +220,7 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 			});
 		});
 		
-		nbt.putBoolean("Dummy", entityData.get(IS_DEBUG_DUMMY));
+		nbt.putLong("Flags", entityData.get(NPC_FLAGS));
 	}
 
 	@Override
@@ -210,6 +241,8 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 				if (!inventoryNbt.isEmpty()) {
 					player.getInventory().load(inventoryNbt);
 				}
+				
+				player.getFoodData().readAdditionalSaveData(playerData);
 			}
 		}
 		
@@ -219,19 +252,37 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 			});
 		});
 		
-		entityData.set(IS_DEBUG_DUMMY, nbt.getBoolean("Dummy"));
+		entityData.set(NPC_FLAGS, nbt.getLong("Flags"));
 	}
+
+    public static AttributeSupplier.Builder createAttributes() {
+    	return Player.createAttributes()
+    			// okay, so, WHY IN THE FLYING FUCK IS THEIR FUCKING CODE *SO* DAMN INCONSISTENT
+    			// players have 0.1, but the mob is walking SO slowly with that
+    			// the mobs' regular speed is 0.25, but that it still not as fast as player's walking speed
+                .add(Attributes.MOVEMENT_SPEED, 0.3)
+    			.add(Attributes.FOLLOW_RANGE, 16.0);
+    }
+    
+    
+    public CharacterPersonData getCharacterData() {
+    	return characterData.get();
+    }
 	
-	// Some pseudo AI, just for testing
+	// Prototype AI
 	
 	protected ItemManageAI foo = new ItemManageAI();
+	protected NpcCombatAiPrototype bar = new NpcCombatAiPrototype(this);
 	
 	@Override
 	protected void customServerAiStep() {
 		if (playerWrapper != null) {
 			Player asPlayer = playerWrapper.asPlayer();
-			foo.customServerAiStep(this, asPlayer);
+			if (!getFlag(NpcFlags.DISABLE_AI_EQUIPMENT)) {
+				foo.customServerAiStep(this, asPlayer);
+			}
 		}
+		bar.tick();
 	}
 
 
@@ -325,6 +376,7 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 
 			((PlayerAccessor) fakePlayer).invokeDestroyVanishingCursedItems();
 			inventory.dropAll();
+			LeFunnyNPCEasterEggs.dropLootOnDeath(this, fakePlayer, true, false);
 		}
 	}
 
@@ -372,16 +424,94 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 
 
 	@Override
-	protected InteractionResult mobInteract(Player player, InteractionHand hand) {
-		if (isDebugDummy()) {
-			return DummyStuff.mobInteract(this, player, hand);
+	public InteractionResult interact(Player player, InteractionHand hand) {
+		InteractionResult result = doInteract(player, hand);
+		if (result.consumesAction()) {
+			this.gameEvent(GameEvent.ENTITY_INTERACT, player);
 		}
-		return super.mobInteract(player, hand);
+		return result;
+	}
+
+	public InteractionResult doInteract(Player player, InteractionHand hand) {
+		ItemStack item = player.getItemInHand(hand);
+		if (!item.isEmpty()) {
+			if (item.is(Items.NAME_TAG)) {
+				if (this.isAlive()) {
+					boolean canRename = player.isCreative();
+					boolean changeSkin = true;
+					if (canRename) {
+						Component name = item.get(DataComponents.CUSTOM_NAME);
+						if (name != null) {
+							this.setCustomName(name);
+							if (changeSkin) {
+								entityData.set(PowerUserMobEntity.DATA_PROFILE, Optional.of(
+										new ResolvableProfile(Optional.of(name.getString()), Optional.empty(), new PropertyMap())));
+							}
+						}
+						return InteractionResult.sidedSuccess(player.level().isClientSide());
+					}
+				}
+				
+				return InteractionResult.CONSUME_PARTIAL;
+			}
+		}
+		
+		if (!this.isAlive()) {
+			return InteractionResult.PASS;
+		}
+		else {
+			InteractionResult result = InteractionResult.PASS;
+
+//			//if (isDebugDummy()) {
+//			//	return DummyStuff.mobInteract(this, player, hand);
+//			//}
+			
+			// this is empty, but who knows, maybe someone else injects smth into Mob#mobInteract for whatever reason
+			result = this.mobInteract(player, hand);
+			if (result.consumesAction()) {
+				return result;
+			}
+
+			return InteractionResult.PASS;
+		}
+	}
+
+	public InteractionResult leashableInteract(Player player, InteractionHand hand) {
+		if (this.isAlive() && this instanceof Leashable leashable) {
+			if (leashable.getLeashHolder() == player) {
+				if (!this.level().isClientSide()) {
+					leashable.dropLeash(true, !player.hasInfiniteMaterials());
+					this.gameEvent(GameEvent.ENTITY_INTERACT, player);
+				}
+
+				return InteractionResult.sidedSuccess(this.level().isClientSide);
+			}
+
+			ItemStack itemstack = player.getItemInHand(hand);
+			if (itemstack.is(Items.LEAD) && leashable.canHaveALeashAttachedToIt()) {
+				if (!this.level().isClientSide()) {
+					leashable.setLeashedTo(player, true);
+				}
+
+				itemstack.shrink(1);
+				return InteractionResult.sidedSuccess(this.level().isClientSide);
+			}
+		}
+
+		return InteractionResult.PASS;
 	}
 
 	@Override
 	public boolean canBeLeashed() {
 		return false;
+	}
+	
+
+	@Override
+	public void openCustomInventoryScreen(Player player) {
+        if (!this.level().isClientSide()) {
+        	player.openMenu(NpcInventoryExchangeContainer.createServerSide(this, false));
+        }
 	}
 
 
@@ -394,35 +524,84 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper {
 	public boolean canAttackType(EntityType<?> type) {
 		return true;
 	}
+	
+	
+	public int getFoodLevel() {
+		if (!level().isClientSide()) {
+			Player asPlayer = this.asPlayer();
+			if (asPlayer != null) {
+				return asPlayer.getFoodData().getFoodLevel();
+			}
+		}
+		return entityData.get(SYNC_HUNGER);
+	}
+	
+	public float getSaturationLevel() {
+		if (!level().isClientSide()) {
+			Player asPlayer = this.asPlayer();
+			if (asPlayer != null) {
+				return asPlayer.getFoodData().getSaturationLevel();
+			}
+		}
+		return entityData.get(SYNC_SATURATION);
+	}
+	
+	
+	@Override
+	public boolean isBaby() {
+		return characterData.get().getAge() < 0;
+	}
+	
+	@Override
+	public void setBaby(boolean baby) {
+		CharacterPersonData characterData = this.characterData.get();
+		if (characterData.getAge() < 0 && !baby) {
+			characterData.setAge(0);
+		}
+		else if (characterData.getAge() >= 0 && baby) {
+			characterData.setAge(CharacterPersonData.BABY_START_AGE);
+		}
+	}
 
 
 	@Override
 	public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
 		@SuppressWarnings("deprecation")
 		var ret = super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
-		setDummyFlag(spawnType);
+		boolean isDebugDummy = spawnType == MobSpawnType.COMMAND;
+		if (isDebugDummy) {
+			for (NpcFlags flag : NpcFlags.values()) {
+				if (flag.trueForDebugDummy) {
+					setFlag(flag, true);
+				}
+			}
+		}
 		return ret;
 	}
-
-	public void setDummyFlag(MobSpawnType spawnType) {
-		entityData.set(IS_DEBUG_DUMMY, spawnType == MobSpawnType.COMMAND);
+	
+	public void setFlag(NpcFlags flag, boolean value) {
+		long stored = entityData.get(NPC_FLAGS);
+		stored = BitwiseFlagUtil.set(stored, flag, value);
+		entityData.set(NPC_FLAGS, stored);
 	}
 	
-	public boolean isDebugDummy() {
-		return entityData.get(IS_DEBUG_DUMMY);
+	public boolean getFlag(NpcFlags flag) {
+		long stored = entityData.get(NPC_FLAGS);
+		return BitwiseFlagUtil.get(stored, flag);
 	}
 
-
-	// prevents name tags from working on actual characters
-	@Override
-	public void setCustomName(@Nullable Component name) {
-		if (isDebugDummy()) {
-			super.setCustomName(name);
+	public static Pattern PLAYER_NAME_REGEX = Pattern.compile("^[a-zA-Z0-9_]{3,16}$");
+	public static boolean isLegitPlayerName(String playerName) {
+		return PLAYER_NAME_REGEX.matcher(playerName).matches();
+	}
+	
+	public boolean setSkinFromPlayerName(String playerName) {
+		if (isLegitPlayerName(playerName)) {
+			entityData.set(PowerUserMobEntity.DATA_PROFILE, Optional.of(
+					new ResolvableProfile(Optional.of(playerName), Optional.empty(), new PropertyMap())));
+			return true;
 		}
-	}
-
-	public void setCharacterName(@Nullable Component name) {
-		super.setCustomName(name);
+		return false;
 	}
 
 }

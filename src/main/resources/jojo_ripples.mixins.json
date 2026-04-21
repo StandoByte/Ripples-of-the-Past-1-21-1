@@ -73,6 +73,7 @@
   ],
   "client": [
 	"client.v1_21_4_stuff.Model_1_21_2plus_Mixin",
+	"client.v1_21_4_stuff.PartPoseScaleMixin",
 	"client.v1_21_1_modelanim.LivingEntityRendererMixin",
 	"client.v1_21_1_modelanim.player.PlayerRendererMixin",
 	"client.v1_21_1_modelanim.player.AgeableModelMixinSuperclass",
@@ -90,6 +91,8 @@
     "client.model.PlayerAnimModelPartMixin",
 	"client.model.ReplacePlayerModelMixin",
 	"client.model.ReplaceLivingModelMixin",
+	
+	"client.HumanoidArmorLayerMixin",
     
 	"client.controls.KeyboardHandlerMixin",
 	

@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.adventure.npc.client;
 import java.text.DecimalFormat;
 
 import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
+import com.github.standobyte.jojo.adventure.npc.debug.NpcFlags;
 import com.github.standobyte.jojo.client.entityrender.replace_player_model.ReplacePlayerModel;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -76,9 +77,7 @@ public class CharacterMobRenderer<T extends PowerUserMobEntity> extends LivingEn
 		super.render(entity, entityYaw, partialTick, poseStack, buffer, packedLight);
 		RenderStateCrutches.afterLivingRender();
 		
-		if (entity.isDebugDummy()) {
-			renderDummyStuff(entity, partialTick, poseStack, buffer, packedLight, entityRenderDispatcher);
-		}
+		renderDummyStuff(entity, partialTick, poseStack, buffer, packedLight, entityRenderDispatcher);
 	}
 
 	@Override
@@ -88,43 +87,56 @@ public class CharacterMobRenderer<T extends PowerUserMobEntity> extends LivingEn
 
 	public void renderDummyStuff(T entity, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight, EntityRenderDispatcher entityRenderDispatcher) {
 		poseStack.pushPose();
-		poseStack.translate(0, -0.25, 0);
+		//poseStack.translate(0, -0.25, 0);
 
-		if (Minecraft.renderNames() && entity == entityRenderDispatcher.crosshairPickEntity) {
-			StandPower stand = StandPower.get(entity);
-			if (stand != null && stand.hasPower()) {
-				poseStack.translate(0, 0.25, 0);
-				float staminaRatio = stand.getStamina() / stand.getMaxStamina();
-				float staminaCondition = 0.25F + Math.min(staminaRatio * 1.5F, 0.75F);
-				int color = FastColor.ARGB32.colorFromFloat(1, 1 - staminaCondition, staminaCondition, 0f);
-				renderNameTag(entity, 
-						Component.translatable("Stamina: %s", 
-								Component.translatable(String.format("%.2f%%", staminaRatio * 100)).withStyle(style -> style.withColor(color))), 
-						poseStack, buffer, packedLight, partialTick);
-
-				if (stand.usesResolve()) {
+		if (Minecraft.renderNames()) {
+			if (entity.getFlag(NpcFlags.SHOW_POWER_VARIABLES)) {
+				StandPower stand = StandPower.get(entity);
+				if (stand != null && stand.hasPower()) {
 					poseStack.translate(0, 0.25, 0);
-					ResolveCounter resolve = stand.resolveCounter;
-					float resolveRatio = resolve.getResolveBarFill();
+					float staminaRatio = stand.getStamina() / stand.getMaxStamina();
+					float staminaCondition = 0.25F + Math.min(staminaRatio * 1.5F, 0.75F);
+					int color = FastColor.ARGB32.colorFromFloat(1, 1 - staminaCondition, staminaCondition, 0f);
 					renderNameTag(entity, 
-							Component.translatable(String.format("Resolve: %.2f%%", resolveRatio * 100)), 
+							Component.translatable("Stamina: %s", 
+									Component.translatable(String.format("%.2f%%", staminaRatio * 100)).withStyle(style -> style.withColor(color))), 
+							poseStack, buffer, packedLight, partialTick);
+					
+					if (stand.usesResolve()) {
+						poseStack.translate(0, 0.25, 0);
+						ResolveCounter resolve = stand.resolveCounter;
+						float resolveRatio = resolve.getResolveBarFill();
+						renderNameTag(entity, 
+								Component.translatable(String.format("Resolve: %.2f%%", resolveRatio * 100)), 
+								poseStack, buffer, packedLight, partialTick);
+					}
+					
+					poseStack.translate(0, 0.25, 0);
+					renderNameTag(entity, 
+							stand.getName(), 
 							poseStack, buffer, packedLight, partialTick);
 				}
-
+			}
+			
+			if (entity.getFlag(NpcFlags.SHOW_HUNGER)) {
 				poseStack.translate(0, 0.25, 0);
+				int hunger = entity.getFoodLevel();
+				float saturation = entity.getSaturationLevel();
 				renderNameTag(entity, 
-						stand.getName(), 
+						Component.translatable("🍖 " + hunger + "/20 (" + (int) saturation + ")"), 
+						poseStack, buffer, packedLight, partialTick);
+			}
+			
+			if (entity.getFlag(NpcFlags.SHOW_HP)) {
+				DecimalFormat format = new DecimalFormat("#.##");
+				poseStack.translate(0, 0.25, 0);
+				String hp = format.format(entity.getHealth());
+				String maxHp = format.format(entity.getMaxHealth());
+				renderNameTag(entity, 
+						Component.translatable("❤ " + hp + "/" + maxHp), 
 						poseStack, buffer, packedLight, partialTick);
 			}
 		}
-
-		DecimalFormat format = new DecimalFormat("#.##");
-		poseStack.translate(0, 0.25, 0);
-		String hp = format.format(entity.getHealth());
-		String maxHp = format.format(entity.getMaxHealth());
-		renderNameTag(entity, 
-				Component.translatable("❤ " + hp + "/" + maxHp), 
-				poseStack, buffer, packedLight, partialTick);
 
 		poseStack.popPose();
 	}

@@ -85,6 +85,9 @@ public class StandOffsetFromUser {
 	
 	public Vec3 getPosition(LivingEntity userEntity) {
 		Vec3 offset = getAbsoluteOffset(userEntity, standEntity.level().isClientSide());
+		if (userEntity.isBaby()) {
+			offset = offset.scale(userEntity.getAgeScale());
+		}
 		return AlignBy.EYE_POS.align(userEntity, standEntity, offset);
 	}
 	

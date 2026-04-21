@@ -1,7 +1,8 @@
-package com.github.standobyte.jojo.tmp.charactertest;
+package com.github.standobyte.jojo.adventure.tmp_charactertest;
 
 import java.util.List;
 
+import com.github.standobyte.jojo.adventure.npc.debug.CharacterTestItem;
 import com.github.standobyte.jojo.client.ui.marker.MarkerRenderer;
 import com.github.standobyte.jojo.init.ModItems;
 

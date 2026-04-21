@@ -1,11 +1,11 @@
-package com.github.standobyte.jojo.adventure.npc.ai;
+package com.github.standobyte.jojo.adventure.npc.ai.inventory;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import com.github.standobyte.jojo.adventure.npc.ai.ItemData.ItemType;
+import com.github.standobyte.jojo.adventure.npc.ai.inventory.ItemData.ItemType;
 import com.github.standobyte.jojo.mixin.entity_like_player.npc.InventoryAccessor;
 
 import net.minecraft.core.NonNullList;
@@ -84,7 +84,6 @@ public class ItemManageAI {
 		cacheItemData(mob, inventory);
 
 		for (ItemType slot : ItemType.ARMOR_SLOTS) {
-			if (slot != ItemType.ARMOR_HEAD) continue;
 			List<ItemData> items = _byItemType.get(slot);
 			if (items != null && !items.isEmpty()) {
 				ItemData bestArmor = items.size() > 1 ?

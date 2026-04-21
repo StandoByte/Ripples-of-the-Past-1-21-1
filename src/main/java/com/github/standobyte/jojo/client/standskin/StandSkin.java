@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.client.ResourcePathChecker;
 import com.github.standobyte.jojo.client.entityanim.AnimationSet;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
+import com.github.standobyte.jojo.client.entityrender.BabyModelVariant;
 import com.github.standobyte.jojo.client.entityrender.LoadedModel;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
@@ -49,7 +50,7 @@ public class StandSkin {
 	protected Map<ResourceLocation, LayerDefinition> models = new HashMap<>();
 	protected LayerDefinition standModel;
 	protected Map<ResourceLocation, Optional<LoadedModel>> createdModelsCache = new HashMap<>();
-	protected Optional<StandEntityModel<?, ?>> createdStandModelCache;
+	protected BabyModelVariant<StandEntityModel<?, ?>> createdStandModelCache;
 	
 	protected Map<ResourceLocation, AnimationSet> animations = new HashMap<>();
 	protected AnimationSet standEntityAnims;
@@ -193,19 +194,18 @@ public class StandSkin {
 		<T extends StandEntity, 
 		S extends StandEntityRenderState, 
 		M extends StandEntityModel<T, S>> 
-	M getStandModel(StandEntityRenderer<T, S, M> newModelFactory) {
+	M getStandModel(StandEntityRenderer<T, S, M> newModelFactory, boolean baby) {
 		if (this.createdStandModelCache != null) {
-			return (M) createdStandModelCache.orElse(null);
+			return (M) createdStandModelCache.get(baby);
 		}
 		if (this.standModel != null) {
 			LayerDefinition standModel = this.standModel;
-			M model = newModelFactory.createStandModel(standModel);
-			this.createdStandModelCache = Optional.ofNullable(model);
-			return model;
+			this.createdStandModelCache = new BabyModelVariant<>(standModel, newModelFactory::createStandModel);
+			return (M) createdStandModelCache.get(baby);
 		}
 		
 		if (this != defaultSkin) {
-			return defaultSkin.getStandModel(newModelFactory);
+			return defaultSkin.getStandModel(newModelFactory, baby);
 		}
 		
 		return null;

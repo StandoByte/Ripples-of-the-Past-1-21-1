@@ -156,6 +156,7 @@ public class DebugItem extends Item {
 			super(CommonComponents.EMPTY);
 		}
 
+		@Override
 		public void init() {
 			super.init();
 			String[] commands = DebugItem.getOptions();

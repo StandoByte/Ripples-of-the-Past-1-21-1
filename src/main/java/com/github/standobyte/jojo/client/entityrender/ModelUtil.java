@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
@@ -12,6 +13,7 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimatedEntity;
@@ -19,6 +21,7 @@ import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.PartPoseScale;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._PartDefinition;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._PartPose;
 
@@ -59,6 +62,25 @@ public class ModelUtil {
 			putChildrenRecursive(childModelPart, childName, dest, wrap);
 		}
 	}
+	
+	
+	public static MeshDefinition transform(MeshDefinition mesh, BiFunction<String, PartDefinition, PartDefinition> transformer) {
+		MeshDefinition meshTransformed = new MeshDefinition();
+		transformChildrenRecursive(mesh.getRoot(), meshTransformed.getRoot(), "root", transformer);
+		return meshTransformed;
+	}
+	
+	private static void transformChildrenRecursive(PartDefinition parentSrc, PartDefinition parentDest, 
+			String partName, BiFunction<String, PartDefinition, PartDefinition> transformer) {
+		for (var childEntry : parentSrc.children.entrySet()) {
+			PartDefinition childModelPart = childEntry.getValue();
+			String childName = childEntry.getKey();
+			PartDefinition childTransformed = transformer.apply(childName, childModelPart);
+			transformChildrenRecursive(childModelPart, childTransformed, childName, transformer);
+			parentDest.children.put(childName, childTransformed);
+		}
+	}
+	
 
 	// LayerDefinition stuff
 	
@@ -178,9 +200,10 @@ public class ModelUtil {
 			xRot = initialPose.xRot + animPose.rotationOffset.x;
 			yRot = initialPose.yRot + animPose.rotationOffset.y;
 			zRot = initialPose.zRot + animPose.rotationOffset.z;
-			xScale = _PartPose.xScale(initialPose) + animPose.scaleOffset.x;
-			yScale = _PartPose.yScale(initialPose) + animPose.scaleOffset.y;
-			zScale = _PartPose.zScale(initialPose) + animPose.scaleOffset.z;
+			PartPoseScale initialScale = _PartPose.getScale(initialPose);
+			xScale = initialScale.xScale + animPose.scaleOffset.x;
+			yScale = initialScale.yScale + animPose.scaleOffset.y;
+			zScale = initialScale.zScale + animPose.scaleOffset.z;
 
 			pose.translate(x, y, z);
 			if (xRot != 0.0F || yRot != 0.0F || zRot != 0.0F) {
@@ -221,7 +244,8 @@ public class ModelUtil {
 	
 	public static boolean isSlimModel(LivingEntity entity) {
 		return entity instanceof MannequinEntity mannequin && mannequin.isSlim()
-				|| entity instanceof AbstractClientPlayer player && player.getSkin().model() == PlayerSkin.Model.SLIM;
+				|| entity instanceof AbstractClientPlayer player && player.getSkin().model() == PlayerSkin.Model.SLIM
+				|| entity instanceof PowerUserMobEntity npc && npc.clientStuff.getModelType(entity) == PlayerSkin.Model.SLIM;
 	}
 	
 }

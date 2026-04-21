@@ -1,5 +1,8 @@
 package com.github.standobyte.jojo;
 
+import com.github.standobyte.jojo.adventure.character.TrCharacterDataPacket;
+import com.github.standobyte.jojo.adventure.npc.debug.ClNpcDebugFlagTogglePacket;
+import com.github.standobyte.jojo.adventure.tmp_charactertest.ClTakeGroupMemberControlPacket;
 import com.github.standobyte.jojo.command.commands.PlayBgmCommand;
 import com.github.standobyte.jojo.config.internal.packets.ClCommonServerConfigEditPacket;
 import com.github.standobyte.jojo.config.internal.packets.ClCommonServerConfigResetPacket;
@@ -83,12 +86,14 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClLearnSkillPacket.Handler(JojoMod.resLoc("cllearnskill")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClSetStandSkinPacket.Handler(JojoMod.resLoc("clskin")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClPlayerMovementInputPacket.Handler(JojoMod.resLoc("clmovinput")));
+		registerPacket(registrar, PayloadRegistrar::playToServer, new ClTakeGroupMemberControlPacket.Handler(JojoMod.resLoc("clgroupctrl")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClStandManualMovementPacket.Handler(JojoMod.resLoc("clstandmove")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClMobControlMovementPacket.Handler(JojoMod.resLoc("clmobctrlmove")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClControlledMobCommandPacket.Handler(JojoMod.resLoc("clmobitemslot")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClStandClickPacket.Handler(JojoMod.resLoc("clstandclick")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClActivateResolvePacket.Handler(JojoMod.resLoc("clresolvemode")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClDebugCommandPacket.Handler(JojoMod.resLoc("cldebug")));
+		registerPacket(registrar, PayloadRegistrar::playToServer, new ClNpcDebugFlagTogglePacket.Handler(JojoMod.resLoc("clnpcdebug")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClStandItemInputPacket.Handler(JojoMod.resLoc("clstanditem")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClSetSewingMachineItemPacket.Handler(JojoMod.resLoc("clsewingitem")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClExtendedContainerClickPacket.Handler(JojoMod.resLoc("clslotclick")));
@@ -124,6 +129,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new CustomExplosionPacket.Handler(JojoMod.resLoc("expl")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new BrokenBlocksParticlesAndSoundsPacket.Handler(JojoMod.resLoc("blbreak")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrackedItemPacket.Handler(JojoMod.resLoc("itemtrack")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new TrCharacterDataPacket.Handler(JojoMod.resLoc("char")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrClothesItemsPacket.Handler(JojoMod.resLoc("clothes")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrSetGrabbedEntityPacket.Handler(JojoMod.resLoc("grab")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new ExternalContainerOpenPacket.Handler(JojoMod.resLoc("extcopen")));

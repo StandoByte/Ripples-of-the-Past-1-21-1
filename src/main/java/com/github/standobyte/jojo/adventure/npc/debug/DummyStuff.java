@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.adventure.npc;
+package com.github.standobyte.jojo.adventure.npc.debug;
 
 import java.util.Optional;
 
