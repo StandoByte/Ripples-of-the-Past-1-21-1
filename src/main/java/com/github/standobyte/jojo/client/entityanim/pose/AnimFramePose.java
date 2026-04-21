@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.joml.Vector3f;
 
+import com.github.standobyte.v1_21_4_stuff.missingmethods.PartPoseScale;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._PartPose;
 
 import net.minecraft.client.animation.AnimationChannel;
@@ -73,9 +74,10 @@ public class AnimFramePose {
 			modelPart.x = initialPose.x;
 			modelPart.y = initialPose.y;
 			modelPart.z = initialPose.z;
-			modelPart.xScale = _PartPose.xScale(initialPose);
-			modelPart.yScale = _PartPose.yScale(initialPose);
-			modelPart.zScale = _PartPose.zScale(initialPose);
+			PartPoseScale initialScale = _PartPose.getScale(initialPose);
+			modelPart.xScale = initialScale.xScale;
+			modelPart.yScale = initialScale.yScale;
+			modelPart.zScale = initialScale.zScale;
 			
 			modelPart.offsetPos(this.positionOffset);
 			modelPart.offsetRotation(this.rotationOffset);

@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.client.entityanim.playerbend.IPlayerBendModel;
 import com.github.standobyte.jojo.client.entityrender.HiddenModelPartsUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._PartPose;
 
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -112,6 +113,7 @@ public class EntityRenderState {
     public static void resetPose(EntityModel<?> model) {
         for (ModelPart modelpart : ((Model_1_21_2plus) model).jojo_ripples$allParts()) {
             modelpart.resetPose();
+            _PartPose.resetScale(modelpart);
         }
         if (model instanceof IPlayerBendModel playerBendModel) {
         	playerBendModel.jojo_ripples_v1_21_1$onResetPose();

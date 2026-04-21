@@ -185,20 +185,25 @@ public class StandEntityRenderer<
 	}
 	
 	public M getEntityModel(T entity) {
-		return getEntityModel(getStandSkin(entity));
+		return getEntityModel(getStandSkin(entity), entity.isBaby());
 	}
 	
 	public M getEntityModel(S renderState) {
 		StandSkin standSkin = renderState.skin;
-		return getEntityModel(standSkin);
+		return getEntityModel(standSkin, renderState.isBaby);
 	}
 	
-	public M getEntityModel(StandSkin standSkin) {
-		M model = standSkin != null ? (M) standSkin.getStandModel(this) : null;
+	public M getEntityModel(StandSkin standSkin, boolean baby) {
+		M model = standSkin != null ? (M) standSkin.getStandModel(this, baby) : null;
 		if (model == null) {
 			model = missingSkinModel.get();
 		}
 		return model;
+	}
+	
+	// deprecated but not really
+	public M getEntityModel(StandSkin standSkin) {
+		return getEntityModel(standSkin, false);
 	}
 	
 	
