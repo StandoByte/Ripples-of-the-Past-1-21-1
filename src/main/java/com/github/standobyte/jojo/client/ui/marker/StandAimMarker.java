@@ -6,7 +6,6 @@ import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.input.ClientsideAim;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
-import com.github.standobyte.jojo.config.client.ClientModSettings;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -27,7 +26,7 @@ public class StandAimMarker extends MarkerRenderer {
 
 	@Override
 	protected boolean shouldRender() {
-		if (!ClientModSettings.getSettingsReadOnly().standAimMarker || mc.player == null) return false;
+		if (!JojoMod.config.getClient().standAimMarker.getAsBoolean() || mc.player == null) return false;
 		StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 		return standPower != null && standPower.getSummonedStandEntity() != null;
 	}

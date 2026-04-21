@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client;
 
+import java.io.File;
+
 import com.github.standobyte.jojo.subsystems.itemtracking.ItemTracking;
 
 import net.minecraft.client.Minecraft;
@@ -47,6 +49,10 @@ public final class ClientProxy {
 	
 	public static boolean isClientPaused() {
 		return Minecraft.getInstance().isPaused();
+	}
+	
+	public static File getGameDirectory() {
+		return Minecraft.getInstance().gameDirectory;
 	}
 	
     public static final ItemTracking clientTrackedItems = new ItemTracking(null);

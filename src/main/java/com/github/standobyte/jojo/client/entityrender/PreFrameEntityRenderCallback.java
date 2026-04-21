@@ -11,12 +11,11 @@ import com.github.standobyte.jojo.client.entityanim.barrage.BarrageSwings;
 import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery.AnimMolangVariables;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimatedEntity;
-import com.github.standobyte.jojo.client.entityrender.replace_player_model.ReplacePlayerModel;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
-import com.github.standobyte.jojo.config.client.ClientModSettings;
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.event.client.ModClientEventHooks;
 import com.github.standobyte.jojo.event.client.ReplacePlayerModelEvent;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
@@ -128,7 +127,7 @@ public class PreFrameEntityRenderCallback {
 				}
 			}
 			
-			if (ClientModSettings.getSettingsReadOnly().standMotionTilt && stand != null) {
+			if (JojoMod.config.getClient().standMotionTilt.getAsBoolean() && stand != null) {
 				// FIXME save the pose without motion tilt separately (fixes punch combo interpolation)
 				if (renderer instanceof StandEntityRenderer standEntityRenderer) {
 					StandEntityModel standModel = standEntityRenderer.getEntityModel(stand);

@@ -86,9 +86,9 @@ public class JSONUtil {
 		json.add(objMemberKey, overwriting.deepCopy());
 	}
 	
-	public static void merge(JsonObject existing, JsonObject overwriting) {
+	public static void merge(JsonObject dest, JsonObject overwriting) {
 		for (var entry : overwriting.entrySet()) {
-			mergeWithObjMember(existing, entry.getKey(), entry.getValue());
+			mergeWithObjMember(dest, entry.getKey(), entry.getValue());
 		}
 	}
 	

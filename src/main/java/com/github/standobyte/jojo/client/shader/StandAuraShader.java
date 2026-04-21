@@ -10,7 +10,6 @@ import com.github.standobyte.jojo.client.shader.standaura.AuraUtil;
 import com.github.standobyte.jojo.client.shader.standaura.AuraUtil.ResolveAuraVars;
 import com.github.standobyte.jojo.client.shader.standaura.BufferSourceRecolor;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
-import com.github.standobyte.jojo.config.client.ClientModSettings;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -150,7 +149,7 @@ public class StandAuraShader extends RotpShader {
 	
 	@Override
 	public void frameRenderCallback(RenderLevelStageEvent event) {
-		if (!ClientModSettings.getSettingsReadOnly().standAura) return;
+		if (!JojoMod.config.getClient().standAura.getAsBoolean()) return;
 		
 		RenderLevelStageEvent.Stage stage = event.getStage();
 		if (isBeforeEntities(stage)) {

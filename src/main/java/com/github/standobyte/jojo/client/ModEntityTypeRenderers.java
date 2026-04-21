@@ -13,11 +13,13 @@ import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.mechanics.clothes.client.layer.HumanoidClothesLayer;
+import com.github.standobyte.jojoimpl.powers.vampirism.client.render.VampireEyesLayer;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.client.CrazyDBlockBulletRenderer;
 import com.github.standobyte.v1_21_4_stuff.Reminder;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
@@ -105,6 +107,9 @@ public class ModEntityTypeRenderers {
 	
 	private static <T extends LivingEntity, M extends HumanoidModel<T>> void addHumanoidLayers(LivingEntityRenderer<T, M> renderer) {
 		renderer.addLayer(new HumanoidClothesLayer<>(renderer));
+		if (renderer.getModel() instanceof PlayerModel) {
+			renderer.addLayer(new VampireEyesLayer(renderer));
+		}
 	}
 	
 	

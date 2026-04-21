@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.codecs.PrimitiveCodec;
 
 public class CodecUtil {
 
@@ -13,4 +14,19 @@ public class CodecUtil {
 			@Override public <T> DataResult<Pair<V, T>> decode(DynamicOps<T> ops, T input) { return DataResult.success(Pair.of(defaultValue, input)); }
 		};
 	}
+	
+	public static <V extends Enum<V>> Codec<V> enumCodec(Class<V> enumClass) {
+		return PrimitiveCodec.STRING.comapFlatMap(
+				name -> {
+					try {
+						V value = Enum.valueOf(enumClass, name);
+						return DataResult.success(value);
+					}
+					catch (NullPointerException | IllegalArgumentException e) {
+						return DataResult.error(e::getMessage);
+					}
+				}, 
+				Enum::name);
+	}
+	
 }

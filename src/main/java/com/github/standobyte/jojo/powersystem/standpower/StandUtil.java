@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.powersystem.standpower;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModEntityAttributes;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveStageBuffs;
 import com.github.standobyte.jojo.modcompat.JojoModsInteraction;
@@ -95,8 +96,11 @@ public class StandUtil {
 	}
 	
 	public static double staminaCondition(StandPower standPower) {
-		return ResolveStageBuffs.ignoreStaminaDebuff(standPower.getUser()) ? 1
-				: 0.25 + Math.min((double) (standPower.getStamina() / standPower.getMaxStamina()) * 1.5, 0.75);
+		if (!JojoMod.config.getCommon().standStamina.getAsBoolean()
+				|| ResolveStageBuffs.ignoreStaminaDebuff(standPower.getUser())) {
+			return 1;
+		}
+		return 0.25 + Math.min((double) (standPower.getStamina() / standPower.getMaxStamina()) * 1.5, 0.75);
 	}
 	
 	

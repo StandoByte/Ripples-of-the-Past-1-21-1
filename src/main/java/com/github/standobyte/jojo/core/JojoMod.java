@@ -4,6 +4,9 @@ import org.slf4j.Logger;
 
 import com.github.standobyte.jojo.PacketsRegister;
 import com.github.standobyte.jojo.command.argument.ModCommandArguments;
+import com.github.standobyte.jojo.config.ModConfigInterface;
+import com.github.standobyte.jojo.config.RotpConfig;
+import com.github.standobyte.jojo.config.core.RegisterRotpConfigEvent;
 import com.github.standobyte.jojo.init.ModBlockEntities;
 import com.github.standobyte.jojo.init.ModBlocks;
 import com.github.standobyte.jojo.init.ModContainers;
@@ -89,6 +92,17 @@ public class JojoMod {
 	@Deprecated
 	public static boolean disableDevStuff() {
 		return FMLLoader.isProduction();
+	}
+	
+	
+	public static ModConfigInterface<RotpConfig.Client, RotpConfig.ClientBroadcast, RotpConfig.Common> config;
+	
+	@SubscribeEvent
+	public void registerConfig(RegisterRotpConfigEvent event) {
+		config = event.registerConfig(RotpConfig.ID, 
+				RotpConfig.Client::new, 
+				RotpConfig.ClientBroadcast::new, 
+				RotpConfig.Common::new);
 	}
 
 }

@@ -8,7 +8,6 @@ import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackLoader;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
-import com.github.standobyte.jojo.config.client.ClientModSettings;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.OOPMoment;
 import com.github.standobyte.jojo.util.objects_mc.WeightsList;
@@ -39,7 +38,7 @@ public class ClientResolveVisuals {
 					player.start();
 				}
 			}
-			if (colorShift != null && ClientModSettings.getSettingsReadOnly().resolveShaders) {
+			if (colorShift != null && JojoMod.config.getClient().resolveShaders.getAsBoolean()) {
 				colorShift.parameters = ColorShiftEffect.Parameters.createRandom(OOPMoment.RANDOM);
 			}
 		}

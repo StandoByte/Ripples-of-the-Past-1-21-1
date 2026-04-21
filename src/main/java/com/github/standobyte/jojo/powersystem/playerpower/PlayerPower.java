@@ -46,9 +46,9 @@ public class PlayerPower extends Power<PlayerPower> {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T extends PlayerPowerType<D>, D extends PlayerPowerData> Optional<D> getCurTypeData(Supplier<T> matchCurrentType) {
+	public <T extends PlayerPowerType<D>, D extends PlayerPowerData> Optional<D> getCurTypeData(@Nullable Supplier<T> matchCurrentType) {
 		return this.curPowerType
-				.filter(curType -> matchCurrentType != null && matchCurrentType.get() == curType)
+				.filter(curType -> matchCurrentType == null || matchCurrentType.get() == curType)
 				.map(type -> (D) getPowerTypeData(type));
 	}
 	
@@ -109,7 +109,7 @@ public class PlayerPower extends Power<PlayerPower> {
 		return PowerClass.PLAYER_POWER.getOptional(entity);
 	}
 
-	public static <T extends PlayerPowerType<D>, D extends PlayerPowerData> Optional<D> getPowerData(LivingEntity user, Supplier<T> specificType) {
+	public static <T extends PlayerPowerType<D>, D extends PlayerPowerData> Optional<D> getPowerData(LivingEntity user, @Nullable Supplier<T> specificType) {
 		PlayerPower playerPower = get(user);
 		return playerPower != null ? playerPower.getCurTypeData(specificType) : Optional.empty();
 	}

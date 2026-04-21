@@ -26,7 +26,7 @@ import com.github.standobyte.jojo.client.ui.utils.tooltip.MutableTooltipWrapper;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.client.util.functions.RGBUtil;
-import com.github.standobyte.jojo.config.client.ClientModSettings;
+import com.github.standobyte.jojo.config.core.types.ConfigBool;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -128,7 +128,7 @@ public class StandStatsRenderer {
 						screen.width - 160, screen.height - 6, 153, 6, CommonComponents.EMPTY, 0.0D) {
 					{
 						this.value = Mth.inverseLerp(
-								ClientModSettings.getSettingsReadOnly().standStatsTranslucency, 
+								JojoMod.config.getClient().standStatsTranslucency.getAsFloat(), 
 								0.1, 1.0);
 						updateMessage();
 					}
@@ -140,30 +140,35 @@ public class StandStatsRenderer {
 
 					@Override
 					protected void applyValue() {
-						ClientModSettings.getInstance().editSettings(settings -> {
-							settings.standStatsTranslucency = (float) Mth.clampedLerp(0.1, 1.0, this.value);
-						}, false);
+						JojoMod.config.getClient().standStatsTranslucency.set((float) Mth.clampedLerp(0.1, 1.0, this.value));
+					}
+
+					@Override
+					public void onRelease(double mouseX, double mouseY) {
+						super.onRelease(mouseX, mouseY);
+						JojoMod.config.saveClient();
 					}
 				};
 				statsBgAlphaSlider.visible = doStandStatsRender(screen);
 				event.addListener(statsBgAlphaSlider);
 				
 				ImageButton2 invertBnWButton = new ImageButton2(screen.width - 8, screen.height - 7, 8, 8, 
-						ClientModSettings.getSettingsReadOnly().standStatsInvertBnW ? 
+						JojoMod.config.getClient().standStatsInvertBnW.getAsBoolean() ? 
 								bnwInvertedButton : bnwButton,
 						null,
-						ClientModSettings.getSettingsReadOnly().standStatsInvertBnW ? 
+						JojoMod.config.getClient().standStatsInvertBnW.getAsBoolean() ? 
 								bnwInvertedButtonHovered : bnwButtonHovered,
 						null,
 						_button -> {
-							ClientModSettings.getInstance().editSettings(settings -> {
-								settings.standStatsInvertBnW = !settings.standStatsInvertBnW;
-								ImageButton2 button = (ImageButton2) _button;
-								button.spriteEnabled = ClientModSettings.getSettingsReadOnly().standStatsInvertBnW ? 
-										bnwInvertedButton : bnwButton;
-								button.spriteEnabledFocused = ClientModSettings.getSettingsReadOnly().standStatsInvertBnW ? 
-										bnwInvertedButtonHovered : bnwButtonHovered;
-							}, false);
+							ConfigBool standStatsInvertBnW = JojoMod.config.getClient().standStatsInvertBnW;
+							standStatsInvertBnW.set(!standStatsInvertBnW.getAsBoolean());
+							JojoMod.config.saveClient();
+							
+							ImageButton2 button = (ImageButton2) _button;
+							button.spriteEnabled = standStatsInvertBnW.getAsBoolean() ? 
+									bnwInvertedButton : bnwButton;
+							button.spriteEnabledFocused = standStatsInvertBnW.getAsBoolean() ? 
+									bnwInvertedButtonHovered : bnwButtonHovered;
 						});
 				invertBnWButton.visible = doStandStatsRender(screen);
 				event.addListener(invertBnWButton);
@@ -200,8 +205,8 @@ public class StandStatsRenderer {
 				&& screenHasStandStats(screen) && doStandStatsRender(screen)) {
 			Minecraft mc = screen.getMinecraft();
 			float partialTick = ClientUtil.partialTick(mc.getTimer(), true);
-			float alpha = ClientModSettings.getSettingsReadOnly().standStatsTranslucency;
-			boolean invertBnW = ClientModSettings.getSettingsReadOnly().standStatsInvertBnW;
+			float alpha = JojoMod.config.getClient().standStatsTranslucency.getAsFloat();
+			boolean invertBnW = JojoMod.config.getClient().standStatsInvertBnW.getAsBoolean();
 			int xButtonsRightEdge = screen.width / 2 + 102;
 			int windowWidth = screen.width;
 			int windowHeight = screen.height;

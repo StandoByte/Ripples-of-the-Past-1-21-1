@@ -1,34 +1,43 @@
 package com.github.standobyte.jojo.config.client;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.function.Function;
+import java.util.Map;
+import java.util.function.BiConsumer;
 
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.itemrender.ItemIconModels;
-import com.github.standobyte.jojo.client.textsymbols.IconSymbols;
-import com.github.standobyte.jojo.client.textsymbols.sprite.IconGlyphInfo;
-import com.github.standobyte.jojo.client.textsymbols.sprite.IconGlyphsCache;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ButtonInLayout;
+import com.github.standobyte.jojo.client.ui.screen_widgets.ButtonWithImage;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ItemButton;
-import com.github.standobyte.jojo.client.ui.utils.Alignment;
-import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
-import com.github.standobyte.jojo.config.SettingsField;
+import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList;
+import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList.EntryWithButtons;
+import com.github.standobyte.jojo.client.ui.screen_widgets.utils.ButtonDecoration;
+import com.github.standobyte.jojo.config.ModConfigInterface;
+import com.github.standobyte.jojo.config.RotpConfig;
+import com.github.standobyte.jojo.config.core.ModConfig;
+import com.github.standobyte.jojo.config.internal.ConfigEventHandler;
+import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
+import com.github.standobyte.jojo.config.internal.cfgtypes.ClientFileConfig;
+import com.github.standobyte.jojo.config.internal.cfgtypes.CommonFileConfig;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.mechanics.resolve.ClientResolveVisuals;
+import com.github.standobyte.jojo.mixin.client.screen.ScreenAccessor;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
-import com.github.standobyte.v1_21_4_stuff.GuiScissor;
+import com.mojang.blaze3d.systems.RenderSystem;
 
-import it.unimi.dsi.fastutil.objects.Object2CharArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2CharMap;
-import net.minecraft.Util;
-import net.minecraft.client.gui.Font;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.WidgetSprites;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.Layout;
+import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.network.chat.CommonComponents;
@@ -46,23 +55,62 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 // obviously that's not worth anyone's brain cells to go and figure out why, but that's so random
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class ClientModSettingsScreen extends Screen {
-    protected final Screen lastScreen;
-	protected final ClientModSettings settings;
-	protected final ClientModSettings.Settings settingsValues;
+	public final Screen lastScreen;
 	
-	protected final List<Title> categories = new ArrayList<>();
-	protected static record Title(Component title, int y) {}
+	public ModConfig<?, ?, ?> curConfig;
+	public String curModId;
+	public ConfigTabType configType;
+	
+	protected Button resetButton;
 
-	public ClientModSettingsScreen(Screen lastScreen, ClientModSettings settings) {
-		this(lastScreen, settings, Component.translatable("jojo_ripples.options.client.title"));
+	public ClientModSettingsScreen(Screen lastScreen) {
+		this(lastScreen, RotpConfig.ID, ConfigTabType.CLIENT);
 	}
 
-	public ClientModSettingsScreen(Screen lastScreen, ClientModSettings settings, Component title) {
-		super(title);
+	public ClientModSettingsScreen(Screen lastScreen, String curModId, ConfigTabType configType) {
+		super(CommonComponents.EMPTY);
 		this.lastScreen = lastScreen;
-		this.settings = settings;
-		this.settingsValues = ClientModSettings.getSettingsReadOnly();
-		categoryOpenedTimestampSoThatScrollingDoesntSuck = Util.getMillis();
+		this.curModId = curModId;
+		this.configType = configType;
+		ScrollingStringButton.onScreenOpened();
+	}
+	
+	public boolean switchMod(String modId) {
+		ModConfig<?, ?, ?> config = ConfigEventHandler.ALL_CONFIGS.get(modId);
+		ConfigTabType tab = this.configType;
+		ConfigTabType[] tabs = ConfigTabType.values();
+		do {
+			if (configExists(config, tab)) {
+				setConfigTab(modId, tab);
+				return true;
+			}
+			tab = tabs[(tab.ordinal() + 1) % tabs.length];
+		}
+		while (tab != this.configType);
+		
+		return false;
+	}
+	
+	public boolean switchTab(ConfigTabType tab) {
+		if (configExists(curConfig, tab)) {
+			setConfigTab(curModId, tab);
+			return true;
+		}
+		return false;
+	}
+	
+	public static boolean configExists(ModConfig<?, ?, ?> config, ConfigTabType tab) {
+		if (config == null) return false;
+		return switch (tab) {
+			case CLIENT -> config.clientConfig.exists();
+			case COMMON -> config.commonConfig.exists();
+		};
+	}
+	
+	protected void setConfigTab(String curModId, ConfigTabType configType) {
+		this.curModId = curModId;
+		this.configType = configType;
+		updateConfigButtons(curModId, configType);
 	}
 
 	@Override
@@ -72,736 +120,239 @@ public class ClientModSettingsScreen extends Screen {
 
 	@Override
 	protected void init() {
-		addRenderableWidgets();
-	}
-
-	protected void addRenderableWidgets() {
-		categories.clear();
-		int i = 0;
-		int yOffset = 0;
-		
-		// TODO make client config screen scrollable for when there'll be more config options
-
-//		BooleanSetting characterVoiceLines = new BooleanSetting(settings, 
-//				Component.translatable("jojo_ripples.config.client.characterVoiceLines"), 
-//				Component.translatable("jojo_ripples.config.client.characterVoiceLines.tooltip")
-//				) {
-//			@Override public Boolean get() { return settingsValues.characterVoiceLines; }
-//			@Override public void set(Boolean value) { settingsValues.characterVoiceLines = value; }
-//		};
-//		addRenderableWidget(characterVoiceLines.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
-//
-//		BooleanSetting menacingParticles = new BooleanSetting(settings, 
-//				Component.translatable("jojo_ripples.config.client.menacingParticles"), 
-//				Component.translatable("jojo_ripples.config.client.menacingParticles.tooltip")
-//				) {
-//			@Override public Boolean get() { return settingsValues.menacingParticles; }
-//			@Override public void set(Boolean value) { settingsValues.menacingParticles = value; }
-//		};
-//		addRenderableWidget(menacingParticles.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
-
-		
-		// HUD settings
-		
-		yOffset += 10;
-		if (i % 2 == 1) ++i;
-		categories.add(new Title(Component.translatable("jojo_ripples.options.client.hud"), calcButtonY(i) + yOffset));
-		yOffset += 15;
-
-//		EnumSetting<PositionConfig> barsPosition = new EnumSetting<PositionConfig>(settings, 
-//				Component.translatable("jojo_ripples.config.client.barsPosition"), 
-//				Component.translatable("jojo_ripples.config.client.barsPosition.tooltip"), 
-//				PositionConfig.class) {
-//			@Override public PositionConfig get() { return settingsValues.barsPosition; }
-//			@Override public void set(PositionConfig value) { settingsValues.barsPosition = value; }
-//		};
-//		addRenderableWidget(barsPosition.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
-//
-//		EnumSetting<PositionConfig> hotbarsPosition = new EnumSetting<PositionConfig>(settings, 
-//				Component.translatable("jojo_ripples.config.client.hotbarsPosition"), 
-//				Component.translatable("jojo_ripples.config.client.hotbarsPosition.tooltip"), 
-//				PositionConfig.class) {
-//			@Override public PositionConfig get() { return settingsValues.hotbarsPosition; }
-//			@Override public void set(PositionConfig value) { settingsValues.hotbarsPosition = value; }
-//		};
-//		addRenderableWidget(hotbarsPosition.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
-//
-//		EnumSetting<HudTextRender> hudNamesRender = new EnumSetting<HudTextRender>(settings, 
-//				Component.translatable("jojo_ripples.config.client.hudNamesRender"), 
-//				Component.translatable("jojo_ripples.config.client.hudNamesRender.tooltip"), 
-//				HudTextRender.class) {
-//			@Override public HudTextRender get() { return settingsValues.hudTextRender; }
-//			@Override public void set(HudTextRender value) { settingsValues.hudTextRender = value; }
-//		};
-//		addRenderableWidget(hudNamesRender.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
-//
-//		BooleanSetting hudHotbarsFold = new BooleanSetting(settings, 
-//				Component.translatable("jojo_ripples.config.client.hudHotbarsFold"), 
-//				Component.translatable("jojo_ripples.config.client.hudHotbarsFold.tooltip")
-//				) {
-//			@Override public Boolean get() { return settingsValues.hudHotbarFold; }
-//			@Override public void set(Boolean value) { 
-//				settingsValues.hudHotbarFold = value;
-//				if (minecraft.player != null) {
-//					for (PowerClass<?> power : PowerClass.values()) {
-//						power.getOptional(minecraft.player).ifPresent(Power::clUpdateHud);
-//					}
-//				}
-//			}
-//		};
-//		addRenderableWidget(hudHotbarsFold.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
-//
-//		BooleanSetting showLockedSlots = new BooleanSetting(settings, 
-//				Component.translatable("jojo_ripples.config.client.showLockedSlots"), 
-//				Component.translatable("jojo_ripples.config.client.showLockedSlots.tooltip")
-//				) {
-//			@Override public Boolean get() { return settingsValues.showLockedSlots; }
-//			@Override public void set(Boolean value) {
-//				settingsValues.showLockedSlots = value;
-//				if (minecraft.player != null) {
-//					for (PowerClass<?> power : PowerClass.values()) {
-//						power.getOptional(minecraft.player).ifPresent(Power::clUpdateHud);
-//					}
-//				}
-//			}
-//		};
-//		addRenderableWidget(showLockedSlots.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
-
-		Setting<Boolean> abilitySelectionWheel = new BooleanSetting(settings, 
-				Component.translatable("jojo_ripples.config.client.abilitySelectionWheel"), 
-				Component.translatable("jojo_ripples.config.client.abilitySelectionWheel.tooltip")
-				) {
-			@Override public Boolean get() { return settingsValues.abilitySelectionWheel; }
-			@Override public void set(Boolean value) {  settingsValues.abilitySelectionWheel = value; }
-		}.withIcon(toIconPath("ability_selection_wheel"));
-		addRenderableWidget(abilitySelectionWheel.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
-
-		
-		// Stand settings
-
-		yOffset += 10;
-		if (i % 2 == 1) ++i;
-		categories.add(new Title(Component.translatable("jojo_ripples.options.client.stand"), calcButtonY(i) + yOffset));
-		yOffset += 15;
-
-		Setting<Boolean> standAimMarker = new BooleanSetting(settings, 
-				Component.translatable("jojo_ripples.config.client.standAimMarker"), 
-				Component.translatable("jojo_ripples.config.client.standAimMarker.tooltip")
-				) {
-			@Override public Boolean get() { return settingsValues.standAimMarker; }
-			@Override public void set(Boolean value) {  settingsValues.standAimMarker = value; }
-		}.withIcon(toIconPath("stand_aim_marker"), iconPath -> new IconGlyphInfo(new GuiIcon(iconPath, 17, 17), 17, 17, 0, -5, 5));
-		addRenderableWidget(standAimMarker.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
-		
-		Setting<Boolean> standMotionTilt = new BooleanSetting(settings, 
-				Component.translatable("jojo_ripples.config.client.standMotionTilt"), 
-				Component.translatable("jojo_ripples.config.client.standMotionTilt.tooltip")
-				) {
-			@Override public Boolean get() { return settingsValues.standMotionTilt; }
-			@Override public void set(Boolean value) { settingsValues.standMotionTilt = value; }
-		};
-		addRenderableWidget(standMotionTilt.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
-
-		Setting<Boolean> standAura = new BooleanSetting(settings, 
-				Component.translatable("jojo_ripples.config.client.standAura"), 
-				Component.translatable("jojo_ripples.config.client.standAura.tooltip")
-				) {
-			@Override public Boolean get() { return settingsValues.standAura; }
-			@Override public void set(Boolean value) {  settingsValues.standAura = value; }
-		};
-		addRenderableWidget(standAura.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
-
-		BooleanSetting resolveShaders = new BooleanSetting(settings, 
-				Component.translatable("jojo_ripples.config.client.resolveShaders"), 
-				Component.translatable("jojo_ripples.config.client.resolveShaders.tooltip")
-				) {
-			@Override public Boolean get() { return settingsValues.resolveShaders; }
-			@Override public void set(Boolean value) { 
-				settingsValues.resolveShaders = value;
-				ClientResolveVisuals.onColorShiftSettingUpdated(value);
-			}
-		};
-		addRenderableWidget(resolveShaders.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
-
-//		BooleanSetting timeStopAnimation = new BooleanSetting(settings, 
-//				Component.translatable("jojo_ripples.config.client.timeStopAnimation"), 
-//				Component.translatable("jojo_ripples.config.client.timeStopAnimation.tooltip")
-//				) {
-//			@Override public Boolean get() { return settingsValues.timeStopAnimation; }
-//			@Override public void set(Boolean value) { settingsValues.timeStopAnimation = value; }
-//		};
-//		addRenderableWidget(timeStopAnimation.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
-//
-//		Setting<HumanoidArm> standSide = new EnumSetting<HumanoidArm>(settings, 
-//				Component.translatable("jojo_ripples.config.client.standSide"), 
-//				Component.translatable("jojo_ripples.config.client.standSide.tooltip"), 
-//				HumanoidArm.class) {
-//			@Override public HumanoidArm get() { return settingsValues.broadcasted.standSide; }
-//			@Override public void set(HumanoidArm value) { settingsValues.broadcasted.standSide = value; }
-//		}
-//		.prefix("stand_")
-//		.setBroadcasted();
-//		addRenderableWidget(standSide.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
-//
-//
-//		BooleanSetting standOutline = new BooleanSetting(settings, 
-//				Component.translatable("jojo_ripples.config.client.standOutline"), 
-//				Component.translatable("jojo_ripples.config.client.standOutline.tooltip")
-//				) {
-//			@Override public Boolean get() { return settingsValues.standOutline; }
-//			@Override public void set(Boolean value) { settingsValues.standOutline = value; }
-//		};
-//		addRenderableWidget(standOutline.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
-		
-		
-		// Hamon settings
-
-		yOffset += 10;
-		if (i % 2 == 1) ++i;
-		categories.add(new Title(Component.translatable("jojo_ripples.options.client.hamon"), calcButtonY(i) + yOffset));
-		yOffset += 15;
-
-//		BooleanSetting thirdPersonHamonAura = new BooleanSetting(settings, 
-//				Component.translatable("jojo_ripples.config.client.thirdPersonHamonAura"), 
-//				Component.translatable("jojo_ripples.config.client.thirdPersonHamonAura.tooltip"), 
-//				null) {
-//			@Override public Boolean get() { return settingsValues.thirdPersonHamonAura; }
-//			@Override public void set(Boolean value) { 
-//				settingsValues.thirdPersonHamonAura = value;
-//			}
-//		};
-//		addRenderableWidget(thirdPersonHamonAura.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
-//
-//		BooleanSetting firstPersonHamonAura = new BooleanSetting(settings, 
-//				Component.translatable("jojo_ripples.config.client.firstPersonHamonAura"), 
-//				Component.translatable("jojo_ripples.config.client.firstPersonHamonAura.tooltip"), 
-//				null) {
-//			@Override public Boolean get() { return settingsValues.firstPersonHamonAura; }
-//			@Override public void set(Boolean value) { 
-//				settingsValues.firstPersonHamonAura = value;
-//			}
-//		};
-//		addRenderableWidget(firstPersonHamonAura.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
-//
-//		BooleanSetting hamonAuraBlur = new BooleanSetting(settings, 
-//				Component.translatable("jojo_ripples.config.client.hamonAuraBlur"), 
-//				Component.translatable("jojo_ripples.config.client.hamonAuraBlur.tooltip"), 
-//				null) {
-//			@Override public Boolean get() { return settingsValues.hamonAuraBlur; }
-//			@Override public void set(Boolean value) { 
-//				settingsValues.hamonAuraBlur = value;
-//			}
-//		};
-//		addRenderableWidget(hamonAuraBlur.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
-		
-		
-		// Vampirism settings
-
-		yOffset += 10;
-		if (i % 2 == 1) ++i;
-		categories.add(new Title(Component.translatable("jojo_ripples.options.client.vampirism"), calcButtonY(i) + yOffset));
-		yOffset += 15;
-
-//		BooleanSetting glowingEyes = new BooleanSetting(settings, 
-//				Component.translatable("jojo_ripples.config.client.vampireGlowingEyes"), 
-//				Component.translatable("jojo_ripples.config.client.vampireGlowingEyes.tooltip")
-//				) {
-//			@Override public Boolean get() { return settingsValues.broadcasted.vampireGlowingEyes; }
-//			@Override public void set(Boolean value) { 
-//				settingsValues.broadcasted.vampireGlowingEyes = value;
-//			}
-//		};
-//		addRenderableWidget(glowingEyes.createButton(calcButtonX(i), calcButtonY(i++) + yOffset, 150, 20, this, i));
-		
-		
-
-
-//		addRenderableWidget(new Button.Builder(
-//				Component.translatable("jojo_ripples.options.client.hud"), 
-//				button -> minecraft.setScreen(new HudSettings(this, settings, button.getMessage())))
-//				.bounds(calcButtonX(i), calcButtonY(i++) + yOffset + 6, 150, 20).build(/*Button::new*/));
-//
-//		addRenderableWidget(new Button.Builder(
-//				Component.translatable("jojo_ripples.options.client.stand"), 
-//				button -> minecraft.setScreen(new StandSettings(this, settings, button.getMessage())))
-//				.bounds(calcButtonX(i), calcButtonY(i++) + yOffset + 6, 150, 20).build(/*Button::new*/));
-//
-//		addRenderableWidget(new Button.Builder(
-//				Component.translatable("jojo_ripples.options.client.hamon"), 
-//				button -> minecraft.setScreen(new HamonSettings(this, settings, button.getMessage())))
-//				.bounds(calcButtonX(i), calcButtonY(i++) + yOffset + 6, 150, 20).build(/*Button::new*/));
-//
-//		addRenderableWidget(new Button.Builder(
-//				Component.translatable("jojo_ripples.options.client.vampirism"), 
-//				button -> minecraft.setScreen(new VampirismSettings(this, settings, button.getMessage())))
-//				.bounds(calcButtonX(i), calcButtonY(i++) + yOffset + 6, 150, 20).build(/*Button::new*/));
-		
-		addBackButton(CommonComponents.GUI_DONE, i);
-	}
-
-	protected void addBackButton(Component text, int buttonsAdded) {
-		buttonsAdded += 2;
-		if (buttonsAdded % 2 == 1) {
-			++buttonsAdded;
+		addPermanentButtons();
+		if (this.curModId != null && this.configType != null) {
+			updateConfigButtons(this.curModId, this.configType);
 		}
-
-		addRenderableWidget(new Button.Builder(
-				text, button -> minecraft.setScreen(lastScreen))
-				.bounds(this.width / 2 - 100, 
-						this.height - 26, 
-						200, 20)
-				.build(/*Button::new*/));
 	}
 
-
-
-//	@Deprecated
-//	public static class HudSettings extends ClientModSettingsScreen {
-//
-//		public HudSettings(Screen lastScreen, ClientModSettings settings, Component title) {
-//			super(lastScreen, settings, title);
-//		}
-//
-//		@Override
-//		protected void addRenderableWidgets() {
-//			int i = 0;
-//
-////			EnumSetting<PositionConfig> barsPosition = new EnumSetting<PositionConfig>(settings, 
-////					Component.translatable("jojo_ripples.config.client.barsPosition"), 
-////					Component.translatable("jojo_ripples.config.client.barsPosition.tooltip"), 
-////					PositionConfig.class) {
-////				@Override public PositionConfig get() { return settingsValues.barsPosition; }
-////				@Override public void set(PositionConfig value) { settingsValues.barsPosition = value; }
-////			};
-////			addRenderableWidget(barsPosition.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-////
-////
-////			EnumSetting<PositionConfig> hotbarsPosition = new EnumSetting<PositionConfig>(settings, 
-////					Component.translatable("jojo_ripples.config.client.hotbarsPosition"), 
-////					Component.translatable("jojo_ripples.config.client.hotbarsPosition.tooltip"), 
-////					PositionConfig.class) {
-////				@Override public PositionConfig get() { return settingsValues.hotbarsPosition; }
-////				@Override public void set(PositionConfig value) { settingsValues.hotbarsPosition = value; }
-////			};
-////			addRenderableWidget(hotbarsPosition.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-////
-////
-////			EnumSetting<HudTextRender> hudNamesRender = new EnumSetting<HudTextRender>(settings, 
-////					Component.translatable("jojo_ripples.config.client.hudNamesRender"), 
-////					Component.translatable("jojo_ripples.config.client.hudNamesRender.tooltip"), 
-////					HudTextRender.class) {
-////				@Override public HudTextRender get() { return settingsValues.hudTextRender; }
-////				@Override public void set(HudTextRender value) { settingsValues.hudTextRender = value; }
-////			};
-////			addRenderableWidget(hudNamesRender.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-////
-////
-////			BooleanSetting hudHotbarsFold = new BooleanSetting(settings, 
-////					Component.translatable("jojo_ripples.config.client.hudHotbarsFold"), 
-////					Component.translatable("jojo_ripples.config.client.hudHotbarsFold.tooltip")
-////					) {
-////				@Override public Boolean get() { return settingsValues.hudHotbarFold; }
-////				@Override public void set(Boolean value) { 
-////					settingsValues.hudHotbarFold = value;
-////					if (minecraft.player != null) {
-////						for (PowerClass<?> power : PowerClass.values()) {
-////							power.getOptional(minecraft.player).ifPresent(Power::clUpdateHud);
-////						}
-////					}
-////				}
-////			};
-////			addRenderableWidget(hudHotbarsFold.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-////
-////
-////			BooleanSetting showLockedSlots = new BooleanSetting(settings, 
-////					Component.translatable("jojo_ripples.config.client.showLockedSlots"), 
-////					Component.translatable("jojo_ripples.config.client.showLockedSlots.tooltip")
-////					) {
-////				@Override public Boolean get() { return settingsValues.showLockedSlots; }
-////				@Override public void set(Boolean value) {
-////					settingsValues.showLockedSlots = value;
-////					if (minecraft.player != null) {
-////						for (PowerClass<?> power : PowerClass.values()) {
-////							power.getOptional(minecraft.player).ifPresent(Power::clUpdateHud);
-////						}
-////					}
-////				}
-////			};
-////			addRenderableWidget(showLockedSlots.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-//
-//
-//			BooleanSetting abilitySelectionWheel = new BooleanSetting(settings, 
-//					Component.translatable("jojo_ripples.config.client.abilitySelectionWheel"), 
-//					Component.translatable("jojo_ripples.config.client.abilitySelectionWheel.tooltip")
-//					) {
-//				@Override public Boolean get() { return settingsValues.abilitySelectionWheel; }
-//				@Override public void set(Boolean value) { 
-//					settingsValues.abilitySelectionWheel = value;
-//				}
-//			};
-//			addRenderableWidget(abilitySelectionWheel.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-//
-//			addBackButton(CommonComponents.GUI_BACK, i);
-//		}
-//
-//	}
-//
-//	@Deprecated
-//	public static class StandSettings extends ClientModSettingsScreen {
-//
-//		public StandSettings(Screen lastScreen, ClientModSettings settings, Component title) {
-//			super(lastScreen, settings, title);
-//		}
-//
-//		@Override
-//		protected void addRenderableWidgets() {
-//			int i = 0;
-//
-////			BooleanSetting resolveShaders = new BooleanSetting(settings, 
-////					Component.translatable("jojo_ripples.config.client.resolveShaders"), 
-////					Component.translatable("jojo_ripples.config.client.resolveShaders.tooltip")
-////					) {
-////				@Override public Boolean get() { return settingsValues.resolveShaders; }
-////				@Override public void set(Boolean value) { 
-////					settingsValues.resolveShaders = value;
-////					if (!value) {
-////						ShaderEffectApplier.getInstance().stopResolveShader();
-////					}
-////				}
-////			};
-////			addRenderableWidget(resolveShaders.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-////
-////
-////			BooleanSetting timeStopAnimation = new BooleanSetting(settings, 
-////					Component.translatable("jojo_ripples.config.client.timeStopAnimation"), 
-////					Component.translatable("jojo_ripples.config.client.timeStopAnimation.tooltip")
-////					) {
-////				@Override public Boolean get() { return settingsValues.timeStopAnimation; }
-////				@Override public void set(Boolean value) { settingsValues.timeStopAnimation = value; }
-////			};
-////			addRenderableWidget(timeStopAnimation.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-////
-////
-////			Setting<HumanoidArm> standSide = new EnumSetting<HumanoidArm>(settings, 
-////					Component.translatable("jojo_ripples.config.client.standSide"), 
-////					Component.translatable("jojo_ripples.config.client.standSide.tooltip"), 
-////					HumanoidArm.class) {
-////				@Override public HumanoidArm get() { return settingsValues.broadcasted.standSide; }
-////				@Override public void set(HumanoidArm value) { settingsValues.broadcasted.standSide = value; }
-////			}
-////			.prefix("stand_")
-////			.setBroadcasted();
-////			addRenderableWidget(standSide.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-////
-////
-////			BooleanSetting standMotionTilt = new BooleanSetting(settings, 
-////					Component.translatable("jojo_ripples.config.client.standMotionTilt"), 
-////					Component.translatable("jojo_ripples.config.client.standMotionTilt.tooltip")
-////					) {
-////				@Override public Boolean get() { return settingsValues.standMotionTilt; }
-////				@Override public void set(Boolean value) { settingsValues.standMotionTilt = value; }
-////			};
-////			addRenderableWidget(standMotionTilt.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-////
-////			BooleanSetting standOutline = new BooleanSetting(settings, 
-////					Component.translatable("jojo_ripples.config.client.standOutline"), 
-////					Component.translatable("jojo_ripples.config.client.standOutline.tooltip")
-////					) {
-////				@Override public Boolean get() { return settingsValues.standOutline; }
-////				@Override public void set(Boolean value) { settingsValues.standOutline = value; }
-////			};
-////			addRenderableWidget(standOutline.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-//
-//			addBackButton(CommonComponents.GUI_BACK, i);
-//		}
-//
-//	}
-//
-//	@Deprecated
-//	public static class HamonSettings extends ClientModSettingsScreen {
-//
-//		public HamonSettings(Screen lastScreen, ClientModSettings settings, Component title) {
-//			super(lastScreen, settings, title);
-//		}
-//
-//		@Override
-//		protected void addRenderableWidgets() {
-//			int i = 0;
-//
-//			BooleanSetting thirdPersonHamonAura = new BooleanSetting(settings, 
-//					Component.translatable("jojo_ripples.config.client.thirdPersonHamonAura"), 
-//					Component.translatable("jojo_ripples.config.client.thirdPersonHamonAura.tooltip")
-//					) {
-//				@Override public Boolean get() { return settingsValues.thirdPersonHamonAura; }
-//				@Override public void set(Boolean value) { 
-//					settingsValues.thirdPersonHamonAura = value;
-//				}
-//			};
-//			addRenderableWidget(thirdPersonHamonAura.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-//
-//			BooleanSetting firstPersonHamonAura = new BooleanSetting(settings, 
-//					Component.translatable("jojo_ripples.config.client.firstPersonHamonAura"), 
-//					Component.translatable("jojo_ripples.config.client.firstPersonHamonAura.tooltip")
-//					) {
-//				@Override public Boolean get() { return settingsValues.firstPersonHamonAura; }
-//				@Override public void set(Boolean value) { 
-//					settingsValues.firstPersonHamonAura = value;
-//				}
-//			};
-//			addRenderableWidget(firstPersonHamonAura.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-//
-//			BooleanSetting hamonAuraBlur = new BooleanSetting(settings, 
-//					Component.translatable("jojo_ripples.config.client.hamonAuraBlur"), 
-//					Component.translatable("jojo_ripples.config.client.hamonAuraBlur.tooltip")
-//					) {
-//				@Override public Boolean get() { return settingsValues.hamonAuraBlur; }
-//				@Override public void set(Boolean value) { 
-//					settingsValues.hamonAuraBlur = value;
-//				}
-//			};
-//			addRenderableWidget(hamonAuraBlur.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-//
-//			addBackButton(CommonComponents.GUI_BACK, i);
-//		}
-//
-//	}
-//
-//	@Deprecated
-//	public static class VampirismSettings extends ClientModSettingsScreen {
-//
-//		public VampirismSettings(Screen lastScreen, ClientModSettings settings, Component title) {
-//			super(lastScreen, settings, title);
-//		}
-//
-//		@Override
-//		protected void addRenderableWidgets() {
-//			int i = 0;
-//
-////			BooleanSetting glowingEyes = new BooleanSetting(settings, 
-////					Component.translatable("jojo_ripples.config.client.vampireGlowingEyes"), 
-////					Component.translatable("jojo_ripples.config.client.vampireGlowingEyes.tooltip")
-////					) {
-////				@Override public Boolean get() { return settingsValues.broadcasted.vampireGlowingEyes; }
-////				@Override public void set(Boolean value) { 
-////					settingsValues.broadcasted.vampireGlowingEyes = value;
-////				}
-////			};
-////			addRenderableWidget(glowingEyes.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
-//
-//			addBackButton(CommonComponents.GUI_BACK, i);
-//		}
-//
-//	}
-
-
-
-	protected int calcButtonX(int i) {
-		return this.width / 2 - 155 + i % 2 * 160;
-	}
-
-	protected int calcButtonY(int i) {
-		return this.height / 6 - 12 + 24 * (i >> 1);
-	}
-
-	@Override
-	public void removed() {
-		settings.save();
-	}
+	//@Override
+	//public void removed() {
+	//	settings.saveToFileSystem();
+	//}
 
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 		guiGraphics.drawCenteredString(font, title, width / 2, 15, 0xFFFFFF);
-		for (var categoryTitle : categories) {
-			guiGraphics.drawCenteredString(font, categoryTitle.title, width / 2, categoryTitle.y, 0xC0C0C0);
+		if (resetButton != null) {
+			resetButton.active = configType != ConfigTabType.COMMON || ConfigGuiHelper.clientCanEditCommonConfig();
 		}
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 
+	protected void addPermanentButtons() {
+		ModConfigInterface<?, ?, ?> config = ConfigEventHandler.ALL_CONFIGS.get(curModId);
+		// Client/Gameplay tab buttons
+		if (config != null) {
+			int buttonWidth = Math.min((width / 4 - 10), 100);
+			
+			Button clientButton = new ConfigTypeButton(new Button.Builder(
+					Component.translatable("jojo_ripples.config_category.client"), 
+					button -> switchTab(ConfigTabType.CLIENT))
+					.bounds(this.width / 2 - 5 - buttonWidth, 
+							4, 
+							buttonWidth, 20), 
+					this, ConfigTabType.CLIENT);
 
+			Button commonButton = new ConfigTypeButton(new Button.Builder(
+					Component.translatable("jojo_ripples.config_category.common"), 
+					button -> switchTab(ConfigTabType.COMMON))
+					.bounds(this.width / 2 + 5, 
+							4, 
+							buttonWidth, 20), 
+					this, ConfigTabType.COMMON);
 
-	protected static Object2CharMap<ResourceLocation> iconSymbols = new Object2CharArrayMap<>();
+			addRenderableWidget(clientButton);
+			addRenderableWidget(commonButton);
+		}
+
+		// back button
+		addRenderableWidget(new Button.Builder(
+				CommonComponents.GUI_DONE, button -> minecraft.setScreen(lastScreen))
+				.bounds(this.width / 2 - 50, 
+						this.height - 26, 
+						100, 20)
+				.build(/*Button::new*/));
+
+		// reset button
+		resetButton = addRenderableWidget(new Button.Builder(
+				Component.translatable("jojo_ripples.config.reset"), 
+				button -> {
+					switch (this.configType) {
+						case CLIENT -> {
+							ClientFileConfig<?, ?> clientConfig = this.curConfig.clientConfig;
+							clientConfig.reset();
+							clientConfig.saveToFileSystem();
+							if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
+								config.sendClientBroadcast();
+							}
+						}
+						case COMMON -> {
+							CommonFileConfig<?> commonConfig = this.curConfig.commonConfig;
+							commonConfig.configState.reset();
+							if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
+								ConfigNetworkFunctions.clSendCommonConfigResetToServer(curModId);
+							}
+							else {
+								config.saveCommon();
+							}
+						}
+					}
+				})
+				.bounds(this.width - 66, 
+						this.height - 26, 
+						60, 20)
+				.build(/*Button::new*/));
+		
+		// mod switch buttons
+		ScrolleableButtonList modsList = new ScrolleableButtonList(minecraft, 0, 33, 30, height - 66, 18);
+		for (var modEntry : ConfigEventHandler.ALL_CONFIGS.entrySet()) {
+			String modId = modEntry.getKey();
+			SelectModButton button = new SelectModButton(CONFIG_TAB_ICONS.get(modId), this, modId);
+			modsList.addEntry(new EntryWithButtons().add(button, 0, 0));
+		}
+		addRenderableWidget(modsList);
+	}
+
 	
-	public static ResourceLocation toIconPath(String fileName) {
-		return JojoMod.resLoc("textures/gui/sprites/settings/" + fileName + ".png");
+	public enum ConfigTabType {
+		CLIENT,
+		COMMON
 	}
 	
-	public static abstract class Setting<T> implements SettingsField<T>{
-		protected ClientModSettings settings;
-		protected Component name;
-		protected Component nameWithSprite;
-		protected Component tooltip;
-		@Nullable protected ResourceLocation sprite;
-		protected char spriteCode;
-		
-		protected boolean broadcast = false;
-		
-		public Setting(ClientModSettings settings, Component name, @Nullable Component tooltip) {
-			this.settings = settings;
-			this.name = name;
-			this.tooltip = tooltip;
-			this.nameWithSprite = name;
+	@SuppressWarnings("unchecked")
+	public void addConfigWidget(Object widget) {
+		if (widget instanceof Renderable renderable) {
+			this.renderables.add(renderable);
 		}
-		
-		public Setting<T> withIcon(ResourceLocation sprite) {
-			return withIcon(sprite, iconPath -> new IconGlyphInfo(new GuiIcon(iconPath, 16, 16), 16, 16, 0, -4, 4));
+		if (widget instanceof NarratableEntry narratable) {
+			((ScreenAccessor) this).getNarratables().add(narratable);
 		}
-		
-		public Setting<T> withIcon(ResourceLocation sprite, Function<ResourceLocation, IconGlyphInfo> createGlyph) {
-			this.sprite = sprite;
-			if (sprite != null) {
-				spriteCode = iconSymbols.computeIfAbsent(sprite, (ResourceLocation iconPath) -> 
-						IconGlyphsCache.makeCharCodeFor(createGlyph.apply(iconPath)));
-				this.nameWithSprite = Component.literal(String.valueOf(spriteCode)).append(name);
+		if (widget instanceof GuiEventListener button) {
+			((List<GuiEventListener>) this.children()).add(button);
+		}
+		this.configButtons.add(widget);
+	}
+	
+
+	
+	public static final Map<String, BiConsumer<ConfigTabType, ClientModSettingsScreen>> CONFIG_GUI_LAYOUTS = new LinkedHashMap<>();
+	
+	protected Collection<Object> configButtons = new ArrayList<>();
+	
+	protected void updateConfigButtons(String curModId, ConfigTabType configType) {
+		clearConfigButtons();
+		this.curConfig = ConfigEventHandler.ALL_CONFIGS.get(curModId);
+		if (curModId != null && configType != null) {
+			var layout = CONFIG_GUI_LAYOUTS.get(curModId);
+			if (layout != null) {
+				layout.accept(configType, this);
 			}
-			return this;
+		}
+	}
+	
+	protected void clearConfigButtons() {
+		if (!configButtons.isEmpty()) {
+			var children = this.children();
+			var narratables = ((ScreenAccessor) this).getNarratables();
+			for (Object configButton : configButtons) {
+				renderables.remove(configButton);
+				children.remove(configButton);
+				narratables.remove(configButton);
+			}
+			configButtons.clear();
+		}
+	}
+
+	@Override
+    protected void removeWidget(GuiEventListener listener) {
+    	super.removeWidget(listener);
+    	configButtons.remove(listener);
+    }
+
+	@Override
+    protected void clearWidgets() {
+    	super.clearWidgets();
+    	configButtons.clear();
+    }
+
+	
+	public static final WidgetSprites SPRITES_BLUE_DABADEE_DABADI = new WidgetSprites(
+			JojoMod.resLoc("widget/button_blue"),
+	        ResourceLocation.withDefaultNamespace("widget/button_disabled"),
+			JojoMod.resLoc("widget/button_blue_highlighted"));
+
+	public static class ConfigTypeButton extends Button {
+		protected ClientModSettingsScreen screen;
+		protected ConfigTabType cfgTab;
+
+		public ConfigTypeButton(Builder builder, ClientModSettingsScreen screen, ConfigTabType cfgTab) {
+			super(builder);
+			this.screen = screen;
+			this.cfgTab = cfgTab;
 		}
 
-		public Setting<T> setBroadcasted() {
-			this.broadcast = true;
-			return this;
+		@Override
+		protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+			this.active = configExists(screen.curConfig, cfgTab);
+			
+			Minecraft minecraft = Minecraft.getInstance();
+			guiGraphics.setColor(1.0F, 1.0F, 1.0F, this.alpha);
+			RenderSystem.enableBlend();
+			RenderSystem.enableDepthTest();
+			WidgetSprites sprites = cfgTab == screen.configType ? SPRITES_BLUE_DABADEE_DABADI : SPRITES;
+			guiGraphics.blitSprite(sprites.get(this.active, this.isHoveredOrFocused()), 
+					this.getX(), this.getY(), this.getWidth(), this.getHeight());
+			guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+			int i = getFGColor();
+			this.renderString(guiGraphics, minecraft.font, i | Mth.ceil(this.alpha * 255.0F) << 24);
+		}
+	}
+	
+	
+	public static final Map<String, ButtonDecoration> CONFIG_TAB_ICONS = new LinkedHashMap<>();
+
+	public static class SelectModButton extends ButtonWithImage {
+		protected static final WidgetSprites SPRITES = new WidgetSprites(
+				JojoMod.resLoc("widget/button_pressable"),
+				JojoMod.resLoc("widget/button_pressable_disabled"),
+				JojoMod.resLoc("widget/button_pressable_highlighted"));
+		public static final ResourceLocation SPRITE_PRESSED = JojoMod.resLoc("widget/button_pressable_selected");
+
+		public ClientModSettingsScreen screen;
+		public String modId;
+		
+		public SelectModButton(@Nullable ButtonDecoration icon, ClientModSettingsScreen screen, String modId) {
+			super(-1, -1, 18, 18, icon, 
+					b -> {
+						if (!modId.equals(screen.curModId)) {
+							screen.switchMod(modId);
+						}
+					}, 
+					Tooltip.create(Component.translatable(modId + ".config.title")), 
+					Component.translatable(modId + ".config.title"));
+			this.screen = screen;
+			this.modId = modId;
 		}
 		
-		protected Component nameWithSprite() {
-			return sprite != null && IconSymbols.spriteExists(spriteCode) ? nameWithSprite : name;
+		@Override
+		protected ResourceLocation pickSprite() {
+			if (this.modId.equals(screen.curModId)) {
+				return SPRITE_PRESSED;
+			}
+			return getGud(SPRITES, this);
 		}
-
-		public abstract Button createButton(int x, int y, int width, int height, Screen screen, int buttonI);
+		
+		public static ResourceLocation getGud(WidgetSprites sprites, AbstractWidget button) {
+			return sprites.get(button.active, button.isHoveredOrFocused());
+		}
+		
 	}
 
-	public static abstract class BooleanSetting extends Setting<Boolean> {
-
-		public BooleanSetting(ClientModSettings settings, Component name, @Nullable Component tooltip) {
-			super(settings, name, tooltip);
-		}
-
-		@Override
-		public Button createButton(int x, int y, int width, int height, Screen screen, int buttonI) {
-			return new ScrollingStringButton(
-					x, y, width, height,
-					CommonComponents.optionStatus(nameWithSprite(), get()), 
-					button -> {
-						settings.editSettings(s -> {
-							set(!get());
-							button.setMessage(CommonComponents.optionStatus(nameWithSprite(), get()));
-						}, broadcast);
-					},
-					Tooltip.create(tooltip))
-					.setAlignment(buttonI % 2 == 0 ? Alignment.LEFT : Alignment.RIGHT);
-		}
-	}
-
-	public static abstract class EnumSetting<T extends Enum<T>> extends Setting<T> {
-		protected Class<T> enumClass;
-		protected String prefix = "jojo_ripples.config.client.option.";
-
-		public EnumSetting(ClientModSettings settings, Component name, @Nullable Component tooltip, Class<T> enumClass) {
-			super(settings, name, tooltip);
-			this.enumClass = enumClass;
-		}
-
-		public EnumSetting<T> prefix(String prefix) {
-			this.prefix += prefix;
-			return this;
-		}
-
-		@Override
-		public Button createButton(int x, int y, int width, int height, Screen screen, int buttonI) {
-			return new ScrollingStringButton(
-					x, y, width, height,
-					Component.translatable("options.generic_value", nameWithSprite(), getValueMessage(get())), 
-					button -> {
-						settings.editSettings(s -> {
-							T[] values = enumClass.getEnumConstants();
-							T val = get();
-							T nextVal = values[(val.ordinal() + 1) % values.length];
-							set(nextVal);
-							button.setMessage(Component.translatable("options.generic_value", nameWithSprite(), getValueMessage(nextVal)));
-						}, broadcast);
-					},
-					Tooltip.create(tooltip))
-					.setAlignment(buttonI % 2 == 0 ? Alignment.LEFT : Alignment.RIGHT);
-		}
-
-		private Component getValueMessage(T value) {
-			return Component.translatable(prefix + value.name().toLowerCase());
-		}
-    }
-    
-    
-    
-	// yes, the modern versions have scrolling text too, but this one renders full text when the button is hovered
-    private static class ScrollingStringButton extends Button {
-        private Alignment alignment = Alignment.LEFT;
-        
-        public ScrollingStringButton(int pX, int pY, int pWidth, int pHeight, Component pMessage,
-        		Button.OnPress pOnPress) {
-            super(new Button.Builder(pMessage, pOnPress).bounds(pX, pY, pWidth, pHeight));
-        }
-        
-        public ScrollingStringButton(int pX, int pY, int pWidth, int pHeight, Component pMessage, 
-        		Button.OnPress pOnPress, Tooltip pOnTooltip) {
-            super(new Button.Builder(pMessage, pOnPress).bounds(pX, pY, pWidth, pHeight).tooltip(pOnTooltip));
-        }
-        
-        public ScrollingStringButton setAlignment(Alignment alignment) {
-            this.alignment = alignment;
-            return this;
-        }
-
-        @Override
-        protected void renderScrollingString(GuiGraphics guiGraphics, Font font, int width, int color) {
-        	int x0 = this.getX() + width;
-        	int x1 = this.getX() + this.getWidth() - width;
-        	int y0 = this.getY();
-        	int y1 = this.getY() + this.getHeight();
-
-        	Component text = getMessage();
-            int textWidth = font.width(text);
-            int y = (y0 + y1 - 9) / 2 + 1;
-            int buttonWidth = x1 - x0;
-            if (textWidth > buttonWidth && isHovered()) {
-                switch (alignment) {
-                case LEFT:
-                    guiGraphics.drawString(font, text, x0, y, color);
-                    break;
-                case RIGHT:
-                    guiGraphics.drawString(font, text, x1 - textWidth, y, color);
-                    break;
-                }
-            }
-            else {
-            	_renderScrollingString(guiGraphics, font, text, (x0 + x1) / 2, x0, y0, x1, y1, color, categoryOpenedTimestampSoThatScrollingDoesntSuck);
-            }
-        }
-
-        public static void _renderScrollingString(GuiGraphics guiGraphics, Font font, 
-        		Component text, int centerX, int minX, int minY, int maxX, int maxY, int color, 
-        		long startingTime) {
-        	int i = font.width(text);
-        	int j = (minY + maxY - 9) / 2 + 1;
-        	int k = maxX - minX;
-        	if (i > k) {
-        		int l = i - k;
-        		double d0 = (double)(Util.getMillis() - startingTime) / 1000.0;
-        		double d1 = Math.max((double)l * 0.5, 3.0);
-        		double d2 = 1 - (Math.sin((Math.PI / 2) * Math.cos((Math.PI * 2) * d0 / d1)) / 2.0 + 0.5);
-        		double d3 = Mth.lerp(d2, 0.0, (double)l);
-        		GuiScissor.enableScissor(guiGraphics, minX, minY, maxX, maxY);
-        		guiGraphics.drawString(font, text, minX - (int)d3, j, color);
-        		guiGraphics.disableScissor();
-        	} else {
-        		int i1 = Mth.clamp(centerX, minX + i / 2, maxX - i / 2);
-        		guiGraphics.drawCenteredString(font, text, i1, j, color);
-        	}
-        }
-    }
-    static long categoryOpenedTimestampSoThatScrollingDoesntSuck;
-    
-    
-    
 
 
+	// FIXME do we need this button now that you can always open the mod list into the config screen?
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public static void addToScreen(ScreenEvent.Init.Post event) {
 		Screen screen = event.getScreen();
@@ -811,10 +362,10 @@ public class ClientModSettingsScreen extends Screen {
 					.map(b -> (AbstractWidget) b)
 					.toList();
 			
-			Component tooltip = Component.translatable("jojo_ripples.options.client.title");
+			Component tooltip = Component.translatable("jojo_ripples.config");
 			ItemButton settingsButton = new ItemButton(-1, -1, 20, 20, 
 					ItemIconModels.makeIconItem(ItemIconModels.MOD_LOGO),
-					__ -> optionsScreen.getMinecraft().setScreen(new ClientModSettingsScreen(optionsScreen, ClientModSettings.getInstance())),
+					__ -> optionsScreen.getMinecraft().setScreen(new ClientModSettingsScreen(optionsScreen)),
 					Tooltip.create(tooltip),
 					tooltip);
 			Layout fuckTheseAbstractions = new ButtonInLayout(settingsButton, button -> {

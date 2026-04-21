@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.config;
+package com.github.standobyte.jojo.config.util;
 
 import com.google.gson.JsonElement;
 
