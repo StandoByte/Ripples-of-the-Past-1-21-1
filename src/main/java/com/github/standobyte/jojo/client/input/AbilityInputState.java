@@ -3,21 +3,24 @@ package com.github.standobyte.jojo.client.input;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
+import com.github.standobyte.jojo.util.functions.BitwiseFlagUtil;
 
 import net.neoforged.neoforge.common.util.TriState;
 
 public class AbilityInputState {
 
 	public static AbilityInputState init() {
-		return withValue(1 << IS_ACTIVE);
+		int defaultVal = 0;
+		defaultVal = BitwiseFlagUtil.set(defaultVal, IS_ACTIVE, true);
+		return withValue(defaultVal);
 	}
 
 	public void setFlag(int flag, boolean value) {
-		this._value = _setBit(this._value, flag, value);
+		this._value = BitwiseFlagUtil.set(this._value, flag, value);
 	}
 
 	public boolean getFlag(int flag) {
-		return _getBit(this._value, flag);
+		return BitwiseFlagUtil.get(this._value, flag);
 	}
 
 	// named flags
@@ -57,12 +60,4 @@ public class AbilityInputState {
 		return instance;
 	}
 
-	@ApiStatus.Internal public static int _setBit(int num, int bit, boolean value) {
-		if (value)	return num | (1 << bit);
-		else 		return num & ~(1 << bit);
-	}
-
-	@ApiStatus.Internal public static boolean _getBit(int num, int bit) {
-		return (num & (1 << bit)) > 0;
-	}
 }

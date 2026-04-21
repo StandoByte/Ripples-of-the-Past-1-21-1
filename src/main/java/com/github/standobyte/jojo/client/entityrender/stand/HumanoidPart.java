@@ -2,6 +2,8 @@ package com.github.standobyte.jojo.client.entityrender.stand;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import com.github.standobyte.jojo.util.functions.BitwiseFlagUtil;
+
 public enum HumanoidPart {
 	HEAD,
 	BODY,
@@ -23,12 +25,12 @@ public enum HumanoidPart {
 		StandEntityModel.setVisible(model.left_leg, true);
 		StandEntityModel.setVisible(model.right_leg, true);
 		
-		byte mask = 0;
+		byte visiblePartsMask = 0;
 		for (HumanoidPart part : parts) {
-			mask |= (1 << part.ordinal());
+			visiblePartsMask = BitwiseFlagUtil.set(visiblePartsMask, part, true);
 		}
 		for (HumanoidPart part : HumanoidPart.values()) {
-			if ((mask & (1 << part.ordinal())) == 0) {
+			if (!BitwiseFlagUtil.get(visiblePartsMask, part)) {
 				switch (part) {
 					case HEAD -> {
 						StandEntityModel.setVisible(model.head, false);
