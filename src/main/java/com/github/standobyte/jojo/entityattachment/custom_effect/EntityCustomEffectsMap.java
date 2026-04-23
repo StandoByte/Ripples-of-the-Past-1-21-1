@@ -1,7 +1,6 @@
 package com.github.standobyte.jojo.entityattachment.custom_effect;
 
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jetbrains.annotations.ApiStatus;
 
@@ -23,7 +22,6 @@ import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements TickingEntityData, SynchronizablePlayerData, INBTSerializable<CompoundTag> {
-	public static final AtomicInteger EFFECTS_COUNTER = new AtomicInteger();
 	protected final Int2ObjectMap<T> effects = new Int2ObjectLinkedOpenHashMap<>();
 	protected final EntityCustomEffectsClass effectsClass;
 	public final Entity entity;
@@ -43,9 +41,6 @@ public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements Tic
 	
 	public void addEffect(T instance) {
 		Entity entity = getEntity();
-		if (!entity.level().isClientSide()) {
-			instance.withId(EFFECTS_COUNTER.incrementAndGet());
-		}
 		putEffectInstance(instance);
 		if (!entity.level().isClientSide()) {
 			PacketDistributor.sendToPlayersTrackingEntity(entity, TrEntityCustomEffectsPacket.add(effectsClass, instance, false));
@@ -169,7 +164,6 @@ public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements Tic
 			nbt.getList("Effects", Tag.TAG_COMPOUND).forEach(effectNBT -> {
 				T effect = (T) EntityCustomEffect.fromNBT((CompoundTag) effectNBT, level);
 				if (effect != null) {
-					effect.withId(EFFECTS_COUNTER.incrementAndGet());
 					putEffectInstance(effect);
 				}
 			});
