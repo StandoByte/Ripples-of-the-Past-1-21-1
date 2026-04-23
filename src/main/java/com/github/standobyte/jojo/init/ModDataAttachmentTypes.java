@@ -12,6 +12,7 @@ import com.github.standobyte.jojo.entityattachment.DataEventListeners;
 import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffect;
 import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectsClass;
 import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectsMap;
+import com.github.standobyte.jojo.entityattachment.custom_effect.LevelCustomEffectTracker;
 import com.github.standobyte.jojo.mechanics.KnockbackCollisionImpact;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -32,6 +33,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -100,6 +102,9 @@ public final class ModDataAttachmentTypes {
 	
 	public static final Supplier<AttachmentType<ServerBlockDestroyTracker>> BLOCK_DESTROY = ATTACHMENT_TYPES.register("block_destroy",
 			() -> AttachmentType.builder(obj -> obj instanceof ServerLevel level ? new ServerBlockDestroyTracker(level) : null).build());
+	
+	public static final Supplier<AttachmentType<LevelCustomEffectTracker>> CUSTOM_EFFECTS_ON_LEVEL = ATTACHMENT_TYPES.register("lvl_custom_effs",
+			() -> AttachmentType.builder(obj -> obj instanceof Level level ? new LevelCustomEffectTracker(level) : null).build());
 	
 	
 	// Chunk
