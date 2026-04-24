@@ -79,7 +79,7 @@ public class StandInitStarPlatinum {
 				.addAbility("star_finger", ModStandAbilities.SP_STAR_FINGER)
 //				.addAbility("star_finger_swipe", ModStandAbilities.SP_STAR_FINGER_SWIPE)
 				.addAbility("inhale", ModStandAbilities.SP_INHALE)
-//				.addAbility("time_stop", ModStandAbilities.TIME_STOP)
+				.addAbility("time_stop", ModStandAbilities.TIME_STOP)
 
 
 				.makeControlScheme("hotbar")
@@ -96,7 +96,7 @@ public class StandInitStarPlatinum {
 					.addToHotbar("star_finger", 0, InputMethod.CLICK)
 //					.addToHotbarSlotVariation("star_finger_swipe", "star_finger", InputKey.Modifier.CONTROL, InputMethod.CLICK)
 					.addToHotbar("inhale", 0, InputMethod.HOLD)
-//					.addToHotbar("time_stop", 0, InputMethod.HOLD)
+					.addToHotbar("time_stop", 0, InputMethod.HOLD)
 				.finalizeControlScheme()
 
 

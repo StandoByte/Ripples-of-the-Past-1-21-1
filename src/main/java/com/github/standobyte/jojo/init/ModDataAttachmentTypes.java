@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.init;
 
 import java.util.function.Supplier;
 
+import com.github.standobyte.jojo.subsystems.timestop.TimeStopLevelTracker;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.JojoModLivingVariables;
@@ -91,7 +92,8 @@ public final class ModDataAttachmentTypes {
 	
 	public static final Supplier<AttachmentType<ServerBlockDestroyTracker>> BLOCK_DESTROY = ATTACHMENT_TYPES.register("block_destroy",
 			() -> AttachmentType.builder(obj -> obj instanceof ServerLevel level ? new ServerBlockDestroyTracker(level) : null).build());
-	
+	public static final Supplier<AttachmentType<TimeStopLevelTracker>> TIME_STOP_TRACKER = ATTACHMENT_TYPES.register("time_stop_tracker",
+			() -> AttachmentType.builder(obj -> obj instanceof ServerLevel level ? new TimeStopLevelTracker(level) : null).build());
 	
 	// Chunk
 	
