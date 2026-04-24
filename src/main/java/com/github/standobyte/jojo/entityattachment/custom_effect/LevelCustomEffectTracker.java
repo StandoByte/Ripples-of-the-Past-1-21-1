@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.entityattachment.custom_effect;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +48,7 @@ public class LevelCustomEffectTracker {
 		}
 	}
 	
-	public <T extends EntityCustomEffect> Iterable<T> getEffectsOfType(EntityCustomEffectType<T> type) {
+	public <T extends EntityCustomEffect> Collection<T> getEffectsOfType(EntityCustomEffectType<T> type) {
 		var effectsOfType = trackedEffects.get(type);
 		if (effectsOfType == null) return Collections.emptyList();
 		return (ObjectCollection<T>) effectsOfType.values();
