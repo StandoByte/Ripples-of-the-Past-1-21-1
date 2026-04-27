@@ -93,6 +93,8 @@ public class TimeStopEffect extends StandEffectInstance {
 		if (state) {
 			var variables = JojoModEntityVariables.get(entity);
 			variables.synchedData.set(JojoModEntityVariables.STOPPED_IN_TIME, true);
+			// call this manually - because the tick will be cancelled, this method won't be called while the entity is frozen
+			variables.tickSyncDirtyData();
 		}
 		else {
 			var variables = JojoModEntityVariables.getIfPresent(entity);
