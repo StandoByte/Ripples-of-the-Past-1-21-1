@@ -5,6 +5,7 @@ import java.util.stream.IntStream;
 import com.github.standobyte.jojo.JojoModEntityVariables;
 import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectType;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
+import com.github.standobyte.jojo.network.s2c.EntityDirectPosNoLerpPacket;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
 import com.github.standobyte.jojo.util.functions.NBTUtil;
 import com.mojang.serialization.Codec;
@@ -15,6 +16,7 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class TimeStopEffect extends StandEffectInstance {
 	public int duration = 100;
@@ -95,6 +97,8 @@ public class TimeStopEffect extends StandEffectInstance {
 			variables.synchedData.set(JojoModEntityVariables.STOPPED_IN_TIME, true);
 			// call this manually - because the tick will be cancelled, this method won't be called while the entity is frozen
 			variables.tickSyncDirtyData();
+			// should prevent the old position desync if the entity was moving at high speed
+			PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new EntityDirectPosNoLerpPacket(entity.getId(), entity.position()));
 		}
 		else {
 			var variables = JojoModEntityVariables.getIfPresent(entity);
