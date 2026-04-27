@@ -2,6 +2,7 @@ package com.github.standobyte.jojoimpl.stands.theworld.timestop;
 
 import java.util.stream.IntStream;
 
+import com.github.standobyte.jojo.JojoModEntityVariables;
 import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectType;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
@@ -12,6 +13,7 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 
 public class TimeStopEffect extends StandEffectInstance {
@@ -84,6 +86,25 @@ public class TimeStopEffect extends StandEffectInstance {
 		super.readAdditionalSaveData(nbt);
 		duration = nbt.getInt("Duration");
 		initialPos = NBTUtil.getOptional(nbt, "Pos", FUCK_MY_LIFE).orElseThrow();
+	}
+	
+	
+	public static void setTimeStopState(Entity entity, boolean state) {
+		if (state) {
+			var variables = JojoModEntityVariables.get(entity);
+			variables.synchedData.set(JojoModEntityVariables.STOPPED_IN_TIME, true);
+		}
+		else {
+			var variables = JojoModEntityVariables.getIfPresent(entity);
+			if (variables != null) {
+				variables.synchedData.set(JojoModEntityVariables.STOPPED_IN_TIME, false);
+			}
+		}
+	}
+	
+	public static boolean getTimeStopState(Entity entity) {
+		var variables = JojoModEntityVariables.getIfPresent(entity);
+		return variables != null ? variables.synchedData.get(JojoModEntityVariables.STOPPED_IN_TIME) : false;
 	}
 
 }
