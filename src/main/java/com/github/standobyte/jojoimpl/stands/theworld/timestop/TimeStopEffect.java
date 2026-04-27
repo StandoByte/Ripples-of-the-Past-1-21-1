@@ -1,11 +1,15 @@
 package com.github.standobyte.jojoimpl.stands.theworld.timestop;
 
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 import com.github.standobyte.jojo.JojoModEntityVariables;
 import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectType;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
+import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.network.s2c.EntityDirectPosNoLerpPacket;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
 import com.github.standobyte.jojo.util.functions.NBTUtil;
 import com.mojang.serialization.Codec;
@@ -15,6 +19,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -66,6 +72,26 @@ public class TimeStopEffect extends StandEffectInstance {
 	
 	public static boolean isInRange(int x1, int z1, int x2, int z2, int range) {
 		return range <= 0 || Math.abs(x1 - x2) < range && Math.abs(z1 - z2) < range;
+	}
+	
+	
+	public static boolean canEntityTickInStoppedTime(Entity entity) {
+		if (entity instanceof LivingEntity living) {
+			LivingEntity standUser = StandUtil.getStandUser(living);
+			if (standUser.isSpectator() || standUser instanceof Player player && player.isCreative()) {
+				return true;
+			}
+			
+			StandPower standPower = StandPower.get(standUser);
+			if (standPower != null) {
+				Optional<TimeStopEffect> entityCurTimeStop = standPower.userStandEffects.getEffectOfType(ModStandAbilities.EFFECT_TIME_STOP.get());
+				if (entityCurTimeStop.isPresent()) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
 	}
 
 

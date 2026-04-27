@@ -1,7 +1,5 @@
 package com.github.standobyte.jojoimpl.stands.theworld.timestop;
 
-import java.util.Optional;
-
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -9,8 +7,6 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.entityattachment.ComponentUtil;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
-import com.github.standobyte.jojo.init.power.ModStandAbilities;
-import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.util.objects_java.ReuseableStream;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
@@ -19,7 +15,6 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -76,20 +71,9 @@ public class TimeStopLevelTracker {
 			if (!tsEffects.isEmpty()) {
 				ReuseableStream<TimeStopEffect> timeStops = new ReuseableStream<>(tsEffects.stream());
 				for (Entity entity : allEntities) {
-					boolean stoppedInTime = true;
-					
-					if (entity instanceof LivingEntity living) {
-						StandPower standPower = StandPower.get(living);
-						if (standPower != null) {
-							Optional<TimeStopEffect> entityCurTimeStop = standPower.userStandEffects.getEffectOfType(ModStandAbilities.EFFECT_TIME_STOP.get());
-							if (entityCurTimeStop.isPresent()) {
-								stoppedInTime = false;
-							}
-						}
-					}
-					
-					stoppedInTime &= timeStops.getStream().anyMatch(
-							timeStop -> timeStop.isInRange(entity.blockPosition()));
+					boolean stoppedInTime = 
+							!TimeStopEffect.canEntityTickInStoppedTime(entity)
+							&& timeStops.getStream().anyMatch(timeStop -> timeStop.isInRange(entity.blockPosition()));
 					TimeStopEffect.setTimeStopState(entity, stoppedInTime);
 				}
 			}
