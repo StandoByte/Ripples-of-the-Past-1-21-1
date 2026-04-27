@@ -8,7 +8,6 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataHelper;
-import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
@@ -31,7 +30,6 @@ public abstract class EntityCustomEffect {
 	protected Entity entity;
 	public Level level;
 
-	public boolean trackInLevel = false;
 	public boolean removeOnUserDeath = true;
 	public boolean removeOnUserLogout = true;
 
@@ -53,10 +51,6 @@ public abstract class EntityCustomEffect {
 	public void setLevel(Level level) {
 		if (this.level != level) {
 			this.level = level;
-			if (trackInLevel) {
-				LevelCustomEffectTracker levelTracker = level.getData(ModDataAttachmentTypes.CUSTOM_EFFECTS_ON_LEVEL);
-				levelTracker.add(this);
-			}
 		}
 	}
 

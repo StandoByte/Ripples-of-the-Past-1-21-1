@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.jojo.JojoModLivingVariables;
+import com.github.standobyte.jojo.JojoModEntityVariables;
 import com.github.standobyte.jojo.adventure.character.CharacterPersonData;
 import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -12,7 +12,6 @@ import com.github.standobyte.jojo.entityattachment.DataEventListeners;
 import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffect;
 import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectsClass;
 import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectsMap;
-import com.github.standobyte.jojo.entityattachment.custom_effect.LevelCustomEffectTracker;
 import com.github.standobyte.jojo.mechanics.KnockbackCollisionImpact;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -28,6 +27,7 @@ import com.github.standobyte.jojo.subsystems.entity_possessionv2.LivingComponent
 import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.EntityComponentController;
 import com.github.standobyte.jojo.subsystems.movement_input_sync.PlayerMovementInputData;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.BrokenBlocksChunkData;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopLevelTracker;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -49,8 +49,8 @@ public final class ModDataAttachmentTypes {
 	public static final Supplier<AttachmentType<DataEventListeners>> DATA_EVENT_HELPER = ATTACHMENT_TYPES.register("event_listener", 
 			() -> AttachmentType.builder(DataEventListeners::new).build());
 	
-	public static final Supplier<AttachmentType<JojoModLivingVariables>> LIVING_VARS = ATTACHMENT_TYPES.register("living_vars", 
-			() -> AttachmentType.serializable(obj -> obj instanceof LivingEntity entity ? new JojoModLivingVariables(entity) : null).build());
+	public static final Supplier<AttachmentType<JojoModEntityVariables<?>>> ENTITY_VARS = ATTACHMENT_TYPES.register("entity_vars", 
+			() -> AttachmentType.serializable(obj -> obj instanceof Entity entity ? (JojoModEntityVariables) JojoModEntityVariables.createObjFor(entity) : null).build());
 	 
 	public static final Supplier<AttachmentType<CharacterPersonData>> CHARACTER_DATA = ATTACHMENT_TYPES.register("character_data", 
 			() -> AttachmentType.serializable(CharacterPersonData::_attach).build());
@@ -103,8 +103,8 @@ public final class ModDataAttachmentTypes {
 	public static final Supplier<AttachmentType<ServerBlockDestroyTracker>> BLOCK_DESTROY = ATTACHMENT_TYPES.register("block_destroy",
 			() -> AttachmentType.builder(obj -> obj instanceof ServerLevel level ? new ServerBlockDestroyTracker(level) : null).build());
 	
-	public static final Supplier<AttachmentType<LevelCustomEffectTracker>> CUSTOM_EFFECTS_ON_LEVEL = ATTACHMENT_TYPES.register("lvl_custom_effs",
-			() -> AttachmentType.builder(obj -> obj instanceof Level level ? new LevelCustomEffectTracker(level) : null).build());
+	public static final Supplier<AttachmentType<TimeStopLevelTracker>> TIME_STOP_LEVEL_TRACKER = ATTACHMENT_TYPES.register("time_stop_level_tracker",
+			() -> AttachmentType.builder(obj -> obj instanceof Level level ? new TimeStopLevelTracker(level) : null).build());
 	
 	
 	// Chunk

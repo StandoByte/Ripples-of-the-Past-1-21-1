@@ -36,7 +36,8 @@ import com.github.standobyte.jojoimpl.stands.starplatinum.HeavyPunchUppercutAbil
 import com.github.standobyte.jojoimpl.stands.starplatinum.StarFingerAbility;
 import com.github.standobyte.jojoimpl.stands.starplatinum.StarFingerSwipeAbility;
 import com.github.standobyte.jojoimpl.stands.starplatinum.StarInhaleAbility;
-import com.github.standobyte.jojoimpl.stands.theworld.TimeStopAbility;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopAbility;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopEffect;
 
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -91,8 +92,12 @@ public final class ModStandAbilities {
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StandBearingShotAbility>> BEARING_SHOT = ABILITY_TYPES.register(
 			"bearing_shot", key -> new AbilityType<>(key, StandBearingShotAbility::new));
 	
+	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<TimeStopAbility>> TIME_STOP = ABILITY_TYPES.register(
 			"time_stop", key -> new AbilityType<>(key, TimeStopAbility::new));
+
+	public static final DeferredHolder<EntityCustomEffectType<?>, EntityCustomEffectType<TimeStopEffect>> EFFECT_TIME_STOP = STAND_EFFECT_TYPES.register(
+			"time_stop", key -> new EntityCustomEffectType<>(key, TimeStopEffect::new));
 	
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<HierophantPuppetAbility>> HG_PUPPET = ABILITY_TYPES.register(

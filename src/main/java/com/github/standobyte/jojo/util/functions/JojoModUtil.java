@@ -18,6 +18,7 @@ import com.github.standobyte.jojo.network.s2c.TrResetDeathTimePacket;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDRestoreTerrainAbility;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -202,6 +203,11 @@ public class JojoModUtil {
 				}
 			}
 		}
+	}
+	
+	
+	public static Iterable<Entity> getAllEntities(Level level) {
+		return level.isClientSide() ? ((ClientLevel) level).entitiesForRendering() : ((ServerLevel) level).getAllEntities();
 	}
 
 }
