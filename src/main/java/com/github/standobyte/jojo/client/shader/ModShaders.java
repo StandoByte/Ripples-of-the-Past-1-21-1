@@ -12,6 +12,7 @@ import com.github.standobyte.jojo.client.ModClientResources;
 import com.github.standobyte.jojo.client.shader.core.RotpShader;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.client.TimeStopShader;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
@@ -45,6 +46,7 @@ public class ModShaders implements ResourceManagerReloadListener, AutoCloseable 
 	public ColorShiftShader colorShift;
 	public StandTranslucencyShader firstPersonStandTranslucency;
 	public StandAuraShader standAura;
+	public TimeStopShader timeStop;
 	@ApiStatus.Internal public List<RotpShader> _allShaders = new ArrayList<>();
 	
 	private void init() {
@@ -54,6 +56,7 @@ public class ModShaders implements ResourceManagerReloadListener, AutoCloseable 
 		_allShaders.add(firstPersonStandTranslucency = new StandTranslucencyShader(mc, fixedRenderBuffers));
 		_allShaders.add(colorShift = new ColorShiftShader());
 		_allShaders.add(standAura = new StandAuraShader(mc, fixedRenderBuffers));
+		_allShaders.add(timeStop = new TimeStopShader());
 	}
 	
 	

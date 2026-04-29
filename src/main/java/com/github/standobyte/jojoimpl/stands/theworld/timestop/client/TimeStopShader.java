@@ -1,0 +1,79 @@
+package com.github.standobyte.jojoimpl.stands.theworld.timestop.client;
+
+import com.github.standobyte.jojo.client.shader.core.ManualInitPostChain;
+import com.github.standobyte.jojo.client.shader.core.RotpShader;
+import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopEffect;
+import com.mojang.blaze3d.systems.RenderSystem;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.common.NeoForge;
+
+public class TimeStopShader extends RotpShader {
+	public static final ResourceLocation SHADER_PATH = JojoMod.resLoc("time_stop_old");
+	protected ManualInitPostChain glslShaderChain;
+
+	public TimeStopShader() {
+		NeoForge.EVENT_BUS.register(this);
+	}
+	
+	public void set(ManualInitPostChain postChain) {
+		this.glslShaderChain = postChain;
+		if (postChain != null) {
+			Minecraft mc = Minecraft.getInstance();
+			postChain.resize(mc.getWindow().getWidth(), mc.getWindow().getHeight());
+		}
+	}
+
+	@Override
+	public void loadPostShader(ResourceManager resourceManager) {
+		// loaded in StandSkinsLoader
+	}
+
+	@Override
+	public void resize(int width, int height) {
+		if (glslShaderChain != null) {
+			glslShaderChain.resize(width, height);
+		}
+	}
+
+	@Override
+	public void close() {
+		// closed in StandSkinsLoader
+		glslShaderChain = null;
+	}
+
+
+
+	// FIXME (color shift) doesn't apply to the stand rendered with StandTranslucencyShader
+	@Override
+	public void frameRenderCallback(RenderLevelStageEvent event) {
+		RenderLevelStageEvent.Stage stage = event.getStage();
+		if (isLastInLevelRender(stage)) {
+			Minecraft mc = Minecraft.getInstance();
+
+			if (glslShaderChain != null) {
+				RenderSystem.disableBlend();
+				RenderSystem.disableDepthTest();
+				RenderSystem.resetTextureMatrix();
+				glslShaderChain.process(mc.getTimer().getGameTimeDeltaTicks());
+				mc.getMainRenderTarget().bindWrite(true);
+			}
+		}
+	}
+	
+	@SubscribeEvent
+	public void clientTick(ClientTickEvent.Pre event) {
+		if (glslShaderChain != null) {
+			Minecraft mc = Minecraft.getInstance();
+			if (mc.player == null || !TimeStopEffect.getIsInsideTimeStop(mc.player)) {
+				glslShaderChain = null;
+			}
+		}
+	}
+}

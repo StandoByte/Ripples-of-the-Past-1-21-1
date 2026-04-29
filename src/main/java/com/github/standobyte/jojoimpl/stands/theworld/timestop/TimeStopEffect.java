@@ -2,26 +2,35 @@ package com.github.standobyte.jojoimpl.stands.theworld.timestop;
 
 import java.util.Optional;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import com.github.standobyte.jojo.JojoModEntityVariables;
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectType;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.network.s2c.EntityDirectPosNoLerpPacket;
+import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
 import com.github.standobyte.jojo.util.functions.NBTUtil;
+import com.github.standobyte.jojo.util.functions_network.PacketDistributor2;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopVFXPacket.TimeStopVFXState;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 // FIXME time stop in NBT
@@ -31,6 +40,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
  *   so TimeStopLevelTracker#add does nothing - defer the call somehow
  */
 public class TimeStopEffect extends StandEffectInstance {
+	public boolean playedFX = false;
 	public int duration = 100;
 	public ChunkPos initialPos;
 
@@ -44,7 +54,31 @@ public class TimeStopEffect extends StandEffectInstance {
 		if (this.level != null) {
 			TimeStopLevelTracker levelTracker = level.getData(ModDataAttachmentTypes.TIME_STOP_LEVEL_TRACKER);
 			levelTracker.add(this);
+			
+			if (!level.isClientSide()) {
+				TimeStopVFXPacket vfxPacket = shaderPacket(!playedFX ? TimeStopVFXState.STARTUP : TimeStopVFXState.ACTIVE);
+				Stream<ServerPlayer> sendTo = ((ServerLevel) level).players().stream()
+						.filter(player -> isInRange(player.blockPosition()) && getCanSeeInTimeStopVar(player));
+				PacketDistributor2.sendToPlayers(level, sendTo, vfxPacket);
+				
+				if (!playedFX) {
+					playedFX = true;
+				}
+			}
 		}
+	}
+	
+	protected TimeStopVFXPacket shaderPacket(TimeStopVFXState state) {
+		LivingEntity user = getStandUser();
+		StandPower userPower = getUserPower();
+		Optional<StandInstance> stand = userPower != null ? userPower.getStandInstance() : Optional.empty();
+		
+		ResourceLocation standId = stand.map(StandInstance::getStandId).orElseGet(() -> JojoMod.resLoc("the_world"));
+		Optional<ResourceLocation> selectedSkin = stand.flatMap(StandInstance::getSelectedSkin);
+		Optional<Vec3> pos = user != null ? Optional.of(user.position()) : Optional.empty();
+		int userId = user != null ? user.getId() : -1;
+		
+		return new TimeStopVFXPacket(standId, selectedSkin, pos, userId, state);
 	}
 
 	@Override
@@ -101,14 +135,15 @@ public class TimeStopEffect extends StandEffectInstance {
 	}
 	
 	public static boolean canEntitySeeInStoppedTime(LivingEntity entity) {
-		StandPower standPower = StandPower.get(entity);
-		if (standPower != null) {
-			var unlockedSkills = standPower.getCurTypeData();
-			if (unlockedSkills.isSkillUnlocked("time_stop")) {
-				return true;
-			}
-		}
-		return false;
+		return true;
+//		StandPower standPower = StandPower.get(entity);
+//		if (standPower != null) {
+//			var unlockedSkills = standPower.getCurTypeData();
+//			if (unlockedSkills.isSkillUnlocked("time_stop")) {
+//				return true;
+//			}
+//		}
+//		return false;
 	}
 
 
@@ -123,6 +158,7 @@ public class TimeStopEffect extends StandEffectInstance {
 	protected void writeAdditionalSaveData(CompoundTag nbt) {
 		super.writeAdditionalSaveData(nbt);
 		nbt.putInt("Duration", duration);
+		nbt.putBoolean("PlayedFX", playedFX);
 		NBTUtil.put(nbt, "Pos", initialPos, FUCK_MY_LIFE);
 	}
 
@@ -130,6 +166,7 @@ public class TimeStopEffect extends StandEffectInstance {
 	protected void readAdditionalSaveData(CompoundTag nbt) {
 		super.readAdditionalSaveData(nbt);
 		duration = nbt.getInt("Duration");
+		playedFX = nbt.getBoolean("PlayedFX");
 		initialPos = NBTUtil.getOptional(nbt, "Pos", FUCK_MY_LIFE).orElseThrow();
 	}
 	
@@ -140,9 +177,8 @@ public class TimeStopEffect extends StandEffectInstance {
 			variables.synchedData.set(JojoModEntityVariables.INSIDE_TIME_STOP_ZONE.param, true);
 			variables.synchedData.set(JojoModEntityVariables.STOPPED_IN_TIME.param, isFrozen);
 			variables.synchedData.set(JojoModEntityVariables.CAN_SEE_IN_STOPPED_TIME.param, canSee);
+			variables.tickSyncDirtyData();
 			if (isFrozen) {
-				// call this manually - because the tick will be cancelled, this method won't be called while the entity is frozen
-				variables.tickSyncDirtyData();
 				// should prevent the old position desync if the entity was moving at high speed
 				PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new EntityDirectPosNoLerpPacket(entity.getId(), entity.position()));
 			}

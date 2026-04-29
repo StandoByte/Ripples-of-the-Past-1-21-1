@@ -30,6 +30,8 @@ import com.github.standobyte.jojo.client.entityrender.parsemodel.ParseModEntityM
 import com.github.standobyte.jojo.client.entityrender.parsemodel.ParseModEntityModel.ModelFormat;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader.ModelFileFormatPath;
+import com.github.standobyte.jojo.client.shader.core.ManualInitPostChain;
+import com.github.standobyte.jojo.client.shader.core.ManualInitPostChain.PostChainDefinition;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackLoader;
 import com.github.standobyte.jojo.client.sound.bgmloop.DebugBgm;
@@ -72,7 +74,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 
-public class StandSkinsLoader implements PreparableReloadListener {
+public class StandSkinsLoader implements PreparableReloadListener, AutoCloseable {
 	private static StandSkinsLoader instance;
 	public final AbilityIconSprites abilityIcons;
 	
@@ -83,6 +85,7 @@ public class StandSkinsLoader implements PreparableReloadListener {
 		}
 //		ResourceLocation id = JojoMod.resLoc("standskins");
 //		event.addListener(id, instance);
+		ModClientResources.closeables.add(instance);
 		event.registerReloadListener(instance);
 	}
 	
@@ -103,6 +106,19 @@ public class StandSkinsLoader implements PreparableReloadListener {
 			return skin;
 		}
 		return null;
+	}
+	
+	@Override
+	public void close() {
+		closeSkinResources();
+	}
+	
+	protected void closeSkinResources() {
+		for (var skinsPerStand : skins.values()) {
+			for (StandSkin skin : skinsPerStand.values()) {
+				skin.closeResources();
+			}
+		}
 	}
 
 	
@@ -315,6 +331,7 @@ public class StandSkinsLoader implements PreparableReloadListener {
 		private Map<ResourceLocation, WeighedSoundEvents> soundEvents;
 		private Map<ResourceLocation, Pair<ResourceLocation, Resource>> soundFiles;
 		private WeightsList<BgmTrackInfo> resolveBGM;
+		private Map<ResourceLocation, PostChainDefinition> shaderChains;
 		
 		private StandSkinResourceBuilder(ResourceLocation skinId) {
 			this.skinId = skinId;
@@ -336,6 +353,7 @@ public class StandSkinsLoader implements PreparableReloadListener {
 			if (soundFiles != null) skin.withSounds(soundFiles.entrySet().stream().collect(Collectors.toMap(
 					Map.Entry::getKey, entry -> entry.getValue().getFirst())));
 			if (resolveBGM != null && !resolveBGM.isEmpty()) skin.withResolveBGM(resolveBGM);
+			if (shaderChains != null) skin.withShaders(shaderChains);
 			return skin;
 		}
 	}
@@ -408,6 +426,17 @@ public class StandSkinsLoader implements PreparableReloadListener {
 						JojoMod.getLogger().warn("Failed to load BGM definition {} in Stand skin: '{}'", resPath.assetPathWExtension, builder.skinId, e);
 					}
 				}
+			}
+			case "shaders" -> {
+				if (builder.shaderChains == null) {
+					builder.shaderChains = new HashMap<>();
+				}
+				var read = readLastResource(resource, null, JSONUtil::parse, builder.skinId, 
+						resPath.assetNamespace, resPath.assetPathWExtension, ".json");
+				JsonObject json = read.getSecond();
+				PostChainDefinition shader = ManualInitPostChain.parsePostChain(json);
+				ResourceLocation shaderId = read.getFirst();
+				builder.shaderChains.put(shaderId, shader);
 			}
 			default -> {}
 		}
@@ -547,6 +576,8 @@ public class StandSkinsLoader implements PreparableReloadListener {
 	
 	
 	protected void apply(Preps preps, ResourceManager resourceManager, ProfilerFiller profiler) {
+		closeSkinResources();
+		
 		Minecraft mc = Minecraft.getInstance();
 		SoundManager soundManager = mc.getSoundManager();
 		Map<ResourceLocation, Resource> soundCache = soundManager.soundCache;
