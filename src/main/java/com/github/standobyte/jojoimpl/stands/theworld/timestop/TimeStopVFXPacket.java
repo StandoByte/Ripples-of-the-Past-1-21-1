@@ -7,7 +7,9 @@ import com.github.standobyte.jojo.client.shader.ModShaders;
 import com.github.standobyte.jojo.client.shader.core.ManualInitPostChain;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.util.functions_network.StreamCodecs;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.client.TimeStopClientState;
 import com.github.standobyte.jojoimpl.stands.theworld.timestop.client.TimeStopShader;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -65,6 +67,8 @@ public record TimeStopVFXPacket(ResourceLocation standId, Optional<ResourceLocat
 					timeStopShader.set(vfx);
 				}
 			}
+			
+			TimeStopClientState.partialTick = ClientUtil.partialTick();
 		}
 		
 	}

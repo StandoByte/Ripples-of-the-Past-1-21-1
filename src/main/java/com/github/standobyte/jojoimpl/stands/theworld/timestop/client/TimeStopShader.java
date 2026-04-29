@@ -69,11 +69,8 @@ public class TimeStopShader extends RotpShader {
 	
 	@SubscribeEvent
 	public void clientTick(ClientTickEvent.Pre event) {
-		if (glslShaderChain != null) {
-			Minecraft mc = Minecraft.getInstance();
-			if (mc.player == null || !TimeStopEffect.getIsInsideTimeStop(mc.player)) {
-				glslShaderChain = null;
-			}
+		if (glslShaderChain != null && !TimeStopClientState.isTimeStopped) {
+			glslShaderChain = null;
 		}
 	}
 }

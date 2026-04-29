@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.client.util.functions;
 
 import com.github.standobyte.jojo.client.ClientTickHandler;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.client.TimeStopClientState;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.DeltaTracker;
@@ -47,9 +48,17 @@ public class ClientUtil {
 		return deltaTracker.getGameTimeDeltaPartialTick(runsNormally);
 	}
 	
-	public static float partialTick(DeltaTracker deltaTracker, Entity entity) {
-		TickRateManager tickRateManager = Minecraft.getInstance().level.tickRateManager();
-		return deltaTracker.getGameTimeDeltaPartialTick(!tickRateManager.isEntityFrozen(entity));
+	public static float partialTick(Entity entity) {
+		Minecraft mc = Minecraft.getInstance();
+		return partialTick(entity, mc.getTimer(), entity.level().tickRateManager());
+	}
+	
+	public static float partialTick(Entity entity, DeltaTracker deltaTracker, TickRateManager tickRateManager) {
+		if (TimeStopClientState.isEntityFrozen(entity)) {
+			return TimeStopClientState.partialTick;
+		}
+		boolean isEntityFrozen = tickRateManager.isEntityFrozen(entity);
+		return deltaTracker.getGameTimeDeltaPartialTick(!isEntityFrozen);
 	}
 	
 	public static float getTime(boolean worksInPauseToo) {

@@ -15,6 +15,7 @@ import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.event.client.ModClientEventHooks;
 import com.github.standobyte.jojo.event.client.ReplacePlayerModelEvent;
@@ -44,7 +45,7 @@ public class PreFrameEntityRenderCallback {
 		DeltaTracker deltaTracker = mc.getTimer();
 		TickRateManager tickRateManager = level.tickRateManager();
 		for (Entity entity : level.entitiesForRendering()) {
-			float partialTick = deltaTracker.getGameTimeDeltaPartialTick(!tickRateManager.isEntityFrozen(entity));
+			float partialTick = ClientUtil.partialTick(entity, deltaTracker, tickRateManager);
 			AnimFramePose pose = PreFrameEntityRenderCallback.makeEntityPose(entity, partialTick);
 			((AnimatedEntity) entity).jojo_ripples$setModelPose(AnimatedEntity.PoseType.FINAL, pose);
 		}
