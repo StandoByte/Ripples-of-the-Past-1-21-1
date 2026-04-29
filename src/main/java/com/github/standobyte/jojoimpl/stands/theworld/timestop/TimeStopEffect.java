@@ -134,28 +134,43 @@ public class TimeStopEffect extends StandEffectInstance {
 	}
 	
 	
-	public static void setTimeStopState(Entity entity, boolean isFrozen, boolean canSee) {
-		if (isFrozen) {
+	public static void setTimeStopState(Entity entity, boolean isInTimeStop, boolean isFrozen, boolean canSee) {
+		if (isInTimeStop) {
 			var variables = JojoModEntityVariables.get(entity);
-			variables.synchedData.set(JojoModEntityVariables.STOPPED_IN_TIME, true);
-			variables.synchedData.set(JojoModEntityVariables.CAN_SEE_IN_STOPPED_TIME, canSee);
-			// call this manually - because the tick will be cancelled, this method won't be called while the entity is frozen
-			variables.tickSyncDirtyData();
-			// should prevent the old position desync if the entity was moving at high speed
-			PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new EntityDirectPosNoLerpPacket(entity.getId(), entity.position()));
+			variables.synchedData.set(JojoModEntityVariables.INSIDE_TIME_STOP_ZONE.param, true);
+			variables.synchedData.set(JojoModEntityVariables.STOPPED_IN_TIME.param, isFrozen);
+			variables.synchedData.set(JojoModEntityVariables.CAN_SEE_IN_STOPPED_TIME.param, canSee);
+			if (isFrozen) {
+				// call this manually - because the tick will be cancelled, this method won't be called while the entity is frozen
+				variables.tickSyncDirtyData();
+				// should prevent the old position desync if the entity was moving at high speed
+				PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new EntityDirectPosNoLerpPacket(entity.getId(), entity.position()));
+			}
 		}
 		else {
 			var variables = JojoModEntityVariables.getIfPresent(entity);
 			if (variables != null) {
-				variables.synchedData.set(JojoModEntityVariables.STOPPED_IN_TIME, false);
-				variables.synchedData.set(JojoModEntityVariables.CAN_SEE_IN_STOPPED_TIME, true);
+				variables.synchedData.set(JojoModEntityVariables.INSIDE_TIME_STOP_ZONE.param, false);
+				variables.synchedData.set(JojoModEntityVariables.STOPPED_IN_TIME.param, false);
+				variables.synchedData.set(JojoModEntityVariables.CAN_SEE_IN_STOPPED_TIME.param, true);
+				variables.tickSyncDirtyData();
 			}
 		}
 	}
 	
-	public static boolean getTimeStopState(Entity entity) {
-		var variables = JojoModEntityVariables.getIfPresent(entity);
-		return variables != null ? variables.synchedData.get(JojoModEntityVariables.STOPPED_IN_TIME) : false;
+	public static boolean getIsInsideTimeStop(Entity entity) {
+		return JojoModEntityVariables.INSIDE_TIME_STOP_ZONE.get(
+				() -> JojoModEntityVariables.getSynchedIfPresent(entity));
+	}
+	
+	public static boolean getIsFrozenInTime(Entity entity) {
+		return JojoModEntityVariables.STOPPED_IN_TIME.get(
+				() -> JojoModEntityVariables.getSynchedIfPresent(entity));
+	}
+	
+	public static boolean getCanSeeInTimeStopVar(Entity entity) {
+		return JojoModEntityVariables.CAN_SEE_IN_STOPPED_TIME.get(
+				() -> JojoModEntityVariables.getSynchedIfPresent(entity));
 	}
 
 }

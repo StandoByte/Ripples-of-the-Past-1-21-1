@@ -8,6 +8,7 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.entityattachment.ComponentUtil;
 import com.github.standobyte.jojo.entityattachment.SynchronizablePlayerData;
 import com.github.standobyte.jojo.entityattachment.TickingEntityData;
+import com.github.standobyte.jojo.entityattachment.syncheddata.DataParameter;
 import com.github.standobyte.jojo.entityattachment.syncheddata.SyncedDataHolderExtended;
 import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataExtended;
 import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataHelper;
@@ -28,8 +29,12 @@ import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class JojoModEntityVariables<T extends Entity> implements INBTSerializable<CompoundTag>, TickingEntityData, SynchronizablePlayerData, SyncedDataHolderExtended {
-	public static final EntityDataAccessor<Boolean> STOPPED_IN_TIME = SynchedEntityData.defineId(JojoModEntityVariables.class, EntityDataSerializers.BOOLEAN);
-	public static final EntityDataAccessor<Boolean> CAN_SEE_IN_STOPPED_TIME = SynchedEntityData.defineId(JojoModEntityVariables.class, EntityDataSerializers.BOOLEAN);
+	public static final DataParameter<Boolean> INSIDE_TIME_STOP_ZONE = DataParameter.defineId(
+			JojoModEntityVariables.class, EntityDataSerializers.BOOLEAN, false);
+	public static final DataParameter<Boolean> STOPPED_IN_TIME = DataParameter.defineId(
+			JojoModEntityVariables.class, EntityDataSerializers.BOOLEAN, false);
+	public static final DataParameter<Boolean> CAN_SEE_IN_STOPPED_TIME = DataParameter.defineId(
+			JojoModEntityVariables.class, EntityDataSerializers.BOOLEAN, true);
 
 	protected final T entity;
 	public final SynchedDataHelper synchedData;
@@ -59,8 +64,9 @@ public class JojoModEntityVariables<T extends Entity> implements INBTSerializabl
 
 	@Override
 	public void defineSynchedData(Builder builder) {
-		builder.define(STOPPED_IN_TIME, false);
-		builder.define(CAN_SEE_IN_STOPPED_TIME, true);
+		INSIDE_TIME_STOP_ZONE.define(builder);
+		STOPPED_IN_TIME.define(builder);
+		CAN_SEE_IN_STOPPED_TIME.define(builder);
 	}
 
 	@Override
@@ -94,6 +100,11 @@ public class JojoModEntityVariables<T extends Entity> implements INBTSerializabl
 	@Nullable
 	public static JojoModEntityVariables<?> getIfPresent(Entity entity) {
 		return ComponentUtil.getExistingDataOrNull(entity, ModDataAttachmentTypes.ENTITY_VARS);
+	}
+	
+	public static SynchedDataHelper getSynchedIfPresent(Entity entity) {
+		JojoModEntityVariables<?> vars = getIfPresent(entity);
+		return vars != null ? vars.synchedData : null;
 	}
 	
 	public static JojoModEntityVariables<?> createObjFor(Entity entity) {

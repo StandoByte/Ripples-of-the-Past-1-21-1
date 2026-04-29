@@ -76,12 +76,12 @@ public class TimeStopLevelTracker {
 							&& timeStops.getStream().anyMatch(timeStop -> timeStop.isInRange(entity.blockPosition()));
 					boolean canSeeInStoppedTime = !stoppedInTime
 							|| entity instanceof LivingEntity living && TimeStopEffect.canEntitySeeInStoppedTime(living);
-					TimeStopEffect.setTimeStopState(entity, stoppedInTime, canSeeInStoppedTime);
+					TimeStopEffect.setTimeStopState(entity, true, stoppedInTime, canSeeInStoppedTime);
 				}
 			}
 			else {
 				for (Entity entity : allEntities) {
-					TimeStopEffect.setTimeStopState(entity, false, true);
+					TimeStopEffect.setTimeStopState(entity, false, false, true);
 				}
 			}
 		}

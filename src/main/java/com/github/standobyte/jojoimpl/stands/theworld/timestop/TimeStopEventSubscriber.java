@@ -14,7 +14,7 @@ public class TimeStopEventSubscriber {
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void cancelEntityTick(EntityTickEvent.Pre event) {
 		Entity entity = event.getEntity();
-		boolean isStoppedInTime = TimeStopEffect.getTimeStopState(entity);
+		boolean isStoppedInTime = TimeStopEffect.getIsFrozenInTime(entity);
 		if (isStoppedInTime) {
 			event.setCanceled(true);
 		}

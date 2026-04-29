@@ -2,9 +2,6 @@ package com.github.standobyte.jojo;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.entityattachment.ComponentUtil;
-import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
-
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
@@ -65,12 +62,12 @@ public class JojoModLivingVariables<T extends LivingEntity> extends JojoModEntit
 	
 	
 	public static JojoModLivingVariables<?> get(LivingEntity entity) {
-		return (JojoModLivingVariables<?>) entity.getData(ModDataAttachmentTypes.ENTITY_VARS);
+		return (JojoModLivingVariables<?>) JojoModEntityVariables.get(entity);
 	}
 	
 	@Nullable
 	public static JojoModLivingVariables<?> getIfPresent(LivingEntity entity) {
-		return (JojoModLivingVariables<?>) ComponentUtil.getExistingDataOrNull(entity, ModDataAttachmentTypes.ENTITY_VARS);
+		return (JojoModLivingVariables<?>) JojoModEntityVariables.getIfPresent(entity);
 	}
 	
 }
