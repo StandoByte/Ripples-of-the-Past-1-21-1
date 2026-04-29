@@ -24,6 +24,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+// FIXME time stop in NBT
+/*
+ * - don't save this effect if the player logs out in multiplayer (only keep in singleplayer)
+ * - when loading the effect from NBT in singleplayer, no entities have been loaded yet, 
+ *   so TimeStopLevelTracker#add does nothing - defer the call somehow
+ */
 public class TimeStopEffect extends StandEffectInstance {
 	public int duration = 100;
 	public ChunkPos initialPos;
