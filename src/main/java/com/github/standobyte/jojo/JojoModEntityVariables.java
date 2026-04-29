@@ -29,6 +29,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class JojoModEntityVariables<T extends Entity> implements INBTSerializable<CompoundTag>, TickingEntityData, SynchronizablePlayerData, SyncedDataHolderExtended {
 	public static final EntityDataAccessor<Boolean> STOPPED_IN_TIME = SynchedEntityData.defineId(JojoModEntityVariables.class, EntityDataSerializers.BOOLEAN);
+	public static final EntityDataAccessor<Boolean> CAN_SEE_IN_STOPPED_TIME = SynchedEntityData.defineId(JojoModEntityVariables.class, EntityDataSerializers.BOOLEAN);
 
 	protected final T entity;
 	public final SynchedDataHelper synchedData;
@@ -59,6 +60,7 @@ public class JojoModEntityVariables<T extends Entity> implements INBTSerializabl
 	@Override
 	public void defineSynchedData(Builder builder) {
 		builder.define(STOPPED_IN_TIME, false);
+		builder.define(CAN_SEE_IN_STOPPED_TIME, true);
 	}
 
 	@Override

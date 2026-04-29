@@ -99,6 +99,17 @@ public class TimeStopEffect extends StandEffectInstance {
 		
 		return false;
 	}
+	
+	public static boolean canEntitySeeInStoppedTime(LivingEntity entity) {
+		StandPower standPower = StandPower.get(entity);
+		if (standPower != null) {
+			var unlockedSkills = standPower.getCurTypeData();
+			if (unlockedSkills.isSkillUnlocked("time_stop")) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 
 
@@ -123,10 +134,11 @@ public class TimeStopEffect extends StandEffectInstance {
 	}
 	
 	
-	public static void setTimeStopState(Entity entity, boolean state) {
-		if (state) {
+	public static void setTimeStopState(Entity entity, boolean isFrozen, boolean canSee) {
+		if (isFrozen) {
 			var variables = JojoModEntityVariables.get(entity);
 			variables.synchedData.set(JojoModEntityVariables.STOPPED_IN_TIME, true);
+			variables.synchedData.set(JojoModEntityVariables.CAN_SEE_IN_STOPPED_TIME, canSee);
 			// call this manually - because the tick will be cancelled, this method won't be called while the entity is frozen
 			variables.tickSyncDirtyData();
 			// should prevent the old position desync if the entity was moving at high speed
@@ -136,6 +148,7 @@ public class TimeStopEffect extends StandEffectInstance {
 			var variables = JojoModEntityVariables.getIfPresent(entity);
 			if (variables != null) {
 				variables.synchedData.set(JojoModEntityVariables.STOPPED_IN_TIME, false);
+				variables.synchedData.set(JojoModEntityVariables.CAN_SEE_IN_STOPPED_TIME, true);
 			}
 		}
 	}

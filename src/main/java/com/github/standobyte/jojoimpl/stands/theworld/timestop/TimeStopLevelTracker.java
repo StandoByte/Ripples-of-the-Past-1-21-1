@@ -15,6 +15,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -74,12 +75,14 @@ public class TimeStopLevelTracker {
 					boolean stoppedInTime = 
 							!TimeStopEffect.canEntityTickInStoppedTime(entity)
 							&& timeStops.getStream().anyMatch(timeStop -> timeStop.isInRange(entity.blockPosition()));
-					TimeStopEffect.setTimeStopState(entity, stoppedInTime);
+					boolean canSeeInStoppedTime = !stoppedInTime
+							|| entity instanceof LivingEntity living && TimeStopEffect.canEntitySeeInStoppedTime(living);
+					TimeStopEffect.setTimeStopState(entity, stoppedInTime, canSeeInStoppedTime);
 				}
 			}
 			else {
 				for (Entity entity : allEntities) {
-					TimeStopEffect.setTimeStopState(entity, false);
+					TimeStopEffect.setTimeStopState(entity, false, true);
 				}
 			}
 		}
