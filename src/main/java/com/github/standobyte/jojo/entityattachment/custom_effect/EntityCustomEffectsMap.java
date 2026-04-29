@@ -17,9 +17,15 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements TickingEntityData, SynchronizablePlayerData, INBTSerializable<CompoundTag> {
@@ -177,6 +183,83 @@ public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements Tic
 				}
 			});
 		}
+	}
+	
+	// event callbacks
+
+	@ApiStatus.Internal
+	public void onStandUserDeath(LivingEntity user) {
+		var it = effects.int2ObjectEntrySet().iterator();
+		while (it.hasNext()) {
+			T effect = it.next().getValue();
+			if (effect.removeOnUserDeath) {
+				onEffectRemoved(effect);
+				it.remove();
+			}
+		}
+	}
+
+	@ApiStatus.Internal
+	public void onStandUserRemoved(LivingEntity user) {
+		for (T effect : effects.values()) {
+			onEffectRemoved(effect);
+		}
+	}
+
+	@ApiStatus.Internal
+	public void onStandUserLogout(ServerPlayer user) {
+		boolean isSingleplayer = !user.server.isPublished();
+		if (isSingleplayer) return;
+
+		var it = effects.int2ObjectEntrySet().iterator();
+		while (it.hasNext()) {
+			T effect = it.next().getValue();
+			if (effect.removeOnUserLogout) {
+				onEffectRemoved(effect);
+				it.remove();
+			}
+		}
+	}
+	
+
+	@EventBusSubscriber(modid = JojoMod.MOD_ID)
+	public static class EventHandler {
+
+		@SubscribeEvent
+		public static void onPlayerLogout(PlayerLoggedOutEvent event) {
+			ServerPlayer player = (ServerPlayer) event.getEntity();
+			for (EntityCustomEffectsClass type : EntityCustomEffectsClass.values()) {
+				var data = type.get(player, false);
+				if (data != null) {
+					data.onStandUserLogout(player);
+				}
+			}
+		}
+
+		@SubscribeEvent(priority = EventPriority.LOWEST)
+		public static void onLivingDeath(LivingDeathEvent event) {
+			LivingEntity dead = event.getEntity();
+			if (!dead.level().isClientSide()) {
+				for (EntityCustomEffectsClass type : EntityCustomEffectsClass.values()) {
+					var data = type.get(dead, false);
+					if (data != null) {
+						data.onStandUserDeath(dead);
+					}
+				}
+			}
+		}
+		
+		public static void onEntityRemoved(Entity entity) {
+			if (!entity.level().isClientSide() && entity instanceof LivingEntity living) {
+				for (EntityCustomEffectsClass type : EntityCustomEffectsClass.values()) {
+					var data = type.get(entity, false);
+					if (data != null) {
+						data.onStandUserRemoved(living);
+					}
+				}
+			}
+		}
+
 	}
 
 }
