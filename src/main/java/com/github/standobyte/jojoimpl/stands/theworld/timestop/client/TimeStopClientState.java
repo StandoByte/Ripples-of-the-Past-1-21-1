@@ -3,6 +3,7 @@ package com.github.standobyte.jojoimpl.stands.theworld.timestop.client;
 import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopEffect;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.BaseAshSmokeParticle;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -28,8 +29,10 @@ public class TimeStopClientState {
 		canSeeInStoppedTime = isTimeStopped && TimeStopEffect.getCanSeeInTimeStopVar(player);
 	}
 	
+	// XXX go through the list of vanilla particles to black list
+	// https://minecraft.wiki/w/Particles#Types_of_particles
 	public static boolean addParticleInStoppedTime(Particle particle) {
-		return true;
+		return !(particle instanceof BaseAshSmokeParticle);
 	}
 	
 }
