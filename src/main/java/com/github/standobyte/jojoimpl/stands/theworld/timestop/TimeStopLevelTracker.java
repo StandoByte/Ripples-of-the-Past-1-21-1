@@ -39,9 +39,8 @@ public class TimeStopLevelTracker {
 	}
 	
 	public void remove(TimeStopEffect effect) {
-		if (activeEffects.remove(effect.getId()) != null) {
-			updateTimeStopped();
-		}
+		activeEffects.remove(effect.getId());
+		updateTimeStopped();
 	}
 	
 	public Iterable<TimeStopEffect> getEffects() {

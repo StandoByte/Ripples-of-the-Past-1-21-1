@@ -250,7 +250,7 @@ public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements Tic
 		}
 		
 		public static void onEntityRemoved(Entity entity) {
-			if (!entity.level().isClientSide() && entity instanceof LivingEntity living) {
+			if (entity instanceof LivingEntity living) {
 				for (EntityCustomEffectsClass type : EntityCustomEffectsClass.values()) {
 					var data = type.get(entity, false);
 					if (data != null) {
