@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.entityattachment.SynchronizablePlayerData;
 import com.github.standobyte.jojo.entityattachment.TickingEntityData;
 import com.github.standobyte.jojo.entityattachment.custom_effect.sync.SyncStandEffectInstanceData;
@@ -42,6 +43,8 @@ public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements Tic
 	public void addEffect(T instance) {
 		Entity entity = getEntity();
 		putEffectInstance(instance);
+		instance.onStart();
+		
 		if (!entity.level().isClientSide()) {
 			PacketDistributor.sendToPlayersTrackingEntity(entity, TrEntityCustomEffectsPacket.add(effectsClass, instance, false));
 			if (entity instanceof ServerPlayer player) {
@@ -53,7 +56,6 @@ public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements Tic
 	protected void putEffectInstance(T instance) {
 		instance.withEntity(getEntity());
 		effects.put(instance.getId(), instance);
-		instance.onStart();
 	}
 	
 	void removeEffect(int effectId) {
@@ -160,11 +162,18 @@ public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements Tic
 	@Override
 	public void deserializeNBT(HolderLookup.Provider registries, CompoundTag nbt) {
 		if (nbt.contains("Effects", Tag.TAG_LIST)) {
-			Level level = getEntity().level();
+			Entity entity = getEntity();
+			Level level = entity.level();
 			nbt.getList("Effects", Tag.TAG_COMPOUND).forEach(effectNBT -> {
 				T effect = (T) EntityCustomEffect.fromNBT((CompoundTag) effectNBT, level);
 				if (effect != null) {
-					putEffectInstance(effect);
+					try {
+						putEffectInstance(effect);
+						effect.onStart();
+					}
+					catch (Exception e) {
+						JojoMod.getLogger().error("", e);
+					}
 				}
 			});
 		}
