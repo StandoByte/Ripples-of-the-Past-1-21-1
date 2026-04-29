@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojoimpl.stands.StandInitCrazyDiamond;
 import com.github.standobyte.jojoimpl.stands.StandInitHierophantGreen;
 import com.github.standobyte.jojoimpl.stands.StandInitStarPlatinum;
+import com.github.standobyte.jojoimpl.stands.StandInitTheWorld;
 
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -29,11 +30,13 @@ public class ModStands {
 	
 	public static final DeferredHolder<StandType, EntityStandType> STAR_PLATINUM = DEFAULT_STANDS.register("star_platinum", StandInitStarPlatinum::create);
 	public static final DeferredHolder<StandType, EntityStandType> CRAZY_DIAMOND = DEFAULT_STANDS.register("crazy_diamond", StandInitCrazyDiamond::create);
+	public static final DeferredHolder<StandType, EntityStandType> THE_WORLD = DEFAULT_STANDS.register("the_world", StandInitTheWorld::create);
 	public static final DeferredHolder<StandType, EntityStandType> HIEROPHANT_GREEN = DEFAULT_STANDS.register("hierophant_green", StandInitHierophantGreen::create);
 	
 	static {
 		PLAYER_CAN_GET_FROM_ARROW.add(STAR_PLATINUM);
 		PLAYER_CAN_GET_FROM_ARROW.add(CRAZY_DIAMOND);
+		//PLAYER_CAN_GET_FROM_ARROW.add(THE_WORLD);
 		//PLAYER_CAN_GET_FROM_ARROW.add(HIEROPHANT_GREEN);
 	}
 }
