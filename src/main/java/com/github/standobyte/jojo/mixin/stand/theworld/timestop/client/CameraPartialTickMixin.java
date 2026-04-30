@@ -4,7 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopEffect;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.client.TimeStopClientState;
 
 import net.minecraft.client.Camera;
 import net.minecraft.world.entity.Entity;
@@ -16,7 +16,7 @@ public class CameraPartialTickMixin {
 	@ModifyVariable(method = "setup", at = @At("HEAD"), argsOnly = true, ordinal = 0)
 	private float changePartialTickOnSetup(float partialTick, 
 			BlockGetter level, Entity entity, boolean detached, boolean thirdPersonReverse, float partialTick_) {
-		if (TimeStopEffect.getIsFrozenInTime(entity)) {
+		if (TimeStopClientState.isCameraEntityFrozen) {
 			return 1;
 		}
 		return partialTick;

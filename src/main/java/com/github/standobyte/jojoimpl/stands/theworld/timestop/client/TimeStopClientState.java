@@ -9,7 +9,6 @@ import net.minecraft.client.particle.BaseAshSmokeParticle;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
@@ -21,6 +20,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 public class TimeStopClientState {
 	public static float partialTick = 1;
 	public static boolean isTimeStopped;
+	public static boolean isCameraEntityFrozen;
 	public static boolean canSeeInStoppedTime;
 	public static TimeStopClientLevelTracker levelTimeStops = new TimeStopClientLevelTracker();
 	
@@ -31,9 +31,11 @@ public class TimeStopClientState {
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void tick(ClientTickEvent.Pre event) {
 		Minecraft mc = Minecraft.getInstance();
-		Player player = mc.player;
-		isTimeStopped = player != null && TimeStopEffect.getIsInsideTimeStop(player);
-		canSeeInStoppedTime = isTimeStopped && TimeStopEffect.getCanSeeInTimeStopVar(player);
+		Entity entity = mc.cameraEntity;
+		if (entity == null) entity = mc.player;
+		isTimeStopped = entity != null && TimeStopEffect.getIsInsideTimeStop(entity);
+		isCameraEntityFrozen = isTimeStopped && TimeStopEffect.getIsFrozenInTime(entity);
+		canSeeInStoppedTime = isTimeStopped && TimeStopEffect.getCanSeeInTimeStopVar(entity);
 		
 		if (levelTimeStops.dimension != null) {
 			ResourceKey<Level> curDimension = mc.level != null ? mc.level.dimension() : null;
