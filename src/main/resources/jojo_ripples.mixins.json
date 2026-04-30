@@ -61,6 +61,7 @@
     "stand.crazyd.FireBlockMixin",
     "stand.crazyd.TntEntityMixin",
     "stand.theworld.timestop.EntityMixin",
+    "stand.theworld.timestop.LevelStopDaylightAndWeatherServer",
 	
 	"KnockbackEntityCollision",
 	"ProjectileHighSpeedSync",
@@ -133,6 +134,7 @@
 	
 	"stand.theworld.timestop.client.LevelRendererPartialTickMixin",
 	"stand.theworld.timestop.client.ParticleManagerMixin",
-	"stand.theworld.timestop.client.TextureManagerMixin"
+	"stand.theworld.timestop.client.TextureManagerMixin",
+    "stand.theworld.timestop.LevelStopDaylightAndWeatherClient"
   ]
 }

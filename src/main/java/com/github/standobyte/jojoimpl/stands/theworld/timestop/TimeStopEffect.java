@@ -17,6 +17,7 @@ import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInsta
 import com.github.standobyte.jojo.util.functions.NBTUtil;
 import com.github.standobyte.jojo.util.functions_network.PacketDistributor2;
 import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopVFXPacket.TimeStopVFXState;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.level.TimeStopLevelTracker;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.Util;
@@ -51,24 +52,22 @@ public class TimeStopEffect extends StandEffectInstance {
 
 	@Override
 	protected void start() {
-		if (this.level != null) {
+		if (this.level != null && !level.isClientSide()) {
 			TimeStopLevelTracker levelTracker = level.getData(ModDataAttachmentTypes.TIME_STOP_LEVEL_TRACKER);
 			levelTracker.add(this);
-			
-			if (!level.isClientSide()) {
-				TimeStopVFXPacket vfxPacket = shaderPacket(!playedFX ? TimeStopVFXState.STARTUP : TimeStopVFXState.ACTIVE);
-				Stream<ServerPlayer> sendTo = ((ServerLevel) level).players().stream()
-						.filter(player -> isInRange(player.blockPosition()) && getCanSeeInTimeStopVar(player));
-				PacketDistributor2.sendToPlayers(level, sendTo, vfxPacket);
-				
-				if (!playedFX) {
-					playedFX = true;
-				}
+
+			TimeStopVFXPacket vfxPacket = shaderPacket(!playedFX ? TimeStopVFXState.STARTUP : TimeStopVFXState.ACTIVE);
+			Stream<ServerPlayer> sendTo = ((ServerLevel) level).players().stream()
+					.filter(player -> isInRange(player.blockPosition()) && getCanSeeInTimeStopVar(player));
+			PacketDistributor2.sendToPlayers(level, sendTo, vfxPacket);
+
+			if (!playedFX) {
+				playedFX = true;
 			}
 		}
 	}
 	
-	protected TimeStopVFXPacket shaderPacket(TimeStopVFXState state) {
+	public TimeStopVFXPacket shaderPacket(TimeStopVFXState state) {
 		LivingEntity user = getStandUser();
 		StandPower userPower = getUserPower();
 		Optional<StandInstance> stand = userPower != null ? userPower.getStandInstance() : Optional.empty();
@@ -90,7 +89,7 @@ public class TimeStopEffect extends StandEffectInstance {
 
 	@Override
 	protected void stop() {
-		if (this.level != null) {
+		if (this.level != null && !level.isClientSide()) {
 			TimeStopLevelTracker levelTracker = level.getData(ModDataAttachmentTypes.TIME_STOP_LEVEL_TRACKER);
 			levelTracker.remove(this);
 		}

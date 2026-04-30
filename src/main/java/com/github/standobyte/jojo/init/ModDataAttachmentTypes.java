@@ -27,13 +27,12 @@ import com.github.standobyte.jojo.subsystems.entity_possessionv2.LivingComponent
 import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.EntityComponentController;
 import com.github.standobyte.jojo.subsystems.movement_input_sync.PlayerMovementInputData;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.BrokenBlocksChunkData;
-import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopLevelTracker;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.level.TimeStopLevelTracker;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -104,7 +103,7 @@ public final class ModDataAttachmentTypes {
 			() -> AttachmentType.builder(obj -> obj instanceof ServerLevel level ? new ServerBlockDestroyTracker(level) : null).build());
 	
 	public static final Supplier<AttachmentType<TimeStopLevelTracker>> TIME_STOP_LEVEL_TRACKER = ATTACHMENT_TYPES.register("time_stop_level_tracker",
-			() -> AttachmentType.builder(obj -> obj instanceof Level level ? new TimeStopLevelTracker(level) : null).build());
+			() -> AttachmentType.builder(obj -> obj instanceof ServerLevel level ? new TimeStopLevelTracker(level) : null).build());
 	
 	
 	// Chunk
