@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojoimpl.stands.theworld.timestop.level.TimeStopLevelTracker;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
@@ -37,4 +38,17 @@ public abstract class LevelStopDaylightAndWeatherServer extends Level {
 			ci.cancel();
 		}
 	}
+	
+	
+	@ModifyExpressionValue(method = "advanceWeatherCycle", at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/world/level/GameRules;getBoolean("
+					+ "Lnet/minecraft/world/level/GameRules$Key;)Z"))
+	public boolean replaceWeatherCycleGamerule(boolean gameRuleValue) {
+		if (TimeStopLevelTracker.hasATimeStop(this)) {
+			return false;
+		}
+		return gameRuleValue;
+	}
+	
 }
