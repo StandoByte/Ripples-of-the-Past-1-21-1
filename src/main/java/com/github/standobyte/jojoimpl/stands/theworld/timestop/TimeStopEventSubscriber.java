@@ -10,6 +10,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
+// TODO (time stop) arrow 5 ticks inertia
 @EventBusSubscriber(modid = JojoMod.MOD_ID)
 public class TimeStopEventSubscriber {
 
