@@ -30,12 +30,13 @@ public class TimeStopClientState {
 	
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void tick(ClientTickEvent.Pre event) {
-		Player player = Minecraft.getInstance().player;
+		Minecraft mc = Minecraft.getInstance();
+		Player player = mc.player;
 		isTimeStopped = player != null && TimeStopEffect.getIsInsideTimeStop(player);
 		canSeeInStoppedTime = isTimeStopped && TimeStopEffect.getCanSeeInTimeStopVar(player);
 		
 		if (levelTimeStops.dimension != null) {
-			ResourceKey<Level> curDimension = player != null ? player.level().dimension() : null;
+			ResourceKey<Level> curDimension = mc.level != null ? mc.level.dimension() : null;
 			if (curDimension == null || curDimension != levelTimeStops.dimension) {
 				levelTimeStops.clear();
 			}
