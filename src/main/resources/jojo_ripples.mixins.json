@@ -133,6 +133,7 @@
 	"client.keybindui.AbstractSelectionListMixin",
 	
 	"stand.theworld.timestop.client.LevelRendererPartialTickMixin",
+	"stand.theworld.timestop.client.CameraPartialTickMixin",
 	"stand.theworld.timestop.client.ParticleManagerMixin",
 	"stand.theworld.timestop.client.TextureManagerMixin",
     "stand.theworld.timestop.LevelStopDaylightAndWeatherClient"
