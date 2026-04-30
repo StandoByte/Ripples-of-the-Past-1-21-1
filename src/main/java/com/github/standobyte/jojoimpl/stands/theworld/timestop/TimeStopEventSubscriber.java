@@ -16,6 +16,7 @@ public class TimeStopEventSubscriber {
 		Entity entity = event.getEntity();
 		boolean isStoppedInTime = TimeStopEffect.getIsFrozenInTime(entity);
 		if (isStoppedInTime) {
+			entity.tickCount--;
 			event.setCanceled(true);
 		}
 	}
