@@ -79,17 +79,12 @@ public class TimeStopLevelTracker {
 	
 	protected void updateTimeStopped() {
 		if (!level.isClientSide()) {
-			Iterable<Entity> allEntities = ((ServerLevel) level).getAllEntities();
+			Iterable<Entity> allEntities = level.getAllEntities();
 			var tsEffects = activeEffects.values();
 			if (!tsEffects.isEmpty()) {
 				ReuseableStream<TimeStopEffect> timeStops = new ReuseableStream<>(tsEffects.stream());
 				for (Entity entity : allEntities) {
-					boolean stoppedInTime = 
-							!TimeStopEffect.canEntityTickInStoppedTime(entity)
-							&& timeStops.getStream().anyMatch(timeStop -> timeStop.isInRange(entity.blockPosition()));
-					boolean canSeeInStoppedTime = !stoppedInTime
-							|| entity instanceof LivingEntity living && TimeStopEffect.canEntitySeeInStoppedTime(living);
-					TimeStopEffect.setTimeStopState(entity, true, stoppedInTime, canSeeInStoppedTime);
+					updateEntityState(entity, timeStops);
 				}
 			}
 			else {
@@ -98,6 +93,18 @@ public class TimeStopLevelTracker {
 				}
 			}
 		}
+	}
+	
+	protected ReuseableStream<TimeStopEffect> getInstances() {
+		return new ReuseableStream<>(activeEffects.values().stream());
+	}
+	
+	protected void updateEntityState(Entity entity, ReuseableStream<TimeStopEffect> timeStops) {
+		boolean isInTimeStopRange = timeStops.getStream().anyMatch(timeStop -> timeStop.isInRange(entity.blockPosition()));
+		boolean stoppedInTime = isInTimeStopRange && !TimeStopEffect.canEntityTickInStoppedTime(entity);
+		boolean canSeeInStoppedTime = !stoppedInTime
+				|| entity instanceof LivingEntity living && TimeStopEffect.canEntitySeeInStoppedTime(living);
+		TimeStopEffect.setTimeStopState(entity, isInTimeStopRange, stoppedInTime, canSeeInStoppedTime);
 	}
 	
 	
@@ -125,6 +132,9 @@ public class TimeStopLevelTracker {
 			TimeStopLevelTracker tracker = TimeStopLevelTracker.get(level);
 			if (tracker != null && !tracker.activeEffects.isEmpty()) {
 				Entity entity = event.getEntity();
+				
+				tracker.updateEntityState(entity, tracker.getInstances());
+				
 				if (entity instanceof ServerPlayer player) {
 					TimeStopEffect earliestEffect = tracker.activeEffects.values().stream()
 							.filter(effect -> !effect.isStopped())
