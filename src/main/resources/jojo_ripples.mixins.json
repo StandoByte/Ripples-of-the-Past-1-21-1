@@ -60,6 +60,7 @@
     "stand.crazyd.LevelDestroyBlockMixin",
     "stand.crazyd.FireBlockMixin",
     "stand.crazyd.TntEntityMixin",
+    "stand.theworld.timestop.EntityMixin",
 	
 	"KnockbackEntityCollision",
 	"ProjectileHighSpeedSync",
