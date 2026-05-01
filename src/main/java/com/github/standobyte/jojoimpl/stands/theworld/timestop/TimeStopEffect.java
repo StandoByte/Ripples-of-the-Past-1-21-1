@@ -21,8 +21,6 @@ import com.github.standobyte.jojoimpl.stands.theworld.timestop.level.TimeStopLev
 import com.mojang.serialization.Codec;
 
 import net.minecraft.Util;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -40,7 +38,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
  * - when loading the effect from NBT in singleplayer, no entities have been loaded yet, 
  *   so TimeStopLevelTracker#add does nothing - defer the call somehow
  */
-public class TimeStopEffect extends StandEffectInstance {
+public class TimeStopEffect extends StandEffectInstance implements TimeStopInstance {
 	public boolean playedFX = false;
 	public int duration = 100;
 	public ChunkPos initialPos;
@@ -48,6 +46,10 @@ public class TimeStopEffect extends StandEffectInstance {
 	public TimeStopEffect(EntityCustomEffectType<?> effectType) {
 		super(effectType);
 	}
+
+	@Override public ChunkPos center() { return initialPos; }
+	public static final int CHUNK_RANGE = 12;
+	@Override public int chunkRange() { return CHUNK_RANGE; }
 	
 
 	@Override
@@ -93,24 +95,6 @@ public class TimeStopEffect extends StandEffectInstance {
 			TimeStopLevelTracker levelTracker = level.getData(ModDataAttachmentTypes.TIME_STOP_LEVEL_TRACKER);
 			levelTracker.remove(this);
 		}
-	}
-
-	
-	public static final int CHUNK_RANGE = 12;
-	public boolean isInRange(BlockPos blockPos) {
-		return isInRange(initialPos.x, initialPos.z, 
-				SectionPos.blockToSectionCoord(blockPos.getX()), SectionPos.blockToSectionCoord(blockPos.getZ()), 
-				CHUNK_RANGE);
-	}
-	
-	public boolean isInRange(ChunkPos chunkPos) {
-		return isInRange(initialPos.x, initialPos.z, 
-				chunkPos.x, chunkPos.z, 
-				CHUNK_RANGE);
-	}
-	
-	public static boolean isInRange(int x1, int z1, int x2, int z2, int range) {
-		return range <= 0 || Math.abs(x1 - x2) < range && Math.abs(z1 - z2) < range;
 	}
 	
 	

@@ -1,6 +1,8 @@
 package com.github.standobyte.jojoimpl.stands.theworld.timestop.level;
 
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
@@ -9,6 +11,7 @@ import com.github.standobyte.jojo.entityattachment.ComponentUtil;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.util.objects_java.ReuseableStream;
 import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopEffect;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopInstance;
 import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopVFXPacket.TimeStopVFXState;
 import com.github.standobyte.jojoimpl.stands.theworld.timestop.client.TimeStopClientState;
 import com.github.standobyte.jojoimpl.stands.theworld.timestop.client.TimeStopInstancePacket;
@@ -53,7 +56,7 @@ public class TimeStopLevelTracker {
 				TimeStopInstancePacket.remove(effect.getId()));
 	}
 	
-	public Iterable<TimeStopEffect> getEffects() {
+	public Collection<TimeStopEffect> getEffects() {
 		return activeEffects.values();
 	}
 
@@ -152,13 +155,17 @@ public class TimeStopLevelTracker {
 	
 	
 	public static boolean hasATimeStop(Level level) {
+		return timeStops(level).iterator().hasNext();
+	}
+	
+	public static Stream<? extends TimeStopInstance> timeStops(Level level) {
 		if (!level.isClientSide()) {
 			TimeStopLevelTracker serverTracker = TimeStopLevelTracker.get(level);
-			return serverTracker != null && !serverTracker.activeEffects.isEmpty();
+			return serverTracker != null ? serverTracker.activeEffects.values().stream() : Stream.empty();
 		}
 		else {
 			TimeStopClientLevelTracker clientTracker = TimeStopClientState.levelTimeStops;
-			return !clientTracker.activeEffects.isEmpty();
+			return clientTracker.activeEffects.values().stream();
 		}
 	}
 	

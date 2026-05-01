@@ -1,11 +1,12 @@
 package com.github.standobyte.jojoimpl.stands.theworld.timestop.level;
 
 import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopEffect;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopInstance;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.level.ChunkPos;
 
-public record TimeStopClientLevelInstance(int id, ChunkPos center, int chunkRange) {
+public record TimeStopClientLevelInstance(int id, ChunkPos center, int chunkRange) implements TimeStopInstance {
 	
 	public static void toBuf(RegistryFriendlyByteBuf buf, TimeStopEffect serverEffect) {
 		buf.writeInt(serverEffect.getId());
