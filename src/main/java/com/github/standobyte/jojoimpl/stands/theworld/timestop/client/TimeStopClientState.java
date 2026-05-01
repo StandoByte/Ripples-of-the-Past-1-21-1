@@ -5,8 +5,8 @@ import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopEffect;
 import com.github.standobyte.jojoimpl.stands.theworld.timestop.level.TimeStopClientLevelTracker;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.BaseAshSmokeParticle;
 import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.TerrainParticle;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -48,7 +48,8 @@ public class TimeStopClientState {
 	// XXX go through the list of vanilla particles to black list
 	// https://minecraft.wiki/w/Particles#Types_of_particles
 	public static boolean addParticleInStoppedTime(Particle particle) {
-		return !(particle instanceof BaseAshSmokeParticle);
+		Class<?> particleClass = particle.getClass();
+		return particleClass == TerrainParticle.class;
 	}
 	
 }
