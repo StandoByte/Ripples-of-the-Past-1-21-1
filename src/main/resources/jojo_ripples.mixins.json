@@ -63,6 +63,7 @@
     "stand.theworld.timestop.EntityMixin",
     "stand.theworld.timestop.LevelMixin",
     "stand.theworld.timestop.ServerLevelMixin",
+    "stand.theworld.timestop.DelayBlockUpdateMixin",
 	
 	"KnockbackEntityCollision",
 	"ProjectileHighSpeedSync",

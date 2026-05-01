@@ -1,7 +1,10 @@
 package com.github.standobyte.jojoimpl.stands.theworld.timestop.level;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
@@ -15,16 +18,22 @@ import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopInstance;
 import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopVFXPacket.TimeStopVFXState;
 import com.github.standobyte.jojoimpl.stands.theworld.timestop.client.TimeStopClientState;
 import com.github.standobyte.jojoimpl.stands.theworld.timestop.client.TimeStopInstancePacket;
+import com.mojang.datafixers.util.Pair;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntCollection;
+import it.unimi.dsi.fastutil.objects.ObjectCollection;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.redstone.CollectingNeighborUpdater;
+import net.minecraft.world.level.redstone.CollectingNeighborUpdater.ShapeUpdate;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
@@ -35,6 +44,8 @@ import net.neoforged.neoforge.network.PacketDistributor;
 public class TimeStopLevelTracker {
 	protected final ServerLevel level;
 	protected Int2ObjectMap<TimeStopEffect> activeEffects = new Int2ObjectArrayMap<>();
+	
+	public Map<ChunkPos, Collection<Pair<BlockPos, CollectingNeighborUpdater.NeighborUpdates>>> delayedBlockUpdates = new HashMap<>();
 
 	public TimeStopLevelTracker(ServerLevel level) {
 		this.level = level;
@@ -95,6 +106,8 @@ public class TimeStopLevelTracker {
 					TimeStopEffect.setTimeStopState(entity, false, false, true);
 				}
 			}
+			
+			blockUpdatesOnChange(tsEffects);
 		}
 	}
 	
@@ -166,6 +179,41 @@ public class TimeStopLevelTracker {
 		else {
 			TimeStopClientLevelTracker clientTracker = TimeStopClientState.levelTimeStops;
 			return clientTracker.activeEffects.values().stream();
+		}
+	}
+	
+	public boolean isTimeStoppedAt(ChunkPos chunkPos) {
+		return activeEffects.values().stream()
+				.anyMatch(timeStop -> timeStop.isInRange(chunkPos));
+	}
+	
+	public boolean isTimeStoppedAt(BlockPos blockPos) {
+		return activeEffects.values().stream()
+				.anyMatch(timeStop -> timeStop.isInRange(blockPos));
+	}
+	
+	
+	public boolean delayBlockUpdate(BlockPos pos, CollectingNeighborUpdater.NeighborUpdates updates) {
+		if (updates.getClass() != ShapeUpdate.class) {
+			delayedBlockUpdates.computeIfAbsent(new ChunkPos(pos), 
+					__ -> new ArrayList<>()).add(Pair.of(pos, updates));
+			return true;
+		}
+		return false;
+	}
+	
+	protected void blockUpdatesOnChange(ObjectCollection<TimeStopEffect> tsEffects) {
+		CollectingNeighborUpdater blockUpdater = (CollectingNeighborUpdater) level.neighborUpdater;
+		var blockUpdatesIter = delayedBlockUpdates.entrySet().iterator();
+		while (blockUpdatesIter.hasNext()) {
+			var blockUpdatesEntry = blockUpdatesIter.next();
+			ChunkPos chunkPos = blockUpdatesEntry.getKey();
+			if (tsEffects.isEmpty() || tsEffects.stream().noneMatch(effect -> effect.isInRange(chunkPos))) {
+				for (var blockUpdate : blockUpdatesEntry.getValue()) {
+					blockUpdater.addAndRun(blockUpdate.getFirst(), blockUpdate.getSecond());
+				}
+				blockUpdatesIter.remove();
+			}
 		}
 	}
 	
