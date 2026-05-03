@@ -22,7 +22,6 @@ import com.github.standobyte.jojo.client.ClientTickHandler;
 import com.github.standobyte.jojo.client.input.clickhold.AmbiguousKeyPress;
 import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.AbilityControlsEntry;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.Hotbar;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.HotbarSlot;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientKey;
@@ -493,20 +492,20 @@ public class InputHandler {
 	
 	
 	// The function that figures out what ability has the player inputed.
-	
+
+	static Predicate<AbilityInputState> filter = (AbilityInputState inputState)
+			-> AbilityInputState.isInputActive(inputState, PowerHud.isInContainerScreen());
 	private CurInput getInputAbilitiesOnClick(ClientControlScheme controlScheme, ClientKey key, KeyModifier keyModifier) {
 		CurInput input = CurInput.instance;
 		input.reset();
 		
 		if (controlScheme != null) {
-			List<AbilityControlsEntry> heldBound = controlScheme.getBindsWithModifier(InputMethod.HOLD, key, keyModifier);
-			List<AbilityControlsEntry> clickBound = controlScheme.getBindsWithModifier(InputMethod.CLICK, key, keyModifier);
-			
-			if (!(heldBound.isEmpty() && clickBound.isEmpty())) {
-				Predicate<AbilityInputState> filter = inputState -> AbilityInputState.isInputActive(inputState, PowerHud.isInContainerScreen());
-				ClientControlScheme.setPrioritizedAbility(input.heldAbility, heldBound, filter);
-				ClientControlScheme.setPrioritizedAbility(input.clickAbility, clickBound, filter);
-			}
+			ClientControlScheme.setPrioritizedAbility(input.heldAbility, keyModifier, 
+					(KeyModifier mod) -> controlScheme.getBindsWithModifier(InputMethod.HOLD, key, mod), 
+					filter);
+			ClientControlScheme.setPrioritizedAbility(input.clickAbility, keyModifier, 
+					(KeyModifier mod) -> controlScheme.getBindsWithModifier(InputMethod.CLICK, key, mod), 
+					filter);
 		}
 		
 		return input;

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -233,7 +234,8 @@ public class PowerHudControlsElement extends HudElement {
 			
 			boolean hasBind = false;
 			for (InputMethod inputMethod : InputMethod.values()) {
-				AbilityBindUI abilityBindUI = makeBindUI(inputMethod, bindsForInputMethod, 
+				AbilityBindUI abilityBindUI = makeBindUI(inputMethod, 
+						(KeyModifier mod) -> bindsForInputMethod.getAll(mod, inputMethod), 
 						modifier, key, false, 
 						abilityIconSprites, standSkin, 
 						font, hud.forContainerMenu);
@@ -249,7 +251,8 @@ public class PowerHudControlsElement extends HudElement {
 				for (InputMethod inputMethod : InputMethod.values()) {
 					for (KeyModifier otherModifier : KeyModifier.values()) {
 						if (otherModifier != modifier) {
-							AbilityBindUI abilityBindUI = makeBindUI(inputMethod, bindsForInputMethod, 
+							AbilityBindUI abilityBindUI = makeBindUI(inputMethod, 
+									(KeyModifier mod) -> bindsForInputMethod.getAll(mod, inputMethod), 
 									otherModifier, key, true, 
 									abilityIconSprites, standSkin, 
 									font, hud.forContainerMenu);
@@ -301,21 +304,37 @@ public class PowerHudControlsElement extends HudElement {
 					slotUI.slotIndex = slot.index;
 					
 					for (InputMethod inputMethod : InputMethod.values()) {
-						AbilityControlsEntry abilityEntry = slot.getBinds().getFirst(modifier, inputMethod);
-						if (abilityEntry != null) {
-							AbilityConditionCheck ability = abilityEntry.getAbility();
-							AbilityBindUI bind = makeAbilityBindUI(key, null, 
-									inputMethod, ability, 
-									abilityIconSprites, standSkin, 
-									font, hud.forContainerMenu);
-							if (bind != null) {
-								if (slotUI.sprite == null || inputMethod == InputMethod.HOLD && InputHandler.getInstance().isHeld(key, modifier)) {
-									slotUI.sprite = bind;
-								}
-								slotUI.abilities.put(inputMethod, bind);
-								slotUI.bind.abilities.put(inputMethod, bind);
+						InputsByKeyModifier slotBinds = slot.getBinds();
+						
+						AbilityBindUI bind = makeBindUI(inputMethod, 
+								(KeyModifier mod) -> slotBinds.getAll(mod, inputMethod), 
+								modifier, key, false, 
+								abilityIconSprites, standSkin, 
+								font, hud.forContainerMenu);
+						if (bind != null) {
+							if (slotUI.sprite == null || inputMethod == InputMethod.HOLD && InputHandler.getInstance().isHeld(key, modifier)) {
+								slotUI.sprite = bind;
 							}
+							slotUI.abilities.put(inputMethod, bind);
+							slotUI.bind.abilities.put(inputMethod, bind);
 						}
+						
+//						AbilityConditionCheck ability = ClientControlScheme.prioritizedAbility(modifier, 
+//								(KeyModifier mod) -> slotBinds.getAll(mod, inputMethod), 
+//								(AbilityInputState state) -> AbilityInputState.showAbilityInHUD(state, hud.forContainerMenu));
+//						if (ability != null) {
+//							AbilityBindUI bind = makeAbilityBindUI(key, null, 
+//									inputMethod, ability, 
+//									abilityIconSprites, standSkin, 
+//									font, hud.forContainerMenu);
+//							if (bind != null) {
+//								if (slotUI.sprite == null || inputMethod == InputMethod.HOLD && InputHandler.getInstance().isHeld(key, modifier)) {
+//									slotUI.sprite = bind;
+//								}
+//								slotUI.abilities.put(inputMethod, bind);
+//								slotUI.bind.abilities.put(inputMethod, bind);
+//							}
+//						}
 					}
 					if (hotbarUI.isSelectingAbility || !slotUI.abilities.isEmpty()) {
 						hotbarUI.slots.add(slotUI);
@@ -389,17 +408,15 @@ public class PowerHudControlsElement extends HudElement {
 
 
 	@Nullable
-	private static AbilityBindUI makeBindUI(InputMethod inputMethod, InputsByKeyModifier binds, 
+	private static AbilityBindUI makeBindUI(InputMethod inputMethod, 
+			Function<KeyModifier, List<AbilityControlsEntry>> getAbilities, 
 			@Nonnull KeyModifier modifier, ClientKey key, boolean withModifierName, 
 			AbilityIconSprites abilitySprites, @Nullable StandSkin standSkin, 
 			Font font, TriState forContainerMenu) {
-		List<AbilityControlsEntry> boundAbilities = binds.getAll(modifier, inputMethod);
-		if (boundAbilities.isEmpty()) {
-			return null;
-		}
-		AbilityConditionCheck ability = ClientControlScheme.prioritizedAbility(boundAbilities, 
-				state -> AbilityInputState.showAbilityInHUD(state, forContainerMenu));
-		return makeAbilityBindUI(key, withModifierName ? modifier : KeyModifier.NONE, 
+		AbilityConditionCheck ability = ClientControlScheme.prioritizedAbility(modifier, 
+				getAbilities, 
+				(AbilityInputState state) -> AbilityInputState.showAbilityInHUD(state, forContainerMenu));
+		return ability == null ? null : makeAbilityBindUI(key, withModifierName ? modifier : KeyModifier.NONE, 
 				inputMethod, ability, 
 				abilitySprites, standSkin, 
 				font, forContainerMenu);
