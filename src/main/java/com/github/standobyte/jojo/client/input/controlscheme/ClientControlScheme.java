@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -28,11 +29,11 @@ import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.ControlSchemeTemplate;
+import com.github.standobyte.jojo.powersystem.ability.controls.ControlSchemeTemplate.AbilitiesHotbar;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputBindTemplate;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputKey;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputUseVanillaMapping;
-import com.github.standobyte.jojo.powersystem.ability.controls.ControlSchemeTemplate.AbilitiesHotbar;
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.network.chat.Component;
@@ -252,10 +253,12 @@ public class ClientControlScheme {
 		return Collections.emptyList();
 	}
 	
-	public static void setPrioritizedAbility(BaseAndActiveAbility dest, 
-			List<AbilityControlsEntry> abilityNames, @Nullable Predicate<AbilityInputState> filter) {
+	public static void setPrioritizedAbility(BaseAndActiveAbility dest, KeyModifier curModifier, 
+			Function<KeyModifier, List<AbilityControlsEntry>> getAbilities, 
+			@Nullable Predicate<AbilityInputState> filter) {
 		dest.reset();
-		// FIXME shit code
+		List<AbilityControlsEntry> abilityNames = getAbilities.apply(curModifier);
+		// shit code
 		Stream<Pair<Ability, AbilityConditionCheck>> stream = abilityNames.stream()
 				.map(abilityName -> {
 					AvailableAbilities allAbilities = ClientPowerCache.getAvailableAbilities(abilityName.powerClass);
@@ -274,13 +277,17 @@ public class ClientControlScheme {
 		if (ability != null) {
 			dest.set(ability.getFirst(), ability.getSecond());
 		}
+		else if (curModifier != null && curModifier != KeyModifier.NONE) {
+			setPrioritizedAbility(dest, KeyModifier.NONE, getAbilities, filter);
+		}
 	}
 
 	static BaseAndActiveAbility target = new BaseAndActiveAbility();
 	@Nullable
-	public static AbilityConditionCheck prioritizedAbility(
-			List<AbilityControlsEntry> abilityNames, @Nullable Predicate<AbilityInputState> filter) {
-		setPrioritizedAbility(target, abilityNames, filter);
+	public static AbilityConditionCheck prioritizedAbility(KeyModifier curModifier, 
+			Function<KeyModifier, List<AbilityControlsEntry>> getAbilities, 
+			@Nullable Predicate<AbilityInputState> filter) {
+		setPrioritizedAbility(target, curModifier, getAbilities, filter);
 		return target.curActiveAbility;
 	}
 	
