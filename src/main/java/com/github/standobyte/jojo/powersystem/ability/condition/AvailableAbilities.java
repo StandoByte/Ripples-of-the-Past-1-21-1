@@ -33,6 +33,7 @@ public class AvailableAbilities {
 			Ability ability = baseAbilityEntry.getValue();
 			if (ability.isAbilityAvailable(context)) {
 				AbilityConditionCheck container = getContainerFor(ability);
+				container.clear();
 				_inMoveset.put(baseAbilityEntry.getKey(), container);
 			}
 		}
@@ -113,7 +114,6 @@ public class AvailableAbilities {
 		AbilityConditionCheck container = __cache.compute(ability.abilityId, (id, existing) -> {
 			if (existing == null) return new AbilityConditionCheck(ability);
 			else {
-				existing.clear();
 				return existing;
 			}
 		});
