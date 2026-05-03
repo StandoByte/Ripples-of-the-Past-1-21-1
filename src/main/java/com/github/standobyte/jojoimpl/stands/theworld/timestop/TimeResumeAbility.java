@@ -6,26 +6,35 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
-import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
-public class TimeStopAbility extends Ability {
+public class TimeResumeAbility extends Ability {
 
-	public TimeStopAbility(AbilityType<?> abilityType, AbilityId abilityId) {
+	public TimeResumeAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId);
 	}
 	
 	@Override
-	public ConditionCheck checkSpecificConditions(Power<?> context) {
-		StandPower power = PowerClass.STAND.cast(context);
-		if (power != null && power.userStandEffects.getEffectOfType(ModStandAbilities.EFFECT_TIME_STOP.get()).isPresent()) {
-			return ConditionCheck.NEGATIVE;
+	public boolean isAbilityAvailable(Power<?> context) {
+		if (super.isAbilityAvailable(context)) {
+			StandPower power = PowerClass.STAND.cast(context);
+			if (power != null && power.userStandEffects.getEffectOfType(ModStandAbilities.EFFECT_TIME_STOP.get()).isPresent()) {
+				return true;
+			}
 		}
-		return super.checkSpecificConditions(context);
+		
+		return false;
+	}
+	
+	// FIXME (stand skills) make UnlockableSkill#unlocksAbilities handle this instead (this is a temporary solution)
+	@Override
+	@Deprecated
+	public boolean isAbilityUnlocked(Power<?> context) {
+		return isSkillUnlocked(context, "time_stop");
 	}
 	
 	@Override
@@ -33,9 +42,8 @@ public class TimeStopAbility extends Ability {
 		if (!level.isClientSide()) {
 			StandPower standPower = StandPower.get(user);
 			if (standPower != null) {
-				TimeStopEffect timeStop = ModStandAbilities.EFFECT_TIME_STOP.get().create(level);
-				timeStop.initialPos = user.chunkPosition();
-				standPower.userStandEffects.addEffect(timeStop);
+				standPower.userStandEffects.getEffectsOfType(ModStandAbilities.EFFECT_TIME_STOP.get()).forEach(
+						timeStop -> timeStop.remove());
 			}
 		}
 	}

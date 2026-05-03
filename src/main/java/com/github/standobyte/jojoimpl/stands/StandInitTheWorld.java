@@ -8,6 +8,7 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.powersystem.MovesetBuilder;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
+import com.github.standobyte.jojo.powersystem.ability.controls.InputKey.Modifier;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
 import com.github.standobyte.jojo.powersystem.standpower.entity.EntityStandType;
@@ -32,15 +33,17 @@ public class StandInitTheWorld {
 				.addHumanoidStandStuff()
 
 				.addAbility("time_stop", ModStandAbilities.TIME_STOP)
+				.addAbility("time_resume", ModStandAbilities.TIME_RESUME)
 
 
 				.makeControlScheme("hotbar")
 					.makeHotbar(0, USE_SPECIAL, SWITCH_SPECIAL)
 					.addToHotbar("time_stop", 0, InputMethod.CLICK)
+					.addHotbarSlotVariation("time_resume", "time_stop", Modifier.CONTROL, InputMethod.CLICK)
 				.finalizeControlScheme()
 
 
-				.addSkill(StandUnlockableSkill.unlockableAbility("time_stop", 500).setIncomplete())
+				.addSkill(StandUnlockableSkill.unlockableAbility("time_stop", 500).withAbility("time_resume").setIncomplete())
 
 				, id)
 			.discTooltipExperimental();
