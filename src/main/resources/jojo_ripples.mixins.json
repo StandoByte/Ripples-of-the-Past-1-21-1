@@ -61,6 +61,7 @@
     "stand.crazyd.FireBlockMixin",
     "stand.crazyd.TntEntityMixin",
     "stand.theworld.timestop.EntityMixin",
+    "stand.theworld.timestop.ServerPlayerMixin",
     "stand.theworld.timestop.LevelMixin",
     "stand.theworld.timestop.ServerLevelMixin",
     "stand.theworld.timestop.DelayBlockUpdateMixin",
