@@ -47,6 +47,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.enums.Direction2D;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopEffect;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.InputConstants.Key;
 
@@ -163,12 +164,14 @@ public class InputHandler {
 	}
 	
 	
-	protected boolean shouldQueueInput() {
-		return !(mc.screen == null || PowerHud.isInContainerScreen() || mc.screen instanceof AbilitySelectionWheel);
+	protected boolean shouldQueueKeyRelease() {
+		return mc.isPaused() 
+				|| mc.player != null && TimeStopEffect.getIsFrozenInTime(mc.player)
+				|| !(mc.screen == null || PowerHud.isInContainerScreen() || mc.screen instanceof AbilitySelectionWheel);
 	}
 	
 	protected void tickReleaseEventQueue() {
-		if (!keyReleaseEventQueue.isEmpty() && mc.getConnection() != null && !shouldQueueInput()) {
+		if (!keyReleaseEventQueue.isEmpty() && mc.getConnection() != null && !shouldQueueKeyRelease()) {
 			for (DelayedInput keyRelease : keyReleaseEventQueue) {
 				input(keyRelease.key, keyRelease.action, keyRelease.modifiers);
 			}
@@ -229,7 +232,7 @@ public class InputHandler {
 		boolean cancelVanilla = false;
 		short keyId = key.keyId();
 		
-		if (shouldQueueInput()) {
+		if (shouldQueueKeyRelease()) {
 			if (inputType == InputConstants.RELEASE) {
 				keyReleaseEventQueue.add(new DelayedInput(key, inputType, modifiers));
 			}
