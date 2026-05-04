@@ -2,12 +2,16 @@ package com.github.standobyte.jojoimpl.stands.theworld.timestop;
 
 import com.github.standobyte.jojo.core.JojoMod;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.InputEvent.InteractionKeyMappingTriggered;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 // TODO (time stop) arrow 5 ticks inertia
@@ -40,6 +44,20 @@ public class TimeStopEventSubscriber {
 		}
 		if (entity instanceof TickEntityInTimeStop e) {
 			e.tickInTimeStop();
+		}
+	}
+	
+
+	@EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
+	public static class ClientEvents {
+		
+		@SubscribeEvent(priority = EventPriority.HIGHEST)
+		public static void cancelMouseKeybinds(InteractionKeyMappingTriggered event) {
+			Player player = Minecraft.getInstance().player;
+			if (player != null && TimeStopEffect.getIsFrozenInTime(player)) {
+				event.setCanceled(true);
+				event.setSwingHand(false);
+			}
 		}
 	}
 	
