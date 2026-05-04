@@ -10,15 +10,16 @@ import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbiliti
 
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class ClientPowerCache {
 
-	@SubscribeEvent
-	public static void onFrame(RenderFrameEvent.Pre event) {
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	public static void onTick(ClientTickEvent.Pre event) {
 		cache(Minecraft.getInstance());
 	}
 	
