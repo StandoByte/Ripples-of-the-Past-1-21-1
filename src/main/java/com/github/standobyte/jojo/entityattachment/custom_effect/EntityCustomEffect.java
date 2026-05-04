@@ -43,9 +43,13 @@ public abstract class EntityCustomEffect {
 	}
 
 	public EntityCustomEffect withEntity(Entity entity) {
-		this.entity = entity;
+		setEntity(entity);
 		setLevel(entity.level());
 		return this;
+	}
+	
+	public void setEntity(Entity entity) {
+		this.entity = entity;
 	}
 	
 	public void setLevel(Level level) {

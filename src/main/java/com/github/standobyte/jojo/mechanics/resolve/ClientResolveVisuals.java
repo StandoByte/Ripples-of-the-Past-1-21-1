@@ -30,24 +30,24 @@ public class ClientResolveVisuals {
 				&& mc.player.isAlive()
 				&& ResolveModeEffect.getResolveEffectLvl(mc.player) >= 0;
 		if (resolveEffect && !prevTickResolveEffect) {
-			StandSkin standSkin = StandSkinsLoader.getCurSkin();
-			if (standSkin != null) {
-				WeightsList<BgmTrackInfo> tracks = standSkin.getResolveBGM();
-				if (tracks != null) {
-					BgmPlayer player = new BgmPlayer(tracks);
-					player.start();
-				}
-			}
+//			StandSkin standSkin = StandSkinsLoader.getCurSkin();
+//			if (standSkin != null) {
+//				WeightsList<BgmTrackInfo> tracks = standSkin.getResolveBGM();
+//				if (tracks != null) {
+//					BgmPlayer player = new BgmPlayer(tracks);
+//					player.start();
+//				}
+//			}
 			if (colorShift != null && JojoMod.config.getClient().resolveShaders.getAsBoolean()) {
 				colorShift.parameters = ColorShiftEffect.Parameters.createRandom(OOPMoment.RANDOM);
 			}
 		}
 		else if (!resolveEffect && prevTickResolveEffect) {
 			// TODO make sure the BGM is from resolve and not smth else
-			BgmPlayer curPlaying = BgmTrackLoader.getInstance().bgmPlaying;
-			if (curPlaying != null) {
-				curPlaying.finishWithOutro();
-			}
+//			BgmPlayer curPlaying = BgmTrackLoader.getInstance().bgmPlaying;
+//			if (curPlaying != null) {
+//				curPlaying.finishWithOutro();
+//			}
 			if (colorShift != null) {
 				colorShift.parameters = null;
 			}

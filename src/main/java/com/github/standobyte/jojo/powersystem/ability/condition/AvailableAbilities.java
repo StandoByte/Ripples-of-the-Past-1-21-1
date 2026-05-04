@@ -23,7 +23,8 @@ public class AvailableAbilities {
 	
 	public AvailableAbilities() {}
 	
-	public void update(Power<?> context, Moveset baseMoveset) {
+	static AbilityUsageContext ctxInstance = new AbilityUsageContext();
+	public void update(Power<?> power, Moveset baseMoveset) {
 		_inMoveset.clear();
 		
 		// Filtering out the abilities that are currently available (unlocked / make sense in the context)
@@ -31,12 +32,14 @@ public class AvailableAbilities {
 		Map<String, Ability> abilities = baseMoveset.abilities;
 		for (var baseAbilityEntry : abilities.entrySet()) {
 			Ability ability = baseAbilityEntry.getValue();
-			if (ability.isAbilityAvailable(context)) {
+			if (ability.isAbilityAvailable(power)) {
 				AbilityConditionCheck container = getContainerFor(ability);
 				container.clear();
 				_inMoveset.put(baseAbilityEntry.getKey(), container);
 			}
 		}
+		
+		ctxInstance.power = power;
 		
 		// Checking usage conditions on all of the abilities (this would make the ability gray out in the HUD if you currently can't use it for some reason)
 		
@@ -44,19 +47,19 @@ public class AvailableAbilities {
 		visibleIter.clear();
 		visibleIter.addAll(_inMoveset.values());
 		for (AbilityConditionCheck ability : visibleIter) {
-			ability.ability.onConditionCheck(context, this, ability);
+			ability.ability.onConditionCheck(ctxInstance, this, ability);
 		}
 		
 		// Finisher stuff to replace base attacks with finishers
 		
-		standFinisherCheckLast.update(context, baseMoveset, this);
+		standFinisherCheckLast.update(power, baseMoveset, this);
 		
 		// Ability replacing with dynamic polymorphism
 		
 		for (var abilityEntry : _inMoveset.entrySet()) {
 			AbilityConditionCheck abilityContainer = abilityEntry.getValue();
-			Ability contextVariation = abilityContainer.ability.replaceWithSubAbility(context, this);
-			if (contextVariation != null && contextVariation.isAbilityAvailable(context)) {
+			Ability contextVariation = abilityContainer.ability.replaceWithSubAbility(power, this);
+			if (contextVariation != null && contextVariation.isAbilityAvailable(power)) {
 				abilityEntry.setValue(getContainerFor(contextVariation));
 			}
 		}

@@ -36,7 +36,7 @@ public class HierophantPuppetEffect extends StandEffectInstance {
 
 	@Override
 	protected void start() {
-		if (!level.isClientSide() || this.entity == ClientProxy.getClientPlayer()) {
+		if (!level.isClientSide() || this.getEntity() == ClientProxy.getClientPlayer()) {
 			LivingEntity targetEntity = getTargetLiving();
 			if (targetEntity != null) {
 				StandPower standPower = getUserPower();
