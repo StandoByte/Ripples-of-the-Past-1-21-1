@@ -19,7 +19,7 @@ public class EntityCustomEffectType<T extends EntityCustomEffect> {
 
 	public T create(Level level) {
 		T effect = factory.create(this);
-		effect.level = level;
+		effect.setLevel(level);
 		return effect;
 	}
 

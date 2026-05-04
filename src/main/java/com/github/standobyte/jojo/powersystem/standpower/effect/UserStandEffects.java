@@ -12,7 +12,6 @@ import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEff
 import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectsMap;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
@@ -124,39 +123,6 @@ public class UserStandEffects extends EntityCustomEffectsMap<StandEffectInstance
 	@ApiStatus.Internal
 	public void setPowerData(StandPower standPower) {
 		effects.values().forEach(effect -> effect.withStand(standPower));
-	}
-
-	@ApiStatus.Internal
-	public void onStandUserDeath(LivingEntity user) {
-		var it = effects.int2ObjectEntrySet().iterator();
-		while (it.hasNext()) {
-			StandEffectInstance effect = it.next().getValue();
-			if (effect.removeOnUserDeath) {
-				onEffectRemoved(effect);
-				it.remove();
-			}
-		}
-	}
-
-	@ApiStatus.Internal
-	public void onStandUserRemoved(LivingEntity user) {
-		for (StandEffectInstance effect : effects.values()) {
-			onEffectRemoved(effect);
-		}
-	}
-
-	@ApiStatus.Internal
-	public void onStandUserLogout(ServerPlayer user) {
-		if (!user.server.isPublished()) return;
-
-		var it = effects.int2ObjectEntrySet().iterator();
-		while (it.hasNext()) {
-			StandEffectInstance effect = it.next().getValue();
-			if (effect.removeOnUserLogout) {
-				onEffectRemoved(effect);
-				it.remove();
-			}
-		}
 	}
 
 	@ApiStatus.Internal

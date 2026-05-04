@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.entityattachment.custom_effect;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.annotation.Nonnull;
 
 import org.jetbrains.annotations.ApiStatus;
@@ -16,11 +18,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 
 public abstract class EntityCustomEffect {
+	public static final AtomicInteger EFFECTS_COUNTER = new AtomicInteger();
 	@Nonnull public final EntityCustomEffectType<?> effectType;
 
 	public SynchedDataHelper synchedData = new SynchedDataHelper(this, () -> this.level.isClientSide());
 
-	private int id;
+	private int id = EFFECTS_COUNTER.incrementAndGet();
 	public int tickCount = 0;
 	protected boolean toBeRemoved = false;
 
@@ -41,8 +44,14 @@ public abstract class EntityCustomEffect {
 
 	public EntityCustomEffect withEntity(Entity entity) {
 		this.entity = entity;
-		this.level = entity.level();
+		setLevel(entity.level());
 		return this;
+	}
+	
+	public void setLevel(Level level) {
+		if (this.level != level) {
+			this.level = level;
+		}
 	}
 
 	@ApiStatus.Internal

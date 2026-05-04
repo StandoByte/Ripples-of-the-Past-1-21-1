@@ -128,7 +128,8 @@ public class TrEntityCustomEffectsPacket implements CustomPacketPayload {
 
 			switch (payload.packetType) {
 				case ADD:
-					EntityCustomEffect newEffect = payload.effectFactory.create(entity.level()).withId(payload.effectId);
+					EntityCustomEffect newEffect = payload.effectFactory.create(entity.level());
+					newEffect.withId(payload.effectId);
 					newEffect.withEntity(entity);
 					newEffect.tickCount = payload.buf.readVarInt();
 					newEffect.readAdditionalPacketData(payload.buf, payload.isUser);

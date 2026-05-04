@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.jojo.JojoModLivingVariables;
+import com.github.standobyte.jojo.JojoModEntityVariables;
 import com.github.standobyte.jojo.adventure.character.CharacterPersonData;
 import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -47,8 +47,8 @@ public final class ModDataAttachmentTypes {
 	public static final Supplier<AttachmentType<DataEventListeners>> DATA_EVENT_HELPER = ATTACHMENT_TYPES.register("event_listener", 
 			() -> AttachmentType.builder(DataEventListeners::new).build());
 	
-	public static final Supplier<AttachmentType<JojoModLivingVariables>> LIVING_VARS = ATTACHMENT_TYPES.register("living_vars", 
-			() -> AttachmentType.serializable(obj -> obj instanceof LivingEntity entity ? new JojoModLivingVariables(entity) : null).build());
+	public static final Supplier<AttachmentType<JojoModEntityVariables<?>>> ENTITY_VARS = ATTACHMENT_TYPES.register("entity_vars", 
+			() -> AttachmentType.serializable(obj -> obj instanceof Entity entity ? (JojoModEntityVariables) JojoModEntityVariables.createObjFor(entity) : null).build());
 	 
 	public static final Supplier<AttachmentType<CharacterPersonData>> CHARACTER_DATA = ATTACHMENT_TYPES.register("character_data", 
 			() -> AttachmentType.serializable(CharacterPersonData::_attach).build());
