@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.powersystem.MovesetBuilder;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputKey;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
+import com.github.standobyte.jojo.powersystem.ability.controls.InputKey.Modifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
@@ -79,7 +80,8 @@ public class StandInitStarPlatinum {
 				.addAbility("star_finger", ModStandAbilities.SP_STAR_FINGER)
 //				.addAbility("star_finger_swipe", ModStandAbilities.SP_STAR_FINGER_SWIPE)
 				.addAbility("inhale", ModStandAbilities.SP_INHALE)
-//				.addAbility("time_stop", ModStandAbilities.TIME_STOP)
+				.addAbility("time_stop", ModStandAbilities.TIME_STOP)
+				.addAbility("time_resume", ModStandAbilities.TIME_RESUME)
 
 
 				.makeControlScheme("hotbar")
@@ -96,7 +98,8 @@ public class StandInitStarPlatinum {
 					.addToHotbar("star_finger", 0, InputMethod.CLICK)
 //					.addToHotbarSlotVariation("star_finger_swipe", "star_finger", InputKey.Modifier.CONTROL, InputMethod.CLICK)
 					.addToHotbar("inhale", 0, InputMethod.HOLD)
-//					.addToHotbar("time_stop", 0, InputMethod.HOLD)
+					.addToHotbar("time_stop", 0, InputMethod.HOLD)
+					.addHotbarSlotVariation("time_resume", "time_stop", Modifier.CONTROL, InputMethod.CLICK)
 				.finalizeControlScheme()
 
 
@@ -116,7 +119,7 @@ public class StandInitStarPlatinum {
 				.addSkill(StandUnlockableSkill.startingAbility("enhanced_eyesight").setNotYetImplemented())
 				.addSkill(StandUnlockableSkill.unlockableAbility("star_finger", 250)/*.withAbility("star_finger_swipe")*/)
 				.addSkill(StandUnlockableSkill.unlockableAbility("inhale", 150))
-				.addSkill(StandUnlockableSkill.unlockableAbility("time_stop", 5000).setNotYetImplemented())
+				.addSkill(StandUnlockableSkill.unlockableAbility("time_stop", 5000).withAbility("time_resume").setIncomplete())
 
 				.addSkill(StandUnlockableSkill.unlockableAbility("leap", 250).setNotYetImplemented())
 				.addHumanoidStandSkills()

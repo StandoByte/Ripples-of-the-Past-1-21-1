@@ -20,6 +20,7 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopEffect;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.KeyMapping;
@@ -71,6 +72,7 @@ public class VanillaKeybinds {
 		InputHandler inputHandler = InputHandler.getInstance();
 		StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 		PlayerPower playerPower = ClientPowerCache.getPower(PowerClass.PLAYER_POWER);
+		boolean isFrozen = mc.player != null && TimeStopEffect.getIsFrozenInTime(mc.player);
 		
 		if (standArmsOnlyHUD.consumeClick()) {
 			if (standPower != null && standPower.hasPower() && !standPower.isSummoned()) {
@@ -84,7 +86,7 @@ public class VanillaKeybinds {
 			}
 		}
 		
-		if (summonStand.consumeClick()) {
+		if (!isFrozen && summonStand.consumeClick()) {
 			if (standPower != null && standPower.hasPower()) {
 				StandType standType = standPower.getPowerType();
 				if (standType != null) {

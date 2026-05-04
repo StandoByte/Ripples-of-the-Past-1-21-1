@@ -139,13 +139,14 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 			if (performer != null) {
 				EntityActionInstance curAction = LivingComponentAction.getCurEntityAction(performer);
 				if (curAction != null && curAction.ability == this) {
-					if (curAction.getPhase() == ActionPhase.BUTTON_CHARGE) {
+					ActionPhase phase = curAction.getPhase();
+					if (phase == ActionPhase.BUTTON_CHARGE) {
 						indicator.maxValue = curAction.getAnimPhaseLength();
 						if (indicator.maxValue > 0) {
 							indicator.value = curAction.getAnimPhaseTick(partialTick);
 						}
 					}
-					else {
+					else if (phase != null) {
 						indicator.maxValue = curAction.phasesLength.getFloat(ActionPhase.BUTTON_CHARGE);
 						indicator.value = indicator.maxValue;
 					}

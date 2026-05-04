@@ -456,10 +456,10 @@
   "jojo_ripples.ability.inhale": "Звёздный вдох",
   "jojo_ripples.subtitle.inhale": "Вдох",
   
-  "jojo_ripples.skill.time_stop": "Star Platinum, The World!",
-  "jojo_ripples.skill.time_stop.desc": "Star Platinum останавливает ход времени на короткий промежуток, позволяя только вам свободно совершать действия, пока время заморожено.",
+  "jojo_ripples.skill.time_stop": "Time Stop",
+  "jojo_ripples.skill.time_stop.desc": "Ваш Стенд останавливает ход времени на короткий промежуток, позволяя только вам свободно совершать действия, пока время заморожено.",
   "jojo_ripples.skill.time_stop.controls": "Особая способность",
-  "jojo_ripples.ability.time_stop": "Star Platinum, The World! (%ss)",
+  "jojo_ripples.ability.time_stop": "Time Stop (%ss)",
   
   
   "stand.jojo_ripples.the_world": "The World",

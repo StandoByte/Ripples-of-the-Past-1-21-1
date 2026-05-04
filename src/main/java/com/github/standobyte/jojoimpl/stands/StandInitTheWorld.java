@@ -38,7 +38,7 @@ public class StandInitTheWorld {
 
 				.makeControlScheme("hotbar")
 					.makeHotbar(0, USE_SPECIAL, SWITCH_SPECIAL)
-					.addToHotbar("time_stop", 0, InputMethod.CLICK)
+					.addToHotbar("time_stop", 0, InputMethod.HOLD)
 					.addHotbarSlotVariation("time_resume", "time_stop", Modifier.CONTROL, InputMethod.CLICK)
 				.finalizeControlScheme()
 

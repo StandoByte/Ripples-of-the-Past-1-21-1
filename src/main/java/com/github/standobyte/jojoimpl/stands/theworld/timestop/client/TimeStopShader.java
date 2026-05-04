@@ -3,7 +3,6 @@ package com.github.standobyte.jojoimpl.stands.theworld.timestop.client;
 import com.github.standobyte.jojo.client.shader.core.ManualInitPostChain;
 import com.github.standobyte.jojo.client.shader.core.RotpShader;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopEffect;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
@@ -28,6 +27,10 @@ public class TimeStopShader extends RotpShader {
 			Minecraft mc = Minecraft.getInstance();
 			postChain.resize(mc.getWindow().getWidth(), mc.getWindow().getHeight());
 		}
+	}
+	
+	public void startFadeOut() {
+		
 	}
 
 	@Override

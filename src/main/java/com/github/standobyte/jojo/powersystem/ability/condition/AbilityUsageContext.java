@@ -4,4 +4,5 @@ import com.github.standobyte.jojo.powersystem.Power;
 
 public class AbilityUsageContext {
 	public Power<?> power;
+	public boolean isFrozenInTime;
 }

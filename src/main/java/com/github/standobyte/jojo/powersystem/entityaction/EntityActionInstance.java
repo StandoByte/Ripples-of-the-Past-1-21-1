@@ -54,11 +54,10 @@ public class EntityActionInstance implements HeldInput {
 	
 	public SynchedDataHelper synchedData = new SynchedDataHelper(this, () -> this.level().isClientSide());
 	
-	@Nonnull protected ActionPhase phase;
-	protected int curPhaseTick;
-	protected float curPhaseLength;
-	protected float phasePartialTick;
-	protected boolean stoppedHolding = false;
+	@ApiStatus.Internal @Nonnull public ActionPhase phase;
+	@ApiStatus.Internal public int curPhaseTick;
+	@ApiStatus.Internal public float curPhaseLength;
+	@ApiStatus.Internal public float phasePartialTick;
 	
 	protected LivingEntity performer;
 	protected EntityResolver powerUser = new EntityResolver();

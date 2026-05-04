@@ -458,8 +458,8 @@
   "jojo_ripples.ability.inhale": "Inhale",
   "jojo_ripples.subtitle.inhale": "Inhale",
   
-  "jojo_ripples.skill.time_stop": "Star Platinum, The World!",
-  "jojo_ripples.skill.time_stop.desc": "Star Platinum stops the flow of time for a brief moment, allowing only you to act freely while time is frozen.",
+  "jojo_ripples.skill.time_stop": "Time Stop",
+  "jojo_ripples.skill.time_stop.desc": "Your Stand stops the flow of time for a brief moment, allowing only you to act freely while time is frozen.",
   "jojo_ripples.skill.time_stop.controls": "Special ability",
   "jojo_ripples.ability.time_stop": "Time Stop (%ss)",
   

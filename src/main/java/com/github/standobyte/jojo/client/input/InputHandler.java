@@ -47,6 +47,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.enums.Direction2D;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopEffect;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.InputConstants.Key;
 
@@ -163,16 +164,29 @@ public class InputHandler {
 	}
 	
 	
-	protected boolean shouldQueueInput() {
-		return !(mc.screen == null || PowerHud.isInContainerScreen() || mc.screen instanceof AbilitySelectionWheel);
+	protected boolean noInputProcessing() {
+		return mc.isPaused() 
+				|| !(mc.screen == null || PowerHud.isInContainerScreen() || mc.screen instanceof AbilitySelectionWheel);
+	}
+	
+	protected boolean shouldQueueKeyRelease() {
+		return mc.player != null && TimeStopEffect.getIsFrozenInTime(mc.player);
 	}
 	
 	protected void tickReleaseEventQueue() {
-		if (!keyReleaseEventQueue.isEmpty() && mc.getConnection() != null && !shouldQueueInput()) {
-			for (DelayedInput keyRelease : keyReleaseEventQueue) {
-				input(keyRelease.key, keyRelease.action, keyRelease.modifiers);
-			}
+		if (mc.getConnection() != null) {
 			keyReleaseEventQueue.clear();
+			return;
+		}
+		
+		if (!keyReleaseEventQueue.isEmpty()) {
+			boolean processReleaseQueue = !noInputProcessing() && !shouldQueueKeyRelease();
+			if (processReleaseQueue) {
+				for (DelayedInput keyRelease : keyReleaseEventQueue) {
+					input(keyRelease.key, keyRelease.action, keyRelease.modifiers);
+				}
+				keyReleaseEventQueue.clear();
+			}
 		}
 	}
 	
@@ -229,11 +243,16 @@ public class InputHandler {
 		boolean cancelVanilla = false;
 		short keyId = key.keyId();
 		
-		if (shouldQueueInput()) {
+		boolean dontProcess = noInputProcessing();
+		if (dontProcess || shouldQueueKeyRelease()) {
 			if (inputType == InputConstants.RELEASE) {
 				keyReleaseEventQueue.add(new DelayedInput(key, inputType, modifiers));
+				return false;
 			}
-			return false;
+			
+			if (dontProcess) {
+				return false;
+			}
 		}
 		
 		switch (inputType) {

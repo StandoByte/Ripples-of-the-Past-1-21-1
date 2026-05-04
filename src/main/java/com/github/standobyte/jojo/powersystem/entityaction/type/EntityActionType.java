@@ -97,6 +97,10 @@ public interface EntityActionType {
 		if (powerClass == null) {
 			powerClass = PowerClass.PLAYER_POWER;
 		}
+		return getPowerAnimSet(powerClass, user);
+	}
+	
+	static ResourceLocation getPowerAnimSet(PowerClass<?> powerClass, LivingEntity user) {
 		Power<?> power = powerClass.get(user);
 		if (power != null && power.hasPower()) {
 			return power.getPowerType().getId();

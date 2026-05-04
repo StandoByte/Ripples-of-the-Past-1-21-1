@@ -7,6 +7,7 @@ import com.github.standobyte.jojo.mechanics.clothes.container.PlayerClothesMenu;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.functions.EnumUtil;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopEffect;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -52,10 +53,12 @@ public record ClNoParamsPacket(PacketType packetType) implements CustomPacketPay
 			Player player = context.player();
 			switch (payload.packetType) {
 				case SUMMON_STAND -> {
-					StandPower standPower = StandPower.get(player);
-					if (standPower.hasPower()) {
-						StandType standType = standPower.getPowerType();
-						standType.onUserSummonCommand(player, standPower);
+					if (!TimeStopEffect.getIsFrozenInTime(player)) {
+						StandPower standPower = StandPower.get(player);
+						if (standPower.hasPower()) {
+							StandType standType = standPower.getPowerType();
+							standType.onUserSummonCommand(player, standPower);
+						}
 					}
 				}
 				case OPEN_CLOTHES -> {

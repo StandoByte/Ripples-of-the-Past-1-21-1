@@ -204,10 +204,5 @@ public class JojoModUtil {
 			}
 		}
 	}
-	
-	
-	public static Iterable<Entity> getAllEntities(Level level) {
-		return level.isClientSide() ? ((ClientLevel) level).entitiesForRendering() : ((ServerLevel) level).getAllEntities();
-	}
 
 }

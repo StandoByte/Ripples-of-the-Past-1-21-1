@@ -39,6 +39,7 @@ import com.github.standobyte.jojoimpl.stands.starplatinum.StarInhaleAbility;
 import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeResumeAbility;
 import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopAbility;
 import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopEffect;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopInvadeAbility;
 
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -102,6 +103,9 @@ public final class ModStandAbilities {
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<TimeResumeAbility>> TIME_RESUME = ABILITY_TYPES.register(
 			"time_resume", key -> new AbilityType<>(key, TimeResumeAbility::new));
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<TimeStopInvadeAbility>> TIME_STOP_INVADE = ABILITY_TYPES.register(
+			"time_stop_invade", key -> new AbilityType<>(key, TimeStopInvadeAbility::new));
 	
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<HierophantPuppetAbility>> HG_PUPPET = ABILITY_TYPES.register(

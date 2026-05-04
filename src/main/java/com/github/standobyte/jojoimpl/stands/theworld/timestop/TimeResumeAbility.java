@@ -42,8 +42,16 @@ public class TimeResumeAbility extends Ability {
 		if (!level.isClientSide()) {
 			StandPower standPower = StandPower.get(user);
 			if (standPower != null) {
-				standPower.userStandEffects.getEffectsOfType(ModStandAbilities.EFFECT_TIME_STOP.get()).forEach(
-						timeStop -> timeStop.remove());
+				standPower.userStandEffects.getEffectsOfType(ModStandAbilities.EFFECT_TIME_STOP.get())
+				.forEach(timeStop -> {
+					if (timeStop.tickCount < timeStop.duration - TimeStopEffect.TIME_RESUME_SOUND_TICKS) {
+						timeStop.tickCount = timeStop.duration - TimeStopEffect.TIME_RESUME_SOUND_TICKS;
+						timeStop.doTimeResumeFX();
+					}
+					else {
+						timeStop.remove();
+					}
+				});
 			}
 		}
 	}
