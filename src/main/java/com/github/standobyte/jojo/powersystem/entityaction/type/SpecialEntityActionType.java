@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.powersystem.entityaction.type;
 
+import java.util.function.Function;
+
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.core.JojoMod;
@@ -17,13 +19,20 @@ import net.minecraft.world.entity.LivingEntity;
  * but is not registered as an ability in a power's moveset, instead using its own registry.
  * Can be used for stuff like special weapon attacks or item abilities.
  */
-public abstract class SpecialEntityActionType implements EntityActionType {
+public class SpecialEntityActionType implements EntityActionType {
 	public final ResourceLocation id;
+	protected Function<EntityActionType, ? extends EntityActionInstance> createActionObj;
 	@Nullable protected ResourceLocation animSet;
 	@Nullable protected ActionAnimIdentifier anim;
 	protected AbilityId abilityId;
 	
+	@Deprecated
 	public SpecialEntityActionType(@Nullable String animFileName, ResourceLocation id) {
+		this(animFileName, id, EntityActionInstance::new);
+	}
+	
+	public SpecialEntityActionType(@Nullable String animFileName, ResourceLocation id, 
+			Function<EntityActionType, ? extends EntityActionInstance> createActionObj) {
 		this.id = id;
 		if (animFileName != null) {
 			this.animSet = id.withPath(animFileName);
@@ -34,6 +43,7 @@ public abstract class SpecialEntityActionType implements EntityActionType {
 			this.anim = null;
 		}
 		this.abilityId = new AbilityId(null, JojoMod.resLoc("special"), id.toString());
+		this.createActionObj = createActionObj;
 	}
 	
 	@Override
@@ -66,7 +76,7 @@ public abstract class SpecialEntityActionType implements EntityActionType {
 
 	@Override
 	public EntityActionInstance createActionObj() {
-		return new EntityActionInstance(this);
+		return createActionObj.apply(this);
 	}
 
 }

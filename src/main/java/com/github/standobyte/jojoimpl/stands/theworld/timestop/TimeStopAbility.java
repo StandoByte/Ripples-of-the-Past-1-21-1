@@ -3,6 +3,7 @@ package com.github.standobyte.jojoimpl.stands.theworld.timestop;
 import java.util.stream.Stream;
 
 import com.github.standobyte.jojo.client.ui.hud_power.WindupIndicator;
+import com.github.standobyte.jojo.init.ModSpecialActions;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -15,8 +16,11 @@ import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer.Bu
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
+import com.github.standobyte.jojo.powersystem.entityaction.netcode.SyncType;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.LivingEntity;
@@ -28,7 +32,6 @@ public class TimeStopAbility extends EntityActionAbility {
 		super(abilityType, abilityId, TimeStopWindupAction::new);
 		canUseInStoppedTime = true;
 		setDefaultPhaseLength(ActionPhase.BUTTON_CHARGE, 40);
-		setDefaultPhaseLength(ActionPhase.RECOVERY, 20);
 	}
 	
 	@Override
@@ -83,9 +86,68 @@ public class TimeStopAbility extends EntityActionAbility {
 		}
 		
 		@Override
+		public void actionTick() {
+			LivingEntity user = performer;
+			if (!user.level().isClientSide()) {
+				StandEntity stand = StandUtil.getSummonedStand(user);
+				if (stand != null) {
+					EntityActionType standWindup = ModSpecialActions.STAND_TIME_STOP_WINDUP.get();
+					EntityActionInstance curStandAction = stand.getCurStandAction();
+					if (curStandAction == null || curStandAction.ability != standWindup) {
+						TimeStopStandWindupAction standWindupAction = new TimeStopStandWindupAction(standWindup);
+						standWindupAction.copyFrom(this);
+						stand.getStandActionComponent().setAction(standWindupAction, user, SyncType.TRACKING_AND_SELF);
+					}
+				}
+			}
+		}
+		
+		@Override
+		public void onButtonStopHold() {
+			if (getPhase() == ActionPhase.BUTTON_CHARGE) {
+				LivingEntity user = performer;
+				if (!user.level().isClientSide()) {
+					forceStop();
+					syncPhaseChanges();
+					
+					StandEntity stand = StandUtil.getSummonedStand(user);
+					if (stand != null) {
+						EntityActionInstance curStandAction = stand.getCurStandAction();
+						if (curStandAction != null && curStandAction.ability == ModSpecialActions.STAND_TIME_STOP_WINDUP.get()) {
+							curStandAction.forceStop();
+							curStandAction.syncPhaseChanges();
+						}
+					}
+				}
+			}
+		}
+		
+		@Override
 		public void actionPerformStart() {
 			LivingEntity user = performer;
 			addTimeStopEffect(user, getDuration(user), false);
+		}
+		
+	}
+	
+	/* Action that's forced on the Stand entity - 
+	 * the real action in on the user (to allow for using the ability without summoning the Stand),
+	 * this lets the Stand also have an animation, and disables other Stand attacks during the windup.
+	 */
+	public static class TimeStopStandWindupAction extends EntityActionInstance {
+
+		public TimeStopStandWindupAction(EntityActionType ability) {
+			super(ability);
+		}
+
+		public void copyFrom(EntityActionInstance userWindup) {
+			this.phasesLength.putAll(userWindup.phasesLength);
+			this.skippedWindupPhase = userWindup.skippedWindupPhase;
+			this.phase = userWindup.phase;
+			this.curPhaseTick = userWindup.curPhaseTick;
+			this.curPhaseLength = userWindup.curPhaseLength;
+			this.phasePartialTick = userWindup.phasePartialTick;
+			phasesLength.put(ActionPhase.RECOVERY, 24); // for the anim
 		}
 		
 	}
