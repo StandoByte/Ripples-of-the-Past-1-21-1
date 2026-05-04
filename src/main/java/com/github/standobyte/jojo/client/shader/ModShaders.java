@@ -44,7 +44,7 @@ public class ModShaders implements ResourceManagerReloadListener, AutoCloseable 
 
 	public ColorShiftShader colorShift;
 	public StandTranslucencyShader firstPersonStandTranslucency;
-	public StandAuraShader standAura;
+	//public StandAuraShader standAura;
 	@ApiStatus.Internal public List<RotpShader> _allShaders = new ArrayList<>();
 	
 	private void init() {
@@ -53,7 +53,7 @@ public class ModShaders implements ResourceManagerReloadListener, AutoCloseable 
 
 		_allShaders.add(firstPersonStandTranslucency = new StandTranslucencyShader(mc, fixedRenderBuffers));
 		_allShaders.add(colorShift = new ColorShiftShader());
-		_allShaders.add(standAura = new StandAuraShader(mc, fixedRenderBuffers));
+		//_allShaders.add(standAura = new StandAuraShader(mc, fixedRenderBuffers));
 	}
 	
 	
