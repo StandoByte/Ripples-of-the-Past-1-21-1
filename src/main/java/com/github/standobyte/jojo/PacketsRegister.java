@@ -26,6 +26,7 @@ import com.github.standobyte.jojo.network.s2c.BloodParticlesPacket;
 import com.github.standobyte.jojo.network.s2c.BrokenBlocksParticlesAndSoundsPacket;
 import com.github.standobyte.jojo.network.s2c.DatapackStandsPacket;
 import com.github.standobyte.jojo.network.s2c.DeflectedBulletPacket;
+import com.github.standobyte.jojo.network.s2c.EntityDirectPosNoLerpPacket;
 import com.github.standobyte.jojo.network.s2c.EntitySyncMotionBypassingPacket;
 import com.github.standobyte.jojo.network.s2c.ItemBreakVisualsPacket;
 import com.github.standobyte.jojo.network.s2c.StandEntitySoundPacket;
@@ -67,6 +68,8 @@ import com.github.standobyte.jojo.subsystems.movement_input_sync.ClPlayerMovemen
 import com.github.standobyte.jojo.subsystems.movement_input_sync.TrPlayerMovementInputPacket;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.BrokenChunkBlocksPacket;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.brokenblocks.CDBlocksRestoredPacket;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopVFXPacket;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.client.TimeStopInstancePacket;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -137,12 +140,16 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new ExternalContainerSyncSetSlotPacket.Handler(JojoMod.resLoc("extcslot")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new ExternalContainerSyncSetContentPacket.Handler(JojoMod.resLoc("extccont")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new ExternalContainerSyncSetDataPacket.Handler(JojoMod.resLoc("extcdata")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, JojoModEntityVariables.SYNC_HANDLER);
 		registerPacket(registrar, PayloadRegistrar::playToClient, new EntitySyncMotionBypassingPacket.Handler(JojoMod.resLoc("motfix")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new EntityDirectPosNoLerpPacket.Handler(JojoMod.resLoc("posfix")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrResetDeathTimePacket.Handler(JojoMod.resLoc("undeath")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new DeflectedBulletPacket.Handler(JojoMod.resLoc("projdefl")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new BloodParticlesPacket.Handler(JojoMod.resLoc("blood")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new BrokenChunkBlocksPacket.Handler(JojoMod.resLoc("brokenblocks")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new CDBlocksRestoredPacket.Handler(JojoMod.resLoc("restoreblocks")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new TimeStopInstancePacket.Handler(JojoMod.resLoc("tsinst")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new TimeStopVFXPacket.Handler(JojoMod.resLoc("tsvfx")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new PlayBgmCommand.PlayBgmCommandPacket.Handler(JojoMod.resLoc("bgm")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new ItemBreakVisualsPacket.Handler(JojoMod.resLoc("itemparticle")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new RemoteCommonConfigPacket.Handler(JojoMod.resLoc("cfgcommon")));

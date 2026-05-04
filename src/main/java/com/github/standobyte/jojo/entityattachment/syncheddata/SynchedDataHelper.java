@@ -19,6 +19,10 @@ public class SynchedDataHelper {
 	@Nullable protected SynchedDataExtended synchedData;
 	protected boolean didLazyInit;
 	
+	/**
+	 * @param entityLikeObject should implement {@link SyncedDataHolderExtended}
+	 * @param isClientSide
+	 */
 	public SynchedDataHelper(Object entityLikeObject, BooleanSupplier isClientSide) {
 		this.entityLikeObject = entityLikeObject;
 		this.clientSideCheck = isClientSide;

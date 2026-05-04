@@ -462,6 +462,10 @@
   "jojo_ripples.ability.time_stop": "Star Platinum, The World! (%ss)",
   
   
+  "stand.jojo_ripples.the_world": "The World",
+  "stand.jojo_ripples.the_world.desc": "Чрезвычайно сильный Стенд ближнего действия силового типа. Обладает силой и скоростью, с которыми может посоперничать только Star Platinum, а также способностью ненадолго останавливать время для всех, кроме обладателя.",
+  
+  
   "stand.jojo_ripples.hierophant_green": "Hierophant Green",
   "    перевести-stand.jojo_ripples.hierophant_green.desc": "A long-range Stand with average physical strength, more suitable for reconnaissance than for close combat. Its body can unravel into tendrils, allowing the user to set up traps.",
   

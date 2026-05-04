@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.client.shader.core;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
@@ -12,6 +13,10 @@ import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.machinezoo.noexception.optional.OptionalBoolean;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.platform.Window;
@@ -24,6 +29,7 @@ import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceProvider;
+import net.minecraft.util.GsonHelper;
 
 public class ManualInitPostChain implements AutoCloseable {
 	protected static final String MAIN_RENDER_TARGET = "minecraft:main";
@@ -180,7 +186,7 @@ public class ManualInitPostChain implements AutoCloseable {
 	public static record PassDefinition(String name, String intarget, String outtarget, boolean use_linear_filter, 
 			@Nullable AuxTargetDefinition[] auxtargets, @Nullable UniformDefinition[] uniforms) {}
 
-	public static record AuxTargetDefinition(String name, String id, int width, int height, boolean bilinear) {}
+	public static record AuxTargetDefinition(String name, String id, OptionalInt width, OptionalInt height, OptionalBoolean bilinear) {}
 
 	public static record UniformDefinition(String name, float[] values) {}
 
@@ -193,10 +199,7 @@ public class ManualInitPostChain implements AutoCloseable {
 
 		if (definition.passes != null) {
 			for (PassDefinition passDef : definition.passes) {
-				PostPass pass = addPassNode(postChain, passDef, textureManager);
-				if (pass != null) {
-					postChain.passes.add(postChain.passes.size(), pass);
-				}
+				addPassNode(postChain, passDef, textureManager);
 			}
 		}
 	}
@@ -241,7 +244,7 @@ public class ManualInitPostChain implements AutoCloseable {
 						RenderSystem.setShaderTexture(0, texPath);
 						textureManager.bindForSetup(texPath);
 						AbstractTexture abstracttexture = textureManager.getTexture(texPath);
-						if (auxtarget.bilinear) {
+						if (auxtarget.bilinear.orElse(false)) {
 							RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 							RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 						} else {
@@ -249,7 +252,7 @@ public class ManualInitPostChain implements AutoCloseable {
 							RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
 						}
 
-						postpass.addAuxAsset(auxtarget.name, abstracttexture::getId, auxtarget.width, auxtarget.height);
+						postpass.addAuxAsset(auxtarget.name, abstracttexture::getId, auxtarget.width.getAsInt(), auxtarget.height.getAsInt());
 					} else if (isDepthBuffer) {
 						postpass.addAuxAsset(auxtarget.name, auxTarget::getDepthTextureId, auxTarget.width, auxTarget.height);
 					} else {
@@ -286,6 +289,118 @@ public class ManualInitPostChain implements AutoCloseable {
 			
 			return postpass;
 		}
+	}
+
+
+	
+	public static PostChainDefinition parsePostChain(JsonObject json) {
+		List<TempTargetDefinition> targets = new ArrayList<>();
+		if (GsonHelper.isArrayNode(json, "targets")) {
+			JsonArray targetsJson = json.getAsJsonArray("targets");
+			for (JsonElement targetJson : targetsJson) {
+				TempTargetDefinition target = parseTargetNode(targetJson);
+				if (target != null) {
+					targets.add(target);
+				}
+			}
+		}
+
+		List<PassDefinition> passes = new ArrayList<>();
+		if (GsonHelper.isArrayNode(json, "passes")) {
+			JsonArray passesJson = json.getAsJsonArray("passes");
+			for (JsonElement passJson : passesJson) {
+				PassDefinition pass = parsePassNode(GsonHelper.convertToJsonObject(passJson, "pass"));
+				if (pass != null) {
+					passes.add(pass);
+				}
+			}
+		}
+		
+		return new PostChainDefinition(
+				targets.toArray(TempTargetDefinition[]::new), 
+				passes.toArray(PassDefinition[]::new));
+	}
+
+	public static TempTargetDefinition parseTargetNode(JsonElement json) {
+		if (GsonHelper.isStringValue(json)) {
+			return new TempTargetDefinition(json.getAsString());
+		}
+		else {
+			JsonObject target = GsonHelper.convertToJsonObject(json, "target");
+			String name = GsonHelper.getAsString(target, "name");
+			return new TempTargetDefinition(name, 
+					optionalInt(target, "width"), optionalInt(target, "height"));
+		}
+	}
+
+	public static PassDefinition parsePassNode(JsonObject json) {
+		String name = GsonHelper.getAsString(json, "name");
+		String inTargetName = GsonHelper.getAsString(json, "intarget");
+		String outTargetName = GsonHelper.getAsString(json, "outtarget");
+		boolean useLinearFilter = GsonHelper.getAsBoolean(json, "use_linear_filter", false);
+		
+		List<AuxTargetDefinition> auxtargets = new ArrayList<>();
+		JsonArray auxtargetsJson = GsonHelper.getAsJsonArray(json, "auxtargets", null);
+		if (auxtargetsJson != null) {
+			for (JsonElement auxtargetJson : auxtargetsJson) {
+				AuxTargetDefinition auxtarget = parseAuxAsset(auxtargetJson);
+				if (auxtarget != null) {
+					auxtargets.add(auxtarget);
+				}
+			}
+		}
+
+		List<UniformDefinition> uniforms = new ArrayList<>();
+		JsonArray uniformsJson = GsonHelper.getAsJsonArray(json, "uniforms", null);
+		if (uniformsJson != null) {
+			for (JsonElement uniformJson : uniformsJson) {
+				UniformDefinition uniform = parseUniformNode(GsonHelper.convertToJsonObject(uniformJson, "uniform"));
+				if (uniform != null) {
+					uniforms.add(uniform);
+				}
+			}
+		}
+		
+		return new PassDefinition(name, inTargetName, outTargetName, useLinearFilter, 
+				auxtargets.toArray(AuxTargetDefinition[]::new), uniforms.toArray(UniformDefinition[]::new));
+	}
+
+	public static AuxTargetDefinition parseAuxAsset(JsonElement json) {
+		JsonObject auxObjJson = GsonHelper.convertToJsonObject(json, "auxtarget");
+		String auxName = GsonHelper.getAsString(auxObjJson, "name");
+		String auxId = GsonHelper.getAsString(auxObjJson, "id");
+		AuxTargetDefinition auxTarget = new AuxTargetDefinition(auxName, auxId,
+				optionalInt(auxObjJson, "width"), optionalInt(auxObjJson, "height"), optionalBoolean(auxObjJson, "bilinear"));
+		return auxTarget;
+	}
+
+	public static UniformDefinition parseUniformNode(JsonObject json)  {
+		String name = GsonHelper.getAsString(json, "name");
+		float[] parsed = new float[4];
+		int i = 0;
+
+		for (JsonElement value : GsonHelper.getAsJsonArray(json, "values")) {
+			parsed[i] = GsonHelper.convertToFloat(value, "value");
+			i++;
+		}
+
+		float[] values = switch (i) {
+			case 0 -> new float[] {};
+			case 1 -> new float[] { parsed[0] };
+			case 2 -> new float[] { parsed[0], parsed[1] };
+			case 3 -> new float[] { parsed[0], parsed[1], parsed[2] };
+			default -> new float[] { parsed[0], parsed[1], parsed[2], parsed[3] };
+		};
+		return new UniformDefinition(name, values);
+	}
+	
+	
+	public static OptionalInt optionalInt(JsonObject json, String elementName) {
+		return json.has(elementName) ? OptionalInt.of(GsonHelper.convertToInt(json.get(elementName), elementName)) : OptionalInt.empty();
+	}
+	
+	public static OptionalBoolean optionalBoolean(JsonObject json, String elementName) {
+		return json.has(elementName) ? OptionalBoolean.of(GsonHelper.convertToBoolean(json.get(elementName), elementName)) : OptionalBoolean.empty();
 	}
 
 }

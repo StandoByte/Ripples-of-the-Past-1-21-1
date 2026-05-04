@@ -60,6 +60,10 @@
     "stand.crazyd.LevelDestroyBlockMixin",
     "stand.crazyd.FireBlockMixin",
     "stand.crazyd.TntEntityMixin",
+    "stand.theworld.timestop.EntityMixin",
+    "stand.theworld.timestop.LevelMixin",
+    "stand.theworld.timestop.ServerLevelMixin",
+    "stand.theworld.timestop.DelayBlockUpdateMixin",
 	
 	"KnockbackEntityCollision",
 	"ProjectileHighSpeedSync",
@@ -128,6 +132,13 @@
 	"client.modcompat.WoRStandRendering",
 	"client.CloseResources",
 	"client.keybindui.KeyEntryMixin",
-	"client.keybindui.AbstractSelectionListMixin"
+	"client.keybindui.AbstractSelectionListMixin",
+	
+	"stand.theworld.timestop.client.LevelRendererPartialTickMixin",
+	"stand.theworld.timestop.client.GameRendererPartialTickMixin",
+	"stand.theworld.timestop.client.CameraPartialTickMixin",
+	"stand.theworld.timestop.client.ParticleManagerMixin",
+	"stand.theworld.timestop.client.TextureManagerMixin",
+    "stand.theworld.timestop.ClientLevelMixin"
   ]
 }

@@ -15,6 +15,7 @@ import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 
 public class PacketDistributor2 {
 
@@ -50,6 +51,17 @@ public class PacketDistributor2 {
 			if (sendToSelf && entity instanceof ServerPlayer player) {
 				player.connection.send(packet);
 			}
+		}
+	}
+	
+	public static void sendToPlayers(Level level, Stream<ServerPlayer> players, 
+			CustomPacketPayload payload, CustomPacketPayload... payloads) {
+		if (level.isClientSide()) {
+			throw new IllegalStateException("Cannot send clientbound payloads on the client");
+		} else {
+			Packet<?> packet = makeClientboundPacket(payload, payloads);
+
+			players.forEach(player -> player.connection.send(packet));
 		}
 	}
 	

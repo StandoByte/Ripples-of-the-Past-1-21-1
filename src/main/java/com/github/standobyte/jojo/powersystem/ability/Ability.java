@@ -127,8 +127,12 @@ public class Ability {
 	}
 	
 	public boolean isAbilityUnlocked(Power<?> context) {
+		return isSkillUnlocked(context, name());
+	}
+	
+	protected static boolean isSkillUnlocked(Power<?> context, String skillName) {
 		PowerData skillsData = context.getCurTypeData();
-		return skillsData != null && !skillsData._lockedAbilities.contains(name());
+		return skillsData != null && !skillsData._lockedAbilities.contains(skillName);
 	}
 	
 	/**

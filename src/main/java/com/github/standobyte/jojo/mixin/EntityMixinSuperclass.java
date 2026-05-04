@@ -6,6 +6,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectsMap;
+
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -17,5 +19,11 @@ public abstract class EntityMixinSuperclass {
 
 	@Inject(method = "onAddedToLevel", at = @At("TAIL"))
 	public void jojo_ripples$onAddedToWorld(CallbackInfo ci) {}
+
+
+	@Inject(method = "setRemoved", at = @At("TAIL"))
+	public void onRemoved(Entity.RemovalReason removalReason, CallbackInfo ci) {
+		EntityCustomEffectsMap.EventHandler.onEntityRemoved((Entity) (Object) this);
+	}
 	
 }

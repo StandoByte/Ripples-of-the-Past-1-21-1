@@ -17,17 +17,23 @@ import com.github.standobyte.jojo.client.entityrender.LoadedModel;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
+import com.github.standobyte.jojo.client.shader.core.ManualInitPostChain;
+import com.github.standobyte.jojo.client.shader.core.ManualInitPostChain.PostChainDefinition;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo;
 import com.github.standobyte.jojo.client.standskin.sound.CustomPathSound;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.subsystems.StoryPart;
 import com.github.standobyte.jojo.util.objects_mc.WeightsList;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.core.Holder;
@@ -36,6 +42,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceProvider;
 
 public class StandSkin {
 	public final ResourceLocation skinId;
@@ -60,6 +67,9 @@ public class StandSkin {
 	protected Map<ResourceLocation, Sound> remappedSound = new HashMap<>();
 	
 	protected WeightsList<BgmTrackInfo> resolveBGM;
+	
+	protected Map<ResourceLocation, PostChainDefinition> shaderDefinitions;
+	protected Map<ResourceLocation, ManualInitPostChain> shaders;
 	
 	protected Optional<GuiIcon> standIcon;
 	protected final Map<ResourceLocation, ResourcePathChecker> remapPathCache = new HashMap<>();
@@ -107,6 +117,10 @@ public class StandSkin {
 	
 	protected void withResolveBGM(WeightsList<BgmTrackInfo> tracks) {
 		this.resolveBGM = tracks;
+	}
+	
+	protected void withShaders(Map<ResourceLocation, PostChainDefinition> shaders) {
+		this.shaderDefinitions = shaders;
 	}
 
 	
@@ -328,6 +342,53 @@ public class StandSkin {
 			return defaultSkin.resolveBGM;
 		}
 		return null;
+	}
+	
+	
+	@Nullable
+	public ManualInitPostChain getShaderPostChain(ResourceLocation path) {
+		if (this.shaders != null) {
+			ManualInitPostChain cached = this.shaders.get(path);
+			if (cached != null) {
+				return cached;
+			}
+		}
+		
+		if (this.shaderDefinitions != null) {
+			PostChainDefinition shaderDef = this.shaderDefinitions.get(path);
+			if (shaderDef != null) {
+				Minecraft mc = Minecraft.getInstance();
+				TextureManager textureManager = mc.getTextureManager();
+				ResourceProvider resourceProvider = mc.getResourceManager();
+				RenderTarget screenTarget = mc.getMainRenderTarget();
+				ManualInitPostChain shader = null;
+				try {
+					ManualInitPostChain shaderToInit = new ManualInitPostChain(textureManager, resourceProvider, screenTarget, path);
+					ManualInitPostChain.init(shaderToInit, shaderDef, textureManager);
+					shader = shaderToInit;
+				}
+				catch (Exception e) {
+					JojoMod.getLogger().error("Failed to load shader {} from Stand skin {}", path, skinId, e);
+					shader = null;
+				}
+				if (this.shaders == null) this.shaders = new HashMap<>();
+				this.shaders.put(path, shader);
+				return shader;
+			}
+		}
+		
+		if (this != defaultSkin && defaultSkin != null) {
+			return defaultSkin.getShaderPostChain(path);
+		}
+		
+		return null;
+	}
+	
+	public void closeResources() {
+		if (shaders != null) {
+			shaders.values().forEach(shader -> shader.close());
+			shaders = null;
+		}
 	}
 	
 	
