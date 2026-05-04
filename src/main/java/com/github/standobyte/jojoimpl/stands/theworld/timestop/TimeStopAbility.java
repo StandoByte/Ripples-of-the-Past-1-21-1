@@ -31,7 +31,7 @@ public class TimeStopAbility extends EntityActionAbility {
 	public TimeStopAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId, TimeStopWindupAction::new);
 		canUseInStoppedTime = true;
-		setDefaultPhaseLength(ActionPhase.BUTTON_CHARGE, 40);
+		setDefaultPhaseLength(ActionPhase.BUTTON_CHARGE, 30);
 	}
 	
 	@Override

@@ -94,21 +94,27 @@ public class TimeStopEffect extends StandEffectInstance implements TimeStopInsta
 				this.remove();
 				return;
 			}
-			if (!playedResumeFX && duration - tickCount == TIME_RESUME_SOUND_TICKS) {
-				ReuseableStream<TimeStopEffect> otherEffects = new ReuseableStream<>(
-						TimeStopLevelTracker.get(level).getEffects().stream()
-						.filter(effect -> effect != this));
-				
-				TimeStopVFXPacket vfxPacket = shaderPacket(TimeStopVFXState.FADE_OUT);
-				Stream<ServerPlayer> sendTo = ((ServerLevel) level).players().stream()
-						.filter(player -> {
-							BlockPos pos = player.blockPosition();
-							return isInRange(pos) && getCanSeeInTimeStopVar(player) 
-									&& !otherEffects.getStream().anyMatch(effect -> effect.isInRange(pos));
-						});
-				PacketDistributor2.sendToPlayers(level, sendTo, vfxPacket);
-				playedResumeFX = true;
+			if (tickCount == duration - TIME_RESUME_SOUND_TICKS) {
+				doTimeResumeFX();
 			}
+		}
+	}
+	
+	public void doTimeResumeFX() {
+		if (!playedResumeFX) {
+			ReuseableStream<TimeStopEffect> otherEffects = new ReuseableStream<>(
+					TimeStopLevelTracker.get(level).getEffects().stream()
+					.filter(effect -> effect != this));
+			
+			TimeStopVFXPacket vfxPacket = shaderPacket(TimeStopVFXState.FADE_OUT);
+			Stream<ServerPlayer> sendTo = ((ServerLevel) level).players().stream()
+					.filter(player -> {
+						BlockPos pos = player.blockPosition();
+						return isInRange(pos) && getCanSeeInTimeStopVar(player) 
+								&& !otherEffects.getStream().anyMatch(effect -> effect.isInRange(pos));
+					});
+			PacketDistributor2.sendToPlayers(level, sendTo, vfxPacket);
+			playedResumeFX = true;
 		}
 	}
 	
