@@ -46,6 +46,12 @@ public class TimeStopEffect extends StandEffectInstance implements TimeStopInsta
 	public TimeStopEffect(EntityCustomEffectType<?> effectType) {
 		super(effectType);
 	}
+	
+	@Override
+	public void setEntity(Entity entity) {
+		super.setEntity(entity);
+		this.initialPos = entity.chunkPosition();
+	}
 
 	@Override public ChunkPos center() { return initialPos; }
 	public static final int CHUNK_RANGE = 12;

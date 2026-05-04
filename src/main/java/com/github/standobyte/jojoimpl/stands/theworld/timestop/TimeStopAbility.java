@@ -34,7 +34,6 @@ public class TimeStopAbility extends Ability {
 			StandPower standPower = StandPower.get(user);
 			if (standPower != null) {
 				TimeStopEffect timeStop = ModStandAbilities.EFFECT_TIME_STOP.get().create(level);
-				timeStop.initialPos = user.chunkPosition();
 				standPower.userStandEffects.addEffect(timeStop);
 			}
 		}
