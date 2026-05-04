@@ -2,6 +2,8 @@ package com.github.standobyte.jojo.client.sound;
 
 import java.util.Optional;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.client.standskin.sound.SoundInstanceWithStandSkin;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -9,9 +11,12 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -20,6 +25,39 @@ import net.neoforged.neoforge.client.event.sound.PlaySoundEvent;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class ClientsideSoundsHelper {
+
+	
+	/*
+	 * We can actually reference our implementations of SoundInstance (for example, EntityStoppableSoundInstance) anywhere,
+	 * unlike the vanilla classes (such as EntityBoundSoundInstance) that have @OnlyIn annotation and therefore are not present on dedicated server.
+	 * We just can't reference the SoundInstance interface itself in this method's signature. because it is also only present on client.
+	 * Of course we can still only call this on a logical client side (if Level#isClientSide() is true).
+	 */
+	public static void playNonVanillaClassSound(Object soundInstance) {
+		Minecraft.getInstance().getSoundManager().play((SoundInstance) soundInstance);
+	}
+	
+	public static void playSimpleSoundInstance(SoundEvent soundEvent, float volume, float pitch, 
+			SoundSource soundSource, @Nullable Vec3 pos) {
+		SimpleSoundInstance sound;
+		if (pos != null) {
+			sound = new SimpleSoundInstance(soundEvent.getLocation(),
+					soundSource, pitch, volume,
+					SoundInstance.createUnseededRandom(), false, 0,
+					SoundInstance.Attenuation.NONE,
+					pos.x, pos.y, pos.z, false);
+		}
+		else {
+			sound = new SimpleSoundInstance(soundEvent.getLocation(),
+					soundSource, pitch, volume,
+					SoundInstance.createUnseededRandom(), false, 0,
+					SoundInstance.Attenuation.NONE,
+					0, 0, 0, true);
+		}
+		Minecraft.getInstance().getSoundManager().play(sound);
+	}
+	
+	
 	
 	/**
 	 * Call this right before calling {@link net.minecraft.client.sounds.SoundEngine#play(SoundInstance)}
@@ -45,19 +83,6 @@ public class ClientsideSoundsHelper {
 			return soundEvent;
 		}
 	}
-
-	
-	/*
-	 * We can actually reference our implementations of SoundInstance (for example, EntityStoppableSoundInstance) anywhere,
-	 * unlike the vanilla classes (such as EntityBoundSoundInstance) that have @OnlyIn annotation and therefore are not present on dedicated server.
-	 * We just can't reference the SoundInstance interface itself in this method's signature. because it is also only present on client.
-	 * Of course we can still only call this on a logical client side (if Level#isClientSide() is true).
-	 */
-	public static void playNonVanillaClassSound(Object soundInstance) {
-		Minecraft.getInstance().getSoundManager().play((SoundInstance) soundInstance);
-	}
-
-
 
 	// Internal Stand skin handler section
 	
