@@ -6,10 +6,8 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
-import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
-import com.github.standobyte.jojoimpl.stands.theworld.timestop.level.TimeStopLevelTracker;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.LivingEntity;
@@ -22,21 +20,12 @@ public class TimeStopInvadeAbility extends Ability {
 		canUseInStoppedTime = true;
 	}
 	
-	@Override
-	public Ability replaceWithSubAbility(Power<?> context, AvailableAbilities abilities) {
-		StandPower standPower = PowerClass.STAND.cast(context);
-		if (standPower != null) {
-			LivingEntity user = standPower.getUser();
-			if (user != null) {
-				// if the player is not stopping time && there is a time stop instance in the area
-				if (!standPower.userStandEffects.getEffectOfType(ModStandAbilities.EFFECT_TIME_STOP.get()).isPresent()
-						&& TimeStopLevelTracker.timeStops(standPower.getUser().level()).anyMatch(timeStop -> timeStop.isInRange(user.blockPosition()))) {
-					abilities.replaceOtherAbilityWith(standPower, "time_stop", this);
-				}
-			}
-		}
-		
-		return null;
+	public static boolean canInvadeTimeStop(StandPower userPower) {
+		LivingEntity user = userPower.getUser();
+		return user != null 
+				// if the player is not stopping time && there is someone else's time stop instance in the area
+				&& !userPower.userStandEffects.getEffectOfType(ModStandAbilities.EFFECT_TIME_STOP.get()).isPresent()
+				&& TimeStopEffect.getIsInsideTimeStop(user);
 	}
 	
 	// FIXME temporary
@@ -57,14 +46,8 @@ public class TimeStopInvadeAbility extends Ability {
 	
 	@Override
 	public void onClick(Level level, LivingEntity user, FriendlyByteBuf extraClientInput) {
-		if (!level.isClientSide()) {
-			StandPower standPower = StandPower.get(user);
-			if (standPower != null) {
-				// TODO a variation which stops as soon as the other time stop instances stop (Star Platinum asspull path)
-				TimeStopEffect timeStop = ModStandAbilities.EFFECT_TIME_STOP.get().create(level);
-				standPower.userStandEffects.addEffect(timeStop);
-			}
-		}
+		// TODO a variation which stops as soon as the other time stop instances stop (Star Platinum asspull path)
+		TimeStopAbility.addTimeStopEffect(user, TimeStopAbility.getDuration(user), true);
 	}
 
 }
