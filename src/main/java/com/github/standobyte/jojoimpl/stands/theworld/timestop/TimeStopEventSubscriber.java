@@ -13,6 +13,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.CalculatePlayerTurnEvent;
 import net.neoforged.neoforge.client.event.InputEvent.InteractionKeyMappingTriggered;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
@@ -70,6 +71,17 @@ public class TimeStopEventSubscriber {
 			if (player != null && TimeStopEffect.getIsFrozenInTime(player)) {
 				event.setCanceled(true);
 				event.setSwingHand(false);
+			}
+		}
+		
+		@SubscribeEvent(priority = EventPriority.HIGHEST)
+		public static void noMouseTurn(CalculatePlayerTurnEvent event) {
+			Player player = Minecraft.getInstance().player;
+			if (player != null && TimeStopEffect.getIsFrozenInTime(player)) {
+				// a - raw sensitivity value in the event
+				// b - actual sensitivity
+				// b = (0.6 * a + 0.2) ^3 * 8
+				event.setMouseSensitivity(-1f / 3);
 			}
 		}
 	}
