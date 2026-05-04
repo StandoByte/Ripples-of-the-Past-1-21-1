@@ -28,6 +28,7 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
+//TODO Map<String, DataParameter<?>> to allow for adding syncable variables externally
 public class JojoModEntityVariables<T extends Entity> implements INBTSerializable<CompoundTag>, TickingEntityData, SynchronizablePlayerData, SyncedDataHolderExtended {
 	public static final DataParameter<Boolean> INSIDE_TIME_STOP_ZONE = DataParameter.defineId(
 			JojoModEntityVariables.class, EntityDataSerializers.BOOLEAN, false);
