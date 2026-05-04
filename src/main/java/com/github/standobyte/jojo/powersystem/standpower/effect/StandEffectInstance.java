@@ -185,7 +185,7 @@ public abstract class StandEffectInstance extends EntityCustomEffect {
 			}
 
 			if (!level.isClientSide()) {
-				PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, TrEntityCustomEffectsPacket.updateTarget(this));
+				PacketDistributor.sendToPlayersTrackingEntityAndSelf(getEntity(), TrEntityCustomEffectsPacket.updateTarget(this));
 			}
 		}
 	}
@@ -226,15 +226,17 @@ public abstract class StandEffectInstance extends EntityCustomEffect {
 
 	@Override
 	public void writeAdditionalPacketData(FriendlyByteBuf buf, boolean sendingToUser) {
+		super.writeAdditionalPacketData(buf, sendingToUser);
 		buf.writeInt(getTargetEntityId());
 	}
 
 	@Override
 	public void readAdditionalPacketData(FriendlyByteBuf buf, boolean clientIsUser) {
+		super.readAdditionalPacketData(buf, clientIsUser);
 		int targetEntityId = buf.readInt();
 		if (targetEntityId != -1) {
 			this.withTargetEntityId(targetEntityId);
-			this.updateTarget(entity.level());
+			this.updateTarget(level);
 		}
 	}
 

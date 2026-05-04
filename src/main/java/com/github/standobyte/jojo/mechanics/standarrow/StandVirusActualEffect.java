@@ -15,6 +15,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -63,7 +64,7 @@ public class StandVirusActualEffect extends EntityCustomEffect implements Synced
 	@Override
 	protected void tick() {
 		if (!level.isClientSide() && tickCount % 10 == 0) {
-			LivingEntity entity = (LivingEntity) this.entity;
+			LivingEntity entity = (LivingEntity) this.getEntity();
 			Holder<MobEffect> vanillaEffect = ModStatusEffects.STAND_VIRUS;
 
 			if (!entity.hasEffect(vanillaEffect)) {
@@ -128,9 +129,10 @@ public class StandVirusActualEffect extends EntityCustomEffect implements Synced
 	@Override
 	protected void stop() {
 		if (!stopEffectOnGaveStand) {
+			LivingEntity entity = (LivingEntity) getEntity();
 			Level level = entity.level();
 			if (!level.isClientSide() && entity.isAlive()) {
-				StandArrowItem.giveStand(level, (LivingEntity) entity);
+				StandArrowItem.giveStand(level, entity);
 			}
 		}
 	}
@@ -138,6 +140,7 @@ public class StandVirusActualEffect extends EntityCustomEffect implements Synced
 	// TODO stand virus side effect for the entity that's about to die
 	protected void doDyingEntitySideEffect() {
 		if (!didDyingEntitySideEffect) {
+			Entity entity = getEntity();
 			int effect = entity.getRandom().nextInt(6);
 			// note: make the effects not harm the entity itself
 			switch (effect) {
