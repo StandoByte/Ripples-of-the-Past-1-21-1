@@ -16,11 +16,13 @@ import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
 import com.github.standobyte.jojo.util.functions.NBTUtil;
 import com.github.standobyte.jojo.util.functions_network.PacketDistributor2;
+import com.github.standobyte.jojo.util.objects_java.ReuseableStream;
 import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopVFXPacket.TimeStopVFXState;
 import com.github.standobyte.jojoimpl.stands.theworld.timestop.level.TimeStopLevelTracker;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -40,6 +42,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
  */
 public class TimeStopEffect extends StandEffectInstance implements TimeStopInstance {
 	public boolean playedFX = false;
+	public boolean playedResumeFX = false;
 	public int duration = 100;
 	public ChunkPos initialPos;
 
@@ -57,20 +60,54 @@ public class TimeStopEffect extends StandEffectInstance implements TimeStopInsta
 	public static final int CHUNK_RANGE = 12;
 	@Override public int chunkRange() { return CHUNK_RANGE; }
 	
+	
+	public static final int TIME_RESUME_SOUND_TICKS = 10;
+	public static final int TIME_RESUME_VOICELINE_TICKS = 30;
 
 	@Override
 	protected void start() {
 		if (this.level != null && !level.isClientSide()) {
 			TimeStopLevelTracker levelTracker = level.getData(ModDataAttachmentTypes.TIME_STOP_LEVEL_TRACKER);
+			ReuseableStream<TimeStopEffect> otherEffects = new ReuseableStream<>(
+					levelTracker.getEffects().stream());
 			levelTracker.add(this);
 
 			TimeStopVFXPacket vfxPacket = shaderPacket(!playedFX ? TimeStopVFXState.STARTUP : TimeStopVFXState.ACTIVE);
 			Stream<ServerPlayer> sendTo = ((ServerLevel) level).players().stream()
-					.filter(player -> isInRange(player.blockPosition()) && getCanSeeInTimeStopVar(player));
+					.filter(player -> {
+						BlockPos pos = player.blockPosition();
+						return isInRange(pos) && getCanSeeInTimeStopVar(player) 
+								&& !otherEffects.getStream().anyMatch(effect -> effect.isInRange(pos));
+					});
 			PacketDistributor2.sendToPlayers(level, sendTo, vfxPacket);
 
 			if (!playedFX) {
 				playedFX = true;
+			}
+		}
+	}
+
+	@Override
+	protected void tick() {
+		if (!level.isClientSide()) {
+			if (tickCount >= duration) {
+				this.remove();
+				return;
+			}
+			if (!playedResumeFX && duration - tickCount == TIME_RESUME_SOUND_TICKS) {
+				ReuseableStream<TimeStopEffect> otherEffects = new ReuseableStream<>(
+						TimeStopLevelTracker.get(level).getEffects().stream()
+						.filter(effect -> effect != this));
+				
+				TimeStopVFXPacket vfxPacket = shaderPacket(TimeStopVFXState.FADE_OUT);
+				Stream<ServerPlayer> sendTo = ((ServerLevel) level).players().stream()
+						.filter(player -> {
+							BlockPos pos = player.blockPosition();
+							return isInRange(pos) && getCanSeeInTimeStopVar(player) 
+									&& !otherEffects.getStream().anyMatch(effect -> effect.isInRange(pos));
+						});
+				PacketDistributor2.sendToPlayers(level, sendTo, vfxPacket);
+				playedResumeFX = true;
 			}
 		}
 	}
@@ -86,13 +123,6 @@ public class TimeStopEffect extends StandEffectInstance implements TimeStopInsta
 		int userId = user != null ? user.getId() : -1;
 		
 		return new TimeStopVFXPacket(standId, selectedSkin, pos, userId, state);
-	}
-
-	@Override
-	protected void tick() {
-		if (!level.isClientSide() && this.tickCount >= duration) {
-			this.remove();
-		}
 	}
 
 	@Override
@@ -149,6 +179,7 @@ public class TimeStopEffect extends StandEffectInstance implements TimeStopInsta
 		super.writeAdditionalSaveData(nbt);
 		nbt.putInt("Duration", duration);
 		nbt.putBoolean("PlayedFX", playedFX);
+		nbt.putBoolean("PlayedResumeFX", playedResumeFX);
 		NBTUtil.put(nbt, "Pos", initialPos, FUCK_MY_LIFE);
 	}
 
@@ -157,6 +188,7 @@ public class TimeStopEffect extends StandEffectInstance implements TimeStopInsta
 		super.readAdditionalSaveData(nbt);
 		duration = nbt.getInt("Duration");
 		playedFX = nbt.getBoolean("PlayedFX");
+		playedResumeFX = nbt.getBoolean("PlayedResumeFX");
 		initialPos = NBTUtil.getOptional(nbt, "Pos", FUCK_MY_LIFE).orElseThrow();
 	}
 	
