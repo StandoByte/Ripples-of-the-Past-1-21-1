@@ -11,6 +11,7 @@ import com.github.standobyte.jojo.client.ui.hud_power.WindupIndicator;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerData;
+import com.github.standobyte.jojo.powersystem.ability.condition.AbilityUsageContext;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
@@ -135,26 +136,27 @@ public class Ability {
 	 * A version of {@link Ability#checkSpecificConditions(Power)} with more control, allowing one ability to disable others dynamically
 	 */
 	// FIXME target parameter (or a simple enough getter)
-	public void onConditionCheck(Power<?> context, AvailableAbilities abilities, AbilityConditionCheck thisAbility) {
+	public void onConditionCheck(AbilityUsageContext context, AvailableAbilities abilities, AbilityConditionCheck thisAbility) {
 		ConditionCheck check = checkConditions(context);
 		thisAbility.conditionCheck = check;
 		
-		LivingEntity user = context.getUser();
+		Power<?> power = context.power;
+		LivingEntity user = power.getUser();
 		if (user != null && user.level().isClientSide() && user == ClientProxy.getClientPlayer()) {
-			thisAbility.clientInputState = cl_abilityInputState(context)._value;
+			thisAbility.clientInputState = cl_abilityInputState(power)._value;
 		}
 	}
 	
-	public ConditionCheck checkConditions(Power<?> context) {
+	public ConditionCheck checkConditions(AbilityUsageContext context) {
 		ConditionCheck check = checkMainModLogicConditions(context);
 		if (check.isPositive()) {
-			check = checkSpecificConditions(context);
+			check = checkSpecificConditions(context.power);
 		}
 		return check;
 	}
 	
 	@ApiStatus.Internal
-	public ConditionCheck checkMainModLogicConditions(Power<?> context) {
+	public ConditionCheck checkMainModLogicConditions(AbilityUsageContext context) {
 		return ConditionCheck.POSITIVE;
 	}
 	
