@@ -1,6 +1,8 @@
 package com.github.standobyte.jojoimpl.stands.theworld.timestop;
 
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.powersystem.Power;
+import com.github.standobyte.jojo.powersystem.PowerClass;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
@@ -30,8 +32,9 @@ public class TimeStopEventSubscriber {
 	}
 	
 	public static void tickInTimeStopAnyway(Entity entity) {
+		LivingEntity asLiving = entity instanceof LivingEntity living ? living : null;
 		if (!entity.level().isClientSide()) {
-			if (entity instanceof LivingEntity living) {
+			if (asLiving != null) {
 				if (entity.invulnerableTime > 0) {
 					entity.invulnerableTime--;
 				}
@@ -42,6 +45,16 @@ public class TimeStopEventSubscriber {
 				}
 			}
 		}
+		
+		if (asLiving != null) {
+			for (PowerClass<?> powerClass : PowerClass.values()) {
+				Power<?> power = powerClass.get(asLiving);
+				if (power != null) {
+					power.alwaysTick();
+				}
+			}
+		}
+		
 		if (entity instanceof TickEntityInTimeStop e) {
 			e.tickInTimeStop();
 		}

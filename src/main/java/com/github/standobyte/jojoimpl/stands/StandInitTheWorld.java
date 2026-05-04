@@ -34,6 +34,7 @@ public class StandInitTheWorld {
 
 				.addAbility("time_stop", ModStandAbilities.TIME_STOP)
 				.addAbility("time_resume", ModStandAbilities.TIME_RESUME)
+				.addAbility("time_stop_invade", ModStandAbilities.TIME_STOP_INVADE)
 
 
 				.makeControlScheme("hotbar")
@@ -43,7 +44,7 @@ public class StandInitTheWorld {
 				.finalizeControlScheme()
 
 
-				.addSkill(StandUnlockableSkill.unlockableAbility("time_stop", 500).withAbility("time_resume").setIncomplete())
+				.addSkill(StandUnlockableSkill.unlockableAbility("time_stop", 500).withAbility("time_stop_invade", "time_resume").setIncomplete())
 
 				, id)
 			.discTooltipExperimental();

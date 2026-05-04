@@ -113,8 +113,9 @@ public class TimeStopEffect extends StandEffectInstance implements TimeStopInsta
 			
 			StandPower standPower = StandPower.get(standUser);
 			if (standPower != null) {
-				Optional<TimeStopEffect> entityCurTimeStop = standPower.userStandEffects.getEffectOfType(ModStandAbilities.EFFECT_TIME_STOP.get());
-				if (entityCurTimeStop.isPresent()) {
+				TimeStopEffect entityCurTimeStop = standPower.userStandEffects.getEffectOfType(ModStandAbilities.EFFECT_TIME_STOP.get())
+						.orElse(null);
+				if (entityCurTimeStop != null && !entityCurTimeStop.isStopped()) {
 					return true;
 				}
 			}

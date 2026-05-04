@@ -15,6 +15,9 @@ import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.finisher.StandFinisherCheck;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopEffect;
+
+import net.minecraft.world.entity.LivingEntity;
 
 public class AvailableAbilities {
 	public final Map<String, AbilityConditionCheck> _inMoveset = new HashMap<>();
@@ -39,7 +42,9 @@ public class AvailableAbilities {
 			}
 		}
 		
+		LivingEntity user = power.getUser();
 		ctxInstance.power = power;
+		ctxInstance.isFrozenInTime = TimeStopEffect.getIsFrozenInTime(user);
 		
 		// Checking usage conditions on all of the abilities (this would make the ability gray out in the HUD if you currently can't use it for some reason)
 		

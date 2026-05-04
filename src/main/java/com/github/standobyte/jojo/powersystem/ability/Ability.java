@@ -159,8 +159,12 @@ public class Ability {
 		return check;
 	}
 	
+	protected boolean canUseInStoppedTime = false;
 	@ApiStatus.Internal
 	public ConditionCheck checkMainModLogicConditions(AbilityUsageContext context) {
+		if (!canUseInStoppedTime && context.isFrozenInTime) {
+			return ConditionCheck.NEGATIVE;
+		}
 		return ConditionCheck.POSITIVE;
 	}
 	

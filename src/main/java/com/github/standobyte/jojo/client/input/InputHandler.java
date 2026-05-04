@@ -164,18 +164,29 @@ public class InputHandler {
 	}
 	
 	
-	protected boolean shouldQueueKeyRelease() {
+	protected boolean noInputProcessing() {
 		return mc.isPaused() 
-				|| mc.player != null && TimeStopEffect.getIsFrozenInTime(mc.player)
 				|| !(mc.screen == null || PowerHud.isInContainerScreen() || mc.screen instanceof AbilitySelectionWheel);
 	}
 	
+	protected boolean shouldQueueKeyRelease() {
+		return mc.player != null && TimeStopEffect.getIsFrozenInTime(mc.player);
+	}
+	
 	protected void tickReleaseEventQueue() {
-		if (!keyReleaseEventQueue.isEmpty() && mc.getConnection() != null && !shouldQueueKeyRelease()) {
-			for (DelayedInput keyRelease : keyReleaseEventQueue) {
-				input(keyRelease.key, keyRelease.action, keyRelease.modifiers);
-			}
+		if (mc.getConnection() != null) {
 			keyReleaseEventQueue.clear();
+			return;
+		}
+		
+		if (!keyReleaseEventQueue.isEmpty()) {
+			boolean processReleaseQueue = !noInputProcessing() && !shouldQueueKeyRelease();
+			if (processReleaseQueue) {
+				for (DelayedInput keyRelease : keyReleaseEventQueue) {
+					input(keyRelease.key, keyRelease.action, keyRelease.modifiers);
+				}
+				keyReleaseEventQueue.clear();
+			}
 		}
 	}
 	
@@ -232,11 +243,16 @@ public class InputHandler {
 		boolean cancelVanilla = false;
 		short keyId = key.keyId();
 		
-		if (shouldQueueKeyRelease()) {
+		boolean dontProcess = noInputProcessing();
+		if (dontProcess || shouldQueueKeyRelease()) {
 			if (inputType == InputConstants.RELEASE) {
 				keyReleaseEventQueue.add(new DelayedInput(key, inputType, modifiers));
+				return false;
 			}
-			return false;
+			
+			if (dontProcess) {
+				return false;
+			}
 		}
 		
 		switch (inputType) {
