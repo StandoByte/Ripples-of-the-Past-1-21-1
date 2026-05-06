@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -91,12 +92,12 @@ public class HierophantPuppetAbility extends StandEntityAbility {
 	}
 
 	protected String releaseSpriteName;
-	protected Component releaseAbilityName;
+	protected String releaseTlKey;
 	
 	@Override
 	protected void initVariationAssets() {
 		this.releaseSpriteName = this.spriteName + "_release";
-		this.releaseAbilityName = abilityName(abilityId, ".release");
+		this.releaseTlKey = tlKey(abilityId, ".release");
 	}
 	
 	@Override
@@ -107,13 +108,12 @@ public class HierophantPuppetAbility extends StandEntityAbility {
 		return super.getSpriteName(context);
 	}
 
-	// TODO ability names in stand skins
 	@Override
 	public Component getName(Power<?> context) {
 		if (hasPuppetUnderControl(PowerClass.STAND.cast(context))) {
-			return releaseAbilityName;
+			return StandSkinComponent.translatable(context, releaseTlKey);
 		}
-		return name;
+		return super.getName(context);
 	}
 
 }

@@ -6,9 +6,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
 import com.github.standobyte.jojo.client.ui.hud_misc.BottomLeftNotifications;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerData;
+import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
 import com.github.standobyte.jojo.powersystem.standpower.packet.StandExpPacket;
@@ -76,7 +78,7 @@ public class StandTypePersistentData extends PowerData {
 	}
 	
 	public void setExp(float exp, StandPower userPower, boolean clientSideNewSkillNotification) {
-		if (clientSideNewSkillNotification) {
+		if (clientSideNewSkillNotification && userPower.hasPower()) {
 			Collection<? extends UnlockableSkill> couldUnlock = getAllSkills().values().stream()
 					.filter(skill -> skill.canUnlockFromMenu(userPower, this).isPositive()).collect(Collectors.toSet());
 			
@@ -85,9 +87,11 @@ public class StandTypePersistentData extends PowerData {
 			Collection<? extends UnlockableSkill> newSkillsToUnlock = getAllSkills().values().stream()
 					.filter(skill -> skill.canUnlockFromMenu(userPower, this).isPositive() && !couldUnlock.contains(skill)).toList();
 			if (!newSkillsToUnlock.isEmpty()) {
+				StandInstance stand = userPower.getStandInstance().get();
 				BottomLeftNotifications.add(Component.translatable("jojo_ripples.notification.stand_skill"));
 				for (UnlockableSkill skill : newSkillsToUnlock) {
-					BottomLeftNotifications.add(Component.translatable("jojo_ripples.list.entry.no_newline", skill.textName));
+					Component skillName = StandSkinComponent.translatable(stand, skill.tlKeyName);
+					BottomLeftNotifications.add(Component.translatable("jojo_ripples.list.entry.no_newline", skillName));
 				}
 			}
 		}

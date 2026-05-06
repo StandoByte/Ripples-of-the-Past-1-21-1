@@ -37,6 +37,7 @@ import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackLoader;
 import com.github.standobyte.jojo.client.sound.bgmloop.DebugBgm;
 import com.github.standobyte.jojo.client.sound.util.SoundEventDelegate;
 import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
+import com.github.standobyte.jojo.client.standskin.text.LanguagePrep;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
@@ -58,6 +59,9 @@ import com.mojang.serialization.JsonOps;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.resources.language.ClientLanguage;
+import net.minecraft.client.resources.language.LanguageInfo;
+import net.minecraft.client.resources.language.LanguageManager;
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.resources.sounds.SoundEventRegistration;
 import net.minecraft.client.resources.sounds.SoundEventRegistrationSerializer;
@@ -66,6 +70,7 @@ import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.client.sounds.Weighted;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -110,13 +115,13 @@ public class StandSkinsLoader implements PreparableReloadListener, AutoCloseable
 	
 	@Override
 	public void close() {
-		closeSkinResources();
+		discardOldSkins();
 	}
 	
-	protected void closeSkinResources() {
+	protected void discardOldSkins() {
 		for (var skinsPerStand : skins.values()) {
 			for (StandSkin skin : skinsPerStand.values()) {
-				skin.closeResources();
+				skin.discard();
 			}
 		}
 	}
@@ -332,7 +337,9 @@ public class StandSkinsLoader implements PreparableReloadListener, AutoCloseable
 		private Map<ResourceLocation, Pair<ResourceLocation, Resource>> soundFiles;
 		private WeightsList<BgmTrackInfo> resolveBGM;
 		private Map<ResourceLocation, PostChainDefinition> shaderChains;
-		
+		private Map<String, LanguagePrep> langFiles;
+		private Language language;
+
 		private StandSkinResourceBuilder(ResourceLocation skinId) {
 			this.skinId = skinId;
 		}
@@ -345,6 +352,19 @@ public class StandSkinsLoader implements PreparableReloadListener, AutoCloseable
 			return true;
 		}
 		
+		private void createLang(List<String> langCodes, boolean defaultRightToLeft) {
+			if (langFiles != null) {
+				Map<String, String> translations = new HashMap<>();
+				Map<String, Component> componentMap = new HashMap<>();
+				for (String langCode : langCodes) {
+					LanguagePrep langPrep = langFiles.get(langCode);
+					translations.putAll(langPrep.storage);
+					componentMap.putAll(langPrep.componentStorage);
+				}
+				language = new ClientLanguage(Map.copyOf(translations), defaultRightToLeft, Map.copyOf(componentMap));
+			}
+		}
+		
 		private StandSkin makeSkin() {
 			StandSkin skin = new StandSkin(skinId, standId, uiColor, storyPart);
 			if (models != null) skin.withModels(models);
@@ -354,6 +374,7 @@ public class StandSkinsLoader implements PreparableReloadListener, AutoCloseable
 					Map.Entry::getKey, entry -> entry.getValue().getFirst())));
 			if (resolveBGM != null && !resolveBGM.isEmpty()) skin.withResolveBGM(resolveBGM);
 			if (shaderChains != null) skin.withShaders(shaderChains);
+			if (language != null) skin.withLanguage(language);
 			return skin;
 		}
 	}
@@ -400,7 +421,7 @@ public class StandSkinsLoader implements PreparableReloadListener, AutoCloseable
 				}
 			}
 			case "lang" -> {
-				// TODO (stand skin) load lang
+				loadLangFile(resource, builder, resPath.assetPathWExtension);
 			}
 			case "sounds" -> {
 				if (resPath.assetPathWExtension.endsWith(SOUND_EXTENSION)) {
@@ -519,6 +540,36 @@ public class StandSkinsLoader implements PreparableReloadListener, AutoCloseable
 		}
 	}
 	
+
+	private void loadLangFile(List<Resource> resource, StandSkinResourceBuilder standSkinBuilder, String fileName) {
+		String langCode = StringUtil.trimEnding(fileName, ".json");
+		
+		if (standSkinBuilder.langFiles == null) {
+			standSkinBuilder.langFiles = new HashMap<>();
+		}
+		standSkinBuilder.langFiles.put(langCode, LanguagePrep.fromJsonFile(resource, langCode, standSkinBuilder.skinId));
+	}
+	
+	private static final String WHAT_THE_FUCK_IS_A_KILOMETER = "en_us";
+	private List<String> langCodesToLoad = new ArrayList<>();
+	private boolean langDefaultRightToLeft;
+	private void updateRelevantLangCodes() {
+		LanguageManager langManager = Minecraft.getInstance().getLanguageManager();
+		String currentCode = langManager.getSelected();
+		Map<String, LanguageInfo> languages = langManager.getLanguages();
+
+		langCodesToLoad.clear();
+		langCodesToLoad.add(WHAT_THE_FUCK_IS_A_KILOMETER);
+		langDefaultRightToLeft = languages.get(WHAT_THE_FUCK_IS_A_KILOMETER).bidirectional();
+		if (!currentCode.equals(WHAT_THE_FUCK_IS_A_KILOMETER)) {
+			LanguageInfo languageInfo = languages.get(currentCode);
+			if (languageInfo != null) {
+				langCodesToLoad.add(currentCode);
+				langDefaultRightToLeft = languageInfo.bidirectional();
+			}
+		}
+	}
+
 	
 	private static final Gson LOAD_SOUND_EVENTS_GSON = new GsonBuilder()
 			.registerTypeHierarchyAdapter(Component.class, new Component.SerializerAdapter(RegistryAccess.EMPTY))
@@ -576,7 +627,8 @@ public class StandSkinsLoader implements PreparableReloadListener, AutoCloseable
 	
 	
 	protected void apply(Preps preps, ResourceManager resourceManager, ProfilerFiller profiler) {
-		closeSkinResources();
+		discardOldSkins();
+		updateRelevantLangCodes();
 		
 		Minecraft mc = Minecraft.getInstance();
 		SoundManager soundManager = mc.getSoundManager();
@@ -586,6 +638,8 @@ public class StandSkinsLoader implements PreparableReloadListener, AutoCloseable
 		this.skins.clear();
 		for (var skinBuilder : preps.skinsRead.values()) {
 			if (skinBuilder.isValidSkin(JojoMod.getLogger())) {
+				// doing this at this stage to make sure the LanguageManager has LanguageInfo on non-freedom languages during game startup
+				skinBuilder.createLang(langCodesToLoad, langDefaultRightToLeft);
 				// XXX move the makeSkin call to prepare?
 				StandSkin skin = skinBuilder.makeSkin();
 				this.skins.computeIfAbsent(skinBuilder.standId, __ -> new HashMap<>()).put(skinBuilder.skinId, skin);

@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientProxy;
+import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
 import com.github.standobyte.jojo.customobjects.DamageSourceModified;
 import com.github.standobyte.jojo.customobjects.EntityStandVisibility;
 import com.github.standobyte.jojo.customobjects.EntityWithStandSkin;
@@ -51,6 +52,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
@@ -783,9 +785,12 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 
 	protected Optional<ResourceLocation> standSkin = Optional.empty();
+	protected Component name;
 	@Override
 	public void setSelectedSkin(Optional<ResourceLocation> standSkin) {
 		this.standSkin = standSkin;
+		ResourceLocation standId = getStandType();
+		this.name = StandSkinComponent.translatable(standId, standSkin, StandType.makeTlKey(standId));
 	}
 	
 	@Override
@@ -793,6 +798,11 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		return standSkin;
 	}
 	
+	@Override
+	protected Component getTypeName() {
+    	return name != null ? name : super.getTypeName();
+	}
+
 	
 	public boolean onlyVisibleToStandUsers = true;
 	public boolean standCanHaveNoPhysics = true;

@@ -545,7 +545,7 @@
   "jojo_ripples.skill.block_bullet.desc": "Crazy Diamond restructures a block held in your offhand into a sharp projectile and shoots it at a high speed.",
   "jojo_ripples.skill.block_bullet.controls": "Special ability",
   "jojo_ripples.ability.block_bullet": "Block Bullet",
-  "jojo_ripples.ability.block_bullet_homing": "Homing Bullet",
+  "jojo_ripples.ability.block_bullet.homing": "Homing Bullet",
   
   "jojo_ripples.skill.blood_cutter": "Blood Cutter",
   "jojo_ripples.skill.blood_cutter.desc": "A fast projectile made out of your blood. When it hits something, the blood drops remain on nearby entities - this makes your Block Bullets home in on them §7§o(by adding more of your blood drops on Block Bullets, and fixing the blood while the bullet is flying)§r.",

@@ -38,8 +38,7 @@ import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.locale.Language;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceProvider;
@@ -70,6 +69,8 @@ public class StandSkin {
 	
 	protected Map<ResourceLocation, PostChainDefinition> shaderDefinitions;
 	protected Map<ResourceLocation, ManualInitPostChain> shaders;
+	
+	protected Language language;
 	
 	protected Optional<GuiIcon> standIcon;
 	protected final Map<ResourceLocation, ResourcePathChecker> remapPathCache = new HashMap<>();
@@ -121,6 +122,21 @@ public class StandSkin {
 	
 	protected void withShaders(Map<ResourceLocation, PostChainDefinition> shaders) {
 		this.shaderDefinitions = shaders;
+	}
+	
+	protected void withLanguage(Language language) {
+		this.language = language;
+	}
+
+
+	public Optional<ResourceLocation> getNonDefaultId() {
+		return isDefault ? Optional.empty() : Optional.of(skinId);
+	}
+	
+	public boolean isDiscarded = false;
+	public void discard() {
+		closeShaders();
+		isDiscarded = true;
 	}
 
 	
@@ -384,7 +400,7 @@ public class StandSkin {
 		return null;
 	}
 	
-	public void closeResources() {
+	public void closeShaders() {
 		if (shaders != null) {
 			shaders.values().forEach(shader -> shader.close());
 			shaders = null;
@@ -392,17 +408,37 @@ public class StandSkin {
 	}
 	
 	
+	public Language getLanguage() {
+		return language;
+	}
+	
+	/**
+	 * @return The Stand skin which has a language with the translation key.
+	 */
+	@Nullable
+	public StandSkin resolveLang(StandSkin fallbackSkin, String tlKey, @Nullable String tlFallbackKey) {
+		StandSkin skinWithKey = this;
+		if (!langHasKey(skinWithKey.language, tlKey, tlFallbackKey)) {
+			if (this != fallbackSkin) {
+				skinWithKey = fallbackSkin;
+				if (!langHasKey(skinWithKey.language, tlKey, tlFallbackKey)) {
+					skinWithKey = null;
+				}
+			}
+			else {
+				skinWithKey = null;
+			}
+		}
+		return skinWithKey;
+	}
+	
+	protected static boolean langHasKey(Language language, String key, @Nullable String fallbackKey) {
+		return language != null && (language.has(key) || fallbackKey != null && language.has(fallbackKey));
+	}
+
+
 	public ResourcePathChecker remapAssetPath(ResourceLocation path) {
 		return remapPathCache.computeIfAbsent(path, asset -> ResourcePathChecker.getOrCreate(StandSkinsLoader.remap(asset, skinId)));
 	}
-	
-	
-	public MutableComponent translatable(String key) {
-		return Component.translatable(key);
-	}
 
-	public MutableComponent translatable(String key, Object... args) {
-		return Component.translatable(key, args);
-	}
-	
 }

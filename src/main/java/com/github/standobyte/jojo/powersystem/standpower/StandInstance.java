@@ -11,13 +11,13 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -28,6 +28,7 @@ import net.minecraft.resources.ResourceLocation;
 public class StandInstance {
 	private final Either<StandType, ResourceLocation> standType;
 	private Optional<ResourceLocation> skin = Optional.empty();
+	protected String nameTlKey;
 	
 	@Nullable
 	public static StandInstance fromExistingStandId(ResourceLocation standId) {
@@ -41,11 +42,12 @@ public class StandInstance {
 	}
 	
 	public StandInstance(@Nonnull StandType standType) {
-		this.standType = Either.left(standType);
+		this(Either.left(standType));
 	}
 	
 	protected StandInstance(Either<StandType, ResourceLocation> standType) {
 		this.standType = standType;
+		this.nameTlKey = StandType.makeTlKey(getStandId());
 	}
 
 	@Nullable
@@ -94,17 +96,16 @@ public class StandInstance {
 	
 	@Nullable
 	public Component getStandName(boolean clientSide) {
+		MutableComponent name = StandSkinComponent.translatable(this, nameTlKey);
 		StandType stand = getStandType();
 		if (stand == null) {
-			MutableComponent name = Component.translatable(Util.makeDescriptionId("stand", getStandId()));
 			return name.withStyle(ChatFormatting.GRAY, ChatFormatting.STRIKETHROUGH);
 		}
-		Component name = stand.name.get();
 		if (clientSide) {
 			StandSkin skin = StandSkinsLoader.getInstance().getSkin(this);
 			if (skin != null) {
 				int color = skin.getColor();
-				return name.copy().withColor(color);
+				name = name.withColor(color);
 			}
 		}
 		return name;

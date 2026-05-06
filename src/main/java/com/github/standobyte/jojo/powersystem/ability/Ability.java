@@ -7,6 +7,7 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.input.InputHandler;
+import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
 import com.github.standobyte.jojo.client.ui.hud_power.WindupIndicator;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.powersystem.Power;
@@ -34,7 +35,7 @@ public class Ability {
 	public final AbilityType<?> abilityType;
 	public final AbilityId abilityId;
 	protected String spriteName;
-	protected Component name;
+	protected String nameTlKey;
 	
 	public AbilityUsageGroup usageGroup = AbilityUsageGroup.SPECIAL;
 	public boolean isSubAbility = false;
@@ -45,14 +46,11 @@ public class Ability {
 		this.abilityType = abilityType;
 		this.abilityId = abilityId;
 		this.spriteName = StringUtil.splitIntAtTheEnd(abilityId.nameInMoveset()).getFirst();
-		this.name = abilityName(abilityId, "");
+		this.nameTlKey = tlKey(abilityId.nameInMoveset());
+		this.name = Component.translatable(nameTlKey);
 		String abilityName = abilityId.nameInMoveset();
 		this.isSubAbility = !abilityName.isEmpty() && Character.isDigit(abilityName.charAt(abilityName.length() - 1));
 		initVariationAssets();
-	}
-	
-	protected static Component abilityName(AbilityId abilityId, String postfix) {
-		return Component.translatable("jojo_ripples.ability." + abilityId.nameInMoveset() + postfix);
 	}
 	
 	public AbilityId getAbilityId() {
@@ -90,7 +88,7 @@ public class Ability {
 		usageGroup = AbilityUsageGroup.GRAB;
 		isSubAbility = true;
 		this.spriteName = abilityId.nameInMoveset().replace("grab_", "");
-		this.name = Component.translatable("jojo_ripples.ability." + spriteName);
+		this.nameTlKey = tlKey(spriteName);
 	}
 	
 	
@@ -195,8 +193,15 @@ public class Ability {
 	}
 	
 	public Component getName(Power<?> context) {
-		// TODO ability names in stand skins
-		return name;
+		return StandSkinComponent.translatable(context, nameTlKey);
+	}
+	
+	public static String tlKey(AbilityId abilityId, String postfix) {
+		return tlKey(abilityId.nameInMoveset() + postfix);
+	}
+	
+	public static String tlKey(String abilityName) {
+		return "jojo_ripples.ability." + abilityName;
 	}
 	
 	public String getSpriteName(Power<?> context) {
@@ -252,5 +257,11 @@ public class Ability {
 	
 	
 	protected void initVariationAssets() {}
-	
+
+
+	@Deprecated protected Component name;
+	@Deprecated
+	protected static Component abilityName(AbilityId abilityId, String postfix) {
+		return Component.translatable("jojo_ripples.ability." + abilityId.nameInMoveset() + postfix);
+	}
 }

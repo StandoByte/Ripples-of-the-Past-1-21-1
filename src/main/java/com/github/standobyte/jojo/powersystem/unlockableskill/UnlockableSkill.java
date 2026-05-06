@@ -5,9 +5,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
 import com.github.standobyte.jojo.powersystem.Power;
+import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerData;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
+import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -22,19 +26,20 @@ public abstract class UnlockableSkill {
 	public Optional<String> mainSkill;
 	public List<String> unlocksAbilities;
 	
-	public Component textName;
-	public Component textDesc;
-	public Component textControls;
 	public DevStatus implemented = DevStatus.IMPLEMENTED;
+	
+	public String tlKeyName;
+	public String tlKeyDesc;
+	public String tlKeyControls;
 
 	public UnlockableSkill(String name) {
 		this.skillName = name;
 		this.prerequisiteSkills = new ArrayList<>();
 		this.mainSkill = Optional.empty();
 		this.unlocksAbilities = new ArrayList<>();
-		this.textName = skillName(name);
-		this.textDesc = Component.translatable("jojo_ripples.skill." + name + ".desc");
-		this.textControls = Component.translatable("jojo_ripples.skill." + name + ".controls");
+		tlKeyName = "jojo_ripples.skill." + name;
+		tlKeyDesc = tlKeyName + ".desc";
+		tlKeyControls = tlKeyName + ".controls";
 	}
 	
 	public ConditionCheck canUnlockFromMenu(Power<?> userPower, PowerData data) {
@@ -48,9 +53,13 @@ public abstract class UnlockableSkill {
 		if (missingPrerequsites != null) {
 			MutableComponent allNames = Component.empty();
 			int count = missingPrerequsites.size();
+			
+			StandPower asStandPower = PowerClass.STAND.cast(userPower);
+			StandInstance stand = asStandPower != null ? asStandPower.getStandInstance().orElse(null) : null;
+			
 			for (int i = 0; i < count; i++) {
 				String skill = missingPrerequsites.get(i);
-				MutableComponent skillName = skillName(skill);
+				MutableComponent skillName = StandSkinComponent.translatable(stand, "jojo_ripples.skill." + skill);
 				allNames = allNames.append(Component.translatable("jojo_ripples.list.entry", skillName));
 			}
 			Component fullMessage = Component.translatable("jojo_ripples.stand_skills.prerequisites", allNames);
@@ -79,10 +88,6 @@ public abstract class UnlockableSkill {
 		return this;
 	}
 	
-	
-	protected static MutableComponent skillName(String internalName) {
-		return Component.translatable("jojo_ripples.skill." + internalName);
-	}
 	
 	public UnlockableSkill withAbility(String abilityName, String... extra) {
 		this.unlocksAbilities.add(abilityName);

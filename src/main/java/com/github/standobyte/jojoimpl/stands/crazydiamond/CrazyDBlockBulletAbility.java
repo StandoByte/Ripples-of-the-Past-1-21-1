@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.particle.CustomParticlesHelper;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityStoppableSoundInstance;
+import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
 import com.github.standobyte.jojo.init.ModBlocks;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
@@ -182,12 +183,12 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 
 
 	protected String homingSpriteName;
-	protected Component homingAbilityName;
+	protected String homingTlKey;
 	
 	@Override
 	protected void initVariationAssets() {
 		this.homingSpriteName = this.spriteName + "_homing";
-		this.homingAbilityName = abilityName(abilityId, ".homing");
+		this.homingTlKey = tlKey(abilityId, ".homing");
 	}
 	
 	@Override
@@ -198,13 +199,12 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 		return super.getSpriteName(context);
 	}
 
-	// TODO ability names in stand skins
 	@Override
 	public Component getName(Power<?> context) {
 		if (isHoming(context.getUser(), PowerClass.STAND.cast(context))) {
-			return homingAbilityName;
+			return StandSkinComponent.translatable(context, homingTlKey);
 		}
-		return name;
+		return super.getName(context);
 	}
 
 

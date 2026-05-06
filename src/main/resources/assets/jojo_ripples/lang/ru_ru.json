@@ -543,7 +543,7 @@
   "    перевести-jojo_ripples.skill.block_bullet.desc": "Crazy Diamond restructures a block held in your offhand into a sharp projectile and shoots it at a high speed.",
   "jojo_ripples.skill.block_bullet.controls": "Особая способность",
   "jojo_ripples.ability.block_bullet": "Снаряд из блока",
-  "jojo_ripples.ability.block_bullet_homing": "Самонаводящийся снаряд",
+  "jojo_ripples.ability.block_bullet.homing": "Самонаводящийся снаряд",
   
   "jojo_ripples.skill.blood_cutter": "Резак из крови",
   "    перевести-jojo_ripples.skill.blood_cutter.desc": "Быстрый снаряд из вашей крови. После всплеска от попадания, капли крови остаются на сущностях рядом - ваши снаряды из блоков могут самонаводиться на них §7§o(добавляя капли крови к самим снарядам и восстанавливая кровь, пока снаряд летит)§r.",

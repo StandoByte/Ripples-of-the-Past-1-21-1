@@ -11,6 +11,7 @@ import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
+import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
 import com.github.standobyte.jojo.client.textsymbols.IconSymbols;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.IJojoMenuScreen;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.PaperButton;
@@ -27,6 +28,7 @@ import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
+import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData;
@@ -165,6 +167,12 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 	protected static final int SKILL_LIST_Y = 57;
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float p_283123_) {
+		if (!standPower.hasPower()) {
+			onClose();
+			return;
+		}
+		StandInstance standInstance = standPower.getStandInstance().get();
+		
 		deselectSkillButton.visible = selectedSkill != null;
 		StandExpSummary expSummary = levelingData.expSummary(standPower);
 		
@@ -230,7 +238,8 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		skillListScrolling.renderScrollBar(skillListX - 8, skillListY + 1, 0, 4, guiGraphics, SCROLL_BAR, 1);
 
 		if (selectedSkill != null) {
-			TextUtil.drawRightAlignedString(guiGraphics, font, selectedSkill.textName, 
+			TextUtil.drawRightAlignedString(guiGraphics, font, 
+					StandSkinComponent.translatable(standInstance, selectedSkill.tlKeyName), 
 					x + getWindowWidth() - 10, y + 24, textColor, false);
 			
 			skillDescription.draw(4, 3, guiGraphics, this.minecraft.font, textColor, false);
@@ -260,7 +269,8 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		if (hovered != null) {
 			TooltipParams.set(TooltipParams.paperStyle(1));
 			List<FormattedCharSequence> skillNameTooltip = new ArrayList<>();
-			skillNameTooltip.add(hovered.textName.copy().withStyle(ChatFormatting.BLACK).getVisualOrderText());
+			skillNameTooltip.add(StandSkinComponent.translatable(standInstance, hovered.tlKeyName)
+					.withStyle(ChatFormatting.BLACK).getVisualOrderText());
 			switch (hovered.implemented) {
 				case WIP -> skillNameTooltip.add(Component.translatable("rotp_tag_wip")
 						.withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC).getVisualOrderText());
@@ -343,9 +353,12 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			skillControls.scrolling.setScrollOffset(0);
 		}
 		this.selectedSkill = skill;
-		if (skill != null) {
-			skillDescription.setText(font.split(selectedSkill.textDesc, 111));
-			skillControls.setText(font.split(selectedSkill.textControls.copy(), 101));
+		if (skill != null && standPower.hasPower()) {
+			StandInstance stand = standPower.getStandInstance().get();
+			Component textDesc = StandSkinComponent.translatable(stand, selectedSkill.tlKeyDesc);
+			Component textControls = StandSkinComponent.translatable(stand, selectedSkill.tlKeyControls);
+			skillDescription.setText(font.split(textDesc, 111));
+			skillControls.setText(font.split(textControls, 101));
 		}
 		else {
 			skillDescription.setText(null);

@@ -324,7 +324,12 @@ public class StandType extends PowerType {
 		return PowerClass.STAND;
 	}
 	
-	public Lazy<Component> name = Lazy.of(() -> Component.translatable(Util.makeDescriptionId("stand", this.getId())));
+	
+	public static String makeTlKey(ResourceLocation standId) {
+		return Util.makeDescriptionId("stand", standId);
+	}
+	
+	public Lazy<Component> name = Lazy.of(() -> Component.translatable(makeTlKey(this.getId())));
 	@Override
 	public Component getName(Power<?> playerPowerData) {
 		return ((StandPower) playerPowerData).getStandInstance()
