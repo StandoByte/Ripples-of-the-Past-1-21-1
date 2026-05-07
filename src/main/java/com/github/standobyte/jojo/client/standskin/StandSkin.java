@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
@@ -54,7 +53,7 @@ public class StandSkin {
 	public final boolean isDefault;
 	public final Optional<ResourceLocation> nonDefaultId;
 	protected final ResourcePathChecker standTexture;
-	protected final OptionalInt color;
+	@Nullable protected final StandSkinColor color;
 	protected final Optional<ResourceLocation> storyPart;
 	
 	protected Map<ResourceLocation, LayerDefinition> models = new HashMap<>();
@@ -82,7 +81,7 @@ public class StandSkin {
 	protected Optional<GuiIcon> standIcon;
 	protected final Map<ResourceLocation, ResourcePathChecker> remapPathCache = new HashMap<>();
 	
-	public StandSkin(ResourceLocation skinId, ResourceLocation standId, OptionalInt color, Optional<ResourceLocation> storyPart) {
+	public StandSkin(ResourceLocation skinId, ResourceLocation standId, @Nullable StandSkinColor color, Optional<ResourceLocation> storyPart) {
 		this.skinId = skinId;
 		this.standTypeId = standId;
 		this.standTexture = remapAssetPath(ResourceLocation.fromNamespaceAndPath(
@@ -176,14 +175,19 @@ public class StandSkin {
 		return desc;
 	}
 	
+	@Deprecated
 	public int getColor() {
-		if (this.color.isPresent()) {
-			return this.color.getAsInt();
+		return getColors().primary();
+	}
+	
+	public StandSkinColor getColors() {
+		if (this.color != null) {
+			return this.color;
 		}
-		if (this != defaultSkin && defaultSkin != null && defaultSkin.color.isPresent()) {
-			return defaultSkin.color.getAsInt();
+		if (this != defaultSkin && defaultSkin != null && defaultSkin.color != null) {
+			return defaultSkin.color;
 		}
-		return 0xffffff;
+		return StandSkinColor.FALLBACK;
 	}
 	
 	@Nullable

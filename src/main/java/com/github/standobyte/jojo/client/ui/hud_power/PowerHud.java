@@ -11,6 +11,7 @@ import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.client.standskin.text.StandNameSetColor;
 import com.github.standobyte.jojo.client.textsymbols.IconSymbols;
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHudControlsElement.AbilityBindUI;
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHudControlsElement.BindUI;
@@ -284,6 +285,7 @@ public class PowerHud {
 				Power<?> power = ClientPowerCache.getPower(PowerClass.STAND);
 				if (power != null && power.hasPower()) {
 					Component powerName = power.getName();
+					powerName = StandNameSetColor.fromSkin(power, powerName, true);
 					tooltipText.setTitle(Component.translatable("ripples_hud.stand_summoned", powerName.copy())
 							.withStyle(ChatFormatting.BLACK));
 				}
@@ -292,6 +294,7 @@ public class PowerHud {
 				Power<?> power = ClientPowerCache.getPower(powerClass);
 				if (power != null && power.hasPower()) {
 					Component powerName = power.getName();
+					powerName = StandNameSetColor.fromSkin(power, powerName, true);
 					tooltipText.setTitle(powerName.copy()
 							.withStyle(ChatFormatting.BLACK));
 				}
@@ -499,7 +502,7 @@ public class PowerHud {
 				if (multiplier > 1) {
 					Component multiplierText = Component.literal("x" + String.format("%.2f", multiplier));
 					StandSkin skin = StandSkinsLoader.getCurSkin();
-					guiGraphics.drawCenteredString(mc.font, multiplierText, x + width / 2, y - 8, skin != null ? skin.getColor() : 0xFFFFFFFF);
+					guiGraphics.drawCenteredString(mc.font, multiplierText, x + width / 2, y - 8, skin != null ? skin.getColors().text() : 0xFFFFFFFF);
 				}
 			}
 		}

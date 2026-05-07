@@ -125,7 +125,7 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 		ResourceLocation texture = DEFAULT_TEXTURE;
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
-		int textColor = standSkin != null ? standSkin.getColor() : 0xFFFFFFFF;
+		int textColor = standSkin != null ? standSkin.getColors().text() : 0xFFFFFFFF;
 		
 		boolean ignoreMouse = checkIsIgnoringMouse(mouseX, mouseY);
 		hoveredSlotIndex = ignoreMouse ? abilities.slotIndex : getSlotIndexAt(mouseX, mouseY);

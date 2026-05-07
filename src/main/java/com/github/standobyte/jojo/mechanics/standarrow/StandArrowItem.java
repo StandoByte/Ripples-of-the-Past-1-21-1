@@ -219,7 +219,7 @@ public class StandArrowItem extends ArrowItem {
             .sorted(discsOrder(context.registries()))
             .forEach(stand -> {
             	StandSkin defaultSkin = StandSkinsLoader.getInstance().getSkin(stand);
-            	Component standName = stand.getStandName(true).plainCopy().withStyle(ChatFormatting.GRAY);
+            	Component standName = stand.getStandName().plainCopy().withStyle(ChatFormatting.GRAY);
             	if (defaultSkin != null) {
             		Holder<StoryPart> storyPart = defaultSkin.getStoryPart(context.registries());
             		if (storyPart != null) {

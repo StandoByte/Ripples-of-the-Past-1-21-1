@@ -333,7 +333,7 @@ public class StandType extends PowerType {
 	@Override
 	public Component getName(Power<?> playerPowerData) {
 		return ((StandPower) playerPowerData).getStandInstance()
-				.map(stand -> stand.getStandName(playerPowerData.getUser().level().isClientSide()))
+				.map(stand -> stand.getStandName())
 				.orElseGet(this.name::get);
 	}
 	

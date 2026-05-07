@@ -189,11 +189,11 @@
   "commands.jojo_ripples.bgm.stop.success.multiple": "Остановлена звуковая дорожка у %s игроков",
   "commands.jojo_ripples.bgm.stop.success.single": "Остановлена звуковая дорожка у игрока %s",
   
-  "jojo_ripples.ui.story": "История (NYI)",
+  "jojo_ripples.ui.adventure": "Приключение (NYI)",
   "jojo_ripples.menu.player.profile": "Профиль персонажа: %s (NYI)",
   "jojo_ripples.menu.player.group": "Группа (NYI)",
   "jojo_ripples.menu.player.story_arcs": "Сюжетные арки (NYI)",
-  "jojo_ripples.menu.player.storytelling": "Повествование (NYI)",
+  "jojo_ripples.menu.player.adventure_settings": "Повествование (NYI)",
   
   "jojo_ripples.screen.edit_hud_layout": "Настройки управления (NYI)",
   "jojo_ripples.screen.ability_selection_wheel": "Выберите способность",

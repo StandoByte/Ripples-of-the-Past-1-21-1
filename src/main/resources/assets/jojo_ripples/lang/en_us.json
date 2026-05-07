@@ -192,11 +192,11 @@
   "commands.jojo_ripples.bgm.stop.success.multiple": "Stopped playing soundtrack for %s players",
   "commands.jojo_ripples.bgm.stop.success.single": "Stopped playing soundtrack for %s",
   
-  "jojo_ripples.ui.story": "Story (NYI)",
+  "jojo_ripples.ui.adventure": "Adventure (NYI)",
   "jojo_ripples.menu.player.profile": "Character Profile: %s (NYI)",
   "jojo_ripples.menu.player.group": "Group (NYI)",
   "jojo_ripples.menu.player.story_arcs": "Story Arcs (NYI)",
-  "jojo_ripples.menu.player.storytelling": "Storytelling (NYI)",
+  "jojo_ripples.menu.player.adventure_settings": "Storytelling (NYI)",
   
   "jojo_ripples.screen.edit_hud_layout": "Edit Controls (NYI)",
   "jojo_ripples.screen.ability_selection_wheel": "Choose an ability",

@@ -125,7 +125,7 @@ public class StandHudElements {
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 			StandSkin standSkin = StandSkinsLoader.getInstance().getSkin(standPower);
 			if (standSkin != null) {
-				color = standSkin.getColor();
+				color = standSkin.getColors().primary();
 			}
 			
 			VanillaGuiHelper.renderStatusEffects(stand, guiGraphics, gui, mc, color);

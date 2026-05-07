@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.client.standskin.text.StandNameSetColor;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -41,8 +42,9 @@ public class StandDiscItem extends Item {
 		
 		StandInstance standInstance = discStand.getInstance();
 		StandType standType = standInstance.getStandType();
-		Component standName = standInstance.getStandName(true);
+		Component standName = standInstance.getStandName();
 		if (standName != null) {
+			standName = StandNameSetColor.fromSkin(standInstance, standName, false);
 			tooltip.add(standName);
 		}
 

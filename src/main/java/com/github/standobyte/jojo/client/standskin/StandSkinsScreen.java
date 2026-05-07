@@ -195,11 +195,11 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		Component skinName = null;
 		if (skinFullView != null) {
 			StandSkin curSkin = skinFullView.skin;
-			skinName = curSkin.getName().copy().withColor(curSkin.getColor());
+			skinName = curSkin.getName().copy().withColor(curSkin.getColors().text_white_bg());
 		}
 		else {
 			StandSkin curSkin = StandSkinsLoader.getCurSkin();
-			skinName = curSkin.getName().copy().withColor(curSkin.getColor());
+			skinName = curSkin.getName().copy().withColor(curSkin.getColors().text_white_bg());
 			skinName = Component.translatable("jojo_ripples.current_skin", skinName);
 		}
 		if (skinName != null) {
@@ -218,7 +218,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		renderTabTooltip(gui, this, mouseX, mouseY);
 		if (hoveredSkin.isPresent()) {
 			StandSkin skin = hoveredSkin.get().skin;
-			Component name = skin.getName().copy().withColor(skin.getColor());
+			Component name = skin.getName().copy().withColor(skin.getColors().text_white_bg());
 			Component desc = skin.getDescription();
 			Tooltip tooltip;
 			if (desc != null) {
@@ -483,7 +483,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 			else					skinBoxRow = isBottomRow ? SkinBoxes.ODD_BOTTOM : SkinBoxes.ODD;
 			GuiIcon skinBox = skinBoxRow[column];
 
-			int color = isHovered ? skin.getColor() : 0x80FFFFFF;
+			int color = isHovered ? skin.getColors().primary() : 0x80FFFFFF;
 			skinBox.render(gui.pose(), x, y, color);
 
 			renderStand(gui, mouseX, mouseY, ticks, isHovered, 

@@ -95,18 +95,11 @@ public class StandInstance {
 	
 	
 	@Nullable
-	public Component getStandName(boolean clientSide) {
+	public Component getStandName() {
 		MutableComponent name = StandSkinComponent.translatable(this, nameTlKey);
 		StandType stand = getStandType();
 		if (stand == null) {
 			return name.withStyle(ChatFormatting.GRAY, ChatFormatting.STRIKETHROUGH);
-		}
-		if (clientSide) {
-			StandSkin skin = StandSkinsLoader.getInstance().getSkin(this);
-			if (skin != null) {
-				int color = skin.getColor();
-				name = name.withColor(color);
-			}
 		}
 		return name;
 	}
