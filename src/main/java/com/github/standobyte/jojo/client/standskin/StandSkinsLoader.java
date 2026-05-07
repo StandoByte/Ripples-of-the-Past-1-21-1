@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.BiFunction;
@@ -308,7 +307,7 @@ public class StandSkinsLoader implements PreparableReloadListener {
 	public static class StandSkinResourceBuilder {
 		private final ResourceLocation skinId;
 		private ResourceLocation standId;
-		private OptionalInt uiColor = OptionalInt.empty();
+		private StandSkinColor uiColor = null;
 		private Optional<ResourceLocation> storyPart = Optional.empty();
 		private Map<ResourceLocation, LayerDefinition> models;
 		private Map<ResourceLocation, AnimationSet.Builder> animations;
@@ -344,7 +343,7 @@ public class StandSkinsLoader implements PreparableReloadListener {
 	private void loadSkinInfo(JsonObject skinInfoJson, StandSkinResourceBuilder builder, Logger logger) {
 		ResourceLocation.CODEC.decode(JsonOps.INSTANCE, skinInfoJson.get("stand_type")).ifSuccess(res -> builder.standId = res.getFirst());
 		if (skinInfoJson.has("color")) {
-			builder.uiColor = OptionalInt.of(0xff000000 | JSONUtil.parseColor(skinInfoJson.get("color")));
+			builder.uiColor = StandSkinColor.fromJson(skinInfoJson.get("color"));
 		}
 		if (skinInfoJson.has("story_part")) {
 			builder.storyPart = Optional.of(ResourceLocation.parse(skinInfoJson.get("story_part").getAsString()));
