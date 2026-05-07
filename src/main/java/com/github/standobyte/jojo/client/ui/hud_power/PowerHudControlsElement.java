@@ -116,7 +116,7 @@ public class PowerHudControlsElement extends HudElement {
 		ClientControlScheme controlScheme = input.getActiveControlScheme();
 		float partialTick = ClientUtil.partialTick(deltaTracker, false);
 		StandSkin standSkin = StandSkinsLoader.getCurSkin();
-		int textColor = controlScheme.powerClassCosmetic == PowerClass.STAND && standSkin != null ? standSkin.getColor() : 0xFFFFFFFF;
+		int textColor = controlScheme.powerClassCosmetic == PowerClass.STAND && standSkin != null ? standSkin.getColors().text() : 0xFFFFFFFF;
 
 		this.prepare(hud, controlScheme, font, input.getCurModifier(), standSkin);
 		// XXX (controls HUD) update size

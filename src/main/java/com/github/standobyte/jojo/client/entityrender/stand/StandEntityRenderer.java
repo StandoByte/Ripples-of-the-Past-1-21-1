@@ -179,7 +179,7 @@ public class StandEntityRenderer<
 	protected M modelFrom(S renderState) {
 		M model = getEntityModel(renderState);
 		if (model == missingSkinModel.get() && renderState.skin != null) {
-			renderState.tint = renderState.skin.getColor();
+			renderState.tint = renderState.skin.getColors().primary();
 		}
 		return model;
 	}

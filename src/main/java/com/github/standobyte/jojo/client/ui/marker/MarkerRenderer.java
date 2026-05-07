@@ -275,7 +275,7 @@ public abstract class MarkerRenderer {
 
 					float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(true);
 					StandSkin standSkin = StandSkinsLoader.getCurSkin();
-					_curStandSkinColor = standSkin != null ? standSkin.getColor() : -1;
+					_curStandSkinColor = standSkin != null ? standSkin.getColors().primary() : -1;
 					RENDERERS.forEach(marker -> marker.render(event.getPoseStack(), event.getCamera(), partialTick, standSkin));
 
 					mc.renderBuffers().bufferSource().endBatch();

@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.client.ClientTickHandler;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.StandSkinsScreen;
+import com.github.standobyte.jojo.client.standskin.text.StandNameSetColor;
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHud;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
@@ -126,7 +127,10 @@ public class JojoMenuTabs {
 	public static final TabCategory CATEGORY_STAND = new TabCategory(PowerClass.STAND, null) {
 		@Override
 		public Component getName() {
-			return Component.translatable("jojo_ripples.class.stand", ClientPowerCache.getPower(PowerClass.STAND).getName());
+			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+			Component standName = standPower.getName();
+			standName = StandNameSetColor.fromSkin(standPower, standName, true);
+			return Component.translatable("jojo_ripples.class.stand", standName);
 		}
 		
 		@Override
