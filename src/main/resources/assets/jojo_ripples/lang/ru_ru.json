@@ -278,6 +278,8 @@
   "moveset_default_group": "Способности",
   "moveset_group.stand.tooltip": "Эта клавиша активирует управление Стендом, но не призывает его сразу же - с помощью этого некоторые из способностей можно использовать, призвав только руки Стенда.",
   
+  "jojo_ripples.current_skin": "Выбранный скин: %s",
+  
   "jojo_ripples.stand_stat.strength": "Разрушительная мощь",
   "jojo_ripples.stand_stat.strength.shortened": "СИЛ - ",
   "jojo_ripples.stand_stat.strength.desc": "Влияет на физический урон от атак Стенда, и в меньшей степени на его сопротивление урону от атак других Стендов.",

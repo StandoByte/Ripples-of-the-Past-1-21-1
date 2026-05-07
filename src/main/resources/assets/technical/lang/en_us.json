@@ -36,5 +36,7 @@
   
   "ripples_hud.key_ability": "%s: %s",
   "jojo_ripples.list.entry": "\n  - %s",
-  "jojo_ripples.list.entry.no_newline": "- %s"
+  "jojo_ripples.list.entry.no_newline": "- %s",
+  
+  "jojo_ripples.missing_stand_skin_name": "[%s]"
 }

@@ -280,6 +280,8 @@
   "moveset_default_group": "Moveset",
   "moveset_group.stand.tooltip": "This enables the controls of your Stand without immediately summoning it - some of the abilies let you summon just your Stand's arms this way.",
   
+  "jojo_ripples.current_skin": "Current skin: %s",
+  
   "jojo_ripples.stand_stat.strength": "Power",
   "jojo_ripples.stand_stat.strength.shortened": "PWR - ",
   "jojo_ripples.stand_stat.strength.desc": "Affects the physical damage from the Stand's attacks and, to a lesser extent, damage resistance from other Stand attacks.",

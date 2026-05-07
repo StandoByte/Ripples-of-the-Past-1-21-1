@@ -1,4 +1,7 @@
 {
+  "stand_skin.name": "",
+  "stand_skin.desc": "",
+  
   "jojo_ripples.skill.time_stop": "Star Platinum: The World",
   "jojo_ripples.skill.time_stop.desc": "Star Platinum stops the flow of time for a brief moment, allowing only you to act freely while time is frozen.",
   "jojo_ripples.ability.time_stop": "\"Star Platinum: The World!\" (%ss)"

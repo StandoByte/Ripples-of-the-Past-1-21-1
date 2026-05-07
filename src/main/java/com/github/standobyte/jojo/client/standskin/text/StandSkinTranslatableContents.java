@@ -9,8 +9,6 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -21,16 +19,13 @@ import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentContents;
 import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.network.chat.contents.TranslatableFormatException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
 
-public class StandSkinTranslatableContents extends TranslatableContents {
+public class StandSkinTranslatableContents extends CustomLangTranslatableContents {
 	public static final MapCodec<StandSkinTranslatableContents> CODEC = RecordCodecBuilder.mapCodec(
 			instance -> instance.group(
 					// If you call this "translate", the game will instead create a TranslatableContents object when sending the component over network
@@ -68,41 +63,12 @@ public class StandSkinTranslatableContents extends TranslatableContents {
 	}
 
 
-	/* Copypasted from TranslatableContents to use another Language instance.
-	 * 
-	 * Another option would be to use @ModifyVariable on the variable in TranslatableContents#decompose(),
-	 * but I chose to override that method here instead. Doing a (this instanceof StandSkinTranslatableContents) check
-	 * in every single TranslatableContents#decompose() call felt like the more cursed option (both of them are).
-	 */
-	@Override
-	public void decompose() {
-		Language language = getLanguage();
-		if (language != this.decomposedWith) {
-			this.decomposedWith = language;
-
-			Component langComponent = language.getComponent(this.key);
-			if (langComponent != null) {
-				this.decomposedParts = ImmutableList.of(langComponent);
-				return;
-			}
-
-			String s = this.fallback != null ? language.getOrDefault(this.key, this.fallback) : language.getOrDefault(this.key);
-
-			try {
-				Builder<FormattedText> builder = ImmutableList.builder();
-				this.decomposeTemplate(s, builder::add);
-				this.decomposedParts = builder.build();
-			} catch (TranslatableFormatException translatableformatexception) {
-				this.decomposedParts = ImmutableList.of(FormattedText.of(s));
-			}
-		}
-	}
-
 	/*
 	 * null - haven't looked up the Stand skin yet
 	 * empty optional - Stand skins don't have this line, use the vanilla Language as a fallback
 	 */
 	protected Optional<StandSkin> clCachedStandSkin = null;
+	@Override
 	public Language getLanguage() {
 		if (FMLEnvironment.dist == Dist.CLIENT) {
 			// Check if the skins have been reloaded, in which case the cached one is now irrelevant

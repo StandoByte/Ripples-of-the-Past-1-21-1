@@ -21,6 +21,7 @@ import com.github.standobyte.jojo.client.shader.core.ManualInitPostChain;
 import com.github.standobyte.jojo.client.shader.core.ManualInitPostChain.PostChainDefinition;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo;
 import com.github.standobyte.jojo.client.standskin.sound.CustomPathSound;
+import com.github.standobyte.jojo.client.standskin.text.CustomLangTranslatableContents;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
@@ -39,6 +40,9 @@ import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.locale.Language;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceProvider;
@@ -71,6 +75,9 @@ public class StandSkin {
 	protected Map<ResourceLocation, ManualInitPostChain> shaders;
 	
 	protected Language language;
+	
+	protected Component name;
+	@Nullable protected Component desc;
 	
 	protected Optional<GuiIcon> standIcon;
 	protected final Map<ResourceLocation, ResourcePathChecker> remapPathCache = new HashMap<>();
@@ -124,8 +131,25 @@ public class StandSkin {
 		this.shaderDefinitions = shaders;
 	}
 	
+	public static final String KEY_NAME = "stand_skin.name";
+	public static final String KEY_DESC = "stand_skin.desc";
 	protected void withLanguage(Language language) {
 		this.language = language;
+		
+		if (language.has(KEY_NAME)) {
+			Component name = MutableComponent.create(new CustomLangTranslatableContents.SpecificLang(
+					language, KEY_NAME, null, TranslatableContents.NO_ARGS));
+			if (!name.getString().isEmpty()) {
+				this.name = name;
+			}
+		}
+		if (language.has(KEY_DESC)) {
+			Component desc = MutableComponent.create(new CustomLangTranslatableContents.SpecificLang(
+					language, KEY_DESC, null, TranslatableContents.NO_ARGS));
+			if (!desc.getString().isEmpty()) {
+				this.desc = desc;
+			}
+		}
 	}
 
 
@@ -139,6 +163,18 @@ public class StandSkin {
 		isDiscarded = true;
 	}
 
+	
+	public Component getName() {
+		if (name == null) {
+			name = Component.translatable("jojo_ripples.missing_stand_skin_name", this.skinId.toString());
+		}
+		return name;
+	}
+	
+	@Nullable
+	public Component getDescription() {
+		return desc;
+	}
 	
 	public int getColor() {
 		if (this.color.isPresent()) {

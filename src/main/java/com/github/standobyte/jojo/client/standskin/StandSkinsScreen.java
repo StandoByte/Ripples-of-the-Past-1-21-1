@@ -22,6 +22,8 @@ import com.github.standobyte.jojo.client.ui.screen_jojomenu.Tab;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.TabCategory;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
+import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
+import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.network.c2s.ClSetStandSkinPacket;
@@ -39,12 +41,15 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -87,7 +92,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 	private static final int WINDOW_HEIGHT = IJojoMenuScreen.DEFAULT_HEIGHT;
 	private static final int WINDOW_INSIDE_X = 7;
 	private static final int WINDOW_INSIDE_WIDTH = WINDOW_WIDTH - WINDOW_INSIDE_X - 22;
-	private static final int WINDOW_INSIDE_Y = 20;
+	private static final int WINDOW_INSIDE_Y = 24;
 	private static final int WINDOW_INSIDE_HEIGHT = WINDOW_HEIGHT - WINDOW_INSIDE_Y - 7;
 	
 	private static final int SKINS_IN_ROW = 3;
@@ -100,6 +105,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 	private int tickCount = 0;
 	private int scroll;
 	private List<SkinView> skinsVisible;
+	private Optional<SkinView> hoveredSkin = Optional.empty();
 	
 	@Nullable
 	private SkinFullView skinFullView;
@@ -170,17 +176,60 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 			onClose();
 			return;
 		}
+		int x = getWindowX(this);
+		int y = getWindowY(this);
+		int width = getWindowWidth();
 		partialTick = ClientUtil.partialTick(Minecraft.getInstance().getTimer(), true);
+		hoveredSkin = getSkinAt(mouseX, mouseY);
 		
 		renderBackground(gui, mouseX, mouseY, partialTick);
 		renderWindow(gui);
 		renderContents(gui, mouseX, mouseY, partialTick);
 		
 		renderTabs(gui, this);
-		renderTabTooltip(gui, this, mouseX, mouseY);
 		
 		for (Renderable renderable : renderables) {
 			renderable.render(gui, mouseX, mouseY, partialTick);
+		}
+		
+		Component skinName = null;
+		if (skinFullView != null) {
+			StandSkin curSkin = skinFullView.skin;
+			skinName = curSkin.getName().copy().withColor(curSkin.getColor());
+		}
+		else {
+			StandSkin curSkin = StandSkinsLoader.getCurSkin();
+			skinName = curSkin.getName().copy().withColor(curSkin.getColor());
+			skinName = Component.translatable("jojo_ripples.current_skin", skinName);
+		}
+		if (skinName != null) {
+			var split = minecraft.font.split(skinName, width - 10);
+			int yStart = y + 12 - (int) (split.size() * 4.5);
+			for (int i = 0; i < split.size(); i++) {
+				var line = split.get(i);
+				int lineWidth = minecraft.font.width(line);
+				gui.drawString(minecraft.font, line, 
+						x - lineWidth / 2 + width / 2, 
+						yStart + i * 9, 
+						0xFF000000, false);
+			}
+		}
+		
+		renderTabTooltip(gui, this, mouseX, mouseY);
+		if (hoveredSkin.isPresent()) {
+			StandSkin skin = hoveredSkin.get().skin;
+			Component name = skin.getName().copy().withColor(skin.getColor());
+			Component desc = skin.getDescription();
+			Tooltip tooltip;
+			if (desc != null) {
+				desc = desc.copy().withStyle(ChatFormatting.DARK_GRAY);
+				tooltip = new MultiLineScreenTooltip(name, desc);
+			}
+			else {
+				tooltip = Tooltip.create(name);
+			}
+			setTooltipForNextRenderPass(tooltip.toCharSequence(minecraft));
+			TooltipParams.set(TooltipParams.paperStyle(1));
 		}
 	}
 	
@@ -231,7 +280,6 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		}
 		else {
 			gui.pose().translate(0, -scroll, 0);
-			Optional<SkinView> hoveredSkin = getSkinAt(mouseX, mouseY);
 			for (SkinView skin : skinsVisible) {
 				skin.render(gui, mouseX, mouseY, ticks, 
 						hoveredSkin.map(hovered -> skin == hovered).orElse(false));
