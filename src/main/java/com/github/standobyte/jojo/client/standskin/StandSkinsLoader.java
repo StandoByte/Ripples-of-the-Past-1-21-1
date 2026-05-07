@@ -358,8 +358,10 @@ public class StandSkinsLoader implements PreparableReloadListener, AutoCloseable
 				Map<String, Component> componentMap = new HashMap<>();
 				for (String langCode : langCodes) {
 					LanguagePrep langPrep = langFiles.get(langCode);
-					translations.putAll(langPrep.storage);
-					componentMap.putAll(langPrep.componentStorage);
+					if (langPrep != null) {
+						translations.putAll(langPrep.storage);
+						componentMap.putAll(langPrep.componentStorage);
+					}
 				}
 				language = new ClientLanguage(Map.copyOf(translations), defaultRightToLeft, Map.copyOf(componentMap));
 			}

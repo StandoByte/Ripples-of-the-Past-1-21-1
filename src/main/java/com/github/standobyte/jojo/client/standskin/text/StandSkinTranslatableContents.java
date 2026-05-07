@@ -122,7 +122,7 @@ public class StandSkinTranslatableContents extends TranslatableContents {
 				if (standSkin == null) {
 					standSkin = defaultStandSkin;
 				}
-				StandSkin skinLang = standSkin.resolveLang(defaultStandSkin, this.getKey(), this.getFallback());
+				StandSkin skinLang = standSkin != null ? standSkin.resolveLang(defaultStandSkin, this.getKey(), this.getFallback()) : null;
 				clCachedStandSkin = Optional.ofNullable(skinLang);
 			}
 			
