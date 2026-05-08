@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.firstperson;
 
+import javax.annotation.Nullable;
+
 import org.joml.Matrix4f;
 
 import com.github.standobyte.jojo.client.entityrender.stand.HumanoidPart;
@@ -584,6 +586,9 @@ public class FirstPersonRender {
 
 	public static void renderTwoHandedMap(LivingEntity entity, PoseStack poseStack, MultiBufferSource buffer, 
 			int packedLight, float pitch, float equippedProgress, float swingProgress, ItemStack stack) {
+		LivingEntityRenderer renderer = getLivingRenderer(entity);
+		if (renderer == null) return;
+		
 		float f = Mth.sqrt(swingProgress);
 		float f1 = -0.2F * Mth.sin(swingProgress * (float) Math.PI);
 		float f2 = -0.4F * Mth.sin(f * (float) Math.PI);
@@ -594,8 +599,8 @@ public class FirstPersonRender {
 //		if (!entity.isInvisible()) {
 			poseStack.pushPose();
 			poseStack.mulPose(Axis.YP.rotationDegrees(90.0F));
-			renderMapArm(getLivingRenderer(entity), entity, poseStack, buffer, packedLight, HumanoidArm.RIGHT);
-			renderMapArm(getLivingRenderer(entity), entity, poseStack, buffer, packedLight, HumanoidArm.LEFT);
+			renderMapArm(renderer, entity, poseStack, buffer, packedLight, HumanoidArm.RIGHT);
+			renderMapArm(renderer, entity, poseStack, buffer, packedLight, HumanoidArm.LEFT);
 			poseStack.popPose();
 //		}
 
@@ -633,12 +638,16 @@ public class FirstPersonRender {
 		}
 	}
 
+	@Nullable
 	public static LivingEntityRenderer getLivingRenderer(LivingEntity entity) {
-		return (LivingEntityRenderer) instance.mc.getEntityRenderDispatcher().getRenderer(entity);
+		return instance.mc.getEntityRenderDispatcher().getRenderer(entity) instanceof LivingEntityRenderer __ ? __ : null;
 	}
 	
 	
 	public static void renderOnEvent(RenderHandEvent event, LivingEntity entity) {
+		LivingEntityRenderer renderer = getLivingRenderer(entity);
+		if (renderer == null) return;
+		
 		InteractionHand hand = event.getHand();
 		PoseStack poseStack = event.getPoseStack();
 		MultiBufferSource bufferSource = event.getMultiBufferSource();
@@ -647,7 +656,7 @@ public class FirstPersonRender {
 		float swingProgress = event.getSwingProgress();
 		
 		poseStack.pushPose();
-		FirstPersonRender.renderEntityArm(FirstPersonRender.getLivingRenderer(entity), entity, 
+		FirstPersonRender.renderEntityArm(renderer, entity, 
 				poseStack, bufferSource, light, equipProgress, swingProgress, 
 				UtilFunctions.getHandSide(entity, hand));
 		poseStack.popPose();

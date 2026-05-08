@@ -51,6 +51,7 @@ public class PreFrameEntityRenderCallback {
 		}
 	}
 	
+	@Nullable
 	public static AnimFramePose makeEntityPose(Entity entity, float partialTick) {
 		if (entity instanceof LivingEntity living) {
 			return PreFrameEntityRenderCallback.makeLivingPose(living, partialTick, true);
@@ -60,12 +61,13 @@ public class PreFrameEntityRenderCallback {
 	
 	// TODO get rid of instanceof
 	// TODO get rid of newFrame argument
+	@Nullable
 	public static AnimFramePose makeLivingPose(LivingEntity living, float partialTick, boolean newFrame) {
 		LivingComponentAction actionComponent = LivingComponentAction.getExistingComponent(living);
 		EntityActionInstance action = actionComponent != null ? actionComponent.getAction() : null;
 		@Nullable StandEntity stand = living instanceof StandEntity __ ? __ : null;
-		LivingEntityRenderer renderer = (LivingEntityRenderer) Minecraft.getInstance()
-				.getEntityRenderDispatcher().getRenderer(living);
+		LivingEntityRenderer renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(living) instanceof LivingEntityRenderer __ ? __ : null;
+		if (renderer == null) return null;
 		EntityModel model = renderer.getModel();
 		
 		LivingAnimState animVariables = LivingAnimState.reusedInstance;
