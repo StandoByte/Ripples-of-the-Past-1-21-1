@@ -25,6 +25,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -220,7 +221,14 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper, Ha
 			});
 		});
 		
-		nbt.putLong("Flags", entityData.get(NPC_FLAGS));
+		ListTag flagNamesNbt = new ListTag();
+		long flags = entityData.get(NPC_FLAGS);
+		for (NpcFlags flag : NpcFlags.values()) {
+			if (BitwiseFlagUtil.get(flags, flag)) {
+				flagNamesNbt.add(StringTag.valueOf(flag.name()));
+			}
+		}
+		nbt.put("Flags", flagNamesNbt);
 	}
 
 	@Override
@@ -252,7 +260,18 @@ public class PowerUserMobEntity extends Mob implements EntityAsPlayerWrapper, Ha
 			});
 		});
 		
-		entityData.set(NPC_FLAGS, nbt.getLong("Flags"));
+		NBTUtil.getElementOptional(nbt, "Flags", ListTag.class).ifPresent(flagNamesNbt -> {
+			long flags = 0;
+			if (flagNamesNbt.getElementType() == Tag.TAG_STRING) {
+				for (Tag flagName : flagNamesNbt) {
+			        try {
+			        	NpcFlags flag = NpcFlags.valueOf(flagName.getAsString());
+			        	flags = BitwiseFlagUtil.set(flags, flag, true);
+			        } catch (IllegalArgumentException e) {}
+				}
+			}
+			entityData.set(NPC_FLAGS, flags);
+		});
 	}
 
     public static AttributeSupplier.Builder createAttributes() {
