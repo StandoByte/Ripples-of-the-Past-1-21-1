@@ -33,7 +33,7 @@ public class StandSkinTranslatableContents extends CustomLangTranslatableContent
 					Codec.STRING.lenientOptionalFieldOf("fallback").forGetter(contents -> Optional.ofNullable(contents.getFallback())),
 					ARG_CODEC.listOf().optionalFieldOf("with").forGetter(contents -> _adjustArgs(contents.getArgs())),
 					ResourceLocation.CODEC.fieldOf("standid").forGetter(contents -> contents.standId),
-					ResourceLocation.CODEC.xmap(Optional::of, optional -> optional.orElse(null)).fieldOf("skin").forGetter(contents -> contents.selectedSkin))
+					ResourceLocation.CODEC.optionalFieldOf("skin").forGetter(contents -> contents.selectedSkin))
 			.apply(instance, StandSkinTranslatableContents::create));
 	public static final ComponentContents.Type<StandSkinTranslatableContents> TYPE = new ComponentContents.Type<>(StandSkinTranslatableContents.CODEC, "jojo_ripples:standskin");
 
