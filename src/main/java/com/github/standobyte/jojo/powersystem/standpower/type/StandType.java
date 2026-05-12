@@ -193,9 +193,12 @@ public class StandType extends PowerType {
 			if (user != null && !user.level().isClientSide()) {
 				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrNonEntityStandSummonPacket(user.getId(), true));
 				if (playSummonSound) {
-					PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, StandSkinSoundPacket.play(
+					StandSkinSoundPacket soundPacket = StandSkinSoundPacket.play(
 							user.position(), ModSoundEvents.STAND_SUMMON, 
-							standPower, user.getSoundSource(), 1, 1));
+							standPower, user.getSoundSource(), 1, 1);
+					if (soundPacket != null) {
+						PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, soundPacket);
+					}
 				}
 			}
 			return true;
@@ -235,9 +238,12 @@ public class StandType extends PowerType {
 			if (user != null && !user.level().isClientSide()) {
 				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrNonEntityStandSummonPacket(user.getId(), false));
 				if (playUnsummonSound) {
-					PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, StandSkinSoundPacket.play(
+					StandSkinSoundPacket soundPacket = StandSkinSoundPacket.play(
 							user.position(), ModSoundEvents.STAND_UNSUMMON, 
-							standPower, user.getSoundSource(), 1, 1));
+							standPower, user.getSoundSource(), 1, 1);
+					if (soundPacket != null) {
+						PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, soundPacket);
+					}
 				}
 			}
 		}
