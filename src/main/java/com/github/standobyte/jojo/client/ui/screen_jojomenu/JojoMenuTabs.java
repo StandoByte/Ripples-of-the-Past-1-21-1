@@ -77,12 +77,6 @@ public class JojoMenuTabs {
 			.withName(Component.translatable("jojo_ripples.ui.adventure"))
 			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/adventure.png"), 16, 16));
 	
-	static {
-		if (JojoMod.disableDevStuff()) {
-			TabCategory.ALL_CATEGORIES.remove(CATEGORY_ADVENTURE);
-		}
-	}
-	
 	public static final Tab PLAYER_PROFILE = new Tab(CATEGORY_ADVENTURE) {
 		@Override
 		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
@@ -121,7 +115,17 @@ public class JojoMenuTabs {
 	}
 			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.player.adventure_settings"))
 			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/adventure_settings.png"), 16, 16));
-	
+
+			
+	static {
+		if (JojoMod.disableDevStuff()) {
+			PLAYER_PROFILE.isDisabled = true;
+			GROUP.isDisabled = true;
+			STORY_ARCS.isDisabled = true;
+			ADVENTURE_SETTINGS.isDisabled = true;
+		}
+	}
+			
 	// Stand
 	
 	public static final TabCategory CATEGORY_STAND = new TabCategory(PowerClass.STAND, null) {
