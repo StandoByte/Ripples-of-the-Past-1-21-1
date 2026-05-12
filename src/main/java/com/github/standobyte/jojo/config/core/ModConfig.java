@@ -40,7 +40,7 @@ public class ModConfig<C1, C2, C3> implements ModConfigInterface<C1, C2, C3> {
 			return clientConfig.broadcast.configObj;
 		}
 		PlayerBroadcastConfig<C2> broadcast = getBroadcastPlayerState(player.getUUID());
-		return broadcast.broadcast.configObj;
+		return broadcast != null ? broadcast.broadcast.configObj : null;
 	}
 
 	@Override
@@ -72,6 +72,7 @@ public class ModConfig<C1, C2, C3> implements ModConfigInterface<C1, C2, C3> {
 	}
 	
 	public PlayerBroadcastConfig<C2> getBroadcastPlayerState(UUID playerId) {
+		if (serverBroadcast == null) return null;
 		return serverBroadcast.computeIfAbsent(playerId, 
 				__ -> new PlayerBroadcastConfig<>(broadcastFactory.get()));
 	}

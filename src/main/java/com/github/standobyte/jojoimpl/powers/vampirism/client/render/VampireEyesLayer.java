@@ -46,7 +46,8 @@ public class VampireEyesLayer<T extends LivingEntity, M extends PlayerModel<T>> 
 			boolean eyesEnabled = false;
 			
 			if (/*eyesEnabled && */entity instanceof Player player) {
-				eyesEnabled = JojoMod.config.getPlayerBroadcast(player).vampireGlowingEyes_tmp.getAsBoolean();
+				var setting = JojoMod.config.getPlayerBroadcast(player);
+				eyesEnabled = setting != null && setting.vampireGlowingEyes_tmp.getAsBoolean();
 			}
 			if (!eyesEnabled) return;
 			
