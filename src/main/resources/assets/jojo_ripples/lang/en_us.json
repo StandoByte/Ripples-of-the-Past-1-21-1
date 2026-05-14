@@ -271,6 +271,7 @@
   
   "item.jojo_ripples.stand_disc": "Stand Disc",
   "item.jojo_ripples.stand_disc.wip": "Work in progress",
+  "item.jojo_ripples.stand_disc.old": "Old moveset (1.16.5 port)",
   "item.jojo_ripples.stand_disc.experimental": "Experimental / Non-playable",
   "item.jojo_ripples.stand_disc.addon_author": "Addon created by: %s",
   "item.jojo_ripples.stand_disc.data_pack": "Data pack Stand",

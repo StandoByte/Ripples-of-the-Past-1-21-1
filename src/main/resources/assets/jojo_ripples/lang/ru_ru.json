@@ -269,6 +269,7 @@
 
   "item.jojo_ripples.stand_disc": "Диск со Стендом",
   "item.jojo_ripples.stand_disc.wip": "В разработке",
+  "item.jojo_ripples.stand_disc.old": "Старый мувсет (перенесён с версии на 1.16.5)",
   "item.jojo_ripples.stand_disc.experimental": "Экспериментальный / Неигровой",
   "item.jojo_ripples.stand_disc.addon_author": "Автор(ы) аддона: %s",
   "item.jojo_ripples.stand_disc.data_pack": "Стенд из датапака",

@@ -84,6 +84,7 @@ public class StandType extends PowerType {
 	}
 	
 	public <T extends StandType> T discTooltipWIP() { return discTooltipWIP(false); }
+	
 	public <T extends StandType> T discTooltipWIP(boolean translucentDisc) { 
 		return init(stand -> {
 			stand.discExtraTooltip.add(
@@ -91,6 +92,16 @@ public class StandType extends PowerType {
 					.withStyle(ChatFormatting.ITALIC).withColor(0x808000));
 			stand.discCategoryPriority = 200;
 			stand.translucentDisc = translucentDisc;
+		});
+	}
+	
+	public <T extends StandType> T discTooltipOld() { 
+		return init(stand -> {
+			stand.discExtraTooltip.add(
+					Component.translatable("item.jojo_ripples.stand_disc.old")
+					.withStyle(ChatFormatting.ITALIC).withColor(0x808000));
+			stand.discCategoryPriority = 201;
+			stand.translucentDisc = true;
 		});
 	}
 	
