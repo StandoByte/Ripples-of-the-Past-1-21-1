@@ -47,7 +47,7 @@ public class ItemUtil {
 				default -> null;
 			};
 			if (player != null) {
-				drop = !player.getInventory().add(item) && item.isEmpty();
+				drop = !player.getInventory().add(item) || !item.isEmpty();
 			}
 			if (drop) {
 				level.addFreshEntity(dropAt(entity, item));
