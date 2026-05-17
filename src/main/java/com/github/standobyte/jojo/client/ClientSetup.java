@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.client;
 
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.itemrender.ModItemModelOverrides;
+import com.github.standobyte.jojo.client.particle.CustomParticlesHelper;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.JojoMenuTabs;
 import com.github.standobyte.jojo.config.client.ClientModSettingsScreen;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -47,6 +48,7 @@ public class ClientSetup {
 		event.enqueueWork(() -> {
 			ModItemModelOverrides.register();
 		});
+		CustomParticlesHelper.saveSprites(mc);
 	}
 	
 	@SubscribeEvent

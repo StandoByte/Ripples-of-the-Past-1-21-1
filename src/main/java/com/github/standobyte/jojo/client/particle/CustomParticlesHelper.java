@@ -1,11 +1,15 @@
 package com.github.standobyte.jojo.client.particle;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.particle.type.custom.BloodFromEntityParticle;
 import com.github.standobyte.jojo.client.particle.type.custom.EntityPosParticle;
-import com.github.standobyte.jojo.util.NotYetImplemented;
+import com.github.standobyte.jojo.init.ModParticles;
+import com.github.standobyte.jojo.util.reflection.ClientReflection;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.client.CrazyDRestorationHandItemParticle;
 
 import net.minecraft.client.Camera;
@@ -22,6 +26,8 @@ import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -34,38 +40,37 @@ import net.neoforged.neoforge.client.extensions.common.IClientBlockExtensions;
 
 public abstract class CustomParticlesHelper {
 
-//	private static final Map<ResourceLocation, SpriteSet> SPRITE_SETS = new HashMap<>();
-//
-//	public static void saveSprites(Minecraft mc) {
-//		Map<ResourceLocation, ? extends SpriteSet> spritesMap = ClientReflection.getSpriteSets(mc.particleEngine);
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.MENACING.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.CD_RESTORATION.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_SPARK.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_SPARK_BLUE.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_SPARK_YELLOW.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_SPARK_RED.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_SPARK_SILVER.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_BLUE.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_YELLOW.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_RED.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_SILVER.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_GREEN.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_RAINBOW.get());
-//	}
+	protected static final Map<ResourceLocation, SpriteSet> SPRITE_SETS = new HashMap<>();
 
-	public static SpriteSet getSavedSpriteSet(ParticleType<?> particleType) {
-		throw new NotYetImplemented();
-//		return SPRITE_SETS.get(ForgeRegistries.PARTICLE_TYPES.getKey(particleType));
+	public static void saveSprites(Minecraft mc) {
+		Map<ResourceLocation, ? extends SpriteSet> spritesMap = ClientReflection.getSpriteSets(mc.particleEngine);
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.MENACING.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.CD_RESTORATION.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_SPARK.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_SPARK_BLUE.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_SPARK_YELLOW.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_SPARK_RED.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_SPARK_SILVER.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_BLUE.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_YELLOW.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_RED.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_SILVER.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_GREEN.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_RAINBOW.get());
 	}
 
-//	private static void saveSprites(Map<ResourceLocation, ? extends SpriteSet> sprites, ParticleType<?> particleType) {
-//		ResourceLocation key = ForgeRegistries.PARTICLE_TYPES.getKey(particleType);
-//		SPRITE_SETS.put(key, sprites.get(key));
-//	}
-//
-//
-//
+	public static SpriteSet getSavedSpriteSet(ParticleType<?> particleType) {
+		return SPRITE_SETS.get(BuiltInRegistries.PARTICLE_TYPE.getKey(particleType));
+	}
+
+	public static void saveSprites(Map<ResourceLocation, ? extends SpriteSet> sprites, ParticleType<?> particleType) {
+		ResourceLocation key = BuiltInRegistries.PARTICLE_TYPE.getKey(particleType);
+		SPRITE_SETS.put(key, sprites.get(key));
+	}
+
+
+
 //	public static void addMenacingParticleEmitter(Entity entity, SimpleParticleType particle) {
 //		Minecraft mc = Minecraft.getInstance();
 //		ClientReflection.getTrackingEmitters(Minecraft.getInstance().particleEngine).add(
