@@ -22,8 +22,8 @@ import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDBloodCutterAbili
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDHealAbility;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDLeaveObjectPunchEffect;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDLeaveObjectPunchInput;
-import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDMisshapingPunchEffect;
-import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDMisshapingPunchInput;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDMishealingPunchEffect;
+import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDMishealingPunchInput;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDRepairItemAbility;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDRestoreTerrainAbility;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDRevertEntityAndBlocksAbility;
@@ -132,8 +132,8 @@ public final class ModStandAbilities {
 	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDLeaveObjectPunchInput>> CD_LEAVE_OBJECT_ON_PUNCH = ABILITY_TYPES.register(
 			"leave_object", key -> new AbilityType<>(key, CrazyDLeaveObjectPunchInput::new));
 	
-	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDMisshapingPunchInput>> CD_DISFIGURE_ON_PUNCH = ABILITY_TYPES.register(
-			"misshape", key -> new AbilityType<>(key, CrazyDMisshapingPunchInput::new));
+	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDMishealingPunchInput>> CD_MISHEAL_ON_PUNCH = ABILITY_TYPES.register(
+			"misheal", key -> new AbilityType<>(key, CrazyDMishealingPunchInput::new));
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<CrazyDAngeloRockPunchInput>> CD_ANGELO_ROCK_ON_PUNCH = ABILITY_TYPES.register(
 			"angelo_rock", key -> new AbilityType<>(key, CrazyDAngeloRockPunchInput::new));
@@ -144,8 +144,8 @@ public final class ModStandAbilities {
 	public static final DeferredHolder<EntityCustomEffectType<?>, EntityCustomEffectType<CrazyDLeaveObjectPunchEffect>> EFFECT_CD_PUNCH_LEAVE_OBJECT = STAND_EFFECT_TYPES.register(
 			"cd_punch_leave_object", key -> new EntityCustomEffectType<>(key, CrazyDLeaveObjectPunchEffect::new));
 
-	public static final DeferredHolder<EntityCustomEffectType<?>, EntityCustomEffectType<CrazyDMisshapingPunchEffect>> EFFECT_CD_PUNCH_MISSHAPING = STAND_EFFECT_TYPES.register(
-			"cd_punch_misshaping", key -> new EntityCustomEffectType<>(key, CrazyDMisshapingPunchEffect::new));
+	public static final DeferredHolder<EntityCustomEffectType<?>, EntityCustomEffectType<CrazyDMishealingPunchEffect>> EFFECT_CD_PUNCH_MISHEALING = STAND_EFFECT_TYPES.register(
+			"cd_punch_mishealing", key -> new EntityCustomEffectType<>(key, CrazyDMishealingPunchEffect::new));
 
 	public static final DeferredHolder<EntityCustomEffectType<?>, EntityCustomEffectType<CrazyDAngeloRockPunchEffect>> EFFECT_CD_PUNCH_ANGELO_ROCK = STAND_EFFECT_TYPES.register(
 			"cd_punch_angelo_rock", key -> new EntityCustomEffectType<>(key, CrazyDAngeloRockPunchEffect::new));

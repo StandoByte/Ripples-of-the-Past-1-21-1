@@ -64,7 +64,7 @@ public class StandInitCrazyDiamond {
 				.addAbility("bearing_shot", ModStandAbilities.BEARING_SHOT)
 
 				.addAbility("leave_object", ModStandAbilities.CD_LEAVE_OBJECT_ON_PUNCH)
-				.addAbility("disfiguring_punch", ModStandAbilities.CD_DISFIGURE_ON_PUNCH)
+				.addAbility("mishealing_punch", ModStandAbilities.CD_MISHEAL_ON_PUNCH)
 				.addAbility("fuse_with_rock", ModStandAbilities.CD_ANGELO_ROCK_ON_PUNCH)
 
 				.addAbility("repair_item", ModStandAbilities.CD_REPAIR_ITEM)
@@ -124,7 +124,7 @@ public class StandInitCrazyDiamond {
 				.addSkill(StandUnlockableSkill.startingAbility("heavy_punch"))
 				.addSkill(StandUnlockableSkill.unlockableAbility("hit_armor_fix", 200).setNotYetImplemented().prerequisiteSkill("repair_item", "heavy_punch"))
 				.addSkill(StandUnlockableSkill.startingAbility("finisher").prerequisiteSkill("heavy_punch"))
-				.addSkill(StandUnlockableSkill.unlockableAbility("disfiguring_punch", 200).setNotYetImplemented().prerequisiteSkill("heal", "finisher"))
+				.addSkill(StandUnlockableSkill.unlockableAbility("mishealing_punch", 200).setNotYetImplemented().prerequisiteSkill("heal", "finisher"))
 				.addSkill(StandUnlockableSkill.unlockableAbility("fuse_with_rock", 200).setNotYetImplemented().prerequisiteSkill("heal", "restore_terrain", "finisher"))
 				.addSkill(StandUnlockableSkill.startingAbility("heavy_charged").prerequisiteSkill("heavy_punch"))
 				.addSkill(StandUnlockableSkill.unlockableAbility("leave_object", 200).setNotYetImplemented().prerequisiteSkill("heal", "heavy_charged"))

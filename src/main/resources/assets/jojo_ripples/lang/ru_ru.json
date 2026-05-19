@@ -484,10 +484,10 @@
   "jojo_ripples.skill.hit_armor_fix.controls": "Тяжёлый удар + \uEAFE §lпо цели в броне",
   "jojo_ripples.ability.hit_armor_fix": "Починить броню",
   
-  "jojo_ripples.skill.disfiguring_punch": "Деформирующий удар",
-  "    перевести-jojo_ripples.skill.disfiguring_punch.desc": "After a finisher punch, incorrectly restore the attacked body part. This partially heals the injury, but leaves the target unable to correctly control that body part for a short period of time.",
-  "jojo_ripples.skill.disfiguring_punch.controls": "Добивающий удар + \uEAFE",
-  "jojo_ripples.ability.disfiguring_punch": "Деформирующий удар",
+  "jojo_ripples.skill.mishealing_punch": "Удар с \"лечением\"",
+  "jojo_ripples.skill.mishealing_punch.desc": "После добивающего удара, Crazy Diamond неправильно восстанавливает повреждённую часть тела. Это залечивает половину нанесённого урона, но на небольшой промежуток времени цели будет труднее управлять этой частью тела.",
+  "jojo_ripples.skill.mishealing_punch.controls": "Добивающий удар + \uEAFE",
+  "jojo_ripples.ability.mishealing_punch": "Удар с \"лечением\"",
   
   "jojo_ripples.skill.leave_object": "Оставить предмет внутри",
   "    перевести-jojo_ripples.skill.leave_object.desc": "After punching a hole in the target's abdomen, leave a held item inside of them and partially heal the injury. Some items have special effects.",

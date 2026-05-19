@@ -6,9 +6,9 @@ import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInsta
 
 import net.minecraft.world.entity.LivingEntity;
 
-public class CrazyDMisshapingPunchEffect extends StandEffectInstance {
+public class CrazyDMishealingPunchEffect extends StandEffectInstance {
 
-	public CrazyDMisshapingPunchEffect(EntityCustomEffectType<?> effectType) {
+	public CrazyDMishealingPunchEffect(EntityCustomEffectType<?> effectType) {
 		super(effectType);
 		isFromStandAction = true;
 	}
