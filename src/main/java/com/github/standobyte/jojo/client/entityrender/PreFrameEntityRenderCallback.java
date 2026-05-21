@@ -37,17 +37,27 @@ import net.minecraft.world.TickRateManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
 
+@EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class PreFrameEntityRenderCallback {
 
-	public static void onBeforeEntitiesRender(ClientLevel level) {
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	public static void onFrameRender(RenderFrameEvent.Pre event) {
 		Minecraft mc = Minecraft.getInstance();
-		DeltaTracker deltaTracker = mc.getTimer();
-		TickRateManager tickRateManager = level.tickRateManager();
-		for (Entity entity : level.entitiesForRendering()) {
-			float partialTick = ClientUtil.partialTick(entity, deltaTracker, tickRateManager);
-			AnimFramePose pose = PreFrameEntityRenderCallback.makeEntityPose(entity, partialTick);
-			((AnimatedEntity) entity).jojo_ripples$setModelPose(AnimatedEntity.PoseType.FINAL, pose);
+		ClientLevel level = mc.level;
+		if (level != null) {
+			DeltaTracker deltaTracker = mc.getTimer();
+			TickRateManager tickRateManager = level.tickRateManager();
+			for (Entity entity : level.entitiesForRendering()) {
+				float partialTick = ClientUtil.partialTick(entity, deltaTracker, tickRateManager);
+				AnimFramePose pose = PreFrameEntityRenderCallback.makeEntityPose(entity, partialTick);
+				((AnimatedEntity) entity).jojo_ripples$setModelPose(AnimatedEntity.PoseType.FINAL, pose);
+			}
 		}
 	}
 	
