@@ -292,7 +292,7 @@ public class ClientControlScheme {
 	}
 	
 	protected static int abilityPriority(AbilityConditionCheck ability, Power<?> abilityCtx) {
-		if (!ability.conditionCheck.isPositive()) {
+		if (!ability.conditionCheck.positive()) {
 			return 2;
 		}
 		return AbilityInputState.withValue(ability.clientInputState).getFlag(AbilityInputState.HIGH_PRIORITY) ? 0 : 1;

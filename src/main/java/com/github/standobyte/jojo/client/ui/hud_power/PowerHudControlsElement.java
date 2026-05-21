@@ -566,12 +566,14 @@ public class PowerHudControlsElement extends HudElement {
 	public static void renderAbility(GuiGraphics guiGraphics, float x, float y, AbilityBindUI abilityUi, Minecraft mc, float partialTick, int alpha) {
 		AbilityConditionCheck abilityCheck = abilityUi.ability;
 		Ability ability = abilityCheck.ability;
+		TextureAtlasSprite sprite = abilityUi.sprite;
+		
 		Power<?> power = ClientPowerCache.getPower(ability.abilityId.powerClass());
-		ability.renderAbilityIcon(power, guiGraphics, abilityUi.sprite, 
-				x + 3, y + 3, abilityColor(alpha, abilityUi.ability));
+		ability.renderAbilityIcon(power, guiGraphics, sprite, 
+				x + 3, y + 3, abilityColor(alpha, abilityCheck));
 		
 		if (mc.player != null) {
-			WindupIndicator windup = abilityUi.ability.ability.cl_windupIndicator(mc.player, windupIndicator, partialTick);
+			WindupIndicator windup = ability.cl_windupIndicator(mc.player, windupIndicator, partialTick);
 			if (windup != null) {
 				renderWindupIndicator(guiGraphics, x + 13, y + 13, windup.value, windup.maxValue, mc, alpha);
 				WindupAtCrosshair.setRender(windup);
@@ -608,7 +610,7 @@ public class PowerHudControlsElement extends HudElement {
 
 
 	public static int abilityColor(int color, AbilityConditionCheck ability) {
-		if (!ability.conditionCheck.isPositive()) {
+		if (!ability.conditionCheck.positive()) {
 			color = ARGB32.multiply(color, 0xFF606060);
 		}
 		return color;

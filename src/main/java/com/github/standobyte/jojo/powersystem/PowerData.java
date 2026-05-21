@@ -73,7 +73,7 @@ public abstract class PowerData implements INBTSerializable<CompoundTag> {
 			UnlockableSkill skill = getAllSkills().get(skillName);
 			if (skill != null) {
 				ConditionCheck canUnlock = skill.canUnlockFromMenu(userPower, this);
-				if (canUnlock.isPositive()) {
+				if (canUnlock.positive()) {
 					_setSkillUnlocked(skillName, true, true);
 					syncOnUpdate(user);
 					return true;

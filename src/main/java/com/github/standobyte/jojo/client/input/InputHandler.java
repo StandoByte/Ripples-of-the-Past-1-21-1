@@ -350,7 +350,7 @@ public class InputHandler {
 		if (abilityResolved == null || player == null) return;
 
 		ConditionCheck conditionCheck = abilityResolved.conditionCheck;
-		if (conditionCheck.isPositive()) {
+		if (conditionCheck.positive()) {
 			BufferingState bufferingState = BufferingState.clickCanBuffer();
 			InputMethod inputMethod = type.inputMethod;
 			Ability ability = abilityResolved.ability;

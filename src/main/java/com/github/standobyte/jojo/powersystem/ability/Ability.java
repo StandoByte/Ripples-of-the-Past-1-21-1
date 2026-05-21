@@ -149,7 +149,7 @@ public class Ability {
 	
 	public ConditionCheck checkConditions(AbilityUsageContext context) {
 		ConditionCheck check = checkMainModLogicConditions(context);
-		if (check.isPositive()) {
+		if (check.positive()) {
 			check = checkSpecificConditions(context.power);
 		}
 		return check;

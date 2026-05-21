@@ -46,7 +46,7 @@ public class AbilityInput {
 		}
 		Ability ability = abilityConditionCheck.ability;
 		ConditionCheck result = abilityConditionCheck.conditionCheck;
-		boolean canUse = result.isPositive();
+		boolean canUse = result.positive();
 		if (!canUse) {
 			ConditionCheck.sendActionFailedMessage(ability, result, user);
 		}
