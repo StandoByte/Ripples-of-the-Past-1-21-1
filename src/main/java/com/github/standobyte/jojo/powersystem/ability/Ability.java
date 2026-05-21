@@ -162,6 +162,9 @@ public class Ability {
 	
 	@ApiStatus.OverrideOnly
 	public ConditionCheck checkSpecificConditions(Power<?> context) {
+		if (isStandFinisherOf != null) {
+			return ConditionCheck.GREEN_HIGHLIGHT;
+		}
 		return ConditionCheck.POSITIVE;
 	}
 	

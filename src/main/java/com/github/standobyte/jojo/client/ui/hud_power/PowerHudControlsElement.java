@@ -461,10 +461,11 @@ public class PowerHudControlsElement extends HudElement {
 			RenderSystem.defaultBlendFunc();
 
 			int i = 0;
-			int selectionX = -1;
+			Runnable drawSelection = null;
 			for (Map.Entry<InputMethod, AbilityBindUI> abilitySprite : bind.abilities.entrySet()) {
 				AbilityBindUI abilityUI = abilitySprite.getValue();
-				DrawHotbar.drawHotbarSlot(hotbarLength, i, false, guiGraphics.pose(), x, y, alpha);
+				boolean greenHighlight = abilityUI.ability.conditionCheck.greenHighlight();
+				DrawHotbar.drawHotbarSlot(hotbarLength, i, greenHighlight, guiGraphics.pose(), x, y, alpha);
 				renderAbility(guiGraphics, x, y, abilityUI, mc, partialTick, alpha);
 
 				boolean isClicked = switch (abilityUI.inputMethod) {
@@ -477,14 +478,18 @@ public class PowerHudControlsElement extends HudElement {
 					}
 				};
 				if (isClicked) {
-					selectionX = x;
+					int _x = x;
+					int _y = y;
+					drawSelection = () -> {
+						DrawHotbar.drawHotbarSelection(greenHighlight, guiGraphics.pose(), _x, _y, alpha);
+					};
 				}
 				
 				x += SLOT_WIDTH;
 				i++;
 			}
-			if (selectionX != -1) {
-				DrawHotbar.drawHotbarSelection(false, guiGraphics.pose(), selectionX, y, alpha);
+			if (drawSelection != null) {
+				drawSelection.run();
 			}
 
 			x = x0;
@@ -509,31 +514,36 @@ public class PowerHudControlsElement extends HudElement {
 			RenderSystem.defaultBlendFunc();
 
 			int i = 0;
-			int selectionX = -1;
+			Runnable drawSelection = null;
 			for (HotbarSlotUI slot : hotbar.slots) {
 				AbilityBindUI abilityUI = slot.sprite;
-				DrawHotbar.drawHotbarSlot(hotbarLength, i, false, guiGraphics.pose(), x, y, alpha);
+				boolean greenHighlight = abilityUI.ability.conditionCheck.greenHighlight();
+				DrawHotbar.drawHotbarSlot(hotbarLength, i, greenHighlight, guiGraphics.pose(), x, y, alpha);
 				if (abilityUI != null) {
 					renderAbility(guiGraphics, x, y, abilityUI, mc, partialTick, alpha);
 				}
 				
 				if (slot == hotbar.selected) {
-					selectionX = x;
+					int _x = x;
+					int _y = y;
+					drawSelection = () -> {
+						DrawHotbar.drawHotbarSelection(greenHighlight, guiGraphics.pose(), _x, _y, alpha);
+						
+						if (hotbar.highlight) {
+							float time = modInput.getHotbarsSelectionTime();
+							int highlightAlpha = (int) (ClientUtil.getHighlightAlpha(time + 20F, 40F, 40F, 0.25F, 0.5F) * 255F);
+							guiGraphics.fill(_x - 1, _y - 1, _x + 23, _y + 23, ARGB.white(highlightAlpha));
+							RenderSystem.enableBlend();
+//							ClientUtil.fillSingleRect(_x + hotbarFold.getSlotWithIndex(selected).pos - 4, _y - 4, 24, 23, 255, 255, 255, highlightAlpha);
+						}
+					};
 				}
 				
 				x += SLOT_WIDTH;
 				i++;
 			}
-			if (selectionX != -1) {
-				DrawHotbar.drawHotbarSelection(false, guiGraphics.pose(), selectionX, y, alpha);
-				
-				if (hotbar.highlight) {
-					float time = modInput.getHotbarsSelectionTime();
-					int highlightAlpha = (int) (ClientUtil.getHighlightAlpha(time + 20F, 40F, 40F, 0.25F, 0.5F) * 255F);
-					guiGraphics.fill(selectionX - 1, y - 1, selectionX + 23, y + 23, ARGB.white(highlightAlpha));
-					RenderSystem.enableBlend();
-//					ClientUtil.fillSingleRect(selectionX + hotbarFold.getSlotWithIndex(selected).pos - 4, y - 4, 24, 23, 255, 255, 255, highlightAlpha);
-				}
+			if (drawSelection != null) {
+				drawSelection.run();
 			}
 
 			x = x0;

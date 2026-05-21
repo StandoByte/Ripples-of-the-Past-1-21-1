@@ -11,6 +11,7 @@ import net.minecraft.world.entity.LivingEntity;
 
 public record ConditionCheck(boolean positive, boolean greenHighlight, @Nullable Component warning) {
 	public static final ConditionCheck POSITIVE = new ConditionCheck(true, null);
+	public static final ConditionCheck GREEN_HIGHLIGHT = new ConditionCheck(true, true, null);
 	public static final ConditionCheck NEGATIVE = new ConditionCheck(false, null);
 	
 	public static ConditionCheck createNegative(Component warning) {
