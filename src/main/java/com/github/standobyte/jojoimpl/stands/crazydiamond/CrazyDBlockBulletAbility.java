@@ -26,6 +26,9 @@ import com.github.standobyte.jojo.powersystem.standpower.effect.UserStandEffects
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
+import com.github.standobyte.jojo.subsystems.itemtracking.ItemTracker;
+import com.github.standobyte.jojo.subsystems.itemtracking.ItemTracking;
+import com.github.standobyte.jojo.subsystems.itemtracking.KnownItemState;
 import com.github.standobyte.jojo.util.functions.HandUtil;
 
 import net.minecraft.core.BlockPos;
@@ -234,8 +237,13 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 				bullet.shootFromRotation(performer, 2.0f, 0);
 				addProjectileWithStandStats(bullet);
 				
+				ItemStack item = blockAndItem.item();
+				ItemTracker itemTracker = ItemTracking.getItemTracker(item, level);
+				if (itemTracker != null) {
+					itemTracker.setAtEntity(item.copy(), bullet.getId(), level, KnownItemState.ENTITY_IS_ITEM, id -> bullet.isAlive());
+				}
+				
 				if (!(blockAndItem.entity() instanceof Player player && player.getAbilities().instabuild)) {
-					ItemStack item = blockAndItem.item();
 					item.shrink(1);
 				}
 				standPower.consumeStamina(40);
