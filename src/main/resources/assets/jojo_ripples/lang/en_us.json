@@ -539,7 +539,7 @@
   "jojo_ripples.ability.fuse_with_rock": "Fuse with rock",
   
   "jojo_ripples.skill.block_bullet": "Block Bullet",
-  "jojo_ripples.skill.block_bullet.desc": "Crazy Diamond restructures a block held in your offhand into a sharp projectile and shoots it at a high speed.",
+  "jojo_ripples.skill.block_bullet.desc": "Crazy Diamond restructures a block held in your hand into a sharp projectile and shoots it at a high speed.",
   "jojo_ripples.skill.block_bullet.controls": "Special ability",
   "jojo_ripples.ability.block_bullet": "Block Bullet",
   "jojo_ripples.ability.block_bullet_homing": "Homing Bullet",
@@ -549,8 +549,7 @@
   "jojo_ripples.skill.blood_cutter.controls": "Special ability",
   "jojo_ripples.ability.blood_cutter": "Blood Cutter",
   
-  "jojo.message.action_condition.block_offhand": "You need to hold a block in your hand",
-  "jojo.message.action_condition.item_hard_material": "You need a block made of a hard material",
+  "jojo.message.action_condition.item_hard_material": "You need to hold a block made of a hard material",
   
   
   "jojo_ripples.subtitle.life_created": "Life created",

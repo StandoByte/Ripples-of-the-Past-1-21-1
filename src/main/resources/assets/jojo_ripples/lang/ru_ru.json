@@ -537,7 +537,7 @@
   "jojo_ripples.ability.fuse_with_rock": "Слить цель с камнем",
   
   "jojo_ripples.skill.block_bullet": "Снаряд из блока",
-  "    перевести-jojo_ripples.skill.block_bullet.desc": "Crazy Diamond restructures a block held in your offhand into a sharp projectile and shoots it at a high speed.",
+  "    перевести-jojo_ripples.skill.block_bullet.desc": "Crazy Diamond restructures a block held in your hand into a sharp projectile and shoots it at a high speed.",
   "jojo_ripples.skill.block_bullet.controls": "Особая способность",
   "jojo_ripples.ability.block_bullet": "Снаряд из блока",
   "jojo_ripples.ability.block_bullet_homing": "Самонаводящийся снаряд",
@@ -547,8 +547,7 @@
   "jojo_ripples.skill.blood_cutter.controls": "Особая способность",
   "jojo_ripples.ability.blood_cutter": "Резак из крови",
   
-  "jojo.message.action_condition.block_offhand": "Нужно держать блок во второстепенной руке",
-  "jojo.message.action_condition.item_hard_material": "Вам нужен блок из твёрдого материала",
+  "jojo.message.action_condition.item_hard_material": "Вам нужно держать блок из твёрдого материала",
   
   
   "jojo_ripples.subtitle.life_created": "Жизнь создана",
