@@ -85,10 +85,11 @@ public class ItemTracking implements INBTSerializable<ListTag> {
 		}
 	}
 	
-	
+
+	@Nullable public static ItemTracker getItemTracker(ItemStack item, Level level) { return getItemTracker(item, level, false); }
 	@Nullable
-	public static ItemTracker getItemTracker(ItemStack item, Level level) {
-		UUID uuid = getTrackerId(item);
+	public static ItemTracker getItemTracker(ItemStack item, Level level, boolean getIfEmpty) {
+		UUID uuid = getTrackerId(item, getIfEmpty);
 		if (uuid != null) {
 			ItemTracking itemTracking = getItemTracking(level);
 			ItemTracker tracker = itemTracking.trackingMap.get(uuid);
@@ -107,9 +108,15 @@ public class ItemTracking implements INBTSerializable<ListTag> {
 		return tracker;
 	}
 	
+	@Nullable public static UUID getTrackerId(ItemStack item) { return getTrackerId(item, false); }
 	@Nullable
-	public static UUID getTrackerId(ItemStack item) {
-		return ItemUtil.getFromEmptyItem(item, ModItemDataComponents.TRACKER_ID.get());
+	public static UUID getTrackerId(ItemStack item, boolean getIfEmpty) {
+		if (getIfEmpty) {
+			return ItemUtil.getFromEmptyItem(item, ModItemDataComponents.TRACKER_ID.get());
+		}
+		else {
+			return item.get(ModItemDataComponents.TRACKER_ID.get());
+		}
 	}
 
 
