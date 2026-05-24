@@ -172,7 +172,7 @@ public class PowerHudControlsElement extends HudElement {
 	public static class HotbarSlotUI {
 		public int slotIndex;
 		public BindUI bind;
-		public AbilityBindUI sprite;
+		@Nullable public AbilityBindUI sprite;
 		public Map<InputMethod, AbilityBindUI> abilities = new EnumMap<>(InputMethod.class);
 	}
 
@@ -517,7 +517,7 @@ public class PowerHudControlsElement extends HudElement {
 			Runnable drawSelection = null;
 			for (HotbarSlotUI slot : hotbar.slots) {
 				AbilityBindUI abilityUI = slot.sprite;
-				boolean greenHighlight = abilityUI.ability.conditionCheck.greenHighlight();
+				boolean greenHighlight = abilityUI != null && abilityUI.ability.conditionCheck.greenHighlight();
 				DrawHotbar.drawHotbarSlot(hotbarLength, i, greenHighlight, guiGraphics.pose(), x, y, alpha);
 				if (abilityUI != null) {
 					renderAbility(guiGraphics, x, y, abilityUI, mc, partialTick, alpha);
