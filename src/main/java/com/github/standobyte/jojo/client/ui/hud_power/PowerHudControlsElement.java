@@ -141,6 +141,18 @@ public class PowerHudControlsElement extends HudElement {
 		public InputMethod inputMethod;
 		public Component keybindName;
 		public Component keybindAbilityName;
+		
+		public AbilityBindUI(AbilityConditionCheck ability, TextureAtlasSprite sprite,
+				ClientKey key, KeyModifier modifier, InputMethod inputMethod, 
+				Component keybindName, Component keybindAbilityName) {
+			this.ability = ability;
+			this.sprite = sprite;
+			this.key = key;
+			this.modifier = modifier;
+			this.inputMethod = inputMethod;
+			this.keybindName = keybindName;
+			this.keybindAbilityName = keybindAbilityName;
+		}
 	}
 	
 	public static class BindUI {
@@ -171,7 +183,7 @@ public class PowerHudControlsElement extends HudElement {
 	
 	public static class HotbarSlotUI {
 		public int slotIndex;
-		public BindUI bind;
+		public BindUI bind = new BindUI();
 		@Nullable public AbilityBindUI sprite;
 		public Map<InputMethod, AbilityBindUI> abilities = new EnumMap<>(InputMethod.class);
 	}
@@ -268,7 +280,6 @@ public class PowerHudControlsElement extends HudElement {
 				for (ClientControlScheme.HotbarSlot slot : hotbar.slots) {
 					HotbarSlotUI slotUI = new HotbarSlotUI();
 					ClientKey key = input.getKey();
-					slotUI.bind = new BindUI();
 					slotUI.bind.mainKey = getKeyName(key);
 					slotUI.bind.modifierKey = getModifierName(input.getKeyModifier());
 					slotUI.bind.fullKeybind = getKeyName(key, slotUI.bind.mainKey, input.getKeyModifier());
@@ -406,15 +417,9 @@ public class PowerHudControlsElement extends HudElement {
 				Component bindName = inputMethod == InputMethod.HOLD ? Component.translatable("ripples_hud.hold_key", keyName) : keyName;
 				Power<?> abilityCtx = ClientPowerCache.getPower(ability.ability.abilityId.powerClass());
 
-				AbilityBindUI bindUI = new AbilityBindUI();
-
-				bindUI.ability = ability;
-				bindUI.sprite = abilitySprites.getAbilityIcon(ability.ability, abilityCtx, standSkin);
-				bindUI.key = key;
-				bindUI.modifier = modifier;
-				bindUI.inputMethod = inputMethod;
-				bindUI.keybindName = bindName;
-				bindUI.keybindAbilityName = Component.translatable("ripples_hud.key_ability", bindName, ability.ability.getName(abilityCtx));
+				AbilityBindUI bindUI = new AbilityBindUI(ability, abilitySprites.getAbilityIcon(ability.ability, abilityCtx, standSkin),
+						key, modifier, inputMethod,
+						bindName, Component.translatable("ripples_hud.key_ability", bindName, ability.ability.getName(abilityCtx)));
 
 				return bindUI;
 			}
