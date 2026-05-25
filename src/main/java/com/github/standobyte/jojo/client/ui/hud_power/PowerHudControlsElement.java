@@ -505,74 +505,75 @@ public class PowerHudControlsElement extends HudElement {
 			int x0 = x;
 			int y0 = y;
 			int hotbarLength = hotbar.slots.size();
-			
-			y += hotbar.y;
-			if (hotbar.keybind != null) {
-				int centered = (hotbar.keybindWidth - font.width(hotbar.keybind)) / 2;
-				guiGraphics.drawString(font, hotbar.keybind, 
-						x + centered, y + (SLOT_HEIGHT - font.lineHeight) / 2, 
-						textColor);
-			}
-			x += hotbar.keybindWidth;
-
-			RenderSystem.enableBlend();
-			RenderSystem.defaultBlendFunc();
-
-			int i = 0;
-			Runnable drawSelection = null;
-			for (HotbarSlotUI slot : hotbar.slots) {
-				AbilityBindUI abilityUI = slot.sprite;
-				boolean greenHighlight = abilityUI != null && abilityUI.ability.conditionCheck.greenHighlight();
-				DrawHotbar.drawHotbarSlot(hotbarLength, i, greenHighlight, guiGraphics.pose(), x, y, alpha);
-				if (abilityUI != null) {
-					renderAbility(guiGraphics, x, y, abilityUI, mc, partialTick, alpha);
+			if (hotbarLength > 0) {
+				y += hotbar.y;
+				if (hotbar.keybind != null) {
+					int centered = (hotbar.keybindWidth - font.width(hotbar.keybind)) / 2;
+					guiGraphics.drawString(font, hotbar.keybind, 
+							x + centered, y + (SLOT_HEIGHT - font.lineHeight) / 2, 
+							textColor);
 				}
+				x += hotbar.keybindWidth;
 				
-				if (slot == hotbar.selected) {
-					int _x = x;
-					int _y = y;
-					drawSelection = () -> {
-						DrawHotbar.drawHotbarSelection(greenHighlight, guiGraphics.pose(), _x, _y, alpha);
-						
-						if (hotbar.highlight) {
-							float time = modInput.getHotbarsSelectionTime();
-							int highlightAlpha = (int) (ClientUtil.getHighlightAlpha(time + 20F, 40F, 40F, 0.25F, 0.5F) * 255F);
-							guiGraphics.fill(_x - 1, _y - 1, _x + 23, _y + 23, ARGB.white(highlightAlpha));
-							RenderSystem.enableBlend();
-//							ClientUtil.fillSingleRect(_x + hotbarFold.getSlotWithIndex(selected).pos - 4, _y - 4, 24, 23, 255, 255, 255, highlightAlpha);
-						}
-					};
-				}
+				RenderSystem.enableBlend();
+				RenderSystem.defaultBlendFunc();
 				
-				x += SLOT_WIDTH;
-				i++;
-			}
-			if (drawSelection != null) {
-				drawSelection.run();
-			}
-
-			x = x0;
-			y += SLOT_HEIGHT + 4;
-			if (hotbar.isSelectingAbility) {
-				x += 18;
+				int i = 0;
+				Runnable drawSelection = null;
 				for (HotbarSlotUI slot : hotbar.slots) {
-					if (!slot.abilities.isEmpty()) {
-						int numberKey = HotbarSlot.numberKey(slot.slotIndex);
-						if (numberKey != -1) {
-							guiGraphics.drawString(font, String.valueOf(slot.slotIndex + 1), x, y, textColor);
-						}
+					AbilityBindUI abilityUI = slot.sprite;
+					boolean greenHighlight = abilityUI != null && abilityUI.ability.conditionCheck.greenHighlight();
+					DrawHotbar.drawHotbarSlot(hotbarLength, i, greenHighlight, guiGraphics.pose(), x, y, alpha);
+					if (abilityUI != null) {
+						renderAbility(guiGraphics, x, y, abilityUI, mc, partialTick, alpha);
 					}
+					
+					if (slot == hotbar.selected) {
+						int _x = x;
+						int _y = y;
+						drawSelection = () -> {
+							DrawHotbar.drawHotbarSelection(greenHighlight, guiGraphics.pose(), _x, _y, alpha);
+							
+							if (hotbar.highlight) {
+								float time = modInput.getHotbarsSelectionTime();
+								int highlightAlpha = (int) (ClientUtil.getHighlightAlpha(time + 20F, 40F, 40F, 0.25F, 0.5F) * 255F);
+								guiGraphics.fill(_x - 1, _y - 1, _x + 23, _y + 23, ARGB.white(highlightAlpha));
+								RenderSystem.enableBlend();
+//							ClientUtil.fillSingleRect(_x + hotbarFold.getSlotWithIndex(selected).pos - 4, _y - 4, 24, 23, 255, 255, 255, highlightAlpha);
+							}
+						};
+					}
+					
 					x += SLOT_WIDTH;
+					i++;
 				}
+				if (drawSelection != null) {
+					drawSelection.run();
+				}
+				
 				x = x0;
+				y += SLOT_HEIGHT + 4;
+				if (hotbar.isSelectingAbility) {
+					x += 18;
+					for (HotbarSlotUI slot : hotbar.slots) {
+						if (!slot.abilities.isEmpty()) {
+							int numberKey = HotbarSlot.numberKey(slot.slotIndex);
+							if (numberKey != -1) {
+								guiGraphics.drawString(font, String.valueOf(slot.slotIndex + 1), x, y, textColor);
+							}
+						}
+						x += SLOT_WIDTH;
+					}
+					x = x0;
+				}
+				else if (hotbar.switchHint != null) {
+					guiGraphics.drawString(font, hotbar.switchHint, x, y, textColor);
+				}
+				y += font.lineHeight + 4;
+				
+				x = x0;
+				y = y0;
 			}
-			else if (hotbar.switchHint != null) {
-				guiGraphics.drawString(font, hotbar.switchHint, x, y, textColor);
-			}
-			y += font.lineHeight + 4;
-
-			x = x0;
-			y = y0;
 		}
 
 		RenderSystem.disableBlend();

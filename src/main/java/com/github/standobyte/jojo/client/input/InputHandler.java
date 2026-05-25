@@ -557,8 +557,10 @@ public class InputHandler {
 		if (controlScheme != null) {
 			Hotbar wheelHotbar = null;
 			ClientControlScheme.MoveGroup curControls = controlScheme.getCurGroup();
+			KeyModifier curModifier = getCurModifier();
 			for (Hotbar abilityHotbar : curControls.hotbars) {
-				if (abilityHotbar.switchAbilityKey != null && abilityHotbar.switchAbilityKey.keyMatches(pressedKey, getCurModifier())) {
+				boolean nonEmpty = abilityHotbar.slots.stream().anyMatch(slot -> slot.showAbility(curModifier) != null);
+				if (nonEmpty && abilityHotbar.switchAbilityKey != null && abilityHotbar.switchAbilityKey.keyMatches(pressedKey, getCurModifier())) {
 					if (wheelHotbar == null) wheelHotbar = abilityHotbar;
 					setSelectingAbility(abilityHotbar, pressedKey, true);
 				}
