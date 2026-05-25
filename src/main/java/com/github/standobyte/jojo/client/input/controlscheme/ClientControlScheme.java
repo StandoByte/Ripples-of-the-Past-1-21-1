@@ -130,6 +130,11 @@ public class ClientControlScheme {
 		public boolean alwaysSwitchAbility() {
 			return switchAbilityKey == null || switchAbilityKey.getKey() == null;
 		}
+		
+		public boolean isEmpty(KeyModifier curModifier) {
+			return slots.stream().noneMatch(slot -> slot.showAbility(curModifier) != null);
+		}
+		
 	}
 	
 	public static class HotbarSlot {

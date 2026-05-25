@@ -107,6 +107,7 @@ public class InputHandler {
 	
 	@SubscribeEvent
 	public void handleKeyBindingsPost(ClientTickEvent.Post event) {
+		tickHotbarsSelection();
 		vanillaKeybinds.handleTick();
 		tickReleaseEventQueue();
 		tickKeyPressIndication();
@@ -559,8 +560,8 @@ public class InputHandler {
 			ClientControlScheme.MoveGroup curControls = controlScheme.getCurGroup();
 			KeyModifier curModifier = getCurModifier();
 			for (Hotbar abilityHotbar : curControls.hotbars) {
-				boolean nonEmpty = abilityHotbar.slots.stream().anyMatch(slot -> slot.showAbility(curModifier) != null);
-				if (nonEmpty && abilityHotbar.switchAbilityKey != null && abilityHotbar.switchAbilityKey.keyMatches(pressedKey, getCurModifier())) {
+				if (abilityHotbar.switchAbilityKey != null && abilityHotbar.switchAbilityKey.keyMatches(pressedKey, curModifier)
+						&& !abilityHotbar.isEmpty(curModifier)) {
 					if (wheelHotbar == null) wheelHotbar = abilityHotbar;
 					setSelectingAbility(abilityHotbar, pressedKey, true);
 				}
@@ -585,36 +586,13 @@ public class InputHandler {
 	}
 	
 	public boolean hotbarScroll(double scrollDelta) {
-		@Nullable AbilitySelectionWheel curWheel = mc.screen instanceof AbilitySelectionWheel w ? w : null;
-		if (mc.screen != null && curWheel == null) return false;
-		
 		boolean scrolledAHotbar = false;
 		ClientControlScheme controlScheme = getActiveControlScheme();
 		if (controlScheme != null) {
 			ClientControlScheme.MoveGroup curControls = controlScheme.getCurGroup();
 			for (Hotbar hotbar : curControls.hotbars) {
 				if (isSelectingAbility(hotbar)) {
-					int newIndex = hotbar.slotIndex;
-					do {
-						int n = hotbar.slots.size();
-						newIndex = (newIndex - (int) scrollDelta);
-						if (newIndex < 0) newIndex += (-newIndex / n + 1) * n;
-						newIndex %= n;
-						
-						HotbarSlot slot = hotbar.slots.get(newIndex);
-						if (slot.showAbility(getCurModifier()) != null) {
-							break;
-						}
-					}
-					while (newIndex != hotbar.slotIndex);
-					
-					if (newIndex != hotbar.slotIndex) {
-						hotbar.slotIndex = newIndex;
-						if (curWheel != null && curWheel.abilities == hotbar) {
-							curWheel.setIgnoreMouseUntilMove(OptionalInt.of(newIndex));
-						}
-					}
-					
+					hotbarScroll(hotbar, scrollDelta);
 					scrolledAHotbar |= true;
 				}
 			}
@@ -637,22 +615,49 @@ public class InputHandler {
 		ClientControlScheme controlScheme = getActiveControlScheme();
 		if (controlScheme != null) {
 			ClientControlScheme.MoveGroup curControls = controlScheme.getCurGroup();
-			@Nullable AbilitySelectionWheel curWheel = mc.screen instanceof AbilitySelectionWheel w ? w : null;
 			for (Hotbar hotbar : curControls.hotbars) {
 				if (isSelectingAbility(hotbar) && newIndex < hotbar.slots.size()) {
-					HotbarSlot slot = hotbar.slots.get(newIndex);
-					if (slot.showAbility(getCurModifier()) != null) {
-						hotbar.slotIndex = newIndex;
-						if (curWheel != null && curWheel.abilities == hotbar) {
-							curWheel.setIgnoreMouseUntilMove(OptionalInt.of(newIndex));
-						}
-					}
-					
+					hotbarPickSlot(hotbar, newIndex);
 					pickedAHotbarSlot |= true;
 				}
 			}
 		}
 		return pickedAHotbarSlot;
+	}
+	
+	public void hotbarScroll(Hotbar hotbar, double scrollDelta) {
+		int newIndex = hotbar.slotIndex;
+		do {
+			int n = hotbar.slots.size();
+			newIndex = (newIndex - (int) scrollDelta);
+			if (newIndex < 0) newIndex += (-newIndex / n + 1) * n;
+			newIndex %= n;
+			
+			HotbarSlot slot = hotbar.slots.get(newIndex);
+			if (slot.showAbility(getCurModifier()) != null) {
+				break;
+			}
+		}
+		while (newIndex != hotbar.slotIndex);
+		
+		if (newIndex != hotbar.slotIndex) {
+			hotbar.slotIndex = newIndex;
+			@Nullable AbilitySelectionWheel curWheel = mc.screen instanceof AbilitySelectionWheel w ? w : null;
+			if (curWheel != null && curWheel.abilities == hotbar) {
+				curWheel.setIgnoreMouseUntilMove(OptionalInt.of(newIndex));
+			}
+		}
+	}
+	
+	public void hotbarPickSlot(Hotbar hotbar, int newIndex) {
+		HotbarSlot slot = hotbar.slots.get(newIndex);
+		if (slot.showAbility(getCurModifier()) != null) {
+			hotbar.slotIndex = newIndex;
+			@Nullable AbilitySelectionWheel curWheel = mc.screen instanceof AbilitySelectionWheel w ? w : null;
+			if (curWheel != null && curWheel.abilities == hotbar) {
+				curWheel.setIgnoreMouseUntilMove(OptionalInt.of(newIndex));
+			}
+		}
 	}
 	
 	public boolean isSelectingAbility(Hotbar hotbar) {
@@ -675,6 +680,19 @@ public class InputHandler {
 	public float getHotbarsSelectionTime() {
 		float time = ClientTickHandler.tickCount + ClientUtil.partialTick();
 		return time - hotbarsSelectionTimestamp;
+	}
+	
+	protected void tickHotbarsSelection() {
+		ClientControlScheme controlScheme = getActiveControlScheme();
+		if (controlScheme != null) {
+			ClientControlScheme.MoveGroup curControls = controlScheme.getCurGroup();
+			for (Hotbar hotbar : curControls.hotbars) {
+				HotbarSlot curSelected = hotbar.getSelected();
+				if (curSelected.showAbility(getCurModifier()) == null) {
+					hotbarScroll(hotbar, 1);
+				}
+			}
+		}
 	}
 	
 	
