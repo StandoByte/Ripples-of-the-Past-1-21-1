@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEff
 import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectsMap;
 import com.github.standobyte.jojo.mechanics.KnockbackCollisionImpact;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
+import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
@@ -58,6 +59,9 @@ public final class ModDataAttachmentTypes {
 
 	public static final Supplier<AttachmentType<PlayerPower>> PLAYER_POWER = ATTACHMENT_TYPES.register("player_power", 
 			() -> AttachmentType.serializable(entity -> PowerClass._tryAttach(entity, PlayerPower::new)).build());
+	
+	public static final Supplier<AttachmentType<ResolveCounter>> RESOLVE = ATTACHMENT_TYPES.register("resolve", 
+			() -> AttachmentType.serializable(obj -> obj instanceof LivingEntity entity ? new ResolveCounter(entity) : null).build());
 	
 	public static final Supplier<AttachmentType<LivingComponentAction>> LIVING_ACTION = ATTACHMENT_TYPES.register("living_action", 
 			() -> AttachmentType.serializable(LivingComponentAction::create).build());

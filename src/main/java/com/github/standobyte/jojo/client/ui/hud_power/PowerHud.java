@@ -393,8 +393,8 @@ public class PowerHud {
 		@Override
 		public boolean shouldRender() {
 			if (hud.forContainerMenu == TriState.TRUE) return false;
-			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
-			if (standPower != null && standPower.usesResolve()) {
+			ResolveCounter resolve = ResolveCounter.getIfEnabled(Minecraft.getInstance().player);
+			if (resolve != null) {
 				ClientControlScheme controlScheme = InputHandler.getInstance().getActiveControlScheme();
 				return controlScheme != null && controlScheme.hasAbility(ability -> ability.powerClass() == PowerClass.STAND);
 			}
@@ -404,9 +404,12 @@ public class PowerHud {
 		
 		@Override
 		public void renderElement(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
-			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
-			float partialTick = ClientUtil.partialTick(deltaTracker, false);
 			Minecraft mc = Minecraft.getInstance();
+			LivingEntity user = mc.player;
+			ResolveCounter resolve = ResolveCounter.getIfEnabled(user);
+			if (resolve == null) return;
+			
+			float partialTick = ClientUtil.partialTick(deltaTracker, false);
 			
 			int width = getWidth();
 			int height = getHeight();
@@ -418,8 +421,6 @@ public class PowerHud {
 			int x = getX() + (width - spriteWidth) / 2;
 			int y = getY() + (height - spriteHeight) / 2;
 
-			LivingEntity user = standPower.getUser();
-			ResolveCounter resolve = standPower.resolveCounter;
 			MobEffectInstance resolveEffect = ResolveModeEffect.maxDurationResolveEffect(user);
 			if (resolveEffect != null) {
 				// resolve mode timer circle
@@ -498,7 +499,7 @@ public class PowerHud {
 			}
 			
 			if (resolveEffect == null) {
-				float multiplier = resolve.totalMultiplier(standPower.getUser());
+				float multiplier = resolve.totalMultiplier(user);
 				if (multiplier > 1) {
 					Component multiplierText = Component.literal("x" + String.format("%.2f", multiplier));
 					StandSkin skin = StandSkinsLoader.getCurSkin();
@@ -509,9 +510,10 @@ public class PowerHud {
 		
 		@Override
 		protected void checkTooltip(double mouseX, double mouseY, DeltaTracker deltaTracker) {
-			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
-			ResolveCounter resolve = standPower.resolveCounter;
 			Minecraft mc = Minecraft.getInstance();
+			LivingEntity user = mc.player;
+			ResolveCounter resolve = ResolveCounter.getIfEnabled(user);
+			if (resolve == null) return;
 			
 			this.yOffsetU = 4;
 			updateRectangle(32, 32);
@@ -524,12 +526,12 @@ public class PowerHud {
 						Component.translatable("ripples_hud.resolve_multiplier")
 										.withStyle(ChatFormatting.BLACK), 
 						Component.translatable("ripples_hud.resolve_multiplier.hp",
-								String.format("%.2f", resolve.missingHpMultiplier(standPower.getUser(), 0)))
+								String.format("%.2f", resolve.missingHpMultiplier(user, 0)))
 										.withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY));
 			}
 			else if (y > 24) {
 				// Resolve stage
-				boolean vampire = !ResolveStageBuffs.getsDamageResFromResolve(mc.player);
+				boolean vampire = !ResolveStageBuffs.getsDamageResFromResolve(user);
 				tooltip = new MultiLineScreenTooltip(
 						Component.translatable("ripples_hud.resolve_stage",
 								resolve.getCurStage() + 1,
@@ -544,7 +546,7 @@ public class PowerHud {
 				int resolveModeTimer = resolve.resolveModeTimer;
 				if (resolveModeTimer > 0) {
 					// Resolve mode timer
-					boolean passedAllStages = ResolveStageBuffs.keepResolveModeAtHalfPassively(standPower, resolve);
+					boolean passedAllStages = ResolveStageBuffs.keepResolveModeAtHalfPassively(resolve, user);
 					tooltip = new MultiLineScreenTooltip(
 							Component.translatable("ripples_hud.resolve_mode",
 									Component.literal(StringUtil.formatTickDuration(resolveModeTimer, mc.level.tickRateManager().tickrate())))

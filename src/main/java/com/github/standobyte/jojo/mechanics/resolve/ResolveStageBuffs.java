@@ -32,8 +32,12 @@ public class ResolveStageBuffs {
 		return 1;
 	}
 	
-	public static boolean keepResolveModeAtHalfPassively(StandPower standPower, ResolveCounter resolve) {
-		return resolve.passedLastStageUnlock() && standPower.isSummoned();
+	public static boolean keepResolveModeAtHalfPassively(ResolveCounter resolve, LivingEntity user) {
+		if (resolve.passedLastStageUnlock()) {
+			StandPower standPower = StandPower.get(user);
+			return standPower != null && standPower.isSummoned();
+		}
+		return false;
 	}
 
 	
@@ -43,8 +47,8 @@ public class ResolveStageBuffs {
     	return !(playerPower != null && playerPower.getPowerType() == ModPlayerPowers.VAMPIRISM.get());
 	}
 	
-	public static float getDamageResistance(StandPower stand, ResolveCounter resolve, LivingEntity user) {
-    	if (!stand.usesResolve() || !getsDamageResFromResolve(user)) return 0;
+	public static float getDamageResistance(ResolveCounter resolve, LivingEntity user) {
+    	if (!getsDamageResFromResolve(user)) return 0;
     	
     	int unlockedStage = resolve.getUnlockedStage();
     	if (unlockedStage == 2) {

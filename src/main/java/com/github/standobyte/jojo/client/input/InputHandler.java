@@ -31,6 +31,7 @@ import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.event.client.PreKeyInputEvent;
 import com.github.standobyte.jojo.mechanics.resolve.ClActivateResolvePacket;
+import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
 import com.github.standobyte.jojo.network.c2s.ClAbilityInputPacket;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -248,11 +249,11 @@ public class InputHandler {
 					return true;
 				}
 				
-				StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+				ResolveCounter resolve = ResolveCounter.getIfEnabled(mc.player);
 				boolean canEnterResolveMode = (key == LMB || key == RMB) 
-						&& standPower != null 
+						&& resolve != null 
 						&& PowerHud.abilityHUDInstance.resolveBar.shouldRender() 
-						&& standPower.resolveCounter.getCurStage() >= 0;
+						&& resolve.getCurStage() >= 0;
 				
 				cancelVanilla |= hotbarPickSlot(key);
 				
