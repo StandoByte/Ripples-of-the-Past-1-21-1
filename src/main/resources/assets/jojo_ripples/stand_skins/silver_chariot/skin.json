@@ -1,5 +1,6 @@
 {  
 	"stand_type": "jojo_ripples:silver_chariot",
 	"color" : "#BEC8D6",
-	"story_part": "jojo_ripples:p3"
+	"story_part": "jojo_ripples:p3",
+	"scale": [ 0.6, 1.9 ]
 }

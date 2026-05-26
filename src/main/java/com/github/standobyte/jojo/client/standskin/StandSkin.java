@@ -19,6 +19,7 @@ import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo;
 import com.github.standobyte.jojo.client.standskin.sound.CustomPathSound;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
+import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -53,6 +54,8 @@ public class StandSkin {
 	
 	protected Map<ResourceLocation, AnimationSet> animations = new HashMap<>();
 	protected AnimationSet standEntityAnims;
+	
+	protected float[] renderScale;
 	
 	protected Map<ResourceLocation, WeighedSoundEvents> soundEvents = new HashMap<>();
 	protected Map<ResourceLocation, ResourceLocation> existingSounds = new HashMap<>();
@@ -94,6 +97,13 @@ public class StandSkin {
 				}
 			}
 		});
+	}
+	
+	protected void withScale(float width, float height) {
+		this.renderScale = new float[] {
+				ClientUtil.PLAYER_RENDER_SCALE * width / ClientUtil.DEFAULT_STAND_WIDTH,
+				ClientUtil.PLAYER_RENDER_SCALE * height / ClientUtil.DEFAULT_STAND_HEIGHT
+		};
 	}
 	
 	protected void withSoundEvents(Map<ResourceLocation, WeighedSoundEvents> soundEvents) {
@@ -273,6 +283,17 @@ public class StandSkin {
 	
 	public AnimationSet getAnimations() {
 		return standEntityAnims;
+	}
+	
+	protected static final float[] DEFAULT_SCALE = new float[] { 1, 1 };
+	public float[] getModelScale() {
+		if (renderScale != null) {
+			return renderScale;
+		}
+		if (this != defaultSkin && defaultSkin.renderScale != null) {
+			return defaultSkin.renderScale;
+		}
+		return DEFAULT_SCALE;
 	}
 	
 	public GuiIcon getStandIcon() {

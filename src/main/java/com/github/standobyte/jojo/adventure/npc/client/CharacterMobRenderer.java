@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.adventure.npc.debug.NpcFlags;
 import com.github.standobyte.jojo.client.entityrender.replace_player_model.ReplacePlayerModel;
 import com.github.standobyte.jojo.client.standskin.text.StandNameSetColor;
+import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.v1_21_4_stuff.renderstate.HumanoidRenderState;
@@ -150,7 +151,10 @@ public class CharacterMobRenderer<T extends PowerUserMobEntity> extends LivingEn
 	protected void scale(T livingEntity, PoseStack poseStack, float partialTickTime) {
 		boolean usingPlayerModel = true;
 		if (usingPlayerModel) {
-			poseStack.scale(0.9375F, 0.9375F, 0.9375F);
+			poseStack.scale(
+					ClientUtil.PLAYER_RENDER_SCALE, 
+					ClientUtil.PLAYER_RENDER_SCALE, 
+					ClientUtil.PLAYER_RENDER_SCALE);
 		}
 	}
 

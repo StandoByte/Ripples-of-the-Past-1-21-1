@@ -34,6 +34,7 @@ import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackLoader;
 import com.github.standobyte.jojo.client.sound.bgmloop.DebugBgm;
 import com.github.standobyte.jojo.client.sound.util.SoundEventDelegate;
 import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
+import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
@@ -47,6 +48,8 @@ import com.github.standobyte.v1_21_4_stuff.missingmethods.Zone;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._ProfilerFiller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.datafixers.util.Pair;
@@ -305,21 +308,22 @@ public class StandSkinsLoader implements PreparableReloadListener {
 	
 	// XXX extensible stand skins?
 	public static class StandSkinResourceBuilder {
-		private final ResourceLocation skinId;
-		private ResourceLocation standId;
-		private StandSkinColor uiColor = null;
-		private Optional<ResourceLocation> storyPart = Optional.empty();
-		private Map<ResourceLocation, LayerDefinition> models;
-		private Map<ResourceLocation, AnimationSet.Builder> animations;
-		private Map<ResourceLocation, WeighedSoundEvents> soundEvents;
-		private Map<ResourceLocation, Pair<ResourceLocation, Resource>> soundFiles;
-		private WeightsList<BgmTrackInfo> resolveBGM;
+		public final ResourceLocation skinId;
+		public ResourceLocation standId;
+		public StandSkinColor uiColor = null;
+		public float[] scale = null;
+		public Optional<ResourceLocation> storyPart = Optional.empty();
+		public Map<ResourceLocation, LayerDefinition> models;
+		public Map<ResourceLocation, AnimationSet.Builder> animations;
+		public Map<ResourceLocation, WeighedSoundEvents> soundEvents;
+		public Map<ResourceLocation, Pair<ResourceLocation, Resource>> soundFiles;
+		public WeightsList<BgmTrackInfo> resolveBGM;
 		
-		private StandSkinResourceBuilder(ResourceLocation skinId) {
+		public StandSkinResourceBuilder(ResourceLocation skinId) {
 			this.skinId = skinId;
 		}
 		
-		private boolean isValidSkin(Logger logger) {
+		public boolean isValidSkin(Logger logger) {
 			if (standId == null) {
 				logger.error("Stand skin {} doesn't specify the Stand it belongs to! (Missing \"stand_type\")", skinId);
 				return false;
@@ -327,10 +331,11 @@ public class StandSkinsLoader implements PreparableReloadListener {
 			return true;
 		}
 		
-		private StandSkin makeSkin() {
+		public StandSkin makeSkin() {
 			StandSkin skin = new StandSkin(skinId, standId, uiColor, storyPart);
 			if (models != null) skin.withModels(models);
 			if (animations != null) skin.withAnimations(animations);
+			if (scale != null && scale.length >= 2) skin.withScale(scale[0], scale[1]);
 			if (soundEvents != null) skin.withSoundEvents(soundEvents);
 			if (soundFiles != null) skin.withSounds(soundFiles.entrySet().stream().collect(Collectors.toMap(
 					Map.Entry::getKey, entry -> entry.getValue().getFirst())));
@@ -342,11 +347,29 @@ public class StandSkinsLoader implements PreparableReloadListener {
 	
 	private void loadSkinInfo(JsonObject skinInfoJson, StandSkinResourceBuilder builder, Logger logger) {
 		ResourceLocation.CODEC.decode(JsonOps.INSTANCE, skinInfoJson.get("stand_type")).ifSuccess(res -> builder.standId = res.getFirst());
+		
 		if (skinInfoJson.has("color")) {
 			builder.uiColor = StandSkinColor.fromJson(skinInfoJson.get("color"));
 		}
+		
 		if (skinInfoJson.has("story_part")) {
 			builder.storyPart = Optional.of(ResourceLocation.parse(skinInfoJson.get("story_part").getAsString()));
+		}
+		
+		if (skinInfoJson.has("scale")) {
+			JsonElement scaleJson = skinInfoJson.get("scale");
+			if (scaleJson instanceof JsonArray jsonArray) {
+				builder.scale = new float[] {
+						jsonArray.get(0).getAsFloat(), 
+						jsonArray.get(1).getAsFloat()
+				};
+			}
+			else if (scaleJson instanceof JsonObject jsonObject) {
+				builder.scale = new float[] {
+						JSONUtil.getFloatOr("width", jsonObject, ClientUtil.DEFAULT_STAND_WIDTH), 
+						JSONUtil.getFloatOr("height", jsonObject, ClientUtil.DEFAULT_STAND_HEIGHT)
+				};
+			}
 		}
 	}
 	

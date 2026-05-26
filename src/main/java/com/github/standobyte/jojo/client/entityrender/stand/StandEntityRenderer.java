@@ -154,6 +154,18 @@ public class StandEntityRenderer<
 	}
 	
 	
+	@Override
+	protected void scale(T livingEntity, PoseStack poseStack, float partialTickTime) {
+		if (RenderStateCrutches.currentEntityRenderState != null) {
+			S renderState = (S) RenderStateCrutches.currentEntityRenderState;
+			StandSkin standSkin = renderState.skin;
+			if (standSkin != null) {
+				float[] scale = standSkin.getModelScale();
+				poseStack.scale(scale[0], scale[1], scale[0]);
+			}
+		}
+	}
+	
 	protected static final ResourceLocation MISSING_TEXTURE = JojoMod.resLoc("textures/entity/stand_default.png");
 //	@Override // 1.21.1+
 	public ResourceLocation getTextureLocation(S renderState) {
