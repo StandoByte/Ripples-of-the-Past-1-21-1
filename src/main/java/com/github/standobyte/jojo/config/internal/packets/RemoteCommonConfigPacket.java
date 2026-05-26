@@ -56,6 +56,7 @@ public class RemoteCommonConfigPacket implements CustomPacketPayload {
 		@Override
 		public void handle(RemoteCommonConfigPacket payload, IPayloadContext context) {
 			ConfigNetworkFunctions.clAcceptCommonConfigState(payload);
+			if (payload.read != null) payload.read.release();
 		}
 		
 	}

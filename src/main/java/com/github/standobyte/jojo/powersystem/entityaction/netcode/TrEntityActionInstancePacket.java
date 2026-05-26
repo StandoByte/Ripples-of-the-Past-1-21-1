@@ -61,6 +61,7 @@ public class TrEntityActionInstancePacket implements CustomPacketPayload {
 			if (entity instanceof LivingEntity living) {
 				EntityActionInstance action = EntityActionInstance.decode(entity.level(), payload.receiveActionData);
 				LivingComponentAction.getComponent(living).setAction(action, SyncType.NO_SYNC);
+				if (payload.receiveActionData != null) payload.receiveActionData.release();
 			}
 		}
 		
