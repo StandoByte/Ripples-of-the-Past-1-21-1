@@ -12,4 +12,6 @@ public class ClientStandEntityStuff {
 
 	public List<Vec3> tiltVecQueue = new ArrayList<>();
 	public float lastMotionTiltTick = -1;
+	
+	public boolean summonAnimStopped = false;
 }

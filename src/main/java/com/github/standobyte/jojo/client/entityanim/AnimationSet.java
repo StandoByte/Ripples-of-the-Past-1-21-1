@@ -27,7 +27,6 @@ public class AnimationSet {
 	public final Map<String, List<RotpAnimDefinition>> namedAnimations;
 	@Nullable public List<AnimFramePose> coolPoses;
 	@Nullable public RotpAnimDefinition idleAnim;
-//	@Nullable protected AnimWithExtras curAnim;
 	
 	protected AnimationSet(Map<String, List<RotpAnimDefinition>> namedAnimations) {
 		this.namedAnimations = namedAnimations;
@@ -42,18 +41,14 @@ public class AnimationSet {
 
 	@Nullable
 	public RotpAnimDefinition getNamedAnim(ActionAnimIdentifier animId) {
-		List<RotpAnimDefinition> anims = namedAnimations.get(animId.name());
+		List<RotpAnimDefinition> anims = namedAnimations.get(animId.name);
 		if (anims == null || anims.isEmpty()) return null;
-		return anims.get(animId.index() % anims.size());
+		return anims.get(animId.index % anims.size());
 	}
 	
 	@Nullable
-	public RotpAnimDefinition getSummonAnim(String name, int randomLargeNum) {
-		List<RotpAnimDefinition> summonAnims = namedAnimations.get("name");
-		if (summonAnims != null && !summonAnims.isEmpty()) {
-			return summonAnims.get(Math.abs(randomLargeNum) % summonAnims.size());
-		}
-		return null;
+	public List<RotpAnimDefinition> getAnimVariants(String name) {
+		return namedAnimations.get(name);
 	}
 	
 	@Nullable

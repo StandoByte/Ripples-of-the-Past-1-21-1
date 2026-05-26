@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.entityrender;
 
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.entityanim.AnimationLoader;
@@ -107,13 +109,22 @@ public class PreFrameEntityRenderCallback {
 					animVariables.time = idleTime;
 				}
 			}
-			if (newFrame && !animVariables.animId.isIdle()) {
+			if (newFrame && !animVariables.animId.isIdle) {
 				stand.nonIdlePoseTimeStamp = stand.tickCount;
 			}
+			
+			if (!stand.clientStuff.summonAnimStopped && !animVariables.animId.isIdle) {
+				stand.clientStuff.summonAnimStopped = true;
+			}
 
-			AnimWithId animPossiblyReplaced = getStandAnim(standSkin, animVariables.animId, idleAnim);
+			AnimWithId animPossiblyReplaced = getStandAnim(standSkin, animVariables.animId, idleAnim, 
+					!stand.clientStuff.summonAnimStopped ? stand.summonPoseRandomByte : -1, animVariables.time);
 			anim = animPossiblyReplaced.anim;
 			animVariables.animId = animPossiblyReplaced.animId;
+			
+			if (!stand.clientStuff.summonAnimStopped && !animVariables.animId.isSummon) {
+				stand.clientStuff.summonAnimStopped = true;
+			}
 		}
 		else {
 			anim = getPlayerAnim(animVariables.animSet, animVariables.animId);
@@ -140,13 +151,15 @@ public class PreFrameEntityRenderCallback {
 				}
 			}
 			
-			if (JojoMod.config.getClient().standMotionTilt.getAsBoolean() && stand != null) {
+			if (JojoMod.config.getClient().standMotionTilt.getAsBoolean() && stand != null
+					&& (animVariables.animId == null || !animVariables.animId.isSummon)) {
+				// XXX interpolate motion tilt from summon pose
 				// FIXME save the pose without motion tilt separately (fixes punch combo interpolation)
 				if (renderer instanceof StandEntityRenderer standEntityRenderer) {
 					StandEntityModel standModel = standEntityRenderer.getEntityModel(stand);
 					if (standModel != null) {
 						Vec3 motionTiltVec = standModel.prepareMotionTilt(stand, partialTick);
-						boolean idlePose = animVariables.animId != null && animVariables.animId.isIdle();
+						boolean idlePose = animVariables.animId != null && animVariables.animId.isIdle;
 						standModel.doMotionTilt(motionTiltVec, pose, idlePose);
 					}
 				}
@@ -170,16 +183,32 @@ public class PreFrameEntityRenderCallback {
 	}
 	
 	public static AnimWithId getStandAnim(StandSkin skin, ActionAnimIdentifier animId, ActionAnimIdentifier curIdleAnim) {
+		return getStandAnim(skin, animId, curIdleAnim, -1, 0);
+	}
+	
+	public static AnimWithId getStandAnim(StandSkin skin, ActionAnimIdentifier animId, ActionAnimIdentifier curIdleAnim, 
+			int doSummonAnim, float ticks) {
 		if (skin != null) {
-			if (animId != null) {
-				RotpAnimDefinition anim = skin.getStandAnimation(anims -> anims.getNamedAnim(animId));
-				if (anim == null) {
-					anim = skin.getStandAnimation(anims -> anims.getNamedAnim(curIdleAnim));
-					if (anim != null) {
-						return AnimWithId.with(curIdleAnim, anim);
+			if (doSummonAnim >= 0 && animId == curIdleAnim) {
+				List<RotpAnimDefinition> summonAnims = skin.getStandAnimations("summon");
+				if (summonAnims != null && !summonAnims.isEmpty()) {
+					int index = doSummonAnim % summonAnims.size();
+					RotpAnimDefinition summonAnim = summonAnims.get(index);
+					if (summonAnim.lengthInSeconds * 20 > ticks) {
+						return AnimWithId.with(ActionAnimIdentifier.getOrCreate("summon", index).setSummon(), summonAnim);
 					}
 				}
-				return AnimWithId.with(animId, anim);
+			}
+			
+			if (animId != null) {
+				RotpAnimDefinition anim = skin.getStandAnimation(animId);
+				if (anim != null) {
+					return AnimWithId.with(animId, anim);
+				}
+				else {
+					anim = skin.getStandAnimation(curIdleAnim);
+					return AnimWithId.with(curIdleAnim, anim);
+				}
 			}
 		}
 		return AnimWithId.with(null, null);

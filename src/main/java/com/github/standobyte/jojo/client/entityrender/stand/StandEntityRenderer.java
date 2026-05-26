@@ -84,9 +84,10 @@ public class StandEntityRenderer<
 	public M createStandModel(LayerDefinition definition) {
 		return (M) new StandEntityModel<>(definition.bakeRoot());
 	}
-	
-	public static final ActionAnimIdentifier IDLE_ANIM = ActionAnimIdentifier.getOrCreate("idle", true);
-	public static final ActionAnimIdentifier GRAB_IDLE_ANIM = ActionAnimIdentifier.getOrCreate("grab", true);
+
+	public static final ActionAnimIdentifier SUMMON_ANIM = ActionAnimIdentifier.getOrCreate("summon").setSummon();
+	public static final ActionAnimIdentifier IDLE_ANIM = ActionAnimIdentifier.getOrCreate("idle").setIdle();
+	public static final ActionAnimIdentifier GRAB_IDLE_ANIM = ActionAnimIdentifier.getOrCreate("grab").setIdle();
 //	@Override // 1.21.2+
 	public void extractRenderState(T entity, S renderState, float partialTick) {
 //		super.extractRenderState(entity, renderState, partialTick); // 1.21.2+
