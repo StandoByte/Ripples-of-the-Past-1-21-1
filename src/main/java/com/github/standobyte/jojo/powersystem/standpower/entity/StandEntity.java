@@ -349,7 +349,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		}
 		else {
 			ActionTarget crosshairTarget = standAction.entityAim.getTarget();
-			if (crosshairTarget.getType() == TargetType.ENTITY) {
+			if (crosshairTarget.getEntity() instanceof LivingEntity) {
 				lookTarget = crosshairTarget;
 			}
 			else {
@@ -364,7 +364,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		return switch (target.getType()) {
 			case ENTITY -> {
 				Entity targetEntity = target.getEntity();
-                if (targetEntity != null){
+                if (targetEntity != null) {
                     // TODO (stand aiming) look closer to where the user is looking (legs/head aiming)
                     double y = targetEntity instanceof LivingEntity ?
                             targetEntity.getEyeY() :
