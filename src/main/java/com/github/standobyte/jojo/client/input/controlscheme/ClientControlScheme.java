@@ -163,7 +163,13 @@ public class ClientControlScheme {
 					}
 				}
 			}
-			return null;
+			
+			if (curModifier != KeyModifier.NONE) {
+				return showAbility(KeyModifier.NONE);
+			}
+			else {
+				return null;
+			}
 		}
 		
 		public static int numberKey(int slotIndex) {
@@ -192,7 +198,16 @@ public class ClientControlScheme {
 		@Nullable
 		public AbilityControlsEntry getFirst(@Nonnull KeyModifier curModifier, InputMethod inputMethod) {
 			List<AbilityControlsEntry> list = getAll(curModifier, inputMethod);
-			return !list.isEmpty() ? list.get(0) : null;
+			if (!list.isEmpty()) {
+				return list.get(0);
+			}
+			
+			if (curModifier != KeyModifier.NONE) {
+				return getFirst(KeyModifier.NONE, inputMethod);
+			}
+			else {
+				return null;
+			}
 		}
 	}
 
