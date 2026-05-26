@@ -1,11 +1,10 @@
 package com.github.standobyte.jojo.client.entityrender;
 
-import java.util.List;
-
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.entityanim.AnimationLoader;
 import com.github.standobyte.jojo.client.entityanim.AnimationSet;
+import com.github.standobyte.jojo.client.entityanim.AnimVariantsList;
 import com.github.standobyte.jojo.client.entityanim.LivingAnimState;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.AnimWithId;
@@ -190,9 +189,9 @@ public class PreFrameEntityRenderCallback {
 			int doSummonAnim, float ticks) {
 		if (skin != null) {
 			if (doSummonAnim >= 0 && animId == curIdleAnim) {
-				List<RotpAnimDefinition> summonAnims = skin.getStandAnimations("summon");
-				if (summonAnims != null && !summonAnims.isEmpty()) {
-					int index = doSummonAnim % summonAnims.size();
+				AnimVariantsList summonAnims = skin.getStandAnimations("summon");
+				if (summonAnims != null) {
+					int index = doSummonAnim % summonAnims.anims.size();
 					RotpAnimDefinition summonAnim = summonAnims.get(index);
 					if (summonAnim.lengthInSeconds * 20 > ticks) {
 						return AnimWithId.with(ActionAnimIdentifier.getOrCreate("summon", index).setSummon(), summonAnim);

@@ -3,7 +3,6 @@ package com.github.standobyte.jojo.client.entityrender.stand;
 import java.util.List;
 import java.util.function.Consumer;
 
-import com.github.standobyte.jojo.client.entityanim.AnimationSet;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.AnimWithId;
 import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery.AnimMolangVariables;
@@ -136,12 +135,9 @@ public class StandEntityRenderer<
 			}
 			case STAND_INFO -> {
 				if (skin != null) {
-					AnimationSet anims = skin.getAnimations();
-					if (anims != null) {
-						List<AnimFramePose> poses = anims.coolPoses;
-						if (poses != null && !poses.isEmpty()) {
-							pose = poses.get(StandInfoScreen.rand % poses.size());
-						}
+					List<AnimFramePose> poses = skin.getAllPoses();
+					if (poses != null && !poses.isEmpty()) {
+						pose = poses.get(StandInfoScreen.rand % poses.size());
 					}
 				}
 			}

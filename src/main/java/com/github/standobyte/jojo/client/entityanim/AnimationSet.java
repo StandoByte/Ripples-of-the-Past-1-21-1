@@ -2,16 +2,12 @@ package com.github.standobyte.jojo.client.entityanim;
 
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.util.functions.StringUtil;
@@ -24,30 +20,24 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
  * Has some stuff specific to Stands, but it can be used for other entities as well.
  */
 public class AnimationSet {
-	public final Map<String, List<RotpAnimDefinition>> namedAnimations;
-	@Nullable public List<AnimFramePose> coolPoses;
+	public final Map<String, AnimVariantsList> namedAnimations;
 	@Nullable public RotpAnimDefinition idleAnim;
 	
-	protected AnimationSet(Map<String, List<RotpAnimDefinition>> namedAnimations) {
+	protected AnimationSet(Map<String, AnimVariantsList> namedAnimations) {
 		this.namedAnimations = namedAnimations;
 		AnimationMirror.doMirroringOnAnimSet(this.namedAnimations);
 		this.idleAnim = getNamedAnim(StandEntityRenderer.IDLE_ANIM);
-		this.coolPoses = allAnims().map(anim -> anim.coolPoses).filter(Objects::nonNull).flatMap(List::stream).toList();
-	}
-	
-	protected Stream<RotpAnimDefinition> allAnims() {
-		return namedAnimations.values().stream().flatMap(List::stream);
 	}
 
 	@Nullable
 	public RotpAnimDefinition getNamedAnim(ActionAnimIdentifier animId) {
-		List<RotpAnimDefinition> anims = namedAnimations.get(animId.name);
-		if (anims == null || anims.isEmpty()) return null;
-		return anims.get(animId.index % anims.size());
+		AnimVariantsList anims = namedAnimations.get(animId.name);
+		if (anims == null) return null;
+		return anims.get(animId.index);
 	}
 	
 	@Nullable
-	public List<RotpAnimDefinition> getAnimVariants(String name) {
+	public AnimVariantsList getAnimVariants(String name) {
 		return namedAnimations.get(name);
 	}
 	
@@ -72,14 +62,14 @@ public class AnimationSet {
 		}
 		
 		public AnimationSet build() {
-			Map<String, List<RotpAnimDefinition>> anims = this.namedAnimations.entrySet().stream()
+			Map<String, AnimVariantsList> anims = this.namedAnimations.entrySet().stream()
 					.collect(Collectors.toMap(
 							Map.Entry::getKey, 
-							entry -> entry.getValue()
+							entry -> new AnimVariantsList(entry.getValue()
 								.int2ObjectEntrySet().stream()
 								.sorted(Comparator.comparingInt(Int2ObjectMap.Entry::getIntKey))
 								.map(Int2ObjectMap.Entry::getValue)
-								.toList()));
+								.toList())));
 			AnimationSet animationSet = new AnimationSet(anims);
 			return animationSet;
 		}

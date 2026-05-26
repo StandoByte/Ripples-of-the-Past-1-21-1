@@ -97,7 +97,7 @@ public class AnimationLoader extends SimplePreparableReloadListener<Map<Resource
 			if (!animName.startsWith("unused#")) {
 				try {
 					JsonObject animJson = animJsonEntry.getValue().getAsJsonObject();
-					RotpAnimDefinition anim = ParseGeckoAnims.parseAnim(animJson);
+					RotpAnimDefinition anim = ParseGeckoAnims.parseAnim(animName, animJson);
 					animSetBuilder.putNamedAnim(animName, anim);
 				}
 				catch (Exception e) {

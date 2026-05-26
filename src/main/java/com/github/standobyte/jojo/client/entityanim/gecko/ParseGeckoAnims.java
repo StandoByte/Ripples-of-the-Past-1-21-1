@@ -30,7 +30,7 @@ public class ParseGeckoAnims {
 	
 	// XXX parse generic BB format anims
 	// "geckolib_format_version": 2
-	public static RotpAnimDefinition parseAnim(JsonObject animJson) {
+	public static RotpAnimDefinition parseAnim(String name, JsonObject animJson) {
 		
 		// Animation metadata
 		
@@ -95,6 +95,7 @@ public class ParseGeckoAnims {
 						.collect(Collectors.toMap(assignment -> assignment[0], assignment -> assignment[1], 
 								(u, v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); }, LinkedHashMap::new));
 				
+				int namelessStaticPoses = 0;
 				while (!assignmentMap.isEmpty()) {
 					Map.Entry<String, String> assignment = assignmentMap.entrySet().iterator().next();
 					String field = assignment.getKey();
@@ -109,6 +110,9 @@ public class ParseGeckoAnims {
 						case "loopBack" -> {
 							builder.looping(Float.parseFloat(assignmentValue));
 						}
+						case "coolPose" -> {
+							builder.addCoolPoseTimestamp(assignmentValue, time);
+						}
 						case "mirror.default" -> {
 							HumanoidArm side = Enum.valueOf(HumanoidArm.class, assignmentValue);
 							builder.mirrorDefaultSide = side;
@@ -122,7 +126,7 @@ public class ParseGeckoAnims {
 				for (String singleWord : singleWordInstructions) {
 					switch (singleWord) {
 						case "coolPoseHere" -> {
-							builder.addCoolPoseTimestamp(time);
+							builder.addCoolPoseTimestamp(name + (namelessStaticPoses++ > 0 ? "#" + namelessStaticPoses : ""), time);
 						}
 						case "mirror.start" -> {
 							builder.mirrorStart = time;

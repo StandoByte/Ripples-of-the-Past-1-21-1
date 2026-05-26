@@ -35,9 +35,8 @@ import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 import com.google.common.collect.Maps;
 
 import it.unimi.dsi.fastutil.floats.Float2ObjectMap;
-import it.unimi.dsi.fastutil.floats.FloatArrayList;
-import it.unimi.dsi.fastutil.floats.FloatList;
-import it.unimi.dsi.fastutil.floats.FloatListIterator;
+import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.client.animation.AnimationChannel;
 import net.minecraft.client.animation.Keyframe;
 import net.minecraft.client.model.HumanoidModel;
@@ -53,13 +52,13 @@ public class RotpAnimDefinition {
 	protected final Map<String, List<IAnimationChannel>> boneAnimations;
 	protected final List<KeyframeQuery> queries;
 	public final AnimInstructionTimelines instructionTimelines;
-	@Nullable public List<AnimFramePose> coolPoses;
+	@Nullable public Map<String, AnimFramePose> coolPoses;
 	@Nullable public AnimationMirror animationMirror;
 	
 //	public float animTime;
 	
 	public RotpAnimDefinition(float lengthInSeconds, OptionalFloat loopBackTo, Map<String, List<IAnimationChannel>> boneAnimations, 
-			AnimInstructionTimelines instructionTimelines, @Nullable List<AnimFramePose> coolPoses) {
+			AnimInstructionTimelines instructionTimelines, @Nullable Map<String, AnimFramePose> coolPoses) {
 		this.lengthInSeconds = lengthInSeconds;
 		this.loopBackTo = loopBackTo;
 		
@@ -76,19 +75,18 @@ public class RotpAnimDefinition {
 	
 	public RotpAnimDefinition copyWithAnim(Map<String, List<IAnimationChannel>> boneAnimations) {
 		RotpAnimDefinition copy = new RotpAnimDefinition(lengthInSeconds, loopBackTo, boneAnimations, 
-				instructionTimelines, this.coolPoses);
+				instructionTimelines, null);
 		return copy;
 	}
 	
-	public void initStaticPoses(FloatList poseTimestamps) {
+	public void initStaticPoses(Object2FloatMap<String> poseTimestamps) {
 		if (poseTimestamps != null) {
-			coolPoses = new ArrayList<>(poseTimestamps.size());
-			FloatListIterator iter = poseTimestamps.iterator();
-			while (iter.hasNext()) {
-				float timestamp = iter.nextFloat();
+			coolPoses = new HashMap<>(poseTimestamps.size());
+			for (var timestampEntry : poseTimestamps.object2FloatEntrySet()) {
+				float timestamp = timestampEntry.getFloatValue();
 				AnimFramePose frame = calcAnimPose(null, null, timestamp, 1);
 				frame = frame.deepCopy();
-				coolPoses.add(frame);
+				coolPoses.put(timestampEntry.getKey(), frame);
 			}
 		}
 	}
@@ -309,7 +307,7 @@ public class RotpAnimDefinition {
 		protected final Map<String, List<IAnimationChannel>> animationByBone = Maps.newHashMap();
 		protected OptionalFloat loopBackTo = OptionalFloat.empty();
 		protected final AnimInstructionTimelines instructions = new AnimInstructionTimelines();
-		protected FloatList coolPoses;
+		protected Object2FloatMap<String> coolPoses;
 		
 		@Nullable public HumanoidArm mirrorDefaultSide = null;
 		public float mirrorStart = 0;
@@ -351,11 +349,11 @@ public class RotpAnimDefinition {
 			return this;
 		}
 		
-		public RotpAnimDefinition.Builder addCoolPoseTimestamp(float time) {
+		public RotpAnimDefinition.Builder addCoolPoseTimestamp(String name, float time) {
 			if (coolPoses == null) {
-				coolPoses = new FloatArrayList();
+				coolPoses = new Object2FloatArrayMap<>();
 			}
-			coolPoses.add(time);
+			coolPoses.put(name, time);
 			return this;
 		}
 		

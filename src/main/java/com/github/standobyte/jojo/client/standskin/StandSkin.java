@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.standskin;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,8 +11,10 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ResourcePathChecker;
+import com.github.standobyte.jojo.client.entityanim.AnimVariantsList;
 import com.github.standobyte.jojo.client.entityanim.AnimationSet;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
+import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityrender.BabyModelVariant;
 import com.github.standobyte.jojo.client.entityrender.LoadedModel;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
@@ -249,7 +252,7 @@ public class StandSkin {
 		return null;
 	}
 	
-	public List<RotpAnimDefinition> getStandAnimations(String name) {
+	public AnimVariantsList getStandAnimations(String name) {
 		return getAnimations(skin -> skin.standEntityAnims, name);
 	}
 	
@@ -257,7 +260,7 @@ public class StandSkin {
 		return getAnimation(skin -> skin.standEntityAnims, animId);
 	}
 	
-	public List<RotpAnimDefinition> getAnimations(ResourceLocation modelId, String name) {
+	public AnimVariantsList getAnimations(ResourceLocation modelId, String name) {
 		return getAnimations(skin -> skin.animations != null ? skin.animations.get(modelId) : null, name);
 	}
 	
@@ -266,10 +269,10 @@ public class StandSkin {
 		
 	}
 	
-	protected List<RotpAnimDefinition> getAnimations(Function<StandSkin, AnimationSet> getAnimSet, String name) {
+	protected AnimVariantsList getAnimations(Function<StandSkin, AnimationSet> getAnimSet, String name) {
 		AnimationSet animSet = getAnimSet.apply(this);
 		if (animSet != null) {
-			List<RotpAnimDefinition> anims = animSet.getAnimVariants(name);
+			AnimVariantsList anims = animSet.getAnimVariants(name);
 			if (anims != null) {
 				return anims;
 			}
@@ -331,6 +334,38 @@ public class StandSkin {
 	@Deprecated
 	public AnimationSet getAnimations() {
 		return standEntityAnims;
+	}
+	
+	protected List<AnimFramePose> _posesCache;
+	public List<AnimFramePose> getAllPoses() {
+		_posesCache = null;
+		if (_posesCache == null) {
+			AnimationSet animSet;
+			Map<String, AnimVariantsList> allAnimsVariants = new HashMap<>();
+			if (this != defaultSkin && defaultSkin != null) {
+				animSet = defaultSkin.standEntityAnims;
+				if (animSet != null) {
+					for (var entry : animSet.namedAnimations.entrySet()) {
+						allAnimsVariants.put(entry.getKey(), entry.getValue());
+					}
+				}
+			}
+
+			animSet = this.standEntityAnims;
+			if (animSet != null) {
+				for (var entry : animSet.namedAnimations.entrySet()) {
+					allAnimsVariants.put(entry.getKey(), entry.getValue());
+				}
+			}
+			
+			_posesCache = new ArrayList<>();
+			for (AnimVariantsList animVariants : allAnimsVariants.values()) {
+				if (animVariants.poses != null && !animVariants.poses.isEmpty()) {
+					_posesCache.addAll(animVariants.poses.values());
+				}
+			}
+		}
+		return _posesCache;
 	}
 	
 	protected static final float[] DEFAULT_SCALE = new float[] { 1, 1 };
