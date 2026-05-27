@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.PacketsRegister;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -49,7 +50,7 @@ public class ClDebugCommandPacket implements CustomPacketPayload {
 		@Override
 		public void handle(ClDebugCommandPacket payload, IPayloadContext context) {
 			Player player = context.player();
-			DebugItem.handleServer(payload.command, player, payload.mouseButton);
+			DebugItem.handleServer(payload.command, (ServerPlayer) player, payload.mouseButton);
 		}
 		
 	}
