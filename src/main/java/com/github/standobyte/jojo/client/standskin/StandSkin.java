@@ -253,66 +253,80 @@ public class StandSkin {
 	}
 	
 	public AnimVariantsList getStandAnimations(String name) {
-		return getAnimations(skin -> skin.standEntityAnims, name);
+		AnimVariantsList anims = getAnims(standEntityAnims, name);
+		if (anims != null)
+			return anims;
+		if (this != defaultSkin && defaultSkin != null) {
+			return defaultSkin.getStandAnimations(name);
+		}
+		return null;
 	}
 	
 	public RotpAnimDefinition getStandAnimation(ActionAnimIdentifier animId) {
-		return getAnimation(skin -> skin.standEntityAnims, animId);
+		RotpAnimDefinition anim = getAnim(standEntityAnims, animId);
+		if (anim != null)
+			return anim;
+		if (this != defaultSkin && defaultSkin != null) {
+			return defaultSkin.getStandAnimation(animId);
+		}
+		return null;
+	}
+	
+	public List<RotpAnimDefinition> getStandAlwaysAnimations() {
+		List<RotpAnimDefinition> anim = standEntityAnims != null ? standEntityAnims.alwaysAnim : null;
+		if (anim != null)
+			return anim;
+		if (this != defaultSkin && defaultSkin != null) {
+			return defaultSkin.getStandAlwaysAnimations();
+		}
+		return null;
 	}
 	
 	public AnimVariantsList getAnimations(ResourceLocation modelId, String name) {
-		return getAnimations(skin -> skin.animations != null ? skin.animations.get(modelId) : null, name);
+		AnimVariantsList anims = getAnims(getAnimSet(modelId), name);
+		if (anims != null)
+			return anims;
+		if (this != defaultSkin && defaultSkin != null) {
+			return defaultSkin.getAnimations(modelId, name);
+		}
+		return null;
 	}
 	
 	public RotpAnimDefinition getAnimation(ResourceLocation modelId, ActionAnimIdentifier animId) {
-		return getAnimation(skin -> skin.animations != null ? skin.animations.get(modelId) : null, animId);
-		
-	}
-	
-	protected AnimVariantsList getAnimations(Function<StandSkin, AnimationSet> getAnimSet, String name) {
-		AnimationSet animSet = getAnimSet.apply(this);
-		if (animSet != null) {
-			AnimVariantsList anims = animSet.getAnimVariants(name);
-			if (anims != null) {
-				return anims;
-			}
-		}
-		
+		RotpAnimDefinition anim = getAnim(getAnimSet(modelId), animId);
+		if (anim != null)
+			return anim;
 		if (this != defaultSkin && defaultSkin != null) {
-			return defaultSkin.getAnimations(getAnimSet, name);
+			return defaultSkin.getAnimation(modelId, animId);
 		}
 		return null;
 	}
 	
-	protected RotpAnimDefinition getAnimation(Function<StandSkin, AnimationSet> getAnimSet, ActionAnimIdentifier animId) {
-		AnimationSet animSet = getAnimSet.apply(this);
-		if (animSet != null) {
-			RotpAnimDefinition anims = animSet.getNamedAnim(animId);
-			if (anims != null) {
-				return anims;
-			}
-		}
-		
-		if (this != defaultSkin && defaultSkin != null) {
-			return defaultSkin.getAnimation(getAnimSet, animId);
-		}
-		return null;
+	@Nullable
+	protected RotpAnimDefinition getAnim(@Nullable AnimationSet animSet, ActionAnimIdentifier animId) {
+		return animSet != null ? animSet.getNamedAnim(animId) : null;
+	}
+	
+	@Nullable
+	protected AnimVariantsList getAnims(@Nullable AnimationSet animSet, String name) {
+		return animSet != null ? animSet.getAnimVariants(name) : null;
+	}
+	
+	@Nullable
+	protected AnimationSet getAnimSet(ResourceLocation modelId) {
+		return animations != null ? animations.get(modelId) : null;
 	}
 	
 	@Deprecated(forRemoval = true)
 	public RotpAnimDefinition getAnimation(ResourceLocation modelId, Function<AnimationSet, RotpAnimDefinition> getAnim) {
 		AnimationSet animSet = animations != null ? animations.get(modelId) : null;
 		if (animSet != null) {
-			RotpAnimDefinition anims = getAnim.apply(animSet);
-			if (anims != null) {
-				return anims;
+			RotpAnimDefinition anim = getAnim.apply(animSet);
+			if (anim != null) {
+				return anim;
 			}
 		}
-		
-		if (this != defaultSkin && defaultSkin != null) {
-			return defaultSkin.getAnimation(modelId, getAnim);
-		}
-		return null;
+		return this != defaultSkin && defaultSkin != null ? defaultSkin.getAnimation(modelId, getAnim) : null;
 	}
 
 	@Deprecated(forRemoval = true)
@@ -324,14 +338,10 @@ public class StandSkin {
 				return anim;
 			}
 		}
-		
-		if (this != defaultSkin && defaultSkin != null) {
-			return defaultSkin.getStandAnimation(getAnim);
-		}
-		return null;
+		return this != defaultSkin && defaultSkin != null ? defaultSkin.getStandAnimation(getAnim) : null;
 	}
 	
-	@Deprecated
+	@Deprecated(forRemoval = true)
 	public AnimationSet getAnimations() {
 		return standEntityAnims;
 	}

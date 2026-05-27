@@ -1,7 +1,9 @@
 package com.github.standobyte.jojo.client.entityanim;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
@@ -22,6 +24,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 public class AnimationSet {
 	public final Map<String, AnimVariantsList> namedAnimations;
 	@Nullable public RotpAnimDefinition idleAnim;
+	@Nullable public List<RotpAnimDefinition> alwaysAnim;
 	
 	protected AnimationSet(Map<String, AnimVariantsList> namedAnimations) {
 		this.namedAnimations = namedAnimations;
@@ -48,13 +51,21 @@ public class AnimationSet {
 	
 	
 	public static class Builder {
-		Map<String, Int2ObjectMap<RotpAnimDefinition>> namedAnimations = new HashMap<>();
+		protected Map<String, Int2ObjectMap<RotpAnimDefinition>> namedAnimations = new HashMap<>();
+		@Nullable protected List<RotpAnimDefinition> alwaysAnim;
 		
 		public void putNamedAnim(String name, RotpAnimDefinition anim) {
 			Pair<String, OptionalInt> enumeratedName = StringUtil.splitIntAtTheEnd(name);
 			Int2ObjectMap<RotpAnimDefinition> anims = this.namedAnimations.computeIfAbsent(
 					enumeratedName.getFirst(), __ -> new Int2ObjectArrayMap<>());
 			anims.put(enumeratedName.getSecond().orElse(0), anim);
+		}
+		
+		public void addAlwaysAnim(RotpAnimDefinition anim) {
+			if (alwaysAnim == null) {
+				alwaysAnim = new ArrayList<>(1);
+			}
+			alwaysAnim.add(anim);
 		}
 		
 		public boolean isEmpty() {
@@ -71,11 +82,11 @@ public class AnimationSet {
 								.map(Int2ObjectMap.Entry::getValue)
 								.toList())));
 			AnimationSet animationSet = new AnimationSet(anims);
+			animationSet.alwaysAnim = this.alwaysAnim;
 			return animationSet;
 		}
 	}
 
-	// TODO (stand anims) summon animations
 	// TODO (stand anims) arms only mode
 //	@Override
 //	public <T extends StandEntity> boolean poseStand(@Nullable T entity, StandEntityModel<T> model, StandPoseData poseData, 

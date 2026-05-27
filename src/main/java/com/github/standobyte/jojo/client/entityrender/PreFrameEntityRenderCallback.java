@@ -1,10 +1,12 @@
 package com.github.standobyte.jojo.client.entityrender;
 
+import java.util.List;
+
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.entityanim.AnimVariantsList;
 import com.github.standobyte.jojo.client.entityanim.AnimationLoader;
 import com.github.standobyte.jojo.client.entityanim.AnimationSet;
-import com.github.standobyte.jojo.client.entityanim.AnimVariantsList;
 import com.github.standobyte.jojo.client.entityanim.LivingAnimState;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.AnimWithId;
@@ -89,6 +91,7 @@ public class PreFrameEntityRenderCallback {
 			animVariables.reset();
 		}
 
+		List<RotpAnimDefinition> animsPre = null;
 		RotpAnimDefinition anim;
 		if (stand != null) {
 			StandSkin standSkin = StandSkinsLoader.getInstance().getSkin(stand);
@@ -120,6 +123,7 @@ public class PreFrameEntityRenderCallback {
 					!stand.clientStuff.summonAnimStopped ? stand.summonPoseRandomByte : -1, animVariables.time);
 			anim = animPossiblyReplaced.anim;
 			animVariables.animId = animPossiblyReplaced.animId;
+			animsPre = standSkin.getStandAlwaysAnimations();
 			
 			if (!stand.clientStuff.summonAnimStopped && !animVariables.animId.isSummon) {
 				stand.clientStuff.summonAnimStopped = true;
@@ -138,9 +142,18 @@ public class PreFrameEntityRenderCallback {
 			}
 		}
 		
+		AnimFramePose pose = AnimFramePose.reused.clear();
+		if (animsPre != null) {
+			float time = living.tickCount + partialTick;
+			for (RotpAnimDefinition animPre : animsPre) {
+				float timeSeconds = animPre.getAnimTime(time);
+				animPre.calcAnimPose(pose, AnimMolangVariables.extract(living, partialTick), 
+						actionComponent != null ? actionComponent.clPrevPunchPose : null, timeSeconds, 1);
+			}
+		}
 		if (anim != null) {
 			float timeSeconds = anim.getAnimTime(animVariables);
-			AnimFramePose pose = anim.calcAnimPose(AnimMolangVariables.extract(living, partialTick), 
+			anim.calcAnimPose(pose, AnimMolangVariables.extract(living, partialTick), 
 					actionComponent != null ? actionComponent.clPrevPunchPose : null, timeSeconds, 1);
 			
 			if (newFrame) {

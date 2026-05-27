@@ -94,18 +94,24 @@ public class RotpAnimDefinition {
 
 	public AnimFramePose calcAnimPose(@Nullable AnimMolangVariables animVariables, 
 			@Nullable AnimFramePose prevPunchPose, float seconds, float animSpeed) {
+		AnimFramePose pose = AnimFramePose.reused.clear();
+		calcAnimPose(pose, animVariables, 
+				prevPunchPose, seconds, animSpeed);
+		return pose;
+	}
+
+	public void calcAnimPose(AnimFramePose dest, @Nullable AnimMolangVariables animVariables, 
+			@Nullable AnimFramePose prevPunchPose, float seconds, float animSpeed) {
 		evaluateQueries(animVariables);
-		AnimFramePose frame = AnimFramePose.reused.clear();
 
 		Map<String, List<IAnimationChannel>> anim = SmoothPunchComboAnimTransition.transition(boneAnimations, prevPunchPose);
 		for (Map.Entry<String, List<IAnimationChannel>> entry : anim.entrySet()) {
-			ModelPartFrame modelPartPose = frame.getForModelPart(entry.getKey());
+			ModelPartFrame modelPartPose = dest.getForModelPart(entry.getKey());
 			for (IAnimationChannel tf : entry.getValue()) {
 				Vector3f vec = calcVec(this, tf, seconds, animSpeed);
 				modelPartPose.set(vec, tf.target());
 			}
 		}
-		return frame;
 	}
 	
 	public static void animate(Model model, AnimFramePose frame) {

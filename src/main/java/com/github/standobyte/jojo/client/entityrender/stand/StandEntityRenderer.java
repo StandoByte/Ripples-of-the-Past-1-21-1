@@ -124,13 +124,23 @@ public class StandEntityRenderer<
 		AnimFramePose pose = null;
 		switch (menuType) {
 			case STAND_SKINS -> {
+				pose = AnimFramePose.reused.clear();
+				AnimMolangVariables molangVars = AnimMolangVariables.set(0, 0, 0);
+				
+				List<RotpAnimDefinition> animsPre = skin.getStandAlwaysAnimations();
+				if (animsPre != null) {
+					for (RotpAnimDefinition animPre : animsPre) {
+						float seconds = animPre.getAnimTime(ticks);
+						animPre.calcAnimPose(pose, molangVars, null, seconds, 1);
+					}
+				}
+				
 				ActionAnimIdentifier animId = StandEntityRenderer.IDLE_ANIM;
 				AnimWithId animWithId = PreFrameEntityRenderCallback.getStandAnim(skin, animId, StandEntityRenderer.IDLE_ANIM);
 				RotpAnimDefinition anim = animWithId.anim;
 				if (anim != null) {
 					float seconds = anim.getAnimTime(ticks);
-					AnimMolangVariables molangVars = AnimMolangVariables.set(0, 0, 0);
-					pose = anim.calcAnimPose(molangVars, null, seconds, 1);
+					anim.calcAnimPose(pose, molangVars, null, seconds, 1);
 				}
 			}
 			case STAND_INFO -> {
