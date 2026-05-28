@@ -192,11 +192,11 @@
   "commands.jojo_ripples.bgm.stop.success.multiple": "Stopped playing soundtrack for %s players",
   "commands.jojo_ripples.bgm.stop.success.single": "Stopped playing soundtrack for %s",
   
-  "jojo_ripples.ui.story": "Story (NYI)",
+  "jojo_ripples.ui.adventure": "Adventure (NYI)",
   "jojo_ripples.menu.player.profile": "Character Profile: %s (NYI)",
   "jojo_ripples.menu.player.group": "Group (NYI)",
   "jojo_ripples.menu.player.story_arcs": "Story Arcs (NYI)",
-  "jojo_ripples.menu.player.storytelling": "Storytelling (NYI)",
+  "jojo_ripples.menu.player.adventure_settings": "Storytelling (NYI)",
   
   "jojo_ripples.screen.edit_hud_layout": "Edit Controls (NYI)",
   "jojo_ripples.screen.ability_selection_wheel": "Choose an ability",
@@ -271,6 +271,7 @@
   
   "item.jojo_ripples.stand_disc": "Stand Disc",
   "item.jojo_ripples.stand_disc.wip": "Work in progress",
+  "item.jojo_ripples.stand_disc.old": "Old moveset (1.16.5 port)",
   "item.jojo_ripples.stand_disc.experimental": "Experimental / Non-playable",
   "item.jojo_ripples.stand_disc.addon_author": "Addon created by: %s",
   "item.jojo_ripples.stand_disc.data_pack": "Data pack Stand",
@@ -489,10 +490,10 @@
   "jojo_ripples.skill.hit_armor_fix.controls": "Heavy Punch + \uEAFE §lon an armored target",
   "jojo_ripples.ability.hit_armor_fix": "Fix armor",
   
-  "jojo_ripples.skill.disfiguring_punch": "Disfiguring Punch",
-  "jojo_ripples.skill.disfiguring_punch.desc": "After a finisher punch, incorrectly restore the attacked body part. This partially heals the injury, but leaves the target unable to correctly control that body part for a short period of time.",
-  "jojo_ripples.skill.disfiguring_punch.controls": "Finisher Punch + \uEAFE",
-  "jojo_ripples.ability.disfiguring_punch": "Disfiguring Punch",
+  "jojo_ripples.skill.mishealing_punch": "Mishealing Punch",
+  "jojo_ripples.skill.mishealing_punch.desc": "After a finisher punch, incorrectly restore the attacked body part. This heals half of the damage from the punch, but makes it harder for the target to control that body part for a short amount of time.",
+  "jojo_ripples.skill.mishealing_punch.controls": "Finisher Punch + \uEAFE",
+  "jojo_ripples.ability.mishealing_punch": "Mishealing Punch",
   
   "jojo_ripples.skill.leave_object": "Leave object",
   "jojo_ripples.skill.leave_object.desc": "After punching a hole in the target's abdomen, leave a held item inside of them and partially heal the injury. Some items have special effects.",
@@ -542,7 +543,7 @@
   "jojo_ripples.ability.fuse_with_rock": "Fuse with rock",
   
   "jojo_ripples.skill.block_bullet": "Block Bullet",
-  "jojo_ripples.skill.block_bullet.desc": "Crazy Diamond restructures a block held in your offhand into a sharp projectile and shoots it at a high speed.",
+  "jojo_ripples.skill.block_bullet.desc": "Crazy Diamond restructures a block held in your hand into a sharp projectile and shoots it at a high speed.",
   "jojo_ripples.skill.block_bullet.controls": "Special ability",
   "jojo_ripples.ability.block_bullet": "Block Bullet",
   "jojo_ripples.ability.block_bullet_homing": "Homing Bullet",
@@ -552,8 +553,7 @@
   "jojo_ripples.skill.blood_cutter.controls": "Special ability",
   "jojo_ripples.ability.blood_cutter": "Blood Cutter",
   
-  "jojo.message.action_condition.block_offhand": "You need to hold a block in your hand",
-  "jojo.message.action_condition.item_hard_material": "You need a block made of a hard material",
+  "jojo.message.action_condition.item_hard_material": "You need to hold a block made of a hard material",
   
   
   "jojo_ripples.subtitle.life_created": "Life created",

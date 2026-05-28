@@ -66,7 +66,7 @@ public class AuraUtil {
 			if (standPower != null) {
 				StandSkin standSkin = StandSkinsLoader.getInstance().getSkin(standPower);
 				if (standSkin != null) {
-					vars.color = standSkin.getColor();
+					vars.color = standSkin.getColors().aura();
 					vars.inflate = Math.min(resolve.amplifier * 0.5f, 2);
 					return vars;
 				}

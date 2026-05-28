@@ -127,7 +127,7 @@ public class StandInfoScreen extends Screen implements IJojoMenuScreen {
 
 		// stand name and user
 		Component standName = Component.translatable("jojo_ripples.stand_stat.stand_name", 
-				knownStand ? override.standName(power) : Component.translatable("multiplayer.status.unknown"));
+				knownStand ? override.standName(power, true) : Component.translatable("multiplayer.status.unknown"));
 		Component standUser = Component.translatable("jojo_ripples.stand_stat.stand_user", 
 				knownUser ? user.getDisplayName() : Component.translatable("multiplayer.status.unknown"));
 		int standNameX = x + (width - minecraft.font.width(standName)) / 2;

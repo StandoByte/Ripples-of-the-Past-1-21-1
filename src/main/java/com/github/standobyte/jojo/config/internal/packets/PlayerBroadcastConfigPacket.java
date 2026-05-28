@@ -8,6 +8,7 @@ import com.github.standobyte.jojo.PacketsRegister;
 import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
 import com.github.standobyte.jojo.util.functions_network.NetworkUtil;
 
+import io.netty.buffer.ByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
@@ -68,6 +69,7 @@ public class PlayerBroadcastConfigPacket implements CustomPacketPayload {
 		@Override
 		public void handle(PlayerBroadcastConfigPacket payload, IPayloadContext context) {
 			ConfigNetworkFunctions.clAcceptAnotherPlayerBroadcastConfig(payload);
+			if (payload.read != null) payload.read.ifPresent(ByteBuf::release);
 		}
 		
 	}

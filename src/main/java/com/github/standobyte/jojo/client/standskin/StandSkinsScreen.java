@@ -435,7 +435,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 			else					skinBoxRow = isBottomRow ? SkinBoxes.ODD_BOTTOM : SkinBoxes.ODD;
 			GuiIcon skinBox = skinBoxRow[column];
 
-			int color = isHovered ? skin.getColor() : 0x80FFFFFF;
+			int color = isHovered ? skin.getColors().primary() : 0x80FFFFFF;
 			skinBox.render(gui.pose(), x, y, color);
 
 			renderStand(gui, mouseX, mouseY, ticks, isHovered, 

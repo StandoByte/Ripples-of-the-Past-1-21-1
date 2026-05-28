@@ -84,6 +84,7 @@ public class StandType extends PowerType {
 	}
 	
 	public <T extends StandType> T discTooltipWIP() { return discTooltipWIP(false); }
+	
 	public <T extends StandType> T discTooltipWIP(boolean translucentDisc) { 
 		return init(stand -> {
 			stand.discExtraTooltip.add(
@@ -91,6 +92,16 @@ public class StandType extends PowerType {
 					.withStyle(ChatFormatting.ITALIC).withColor(0x808000));
 			stand.discCategoryPriority = 200;
 			stand.translucentDisc = translucentDisc;
+		});
+	}
+	
+	public <T extends StandType> T discTooltipOld() { 
+		return init(stand -> {
+			stand.discExtraTooltip.add(
+					Component.translatable("item.jojo_ripples.stand_disc.old")
+					.withStyle(ChatFormatting.ITALIC).withColor(0x808000));
+			stand.discCategoryPriority = 201;
+			stand.translucentDisc = true;
 		});
 	}
 	
@@ -193,9 +204,12 @@ public class StandType extends PowerType {
 			if (user != null && !user.level().isClientSide()) {
 				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrNonEntityStandSummonPacket(user.getId(), true));
 				if (playSummonSound) {
-					PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, StandSkinSoundPacket.play(
+					StandSkinSoundPacket soundPacket = StandSkinSoundPacket.play(
 							user.position(), ModSoundEvents.STAND_SUMMON, 
-							standPower, user.getSoundSource(), 1, 1));
+							standPower, user.getSoundSource(), 1, 1);
+					if (soundPacket != null) {
+						PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, soundPacket);
+					}
 				}
 			}
 			return true;
@@ -235,9 +249,12 @@ public class StandType extends PowerType {
 			if (user != null && !user.level().isClientSide()) {
 				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrNonEntityStandSummonPacket(user.getId(), false));
 				if (playUnsummonSound) {
-					PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, StandSkinSoundPacket.play(
+					StandSkinSoundPacket soundPacket = StandSkinSoundPacket.play(
 							user.position(), ModSoundEvents.STAND_UNSUMMON, 
-							standPower, user.getSoundSource(), 1, 1));
+							standPower, user.getSoundSource(), 1, 1);
+					if (soundPacket != null) {
+						PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, soundPacket);
+					}
 				}
 			}
 		}
@@ -328,7 +345,7 @@ public class StandType extends PowerType {
 	@Override
 	public Component getName(Power<?> playerPowerData) {
 		return ((StandPower) playerPowerData).getStandInstance()
-				.map(stand -> stand.getStandName(playerPowerData.getUser().level().isClientSide()))
+				.map(stand -> stand.getStandName())
 				.orElseGet(this.name::get);
 	}
 	

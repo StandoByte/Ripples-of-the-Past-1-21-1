@@ -400,10 +400,7 @@ public class KnockbackCollisionImpact implements TickingEntityData, INBTSerializ
 	protected boolean hurtTarget(Entity target, DamageSource dmgSource, float amount) {
 		boolean hurt = DamageUtil.hurtThroughInvulTicks(target, dmgSource, amount);
 		if (attackerIsStand && attackerStandUser != null && target instanceof LivingEntity targetLiving) {
-			StandPower attackerStand = StandPower.get(attackerStandUser);
-			if (attackerStand != null) {
-				ResolveCounter.addResolve(attackerStand, targetLiving, amount);
-			}
+			ResolveCounter.addResolve(attackerStandUser, targetLiving, amount);
 		}
 		return hurt;
 	}

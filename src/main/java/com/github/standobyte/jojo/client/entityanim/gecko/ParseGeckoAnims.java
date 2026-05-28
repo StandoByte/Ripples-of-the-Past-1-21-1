@@ -30,7 +30,7 @@ public class ParseGeckoAnims {
 	
 	// XXX parse generic BB format anims
 	// "geckolib_format_version": 2
-	public static RotpAnimDefinition parseAnim(JsonObject animJson) {
+	public static RotpAnimDefinition parseAnim(String name, JsonObject animJson) {
 		
 		// Animation metadata
 		
@@ -95,6 +95,7 @@ public class ParseGeckoAnims {
 						.collect(Collectors.toMap(assignment -> assignment[0], assignment -> assignment[1], 
 								(u, v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); }, LinkedHashMap::new));
 				
+				int namelessStaticPoses = 0;
 				while (!assignmentMap.isEmpty()) {
 					Map.Entry<String, String> assignment = assignmentMap.entrySet().iterator().next();
 					String field = assignment.getKey();
@@ -109,6 +110,12 @@ public class ParseGeckoAnims {
 						case "loopBack" -> {
 							builder.looping(Float.parseFloat(assignmentValue));
 						}
+						case "pose" -> {
+							builder.addPoseTimestamp(assignmentValue, time, false);
+						}
+						case "coolPose" -> {
+							builder.addPoseTimestamp(assignmentValue, time, true);
+						}
 						case "mirror.default" -> {
 							HumanoidArm side = Enum.valueOf(HumanoidArm.class, assignmentValue);
 							builder.mirrorDefaultSide = side;
@@ -122,7 +129,7 @@ public class ParseGeckoAnims {
 				for (String singleWord : singleWordInstructions) {
 					switch (singleWord) {
 						case "coolPoseHere" -> {
-							builder.addCoolPoseTimestamp(time);
+							builder.addPoseTimestamp(name + (namelessStaticPoses++ > 0 ? "#" + namelessStaticPoses : ""), time, true);
 						}
 						case "mirror.start" -> {
 							builder.mirrorStart = time;
@@ -133,6 +140,10 @@ public class ParseGeckoAnims {
 					}
 				}
 			}
+		}
+		
+		if ("idle".equals(name)) {
+			builder.addPoseTimestamp("idle", 0, false);
 		}
 		
 		RotpAnimDefinition anim = builder.build();

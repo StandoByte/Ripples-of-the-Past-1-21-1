@@ -1,5 +1,6 @@
 {  
 	"stand_type": "jojo_ripples:magicians_red",
 	"color" : "#DE203A",
-	"story_part": "jojo_ripples:p3"
+	"story_part": "jojo_ripples:p3",
+	"scale": [ 0.65, 1.95 ]
 }

@@ -2,6 +2,8 @@ package com.github.standobyte.jojoimpl.stands.crazydiamond;
 
 import javax.annotation.Nullable;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.particle.CustomParticlesHelper;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
@@ -15,23 +17,29 @@ import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier.ActionAnimIdHandsided;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
-import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier.ActionAnimIdHandsided;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.effect.UserStandEffects;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
+import com.github.standobyte.jojo.subsystems.itemtracking.ItemTracker;
+import com.github.standobyte.jojo.subsystems.itemtracking.ItemTracking;
+import com.github.standobyte.jojo.subsystems.itemtracking.KnownItemState;
+import com.github.standobyte.jojo.util.functions.HandUtil;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -49,31 +57,85 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 	@Override
 	public ConditionCheck checkSpecificConditions(Power<?> power) {
 		LivingEntity user = power.getUser();
-		ItemStack itemToShoot = user.getOffhandItem();
-		if (itemToShoot == null || itemToShoot.isEmpty() || !(itemToShoot.getItem() instanceof BlockItem)) {
-			return ConditionCheck.createNegative("block_offhand");
-		}
-		Block block = ((BlockItem) itemToShoot.getItem()).getBlock();
-		BlockState blockState = block.defaultBlockState();
-		// TODO check block hardness
-//		if (!StandStatFormulas.isBlockBreakable(
-//				power.isActive() ? ((StandEntity) power.getStandManifestation()).getAttackDamage()
-//						: power.getType().getStats().getBasePower() + power.getType().getStats().getDevPower(power.getStatsDevelopment()), 
-//						blockState.getDestroySpeed(user.level, user.blockPosition()), blockState.getHarvestLevel())) {
-//			return ConditionCheck.createNegative("stand_cant_break_block");
-//		}
-		if (!hardMaterial(blockState)) {
+		var block = getBlockToShoot(user, PowerClass.STAND.cast(power));
+		if (block == null) {
 			return ConditionCheck.createNegative("item_hard_material");
 		}
 		return super.checkSpecificConditions(power);
 	}
+	
+	@Nullable
+	public static FittingItem getBlockToShoot(LivingEntity user, StandPower power) {
+		FittingItem block;
+		if (power != null) {
+			StandEntity stand = power.getSummonedStandEntity();
+			if (stand != null) {
+				block = getBlockToShoot(stand, stand.getMainArm().getOpposite());
+				if (block != null) return block;
+				block = getBlockToShoot(stand, stand.getMainArm());
+				if (block != null) return block;
+			}
+		}
+
+		block = getBlockToShoot(user, user.getMainArm().getOpposite());
+		if (block != null) return block;
+		block = getBlockToShoot(user, user.getMainArm());
+		if (block != null) return block;
+		
+		return null;
+	}
+
+	@Nullable
+	public static FittingItem getBlockToShoot(LivingEntity entity, HumanoidArm side) {
+		InteractionHand hand = HandUtil.getHand(entity, side);
+		ItemStack item = entity.getItemInHand(hand);
+		Block block = getBulletBlock(item);
+		if (block != null) {
+			return new FittingItem(entity, side, item, block);
+		}
+		return null;
+	}
+
+	@Nullable
+	public static Block getBulletBlock(ItemStack itemStack) {
+		if (itemStack == null) return null;
+		
+		Item item = itemStack.getItem();
+		if (item instanceof BlockItem blockItem) {
+			Block block = blockItem.getBlock();
+			BlockState blockState = block.defaultBlockState();
+			// TODO check block hardness
+//			if (!StandStatFormulas.isBlockBreakable(
+//					power.isActive() ? ((StandEntity) power.getStandManifestation()).getAttackDamage()
+//							: power.getType().getStats().getBasePower() + power.getType().getStats().getDevPower(power.getStatsDevelopment()), 
+//							blockState.getDestroySpeed(user.level, user.blockPosition()), blockState.getHarvestLevel())) {
+//				return ConditionCheck.createNegative("stand_cant_break_block");
+//			}
+			if (hardMaterial(blockState)) {
+				return block;
+			}
+		}
+		
+		return null;
+	}
+	
+	static record FittingItem(LivingEntity entity, HumanoidArm hand, ItemStack item, Block block) {}
 
 	@Override
 	public void initActionFromConfig(EntityActionInstance action, Level level, 
 			LivingEntity powerUser, LivingEntity performer) {
 		super.initActionFromConfig(action, level, powerUser, performer);
-		if (!level.isClientSide() && disableHoming(powerUser)) {
-			((BlockBulletShot) action).isHomingDisabled = true;
+		if (!level.isClientSide()) {
+			BlockBulletShot _action = ((BlockBulletShot) action);
+			if (disableHoming(powerUser)) {
+				_action.isHomingDisabled = true;
+			}
+			
+			var blockAndItem = getBlockToShoot(powerUser, StandPower.get(powerUser));
+			if (blockAndItem != null) {
+				_action.itemHeldByUser = blockAndItem.entity.is(powerUser);
+				_action.side = blockAndItem.hand;
+			}
 		}
 	}
 
@@ -88,7 +150,8 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 
 	public static class BlockBulletShot extends EntityActionInstance {
 		protected boolean isHomingDisabled = false;
-		protected HumanoidArm side;
+		protected boolean itemHeldByUser = true;
+		protected HumanoidArm side = HumanoidArm.LEFT;
 
 		public BlockBulletShot(EntityActionType ability) {
 			super(ability);
@@ -96,19 +159,52 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 
 		@Override
 		public void onActionSet(EntityActionInstance prevAction) {
-			side = getPowerUser().getMainArm().getOpposite();
 			boolean offHandIsRight = side == HumanoidArm.RIGHT;
 			setStandOffset(new Vec3(offHandIsRight ? -0.1 : 0.1, -0.25, -0.4), StandOffsetFromUser.Rotations.BODY, false);
+		}
+		
+		@ApiStatus.OverrideOnly
+		public void toBuf(FriendlyByteBuf buf) {
+			buf.writeEnum(side);
+			buf.writeBoolean(itemHeldByUser);
+		}
+
+		@ApiStatus.OverrideOnly
+		public void fromBuf(FriendlyByteBuf buf) {
+			side = buf.readEnum(HumanoidArm.class);
+			itemHeldByUser = buf.readBoolean();
 		}
 
 		@Override
 		public void actionTick() {
 			if (level().isClientSide() && phase == ActionPhase.WINDUP && ClientGlobals.canSeeStands) {
-				LivingEntity user = getPowerUser();
-				if (user != null) {
-					CustomParticlesHelper.createCDRestorationParticle(user, InteractionHand.OFF_HAND);
+				LivingEntity entity = getEntityHoldingItem();
+				if (entity != null) {
+					InteractionHand hand = HandUtil.getHand(entity, side);
+					CustomParticlesHelper.createCDRestorationParticle(entity, hand);
 				}
 			}
+		}
+		
+		protected LivingEntity getEntityHoldingItem() {
+			LivingEntity user = getPowerUser();
+			if (user == null) return null;
+			
+			LivingEntity entity = null;
+			if (itemHeldByUser) {
+				entity = user;
+			}
+			else {
+				StandPower standPower = StandPower.get(user);
+				if (standPower != null) {
+					StandEntity standEntity = standPower.getSummonedStandEntity();
+					if (standEntity != null) {
+						entity = standEntity;
+					}
+				}
+			}
+			
+			return entity;
 		}
 
 		@Override
@@ -117,15 +213,18 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 			if (!level.isClientSide()) {
 				LivingEntity user = getPowerUser();
 				if (user == null) return;
-				ItemStack item = user.getOffhandItem();
-				Block block = !item.isEmpty() && item.getItem() instanceof BlockItem blockItem ? blockItem.getBlock() : null;
-				if (block == null) return;
+
+				StandPower standPower = StandPower.get(user);
+				LivingEntity holdingItem = getEntityHoldingItem();
+				if (holdingItem == null) return;
+				
+				var blockAndItem = getBlockToShoot(holdingItem, side);
+				if (blockAndItem == null) return;
 				
 				CrazyDBlockBulletEntity bullet = new CrazyDBlockBulletEntity(performer, level);
 				bullet.setShootingPosOf(user);
-				bullet.setBlock(block);
+				bullet.setBlock(blockAndItem.block());
 				
-				StandPower standPower = StandPower.get(user);
 				if (standPower != null && !isHomingDisabled) {
 					UserStandEffects.getEffectLookedAt(standPower, ModStandAbilities.EFFECT_CD_BLOOD_DROPS.get(), PLAYER_TRACKING_RANGE, user).ifPresent(effect -> {
 						bullet.setTarget(effect.getTarget());
@@ -138,7 +237,13 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 				bullet.shootFromRotation(performer, 2.0f, 0);
 				addProjectileWithStandStats(bullet);
 				
-				if (!(user instanceof Player player && player.getAbilities().instabuild)) {
+				ItemStack item = blockAndItem.item();
+				ItemTracker itemTracker = ItemTracking.getItemTracker(item, level);
+				if (itemTracker != null) {
+					itemTracker.setAtEntity(item.copy(), bullet.getId(), level, KnownItemState.ENTITY_IS_ITEM, id -> bullet.isAlive());
+				}
+				
+				if (!(blockAndItem.entity() instanceof Player player && player.getAbilities().instabuild)) {
 					item.shrink(1);
 				}
 				standPower.consumeStamina(40);

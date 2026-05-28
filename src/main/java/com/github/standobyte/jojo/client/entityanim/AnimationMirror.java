@@ -20,13 +20,13 @@ import net.minecraft.world.entity.HumanoidArm;
 
 public record AnimationMirror(HumanoidArm defaultSide, float start, float end) {
 	
-	public static void doMirroringOnAnimSet(Map<String, List<RotpAnimDefinition>> anims) {
-		Map<String, List<RotpAnimDefinition>> toAdd = null;
+	public static void doMirroringOnAnimSet(Map<String, AnimVariantsList> anims) {
+		Map<String, AnimVariantsList> toAdd = null;
 		
 		var animEntryIter = anims.entrySet().iterator();
 		while (animEntryIter.hasNext()) {
 			var animEntry = animEntryIter.next();
-			List<RotpAnimDefinition> enumeratedAnims = animEntry.getValue();
+			List<RotpAnimDefinition> enumeratedAnims = animEntry.getValue().anims;
 			
 			boolean hasMirrored = false;
 			for (int i = 0; i < enumeratedAnims.size() && !hasMirrored; i++) {
@@ -63,8 +63,8 @@ public record AnimationMirror(HumanoidArm defaultSide, float start, float end) {
 				}
 				
 				if (toAdd == null) toAdd = new HashMap<>();
-				toAdd.put(animName + "_left", leftSideAnims);
-				toAdd.put(animName + "_right", rightSideAnims);
+				toAdd.put(animName + "_left", new AnimVariantsList(leftSideAnims));
+				toAdd.put(animName + "_right", new AnimVariantsList(rightSideAnims));
 			}
 		}
 		

@@ -16,6 +16,7 @@ import org.joml.Matrix4f;
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.client.standskin.text.StandNameSetColor;
 import com.github.standobyte.jojo.client.ui.screen_widgets.HeightScaledSlider;
 import com.github.standobyte.jojo.client.ui.screen_widgets.IconButton;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ImageButton2;
@@ -363,6 +364,12 @@ public class StandStatsRenderer {
 			return getRankFromConvertedValue(statConvertedValue);
 		}
 
+		public Component standName(StandPower standData, boolean whiteBackground) {
+			Component standName = standName(standData);
+			standName = StandNameSetColor.fromSkin(standData, standName, whiteBackground);
+			return standName;
+		}
+		
 		public Component standName(StandPower standData) {
 			return standData.getName();
 		}
@@ -428,8 +435,8 @@ public class StandStatsRenderer {
 		override.preStatsRenderFrame(power, partialTick);
 
 		StandSkin skin = StandSkinsLoader.getInstance().getSkin(power);
-		int standNameColor = skin != null && knownStand ? skin.getColor() : 0xFFFFFFFF;
-		int statsHexagonColor = skin != null && knownStand ? FastColor.ARGB32.color(191, skin.getColor()) : FastColor.ARGB32.color(127, bnw(BLACK, invertBnW));
+		int standNameColor = skin != null && knownStand ? skin.getColors().text() : 0xFFFFFFFF;
+		int statsHexagonColor = skin != null && knownStand ? FastColor.ARGB32.color(191, skin.getColors().stats()) : FastColor.ARGB32.color(127, bnw(BLACK, invertBnW));
 
 		float[] statVal = new float[6];
 		String[] statRank = new String[6];
@@ -540,7 +547,7 @@ public class StandStatsRenderer {
 		// stand name and user
 		if (tick >= HEXAGON_TICK_START) {
 			var standName = mc.font.split(Component.translatable("jojo_ripples.stand_stat.stand_name", 
-					knownStand ? override.standName(power) : Component.translatable("multiplayer.status.unknown")), maxTextWidth);
+					knownStand ? override.standName(power, false) : Component.translatable("multiplayer.status.unknown")), maxTextWidth);
 			var standUser = mc.font.split(Component.translatable("jojo_ripples.stand_stat.stand_user", 
 					knownUser ? user.getDisplayName() : Component.translatable("multiplayer.status.unknown")), 
 					maxTextWidth);

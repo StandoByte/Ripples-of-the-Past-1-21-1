@@ -146,7 +146,7 @@ public class ClientStandHeldItemsUI extends ClientExternalContainerUI {
 	
 	@Override
 	protected void renderSlotHighlight(GuiGraphics guiGraphics, Slot slot) {
-		if (clickableCheck.isPositive()) {
+		if (clickableCheck.positive()) {
 			super.renderSlotHighlight(guiGraphics, slot);
 		}
 	}
@@ -168,7 +168,7 @@ public class ClientStandHeldItemsUI extends ClientExternalContainerUI {
 
 	@Override
 	protected void slotClicked(Slot slot, AbstractContainerMenu container, int mouseButton, ClickType clickType) {
-		if (clickableCheck.isPositive() || (
+		if (clickableCheck.positive() || (
 				clickType == ClickType.SWAP && mouseButton == Inventory.SLOT_OFFHAND ||
 				clickType == ClickType.CLONE || 
 				clickType == ClickType.THROW)
@@ -182,7 +182,7 @@ public class ClientStandHeldItemsUI extends ClientExternalContainerUI {
 	}
 	
 	protected void setErrorMessage() {
-		Component message = clickableCheck.getWarning();
+		Component message = clickableCheck.warning();
 		if (message != null) {
 			overlayMessage.setOverlayMessage(message.copy().withStyle(ChatFormatting.RED), false);
 		}
@@ -199,7 +199,7 @@ public class ClientStandHeldItemsUI extends ClientExternalContainerUI {
 			ClientStandHeldItemsUI standHandsContainerUI = 
 					((ExternalContainerScreenCrutches) containerScreen).jojo_ripples$getStandArmsExtContainer();
 			if (standHandsContainerUI != null) {
-				if (standHandsContainerUI.clickableCheck.isPositive()) {
+				if (standHandsContainerUI.clickableCheck.positive()) {
 					return ModdedContainerClickType.STAND_QUICK_MOVE;
 				}
 				else {

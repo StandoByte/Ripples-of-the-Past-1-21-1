@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.subsystems.entity_externalcontainer.ModdedContainerClickType;
+import com.github.standobyte.jojo.subsystems.entity_externalcontainer._stand.ClientStandHeldItemsUI;
 import com.github.standobyte.jojo.subsystems.entity_externalcontainer.client.ClientExtendedInventoryClick;
 import com.github.standobyte.jojo.subsystems.entity_externalcontainer.client.ClientExternalContainerUI.ExternalContainerScreenCrutches;
 
@@ -32,7 +33,7 @@ public abstract class SpecialInventoryScreenClick extends Screen implements Exte
 					+ "IIILnet/minecraft/world/inventory/ClickType;Lnet/minecraft/world/entity/player/Player;)V"), 
 			cancellable = true)
 	private void onInventoryClick(Slot slot, int slotId, int mouseButton, ClickType clickType, CallbackInfo ci) {
-		ModdedContainerClickType moddedClickType = ModdedContainerClickType.getClientModdedClick(this, menu, slot, slotId, mouseButton, clickType);
+		ModdedContainerClickType moddedClickType = ClientStandHeldItemsUI.getStandQolClickType(clickType, this, menu, slot, slotId, mouseButton);
 		if (moddedClickType != null) {
 			ClientExtendedInventoryClick.slotClicked(slot, slotId, menu, false, mouseButton, moddedClickType);
 			ci.cancel();

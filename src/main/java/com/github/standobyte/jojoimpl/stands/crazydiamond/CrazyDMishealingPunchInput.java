@@ -17,9 +17,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
-public class CrazyDMisshapingPunchInput extends Ability {
+public class CrazyDMishealingPunchInput extends Ability {
 
-	public CrazyDMisshapingPunchInput(AbilityType<?> abilityType, AbilityId abilityId) {
+	public CrazyDMishealingPunchInput(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId);
 		isSubAbility = true;
 	}
@@ -49,7 +49,7 @@ public class CrazyDMisshapingPunchInput extends Ability {
 			if (curAction instanceof StandEntityHeavyPunch punch
 					&& punch.finisherValue >= 1
 					&& punch.getPunchModifiers().isEmpty()) {
-				StandEffectInstance punchEffect = ModStandAbilities.EFFECT_CD_PUNCH_MISSHAPING.get().create(level);
+				StandEffectInstance punchEffect = ModStandAbilities.EFFECT_CD_PUNCH_MISHEALING.get().create(level);
 				standPower.userStandEffects.addEffect(punchEffect);
 			}
 		}

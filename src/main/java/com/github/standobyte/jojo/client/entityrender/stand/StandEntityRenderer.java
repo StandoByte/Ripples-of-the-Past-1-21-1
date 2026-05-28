@@ -3,7 +3,6 @@ package com.github.standobyte.jojo.client.entityrender.stand;
 import java.util.List;
 import java.util.function.Consumer;
 
-import com.github.standobyte.jojo.client.entityanim.AnimationSet;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.AnimWithId;
 import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery.AnimMolangVariables;
@@ -84,9 +83,10 @@ public class StandEntityRenderer<
 	public M createStandModel(LayerDefinition definition) {
 		return (M) new StandEntityModel<>(definition.bakeRoot());
 	}
-	
-	public static final ActionAnimIdentifier IDLE_ANIM = ActionAnimIdentifier.getOrCreate("idle", true);
-	public static final ActionAnimIdentifier GRAB_IDLE_ANIM = ActionAnimIdentifier.getOrCreate("grab", true);
+
+	public static final ActionAnimIdentifier SUMMON_ANIM = ActionAnimIdentifier.getOrCreate("summon").setSummon();
+	public static final ActionAnimIdentifier IDLE_ANIM = ActionAnimIdentifier.getOrCreate("idle").setIdle();
+	public static final ActionAnimIdentifier GRAB_IDLE_ANIM = ActionAnimIdentifier.getOrCreate("grab").setIdle();
 //	@Override // 1.21.2+
 	public void extractRenderState(T entity, S renderState, float partialTick) {
 //		super.extractRenderState(entity, renderState, partialTick); // 1.21.2+
@@ -124,23 +124,30 @@ public class StandEntityRenderer<
 		AnimFramePose pose = null;
 		switch (menuType) {
 			case STAND_SKINS -> {
+				pose = AnimFramePose.reused.clear();
+				AnimMolangVariables molangVars = AnimMolangVariables.set(0, 0, 0);
+				
+				List<RotpAnimDefinition> animsPre = skin.getStandAlwaysAnimations();
+				if (animsPre != null) {
+					for (RotpAnimDefinition animPre : animsPre) {
+						float seconds = animPre.getAnimTime(ticks);
+						animPre.calcAnimPose(pose, seconds, 1, molangVars, null);
+					}
+				}
+				
 				ActionAnimIdentifier animId = StandEntityRenderer.IDLE_ANIM;
 				AnimWithId animWithId = PreFrameEntityRenderCallback.getStandAnim(skin, animId, StandEntityRenderer.IDLE_ANIM);
 				RotpAnimDefinition anim = animWithId.anim;
 				if (anim != null) {
 					float seconds = anim.getAnimTime(ticks);
-					AnimMolangVariables molangVars = AnimMolangVariables.set(0, 0, 0);
-					pose = anim.calcAnimPose(molangVars, null, seconds, 1);
+					anim.calcAnimPose(pose, seconds, 1, molangVars, null);
 				}
 			}
 			case STAND_INFO -> {
 				if (skin != null) {
-					AnimationSet anims = skin.getAnimations();
-					if (anims != null) {
-						List<AnimFramePose> poses = anims.coolPoses;
-						if (poses != null && !poses.isEmpty()) {
-							pose = poses.get(StandInfoScreen.rand % poses.size());
-						}
+					List<AnimFramePose> poses = skin.getStandInfoScreenPoses();
+					if (poses != null && !poses.isEmpty()) {
+						pose = poses.get(StandInfoScreen.rand % poses.size());
 					}
 				}
 			}
@@ -153,6 +160,18 @@ public class StandEntityRenderer<
 		STAND_INFO
 	}
 	
+	
+	@Override
+	protected void scale(T livingEntity, PoseStack poseStack, float partialTickTime) {
+		if (RenderStateCrutches.currentEntityRenderState != null) {
+			S renderState = (S) RenderStateCrutches.currentEntityRenderState;
+			StandSkin standSkin = renderState.skin;
+			if (standSkin != null) {
+				float[] scale = standSkin.getModelScale();
+				poseStack.scale(scale[0], scale[1], scale[0]);
+			}
+		}
+	}
 	
 	protected static final ResourceLocation MISSING_TEXTURE = JojoMod.resLoc("textures/entity/stand_default.png");
 //	@Override // 1.21.1+
@@ -179,7 +198,7 @@ public class StandEntityRenderer<
 	protected M modelFrom(S renderState) {
 		M model = getEntityModel(renderState);
 		if (model == missingSkinModel.get() && renderState.skin != null) {
-			renderState.tint = renderState.skin.getColor();
+			renderState.tint = renderState.skin.getColors().primary();
 		}
 		return model;
 	}

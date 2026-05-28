@@ -11,18 +11,29 @@ import com.github.standobyte.jojo.mechanics.clothes.container.ClothesSlot;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
 import com.mojang.datafixers.util.Pair;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ArmorSlot;
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.inventory.MenuConstructor;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.ItemStack;
 
 public class ContainerMenuUtil {
+	
+	public static void openMenu(ServerPlayer player, MenuConstructor menuConstructor, Component title) {
+		player.doCloseContainer();
+		// MenuSupplier, MenuConstructor, MenuProvider, ёбаный ваш рот, какой долбоёб все эти интерфейсы писал, заебёшься в этом ООПшном говне копаться
+		player.openMenu(new SimpleMenuProvider(menuConstructor, title));
+	}
+	
 
 	public static Slot[] inventorySlots(Inventory playerInventory, int x, int y, @Nullable SlotIndices memorizeIndices) {
 		Slot[] slots = new Slot[36];

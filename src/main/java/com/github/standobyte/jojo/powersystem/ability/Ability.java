@@ -153,7 +153,7 @@ public class Ability {
 	
 	public ConditionCheck checkConditions(AbilityUsageContext context) {
 		ConditionCheck check = checkMainModLogicConditions(context);
-		if (check.isPositive()) {
+		if (check.positive()) {
 			check = checkSpecificConditions(context.power);
 		}
 		return check;
@@ -170,6 +170,9 @@ public class Ability {
 	
 	@ApiStatus.OverrideOnly
 	public ConditionCheck checkSpecificConditions(Power<?> context) {
+		if (isStandFinisherOf != null) {
+			return ConditionCheck.GREEN_HIGHLIGHT;
+		}
 		return ConditionCheck.POSITIVE;
 	}
 	

@@ -43,7 +43,7 @@ public class StandFinisherCheck {
 			Float2ObjectSortedMap<AbilityConditionCheck> finishersOf = finisherEntries.getValue();
 			for (var finisherEntry : finishersOf.reversed().entrySet()) {
 				AbilityConditionCheck ability = finisherEntry.getValue();
-				if (ability.ability.isAbilityAvailable(context) && ability.conditionCheck.isPositive()) {
+				if (ability.ability.isAbilityAvailable(context) && ability.conditionCheck.positive()) {
 					abilities._inMoveset.put(baseAbilityName, ability);
 					break;
 				}

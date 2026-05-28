@@ -1,7 +1,6 @@
 package com.github.standobyte.jojo.mechanics.resolve;
 
 import com.github.standobyte.jojo.PacketsRegister;
-import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -45,10 +44,10 @@ public record ClActivateResolvePacket(boolean activate) implements CustomPacketP
 		@Override
 		public void handle(ClActivateResolvePacket payload, IPayloadContext context) {
 			Player player = context.player();
-			StandPower standPower = StandPower.get(player);
-			if (standPower.usesResolve()) {
+			ResolveCounter resolveCounter = ResolveCounter.getIfEnabled(player);
+			if (resolveCounter != null) {
 				if (payload.activate) {
-					standPower.resolveCounter.startResolveMode(standPower);
+					resolveCounter.startResolveMode();
 				}
 				else {
 					

@@ -14,7 +14,6 @@ import com.github.standobyte.jojo.util.functions.ContainerMenuUtil.SlotIndices;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -175,9 +174,7 @@ public class PlayerClothesMenu extends AbstractContainerMenu {
 	
 	
 	public static void openOnButtonClick(ServerPlayer player) {
-		player.doCloseContainer();
-		// MenuSupplier, MenuConstructor, MenuProvider, ёбаный ваш рот, какой долбоёб все эти интерфейсы писал, заебёшься в этом ООПшном говне копаться
-		player.openMenu(new SimpleMenuProvider(PlayerClothesMenu::new, Component.translatable("jojo_ripples.menu.player.clothes")));
+		ContainerMenuUtil.openMenu(player, PlayerClothesMenu::new, Component.translatable("jojo_ripples.menu.player.clothes"));
 	}
 
 }

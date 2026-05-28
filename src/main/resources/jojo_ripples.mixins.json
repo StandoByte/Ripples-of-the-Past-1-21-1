@@ -89,7 +89,6 @@
 	"client.v1_21_1_modelanim.barrage.HumanoidModelMixin",
 	"client.v1_21_1_itemmodel.ItemModelShaperMixin",
 	
-    "client.LevelRendererMixin",
     "client.model.AnimatedEntityInterfaceMixin",
     "client.model.ModelAnimOptimization",
     "client.model.ModelExtraFeatures",

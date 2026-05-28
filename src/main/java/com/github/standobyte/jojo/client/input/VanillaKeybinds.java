@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.lwjgl.glfw.GLFW;
@@ -41,61 +42,103 @@ public class VanillaKeybinds {
 	public KeyMapping disableHUDControls;
 	public KeyMapping jojoStuffMenu;
 	
+	public static class KeyInGameCtx implements IKeyConflictContext {
+		public BooleanSupplier extraCondition;
+
+		public KeyInGameCtx(BooleanSupplier extraCondition) {
+			this.extraCondition = extraCondition;
+		}
+		
+		@Override
+		public boolean isActive() {
+			return KeyConflictContext.IN_GAME.isActive() && extraCondition.getAsBoolean();
+		}
+
+		@Override
+		public boolean conflicts(IKeyConflictContext other) {
+			return KeyConflictContext.IN_GAME.conflicts(other);
+		}
+	}
+	
 	public static VanillaKeybinds register(RegisterKeyMappingsEvent event) {
 		VanillaKeybinds binds = new VanillaKeybinds();
+		
 		event.register(binds.summonStand = new Jokerge(
-				JojoMod.MOD_ID + ".key.toggle_stand", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, MAIN_CATEGORY)
+				JojoMod.MOD_ID + ".key.toggle_stand", 
+				new KeyInGameCtx(() -> {
+					StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+					return standPower != null && standPower.hasPower();
+				}), 
+				InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, MAIN_CATEGORY)
 				.inInitOrder().withDescTooltip());
+		
 		event.register(binds.standArmsOnlyHUD = new Jokerge(
-				JojoMod.MOD_ID + ".key.stand_mode", KeyConflictContext.IN_GAME, KeyModifier.CONTROL, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, MAIN_CATEGORY)
+				JojoMod.MOD_ID + ".key.stand_mode", 
+				new KeyInGameCtx(() -> {
+					StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+					return standPower != null && standPower.hasPower() && !standPower.isSummoned();
+				}), 
+				KeyModifier.CONTROL, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, MAIN_CATEGORY)
 				.inInitOrder().withDescTooltip());
+		
 		event.register(binds.playerPowerHUD = new Jokerge(
-				JojoMod.MOD_ID + ".key.non_stand_mode", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_G, MAIN_CATEGORY)
+				JojoMod.MOD_ID + ".key.non_stand_mode", 
+				new KeyInGameCtx(() -> {
+					PlayerPower playerPower = ClientPowerCache.getPower(PowerClass.PLAYER_POWER);
+					return playerPower != null && playerPower.hasPower();
+				}), 
+				InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_G, MAIN_CATEGORY)
 				.inInitOrder().withDescTooltip());
+		
 		event.register(binds.useAbility = new Jokerge(
-				JojoMod.MOD_ID + ".key.use_special_ability", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_X, MAIN_CATEGORY)
+				JojoMod.MOD_ID + ".key.use_special_ability", 
+				KeyConflictContext.IN_GAME, 
+				InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_X, MAIN_CATEGORY)
 				.inInitOrder().withDescTooltip());
+		
 		event.register(binds.switchSpecial = new Jokerge(
-				JojoMod.MOD_ID + ".key.ability_hotbar", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_C, MAIN_CATEGORY)
+				JojoMod.MOD_ID + ".key.ability_hotbar", 
+				KeyConflictContext.IN_GAME, 
+				InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_C, MAIN_CATEGORY)
 				.inInitOrder().withDescTooltip());
+		
 		event.register(binds.disableHUDControls = new Jokerge(
-				JojoMod.MOD_ID + ".key.disable_hotbars", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT, MAIN_CATEGORY)
+				JojoMod.MOD_ID + ".key.disable_hotbars", 
+				KeyConflictContext.IN_GAME, 
+				InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT, MAIN_CATEGORY)
 				.inInitOrder().withDescTooltip().canBeHoldOrToggle(JojoMod.config.getClient().toggleDisableHotbars));
+		
 		event.register(binds.jojoStuffMenu = new Jokerge(
-				JojoMod.MOD_ID + ".key.jojo_menu", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_BACKSLASH, MAIN_CATEGORY)
+				JojoMod.MOD_ID + ".key.jojo_menu", 
+				KeyConflictContext.IN_GAME, 
+				InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_BACKSLASH, MAIN_CATEGORY)
 				.inInitOrder().withDescTooltip());
+		
 		return binds;
 	}
 
 	public void handleTick() {
 		Minecraft mc = Minecraft.getInstance();
 		InputHandler inputHandler = InputHandler.getInstance();
-		StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
-		PlayerPower playerPower = ClientPowerCache.getPower(PowerClass.PLAYER_POWER);
 		boolean isFrozen = mc.player != null && TimeStopEffect.getIsFrozenInTime(mc.player);
 		
 		if (standArmsOnlyHUD.consumeClick()) {
-			if (standPower != null && standPower.hasPower() && !standPower.isSummoned()) {
-				inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.STAND ? PowerClass.STAND : null;
-			}
+			inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.STAND ? PowerClass.STAND : null;
 		}
 		
 		if (playerPowerHUD.consumeClick()) {
-			if (playerPower != null && playerPower.hasPower()) {
-				inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.PLAYER_POWER ? PowerClass.PLAYER_POWER : null;
-			}
+			inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.PLAYER_POWER ? PowerClass.PLAYER_POWER : null;
 		}
 		
 		if (!isFrozen && summonStand.consumeClick()) {
-			if (standPower != null && standPower.hasPower()) {
-				StandType standType = standPower.getPowerType();
-				if (standType != null) {
-					if (standType.hasSummonMechanic) {
-						PacketDistributor.sendToServer(ClNoParamsPacket.of(PacketType.SUMMON_STAND));
-					}
-					else {
-						inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.STAND ? PowerClass.STAND : null;
-					}
+			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+			StandType standType = standPower.getPowerType();
+			if (standType != null) {
+				if (standType.hasSummonMechanic) {
+					PacketDistributor.sendToServer(ClNoParamsPacket.of(PacketType.SUMMON_STAND));
+				}
+				else {
+					inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.STAND ? PowerClass.STAND : null;
 				}
 			}
 		}

@@ -45,7 +45,7 @@ public class StandItemInput {
 			}
 			case SWAP_USER_AND_STAND -> {
 				ConditionCheck condition = distanceCondition(standEntity, user);
-				if (!condition.isPositive()) {
+				if (!condition.positive()) {
 					ConditionCheck.sendActionFailedMessage(null, condition, user);
 					return;
 				}

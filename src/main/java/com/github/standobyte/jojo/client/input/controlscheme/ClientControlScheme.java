@@ -130,6 +130,11 @@ public class ClientControlScheme {
 		public boolean alwaysSwitchAbility() {
 			return switchAbilityKey == null || switchAbilityKey.getKey() == null;
 		}
+		
+		public boolean isEmpty(KeyModifier curModifier) {
+			return slots.stream().noneMatch(slot -> slot.showAbility(curModifier) != null);
+		}
+		
 	}
 	
 	public static class HotbarSlot {
@@ -158,7 +163,13 @@ public class ClientControlScheme {
 					}
 				}
 			}
-			return null;
+			
+			if (curModifier != KeyModifier.NONE) {
+				return showAbility(KeyModifier.NONE);
+			}
+			else {
+				return null;
+			}
 		}
 		
 		public static int numberKey(int slotIndex) {
@@ -187,7 +198,16 @@ public class ClientControlScheme {
 		@Nullable
 		public AbilityControlsEntry getFirst(@Nonnull KeyModifier curModifier, InputMethod inputMethod) {
 			List<AbilityControlsEntry> list = getAll(curModifier, inputMethod);
-			return !list.isEmpty() ? list.get(0) : null;
+			if (!list.isEmpty()) {
+				return list.get(0);
+			}
+			
+			if (curModifier != KeyModifier.NONE) {
+				return getFirst(KeyModifier.NONE, inputMethod);
+			}
+			else {
+				return null;
+			}
 		}
 	}
 
@@ -292,7 +312,7 @@ public class ClientControlScheme {
 	}
 	
 	protected static int abilityPriority(AbilityConditionCheck ability, Power<?> abilityCtx) {
-		if (!ability.conditionCheck.isPositive()) {
+		if (!ability.conditionCheck.positive()) {
 			return 2;
 		}
 		return AbilityInputState.withValue(ability.clientInputState).getFlag(AbilityInputState.HIGH_PRIORITY) ? 0 : 1;

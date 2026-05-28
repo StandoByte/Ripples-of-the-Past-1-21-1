@@ -183,6 +183,24 @@ public class JSONUtil {
 	}
 
 
+	public static JsonElement getRequired(String key, JsonObject json) {
+		JsonElement jsonElement = json.get(key);
+		if (jsonElement == null || jsonElement.isJsonNull()) {
+			throw new IllegalStateException("Missing required property: " + key);
+		} else {
+			return jsonElement;
+		}
+	}
+
+	public static <T> T getOr(String key, JsonObject json, Function<JsonElement, T> output, T defaultValue) {
+		JsonElement jsonelement = json.get(key);
+		if (jsonelement == null || jsonelement.isJsonNull()) {
+			return defaultValue;
+		} else {
+			return output.apply(jsonelement);
+		}
+	}
+
 	public static float getFloatOr(String key, JsonObject json, float defaultValue) {
 		JsonElement jsonelement = json.get(key);
 		if (jsonelement != null) {

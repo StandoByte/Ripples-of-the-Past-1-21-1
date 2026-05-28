@@ -114,6 +114,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
     public Lerp.FloatValue modelAlpha = new Lerp.FloatValue(1);
 	
 	public ClientStandEntityStuff clientStuff;
+	public int summonPoseRandomByte;
 
 	public StandEntity(EntityType<? extends StandEntity> type, Level level) {
 		super(type, level);
@@ -121,6 +122,9 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		this.offsetFromUser = StandOffsetFromUser.createDefault(this);
 		if (level.isClientSide()) {
 			this.clientStuff = new ClientStandEntityStuff();
+		}
+		else {
+			this.summonPoseRandomByte = random.nextInt(128);
 		}
 	}
 	
@@ -349,7 +353,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		}
 		else {
 			ActionTarget crosshairTarget = standAction.entityAim.getTarget();
-			if (crosshairTarget.getType() == TargetType.ENTITY) {
+			if (crosshairTarget.getEntity() instanceof LivingEntity) {
 				lookTarget = crosshairTarget;
 			}
 			else {
@@ -364,7 +368,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		return switch (target.getType()) {
 			case ENTITY -> {
 				Entity targetEntity = target.getEntity();
-                if (targetEntity != null){
+                if (targetEntity != null) {
                     // TODO (stand aiming) look closer to where the user is looking (legs/head aiming)
                     double y = targetEntity instanceof LivingEntity ?
                             targetEntity.getEyeY() :
@@ -1413,6 +1417,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		ResourceLocation.STREAM_CODEC.encode(buffer, standId);
 		buffer.writeFloat(yBodyRot);
 		buffer.writeVarInt(tickCount);
+		buffer.writeVarInt(summonPoseRandomByte);
 	}
 
 	@Override
@@ -1421,6 +1426,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		yBodyRot = additionalData.readFloat();
 		yBodyRotO = yBodyRot;
 		tickCount = additionalData.readVarInt();
+		summonPoseRandomByte = additionalData.readVarInt();
 	}
 
 	@Override

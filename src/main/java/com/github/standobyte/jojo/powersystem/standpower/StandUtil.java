@@ -148,6 +148,8 @@ public class StandUtil {
 		pitch = event.getNewPitch();
 		
 		StandSkinSoundPacket packet = StandSkinSoundPacket.play(pos, sound, userPower, category, volume, pitch);
+		if (packet == null) return;
+		
 		double radius = sound.value().getRange(volume);
         Packet<?> vanillaPacket = new ClientboundCustomPayloadPacket(packet);
         PlayerList playerList = level.getServer().getPlayerList();

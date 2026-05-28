@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.client.ClientTickHandler;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.StandSkinsScreen;
+import com.github.standobyte.jojo.client.standskin.text.StandNameSetColor;
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHud;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
@@ -70,19 +71,13 @@ public class JojoMenuTabs {
 	
 	public static void initDefaults() {}
 	
-	// Story tabs
+	// Adventure tabs
 	
-	public static final TabCategory CATEGORY_STORY = new TabCategory() {}
-			.withName(Component.translatable("jojo_ripples.ui.story"))
-			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/story.png"), 16, 16));
+	public static final TabCategory CATEGORY_ADVENTURE = new TabCategory() {}
+			.withName(Component.translatable("jojo_ripples.ui.adventure"))
+			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/adventure.png"), 16, 16));
 	
-	static {
-		if (JojoMod.disableDevStuff()) {
-			TabCategory.ALL_CATEGORIES.remove(CATEGORY_STORY);
-		}
-	}
-	
-	public static final Tab PLAYER_PROFILE = new Tab(CATEGORY_STORY) {
+	public static final Tab PLAYER_PROFILE = new Tab(CATEGORY_ADVENTURE) {
 		@Override
 		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
 			ClientUtil.renderPlayerFace(guiGraphics.pose(), x, y, Minecraft.getInstance().player);
@@ -96,15 +91,15 @@ public class JojoMenuTabs {
 		}
 	};
 	
-	public static final Tab GROUP = new Tab(CATEGORY_STORY)
+	public static final Tab GROUP = new Tab(CATEGORY_ADVENTURE)
 			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.player.group"))
 			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/group.png"), 16, 16));
 	
-	public static final Tab STORY_ARCS = new Tab(CATEGORY_STORY)
+	public static final Tab STORY_ARCS = new Tab(CATEGORY_ADVENTURE)
 			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.player.story_arcs"))
 			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/arcs.png"), 16, 16));
 	
-	public static final Tab STORYTELLING = new Tab(CATEGORY_STORY) {
+	public static final Tab ADVENTURE_SETTINGS = new Tab(CATEGORY_ADVENTURE) {
 		@Override
 		public boolean isActive() {
 			if (super.isActive()) {
@@ -118,15 +113,28 @@ public class JojoMenuTabs {
 			return false;
 		}
 	}
-			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.player.storytelling"))
-			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/storytelling.png"), 16, 16));
-	
+			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.player.adventure_settings"))
+			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/adventure_settings.png"), 16, 16));
+
+			
+	static {
+		if (JojoMod.disableDevStuff()) {
+			PLAYER_PROFILE.isDisabled = true;
+			GROUP.isDisabled = true;
+			STORY_ARCS.isDisabled = true;
+			ADVENTURE_SETTINGS.isDisabled = true;
+		}
+	}
+			
 	// Stand
 	
 	public static final TabCategory CATEGORY_STAND = new TabCategory(PowerClass.STAND, null) {
 		@Override
 		public Component getName() {
-			return Component.translatable("jojo_ripples.class.stand", ClientPowerCache.getPower(PowerClass.STAND).getName());
+			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+			Component standName = standPower.getName();
+			standName = StandNameSetColor.fromSkin(standPower, standName, true);
+			return Component.translatable("jojo_ripples.class.stand", standName);
 		}
 		
 		@Override

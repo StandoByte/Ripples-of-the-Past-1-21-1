@@ -35,9 +35,8 @@ import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 import com.google.common.collect.Maps;
 
 import it.unimi.dsi.fastutil.floats.Float2ObjectMap;
-import it.unimi.dsi.fastutil.floats.FloatArrayList;
-import it.unimi.dsi.fastutil.floats.FloatList;
-import it.unimi.dsi.fastutil.floats.FloatListIterator;
+import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.client.animation.AnimationChannel;
 import net.minecraft.client.animation.Keyframe;
 import net.minecraft.client.model.HumanoidModel;
@@ -53,13 +52,13 @@ public class RotpAnimDefinition {
 	protected final Map<String, List<IAnimationChannel>> boneAnimations;
 	protected final List<KeyframeQuery> queries;
 	public final AnimInstructionTimelines instructionTimelines;
-	@Nullable public List<AnimFramePose> coolPoses;
+	@Nullable public Map<String, SavedPose> poses;
 	@Nullable public AnimationMirror animationMirror;
 	
-//	public float animTime;
-	
-	public RotpAnimDefinition(float lengthInSeconds, OptionalFloat loopBackTo, Map<String, List<IAnimationChannel>> boneAnimations, 
-			AnimInstructionTimelines instructionTimelines, @Nullable List<AnimFramePose> coolPoses) {
+	public RotpAnimDefinition(float lengthInSeconds, OptionalFloat loopBackTo, 
+			Map<String, List<IAnimationChannel>> boneAnimations, 
+			AnimInstructionTimelines instructionTimelines, 
+			@Nullable Map<String, SavedPose> poses) {
 		this.lengthInSeconds = lengthInSeconds;
 		this.loopBackTo = loopBackTo;
 		
@@ -71,43 +70,59 @@ public class RotpAnimDefinition {
 				.toList();
 		
 		this.instructionTimelines = instructionTimelines;
-		this.coolPoses = coolPoses;
+		this.poses = poses;
 	}
 	
 	public RotpAnimDefinition copyWithAnim(Map<String, List<IAnimationChannel>> boneAnimations) {
-		RotpAnimDefinition copy = new RotpAnimDefinition(lengthInSeconds, loopBackTo, boneAnimations, 
-				instructionTimelines, this.coolPoses);
+		RotpAnimDefinition copy = new RotpAnimDefinition(lengthInSeconds, loopBackTo, 
+				boneAnimations, 
+				instructionTimelines, 
+				null);
 		return copy;
 	}
 	
-	public void initStaticPoses(FloatList poseTimestamps) {
+	public void postInit(@Nullable Object2FloatMap<_PoseNameInit> poseTimestamps) {
 		if (poseTimestamps != null) {
-			coolPoses = new ArrayList<>(poseTimestamps.size());
-			FloatListIterator iter = poseTimestamps.iterator();
-			while (iter.hasNext()) {
-				float timestamp = iter.nextFloat();
-				AnimFramePose frame = calcAnimPose(null, null, timestamp, 1);
+			poses = new HashMap<>(poseTimestamps.size());
+			for (var timestampEntry : poseTimestamps.object2FloatEntrySet()) {
+				_PoseNameInit key = timestampEntry.getKey();
+				String poseName = key.name;
+				boolean addToStandInfoScreen = key.isCoolPose;
+				float timestamp = timestampEntry.getFloatValue();
+				AnimFramePose frame = calcAnimPose(timestamp, 1, null, null);
 				frame = frame.deepCopy();
-				coolPoses.add(frame);
+				poses.put(poseName, new SavedPose(frame, addToStandInfoScreen));
 			}
 		}
 	}
+	
+	protected static record _PoseNameInit(String name, boolean isCoolPose) {}
+	public static record SavedPose(AnimFramePose pose, boolean addToStandInfoScreen) {}
 
 
-	public AnimFramePose calcAnimPose(@Nullable AnimMolangVariables animVariables, 
-			@Nullable AnimFramePose prevPunchPose, float seconds, float animSpeed) {
+	public AnimFramePose calcAnimPose(float seconds, float animSpeed,
+			@Nullable AnimMolangVariables animVariables, 
+			@Nullable AnimFramePose prevPunchPose) {
+		AnimFramePose pose = AnimFramePose.reused.clear();
+		calcAnimPose(pose, seconds, animSpeed, 
+				animVariables, 
+				prevPunchPose);
+		return pose;
+	}
+
+	public void calcAnimPose(AnimFramePose dest, float seconds, float animSpeed, 
+			@Nullable AnimMolangVariables animVariables, 
+			@Nullable AnimFramePose prevPunchPose) {
 		evaluateQueries(animVariables);
-		AnimFramePose frame = AnimFramePose.reused.clear();
 
 		Map<String, List<IAnimationChannel>> anim = SmoothPunchComboAnimTransition.transition(boneAnimations, prevPunchPose);
 		for (Map.Entry<String, List<IAnimationChannel>> entry : anim.entrySet()) {
-			ModelPartFrame modelPartPose = frame.getForModelPart(entry.getKey());
+			ModelPartFrame modelPartPose = dest.getForModelPart(entry.getKey());
 			for (IAnimationChannel tf : entry.getValue()) {
 				Vector3f vec = calcVec(this, tf, seconds, animSpeed);
 				modelPartPose.set(vec, tf.target());
 			}
 		}
-		return frame;
 	}
 	
 	public static void animate(Model model, AnimFramePose frame) {
@@ -132,12 +147,19 @@ public class RotpAnimDefinition {
 			OldPlayerModelJank._onAnimate(humanoidModelCast);
 		}
 	}
+
+	@Deprecated
+	public AnimFramePose calcAnimPose(@Nullable AnimMolangVariables animVariables, 
+			@Nullable AnimFramePose prevPunchPose, float seconds, float animSpeed) {
+		return calcAnimPose(seconds, animSpeed, animVariables, prevPunchPose);
+	}
 	
 	@Deprecated
 	public AnimFramePose animate(Model model, LivingEntity entity, 
 			LivingComponentAction actionComponent, float seconds, float animSpeed, float partialTick) {
-		AnimFramePose frame = calcAnimPose(AnimMolangVariables.extract(entity, partialTick), 
-				actionComponent != null ? actionComponent.clPrevPunchPose : null, seconds, animSpeed);
+		AnimFramePose frame = calcAnimPose(seconds, animSpeed, 
+				AnimMolangVariables.extract(entity, partialTick), 
+				actionComponent != null ? actionComponent.clPrevPunchPose : null);
 		animate(model, frame);
 		return frame;
 	}
@@ -145,7 +167,7 @@ public class RotpAnimDefinition {
 	@Deprecated
 	public AnimFramePose animate(Model model, @Nullable AnimMolangVariables animVariables, 
 			@Nullable AnimFramePose prevPunchPose, float seconds, float animSpeed) {
-		AnimFramePose frame = calcAnimPose(animVariables, prevPunchPose, seconds, animSpeed);
+		AnimFramePose frame = calcAnimPose(seconds, animSpeed, animVariables, prevPunchPose);
 		animate(model, frame);
 		return frame;
 	}
@@ -309,7 +331,7 @@ public class RotpAnimDefinition {
 		protected final Map<String, List<IAnimationChannel>> animationByBone = Maps.newHashMap();
 		protected OptionalFloat loopBackTo = OptionalFloat.empty();
 		protected final AnimInstructionTimelines instructions = new AnimInstructionTimelines();
-		protected FloatList coolPoses;
+		protected Object2FloatMap<_PoseNameInit> poses;
 		
 		@Nullable public HumanoidArm mirrorDefaultSide = null;
 		public float mirrorStart = 0;
@@ -351,11 +373,11 @@ public class RotpAnimDefinition {
 			return this;
 		}
 		
-		public RotpAnimDefinition.Builder addCoolPoseTimestamp(float time) {
-			if (coolPoses == null) {
-				coolPoses = new FloatArrayList();
+		public RotpAnimDefinition.Builder addPoseTimestamp(String name, float time, boolean coolPose) {
+			if (poses == null) {
+				poses = new Object2FloatArrayMap<>();
 			}
-			coolPoses.add(time);
+			poses.put(new _PoseNameInit(name, coolPose), time);
 			return this;
 		}
 		
@@ -363,7 +385,7 @@ public class RotpAnimDefinition {
 			instructions.onFinishedParsing();
 			RotpAnimDefinition anim = new RotpAnimDefinition(length, loopBackTo, animationByBone, instructions, null);
 			
-			anim.initStaticPoses(this.coolPoses);
+			anim.postInit(this.poses);
 			
 			if (mirrorDefaultSide != null) {
 				anim.animationMirror = new AnimationMirror(mirrorDefaultSide, mirrorStart, mirrorEnd);

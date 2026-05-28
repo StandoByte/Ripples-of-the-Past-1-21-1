@@ -1,17 +1,21 @@
 package com.github.standobyte.jojo.client.standskin;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ResourcePathChecker;
+import com.github.standobyte.jojo.client.entityanim.AnimVariantsList;
 import com.github.standobyte.jojo.client.entityanim.AnimationSet;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
+import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.SavedPose;
+import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityrender.BabyModelVariant;
 import com.github.standobyte.jojo.client.entityrender.LoadedModel;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
@@ -22,6 +26,7 @@ import com.github.standobyte.jojo.client.shader.core.ManualInitPostChain.PostCha
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo;
 import com.github.standobyte.jojo.client.standskin.sound.CustomPathSound;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
+import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
@@ -51,7 +56,7 @@ public class StandSkin {
 	public final boolean isDefault;
 	public final Optional<ResourceLocation> nonDefaultId;
 	protected final ResourcePathChecker standTexture;
-	protected final OptionalInt color;
+	@Nullable protected final StandSkinColor color;
 	protected final Optional<ResourceLocation> storyPart;
 	
 	protected Map<ResourceLocation, LayerDefinition> models = new HashMap<>();
@@ -61,6 +66,8 @@ public class StandSkin {
 	
 	protected Map<ResourceLocation, AnimationSet> animations = new HashMap<>();
 	protected AnimationSet standEntityAnims;
+	
+	protected float[] renderScale;
 	
 	protected Map<ResourceLocation, WeighedSoundEvents> soundEvents = new HashMap<>();
 	protected Map<ResourceLocation, ResourceLocation> existingSounds = new HashMap<>();
@@ -74,7 +81,7 @@ public class StandSkin {
 	protected Optional<GuiIcon> standIcon;
 	protected final Map<ResourceLocation, ResourcePathChecker> remapPathCache = new HashMap<>();
 	
-	public StandSkin(ResourceLocation skinId, ResourceLocation standId, OptionalInt color, Optional<ResourceLocation> storyPart) {
+	public StandSkin(ResourceLocation skinId, ResourceLocation standId, @Nullable StandSkinColor color, Optional<ResourceLocation> storyPart) {
 		this.skinId = skinId;
 		this.standTypeId = standId;
 		this.standTexture = remapAssetPath(ResourceLocation.fromNamespaceAndPath(
@@ -107,6 +114,13 @@ public class StandSkin {
 		});
 	}
 	
+	protected void withScale(float width, float height) {
+		this.renderScale = new float[] {
+				ClientUtil.PLAYER_RENDER_SCALE * width / ClientUtil.DEFAULT_STAND_WIDTH,
+				ClientUtil.PLAYER_RENDER_SCALE * height / ClientUtil.DEFAULT_STAND_HEIGHT
+		};
+	}
+	
 	protected void withSoundEvents(Map<ResourceLocation, WeighedSoundEvents> soundEvents) {
 		this.soundEvents = soundEvents;
 	}
@@ -124,14 +138,19 @@ public class StandSkin {
 	}
 
 	
+	@Deprecated
 	public int getColor() {
-		if (this.color.isPresent()) {
-			return this.color.getAsInt();
+		return getColors().primary();
+	}
+	
+	public StandSkinColor getColors() {
+		if (this.color != null) {
+			return this.color;
 		}
-		if (this != defaultSkin && defaultSkin != null && defaultSkin.color.isPresent()) {
-			return defaultSkin.color.getAsInt();
+		if (this != defaultSkin && defaultSkin != null && defaultSkin.color != null) {
+			return defaultSkin.color;
 		}
-		return 0xffffff;
+		return StandSkinColor.FALLBACK;
 	}
 	
 	@Nullable
@@ -196,7 +215,7 @@ public class StandSkin {
 			return cached.get();
 		}
 		
-		if (this != defaultSkin) {
+		if (this != defaultSkin && defaultSkin != null) {
 			return defaultSkin.getModel(modelPath);
 		}
 		
@@ -218,7 +237,7 @@ public class StandSkin {
 			return (M) createdStandModelCache.get(baby);
 		}
 		
-		if (this != defaultSkin) {
+		if (this != defaultSkin && defaultSkin != null) {
 			return defaultSkin.getStandModel(newModelFactory, baby);
 		}
 		
@@ -231,7 +250,7 @@ public class StandSkin {
 			return model;
 		}
 		
-		if (defaultSkin != null) {
+		if (defaultSkin != null && defaultSkin != null) {
 			return defaultSkin.getModelDef(modelId);
 		}
 		return null;
@@ -242,47 +261,170 @@ public class StandSkin {
 			return standModel;
 		}
 
-		if (defaultSkin != null) {
+		if (defaultSkin != null && defaultSkin != null) {
 			return defaultSkin.standModel;
 		}
 		return null;
 	}
 	
-	public RotpAnimDefinition getAnimation(ResourceLocation modelId, Function<AnimationSet, RotpAnimDefinition> getAnim) {
-		AnimationSet anims = this.animations.get(modelId);
-		if (anims != null || this == defaultSkin) {
-			RotpAnimDefinition anim = getAnim.apply(anims);
-			if (anim != null) {
-				return anim;
-			}
+	public AnimVariantsList getStandAnimations(String name) {
+		AnimVariantsList anims = getAnims(standEntityAnims, name);
+		if (anims != null)
+			return anims;
+		if (this != defaultSkin && defaultSkin != null) {
+			return defaultSkin.getStandAnimations(name);
 		}
-		
-		if (defaultSkin != null) {
-			return defaultSkin.getAnimation(modelId, getAnim);
+		return null;
+	}
+	
+	public RotpAnimDefinition getStandAnimation(ActionAnimIdentifier animId) {
+		RotpAnimDefinition anim = getAnim(standEntityAnims, animId);
+		if (anim != null)
+			return anim;
+		if (this != defaultSkin && defaultSkin != null) {
+			return defaultSkin.getStandAnimation(animId);
+		}
+		return null;
+	}
+	
+	public List<RotpAnimDefinition> getStandAlwaysAnimations() {
+		List<RotpAnimDefinition> anim = standEntityAnims != null ? standEntityAnims.alwaysAnim : null;
+		if (anim != null)
+			return anim;
+		if (this != defaultSkin && defaultSkin != null) {
+			return defaultSkin.getStandAlwaysAnimations();
+		}
+		return null;
+	}
+	
+	public AnimVariantsList getAnimations(ResourceLocation modelId, String name) {
+		AnimVariantsList anims = getAnims(getAnimSet(modelId), name);
+		if (anims != null)
+			return anims;
+		if (this != defaultSkin && defaultSkin != null) {
+			return defaultSkin.getAnimations(modelId, name);
 		}
 		return null;
 	}
 	
 	public RotpAnimDefinition getAnimation(ResourceLocation modelId, ActionAnimIdentifier animId) {
-		return getAnimation(modelId, animSet -> animSet.getNamedAnim(animId));
-	}
-	
-	public RotpAnimDefinition getStandAnimation(Function<AnimationSet, RotpAnimDefinition> getAnim) {
-		if (this.standEntityAnims != null) {
-			RotpAnimDefinition anim = getAnim.apply(this.standEntityAnims);
-			if (anim != null) {
-				return anim;
-			}
-		}
-		
-		if (defaultSkin != null && defaultSkin.standEntityAnims != null) {
-			return getAnim.apply(defaultSkin.standEntityAnims);
+		RotpAnimDefinition anim = getAnim(getAnimSet(modelId), animId);
+		if (anim != null)
+			return anim;
+		if (this != defaultSkin && defaultSkin != null) {
+			return defaultSkin.getAnimation(modelId, animId);
 		}
 		return null;
 	}
 	
+	@Nullable
+	protected RotpAnimDefinition getAnim(@Nullable AnimationSet animSet, ActionAnimIdentifier animId) {
+		return animSet != null ? animSet.getNamedAnim(animId) : null;
+	}
+	
+	@Nullable
+	protected AnimVariantsList getAnims(@Nullable AnimationSet animSet, String name) {
+		return animSet != null ? animSet.getAnimVariants(name) : null;
+	}
+	
+	@Nullable
+	protected AnimationSet getAnimSet(ResourceLocation modelId) {
+		return animations != null ? animations.get(modelId) : null;
+	}
+	
+	@Deprecated(forRemoval = true)
+	public RotpAnimDefinition getAnimation(ResourceLocation modelId, Function<AnimationSet, RotpAnimDefinition> getAnim) {
+		AnimationSet animSet = animations != null ? animations.get(modelId) : null;
+		if (animSet != null) {
+			RotpAnimDefinition anim = getAnim.apply(animSet);
+			if (anim != null) {
+				return anim;
+			}
+		}
+		return this != defaultSkin && defaultSkin != null ? defaultSkin.getAnimation(modelId, getAnim) : null;
+	}
+
+	@Deprecated(forRemoval = true)
+	public RotpAnimDefinition getStandAnimation(Function<AnimationSet, RotpAnimDefinition> getAnim) {
+		AnimationSet animSet = standEntityAnims;
+		if (animSet != null) {
+			RotpAnimDefinition anim = getAnim.apply(animSet);
+			if (anim != null) {
+				return anim;
+			}
+		}
+		return this != defaultSkin && defaultSkin != null ? defaultSkin.getStandAnimation(getAnim) : null;
+	}
+	
+	@Deprecated(forRemoval = true)
 	public AnimationSet getAnimations() {
 		return standEntityAnims;
+	}
+
+	protected Map<String, AnimFramePose> _posesCache;
+	protected List<AnimFramePose> _standInfoScreenPosesCache;
+	
+	public Map<String, AnimFramePose> getAllStandPoses() {
+		cachePoses();
+		return _posesCache;
+	}
+	
+	public AnimFramePose getStandIdlePose() {
+		cachePoses();
+		return _posesCache.get("idle");
+	}
+	
+	public List<AnimFramePose> getStandInfoScreenPoses() {
+		cachePoses();
+		return _standInfoScreenPosesCache;
+	}
+	
+	protected void cachePoses() {
+		if (_posesCache == null) {
+			AnimationSet animSet;
+			Map<String, AnimVariantsList> allAnimsVariants = new HashMap<>();
+			if (this != defaultSkin && defaultSkin != null) {
+				animSet = defaultSkin.standEntityAnims;
+				if (animSet != null) {
+					for (var entry : animSet.namedAnimations.entrySet()) {
+						allAnimsVariants.put(entry.getKey(), entry.getValue());
+					}
+				}
+			}
+
+			animSet = this.standEntityAnims;
+			if (animSet != null) {
+				for (var entry : animSet.namedAnimations.entrySet()) {
+					allAnimsVariants.put(entry.getKey(), entry.getValue());
+				}
+			}
+			
+			_posesCache = new HashMap<>();
+			_standInfoScreenPosesCache = new ArrayList<>();
+			for (AnimVariantsList animVariants : allAnimsVariants.values()) {
+				if (animVariants.poses != null && !animVariants.poses.isEmpty()) {
+					for (var poseEntry : animVariants.poses.entrySet()) {
+						SavedPose poseData = poseEntry.getValue();
+						AnimFramePose pose = poseData.pose();
+						_posesCache.put(poseEntry.getKey(), pose);
+						if (poseData.addToStandInfoScreen()) {
+							_standInfoScreenPosesCache.add(pose);
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	protected static final float[] DEFAULT_SCALE = new float[] { 1, 1 };
+	public float[] getModelScale() {
+		if (renderScale != null) {
+			return renderScale;
+		}
+		if (this != defaultSkin && defaultSkin.renderScale != null) {
+			return defaultSkin.renderScale;
+		}
+		return DEFAULT_SCALE;
 	}
 	
 	public GuiIcon getStandIcon() {
@@ -327,7 +469,7 @@ public class StandSkin {
 			return remappedSound.compute(key, (__, ___) -> new CustomPathSound(sound, path));
 		}
 		
-		if (this != defaultSkin) {
+		if (this != defaultSkin && defaultSkin != null) {
 			return defaultSkin.overrideSound(sound);
 		}
 		return null;

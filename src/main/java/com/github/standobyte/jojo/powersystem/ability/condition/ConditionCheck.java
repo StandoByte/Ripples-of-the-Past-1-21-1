@@ -9,11 +9,9 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 
-public class ConditionCheck {
-	private final boolean positive;
-	private final Component warning;
-	
+public record ConditionCheck(boolean positive, boolean greenHighlight, @Nullable Component warning) {
 	public static final ConditionCheck POSITIVE = new ConditionCheck(true, null);
+	public static final ConditionCheck GREEN_HIGHLIGHT = new ConditionCheck(true, true, null);
 	public static final ConditionCheck NEGATIVE = new ConditionCheck(false, null);
 	
 	public static ConditionCheck createNegative(Component warning) {
@@ -33,14 +31,15 @@ public class ConditionCheck {
 	}
 	
 	private ConditionCheck(boolean positive, Component warning) {
-		this.positive = positive;
-		this.warning = warning;
+		this(positive, false, warning);
 	}
 	
+	@Deprecated /** @deprecated It's a record now, just use positive() */
 	public boolean isPositive() {
 		return positive;
 	}
 	
+	@Deprecated /** @deprecated It's a record now, just use warning() */
 	@Nullable
 	public Component getWarning() {
 		return warning;
@@ -48,7 +47,7 @@ public class ConditionCheck {
 	
 	public static void sendActionFailedMessage(@Nullable Ability ability, ConditionCheck result, LivingEntity user) {
 		if (!user.level().isClientSide() /* && (ability == null || ability.sendsConditionMessage()) */) {
-			Component message = result.getWarning();
+			Component message = result.warning();
 			
 			if (message != null && user instanceof ServerPlayer player) {
 				player.displayClientMessage(message, true);
