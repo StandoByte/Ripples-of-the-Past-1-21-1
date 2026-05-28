@@ -1,7 +1,6 @@
 package com.github.standobyte.jojo.client.entityrender.stand;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
@@ -20,7 +19,6 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.standpower.client_screens.StandInfoScreen;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
-import com.github.standobyte.jojo.util.functions.java.MapUtil;
 import com.github.standobyte.jojo.util.objects_java.LazyNullable;
 import com.github.standobyte.v1_21_4_stuff.renderstate.ArmedEntityRenderState;
 import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
@@ -147,9 +145,9 @@ public class StandEntityRenderer<
 			}
 			case STAND_INFO -> {
 				if (skin != null) {
-					Map<String, AnimFramePose> poses = skin.getAllPoses();
+					List<AnimFramePose> poses = skin.getStandInfoScreenPoses();
 					if (poses != null && !poses.isEmpty()) {
-						pose = MapUtil.getByIndex(poses, StandInfoScreen.rand % poses.size()).getValue();
+						pose = poses.get(StandInfoScreen.rand % poses.size());
 					}
 				}
 			}

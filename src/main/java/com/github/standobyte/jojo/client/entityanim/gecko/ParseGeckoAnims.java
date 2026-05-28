@@ -110,8 +110,11 @@ public class ParseGeckoAnims {
 						case "loopBack" -> {
 							builder.looping(Float.parseFloat(assignmentValue));
 						}
+						case "pose" -> {
+							builder.addPoseTimestamp(assignmentValue, time, false);
+						}
 						case "coolPose" -> {
-							builder.addCoolPoseTimestamp(assignmentValue, time);
+							builder.addPoseTimestamp(assignmentValue, time, true);
 						}
 						case "mirror.default" -> {
 							HumanoidArm side = Enum.valueOf(HumanoidArm.class, assignmentValue);
@@ -126,7 +129,7 @@ public class ParseGeckoAnims {
 				for (String singleWord : singleWordInstructions) {
 					switch (singleWord) {
 						case "coolPoseHere" -> {
-							builder.addCoolPoseTimestamp(name + (namelessStaticPoses++ > 0 ? "#" + namelessStaticPoses : ""), time);
+							builder.addPoseTimestamp(name + (namelessStaticPoses++ > 0 ? "#" + namelessStaticPoses : ""), time, true);
 						}
 						case "mirror.start" -> {
 							builder.mirrorStart = time;
@@ -137,6 +140,10 @@ public class ParseGeckoAnims {
 					}
 				}
 			}
+		}
+		
+		if ("idle".equals(name)) {
+			builder.addPoseTimestamp("idle", 0, false);
 		}
 		
 		RotpAnimDefinition anim = builder.build();

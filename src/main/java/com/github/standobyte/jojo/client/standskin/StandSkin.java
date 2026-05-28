@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.standskin;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import com.github.standobyte.jojo.client.ResourcePathChecker;
 import com.github.standobyte.jojo.client.entityanim.AnimVariantsList;
 import com.github.standobyte.jojo.client.entityanim.AnimationSet;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
+import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.SavedPose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityrender.BabyModelVariant;
 import com.github.standobyte.jojo.client.entityrender.LoadedModel;
@@ -346,8 +348,24 @@ public class StandSkin {
 	}
 
 	protected Map<String, AnimFramePose> _posesCache;
-	public Map<String, AnimFramePose> getAllPoses() {
-		_posesCache = null;
+	protected List<AnimFramePose> _standInfoScreenPosesCache;
+	
+	public Map<String, AnimFramePose> getAllStandPoses() {
+		cachePoses();
+		return _posesCache;
+	}
+	
+	public AnimFramePose getStandIdlePose() {
+		cachePoses();
+		return _posesCache.get("idle");
+	}
+	
+	public List<AnimFramePose> getStandInfoScreenPoses() {
+		cachePoses();
+		return _standInfoScreenPosesCache;
+	}
+	
+	protected void cachePoses() {
 		if (_posesCache == null) {
 			AnimationSet animSet;
 			Map<String, AnimVariantsList> allAnimsVariants = new HashMap<>();
@@ -368,13 +386,20 @@ public class StandSkin {
 			}
 			
 			_posesCache = new HashMap<>();
+			_standInfoScreenPosesCache = new ArrayList<>();
 			for (AnimVariantsList animVariants : allAnimsVariants.values()) {
 				if (animVariants.poses != null && !animVariants.poses.isEmpty()) {
-					_posesCache.putAll(animVariants.poses);
+					for (var poseEntry : animVariants.poses.entrySet()) {
+						SavedPose poseData = poseEntry.getValue();
+						AnimFramePose pose = poseData.pose();
+						_posesCache.put(poseEntry.getKey(), pose);
+						if (poseData.addToStandInfoScreen()) {
+							_standInfoScreenPosesCache.add(pose);
+						}
+					}
 				}
 			}
 		}
-		return _posesCache;
 	}
 	
 	protected static final float[] DEFAULT_SCALE = new float[] { 1, 1 };

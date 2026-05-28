@@ -6,11 +6,11 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
+import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.SavedPose;
 
 public class AnimVariantsList {
 	public final List<RotpAnimDefinition> anims;
-	@Nullable public Map<String, AnimFramePose> poses;
+	@Nullable public Map<String, SavedPose> poses;
 
 	public AnimVariantsList(List<RotpAnimDefinition> anims) {
 		if (anims == null || anims.isEmpty()) {
@@ -19,11 +19,11 @@ public class AnimVariantsList {
 		this.anims = anims;
 		
 		for (RotpAnimDefinition anim : anims) {
-			if (anim.coolPoses != null && !anim.coolPoses.isEmpty()) {
+			if (anim.poses != null && !anim.poses.isEmpty()) {
 				if (poses == null) {
 					poses = new HashMap<>();
 				}
-				poses.putAll(anim.coolPoses);
+				poses.putAll(anim.poses);
 			}
 		}
 	}
