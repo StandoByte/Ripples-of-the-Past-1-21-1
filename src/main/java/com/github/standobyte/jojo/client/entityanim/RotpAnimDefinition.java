@@ -55,10 +55,10 @@ public class RotpAnimDefinition {
 	@Nullable public Map<String, SavedPose> poses;
 	@Nullable public AnimationMirror animationMirror;
 	
-//	public float animTime;
-	
-	public RotpAnimDefinition(float lengthInSeconds, OptionalFloat loopBackTo, Map<String, List<IAnimationChannel>> boneAnimations, 
-			AnimInstructionTimelines instructionTimelines, @Nullable Map<String, SavedPose> poses) {
+	public RotpAnimDefinition(float lengthInSeconds, OptionalFloat loopBackTo, 
+			Map<String, List<IAnimationChannel>> boneAnimations, 
+			AnimInstructionTimelines instructionTimelines, 
+			@Nullable Map<String, SavedPose> poses) {
 		this.lengthInSeconds = lengthInSeconds;
 		this.loopBackTo = loopBackTo;
 		
@@ -74,8 +74,10 @@ public class RotpAnimDefinition {
 	}
 	
 	public RotpAnimDefinition copyWithAnim(Map<String, List<IAnimationChannel>> boneAnimations) {
-		RotpAnimDefinition copy = new RotpAnimDefinition(lengthInSeconds, loopBackTo, boneAnimations, 
-				instructionTimelines, null);
+		RotpAnimDefinition copy = new RotpAnimDefinition(lengthInSeconds, loopBackTo, 
+				boneAnimations, 
+				instructionTimelines, 
+				null);
 		return copy;
 	}
 	
@@ -87,7 +89,7 @@ public class RotpAnimDefinition {
 				String poseName = key.name;
 				boolean addToStandInfoScreen = key.isCoolPose;
 				float timestamp = timestampEntry.getFloatValue();
-				AnimFramePose frame = calcAnimPose(null, null, timestamp, 1);
+				AnimFramePose frame = calcAnimPose(timestamp, 1, null, null);
 				frame = frame.deepCopy();
 				poses.put(poseName, new SavedPose(frame, addToStandInfoScreen));
 			}
@@ -98,16 +100,19 @@ public class RotpAnimDefinition {
 	public static record SavedPose(AnimFramePose pose, boolean addToStandInfoScreen) {}
 
 
-	public AnimFramePose calcAnimPose(@Nullable AnimMolangVariables animVariables, 
-			@Nullable AnimFramePose prevPunchPose, float seconds, float animSpeed) {
+	public AnimFramePose calcAnimPose(float seconds, float animSpeed,
+			@Nullable AnimMolangVariables animVariables, 
+			@Nullable AnimFramePose prevPunchPose) {
 		AnimFramePose pose = AnimFramePose.reused.clear();
-		calcAnimPose(pose, animVariables, 
-				prevPunchPose, seconds, animSpeed);
+		calcAnimPose(pose, seconds, animSpeed, 
+				animVariables, 
+				prevPunchPose);
 		return pose;
 	}
 
-	public void calcAnimPose(AnimFramePose dest, @Nullable AnimMolangVariables animVariables, 
-			@Nullable AnimFramePose prevPunchPose, float seconds, float animSpeed) {
+	public void calcAnimPose(AnimFramePose dest, float seconds, float animSpeed, 
+			@Nullable AnimMolangVariables animVariables, 
+			@Nullable AnimFramePose prevPunchPose) {
 		evaluateQueries(animVariables);
 
 		Map<String, List<IAnimationChannel>> anim = SmoothPunchComboAnimTransition.transition(boneAnimations, prevPunchPose);
@@ -142,12 +147,19 @@ public class RotpAnimDefinition {
 			OldPlayerModelJank._onAnimate(humanoidModelCast);
 		}
 	}
+
+	@Deprecated
+	public AnimFramePose calcAnimPose(@Nullable AnimMolangVariables animVariables, 
+			@Nullable AnimFramePose prevPunchPose, float seconds, float animSpeed) {
+		return calcAnimPose(seconds, animSpeed, animVariables, prevPunchPose);
+	}
 	
 	@Deprecated
 	public AnimFramePose animate(Model model, LivingEntity entity, 
 			LivingComponentAction actionComponent, float seconds, float animSpeed, float partialTick) {
-		AnimFramePose frame = calcAnimPose(AnimMolangVariables.extract(entity, partialTick), 
-				actionComponent != null ? actionComponent.clPrevPunchPose : null, seconds, animSpeed);
+		AnimFramePose frame = calcAnimPose(seconds, animSpeed, 
+				AnimMolangVariables.extract(entity, partialTick), 
+				actionComponent != null ? actionComponent.clPrevPunchPose : null);
 		animate(model, frame);
 		return frame;
 	}
@@ -155,7 +167,7 @@ public class RotpAnimDefinition {
 	@Deprecated
 	public AnimFramePose animate(Model model, @Nullable AnimMolangVariables animVariables, 
 			@Nullable AnimFramePose prevPunchPose, float seconds, float animSpeed) {
-		AnimFramePose frame = calcAnimPose(animVariables, prevPunchPose, seconds, animSpeed);
+		AnimFramePose frame = calcAnimPose(seconds, animSpeed, animVariables, prevPunchPose);
 		animate(model, frame);
 		return frame;
 	}

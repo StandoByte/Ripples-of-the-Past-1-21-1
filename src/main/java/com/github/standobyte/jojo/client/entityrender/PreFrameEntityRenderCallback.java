@@ -147,14 +147,16 @@ public class PreFrameEntityRenderCallback {
 			float time = living.tickCount + partialTick;
 			for (RotpAnimDefinition animPre : animsPre) {
 				float timeSeconds = animPre.getAnimTime(time);
-				animPre.calcAnimPose(pose, AnimMolangVariables.extract(living, partialTick), 
-						actionComponent != null ? actionComponent.clPrevPunchPose : null, timeSeconds, 1);
+				animPre.calcAnimPose(pose, timeSeconds, 1, 
+						AnimMolangVariables.extract(living, partialTick), 
+						actionComponent != null ? actionComponent.clPrevPunchPose : null);
 			}
 		}
 		if (anim != null) {
 			float timeSeconds = anim.getAnimTime(animVariables);
-			anim.calcAnimPose(pose, AnimMolangVariables.extract(living, partialTick), 
-					actionComponent != null ? actionComponent.clPrevPunchPose : null, timeSeconds, 1);
+			anim.calcAnimPose(pose, timeSeconds, 1, 
+					AnimMolangVariables.extract(living, partialTick), 
+					actionComponent != null ? actionComponent.clPrevPunchPose : null);
 			
 			if (newFrame) {
 				BarrageSwings barrageSwings = EntityActionRenderState.getBarrageSwings(living);

@@ -131,7 +131,7 @@ public class StandEntityRenderer<
 				if (animsPre != null) {
 					for (RotpAnimDefinition animPre : animsPre) {
 						float seconds = animPre.getAnimTime(ticks);
-						animPre.calcAnimPose(pose, molangVars, null, seconds, 1);
+						animPre.calcAnimPose(pose, seconds, 1, molangVars, null);
 					}
 				}
 				
@@ -140,7 +140,7 @@ public class StandEntityRenderer<
 				RotpAnimDefinition anim = animWithId.anim;
 				if (anim != null) {
 					float seconds = anim.getAnimTime(ticks);
-					anim.calcAnimPose(pose, molangVars, null, seconds, 1);
+					anim.calcAnimPose(pose, seconds, 1, molangVars, null);
 				}
 			}
 			case STAND_INFO -> {
