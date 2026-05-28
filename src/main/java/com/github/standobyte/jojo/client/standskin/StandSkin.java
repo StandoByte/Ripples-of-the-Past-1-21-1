@@ -1,6 +1,5 @@
 package com.github.standobyte.jojo.client.standskin;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -345,9 +344,9 @@ public class StandSkin {
 	public AnimationSet getAnimations() {
 		return standEntityAnims;
 	}
-	
-	protected List<AnimFramePose> _posesCache;
-	public List<AnimFramePose> getAllPoses() {
+
+	protected Map<String, AnimFramePose> _posesCache;
+	public Map<String, AnimFramePose> getAllPoses() {
 		_posesCache = null;
 		if (_posesCache == null) {
 			AnimationSet animSet;
@@ -368,10 +367,10 @@ public class StandSkin {
 				}
 			}
 			
-			_posesCache = new ArrayList<>();
+			_posesCache = new HashMap<>();
 			for (AnimVariantsList animVariants : allAnimsVariants.values()) {
 				if (animVariants.poses != null && !animVariants.poses.isEmpty()) {
-					_posesCache.addAll(animVariants.poses.values());
+					_posesCache.putAll(animVariants.poses);
 				}
 			}
 		}
