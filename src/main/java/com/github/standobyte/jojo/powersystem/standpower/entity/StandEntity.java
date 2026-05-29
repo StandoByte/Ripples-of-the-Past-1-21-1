@@ -66,13 +66,7 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -98,6 +92,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 public class StandEntity extends LivingEntity implements SummonedStand, IEntityWithComplexSpawn, LivingReactToNewAction, EntityStandVisibility, EntityWithStandSkin {
 	protected ResourceLocation standId;
+    protected EntityDimensions standDimensions;
 	protected static final EntityDataAccessor<Byte> STAND_FLAGS = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.BYTE);
 	protected static final EntityDataAccessor<Integer> USER_ID = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_BABY_ID = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.BOOLEAN);
@@ -128,6 +123,10 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		if (isAddedToLevel()) throw new IllegalStateException();
 		this.standId = standType.getId();
 		initStandStatsValues(standType.getStandStats());
+        if (standType instanceof EntityStandType entityStandType) {
+            standDimensions = entityStandType.standDimensions;
+            this.refreshDimensions();
+        }
 		return this;
 	}
 
@@ -152,7 +151,15 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		
 		openStandHandsContainer();
 	}
-	
+
+    public EntityDimensions getStandDimensions() {
+        return standDimensions;
+    }
+
+    @Override
+    public EntityDimensions getDimensions(Pose pose) {
+        return standDimensions != null ? standDimensions.scale(this.getAgeScale()) : super.getDefaultDimensions(pose);
+    }
 
 	public PrevRotations rotO = new PrevRotations();
 	@Override
@@ -1413,6 +1420,8 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		ResourceLocation.STREAM_CODEC.encode(buffer, standId);
 		buffer.writeFloat(yBodyRot);
 		buffer.writeVarInt(tickCount);
+        buffer.writeFloat(standDimensions.width());
+        buffer.writeFloat(standDimensions.height());
 	}
 
 	@Override
@@ -1421,6 +1430,8 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		yBodyRot = additionalData.readFloat();
 		yBodyRotO = yBodyRot;
 		tickCount = additionalData.readVarInt();
+        standDimensions = EntityDimensions.scalable(additionalData.readFloat(), additionalData.readFloat());
+        this.refreshDimensions();
 	}
 
 	@Override

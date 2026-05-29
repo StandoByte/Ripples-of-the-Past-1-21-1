@@ -17,21 +17,25 @@ import com.github.standobyte.jojo.util.objects_java.DefaultedValue;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 // TODO EntityStandType stuff (arms-only summon, etc.)
-// TODO stand hitbox size parameter (+the size to stretch the model to)
 public class EntityStandType extends StandType {
 	static {
 		StandTypeClass.registerStandClass(EntityStandType.class, "entity", EntityStandType::new);
 	}
 	
 	protected DefaultedValue<EntityType<? extends StandEntity>> entityType;
+
+    public EntityDimensions standDimensions = ModEntityTypes.HUMANOID_STAND.get().getDimensions();
 	
 	public EntityStandType(StandStats stats, MovesetBuilder moveset, 
 			ResourceLocation id) {
@@ -45,6 +49,10 @@ public class EntityStandType extends StandType {
 		Objects.requireNonNull(standEntityType);
 		this.entityType = new DefaultedValue<>(standEntityType);
 	}
+
+    public <T extends EntityStandType> T standDimensions(float width, float height) {
+        return init(stand -> stand.standDimensions = EntityDimensions.scalable(width, height));
+    }
 	
 	@Override
 	public JsonObject makeConfigTemplate() {
@@ -112,6 +120,7 @@ public class EntityStandType extends StandType {
 			if (!standPower.isSummoned()) {
 				StandEntity standEntity = entityType.value.create(level/*, EntitySpawnReason.NATURAL*/)
 						.withStandType(this);
+                standEntity.refreshDimensions();
 				standEntity.copyPosition(user);
 				standEntity.copyStandUserRotation(user);
 				standEntity.setCustomName(standPower.getName());
