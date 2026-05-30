@@ -150,7 +150,13 @@ public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
 					newVal -> {
 						setting.set(newVal);
 						ConfigGuiHelper.onSettingChange(JojoMod.config, configToSave, setting);
-					}, null);
+					}, null) {
+				
+				@Override
+				public boolean getStateToRender() {
+					return getResultingValue();
+				}
+			};
 			
 			visibilityToggle = ToggleButton.visibility(x + 211, y + 5, 10, 10, 
 					hudVisibilitySetting, 
@@ -162,6 +168,8 @@ public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
 
 		@Override
 		public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+			toggle.active = clientCanToggle();
+			
 			toggle.render(guiGraphics, mouseX, mouseY, partialTick);
 			// TODO scrolling string
 			guiGraphics.drawString(Minecraft.getInstance().font, text, 
@@ -179,6 +187,10 @@ public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
 			}
 			
 			return setting.get();
+		}
+		
+		public boolean clientCanToggle() {
+			return overrulingCommonSetting == null || overrulingCommonSetting.get() == BoolOrPlayerPref.PLAYER_PREFERENCE;
 		}
 		
 	}

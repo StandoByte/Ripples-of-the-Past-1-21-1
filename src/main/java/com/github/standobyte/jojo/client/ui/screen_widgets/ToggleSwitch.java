@@ -20,26 +20,39 @@ public class ToggleSwitch extends AbstractWidget {
 	public static final GuiIcon VERTICAL_OFF = new GuiIcon(JojoMod.resLoc("textures/gui/sprites/widget/toggle_switch_v_off.png"), 16, 32);
 	public static final GuiIcon VERTICAL_ON_HOVERED = new GuiIcon(JojoMod.resLoc("textures/gui/sprites/widget/toggle_switch_v_on_hovered.png"), 16, 32);
 	public static final GuiIcon VERTICAL_OFF_HOVERED = new GuiIcon(JojoMod.resLoc("textures/gui/sprites/widget/toggle_switch_v_off_hovered.png"), 16, 32);
+	public static final GuiIcon VERTICAL_ON_INACTIVE = new GuiIcon(JojoMod.resLoc("textures/gui/sprites/widget/toggle_switch_v_on_inactive.png"), 16, 32);
+	public static final GuiIcon VERTICAL_OFF_INACTIVE = new GuiIcon(JojoMod.resLoc("textures/gui/sprites/widget/toggle_switch_v_off_inactive.png"), 16, 32);
 	public static final GuiIcon HORIZONTAL_ON = new GuiIcon(JojoMod.resLoc("textures/gui/sprites/widget/toggle_switch_h_on.png"), 32, 16);
 	public static final GuiIcon HORIZONTAL_OFF = new GuiIcon(JojoMod.resLoc("textures/gui/sprites/widget/toggle_switch_h_off.png"), 32, 16);
 	public static final GuiIcon HORIZONTAL_ON_HOVERED = new GuiIcon(JojoMod.resLoc("textures/gui/sprites/widget/toggle_switch_h_on_hovered.png"), 32, 16);
 	public static final GuiIcon HORIZONTAL_OFF_HOVERED = new GuiIcon(JojoMod.resLoc("textures/gui/sprites/widget/toggle_switch_h_off_hovered.png"), 32, 16);
+	public static final GuiIcon HORIZONTAL_ON_INACTIVE = new GuiIcon(JojoMod.resLoc("textures/gui/sprites/widget/toggle_switch_h_on_inactive.png"), 32, 16);
+	public static final GuiIcon HORIZONTAL_OFF_INACTIVE = new GuiIcon(JojoMod.resLoc("textures/gui/sprites/widget/toggle_switch_h_off_inactive.png"), 32, 16);
 	
 	static final GuiIcon[] SPRITES = new GuiIcon[] { 
 			VERTICAL_ON,
 			VERTICAL_OFF,
 			VERTICAL_ON_HOVERED,
 			VERTICAL_OFF_HOVERED,
+			VERTICAL_ON_INACTIVE,
+			VERTICAL_OFF_INACTIVE,
 			HORIZONTAL_ON,
 			HORIZONTAL_OFF,
 			HORIZONTAL_ON_HOVERED,
 			HORIZONTAL_OFF_HOVERED,
+			HORIZONTAL_ON_INACTIVE,
+			HORIZONTAL_OFF_INACTIVE,
 	};
-	public static GuiIcon getSprite(Orientation orientation, boolean isHovered, boolean toggleState) {
-		int index = 
-				(orientation == Orientation.HORIZONTAL ? 1 : 0) << 2
-				| (isHovered ? 1 : 0) << 1
-				| (!toggleState ? 1 : 0);
+
+	public static GuiIcon getSprite(Orientation orientation, boolean isActive, boolean isHovered, boolean toggleState) {
+		int index = 0;
+		if (orientation == Orientation.HORIZONTAL) index += 6;
+		
+		if (!isActive) index += 4; 
+		else if (isHovered) index += 2;
+		
+		if (!toggleState) index += 1;
+		
 		return SPRITES[index];
 	}
 	
@@ -76,7 +89,11 @@ public class ToggleSwitch extends AbstractWidget {
 	public boolean getState() {
 		return stateGet != null ? stateGet.get() : stateDefault;
 	}
-
+	
+	public boolean getStateToRender() {
+		return getState();
+	}
+	
 	public void updateFromState() {
 		if (stateSet != null) {
 			stateSet.accept(getState());
@@ -85,7 +102,7 @@ public class ToggleSwitch extends AbstractWidget {
 
 	@Override
 	public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-		GuiIcon sprite = getSprite(orientation, isHovered(), getState());
+		GuiIcon sprite = getSprite(orientation, isActive(), isHovered(), getStateToRender());
 		int x = getX();
 		int y = getY();
 		sprite.render(guiGraphics.pose(), x, y);
