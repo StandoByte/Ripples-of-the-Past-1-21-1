@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.client.rendertype.CustomMultiBufferSource;
 import com.github.standobyte.jojo.client.shader.core.BufferWithSource;
 import com.github.standobyte.jojo.client.shader.core.RotpShader;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.modcompat.ModInteractionUtil;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
@@ -25,8 +26,8 @@ public class StandTranslucencyShader extends RotpShader {
 	public StandTranslucencyShader(Minecraft mc, SequencedMap<RenderType, ByteBufferBuilder> fixedRenderBuffers) {
 		frameBuffer = new BufferWithSource(createMainTargetBuffer(mc));
 		frameBuffer.initSource(new CustomMultiBufferSource(
-				new ByteBufferBuilder(MAGIC_BUFFER_CAPACITY), 
-				fixedRenderBuffers, 
+				new ByteBufferBuilder(MAGIC_BUFFER_CAPACITY),
+				fixedRenderBuffers,
 				frameBuffer.createTargetShard("stand_translucent")));
 	}
 	
@@ -74,7 +75,7 @@ public class StandTranslucencyShader extends RotpShader {
 		if (isBeforeEntities(stage)) {
 			// clear the frame
 			this.usedThisFrame = false;
-			frameBuffer.clearBuffer();
+            if (!ModInteractionUtil.isModLoaded("simulated")) frameBuffer.clearBuffer();
 		}
 		
 		// then entities render
@@ -127,6 +128,7 @@ public class StandTranslucencyShader extends RotpShader {
 				frameBuffer.buffer.blitToScreen(mc.getWindow().getWidth(), mc.getWindow().getHeight(), false);
 				RenderSystem.disableBlend();
 				RenderSystem.defaultBlendFunc();
+                if (ModInteractionUtil.isModLoaded("simulated")) frameBuffer.clearBuffer();
 			}
 		}
 	}
