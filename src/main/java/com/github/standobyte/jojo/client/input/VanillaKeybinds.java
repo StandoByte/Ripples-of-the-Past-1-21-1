@@ -26,6 +26,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.settings.IKeyConflictContext;
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
@@ -171,13 +172,18 @@ public class VanillaKeybinds {
 		}
 		
 		
-		if (Minecraft.getInstance().level != null) {
+		if (mc.level != null) {
 			StandTogglesScreen.ToggleEntry[] toggles = StandTogglesScreen.lazyInitToggles();
 			for (StandTogglesScreen.ToggleEntry toggle : toggles) {
 				if (toggle.keybind != null) {
 					KeyMapping keybind = toggle.keybind.apply(this);
 					if (keybind != null && keybind.consumeClick()) {
-						StandTogglesScreen.breakBlocks.toggle();
+						if (toggle.clientCanToggle()) {
+							StandTogglesScreen.breakBlocks.toggle();
+						}
+						else {
+							mc.gui.setOverlayMessage(Component.translatable("jojo_ripples.toggle_overruled", toggle.overrulingCommonSetting.get().optionStatus), false);
+						}
 					}
 				}
 			}
