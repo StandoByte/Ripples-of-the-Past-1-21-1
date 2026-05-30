@@ -1,14 +1,20 @@
 package com.github.standobyte.jojo.powersystem.standpower.client_screens;
 
+import java.util.function.BooleanSupplier;
+
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.IJojoMenuScreen;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.Tab;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.TabCategory;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ToggleButton;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ToggleSwitch;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
+import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
+import com.github.standobyte.jojo.config.BoolOrPlayerPref;
 import com.github.standobyte.jojo.config.client.ConfigGuiHelper;
+import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.core.ModConfigType;
-import com.github.standobyte.jojo.config.core.types.ConfigBool;
 import com.github.standobyte.jojo.core.JojoMod;
 
 import net.minecraft.client.Minecraft;
@@ -49,12 +55,16 @@ public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
 		if (toggles == null) {
 			var client = JojoMod.config.getClient();
 			var broadcastClient = JojoMod.config.getPlayerBroadcast(Minecraft.getInstance().player);
+			var common = JojoMod.config.getCommon();
+			
 			breakBlocks = new ToggleEntry(
-					broadcastClient.standsBreakBlocks, client.toggleVisible_standsBreakBlocks, 
+					broadcastClient.standsBreakBlocks, 
+					common.standsBreakBlocks, 
+					client.toggleVisible_standsBreakBlocks, 
+					() -> true, 
 					ModConfigType.CLIENT_BROADCAST, 
-					ConfigGuiHelper.prependIcon(
-							Component.translatable("jojo_ripples.stand_toggles.destroy_blocks"), 
-							ConfigGuiHelper.toIconPath("stands_break_blocks")));
+					ConfigGuiHelper.toIconPath("stands_break_blocks"),
+					Component.translatable("jojo_ripples.stand_toggles.destroy_blocks"));
 
 			toggles = new ToggleEntry[] {
 					breakBlocks
@@ -99,20 +109,31 @@ public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
 	}
 	
 	public static class ToggleEntry implements Renderable {
-		public ConfigBool setting;
-		public ConfigBool visibilitySetting;
-		public ModConfigType configToSave;
-		public Component text;
+		public final ConfigOption<Boolean> setting;
+		@Nullable public final ConfigOption<BoolOrPlayerPref> overrulingCommonSetting;
+		public final ModConfigType configToSave;
+		public final Component text;
+		
+		public final ConfigOption<Boolean> hudVisibilitySetting;
+		public final GuiIcon hudIcon;
+		public final BooleanSupplier renderInHudWhen;
 		
 		public ToggleSwitch toggle;
 		public Button keybindButton;
 		public ToggleButton visibilityToggle;
 		
-		public ToggleEntry(ConfigBool setting, ConfigBool visibilitySetting, ModConfigType configToSave, Component text) {
+		public ToggleEntry(ConfigOption<Boolean> setting, @Nullable ConfigOption<BoolOrPlayerPref> overrulingCommonSetting,
+				ConfigOption<Boolean> hudVisibilitySetting, BooleanSupplier renderInHudWhen, 
+				ModConfigType configToSave, 
+				ResourceLocation icon, Component text) {
 			this.setting = setting;
-			this.visibilitySetting = visibilitySetting;
+			this.overrulingCommonSetting = overrulingCommonSetting;
 			this.configToSave = configToSave;
-			this.text = text;
+			this.text = ConfigGuiHelper.prependIcon(text, icon);
+			
+			this.hudVisibilitySetting = hudVisibilitySetting;
+			this.hudIcon = new GuiIcon(icon, 16, 16);
+			this.renderInHudWhen = renderInHudWhen;
 		}
 		
 		public void init(int x, int y) {
@@ -132,10 +153,10 @@ public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
 					}, null);
 			
 			visibilityToggle = ToggleButton.visibility(x + 211, y + 5, 10, 10, 
-					visibilitySetting, 
+					hudVisibilitySetting, 
 					newVal -> {
-						visibilitySetting.set(newVal);
-						ConfigGuiHelper.onSettingChange(JojoMod.config, ModConfigType.CLIENT, visibilitySetting);
+						hudVisibilitySetting.set(newVal);
+						ConfigGuiHelper.onSettingChange(JojoMod.config, ModConfigType.CLIENT, hudVisibilitySetting);
 					}, null);
 		}
 
@@ -148,6 +169,18 @@ public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
 			keybindButton.render(guiGraphics, mouseX, mouseY, partialTick);
 			visibilityToggle.render(guiGraphics, mouseX, mouseY, partialTick);
 		}
+		
+		public boolean getResultingValue() {
+			if (overrulingCommonSetting != null) {
+				Boolean commonValue = overrulingCommonSetting.get().asBoolean;
+				if (commonValue != null) {
+					return commonValue;
+				}
+			}
+			
+			return setting.get();
+		}
+		
 	}
 
 	@Override

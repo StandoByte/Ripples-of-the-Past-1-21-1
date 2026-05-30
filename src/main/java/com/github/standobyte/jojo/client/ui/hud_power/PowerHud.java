@@ -29,6 +29,7 @@ import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.client_screens.StandTogglesScreen;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
@@ -147,6 +148,7 @@ public class PowerHud {
 				(int) staminaBar.xOffsetL + staminaBar.getWidth() + 10, (int) staminaBar.yOffsetU, -1, -1));
 		public Finisher finisherBar = 			addElement(new Finisher("stand_finisher", 
 				HudElement.SnappingH.CENTER, HudElement.SnappingV.CENTER, -16, -16, 32, 32));
+		public StandToggles toggles = 			addElement(new StandToggles("stand_toggles", 4, 200, 32, 32));
 		
 		@Override
 		public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
@@ -755,6 +757,40 @@ public class PowerHud {
 				height += 12;
 			}
 			updateRectangle(width, height);
+		}
+	}
+	
+	
+	public static class StandToggles extends HudElement {
+		public static final GuiIcon SWITCH_DISABLED = new GuiIcon(JojoMod.resLoc("textures/gui/sprites/hud_switch_disabled.png"), 20, 20);
+
+		public StandToggles(String name, int x0, int y0, int width, int height) {
+			super(name, x0, y0, width, height);
+		}
+
+		@Override
+		public boolean shouldRender() {
+			if (hud.forContainerMenu.isTrue()) return false;
+			return true;
+		}
+		
+		@Override
+		public void renderElement(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+			PoseStack poseStack = guiGraphics.pose();
+			StandTogglesScreen.ToggleEntry[] toggles = StandTogglesScreen.lazyInitToggles();
+			int x = getX();
+			int y = getY();
+			for (var toggle : toggles) {
+				if (toggle.hudVisibilitySetting.get() && toggle.renderInHudWhen.getAsBoolean()) {
+					boolean value = toggle.getResultingValue();
+					GuiIcon icon = toggle.hudIcon;
+					icon.render(poseStack, x, y);
+					if (!value) {
+						SWITCH_DISABLED.render(poseStack, x - 2, y - 2);
+					}
+					x += 24;
+				}
+			}
 		}
 	}
 	
