@@ -7,11 +7,14 @@ import com.github.standobyte.jojo.config.client.ConfigGuiHelper;
 import com.github.standobyte.jojo.config.client.RegisterRotpConfigScreenTabEvent;
 import com.github.standobyte.jojo.config.core.ModConfigType;
 import com.github.standobyte.jojo.config.core.types.ConfigBool;
+import com.github.standobyte.jojo.config.core.types.ConfigEnum;
 import com.github.standobyte.jojo.config.core.types.ConfigFloat;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.resolve.ClientResolveVisuals;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -58,6 +61,7 @@ public class RotpConfig {
 
 	public final static class ClientBroadcast {
 		//public final ConfigEnum<HumanoidArm> standSide = HumanoidArm.LEFT;
+		public final ConfigBool standsBreakBlocks = new ConfigBool(true);
 		public final ConfigBool vampireGlowingEyes_tmp = new ConfigBool(false);
 	}
 	
@@ -102,15 +106,32 @@ public class RotpConfig {
 		//public final ConfigFloat standDamageMultiplier;
 		//public final ConfigFloat standResistanceMultiplier;
 		//public final ConfigBool skipStandProgression;
-		public final ConfigBool standStamina = new ConfigBool(true);
+		public final ConfigEnum<BoolOrPlayerPref> standsBreakBlocks = new ConfigEnum<>(BoolOrPlayerPref.class, BoolOrPlayerPref.PLAYER_PREFERENCE);
 		//public final ForgeConfigSpec.ConfigValue<List<? extends Double>> resolveLvlPoints;
 		//public final ConfigBool soulAscension;
 		//public final ConfigInt timeStopChunkRange;
 		//public final ConfigFloat timeStopDamageMultiplier;
+		public final ConfigBool standStamina = new ConfigBool(true);
 
 		//public final ConfigBool endermenBeyondTimeSpace;
 		//public final ConfigBool saveDestroyedBlocks;
 		//public final ConfigBool spawnCocoJumboTurtle;
+	}
+	
+	public static boolean canStandBreakBlocks(LivingEntity playerUser) {
+		var config = JojoMod.config;
+		Common common = config.getCommon();
+		return switch (common.standsBreakBlocks.get()) {
+			case TRUE -> true;
+			case FALSE -> false;
+			case PLAYER_PREFERENCE -> {
+				if (playerUser instanceof Player player) {
+					ClientBroadcast broadcast = config.getPlayerBroadcast(player);
+					yield broadcast.standsBreakBlocks.getAsBoolean();
+				}
+				yield true;
+			}
+		};
 	}
 	
 	@EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
@@ -145,6 +166,7 @@ public class RotpConfig {
 						RotpConfig.Common common = config.getCommon();
 						
 						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.stand"));
+						helper.addBooleanOrPlayerPreferenceOptionButton(common.standsBreakBlocks, ModConfigType.COMMON, "stands_break_blocks");
 						helper.addBooleanOptionButton(common.dropStandAsDisc, ModConfigType.COMMON, "stand_disc");
 						helper.addBooleanOptionButton(common.standStamina, ModConfigType.COMMON, "stand_stamina");
 					}

@@ -79,6 +79,8 @@
   "rotp_tag_wip": "Work in progress",
   "rotp_tag_nyi": "Not yet implemented",
   
+  "jojo_ripples.options.player_pref": "Player preference",
+  "jojo_ripples.options.player_pref.composed": "%s: Player preference",
   "jojo_ripples.config": "ROTP & addons config",
   "jojo_ripples.config_category.client": "Client",
   "jojo_ripples.config_category.common": "Gameplay",
@@ -97,6 +99,8 @@
   
   "jojo_ripples.config.title": "ROTP",
   
+  "jojo_ripples.config.standsBreakBlocks": "Stands break blocks",
+  "jojo_ripples.config.standsBreakBlocks.tooltip": "Server-wide setting of Stands destroying blocks. If set to \"Player preference\", each player can set it for themself individually.",
   "jojo_ripples.config.dropStandAsDisc": "Drop Stand as Disc",
   "jojo_ripples.config.dropStandAsDisc.tooltip": "If enabled, Stand users also drop their Stand in form of a Disc item upon death.",
   "jojo_ripples.config.standStamina": "Stand Stamina",
@@ -277,6 +281,10 @@
   "item.jojo_ripples.stand_disc.data_pack": "Data pack Stand",
   "jojo_ripples.menu.stand.info": "Stand Info",
   "jojo_ripples.menu.stand.skills": "Skills",
+  "jojo_ripples.menu.stand.toggles": "Toggles",
+  
+  "jojo_ripples.stand_toggles.destroy_blocks": "Break blocks",
+  
   "jojo_ripples.menu.stand.skins": "Stand Skins",
   "moveset_default_group": "Moveset",
   "moveset_group.stand.tooltip": "This enables the controls of your Stand without immediately summoning it - some of the abilies let you summon just your Stand's arms this way.",

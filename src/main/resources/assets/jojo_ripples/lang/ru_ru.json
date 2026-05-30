@@ -77,6 +77,8 @@
   "rotp_tag_wip": "В разработке",
   "rotp_tag_nyi": "Пока не реализовано",
   
+  "jojo_ripples.options.player_pref": "По выбору игрока",
+  "jojo_ripples.options.player_pref.composed": "%s: По выбору игрока",
   "jojo_ripples.config_category.client": "Клиент",
   "jojo_ripples.config_category.common": "Геймплей",
   "jojo_ripples.config_category.stands": "Стенды",
@@ -94,6 +96,8 @@
   
   "jojo_ripples.config.title": "ROTP",
   
+  "jojo_ripples.config.standsBreakBlocks": "Уничтожение блоков Стендами",
+  "jojo_ripples.config.standsBreakBlocks.tooltip": "Настройка, устанавливающая, могут ли Стенды ломать блоки. Если установлено \"По выбору игрока\", каждый игрок сможет поменять значение для себя.",
   "jojo_ripples.config.dropStandAsDisc": "Выпадение Стенда в Диске",
   "jojo_ripples.config.dropStandAsDisc.tooltip": "При включении, после смерти обладателя Стенда его Стенд выпадает в виде Диска.",
   "jojo_ripples.config.standStamina": "Стойкость Стенда",
@@ -275,6 +279,10 @@
   "item.jojo_ripples.stand_disc.data_pack": "Стенд из датапака",
   "jojo_ripples.menu.stand.info": "Информация о Стенде",
   "jojo_ripples.menu.stand.skills": "Навыки",
+  "jojo_ripples.menu.stand.toggles": "Переключатели",
+  
+  "jojo_ripples.stand_toggles.destroy_blocks": "Добыча блоков",
+  
   "jojo_ripples.menu.stand.skins": "Скины Стенда",
   "moveset_default_group": "Способности",
   "moveset_group.stand.tooltip": "Эта клавиша активирует управление Стендом, но не призывает его сразу же - с помощью этого некоторые из способностей можно использовать, призвав только руки Стенда.",

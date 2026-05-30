@@ -12,6 +12,7 @@ import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList
 import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList.Renderable2;
 import com.github.standobyte.jojo.client.ui.utils.Alignment;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
+import com.github.standobyte.jojo.config.BoolOrPlayerPref;
 import com.github.standobyte.jojo.config.ModConfigInterface;
 import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.core.ModConfigType;
@@ -62,6 +63,18 @@ public class ConfigGuiHelper {
 				(Component name, Boolean value) -> CommonComponents.optionStatus(name, value));
 	}
 	
+	public void addBooleanOrPlayerPreferenceOptionButton(ConfigEnum<BoolOrPlayerPref> cfgOption, 
+			ModConfigType type, @Nullable String icon) {
+		addOptionButton(cfgOption, type, icon, 
+				option -> {
+					BoolOrPlayerPref[] values = BoolOrPlayerPref.values();
+					BoolOrPlayerPref val = option.get();
+					BoolOrPlayerPref nextVal = values[(val.ordinal() + 1) % values.length];
+					option.set(nextVal);
+				}, 
+				(Component name, BoolOrPlayerPref value) -> value.optionStatus(name));
+	}
+	
 	public <T extends Enum<T>> void addEnumOptionButton(ConfigEnum<T> cfgOption, 
 			ModConfigType type, @Nullable String icon, 
 			Class<T> enumClass) {
@@ -90,34 +103,12 @@ public class ConfigGuiHelper {
 		Component nameWithSprite = name;
 		if (icon != null) {
 			ResourceLocation iconPath = toIconPath(icon);
-			IconGlyphInfo spriteGlyph = new IconGlyphInfo(new GuiIcon(iconPath, 16, 16), 16, 16, 0, -4, 4);
-			//stand aim marker: new GuiIcon(iconPath, 17, 17), 17, 17, 0, -5, 5)
-			
-			char spriteCode = iconSymbols.computeIfAbsent(iconPath, 
-					__ -> IconGlyphsCache.makeCharCodeFor(spriteGlyph));
-			nameWithSprite = Component.literal(String.valueOf(spriteCode)).append(name);
+			nameWithSprite = prependIcon(name, iconPath);
 		}
 		
 		Button.OnPress onPress = b -> {
 			changeValueOnClick.accept(option);
-			switch (type) {
-				case CLIENT -> {
-					config.saveClient();
-				}
-				case CLIENT_BROADCAST -> {
-					config.saveClient();
-					config.sendClientBroadcast();
-				}
-				case COMMON -> {
-					if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
-						ConfigNetworkFunctions.clSendCommonSettingEditToServer(
-								modId, option.getFieldName(), option);
-					}
-					else {
-						config.saveCommon();
-					}
-				}
-			}
+			onSettingChange(config, type, option);
 		};
 		
 		int buttonWidth = Math.min((screen.width - 80) / 2, 150);
@@ -139,6 +130,36 @@ public class ConfigGuiHelper {
 		if (curEntry.children().size() >= 2) {
 			curEntry = null;
 		}
+	}
+	
+	public static <T> void onSettingChange(ModConfigInterface<?, ?, ?> modConfig, ModConfigType configType, ConfigOption<T> configOption) {
+		switch (configType) {
+			case CLIENT -> {
+				modConfig.saveClient();
+			}
+			case CLIENT_BROADCAST -> {
+				modConfig.saveClient();
+				modConfig.sendClientBroadcast();
+			}
+			case COMMON -> {
+				if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
+					ConfigNetworkFunctions.clSendCommonSettingEditToServer(
+							modConfig.modId(), configOption.getFieldName(), configOption);
+				}
+				else {
+					modConfig.saveCommon();
+				}
+			}
+		}
+	}
+	
+	public static Component prependIcon(Component text, ResourceLocation iconPath) {
+		IconGlyphInfo spriteGlyph = new IconGlyphInfo(new GuiIcon(iconPath, 16, 16), 16, 16, 0, -4, 4);
+		//stand aim marker: new GuiIcon(iconPath, 17, 17), 17, 17, 0, -5, 5)
+		
+		char spriteCode = iconSymbols.computeIfAbsent(iconPath, 
+				__ -> IconGlyphsCache.makeCharCodeFor(spriteGlyph));
+		return Component.literal(String.valueOf(spriteCode)).append(text);
 	}
 	
 	public static class ConfigButton extends ScrollingStringButton {

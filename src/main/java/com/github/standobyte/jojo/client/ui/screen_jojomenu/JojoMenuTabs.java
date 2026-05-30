@@ -21,6 +21,7 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.client_screens.StandInfoScreen;
 import com.github.standobyte.jojo.powersystem.standpower.client_screens.StandSkillsScreen;
+import com.github.standobyte.jojo.powersystem.standpower.client_screens.StandTogglesScreen;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -162,6 +163,11 @@ public class JojoMenuTabs {
 			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.stand.skills"))
 			.withScreen(tab -> new StandSkillsScreen(Component.empty(), tab.category, tab))
 			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/stand_skills.png"), 16, 16));
+	
+	public static final Tab STAND_TOGGLES = new Tab(CATEGORY_STAND)
+			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.stand.toggles"))
+			.withScreen(tab -> new StandTogglesScreen(Component.empty(), tab.category, tab))
+			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/stand_toggles.png"), 16, 16));
 	
 	public static final Tab STAND_SKINS = new Tab(CATEGORY_STAND) {
 		@Override
