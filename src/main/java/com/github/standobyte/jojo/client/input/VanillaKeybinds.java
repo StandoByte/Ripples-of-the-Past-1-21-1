@@ -20,6 +20,7 @@ import com.github.standobyte.jojo.network.c2s.ClNoParamsPacket.PacketType;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.client_screens.StandTogglesScreen;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.mojang.blaze3d.platform.InputConstants;
 
@@ -40,6 +41,8 @@ public class VanillaKeybinds {
 	public KeyMapping switchSpecial;
 	public KeyMapping disableHUDControls;
 	public KeyMapping jojoStuffMenu;
+
+	public KeyMapping standToggle_breakBlocks;
 	
 	public static class KeyInGameCtx implements IKeyConflictContext {
 		public BooleanSupplier extraCondition;
@@ -113,6 +116,16 @@ public class VanillaKeybinds {
 				InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_BACKSLASH, MAIN_CATEGORY)
 				.inInitOrder().withDescTooltip());
 		
+		// not registering it in the event to not add it to the settings menu
+		binds.standToggle_breakBlocks = new Jokerge(
+				JojoMod.MOD_ID + ".key.stand_toggle_break_blocks", 
+				new KeyInGameCtx(() -> {
+					StandTogglesScreen.lazyInitToggles();
+					return StandTogglesScreen.breakBlocks.activeWhen.getAsBoolean();
+				}), 
+				InputConstants.UNKNOWN, MAIN_CATEGORY)
+				.inInitOrder().withDescTooltip();
+		
 		return binds;
 	}
 
@@ -153,6 +166,19 @@ public class VanillaKeybinds {
 				Tab tab = JojoMenuTabs.getTabToOpenOnMenuKey();
 				if (tab != null) {
 					tab.onClick(mc, mc.screen);
+				}
+			}
+		}
+		
+		
+		if (Minecraft.getInstance().level != null) {
+			StandTogglesScreen.ToggleEntry[] toggles = StandTogglesScreen.lazyInitToggles();
+			for (StandTogglesScreen.ToggleEntry toggle : toggles) {
+				if (toggle.keybind != null) {
+					KeyMapping keybind = toggle.keybind.apply(this);
+					if (keybind != null && keybind.consumeClick()) {
+						StandTogglesScreen.breakBlocks.toggle();
+					}
 				}
 			}
 		}

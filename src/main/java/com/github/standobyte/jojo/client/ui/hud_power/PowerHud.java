@@ -781,7 +781,7 @@ public class PowerHud {
 			int x = getX();
 			int y = getY();
 			for (var toggle : toggles) {
-				if (toggle.hudVisibilitySetting.get() && toggle.renderInHudWhen.getAsBoolean()) {
+				if (toggle.hudVisibilitySetting.get() && toggle.activeWhen.getAsBoolean()) {
 					boolean value = toggle.getResultingValue();
 					GuiIcon icon = toggle.hudIcon;
 					icon.render(poseStack, x, y);
