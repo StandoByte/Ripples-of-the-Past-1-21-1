@@ -5,7 +5,9 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.input.VanillaKeybinds;
+import com.github.standobyte.jojo.client.ui.KeybindsEditingUI;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.IJojoMenuScreen;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.Tab;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.TabCategory;
@@ -41,7 +43,7 @@ public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
 	protected TabCategory category;
 	protected Tab tab;
 	
-	protected ToggleSwitch testToggle;
+	protected KeybindsEditingUI keybindsHandler;
 
 	public StandTogglesScreen(Component title, TabCategory category, Tab tab) {
 		this(title, category, tab, WINDOW);
@@ -93,6 +95,8 @@ public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
 	@Override
 	public void init() {
 		super.init();
+		
+		keybindsHandler = new KeybindsEditingUI();
 
 		ToggleEntry[] toggles = lazyInitToggles();
 		int x = getWindowX(this);
@@ -101,17 +105,28 @@ public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
 			addToggleUI(toggle, x, y);
 			y += 24;
 		}
+		keybindsHandler.refresh();
 		
 	}
 
 	protected ToggleEntry addToggleUI(ToggleEntry entry, int x, int y) {
-		entry.init(x, y);
+		entry.init(x, y, keybindsHandler);
 		addWidget(entry.toggle);
 		addWidget(entry.keybindButton);
 		addWidget(entry.visibilityToggle);
 		addRenderableOnly(entry);
 		return entry;
 	}
+	
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    	return keybindsHandler.keyPressed(keyCode, scanCode, modifiers) || super.keyPressed(keyCode, scanCode, modifiers);
+    }
+	
+    @Override
+    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+    	return keybindsHandler.keyReleased(keyCode, scanCode, modifiers) || super.keyReleased(keyCode, scanCode, modifiers);
+    }
 	
 	public static class ToggleEntry implements Renderable {
 		public final ConfigOption<Boolean> setting;
@@ -145,14 +160,9 @@ public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
 			this.activeWhen = renderInHudWhen;
 		}
 		
-		public void init(int x, int y) {
-			keybindButton = Button.builder(CommonComponents.EMPTY, b -> {})
-					.bounds(x + 155, y, 50, 20)
-					.createNarration(
-							message -> false
-							? Component.translatable("narrator.controls.unbound", text)
-							: Component.translatable("narrator.controls.bound", text, message.get()))
-					.build();
+		public void init(int x, int y, KeybindsEditingUI keybindsHandler) {
+			KeyMapping keyMapping = keybind.apply(InputHandler.getInstance().vanillaKeybinds);
+			keybindButton = keybindsHandler.addKeybind(keyMapping, () -> {}, x + 155, y, 50, 20).button;
 			
 			toggle = new ToggleSwitch(x + 4, y + 2, Orientation.HORIZONTAL, 
 					setting, 
