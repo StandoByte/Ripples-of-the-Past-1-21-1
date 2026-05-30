@@ -57,7 +57,7 @@ public class ToggleSwitch extends AbstractWidget {
 		this.orientation = orientation;
 		this.stateGet = stateGet;
 		this.stateSet = stateSet;
-		this.stateDefault = getState();
+		this.stateDefault = stateGet.get();
 		setTooltip(tooltip);
 	}
 

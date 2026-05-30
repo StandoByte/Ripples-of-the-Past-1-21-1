@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.powersystem.standpower.client_screens;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.IJojoMenuScreen;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.Tab;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.TabCategory;
+import com.github.standobyte.jojo.client.ui.screen_widgets.ToggleButton;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ToggleSwitch;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.config.client.ConfigGuiHelper;
@@ -39,6 +40,30 @@ public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
 		this.tab = tab;
 		this.texture = texture;
 	}
+	
+	
+	public static ToggleEntry breakBlocks;
+	public static ToggleEntry[] toggles;
+	
+	public static ToggleEntry[] lazyInitToggles() {
+		if (toggles == null) {
+			var client = JojoMod.config.getClient();
+			var broadcastClient = JojoMod.config.getPlayerBroadcast(Minecraft.getInstance().player);
+			breakBlocks = new ToggleEntry(
+					broadcastClient.standsBreakBlocks, client.toggleVisible_standsBreakBlocks, 
+					ModConfigType.CLIENT_BROADCAST, 
+					ConfigGuiHelper.prependIcon(
+							Component.translatable("jojo_ripples.stand_toggles.destroy_blocks"), 
+							ConfigGuiHelper.toIconPath("stands_break_blocks")));
+
+			toggles = new ToggleEntry[] {
+					breakBlocks
+			};
+		}
+		return toggles;
+	}
+	
+	
 
 	@Override
 	public TabCategory getTabCategory() {
@@ -54,50 +79,64 @@ public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
 	public void init() {
 		super.init();
 
+		ToggleEntry[] toggles = lazyInitToggles();
 		int x = getWindowX(this);
 		int y = getWindowY(this) + 8;
+		for (ToggleEntry toggle : toggles) {
+			addToggleUI(toggle, x, y);
+			y += 24;
+		}
 		
-		texture = JojoMod.resLoc("textures/gui/paper_style/empty3.png");
-		var broadcastClient = JojoMod.config.getPlayerBroadcast(minecraft.player);
-		makeToggle(x, y, broadcastClient.standsBreakBlocks, ModConfigType.CLIENT_BROADCAST, 
-				ConfigGuiHelper.prependIcon(
-						Component.translatable("jojo_ripples.stand_toggles.destroy_blocks"), 
-						ConfigGuiHelper.toIconPath("stands_break_blocks")));
 	}
 
-	protected ToggleEntry makeToggle(int x, int y, ConfigBool setting, ModConfigType configToSave, Component name) {
-		// TODO keybind button
-		Button button = Button.builder(CommonComponents.EMPTY, b -> {})
-				.bounds(x + 145, y, 75, 20)
-				.createNarration(
-						message -> false
-						? Component.translatable("narrator.controls.unbound", name)
-						: Component.translatable("narrator.controls.bound", name, message.get()))
-				.build();
-		
-		ToggleSwitch toggle = new ToggleSwitch(x + 4, y + 2, Orientation.HORIZONTAL, 
-				setting, 
-				newVal -> {
-					setting.set(newVal);
-					ConfigGuiHelper.onSettingChange(JojoMod.config, configToSave, setting);
-				}, null);
-
-		ToggleEntry entry = new ToggleEntry(button, name, toggle);
+	protected ToggleEntry addToggleUI(ToggleEntry entry, int x, int y) {
+		entry.init(x, y);
 		addWidget(entry.toggle);
 		addWidget(entry.keybindButton);
+		addWidget(entry.visibilityToggle);
 		addRenderableOnly(entry);
 		return entry;
 	}
 	
-	protected static class ToggleEntry implements Renderable {
-		public final ToggleSwitch toggle;
-		public final Component text;
-		public final Button keybindButton;
+	public static class ToggleEntry implements Renderable {
+		public ConfigBool setting;
+		public ConfigBool visibilitySetting;
+		public ModConfigType configToSave;
+		public Component text;
 		
-		public ToggleEntry(Button keybindButton, Component text, ToggleSwitch toggle) {
-			this.keybindButton = keybindButton;
+		public ToggleSwitch toggle;
+		public Button keybindButton;
+		public ToggleButton visibilityToggle;
+		
+		public ToggleEntry(ConfigBool setting, ConfigBool visibilitySetting, ModConfigType configToSave, Component text) {
+			this.setting = setting;
+			this.visibilitySetting = visibilitySetting;
+			this.configToSave = configToSave;
 			this.text = text;
-			this.toggle = toggle;
+		}
+		
+		public void init(int x, int y) {
+			keybindButton = Button.builder(CommonComponents.EMPTY, b -> {})
+					.bounds(x + 155, y, 50, 20)
+					.createNarration(
+							message -> false
+							? Component.translatable("narrator.controls.unbound", text)
+							: Component.translatable("narrator.controls.bound", text, message.get()))
+					.build();
+			
+			toggle = new ToggleSwitch(x + 4, y + 2, Orientation.HORIZONTAL, 
+					setting, 
+					newVal -> {
+						setting.set(newVal);
+						ConfigGuiHelper.onSettingChange(JojoMod.config, configToSave, setting);
+					}, null);
+			
+			visibilityToggle = ToggleButton.visibility(x + 211, y + 5, 10, 10, 
+					visibilitySetting, 
+					newVal -> {
+						visibilitySetting.set(newVal);
+						ConfigGuiHelper.onSettingChange(JojoMod.config, ModConfigType.CLIENT, visibilitySetting);
+					}, null);
 		}
 
 		@Override
@@ -107,6 +146,7 @@ public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
 			guiGraphics.drawString(Minecraft.getInstance().font, text, 
 					toggle.getX() + 32, toggle.getY() + 4, 0xFF000000, false);
 			keybindButton.render(guiGraphics, mouseX, mouseY, partialTick);
+			visibilityToggle.render(guiGraphics, mouseX, mouseY, partialTick);
 		}
 	}
 

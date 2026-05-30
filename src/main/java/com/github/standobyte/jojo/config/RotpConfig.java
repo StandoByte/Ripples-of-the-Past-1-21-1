@@ -57,6 +57,8 @@ public class RotpConfig {
 		public final ConfigBool thirdPersonHamonAura = new ConfigBool(true);
 		//public final ConfigBool firstPersonHamonAura = new ConfigBool(true);
 		//public final ConfigBool hamonAuraBlur = new ConfigBool(false);
+
+		public final ConfigBool toggleVisible_standsBreakBlocks = new ConfigBool(false);
 	}
 
 	public final static class ClientBroadcast {
