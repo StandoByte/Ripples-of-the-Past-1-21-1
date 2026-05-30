@@ -162,7 +162,7 @@ public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
 		
 		public void init(int x, int y, KeybindsEditingUI keybindsHandler) {
 			KeyMapping keyMapping = keybind.apply(InputHandler.getInstance().vanillaKeybinds);
-			keybindButton = keybindsHandler.addKeybind(keyMapping, () -> {}, x + 155, y, 50, 20).button;
+			keybindButton = keybindsHandler.addKeybind(keyMapping, JojoMod.config::saveClient, x + 155, y, 50, 20).button;
 			
 			toggle = new ToggleSwitch(x + 4, y + 2, Orientation.HORIZONTAL, 
 					setting, 

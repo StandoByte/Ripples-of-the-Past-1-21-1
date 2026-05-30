@@ -129,6 +129,12 @@ public class VanillaKeybinds {
 		
 		return binds;
 	}
+	
+	public void setFromConfig() {
+		var config = JojoMod.config.getClient();
+		config.toggleKeybind_standsBreakBlocks.resolveKeybind();
+	}
+
 
 	public void handleTick() {
 		Minecraft mc = Minecraft.getInstance();

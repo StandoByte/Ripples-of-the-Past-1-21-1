@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.config;
 
+import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.itemrender.ItemIconModels;
 import com.github.standobyte.jojo.config.client.ClientModSettingsScreen;
 import com.github.standobyte.jojo.config.client.ClientModSettingsScreen.ConfigTabType;
@@ -9,6 +10,7 @@ import com.github.standobyte.jojo.config.core.ModConfigType;
 import com.github.standobyte.jojo.config.core.types.ConfigBool;
 import com.github.standobyte.jojo.config.core.types.ConfigEnum;
 import com.github.standobyte.jojo.config.core.types.ConfigFloat;
+import com.github.standobyte.jojo.config.core.types.ConfigKeyBinding;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.resolve.ClientResolveVisuals;
 
@@ -59,6 +61,10 @@ public class RotpConfig {
 		//public final ConfigBool hamonAuraBlur = new ConfigBool(false);
 
 		public final ConfigBool toggleVisible_standsBreakBlocks = new ConfigBool(false);
+		public final ConfigKeyBinding toggleKeybind_standsBreakBlocks = new ConfigKeyBinding(() -> {
+			var inputHandler = InputHandler.getInstance();
+			return inputHandler != null ? inputHandler.vanillaKeybinds.standToggle_breakBlocks : null;
+		});
 	}
 
 	public final static class ClientBroadcast {

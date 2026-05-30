@@ -101,6 +101,7 @@ public class InputHandler {
 	
 	private void registerBindings(RegisterKeyMappingsEvent event) {
 		this.vanillaKeybinds = VanillaKeybinds.register(event);
+		this.vanillaKeybinds.setFromConfig();
 	}
 	
 	public static boolean inputsDisabled;
