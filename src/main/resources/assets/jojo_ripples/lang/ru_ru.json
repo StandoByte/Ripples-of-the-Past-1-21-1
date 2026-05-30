@@ -80,6 +80,7 @@
   "jojo_ripples.options.player_pref": "По выбору игрока",
   "jojo_ripples.options.player_pref.composed": "%s: По выбору игрока",
   "jojo_ripples.toggle_overruled": "Эта настройка управляется сервером (%s)",
+  "jojo_ripples.toggle.show_in_hud": "Показывать в интерфейсе",
   "jojo_ripples.config_category.client": "Клиент",
   "jojo_ripples.config_category.common": "Геймплей",
   "jojo_ripples.config_category.stands": "Стенды",

@@ -13,21 +13,25 @@ import com.github.standobyte.jojo.client.ui.screen_widgets.ToggleButton;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ToggleSwitch;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
+import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
 import com.github.standobyte.jojo.config.BoolOrPlayerPref;
 import com.github.standobyte.jojo.config.client.ConfigGuiHelper;
 import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.core.ModConfigType;
 import com.github.standobyte.jojo.core.JojoMod;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.LinearLayout.Orientation;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
@@ -174,6 +178,19 @@ public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
 		@Override
 		public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 			toggle.active = clientCanToggle();
+			MutableComponent toggleTooltip;
+			if (!clientCanToggle()) {
+				toggleTooltip = Component.translatable("jojo_ripples.toggle_overruled", 
+						overrulingCommonSetting.get().optionStatus);
+			}
+			else {
+				toggleTooltip = CommonComponents.optionStatus(getResultingValue()).copy();
+			}
+			toggle.setTooltip(Tooltip.create(toggleTooltip.withStyle(ChatFormatting.BLACK)));
+			
+			visibilityToggle.setTooltip(Tooltip.create(CommonComponents.optionStatus(
+					Component.translatable("jojo_ripples.toggle.show_in_hud"), visibilityToggle.getState())
+					.copy().withStyle(ChatFormatting.BLACK)));
 			
 			toggle.render(guiGraphics, mouseX, mouseY, partialTick);
 			// TODO scrolling string
@@ -181,6 +198,10 @@ public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
 					toggle.getX() + 32, toggle.getY() + 4, 0xFF000000, false);
 			keybindButton.render(guiGraphics, mouseX, mouseY, partialTick);
 			visibilityToggle.render(guiGraphics, mouseX, mouseY, partialTick);
+			
+			if (toggle.isHovered() || visibilityToggle.isHovered()) {
+				TooltipParams.set(TooltipParams.paperStyle());
+			}
 		}
 		
 		public void toggle() {

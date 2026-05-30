@@ -182,7 +182,8 @@ public class VanillaKeybinds {
 							StandTogglesScreen.breakBlocks.toggle();
 						}
 						else {
-							mc.gui.setOverlayMessage(Component.translatable("jojo_ripples.toggle_overruled", toggle.overrulingCommonSetting.get().optionStatus), false);
+							mc.gui.setOverlayMessage(Component.translatable("jojo_ripples.toggle_overruled", 
+									toggle.overrulingCommonSetting.get().optionStatus), false);
 						}
 					}
 				}
