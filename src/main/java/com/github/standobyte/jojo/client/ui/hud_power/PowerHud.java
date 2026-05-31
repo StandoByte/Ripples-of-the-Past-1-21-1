@@ -8,7 +8,7 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ClientTickHandler;
 import com.github.standobyte.jojo.client.input.InputHandler;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
+import com.github.standobyte.jojo.client.input.controlscheme.AbilityControlScheme;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.text.StandNameSetColor;
@@ -397,7 +397,7 @@ public class PowerHud {
 			if (hud.forContainerMenu == TriState.TRUE) return false;
 			ResolveCounter resolve = ResolveCounter.getIfEnabled(Minecraft.getInstance().player);
 			if (resolve != null) {
-				ClientControlScheme controlScheme = InputHandler.getInstance().getActiveControlScheme();
+				AbilityControlScheme controlScheme = InputHandler.getInstance().getActiveControlScheme();
 				return controlScheme != null && controlScheme.hasAbility(ability -> ability.powerClass() == PowerClass.STAND);
 			}
 			
@@ -612,7 +612,7 @@ public class PowerHud {
 			if (hud.forContainerMenu.isTrue() || !JojoMod.config.getCommon().standStamina.getAsBoolean()) return false;
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 			if (standPower != null && !standPower.isUserCreative() && standPower.usesStamina()) {
-				ClientControlScheme controlScheme = InputHandler.getInstance().getActiveControlScheme();
+				AbilityControlScheme controlScheme = InputHandler.getInstance().getActiveControlScheme();
 				return controlScheme != null && controlScheme.hasAbility(ability -> ability.powerClass() == PowerClass.STAND);
 			}
 			

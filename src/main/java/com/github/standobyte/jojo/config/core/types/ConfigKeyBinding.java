@@ -4,14 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import com.github.standobyte.jojo.client.input.SerializeKeybind;
+import com.github.standobyte.jojo.client.input.SerializeKeybind.KeyWithModifier;
 import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.InputConstants.Key;
-import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.DynamicOps;
 
 import net.minecraft.client.KeyMapping;
 import net.neoforged.bus.api.EventPriority;
@@ -21,51 +18,13 @@ import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.settings.KeyModifier;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID)
-public class ConfigKeyBinding extends ConfigOption<ConfigKeyBinding.KeyWithModifier> {
-	public static record KeyWithModifier(Key key, KeyModifier modifier) {
-		
-		public KeyWithModifier(Key key) {
-			this(key, KeyModifier.NONE);
-		}
-		
-		public static final Codec<KeyWithModifier> JSON_CODEC = new Codec<>() {
-
-			@Override
-			public <T> DataResult<T> encode(KeyWithModifier input, DynamicOps<T> ops, T prefix) {
-				String key = input.key.getName() + (input.modifier != KeyModifier.NONE ? ":" + input.modifier : "");
-				return Codec.STRING.encode(key, ops, prefix);
-			}
-
-			@Override
-			public <T> DataResult<Pair<KeyWithModifier, T>> decode(DynamicOps<T> ops, T input) {
-				return Codec.STRING.decode(ops, input).map(result -> result.mapFirst(str -> {
-					try {
-						if (str.indexOf(':') != -1) {
-							String[] pts = str.split(":");
-							Key key = InputConstants.getKey(pts[0]);
-							KeyModifier modifier = KeyModifier.valueFromString(pts[1]);
-							return new KeyWithModifier(key, modifier);
-						}
-						else {
-							Key key = InputConstants.getKey(str);
-							return new KeyWithModifier(key);
-						}
-					}
-					catch (IllegalArgumentException keyNotFound) {
-						return new KeyWithModifier(InputConstants.UNKNOWN);
-					}
-				}));
-			}
-			
-		};
-	}
-	
+public class ConfigKeyBinding extends ConfigOption<KeyWithModifier> {
 	private Supplier<KeyMapping> keybindSupplier;
 	private KeyWithModifier loadedValue;
 	public KeyMapping keybind;
 	
 	public ConfigKeyBinding(Supplier<KeyMapping> vanillaKeyMapping) {
-		super(KeyWithModifier.JSON_CODEC, null);
+		super(SerializeKeybind.CODEC, null);
 		this.keybindSupplier = vanillaKeyMapping;
 		__initWhenKeybindIsCreated.add(this);
 	}
@@ -77,7 +36,7 @@ public class ConfigKeyBinding extends ConfigOption<ConfigKeyBinding.KeyWithModif
 
 	@Override
 	public void set(KeyWithModifier value) {
-		set(value.key, value.modifier);
+		set(value.key(), value.modifier());
 	}
 	
 	public void set(Key key, KeyModifier modifier) {
@@ -119,7 +78,7 @@ public class ConfigKeyBinding extends ConfigOption<ConfigKeyBinding.KeyWithModif
 		if (keybind == null && keybindSupplier != null) {
 			keybind = keybindSupplier.get();
 			if (keybind != null && loadedValue != null) {
-				keybind.setKeyModifierAndCode(loadedValue.modifier, loadedValue.key);
+				keybind.setKeyModifierAndCode(loadedValue.modifier(), loadedValue.key());
 			}
 			loadedValue = null;
 			keybindSupplier = null;

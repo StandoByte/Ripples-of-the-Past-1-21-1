@@ -6,7 +6,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.input.InputHandler;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
+import com.github.standobyte.jojo.client.input.controlscheme.AbilityControlScheme;
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHud.AbilityHud;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.PowerHudHintTooltipHolder;
@@ -205,7 +205,7 @@ public abstract class HudElement implements GuiEventListener {
 		if (power != null) {
 			PowerType powerType = power.getPowerType();
 			if (powerType != null && (specificPowerType == null || powerType == specificPowerType)) {
-				ClientControlScheme controlScheme = InputHandler.getInstance().getActiveControlScheme();
+				AbilityControlScheme controlScheme = InputHandler.getInstance().getActiveControlScheme();
 				return controlScheme != null && controlScheme.hasAbility(ability -> ability.powerClass() == powerClass);
 			}
 		}

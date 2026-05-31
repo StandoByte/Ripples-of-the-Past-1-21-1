@@ -20,10 +20,10 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ClientTickHandler;
 import com.github.standobyte.jojo.client.input.clickhold.AmbiguousKeyPress;
+import com.github.standobyte.jojo.client.input.controlscheme.AbilityControlScheme;
+import com.github.standobyte.jojo.client.input.controlscheme.AbilityHotbar;
+import com.github.standobyte.jojo.client.input.controlscheme.AbilityHotbarSlot;
 import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.Hotbar;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.HotbarSlot;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientKey;
 import com.github.standobyte.jojo.client.ui.AbilitySelectionWheel;
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHud;
@@ -202,7 +202,7 @@ public class InputHandler {
 	
 	public PowerClass<?> curPowerClassToggle = null;
 	
-	public ClientControlScheme getActiveControlScheme() {
+	public AbilityControlScheme getActiveControlScheme() {
 		Power<?> curPower = null;
 		
 		if (mc.player != null) {
@@ -240,7 +240,7 @@ public class InputHandler {
 		
 		switch (inputType) {
 			case InputConstants.PRESS -> {
-				ClientControlScheme controlScheme = getActiveControlScheme();
+				AbilityControlScheme controlScheme = getActiveControlScheme();
 				if (controlScheme == null) return false;
 				
 				boolean secondKeyInDualPress = checkDualPress(key);
@@ -497,15 +497,15 @@ public class InputHandler {
 
 	static Predicate<AbilityInputState> filter = (AbilityInputState inputState)
 			-> AbilityInputState.isInputActive(inputState, PowerHud.isInContainerScreen());
-	private CurInput getInputAbilitiesOnClick(ClientControlScheme controlScheme, ClientKey key, KeyModifier keyModifier) {
+	private CurInput getInputAbilitiesOnClick(AbilityControlScheme controlScheme, ClientKey key, KeyModifier keyModifier) {
 		CurInput input = CurInput.instance;
 		input.reset();
 		
 		if (controlScheme != null) {
-			ClientControlScheme.setPrioritizedAbility(input.heldAbility, keyModifier, 
+			AbilityControlScheme.setPrioritizedAbility(input.heldAbility, keyModifier, 
 					(KeyModifier mod) -> controlScheme.getBindsWithModifier(InputMethod.HOLD, key, mod), 
 					filter);
-			ClientControlScheme.setPrioritizedAbility(input.clickAbility, keyModifier, 
+			AbilityControlScheme.setPrioritizedAbility(input.clickAbility, keyModifier, 
 					(KeyModifier mod) -> controlScheme.getBindsWithModifier(InputMethod.CLICK, key, mod), 
 					filter);
 		}
@@ -514,7 +514,7 @@ public class InputHandler {
 	}
 	
 	@Nullable
-	protected ClientControlScheme getCurControlScheme(Power<?> power) {
+	protected AbilityControlScheme getCurControlScheme(Power<?> power) {
 		if (power != null && power.hasPower()) {
 			return AllControlSchemes.getForPowerType(power.getPowerType());
 		}
@@ -551,16 +551,16 @@ public class InputHandler {
 	
 	// Hotbar stuff
 	
-	public Map<Hotbar, ClientKey> hotbarsSelection = new IdentityHashMap<>();
+	public Map<AbilityHotbar, ClientKey> hotbarsSelection = new IdentityHashMap<>();
 	protected float hotbarsSelectionTimestamp;
 	
 	public void checkStartHotbarSelection(ClientKey pressedKey) {
-		ClientControlScheme controlScheme = getActiveControlScheme();
+		AbilityControlScheme controlScheme = getActiveControlScheme();
 		if (controlScheme != null) {
-			Hotbar wheelHotbar = null;
-			ClientControlScheme.MoveGroup curControls = controlScheme.getCurGroup();
+			AbilityHotbar wheelHotbar = null;
+			AbilityControlScheme.MoveGroup curControls = controlScheme.getCurGroup();
 			KeyModifier curModifier = getCurModifier();
-			for (Hotbar abilityHotbar : curControls.hotbars) {
+			for (AbilityHotbar abilityHotbar : curControls.hotbars) {
 				if (abilityHotbar.switchAbilityKey != null && abilityHotbar.switchAbilityKey.keyMatches(pressedKey, curModifier)
 						&& !abilityHotbar.isEmpty(curModifier)) {
 					if (wheelHotbar == null) wheelHotbar = abilityHotbar;
@@ -588,10 +588,10 @@ public class InputHandler {
 	
 	public boolean hotbarScroll(double scrollDelta) {
 		boolean scrolledAHotbar = false;
-		ClientControlScheme controlScheme = getActiveControlScheme();
+		AbilityControlScheme controlScheme = getActiveControlScheme();
 		if (controlScheme != null) {
-			ClientControlScheme.MoveGroup curControls = controlScheme.getCurGroup();
-			for (Hotbar hotbar : curControls.hotbars) {
+			AbilityControlScheme.MoveGroup curControls = controlScheme.getCurGroup();
+			for (AbilityHotbar hotbar : curControls.hotbars) {
 				if (isSelectingAbility(hotbar)) {
 					hotbarScroll(hotbar, scrollDelta);
 					scrolledAHotbar |= true;
@@ -613,10 +613,10 @@ public class InputHandler {
 		if (newIndex < 0) return false;
 
 		boolean pickedAHotbarSlot = false;
-		ClientControlScheme controlScheme = getActiveControlScheme();
+		AbilityControlScheme controlScheme = getActiveControlScheme();
 		if (controlScheme != null) {
-			ClientControlScheme.MoveGroup curControls = controlScheme.getCurGroup();
-			for (Hotbar hotbar : curControls.hotbars) {
+			AbilityControlScheme.MoveGroup curControls = controlScheme.getCurGroup();
+			for (AbilityHotbar hotbar : curControls.hotbars) {
 				if (isSelectingAbility(hotbar) && newIndex < hotbar.slots.size()) {
 					hotbarPickSlot(hotbar, newIndex);
 					pickedAHotbarSlot |= true;
@@ -626,7 +626,7 @@ public class InputHandler {
 		return pickedAHotbarSlot;
 	}
 	
-	public void hotbarScroll(Hotbar hotbar, double scrollDelta) {
+	public void hotbarScroll(AbilityHotbar hotbar, double scrollDelta) {
 		int newIndex = hotbar.slotIndex;
 		do {
 			int n = hotbar.slots.size();
@@ -634,7 +634,7 @@ public class InputHandler {
 			if (newIndex < 0) newIndex += (-newIndex / n + 1) * n;
 			newIndex %= n;
 			
-			HotbarSlot slot = hotbar.slots.get(newIndex);
+			AbilityHotbarSlot slot = hotbar.slots.get(newIndex);
 			if (slot.showAbility(getCurModifier()) != null) {
 				break;
 			}
@@ -650,8 +650,8 @@ public class InputHandler {
 		}
 	}
 	
-	public void hotbarPickSlot(Hotbar hotbar, int newIndex) {
-		HotbarSlot slot = hotbar.slots.get(newIndex);
+	public void hotbarPickSlot(AbilityHotbar hotbar, int newIndex) {
+		AbilityHotbarSlot slot = hotbar.slots.get(newIndex);
 		if (slot.showAbility(getCurModifier()) != null) {
 			hotbar.slotIndex = newIndex;
 			@Nullable AbilitySelectionWheel curWheel = mc.screen instanceof AbilitySelectionWheel w ? w : null;
@@ -661,12 +661,12 @@ public class InputHandler {
 		}
 	}
 	
-	public boolean isSelectingAbility(Hotbar hotbar) {
+	public boolean isSelectingAbility(AbilityHotbar hotbar) {
 		return !inputsDisabled && hotbar.alwaysSwitchAbility()
 				|| hotbarsSelection.containsKey(hotbar);
 	}
 	
-	public void setSelectingAbility(Hotbar hotbar, ClientKey key, boolean selecting) {
+	public void setSelectingAbility(AbilityHotbar hotbar, ClientKey key, boolean selecting) {
 		if (selecting) {
 			if (hotbarsSelection.isEmpty()) {
 				hotbarsSelectionTimestamp = ClientTickHandler.tickCount + ClientUtil.partialTick();
@@ -684,11 +684,11 @@ public class InputHandler {
 	}
 	
 	protected void tickHotbarsSelection() {
-		ClientControlScheme controlScheme = getActiveControlScheme();
+		AbilityControlScheme controlScheme = getActiveControlScheme();
 		if (controlScheme != null) {
-			ClientControlScheme.MoveGroup curControls = controlScheme.getCurGroup();
-			for (Hotbar hotbar : curControls.hotbars) {
-				HotbarSlot curSelected = hotbar.getSelected();
+			AbilityControlScheme.MoveGroup curControls = controlScheme.getCurGroup();
+			for (AbilityHotbar hotbar : curControls.hotbars) {
+				AbilityHotbarSlot curSelected = hotbar.getSelected();
 				if (curSelected.showAbility(getCurModifier()) == null) {
 					hotbarScroll(hotbar, 1);
 				}
@@ -697,7 +697,7 @@ public class InputHandler {
 	}
 	
 	
-	public void onUpdatedControls(ClientControlScheme.MoveGroup newControls) {
+	public void onUpdatedControls(AbilityControlScheme.MoveGroup newControls) {
 		hotbarsSelection.clear();
 	}
 	

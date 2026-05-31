@@ -18,9 +18,9 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class AllControlSchemes {
-	public static Map<ResourceLocation, ClientControlScheme> controls = new HashMap<>();
+	public static Map<ResourceLocation, AbilityControlScheme> controls = new HashMap<>();
 	
-	public static ClientControlScheme getForPowerType(PowerType powerType) {
+	public static AbilityControlScheme getForPowerType(PowerType powerType) {
 		return controls.get(powerType.getId());
 	}
 
@@ -40,7 +40,7 @@ public class AllControlSchemes {
 		ResourceLocation id = powerType.getId();
 		MovesetBuilder moveset = powerType.getDefaultMoveset();
 		ControlSchemeTemplate defaultCtrlScheme = moveset.controlSchemes.values().iterator().next(); // the first control scheme that was created
-		controls.put(id, ClientControlScheme.create(defaultCtrlScheme, powerType));
+		controls.put(id, AbilityControlScheme.create(defaultCtrlScheme, powerType));
 	}
 	
 }
