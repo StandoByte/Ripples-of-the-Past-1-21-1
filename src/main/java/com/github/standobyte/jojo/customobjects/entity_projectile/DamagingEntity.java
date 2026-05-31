@@ -257,7 +257,7 @@ public abstract class DamagingEntity extends Projectile implements IEntityWithCo
 		if (!level.isClientSide() && isAlive()) {
 			BlockPos blockPos = blockRayTraceResult.getBlockPos();
 			LivingEntity owner = getOwner();
-			boolean brokenBlock = owner != null && !JojoModUtil.canEntityDestroy((ServerLevel) level, blockPos, level.getBlockState(blockPos), owner) ? 
+			boolean brokenBlock = owner != null && !JojoModUtil.canEntityDestroy(level, blockPos, level.getBlockState(blockPos), owner) ? 
 					false
 					: destroyBlock(blockRayTraceResult);
 			afterBlockHit(blockRayTraceResult, brokenBlock);

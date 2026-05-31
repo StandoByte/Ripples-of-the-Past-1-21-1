@@ -46,7 +46,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 public class JojoModUtil {
 
-	public static boolean canEntityDestroy(ServerLevel level, BlockPos blockPos, BlockState blockState, LivingEntity entity) {
+	public static boolean canEntityDestroy(Level level, BlockPos blockPos, BlockState blockState, LivingEntity entity) {
 		LivingEntity standUser = StandUtil.getStandUser(entity);
 		if (RotpConfig.canStandBreakBlocks(standUser)
 				&& blockState.canEntityDestroy(level, blockPos, entity)
