@@ -1,8 +1,11 @@
 package com.github.standobyte.jojo.config.core.types;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 import com.github.standobyte.jojo.config.core.ConfigOption;
+import com.github.standobyte.jojo.core.JojoMod;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.InputConstants.Key;
 import com.mojang.datafixers.util.Pair;
@@ -11,8 +14,13 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 
 import net.minecraft.client.KeyMapping;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.settings.KeyModifier;
 
+@EventBusSubscriber(modid = JojoMod.MOD_ID)
 public class ConfigKeyBinding extends ConfigOption<ConfigKeyBinding.KeyWithModifier> {
 	public static record KeyWithModifier(Key key, KeyModifier modifier) {
 		
@@ -52,13 +60,14 @@ public class ConfigKeyBinding extends ConfigOption<ConfigKeyBinding.KeyWithModif
 		};
 	}
 	
-	private final Supplier<KeyMapping> keybindSupplier;
+	private Supplier<KeyMapping> keybindSupplier;
 	private KeyWithModifier loadedValue;
 	public KeyMapping keybind;
 	
 	public ConfigKeyBinding(Supplier<KeyMapping> vanillaKeyMapping) {
 		super(KeyWithModifier.JSON_CODEC, null);
 		this.keybindSupplier = vanillaKeyMapping;
+		__initWhenKeybindIsCreated.add(this);
 	}
 
 	@Override
@@ -95,13 +104,25 @@ public class ConfigKeyBinding extends ConfigOption<ConfigKeyBinding.KeyWithModif
 		}
 	}
 	
+	
+	static List<ConfigKeyBinding> __initWhenKeybindIsCreated = new ArrayList<>();
+	
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public static void afterKeybindsAreCreated(RegisterKeyMappingsEvent event) {
+		for (ConfigKeyBinding config : __initWhenKeybindIsCreated) {
+			config.resolveKeybind();
+		}
+		__initWhenKeybindIsCreated = null;
+	}
+	
 	public void resolveKeybind() {
-		if (keybind == null) {
+		if (keybind == null && keybindSupplier != null) {
 			keybind = keybindSupplier.get();
 			if (keybind != null && loadedValue != null) {
 				keybind.setKeyModifierAndCode(loadedValue.modifier, loadedValue.key);
-				loadedValue = null;
 			}
+			loadedValue = null;
+			keybindSupplier = null;
 		}
 	}
 
