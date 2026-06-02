@@ -51,7 +51,6 @@ public class PartitionedSoundBuffers {
 		return bytes;
 	}
 
-	// FIXME !!!!! (bgm) [Render thread/ERROR] [mojang/OpenAlUtil]: Deleting stream buffers: Invalid operation.
 	public void clear() {
 		this.cache.values().forEach(track -> track.thenAccept(map -> map.values().forEach(SoundBuffer::discardAlBuffer)));
 		this.cache.clear();

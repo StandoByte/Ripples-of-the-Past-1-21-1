@@ -13,7 +13,6 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 
-import com.github.standobyte.jojo.client.ModClientResources;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo.BgmLoopPartitioning;
 import com.github.standobyte.jojo.client.sound.bgmloop.DebugBgm.BgmTrackType;
 import com.github.standobyte.jojo.util.functions.JSONUtil;
@@ -52,7 +51,6 @@ public class BgmTrackLoader extends SimplePreparableReloadListener<BgmTrackLoade
 			instance = new BgmTrackLoader();
 			event.registerReloadListener(instance);
 			NeoForge.EVENT_BUS.register(instance);
-			ModClientResources.closeables.add(instance);
 		}
 	}
 	
@@ -194,11 +192,12 @@ public class BgmTrackLoader extends SimplePreparableReloadListener<BgmTrackLoade
 	}
 
 	public void clear() {
-		partitionedSoundBuffers.clear();
 		if (bgmPlaying != null) {
 			bgmPlaying.isPlaying = false;
 			bgmPlaying = null;
 		}
+		
+		partitionedSoundBuffers.clear();
 	}
 
 	@Override

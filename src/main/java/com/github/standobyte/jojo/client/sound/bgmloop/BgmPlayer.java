@@ -285,7 +285,8 @@ public class BgmPlayer {
 		this.channelHandle = channelHandle;
 	}
 
-	// FIXME !!!!! (bgm) weird error (one of the two seemingly at random)
+	// FIXME !!!!! (bgm) unqueue the buffers properly
+	// one of the two errors pops up when this is called:
 	/*
 	 * [Sound engine/ERROR] [mojang/OpenAlUtil]: Allocate new source: Invalid name parameter.
 	 * [minecraft/SoundEngine]: Failed to create new sound handle
