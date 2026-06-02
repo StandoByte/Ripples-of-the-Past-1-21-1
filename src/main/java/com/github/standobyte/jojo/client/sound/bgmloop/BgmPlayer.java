@@ -149,8 +149,14 @@ public class BgmPlayer {
 		AbstractSoundInstance soundInstance = new EventlessSound(sound, category, null, 
 				volume, pitch, false, 0, 
 				SoundInstance.Attenuation.NONE, 0, 0, 0, false) {
-			@Override public boolean canStartSilent() { return true; }
+			// @Override public boolean canStartSilent() { return true; }
 		};
+		
+		float channelVolume = calculateVolume(soundInstance);
+		if (channelVolume == 0) {
+			LOGGER.warn("Didn't play BGM {}; {} volume was 0", sound.getLocation(), category);
+			return;
+		}
 		
 		soundEngine.soundDeleteTime.put(soundInstance, soundEngine.tickCount + 20);
 		soundEngine.instanceToChannel.put(soundInstance, channelHandle);
@@ -158,7 +164,7 @@ public class BgmPlayer {
 		
 		channelHandle.execute(channel -> {
 			channel.setPitch(calculatePitch(soundInstance));
-			channel.setVolume(calculateVolume(soundInstance));
+			channel.setVolume(channelVolume);
 			channel.disableAttenuation();
 
 			channel.setSelfPosition(Vec3.ZERO);
@@ -226,8 +232,7 @@ public class BgmPlayer {
 						OptionalInt soundBuffer = audioStream.getAlBuffer();
 						int soundSourceId = channel.source;
 						
-						AL10.alSourcei(soundSourceId, AL10.AL_BUFFER, 0);
-						AL10.alSourceQueueBuffers(soundSourceId, soundBuffer.getAsInt());
+						AL10.alSourcei(soundSourceId, AL10.AL_BUFFER, soundBuffer.getAsInt());
 						AL10.alSourcePlay(soundSourceId);
 
 						this.soundBufferToLoop = OptionalInt.empty();

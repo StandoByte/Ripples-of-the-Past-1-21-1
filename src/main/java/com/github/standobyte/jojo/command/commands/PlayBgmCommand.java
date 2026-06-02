@@ -177,11 +177,11 @@ public class PlayBgmCommand {
 
 		if (source != null) {
 			if (targets.size() == 1) {
-				source.sendSuccess(() -> Component.translatable("commands.jojo_ripples.bgm.finish.success.single", 
+				source.sendSuccess(() -> Component.translatable("commands.jojo_ripples.bgm.stop.success.single", 
 						targets.iterator().next().getDisplayName()),
 						false);
 			} else {
-				source.sendSuccess(() -> Component.translatable("commands.jojo_ripples.bgm.finish.success.multiple", 
+				source.sendSuccess(() -> Component.translatable("commands.jojo_ripples.bgm.stop.success.multiple", 
 						targets.size()), 
 						false);
 			}
