@@ -43,6 +43,8 @@ import net.neoforged.neoforge.common.NeoForge;
 public class BgmPlayer {
 	public static final Logger LOGGER = LogUtils.getLogger();
 	
+	public final BgmType bgmType;
+	
 	public boolean isPlaying = false;
 	public Consumer<BgmPlayer> onTick;
 	public SoundSource category = SoundSource.RECORDS;
@@ -72,7 +74,7 @@ public class BgmPlayer {
 			LOGGER.error("BGM track {} not found", trackId);
 			return null;
 		}
-		return new BgmPlayer(track);
+		return new BgmPlayer(track, BgmType.STAND_RESOLVE);
 	}
 	
 	@Nullable
@@ -81,20 +83,25 @@ public class BgmPlayer {
 
 		Weighted<BgmTrackInfo> resolveBGM = standSkin.getResolveBGM();
 		if (resolveBGM == null) {
-			LOGGER.error("Resolve BGM for Stand skin {} not found", standSkin.skinId);
 			return null;
 		}
-		return new BgmPlayer(resolveBGM);
+		return new BgmPlayer(resolveBGM, BgmType.STAND_RESOLVE);
 	}
 	
-	public BgmPlayer(Weighted<BgmTrackInfo> track) {
+	public BgmPlayer(Weighted<BgmTrackInfo> track, BgmType bgmType) {
 		this.track = track;
+		this.bgmType = bgmType;
 	}
 	
 	public void settings(SoundSource category, float volume, float pitch) {
 		this.category = category;
 		this.volume = volume;
 		this.pitch = pitch;
+	}
+	
+	public enum BgmType {
+		TRACK,
+		STAND_RESOLVE
 	}
 
 	

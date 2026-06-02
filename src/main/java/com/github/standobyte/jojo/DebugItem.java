@@ -1,7 +1,6 @@
 package com.github.standobyte.jojo;
 
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -102,7 +101,7 @@ public class DebugItem extends Item {
 						if (standSkin != null) {
 							Weighted<BgmTrackInfo> track = DebugBgm.cycleVariation(DebugBgm.BgmTrackType.STAND_SKINS, standSkin.skinId);
 							if (track != null) {
-								BgmPlayer player = new BgmPlayer(track);
+								BgmPlayer player = new BgmPlayer(track, BgmPlayer.BgmType.STAND_RESOLVE);
 								player.start();
 							}
 						}
