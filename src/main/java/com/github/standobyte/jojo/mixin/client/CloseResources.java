@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.client.ModClientResources;
-import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackLoader;
+import com.github.standobyte.jojo.client.sound.bgmloop.BgmEngine;
 import com.github.standobyte.jojo.core.JojoMod;
 
 import net.minecraft.client.Minecraft;
@@ -17,7 +17,7 @@ public class CloseResources {
 	@Inject(method = "close", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/sounds/SoundManager;destroy()V"), require = 1)
 	public void jojo_ripples$onCloseSoundEngine(CallbackInfo ci) {
 		try {
-			BgmTrackLoader bgmHandler = BgmTrackLoader.getInstance();
+			BgmEngine bgmHandler = BgmEngine.getInstance();
 			if (bgmHandler != null) {
 				bgmHandler.close();
 			}

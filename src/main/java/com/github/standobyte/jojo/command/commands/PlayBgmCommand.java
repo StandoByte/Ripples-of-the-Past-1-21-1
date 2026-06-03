@@ -3,7 +3,8 @@ package com.github.standobyte.jojo.command.commands;
 import java.util.Collection;
 
 import com.github.standobyte.jojo.PacketsRegister;
-import com.github.standobyte.jojo.client.sound.bgmloop.BgmPlayer;
+import com.github.standobyte.jojo.client.sound.bgmloop.BgmEngine;
+import com.github.standobyte.jojo.client.sound.bgmloop.BgmInstance;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.google.common.collect.ImmutableList;
 import com.mojang.brigadier.CommandDispatcher;
@@ -243,20 +244,17 @@ public class PlayBgmCommand {
 					case PRELOAD -> {
 					}
 					case PLAY -> {
-		        		BgmPlayer track = BgmPlayer.track(payload.trackId);
+		        		BgmInstance track = BgmInstance.track(payload.trackId);
 		        		track.start();
 					}
 					case FINISH -> {
-						BgmPlayer curBgm = BgmPlayer.getCurTrackPlaying();
+						BgmInstance curBgm = BgmEngine.getCurTrackPlaying();
 						if (curBgm != null) {
 							curBgm.finishWithOutro();
 						}
 					}
 					case ABRUPT_STOP -> {
-						BgmPlayer curBgm = BgmPlayer.getCurTrackPlaying();
-						if (curBgm != null) {
-							curBgm.stopSound();
-						}
+						BgmEngine.getInstance().stopBgm();
 					}
 				}
 			}
