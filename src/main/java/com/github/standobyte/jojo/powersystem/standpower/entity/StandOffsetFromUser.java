@@ -88,6 +88,14 @@ public class StandOffsetFromUser {
 		if (userEntity.isBaby()) {
 			offset = offset.scale(userEntity.getAgeScale());
 		}
+		
+		double maxRange = standEntity.getMaxRangeForMovement(userEntity);
+		double offsetDist = offset.lengthSqr();
+		if (offsetDist > maxRange * maxRange) {
+			offsetDist = Math.sqrt(offsetDist);
+			offset = offset.scale(maxRange / offsetDist);
+		}
+		
 		return AlignBy.EYE_POS.align(userEntity, standEntity, offset);
 	}
 	
