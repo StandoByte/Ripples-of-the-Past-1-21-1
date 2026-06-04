@@ -60,16 +60,31 @@ public class RotpConfig {
 		//public final ConfigBool firstPersonHamonAura = new ConfigBool(true);
 		//public final ConfigBool hamonAuraBlur = new ConfigBool(false);
 
-		public final ConfigBool toggleVisible_standsBreakBlocks = new ConfigBool(false);
-		public final ConfigKeyBinding toggleKeybind_standsBreakBlocks = new ConfigKeyBinding(() -> {
+
+		public final ConfigBool toggleVisible_standBreaksBlocks = new ConfigBool(false);
+		public final ConfigKeyBinding toggleKeybind_standBreaksBlocks = new ConfigKeyBinding(() -> {
 			var inputHandler = InputHandler.getInstance();
 			return inputHandler != null ? inputHandler.vanillaKeybinds.standToggle_breakBlocks : null;
+		});
+
+		public final ConfigBool toggleVisible_standPicksUpItems = new ConfigBool(false);
+		public final ConfigKeyBinding toggleKeybind_standPicksUpItems = new ConfigKeyBinding(() -> {
+			var inputHandler = InputHandler.getInstance();
+			return inputHandler != null ? inputHandler.vanillaKeybinds.standToggle_pickUpItems : null;
+		});
+
+		public final ConfigBool toggleVisible_standMovesBeyondEffRange = new ConfigBool(false);
+		public final ConfigKeyBinding toggleKeybind_standMovesBeyondEffRange = new ConfigKeyBinding(() -> {
+			var inputHandler = InputHandler.getInstance();
+			return inputHandler != null ? inputHandler.vanillaKeybinds.standToggle_moveBeyondEffRange : null;
 		});
 	}
 
 	public final static class ClientBroadcast {
 		//public final ConfigEnum<HumanoidArm> standSide = HumanoidArm.LEFT;
-		public final ConfigBool standsBreakBlocks = new ConfigBool(true);
+		public final ConfigBool standBreaksBlocks = new ConfigBool(true);
+		public final ConfigBool standPicksUpItems = new ConfigBool(true);
+		public final ConfigBool standMovesBeyondEffRange = new ConfigBool(true);
 		public final ConfigBool vampireGlowingEyes_tmp = new ConfigBool(false);
 	}
 	
@@ -135,7 +150,7 @@ public class RotpConfig {
 			case PLAYER_PREFERENCE -> {
 				if (playerUser instanceof Player player) {
 					ClientBroadcast broadcast = config.getPlayerBroadcast(player);
-					yield broadcast.standsBreakBlocks.getAsBoolean();
+					yield broadcast.standBreaksBlocks.getAsBoolean();
 				}
 				yield true;
 			}

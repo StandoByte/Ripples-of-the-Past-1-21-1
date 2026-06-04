@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BooleanSupplier;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.lwjgl.glfw.GLFW;
@@ -14,13 +13,15 @@ import com.github.standobyte.jojo.client.ui.screen_jojomenu.IJojoMenuScreen;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.JojoMenuTabs;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.Tab;
 import com.github.standobyte.jojo.config.core.types.ConfigBool;
+import com.github.standobyte.jojo.config.stand_toggles.ClientStandToggle;
+import com.github.standobyte.jojo.config.stand_toggles.ClientStandToggles;
+import com.github.standobyte.jojo.config.stand_toggles.StandToggleKeyMapping;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.network.c2s.ClNoParamsPacket;
 import com.github.standobyte.jojo.network.c2s.ClNoParamsPacket.PacketType;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
-import com.github.standobyte.jojo.powersystem.standpower.client_screens.StandTogglesScreen;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.mojang.blaze3d.platform.InputConstants;
 
@@ -43,32 +44,16 @@ public class VanillaKeybinds {
 	public KeyMapping disableHUDControls;
 	public KeyMapping jojoStuffMenu;
 
-	public KeyMapping standToggle_breakBlocks;
-	
-	public static class KeyInGameCtx implements IKeyConflictContext {
-		public BooleanSupplier extraCondition;
-
-		public KeyInGameCtx(BooleanSupplier extraCondition) {
-			this.extraCondition = extraCondition;
-		}
-		
-		@Override
-		public boolean isActive() {
-			return KeyConflictContext.IN_GAME.isActive() && extraCondition.getAsBoolean();
-		}
-
-		@Override
-		public boolean conflicts(IKeyConflictContext other) {
-			return KeyConflictContext.IN_GAME.conflicts(other);
-		}
-	}
+	public StandToggleKeyMapping standToggle_breakBlocks;
+	public StandToggleKeyMapping standToggle_pickUpItems;
+	public StandToggleKeyMapping standToggle_moveBeyondEffRange;
 	
 	public static VanillaKeybinds register(RegisterKeyMappingsEvent event) {
 		VanillaKeybinds binds = new VanillaKeybinds();
 		
 		event.register(binds.summonStand = new Jokerge(
 				JojoMod.MOD_ID + ".key.toggle_stand", 
-				new KeyInGameCtx(() -> {
+				new KeyCtxAndThen(() -> {
 					StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 					return standPower != null && standPower.hasPower();
 				}), 
@@ -77,7 +62,7 @@ public class VanillaKeybinds {
 		
 		event.register(binds.standArmsOnlyHUD = new Jokerge(
 				JojoMod.MOD_ID + ".key.stand_mode", 
-				new KeyInGameCtx(() -> {
+				new KeyCtxAndThen(() -> {
 					StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 					return standPower != null && standPower.hasPower() && !standPower.isSummoned();
 				}), 
@@ -86,7 +71,7 @@ public class VanillaKeybinds {
 		
 		event.register(binds.playerPowerHUD = new Jokerge(
 				JojoMod.MOD_ID + ".key.non_stand_mode", 
-				new KeyInGameCtx(() -> {
+				new KeyCtxAndThen(() -> {
 					PlayerPower playerPower = ClientPowerCache.getPower(PowerClass.PLAYER_POWER);
 					return playerPower != null && playerPower.hasPower();
 				}), 
@@ -117,15 +102,21 @@ public class VanillaKeybinds {
 				InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_BACKSLASH, MAIN_CATEGORY)
 				.inInitOrder().withDescTooltip());
 		
-		// not registering it in the event to not add it to the settings menu
-		binds.standToggle_breakBlocks = new Jokerge(
-				JojoMod.MOD_ID + ".key.stand_toggle_break_blocks", 
-				new KeyInGameCtx(() -> {
-					StandTogglesScreen.lazyInitToggles();
-					return StandTogglesScreen.breakBlocks.activeWhen.getAsBoolean();
-				}), 
-				InputConstants.UNKNOWN, MAIN_CATEGORY)
-				.inInitOrder().withDescTooltip();
+		// not registering these in the event to not add them to the settings menu
+		binds.standToggle_breakBlocks = new StandToggleKeyMapping(
+				JojoMod.MOD_ID + ".stand_toggles.destroy_blocks", 
+				() -> ClientStandToggles.breakBlocks, 
+				InputConstants.UNKNOWN, MAIN_CATEGORY);
+		
+		binds.standToggle_pickUpItems = new StandToggleKeyMapping(
+				JojoMod.MOD_ID + ".stand_toggles.stand_pick_up_items", 
+				() -> ClientStandToggles.pickUpItems,
+				InputConstants.UNKNOWN, MAIN_CATEGORY);
+		
+		binds.standToggle_moveBeyondEffRange = new StandToggleKeyMapping(
+				JojoMod.MOD_ID + ".stand_toggles.stand_move_beyond_eff_range", 
+				() -> ClientStandToggles.moveBeyondEffectiveRange,
+				InputConstants.UNKNOWN, MAIN_CATEGORY);
 		
 		return binds;
 	}
@@ -174,13 +165,13 @@ public class VanillaKeybinds {
 		
 		
 		if (mc.level != null) {
-			StandTogglesScreen.ToggleEntry[] toggles = StandTogglesScreen.lazyInitToggles();
-			for (StandTogglesScreen.ToggleEntry toggle : toggles) {
+			ClientStandToggle[] toggles = ClientStandToggles.lazyInitToggles();
+			for (ClientStandToggle toggle : toggles) {
 				if (toggle.keybind != null) {
 					KeyMapping keybind = toggle.keybind.apply(this);
 					if (keybind != null && keybind.consumeClick()) {
 						if (toggle.clientCanToggle()) {
-							StandTogglesScreen.breakBlocks.toggle();
+							toggle.toggle();
 						}
 						else {
 							mc.gui.setOverlayMessage(Component.translatable("jojo_ripples.toggle_overruled", 

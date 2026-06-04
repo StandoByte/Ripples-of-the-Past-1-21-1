@@ -23,6 +23,8 @@ import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.TextUtil;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
+import com.github.standobyte.jojo.config.stand_toggles.ClientStandToggles;
+import com.github.standobyte.jojo.config.stand_toggles.ClientStandToggle;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveModeEffect;
@@ -31,7 +33,6 @@ import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
-import com.github.standobyte.jojo.powersystem.standpower.client_screens.StandTogglesScreen;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
@@ -772,13 +773,13 @@ public class PowerHud {
 			super(name, x0, y0, width, height);
 		}
 
-		public List<StandTogglesScreen.ToggleEntry> togglesToRender = new ArrayList<>();
+		public List<ClientStandToggle> togglesToRender = new ArrayList<>();
 		@Override
 		public boolean shouldRender() {
 			if (hud.forContainerMenu.isTrue()) return false;
 			
 			togglesToRender.clear();
-			StandTogglesScreen.ToggleEntry[] toggles = StandTogglesScreen.lazyInitToggles();
+			ClientStandToggle[] toggles = ClientStandToggles.lazyInitToggles();
 			for (var toggle : toggles) {
 				if (toggle.hudVisibilitySetting.get() && toggle.activeWhen.getAsBoolean()) {
 					togglesToRender.add(toggle);
@@ -804,19 +805,29 @@ public class PowerHud {
 			int y = getY();
 			
 			PoseStack poseStack = guiGraphics.pose();
-			for (StandTogglesScreen.ToggleEntry toggle : togglesToRender) {
+			for (ClientStandToggle toggle : togglesToRender) {
 				if (toggle.hudVisibilitySetting.get() && toggle.activeWhen.getAsBoolean()) {
 					boolean value = toggle.getResultingValue();
-					GuiIcon icon = toggle.hudIcon;
-					int offset = (int) (ICON_SIZE - icon.width) / 2;
-					icon.render(poseStack, x + offset, y + offset);
+					
+					if (value || toggle.offHudIcon == null) {
+						renderIcon(toggle.hudIcon, poseStack, x, y);
+					}
 					if (!value) {
-						offset = (int) (ICON_SIZE - SWITCH_DISABLED.width) / 2;
-						SWITCH_DISABLED.render(poseStack, x + offset, y + offset);
+						if (toggle.offHudIcon != null) {
+							renderIcon(toggle.offHudIcon, poseStack, x, y);
+						}
+						else {
+							renderIcon(SWITCH_DISABLED, poseStack, x, y);
+						}
 					}
 					x += ICON_SIZE;
 				}
 			}
+		}
+		
+		protected void renderIcon(GuiIcon icon, PoseStack poseStack, int x, int y) {
+			int offset = (int) (ICON_SIZE - icon.width) / 2;
+			icon.render(poseStack, x + offset, y + offset);
 		}
 	}
 	

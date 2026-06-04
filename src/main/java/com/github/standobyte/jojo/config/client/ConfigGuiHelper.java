@@ -154,10 +154,14 @@ public class ConfigGuiHelper {
 	}
 	
 	public static Component prependIcon(Component text, ResourceLocation iconPath) {
-		IconGlyphInfo spriteGlyph = new IconGlyphInfo(new GuiIcon(iconPath, 16, 16), 16, 16, 0, -4, 4);
+		return prependIcon(text, new GuiIcon(iconPath, 16, 16));
+	}
+	
+	public static Component prependIcon(Component text, GuiIcon icon) {
+		IconGlyphInfo spriteGlyph = new IconGlyphInfo(icon, 16, 16, 0, -4, 4);
 		//stand aim marker: new GuiIcon(iconPath, 17, 17), 17, 17, 0, -5, 5)
 		
-		char spriteCode = iconSymbols.computeIfAbsent(iconPath, 
+		char spriteCode = iconSymbols.computeIfAbsent(icon.file, 
 				__ -> IconGlyphsCache.makeCharCodeFor(spriteGlyph));
 		return Component.literal(String.valueOf(spriteCode)).append(text);
 	}

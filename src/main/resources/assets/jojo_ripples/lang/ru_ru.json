@@ -284,6 +284,8 @@
   "jojo_ripples.menu.stand.toggles": "Переключатели",
   
   "jojo_ripples.stand_toggles.destroy_blocks": "Добыча блоков",
+  "jojo_ripples.stand_toggles.stand_pick_up_items": "Подбор предметов",
+  "jojo_ripples.stand_toggles.stand_move_beyond_eff_range": "Выход за пределы эффективного радиуса",
   
   "jojo_ripples.menu.stand.skins": "Скины Стенда",
   "moveset_default_group": "Способности",

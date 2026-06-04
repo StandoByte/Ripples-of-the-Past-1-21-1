@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.client.standskin.text.StandNameSetColor;
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHud;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
+import com.github.standobyte.jojo.config.stand_toggles.StandTogglesScreen;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.powersystem.Power;
@@ -21,7 +22,6 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.client_screens.StandInfoScreen;
 import com.github.standobyte.jojo.powersystem.standpower.client_screens.StandSkillsScreen;
-import com.github.standobyte.jojo.powersystem.standpower.client_screens.StandTogglesScreen;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
