@@ -19,6 +19,8 @@ import com.github.standobyte.jojo.config.client.ScrollingStringButton;
 import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.core.ModConfigType;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
@@ -58,7 +60,7 @@ public class ClientStandToggle implements Renderable {
 		this.overrulingCommonSetting = overrulingCommonSetting;
 		this.configToSave = configToSave;
 		this.keybind = keybind;
-		this.text = ConfigGuiHelper.prependIcon(text, icon);
+		this.text = text;
 		
 		this.hudVisibilitySetting = hudVisibilitySetting;
 		this.hudIcon = icon;
@@ -111,11 +113,14 @@ public class ClientStandToggle implements Renderable {
 				.copy().withStyle(ChatFormatting.BLACK)));
 		
 		toggle.render(guiGraphics, mouseX, mouseY, partialTick);
+		
 		int x = toggle.getX();
 		int y = toggle.getY();
+		RenderSystem.enableBlend();
+		renderIcon(guiGraphics.pose(), x + 28, y - 4);
 		ScrollingStringButton._renderScrollingString(guiGraphics, Minecraft.getInstance().font, 
 				text, Alignment.LEFT, 
-				x + 32, y, x + 150, y + 16, 
+				x + 52, y, x + 150, y + 16, 
 				0xFF000000, false, StandTogglesScreen.openedAt);
 		if (keybindButton != null) keybindButton.render(guiGraphics, mouseX, mouseY, partialTick);
 		visibilityToggle.render(guiGraphics, mouseX, mouseY, partialTick);
@@ -123,6 +128,28 @@ public class ClientStandToggle implements Renderable {
 		if (toggle.isHovered() || visibilityToggle.isHovered()) {
 			TooltipParams.set(TooltipParams.paperStyle());
 		}
+	}
+
+	public static final GuiIcon SWITCH_DISABLED = new GuiIcon(JojoMod.resLoc("textures/gui/sprites/hud_switch_disabled.png"), 20, 20);
+	public void renderIcon(PoseStack poseStack, int x, int y) {
+		boolean value = this.getResultingValue();
+		if (value || this.offHudIcon == null) {
+			_renderIcon(this.hudIcon, poseStack, x, y);
+		}
+		if (!value) {
+			if (this.offHudIcon != null) {
+				_renderIcon(this.offHudIcon, poseStack, x, y);
+			}
+			else {
+				_renderIcon(SWITCH_DISABLED, poseStack, x, y);
+			}
+		}
+	}
+	
+	public static final int ICON_SIZE = 24;
+	protected static void _renderIcon(GuiIcon icon, PoseStack poseStack, int x, int y) {
+		int offset = (int) (ICON_SIZE - icon.width) / 2;
+		icon.render(poseStack, x + offset, y + offset);
 	}
 	
 	public void toggle() {

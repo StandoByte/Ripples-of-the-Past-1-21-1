@@ -767,7 +767,6 @@ public class PowerHud {
 	
 	
 	public static class StandToggles extends HudElement {
-		public static final GuiIcon SWITCH_DISABLED = new GuiIcon(JojoMod.resLoc("textures/gui/sprites/hud_switch_disabled.png"), 20, 20);
 
 		public StandToggles(String name, int x0, int y0, int width, int height) {
 			super(name, x0, y0, width, height);
@@ -789,7 +788,7 @@ public class PowerHud {
 			return !togglesToRender.isEmpty();
 		}
 		
-		static final int ICON_SIZE = 24;
+		static final int ICON_SIZE = ClientStandToggle.ICON_SIZE;
 		@Override
 		public void updateRectangle() {
 			int x = getX();
@@ -807,28 +806,12 @@ public class PowerHud {
 			PoseStack poseStack = guiGraphics.pose();
 			for (ClientStandToggle toggle : togglesToRender) {
 				if (toggle.hudVisibilitySetting.get() && toggle.activeWhen.getAsBoolean()) {
-					boolean value = toggle.getResultingValue();
-					
-					if (value || toggle.offHudIcon == null) {
-						renderIcon(toggle.hudIcon, poseStack, x, y);
-					}
-					if (!value) {
-						if (toggle.offHudIcon != null) {
-							renderIcon(toggle.offHudIcon, poseStack, x, y);
-						}
-						else {
-							renderIcon(SWITCH_DISABLED, poseStack, x, y);
-						}
-					}
+					toggle.renderIcon(poseStack, x, y);
 					x += ICON_SIZE;
 				}
 			}
 		}
 		
-		protected void renderIcon(GuiIcon icon, PoseStack poseStack, int x, int y) {
-			int offset = (int) (ICON_SIZE - icon.width) / 2;
-			icon.render(poseStack, x + offset, y + offset);
-		}
 	}
 	
 }
