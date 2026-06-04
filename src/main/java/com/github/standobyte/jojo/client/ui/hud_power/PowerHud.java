@@ -276,7 +276,13 @@ public class PowerHud {
 		public void renderElement(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 			if (powerClass != null) {
 				if (powerClass == PowerClass.STAND) {
-					renderClientStandIcon(guiGraphics.pose(), getX(), getY());
+					float alpha = 1;
+					if (ClientGlobals.playerStandEntity != null) {
+						StandEntity entity = ClientGlobals.playerStandEntity;
+						float partialTick = ClientUtil.partialTick(entity, deltaTracker, entity.level().tickRateManager());
+						alpha = ClientGlobals.playerStandEntity.clientStuff.getAlpha(entity, partialTick);
+					}
+					renderClientStandIcon(guiGraphics.pose(), getX(), getY(), ARGB.white(alpha));
 				}
 				else {
 					Power<?> power = ClientPowerCache.getPower(powerClass);
@@ -313,10 +319,14 @@ public class PowerHud {
 	}
 	
 	public static void renderClientStandIcon(PoseStack pose, int x, int y) {
-		renderStandIcon(ClientPowerCache.getPower(PowerClass.STAND), pose, x, y);
+		renderStandIcon(ClientPowerCache.getPower(PowerClass.STAND), pose, x, y, BlitFloat.NO_TINT);
 	}
 	
-	public static void renderStandIcon(StandPower standPower, PoseStack pose, int x, int y) {
+	public static void renderClientStandIcon(PoseStack pose, int x, int y, int color) {
+		renderStandIcon(ClientPowerCache.getPower(PowerClass.STAND), pose, x, y, color);
+	}
+	
+	public static void renderStandIcon(StandPower standPower, PoseStack pose, int x, int y, int color) {
 		if (standPower != null) {
 			StandSkin skin = StandSkinsLoader.getInstance().getSkin(standPower);
 			if (skin != null) {
@@ -324,7 +334,7 @@ public class PowerHud {
 				if (icon != null) {
 					RenderSystem.enableBlend();
 					RenderSystem.defaultBlendFunc();
-					icon.render(pose, x, y);
+					icon.render(pose, x, y, color);
 					RenderSystem.disableBlend();
 				}
 			}

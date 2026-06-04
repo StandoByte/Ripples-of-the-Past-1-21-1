@@ -43,7 +43,6 @@ import com.github.standobyte.jojo.util.functions.DamageUtil;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.jojo.util.functions.MathUtil.AABBDist;
 import com.github.standobyte.jojo.util.functions.UtilFunctions;
-import com.github.standobyte.jojo.util.objects_java.Lerp;
 import com.github.standobyte.jojo.util.objects_mc.PrevRotations;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityUnsummonAction;
 
@@ -112,7 +111,6 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	public StandOffsetFromUser offsetFromUser;
     public double rangeEfficiency = 1;
     public double staminaCondition = 1;
-    public Lerp.FloatValue modelAlpha = new Lerp.FloatValue(1);
 	
 	public ClientStandEntityStuff clientStuff;
 	public int summonPoseRandomByte;
@@ -163,7 +161,6 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	@Override
 	public void tick() {
 		fallDistance = 0;
-		modelAlpha.set(1, true);
 		rotO.rememberAngles(this);
 		LivingEntity user = getUser();
 		Level level = level();
@@ -172,6 +169,9 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 				this.remove(user != null ? user.getRemovalReason() : RemovalReason.DISCARDED);
 				return;
 			}
+		}
+		else {
+			clientStuff.tick();
 		}
 		
 		updateStandStatAttributes(this, user);
@@ -641,7 +641,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	
 	
 	public void multiplyTranslucency(float multiplier) {
-		modelAlpha.set(modelAlpha.get() * multiplier, false);
+		clientStuff.modelAlpha.set(clientStuff.modelAlpha.get() * multiplier, false);
 	}
 	
 	
