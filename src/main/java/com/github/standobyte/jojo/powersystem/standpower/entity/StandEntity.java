@@ -11,6 +11,8 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientProxy;
+import com.github.standobyte.jojo.config.RotpConfig;
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.customobjects.DamageSourceModified;
 import com.github.standobyte.jojo.customobjects.EntityStandVisibility;
 import com.github.standobyte.jojo.customobjects.EntityWithStandSkin;
@@ -35,7 +37,6 @@ import com.github.standobyte.jojo.subsystems.entity_externalcontainer._stand.Sta
 import com.github.standobyte.jojo.subsystems.entity_grab.LivingComponentGrab;
 import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.client.ClientEntityController;
 import com.github.standobyte.jojo.subsystems.target.ActionTarget;
-import com.github.standobyte.jojo.subsystems.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.functions.AttributeUtil;
 import com.github.standobyte.jojo.util.functions.BitwiseFlagUtil;
 import com.github.standobyte.jojo.util.functions.DamageUtil;
@@ -1255,6 +1256,13 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	protected void pickUpItemEntities() {
 		Level level = this.level();
 		if (!level.isClientSide() && this.isManuallyControlled() && getCurStandAction() == null && this.getHealth() > 0) {
+			boolean pickUpDisabled = false;
+			if (getUser() instanceof Player player) {
+				RotpConfig.ClientBroadcast config = JojoMod.config.getPlayerBroadcast(player);
+				pickUpDisabled = config != null && !config.standPicksUpItems.getAsBoolean();
+			}
+			if (pickUpDisabled) return;
+			
 			AABB aabb;
 			if (this.isPassenger() && !this.getVehicle().isRemoved()) {
 				aabb = this.getBoundingBox().minmax(this.getVehicle().getBoundingBox()).inflate(1.0, 0.0, 1.0);
@@ -1262,7 +1270,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 				aabb = this.getBoundingBox().inflate(1.0, 0.5, 1.0);
 			}
 
-			List<Entity> list = this.level().getEntities(this, aabb);
+			List<Entity> list = level.getEntities(this, aabb);
 
 			for (Entity entity : list) {
 				if (!entity.isRemoved()) {
