@@ -23,8 +23,8 @@ import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.TextUtil;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
-import com.github.standobyte.jojo.config.stand_toggles.ClientStandToggles;
 import com.github.standobyte.jojo.config.stand_toggles.ClientStandToggle;
+import com.github.standobyte.jojo.config.stand_toggles.ClientStandToggles;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveModeEffect;
@@ -45,12 +45,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.LayeredDraw;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.navigation.ScreenPosition;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
@@ -789,11 +791,12 @@ public class PowerHud {
 		}
 		
 		static final int ICON_SIZE = ClientStandToggle.ICON_SIZE;
+		static final int INTERVAL = 2;
 		@Override
 		public void updateRectangle() {
 			int x = getX();
 			int y = hud.controls.shouldRender() ? hud.controls.getY() + hud.controls.getHeight() : 4;
-			int width = togglesToRender.size() * (ICON_SIZE + 2) - 2;
+			int width = togglesToRender.size() * (ICON_SIZE + INTERVAL) - INTERVAL;
 			int height = ICON_SIZE;
 			rectangle = new ScreenRectangle(new ScreenPosition(x, y), width, height);
 		}
@@ -807,9 +810,34 @@ public class PowerHud {
 			for (ClientStandToggle toggle : togglesToRender) {
 				if (toggle.hudVisibilitySetting.get() && toggle.activeWhen.getAsBoolean()) {
 					toggle.renderIcon(poseStack, x, y);
-					x += ICON_SIZE;
+					x += ICON_SIZE + INTERVAL;
 				}
 			}
+		}
+		
+		@Override
+		protected void checkTooltip(double mouseX, double mouseY, DeltaTracker deltaTracker) {
+			ClientStandToggle hoveredToggle = null;
+			if (isHovered) {
+				int x = (int) mouseX - getX();
+				if (x % (ICON_SIZE + INTERVAL) < ICON_SIZE) {
+					int index = x / (ICON_SIZE + INTERVAL);
+					if (index >= 0 && index < togglesToRender.size()) {
+						hoveredToggle = togglesToRender.get(index);
+					}
+				}
+			}
+			
+			if (hoveredToggle != null) {
+				Component text = CommonComponents.optionStatus(
+						hoveredToggle.text, hoveredToggle.getResultingValue())
+						.withStyle(ChatFormatting.BLACK);
+				tooltip.set(Tooltip.create(text));
+			}
+			else {
+				tooltip.set(null);
+			}
+			super.checkTooltip(mouseX, mouseY, deltaTracker);
 		}
 		
 	}
