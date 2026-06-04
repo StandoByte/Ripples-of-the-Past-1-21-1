@@ -12,6 +12,8 @@
   "item.jojo_ripples.meteoric_scrap": "Meteoric Scrap",
   "item.jojo_ripples.meteoric_ingot": "Meteoric Ingot",
   
+  "trim_material.jojo_ripples.jojo_meteor": "Meteoric Material",
+  
   "key.categories.jojo_ripples": "JoJo: Ripples of the Past",
   "jojo_ripples.key.toggle_stand": "Summon/unsummon Stand",
   "jojo_ripples.key.toggle_stand.desc": "Also toggles the Stand controls HUD.",

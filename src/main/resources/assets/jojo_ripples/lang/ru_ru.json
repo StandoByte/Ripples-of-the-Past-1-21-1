@@ -12,6 +12,8 @@
   "item.jojo_ripples.meteoric_scrap": "Метеоритный лом",
   "item.jojo_ripples.meteoric_ingot": "Метеоритный слиток",
   
+  "trim_material.jojo_ripples.jojo_meteor": "Метеоритная",
+  
   "key.categories.jojo_ripples": "ДжоДжо: Ripples of the Past",
   "jojo_ripples.key.toggle_stand": "Призвать/отозвать Стенд",
   "jojo_ripples.key.toggle_stand.desc": "Также включает режим управления Стендом.",

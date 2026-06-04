@@ -1,0 +1,9 @@
+{
+  "asset_name": "jojo_meteor",
+  "description": {
+    "color": "#dac453",
+    "translate": "trim_material.jojo_ripples.jojo_meteor"
+  },
+  "ingredient": "jojo_ripples:meteoric_ingot",
+  "item_model_index": 0.6
+}
