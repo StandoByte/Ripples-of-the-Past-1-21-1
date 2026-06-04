@@ -187,6 +187,19 @@ public class EntityStandType extends StandType {
 //		}
 	}
 	
+	@Override
+	public boolean showHUD(StandPower standPower) {
+		if (super.showHUD(standPower)) {
+			StandEntity standEntity = standPower.getSummonedStandEntity();
+			if (standEntity != null) {
+				EntityActionInstance curAction = standEntity.getCurStandAction();
+				return !(curAction != null && curAction.ability instanceof StandEntityUnsummonAction);
+			}
+		}
+		
+		return false;
+	}
+	
 	public EntityType<?> getEntityType() {
 		return entityType.value;
 	}

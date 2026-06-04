@@ -260,6 +260,10 @@ public class StandType extends PowerType {
 		}
 	}
 	
+	public boolean showHUD(StandPower standPower) {
+		return standPower.isSummoned();
+	}
+	
 	
 	public boolean usesStamina(StandPower standPower) {
 		return true;

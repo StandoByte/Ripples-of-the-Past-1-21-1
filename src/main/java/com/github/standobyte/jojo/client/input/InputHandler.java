@@ -107,6 +107,11 @@ public class InputHandler {
 	
 	
 	@SubscribeEvent
+	public void tickPre(ClientTickEvent.Pre event) {
+		tickGetCurControlScheme();
+	}
+	
+	@SubscribeEvent
 	public void handleKeyBindingsPost(ClientTickEvent.Post event) {
 		tickHotbarsSelection();
 		vanillaKeybinds.handleTick();
@@ -200,14 +205,15 @@ public class InputHandler {
 	}
 	
 	
+	protected AbilityControlScheme curControlScheme;
 	public PowerClass<?> curPowerClassToggle = null;
 	
-	public AbilityControlScheme getActiveControlScheme() {
+	protected void tickGetCurControlScheme() {
 		Power<?> curPower = null;
 		
 		if (mc.player != null) {
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
-			if (standPower != null && standPower.hasPower() && standPower.isSummoned()) {
+			if (standPower != null && standPower.hasPower() && standPower.getPowerType().showHUD(standPower)) {
 				curPower = standPower;
 			}
 			else if (curPowerClassToggle != null) {
@@ -218,9 +224,15 @@ public class InputHandler {
 			}
 		}
 		if (curPower != null) {
-			return AllControlSchemes.getForPowerType(curPower.getPowerType());
+			curControlScheme = AllControlSchemes.getForPowerType(curPower.getPowerType());
 		}
-		return null;
+		else {
+			curControlScheme = null;
+		}
+	}
+	
+	public AbilityControlScheme getActiveControlScheme() {
+		return curControlScheme;
 	}
 	
 	/**
