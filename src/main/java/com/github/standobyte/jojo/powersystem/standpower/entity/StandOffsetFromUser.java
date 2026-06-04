@@ -21,7 +21,7 @@ public class StandOffsetFromUser {
 	
 	@Nullable public Vec3 grabIdleOffset;
 	
-	private Vec3 relativeOffset;
+	public Vec3 relativeOffset;
 	private Rotations rotations;
 	@Nullable public EntityActionType standAbility;
 	
