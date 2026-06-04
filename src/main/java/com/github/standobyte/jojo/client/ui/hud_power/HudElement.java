@@ -1,19 +1,11 @@
 package com.github.standobyte.jojo.client.ui.hud_power;
 
-import javax.annotation.Nullable;
-
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.jojo.client.ClientPowerCache;
-import com.github.standobyte.jojo.client.input.InputHandler;
-import com.github.standobyte.jojo.client.input.controlscheme.AbilityControlScheme;
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHud.AbilityHud;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.PowerHudHintTooltipHolder;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
-import com.github.standobyte.jojo.powersystem.Power;
-import com.github.standobyte.jojo.powersystem.PowerClass;
-import com.github.standobyte.jojo.powersystem.PowerType;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
@@ -193,20 +185,6 @@ public abstract class HudElement implements GuiEventListener {
 	@Override
 	public boolean isFocused() {
 		return focused;
-	}
-	
-	
-	public static boolean controlsHaveTypeAndAbility(PowerClass<?> powerClass, @Nullable PowerType specificPowerType) {
-		Power<?> power = ClientPowerCache.getPower(powerClass);
-		if (power != null) {
-			PowerType powerType = power.getPowerType();
-			if (powerType != null && (specificPowerType == null || powerType == specificPowerType)) {
-				AbilityControlScheme controlScheme = InputHandler.getInstance().getActiveControlScheme();
-				return controlScheme != null && controlScheme.hasAbility(ability -> ability.powerClass() == powerClass);
-			}
-		}
-		
-		return false;
 	}
 
 }

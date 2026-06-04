@@ -35,6 +35,7 @@ import com.github.standobyte.jojo.client.util.functions.ShortenText;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.PowerType;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
@@ -701,6 +702,20 @@ public class PowerHudControlsElement extends HudElement {
 			};
 			return Component.translatable(key, keybind.getKey().getDisplayName());
 		}
+	}
+	
+	
+	public static boolean controlsHaveTypeAndAbility(PowerClass<?> powerClass, @Nullable PowerType specificPowerType) {
+		Power<?> power = ClientPowerCache.getPower(powerClass);
+		if (power != null) {
+			PowerType powerType = power.getPowerType();
+			if (powerType != null && (specificPowerType == null || powerType == specificPowerType)) {
+				AbilityControlScheme controlScheme = InputHandler.getInstance().getActiveControlScheme();
+				return controlScheme != null && controlScheme.hasAbility(ability -> ability.powerClass() == powerClass);
+			}
+		}
+		
+		return false;
 	}
 
 }
