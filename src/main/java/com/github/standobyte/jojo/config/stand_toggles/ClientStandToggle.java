@@ -10,10 +10,12 @@ import com.github.standobyte.jojo.client.input.VanillaKeybinds;
 import com.github.standobyte.jojo.client.ui.KeybindsEditingUI;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ToggleButton;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ToggleSwitch;
+import com.github.standobyte.jojo.client.ui.utils.Alignment;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
 import com.github.standobyte.jojo.config.BoolOrPlayerPref;
 import com.github.standobyte.jojo.config.client.ConfigGuiHelper;
+import com.github.standobyte.jojo.config.client.ScrollingStringButton;
 import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.core.ModConfigType;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -109,9 +111,12 @@ public class ClientStandToggle implements Renderable {
 				.copy().withStyle(ChatFormatting.BLACK)));
 		
 		toggle.render(guiGraphics, mouseX, mouseY, partialTick);
-		// TODO scrolling string
-		guiGraphics.drawString(Minecraft.getInstance().font, text, 
-				toggle.getX() + 32, toggle.getY() + 4, 0xFF000000, false);
+		int x = toggle.getX();
+		int y = toggle.getY();
+		ScrollingStringButton._renderScrollingString(guiGraphics, Minecraft.getInstance().font, 
+				text, Alignment.LEFT, 
+				x + 32, y, x + 150, y + 16, 
+				0xFF000000, false, StandTogglesScreen.openedAt);
 		if (keybindButton != null) keybindButton.render(guiGraphics, mouseX, mouseY, partialTick);
 		visibilityToggle.render(guiGraphics, mouseX, mouseY, partialTick);
 		

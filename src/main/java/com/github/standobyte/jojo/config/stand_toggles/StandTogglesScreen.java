@@ -7,6 +7,7 @@ import com.github.standobyte.jojo.client.ui.screen_jojomenu.TabCategory;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.core.JojoMod;
 
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -21,6 +22,7 @@ public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
 	protected Tab tab;
 	
 	protected KeybindsEditingUI keybindsHandler;
+	public static long openedAt;
 
 	public StandTogglesScreen(Component title, TabCategory category, Tab tab) {
 		this(title, category, tab, WINDOW);
@@ -58,6 +60,7 @@ public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
 		}
 		keybindsHandler.refresh();
 		
+		openedAt = Util.getMillis();
 	}
 
 	protected ClientStandToggle addToggleUI(ClientStandToggle entry, int x, int y) {
