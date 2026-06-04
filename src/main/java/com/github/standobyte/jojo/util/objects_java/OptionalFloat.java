@@ -65,8 +65,32 @@ public class OptionalFloat {
 	public Optional<Float> toOptional() {
 		return isPresent ? Optional.of(value) : Optional.empty();
 	}
-	
-	
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		return obj instanceof OptionalFloat other
+				&& (isPresent && other.isPresent
+				? value == other.value
+				: isPresent == other.isPresent);
+	}
+
+	@Override
+	public int hashCode() {
+		return isPresent ? Float.hashCode(value) : 0;
+	}
+
+	@Override
+	public String toString() {
+		return isPresent
+				? ("OptionalFloat[" + value + "]")
+				: "OptionalFloat.empty";
+	}
+
+
 	@FunctionalInterface
 	public static interface FloatSupplier {
 		float get();
