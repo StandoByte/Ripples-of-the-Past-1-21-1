@@ -44,7 +44,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.SelectMusicEvent;
-import net.neoforged.neoforge.client.event.sound.SoundEngineLoadEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
 public class BgmEngine extends SimplePreparableReloadListener<BgmEngine.Preparations> implements AutoCloseable {
@@ -308,17 +307,11 @@ public class BgmEngine extends SimplePreparableReloadListener<BgmEngine.Preparat
 	}
 
 
-	public static void onResourceReload(SoundEngineLoadEvent event) {
-		BgmEngine bgmManager = BgmEngine.getInstance();
-		if (bgmManager != null) {
-			bgmManager.clear();
-		}
-	}
-
 	public void clear() {
 		stopBgm();
 		if (channel != null) {
 			channel.destroy();
+			channel = null;
 		}
 		partitionedSoundBuffers.clear();
 	}

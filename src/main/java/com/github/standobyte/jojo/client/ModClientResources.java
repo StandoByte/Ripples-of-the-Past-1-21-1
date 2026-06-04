@@ -36,7 +36,6 @@ public class ModClientResources {
 	@SubscribeEvent
 	public static void onResourceReload(SoundEngineLoadEvent event) {
 		SoundCache.getInstance().onResourceReload(event);
-		BgmEngine.onResourceReload(event);
 	}
 	
 	public static Set<AutoCloseable> closeables = new HashSet<>();

@@ -58,4 +58,14 @@ public class SoundEngineMixin {
 			}
 		}
 	}
+	
+	@Inject(method = "destroy", at = @At("HEAD"))
+	public void cleanupBeforeLibraryReloads(CallbackInfo ci) {
+		if (loaded) {
+			BgmEngine bgm = BgmEngine.getInstance();
+			if (bgm != null) {
+				bgm.clear();
+			}
+		}
+	}
 }

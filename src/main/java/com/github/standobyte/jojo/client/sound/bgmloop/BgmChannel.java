@@ -195,8 +195,8 @@ public class BgmChannel {
 	}
 
 	public void destroy() {
+		stop();
 		if (initialized.compareAndSet(true, false)) {
-			stop();
 			AL10.alDeleteSources(new int[]{source});
 			OpenAlUtil.checkALError("Cleanup");
 		}
