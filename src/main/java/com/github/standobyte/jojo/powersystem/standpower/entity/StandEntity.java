@@ -459,7 +459,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		if (user != null && user.level() == level) {
 			AABBDist bbDistance = MathUtil.getAABBDistanceDetailed(this.getBoundingBox(), user.getBoundingBox());
 			double distance = bbDistance.distance();
-			double range = getMaxRange();
+			double range = getMaxRangeForMovement(user);
 			if (distance > range) {
 				Vec3 standPos = bbDistance.posBB1();
 				Vec3 userPos = bbDistance.posBB2();
@@ -470,6 +470,16 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 				updateUserOffset(user);
 			}
 		}
+	}
+	
+	public double getMaxRangeForMovement(LivingEntity user) {
+		if (user instanceof Player player) {
+			RotpConfig.ClientBroadcast config = JojoMod.config.getPlayerBroadcast(player);
+			if (config != null && !config.standMovesBeyondEffRange.getAsBoolean()) {
+				return getEffectiveRange();
+			}
+		}
+		return getMaxRange();
 	}
 
 	protected void moveWithoutCollision(Vec3 moveVec) {
