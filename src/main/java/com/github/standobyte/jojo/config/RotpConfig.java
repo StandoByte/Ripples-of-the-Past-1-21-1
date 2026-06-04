@@ -10,7 +10,7 @@ import com.github.standobyte.jojo.config.core.ModConfigType;
 import com.github.standobyte.jojo.config.core.types.ConfigBool;
 import com.github.standobyte.jojo.config.core.types.ConfigEnum;
 import com.github.standobyte.jojo.config.core.types.ConfigFloat;
-import com.github.standobyte.jojo.config.core.types.ConfigKeyBinding;
+import com.github.standobyte.jojo.config.core.types.ClientConfigKeyBinding;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.resolve.ClientResolveVisuals;
 
@@ -62,19 +62,19 @@ public class RotpConfig {
 
 
 		public final ConfigBool toggleVisible_standBreaksBlocks = new ConfigBool(false);
-		public final ConfigKeyBinding toggleKeybind_standBreaksBlocks = new ConfigKeyBinding(() -> {
+		public final ClientConfigKeyBinding toggleKeybind_standBreaksBlocks = new ClientConfigKeyBinding(() -> {
 			var inputHandler = InputHandler.getInstance();
 			return inputHandler != null ? inputHandler.vanillaKeybinds.standToggle_breakBlocks : null;
 		});
 
 		public final ConfigBool toggleVisible_standPicksUpItems = new ConfigBool(false);
-		public final ConfigKeyBinding toggleKeybind_standPicksUpItems = new ConfigKeyBinding(() -> {
+		public final ClientConfigKeyBinding toggleKeybind_standPicksUpItems = new ClientConfigKeyBinding(() -> {
 			var inputHandler = InputHandler.getInstance();
 			return inputHandler != null ? inputHandler.vanillaKeybinds.standToggle_pickUpItems : null;
 		});
 
 		public final ConfigBool toggleVisible_standMovesBeyondEffRange = new ConfigBool(false);
-		public final ConfigKeyBinding toggleKeybind_standMovesBeyondEffRange = new ConfigKeyBinding(() -> {
+		public final ClientConfigKeyBinding toggleKeybind_standMovesBeyondEffRange = new ClientConfigKeyBinding(() -> {
 			var inputHandler = InputHandler.getInstance();
 			return inputHandler != null ? inputHandler.vanillaKeybinds.standToggle_moveBeyondEffRange : null;
 		});

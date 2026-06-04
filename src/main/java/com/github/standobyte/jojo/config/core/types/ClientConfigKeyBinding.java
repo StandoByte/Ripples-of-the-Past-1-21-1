@@ -11,19 +11,20 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.mojang.blaze3d.platform.InputConstants.Key;
 
 import net.minecraft.client.KeyMapping;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.settings.KeyModifier;
 
-@EventBusSubscriber(modid = JojoMod.MOD_ID)
-public class ConfigKeyBinding extends ConfigOption<KeyWithModifier> {
+@EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
+public class ClientConfigKeyBinding extends ConfigOption<KeyWithModifier> {
 	private Supplier<KeyMapping> keybindSupplier;
 	private KeyWithModifier loadedValue;
 	public KeyMapping keybind;
 	
-	public ConfigKeyBinding(Supplier<KeyMapping> vanillaKeyMapping) {
+	public ClientConfigKeyBinding(Supplier<KeyMapping> vanillaKeyMapping) {
 		super(SerializeKeybind.CODEC, null);
 		this.keybindSupplier = vanillaKeyMapping;
 		__initWhenKeybindIsCreated.add(this);
@@ -64,11 +65,11 @@ public class ConfigKeyBinding extends ConfigOption<KeyWithModifier> {
 	}
 	
 	
-	static List<ConfigKeyBinding> __initWhenKeybindIsCreated = new ArrayList<>();
+	static List<ClientConfigKeyBinding> __initWhenKeybindIsCreated = new ArrayList<>();
 	
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public static void afterKeybindsAreCreated(RegisterKeyMappingsEvent event) {
-		for (ConfigKeyBinding config : __initWhenKeybindIsCreated) {
+		for (ClientConfigKeyBinding config : __initWhenKeybindIsCreated) {
 			config.resolveKeybind();
 		}
 		__initWhenKeybindIsCreated = null;
