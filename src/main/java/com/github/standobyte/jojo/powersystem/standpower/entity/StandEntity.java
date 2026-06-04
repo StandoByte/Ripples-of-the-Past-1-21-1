@@ -790,6 +790,8 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	public boolean isArmsOnlyMode() {
 		return false;
 	}
+	
+	public void fullSummonFromArms() {}
 
 	
 	@Override

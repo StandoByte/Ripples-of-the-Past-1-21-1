@@ -9,11 +9,14 @@ import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.network.s2c.StandEntitySoundPacket;
 import com.github.standobyte.jojo.network.s2c.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.powersystem.MovesetBuilder;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.entityaction.netcode.SyncType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.datapack.StandTypeClass;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.objects_java.DefaultedValue;
+import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityUnsummonAction;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -73,22 +76,30 @@ public class EntityStandType extends StandType {
 	}
 	
 	
-//	@Override
-//	public void toggleSummon(LivingEntity user, StandPower standPower) {
-//		if (!standPower.isSummoned()) {
-//			summon(standPower.getUser(), standPower);
-//		}
-//		else {
-//			StandEntity standEntity = (StandEntity) standPower.getSummonedStand();
-//			if (standEntity.isArmsOnlyMode()) {
-//				standEntity.fullSummonFromArms();
-//				triggerAdvancement(standPower, standPower.getSummonedStand());
-//			}
-//			else {
-//				unsummon(standPower.getUser(), standPower);
-//			}
-//		}
-//	}
+	@Override
+	public void onUserSummonCommand(LivingEntity user, StandPower standPower) {
+		if (!standPower.isSummoned()) {
+			summon(standPower.getUser(), standPower);
+		}
+		else {
+			StandEntity standEntity = (StandEntity) standPower.getSummonedStand();
+			EntityActionInstance curAction = standEntity.getCurStandAction();
+			if (curAction != null) {
+				if (curAction.ability instanceof StandEntityUnsummonAction) {
+					forceUnsummon(user, standPower);
+				}
+				else if (curAction.canBeCancelledInto(null)) {
+					standEntity.getStandActionComponent().setAction(null, SyncType.TRACKING_AND_SELF);
+				}
+			}
+			else if (standEntity.isArmsOnlyMode()) {
+				standEntity.fullSummonFromArms();
+			}
+			else {
+				unsummon(user, standPower);
+			}
+		}
+	}
 
 	@Override
 	public boolean summon(LivingEntity user, StandPower standPower) {
