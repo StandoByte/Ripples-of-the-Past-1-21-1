@@ -359,6 +359,8 @@ public class PowerHudControlsElement extends HudElement {
 			hotbarUI.keybindWidth = maxHotbarKeybindWidth;
 		}
 
+		int width = 0;
+		int height = 0;
 		int y = 0;
 		for (BindUI bind : this.binds) {
 			bind.y = y;
@@ -367,6 +369,7 @@ public class PowerHudControlsElement extends HudElement {
 					this.getY() + y, 
 					bind.abilities.size() * SLOT_WIDTH + 2, SLOT_HEIGHT + 2)));
 			y += SLOT_HEIGHT + 2;
+			width = Math.max(width, bind.width);
 		}
 		for (HotbarUILine hotbar : this.hotbars) {
 			y += 8;
@@ -385,7 +388,11 @@ public class PowerHudControlsElement extends HudElement {
 			if (hotbar.isSelectingAbility || hotbar.switchHint != null) {
 				y += font.lineHeight + 2;
 			}
+			width = Math.max(width, hotbar.width);
 		}
+		height = y;
+		
+		rectangle = new ScreenRectangle(rectangle.position(), width, height);
 	}
 
 

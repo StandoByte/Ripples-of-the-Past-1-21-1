@@ -131,10 +131,6 @@ public abstract class HudElement implements GuiEventListener {
 	public int getY() { return rectangle.top(); }
 	public int getWidth() { return rectangle.width(); }
 	public int getHeight() { return rectangle.height(); }
-	
-	public void setSize(int width, int height) {
-		this.rectangle = new ScreenRectangle(rectangle.position(), width, height);
-	}
 
 
 //	@Override

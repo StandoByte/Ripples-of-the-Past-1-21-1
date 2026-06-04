@@ -1,6 +1,8 @@
 package com.github.standobyte.jojo.client.ui.hud_power;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -42,6 +44,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.LayeredDraw;
+import net.minecraft.client.gui.navigation.ScreenPosition;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -148,7 +152,7 @@ public class PowerHud {
 				(int) staminaBar.xOffsetL + staminaBar.getWidth() + 10, (int) staminaBar.yOffsetU, -1, -1));
 		public Finisher finisherBar = 			addElement(new Finisher("stand_finisher", 
 				HudElement.SnappingH.CENTER, HudElement.SnappingV.CENTER, -16, -16, 32, 32));
-		public StandToggles toggles = 			addElement(new StandToggles("stand_toggles", 4, 200, 32, 32));
+		public StandToggles toggles = 			addElement(new StandToggles("stand_toggles", 4, 4, 32, 32));
 		
 		@Override
 		public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
@@ -768,27 +772,49 @@ public class PowerHud {
 			super(name, x0, y0, width, height);
 		}
 
+		public List<StandTogglesScreen.ToggleEntry> togglesToRender = new ArrayList<>();
 		@Override
 		public boolean shouldRender() {
 			if (hud.forContainerMenu.isTrue()) return false;
-			return true;
+			
+			togglesToRender.clear();
+			StandTogglesScreen.ToggleEntry[] toggles = StandTogglesScreen.lazyInitToggles();
+			for (var toggle : toggles) {
+				if (toggle.hudVisibilitySetting.get() && toggle.activeWhen.getAsBoolean()) {
+					togglesToRender.add(toggle);
+				}
+			}
+			
+			return !togglesToRender.isEmpty();
+		}
+		
+		static final int ICON_SIZE = 24;
+		@Override
+		public void updateRectangle() {
+			int x = getX();
+			int y = hud.controls.shouldRender() ? hud.controls.getY() + hud.controls.getHeight() : 4;
+			int width = togglesToRender.size() * (ICON_SIZE + 2) - 2;
+			int height = ICON_SIZE;
+			rectangle = new ScreenRectangle(new ScreenPosition(x, y), width, height);
 		}
 		
 		@Override
 		public void renderElement(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
-			PoseStack poseStack = guiGraphics.pose();
-			StandTogglesScreen.ToggleEntry[] toggles = StandTogglesScreen.lazyInitToggles();
 			int x = getX();
 			int y = getY();
-			for (var toggle : toggles) {
+			
+			PoseStack poseStack = guiGraphics.pose();
+			for (StandTogglesScreen.ToggleEntry toggle : togglesToRender) {
 				if (toggle.hudVisibilitySetting.get() && toggle.activeWhen.getAsBoolean()) {
 					boolean value = toggle.getResultingValue();
 					GuiIcon icon = toggle.hudIcon;
-					icon.render(poseStack, x, y);
+					int offset = (int) (ICON_SIZE - icon.width) / 2;
+					icon.render(poseStack, x + offset, y + offset);
 					if (!value) {
-						SWITCH_DISABLED.render(poseStack, x - 2, y - 2);
+						offset = (int) (ICON_SIZE - SWITCH_DISABLED.width) / 2;
+						SWITCH_DISABLED.render(poseStack, x + offset, y + offset);
 					}
-					x += 24;
+					x += ICON_SIZE;
 				}
 			}
 		}
