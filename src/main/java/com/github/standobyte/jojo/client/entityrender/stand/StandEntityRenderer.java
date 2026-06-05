@@ -69,6 +69,15 @@ public class StandEntityRenderer<
 		return s;
 	}
 
+    public static final float PLAYER_RENDER_SCALE = 0.9375F;
+    @Override
+    protected void scale(T entity, PoseStack matrixStack, float partialTick) {
+        matrixStack.scale(
+                PLAYER_RENDER_SCALE * entity.getStandDimensions().width() / 0.6F,
+                PLAYER_RENDER_SCALE * entity.getStandDimensions().height() / 1.8F,
+                PLAYER_RENDER_SCALE * entity.getStandDimensions().width() / 0.6F);
+    }
+
 	/**
 	 * If you extend StandEntityRenderer and put a sub-class of StandEntityRenderState as S, 
 	 * don't forget to override this method too to actually create the new render state object.

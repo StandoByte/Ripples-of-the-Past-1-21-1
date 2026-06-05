@@ -122,6 +122,7 @@ public class StandInitStarPlatinum {
 				.addHumanoidStandSkills()
 
 				, id)
+            .standDimensions(0.7f, 2.1f)
 			.discTooltipWIP()
 			/* This is to make it appear first in the list of Stardust Crusaders Stands in the creative tab, as the protagonist's Stand */
 			.init(stand -> stand.discStoryPartPriority = 0);

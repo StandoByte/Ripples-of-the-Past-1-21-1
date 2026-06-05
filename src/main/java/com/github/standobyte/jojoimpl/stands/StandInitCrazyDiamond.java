@@ -149,6 +149,7 @@ public class StandInitCrazyDiamond {
 				.addHumanoidStandSkills()
 
 				, id)
+            .standDimensions(0.65f, 1.95f)
 			.discTooltipWIP()
 			.init(stand -> stand.discStoryPartPriority = 0);
 	}
