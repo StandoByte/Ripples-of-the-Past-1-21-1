@@ -116,6 +116,7 @@ public class TrAbilityUsePacket implements CustomPacketPayload {
 					}
 				}
 			}
+			if (payload.extraData != null) payload.extraData.release();
 		}
 		
 	}

@@ -193,9 +193,11 @@ public class StandArrowEntity extends AbstractArrow {
     	Level level = level();
     	if (!level.isClientSide()) {
     		ItemStack arrowItem = getPickupItem();
+    		boolean gaveStand = false;
+    		Entity owner = getOwner();
     		if (target.isAlive()) {
     			if (!StandUtil.isEntityStandUser(target)) {
-    				boolean gaveStand = StandArrowItem.giveStand(level, target);
+    				gaveStand = StandArrowItem.giveStand(level, target);
     				if (!StandArrowItem.isInvulnerable(target)) {
     					StandArrowItem.dealDamageFromArrow(target, arrowItem, 
     							this, getOwner(), false, gaveStand);
@@ -204,10 +206,16 @@ public class StandArrowEntity extends AbstractArrow {
     		}
     		
     		ServerLevel serverLevel = (ServerLevel) level;
+    		ItemStack arrowSaved = arrowItem.copy();
     		arrowItem.hurtAndBreak(1, serverLevel, target, itemType -> {
     			this.discard();
-    			StandArrowItem.onBreakArrow(serverLevel, null, null, getBoundingBox().getCenter(), itemType);
+    			StandArrowItem.onBreakArrow(serverLevel, 
+    					owner instanceof LivingEntity __ ? __ : null, null, 
+    					getBoundingBox().getCenter(), itemType, arrowSaved);
     		});
+    		if (gaveStand && !arrowItem.isEmpty()) {
+    			StandArrowLore.onStandGiven(arrowItem);
+    		}
     		setPickupItemStack(arrowItem);
     	}
     }

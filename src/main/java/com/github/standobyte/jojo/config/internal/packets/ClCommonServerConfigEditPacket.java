@@ -65,6 +65,7 @@ public class ClCommonServerConfigEditPacket implements CustomPacketPayload {
 		public void handle(ClCommonServerConfigEditPacket payload, IPayloadContext context) {
 			ServerPlayer player = (ServerPlayer) context.player();
 			ConfigNetworkFunctions.srvAcceptCommonSettingEdit(player, payload);
+			if (payload.read != null) payload.read.release();
 		}
 		
 	}

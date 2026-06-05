@@ -27,7 +27,7 @@ public abstract class SpecialEntityActionType implements EntityActionType {
 		this.id = id;
 		if (animFileName != null) {
 			this.animSet = id.withPath(animFileName);
-			this.anim = ActionAnimIdentifier.getOrCreate(id.getPath(), false);
+			this.anim = ActionAnimIdentifier.getOrCreate(id.getPath());
 		}
 		else {
 			this.animSet = null;

@@ -60,6 +60,7 @@ public class TrCharacterDataPacket implements CustomPacketPayload {
 				CharacterPersonData data = CharacterPersonData.get(living);
 				if (data != null) {
 					data.fromBuf(payload.clientRead);
+					if (payload.clientRead != null) payload.clientRead.release();
 				}
 			}
 		}

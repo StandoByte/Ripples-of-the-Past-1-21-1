@@ -3,10 +3,10 @@ package com.github.standobyte.jojo.client.input;
 import java.util.List;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
+import com.github.standobyte.jojo.client.input.controlscheme.AbilityControlScheme;
+import com.github.standobyte.jojo.client.input.controlscheme.AbilityControlsEntry;
 import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientKey;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.AbilityControlsEntry;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -68,7 +68,7 @@ public class StandVanillaClickInput {
 		if (!standCanRightClickItems) return;
 		
 		if (ServerSideLivingClick.isEntityHoldingAnItem(power.getSummonedStandEntity())) {
-			ClientControlScheme controlScheme = AllControlSchemes.getForPowerType(power.getPowerType());
+			AbilityControlScheme controlScheme = AllControlSchemes.getForPowerType(power.getPowerType());
 			if (controlScheme != null) {
 				ClientKey RMB = ClientKey.make(InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_RIGHT);
 				for (InputMethod inputMethod : InputMethod.values()) {

@@ -5,6 +5,8 @@ import java.util.function.Supplier;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
+import com.github.standobyte.jojo.mechanics.standarrow.StandArrowLore;
+import com.github.standobyte.jojo.mechanics.standarrow.StandArrowShardLore;
 import com.github.standobyte.jojo.mechanics.standdisc.StandWrittenOnDisc;
 import com.github.standobyte.jojo.subsystems.itemtracking.OriginalItemPosComponent;
 import com.github.standobyte.v1_21_4_stuff.itemmodel.__ItemModelComponent;
@@ -51,6 +53,18 @@ public class ModItemDataComponents {
 			builder -> builder
 			.persistent(ExtraCodecs.NON_NEGATIVE_INT)
 			.networkSynchronized(ByteBufCodecs.VAR_INT)
+			.cacheEncoding());
+
+	public static final Supplier<DataComponentType<StandArrowLore>> ARROW_LORE = DATA_COMPONENT_TYPES.registerComponentType("arrow_lore", 
+			builder -> builder
+			.persistent(StandArrowLore.CODEC)
+			.networkSynchronized(StandArrowLore.STREAM_CODEC)
+			.cacheEncoding());
+
+	public static final Supplier<DataComponentType<StandArrowShardLore>> ARROW_SHARD_LORE = DATA_COMPONENT_TYPES.registerComponentType("arrow_shard_lore", 
+			builder -> builder
+			.persistent(StandArrowShardLore.CODEC)
+			.networkSynchronized(StandArrowShardLore.STREAM_CODEC)
 			.cacheEncoding());
 
 	public static final Supplier<DataComponentType<ResourceLocation>> ITEM_MODEL = DATA_COMPONENT_TYPES.registerComponentType("item_model", 

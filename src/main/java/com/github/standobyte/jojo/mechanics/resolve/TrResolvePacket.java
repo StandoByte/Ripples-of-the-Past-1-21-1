@@ -2,7 +2,6 @@ package com.github.standobyte.jojo.mechanics.resolve;
 
 import com.github.standobyte.jojo.PacketsRegister;
 import com.github.standobyte.jojo.client.ClientProxy;
-import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.util.functions_network.NetworkUtil;
 
 import net.minecraft.network.FriendlyByteBuf;
@@ -65,9 +64,8 @@ public class TrResolvePacket implements CustomPacketPayload {
 		public void handle(TrResolvePacket payload, IPayloadContext context) {
 			Entity entity = ClientProxy.getEntityById(payload.userId);
 			if (entity instanceof LivingEntity living) {
-				StandPower standPower = StandPower.get(living);
-				if (standPower != null) {
-					ResolveCounter resolveCounter = standPower.resolveCounter;
+				ResolveCounter resolveCounter = ResolveCounter.getOrCreate(living);
+				if (resolveCounter != null) {
 					resolveCounter.fromBuf(payload.multipliersReadData, payload.toPlayerUser);
 				}
 			}

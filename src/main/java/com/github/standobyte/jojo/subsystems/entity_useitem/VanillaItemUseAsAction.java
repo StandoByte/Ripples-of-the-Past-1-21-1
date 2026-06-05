@@ -37,7 +37,7 @@ public class VanillaItemUseAsAction extends SpecialEntityActionType {
 		return new ItemUsingInstance(this);
 	}
 
-	public ActionAnimIdHandsided bowAnim = new ActionAnimIdHandsided(new ActionAnimIdentifier("bow_shoot", false));
+	public ActionAnimIdHandsided bowAnim = new ActionAnimIdHandsided(new ActionAnimIdentifier("bow_shoot"));
 	@Override
 	public ActionAnimIdentifier getEntityAnim(EntityActionInstance _action) {
 		ItemUsingInstance action = (ItemUsingInstance) _action;

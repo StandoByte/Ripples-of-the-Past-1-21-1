@@ -4,6 +4,20 @@
             "type": "directory",
             "source": "gui/container/emptyslots",
             "prefix": "gui/container/emptyslots/"
+        },
+        {
+            "type": "paletted_permutations",
+            "textures": [
+                "trims/items/leggings_trim",
+                "trims/items/chestplate_trim",
+                "trims/items/helmet_trim",
+                "trims/items/boots_trim"
+            ],
+            "palette_key": "trims/color_palettes/trim_palette",
+            "permutations": {
+                "jojo_meteor": "jojo_ripples:trims/color_palettes/meteoric"
+
+            }
         }
     ]
 }

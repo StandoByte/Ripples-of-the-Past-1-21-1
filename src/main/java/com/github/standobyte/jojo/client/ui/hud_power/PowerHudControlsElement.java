@@ -13,11 +13,11 @@ import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.input.HeldKeyTimer;
 import com.github.standobyte.jojo.client.input.InputHandler;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.AbilityControlsEntry;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.Hotbar;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.HotbarSlot;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.InputsByKeyModifier;
+import com.github.standobyte.jojo.client.input.controlscheme.AbilityControlScheme;
+import com.github.standobyte.jojo.client.input.controlscheme.AbilityControlScheme.InputsByKeyModifier;
+import com.github.standobyte.jojo.client.input.controlscheme.AbilityControlsEntry;
+import com.github.standobyte.jojo.client.input.controlscheme.AbilityHotbar;
+import com.github.standobyte.jojo.client.input.controlscheme.AbilityHotbarSlot;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientInputBind;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientKey;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
@@ -35,6 +35,7 @@ import com.github.standobyte.jojo.client.util.functions.ShortenText;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.PowerType;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
@@ -71,7 +72,7 @@ public class PowerHudControlsElement extends HudElement {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.player == null) return false;
 
-		ClientControlScheme controlScheme = input.getActiveControlScheme();
+		AbilityControlScheme controlScheme = input.getActiveControlScheme();
 		if (controlScheme == null) return false;
 
 		return !hud.forContainerMenu.isFalse();
@@ -84,7 +85,7 @@ public class PowerHudControlsElement extends HudElement {
 		Minecraft mc = Minecraft.getInstance();
 		InputHandler input = InputHandler.getInstance();
 		Font font = mc.font;
-		ClientControlScheme controlScheme = input.getActiveControlScheme();
+		AbilityControlScheme controlScheme = input.getActiveControlScheme();
 		float partialTick = ClientUtil.partialTick(deltaTracker, false);
 		StandSkin standSkin = StandSkinsLoader.getCurSkin();
 		int textColor = controlScheme.powerClassCosmetic == PowerClass.STAND && standSkin != null ? standSkin.getColors().text() : 0xFFFFFFFF;
@@ -141,6 +142,18 @@ public class PowerHudControlsElement extends HudElement {
 		public InputMethod inputMethod;
 		public Component keybindName;
 		public Component keybindAbilityName;
+		
+		public AbilityBindUI(AbilityConditionCheck ability, TextureAtlasSprite sprite,
+				ClientKey key, KeyModifier modifier, InputMethod inputMethod, 
+				Component keybindName, Component keybindAbilityName) {
+			this.ability = ability;
+			this.sprite = sprite;
+			this.key = key;
+			this.modifier = modifier;
+			this.inputMethod = inputMethod;
+			this.keybindName = keybindName;
+			this.keybindAbilityName = keybindAbilityName;
+		}
 	}
 	
 	public static class BindUI {
@@ -171,8 +184,8 @@ public class PowerHudControlsElement extends HudElement {
 	
 	public static class HotbarSlotUI {
 		public int slotIndex;
-		public BindUI bind;
-		public AbilityBindUI sprite;
+		public BindUI bind = new BindUI();
+		@Nullable public AbilityBindUI sprite;
 		public Map<InputMethod, AbilityBindUI> abilities = new EnumMap<>(InputMethod.class);
 	}
 
@@ -187,10 +200,10 @@ public class PowerHudControlsElement extends HudElement {
 		hoverableAbilities.clear();
 	}
 
-	public void prepare(AbilityHud hud, ClientControlScheme controlScheme, Font font, 
+	public void prepare(AbilityHud hud, AbilityControlScheme controlScheme, Font font, 
 			@Nonnull KeyModifier modifier, @Nullable StandSkin standSkin) {
 		if (controlScheme == null) return;
-		ClientControlScheme.MoveGroup curGroup = controlScheme.getCurGroup();
+		AbilityControlScheme.MoveGroup curGroup = controlScheme.getCurGroup();
 		if (modifier == KeyModifier.ALT) modifier = KeyModifier.NONE;
 		AbilityIconSprites abilityIconSprites = StandSkinsLoader.getInstance().abilityIcons;
 		
@@ -255,20 +268,19 @@ public class PowerHudControlsElement extends HudElement {
 		}
 
 		// hotbars
-		for (Hotbar hotbar : curGroup.hotbars) {
+		for (AbilityHotbar hotbar : curGroup.hotbars) {
 			if (!hotbar.slots.isEmpty()) {
 				HotbarUILine hotbarUI = new HotbarUILine();
 
 				ClientInputBind input = hotbar.useAbilityKey;
-				HotbarSlot selectedSlot = hotbar.getSelected();
+				AbilityHotbarSlot selectedSlot = hotbar.getSelected();
 				
 				hotbarUI.isSelectingAbility = modInput.isSelectingAbility(hotbar);
 				hotbarUI.highlight = hotbarUI.isSelectingAbility && !hotbar.alwaysSwitchAbility();
 
-				for (ClientControlScheme.HotbarSlot slot : hotbar.slots) {
+				for (AbilityHotbarSlot slot : hotbar.slots) {
 					HotbarSlotUI slotUI = new HotbarSlotUI();
 					ClientKey key = input.getKey();
-					slotUI.bind = new BindUI();
 					slotUI.bind.mainKey = getKeyName(key);
 					slotUI.bind.modifierKey = getModifierName(input.getKeyModifier());
 					slotUI.bind.fullKeybind = getKeyName(key, slotUI.bind.mainKey, input.getKeyModifier());
@@ -348,6 +360,8 @@ public class PowerHudControlsElement extends HudElement {
 			hotbarUI.keybindWidth = maxHotbarKeybindWidth;
 		}
 
+		int width = 0;
+		int height = 0;
 		int y = 0;
 		for (BindUI bind : this.binds) {
 			bind.y = y;
@@ -356,6 +370,7 @@ public class PowerHudControlsElement extends HudElement {
 					this.getY() + y, 
 					bind.abilities.size() * SLOT_WIDTH + 2, SLOT_HEIGHT + 2)));
 			y += SLOT_HEIGHT + 2;
+			width = Math.max(width, bind.width);
 		}
 		for (HotbarUILine hotbar : this.hotbars) {
 			y += 8;
@@ -374,7 +389,11 @@ public class PowerHudControlsElement extends HudElement {
 			if (hotbar.isSelectingAbility || hotbar.switchHint != null) {
 				y += font.lineHeight + 2;
 			}
+			width = Math.max(width, hotbar.width);
 		}
+		height = y;
+		
+		rectangle = new ScreenRectangle(rectangle.position(), width, height);
 	}
 
 
@@ -384,7 +403,7 @@ public class PowerHudControlsElement extends HudElement {
 			@Nonnull KeyModifier modifier, ClientKey key, boolean withModifierName, 
 			AbilityIconSprites abilitySprites, @Nullable StandSkin standSkin, 
 			Font font, TriState forContainerMenu) {
-		AbilityConditionCheck ability = ClientControlScheme.prioritizedAbility(modifier, 
+		AbilityConditionCheck ability = AbilityControlScheme.prioritizedAbility(modifier, 
 				getAbilities, 
 				(AbilityInputState state) -> AbilityInputState.showAbilityInHUD(state, forContainerMenu));
 		return ability == null ? null : makeAbilityBindUI(key, withModifierName ? modifier : KeyModifier.NONE, 
@@ -406,15 +425,9 @@ public class PowerHudControlsElement extends HudElement {
 				Component bindName = inputMethod == InputMethod.HOLD ? Component.translatable("ripples_hud.hold_key", keyName) : keyName;
 				Power<?> abilityCtx = ClientPowerCache.getPower(ability.ability.abilityId.powerClass());
 
-				AbilityBindUI bindUI = new AbilityBindUI();
-
-				bindUI.ability = ability;
-				bindUI.sprite = abilitySprites.getAbilityIcon(ability.ability, abilityCtx, standSkin);
-				bindUI.key = key;
-				bindUI.modifier = modifier;
-				bindUI.inputMethod = inputMethod;
-				bindUI.keybindName = bindName;
-				bindUI.keybindAbilityName = Component.translatable("ripples_hud.key_ability", bindName, ability.ability.getName(abilityCtx));
+				AbilityBindUI bindUI = new AbilityBindUI(ability, abilitySprites.getAbilityIcon(ability.ability, abilityCtx, standSkin),
+						key, modifier, inputMethod,
+						bindName, Component.translatable("ripples_hud.key_ability", bindName, ability.ability.getName(abilityCtx)));
 
 				return bindUI;
 			}
@@ -500,74 +513,75 @@ public class PowerHudControlsElement extends HudElement {
 			int x0 = x;
 			int y0 = y;
 			int hotbarLength = hotbar.slots.size();
-			
-			y += hotbar.y;
-			if (hotbar.keybind != null) {
-				int centered = (hotbar.keybindWidth - font.width(hotbar.keybind)) / 2;
-				guiGraphics.drawString(font, hotbar.keybind, 
-						x + centered, y + (SLOT_HEIGHT - font.lineHeight) / 2, 
-						textColor);
-			}
-			x += hotbar.keybindWidth;
-
-			RenderSystem.enableBlend();
-			RenderSystem.defaultBlendFunc();
-
-			int i = 0;
-			Runnable drawSelection = null;
-			for (HotbarSlotUI slot : hotbar.slots) {
-				AbilityBindUI abilityUI = slot.sprite;
-				boolean greenHighlight = abilityUI.ability.conditionCheck.greenHighlight();
-				DrawHotbar.drawHotbarSlot(hotbarLength, i, greenHighlight, guiGraphics.pose(), x, y, alpha);
-				if (abilityUI != null) {
-					renderAbility(guiGraphics, x, y, abilityUI, mc, partialTick, alpha);
+			if (hotbarLength > 0) {
+				y += hotbar.y;
+				if (hotbar.keybind != null) {
+					int centered = (hotbar.keybindWidth - font.width(hotbar.keybind)) / 2;
+					guiGraphics.drawString(font, hotbar.keybind, 
+							x + centered, y + (SLOT_HEIGHT - font.lineHeight) / 2, 
+							textColor);
 				}
+				x += hotbar.keybindWidth;
 				
-				if (slot == hotbar.selected) {
-					int _x = x;
-					int _y = y;
-					drawSelection = () -> {
-						DrawHotbar.drawHotbarSelection(greenHighlight, guiGraphics.pose(), _x, _y, alpha);
-						
-						if (hotbar.highlight) {
-							float time = modInput.getHotbarsSelectionTime();
-							int highlightAlpha = (int) (ClientUtil.getHighlightAlpha(time + 20F, 40F, 40F, 0.25F, 0.5F) * 255F);
-							guiGraphics.fill(_x - 1, _y - 1, _x + 23, _y + 23, ARGB.white(highlightAlpha));
-							RenderSystem.enableBlend();
-//							ClientUtil.fillSingleRect(_x + hotbarFold.getSlotWithIndex(selected).pos - 4, _y - 4, 24, 23, 255, 255, 255, highlightAlpha);
-						}
-					};
-				}
+				RenderSystem.enableBlend();
+				RenderSystem.defaultBlendFunc();
 				
-				x += SLOT_WIDTH;
-				i++;
-			}
-			if (drawSelection != null) {
-				drawSelection.run();
-			}
-
-			x = x0;
-			y += SLOT_HEIGHT + 4;
-			if (hotbar.isSelectingAbility) {
-				x += 18;
+				int i = 0;
+				Runnable drawSelection = null;
 				for (HotbarSlotUI slot : hotbar.slots) {
-					if (!slot.abilities.isEmpty()) {
-						int numberKey = HotbarSlot.numberKey(slot.slotIndex);
-						if (numberKey != -1) {
-							guiGraphics.drawString(font, String.valueOf(slot.slotIndex + 1), x, y, textColor);
-						}
+					AbilityBindUI abilityUI = slot.sprite;
+					boolean greenHighlight = abilityUI != null && abilityUI.ability.conditionCheck.greenHighlight();
+					DrawHotbar.drawHotbarSlot(hotbarLength, i, greenHighlight, guiGraphics.pose(), x, y, alpha);
+					if (abilityUI != null) {
+						renderAbility(guiGraphics, x, y, abilityUI, mc, partialTick, alpha);
 					}
+					
+					if (slot == hotbar.selected) {
+						int _x = x;
+						int _y = y;
+						drawSelection = () -> {
+							DrawHotbar.drawHotbarSelection(greenHighlight, guiGraphics.pose(), _x, _y, alpha);
+							
+							if (hotbar.highlight) {
+								float time = modInput.getHotbarsSelectionTime();
+								int highlightAlpha = (int) (ClientUtil.getHighlightAlpha(time + 20F, 40F, 40F, 0.25F, 0.5F) * 255F);
+								guiGraphics.fill(_x - 1, _y - 1, _x + 23, _y + 23, ARGB.white(highlightAlpha));
+								RenderSystem.enableBlend();
+//							ClientUtil.fillSingleRect(_x + hotbarFold.getSlotWithIndex(selected).pos - 4, _y - 4, 24, 23, 255, 255, 255, highlightAlpha);
+							}
+						};
+					}
+					
 					x += SLOT_WIDTH;
+					i++;
 				}
+				if (drawSelection != null) {
+					drawSelection.run();
+				}
+				
 				x = x0;
+				y += SLOT_HEIGHT + 4;
+				if (hotbar.isSelectingAbility) {
+					x += 18;
+					for (HotbarSlotUI slot : hotbar.slots) {
+						if (!slot.abilities.isEmpty()) {
+							int numberKey = AbilityHotbarSlot.numberKey(slot.slotIndex);
+							if (numberKey != -1) {
+								guiGraphics.drawString(font, String.valueOf(slot.slotIndex + 1), x, y, textColor);
+							}
+						}
+						x += SLOT_WIDTH;
+					}
+					x = x0;
+				}
+				else if (hotbar.switchHint != null) {
+					guiGraphics.drawString(font, hotbar.switchHint, x, y, textColor);
+				}
+				y += font.lineHeight + 4;
+				
+				x = x0;
+				y = y0;
 			}
-			else if (hotbar.switchHint != null) {
-				guiGraphics.drawString(font, hotbar.switchHint, x, y, textColor);
-			}
-			y += font.lineHeight + 4;
-
-			x = x0;
-			y = y0;
 		}
 
 		RenderSystem.disableBlend();
@@ -688,6 +702,20 @@ public class PowerHudControlsElement extends HudElement {
 			};
 			return Component.translatable(key, keybind.getKey().getDisplayName());
 		}
+	}
+	
+	
+	public static boolean controlsHaveTypeAndAbility(PowerClass<?> powerClass, @Nullable PowerType specificPowerType) {
+		Power<?> power = ClientPowerCache.getPower(powerClass);
+		if (power != null) {
+			PowerType powerType = power.getPowerType();
+			if (powerType != null && (specificPowerType == null || powerType == specificPowerType)) {
+				AbilityControlScheme controlScheme = InputHandler.getInstance().getActiveControlScheme();
+				return controlScheme != null && controlScheme.hasAbility(ability -> ability.powerClass() == powerClass);
+			}
+		}
+		
+		return false;
 	}
 
 }

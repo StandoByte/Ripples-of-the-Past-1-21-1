@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.adventure.npc.debug.NpcFlags;
 import com.github.standobyte.jojo.client.entityrender.replace_player_model.ReplacePlayerModel;
 import com.github.standobyte.jojo.client.standskin.text.StandNameSetColor;
+import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.v1_21_4_stuff.renderstate.HumanoidRenderState;
@@ -93,6 +94,7 @@ public class CharacterMobRenderer<T extends PowerUserMobEntity> extends LivingEn
 		if (Minecraft.renderNames()) {
 			if (entity.getFlag(NpcFlags.SHOW_POWER_VARIABLES)) {
 				StandPower stand = StandPower.get(entity);
+				ResolveCounter resolve = ResolveCounter.getIfEnabled(entity);
 				if (stand != null && stand.hasPower()) {
 					poseStack.translate(0, 0.25, 0);
 					float staminaRatio = stand.getStamina() / stand.getMaxStamina();
@@ -102,16 +104,17 @@ public class CharacterMobRenderer<T extends PowerUserMobEntity> extends LivingEn
 							Component.translatable("Stamina: %s", 
 									Component.translatable(String.format("%.2f%%", staminaRatio * 100)).withStyle(style -> style.withColor(color))), 
 							poseStack, buffer, packedLight, partialTick);
-					
-					if (stand.usesResolve()) {
-						poseStack.translate(0, 0.25, 0);
-						ResolveCounter resolve = stand.resolveCounter;
-						float resolveRatio = resolve.getResolveBarFill();
-						renderNameTag(entity, 
-								Component.translatable(String.format("Resolve: %.2f%%", resolveRatio * 100)), 
-								poseStack, buffer, packedLight, partialTick);
-					}
-					
+				}
+				
+				if (resolve != null) {
+					poseStack.translate(0, 0.25, 0);
+					float resolveRatio = resolve.getResolveBarFill();
+					renderNameTag(entity, 
+							Component.translatable(String.format("Resolve: %.2f%%", resolveRatio * 100)), 
+							poseStack, buffer, packedLight, partialTick);
+				}
+
+				if (stand != null && stand.hasPower()) {
 					poseStack.translate(0, 0.25, 0);
 					Component standName = stand.getName();
 					standName = StandNameSetColor.fromSkin(stand, standName, false);
@@ -148,7 +151,10 @@ public class CharacterMobRenderer<T extends PowerUserMobEntity> extends LivingEn
 	protected void scale(T livingEntity, PoseStack poseStack, float partialTickTime) {
 		boolean usingPlayerModel = true;
 		if (usingPlayerModel) {
-			poseStack.scale(0.9375F, 0.9375F, 0.9375F);
+			poseStack.scale(
+					ClientUtil.PLAYER_RENDER_SCALE, 
+					ClientUtil.PLAYER_RENDER_SCALE, 
+					ClientUtil.PLAYER_RENDER_SCALE);
 		}
 	}
 

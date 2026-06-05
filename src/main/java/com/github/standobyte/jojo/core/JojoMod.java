@@ -99,10 +99,25 @@ public class JojoMod {
 	
 	@SubscribeEvent
 	public void registerConfig(RegisterRotpConfigEvent event) {
-		config = event.registerConfig(RotpConfig.ID, 
-				RotpConfig.Client::new, 
-				RotpConfig.ClientBroadcast::new, 
-				RotpConfig.Common::new);
+		switch (event.environment) {
+			case CLIENT -> {
+				config = event.registerConfig(RotpConfig.ID, 
+						RotpConfig.Client::new,
+						RotpConfig.ClientBroadcast::new, 
+						RotpConfig.Common::new);
+			}
+			case DEDICATED_SERVER -> {
+				/* Because in our case the client config contains objects of classes that references client-only vanilla classes
+				 * (ClientConfigKeyBinding has KeyMapping field, which is client only),
+				 * we have to register the config this way, so that the dedicated server doesn't try to load the Client class 
+				 * (which would lead to a crash).
+				 */
+				config = event.registerConfig(RotpConfig.ID, 
+						null,
+						RotpConfig.ClientBroadcast::new, 
+						RotpConfig.Common::new);
+			}
+		}
 	}
 
 }

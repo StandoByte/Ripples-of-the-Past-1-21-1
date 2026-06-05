@@ -3,14 +3,12 @@ package com.github.standobyte.jojo.mechanics.resolve;
 import com.github.standobyte.jojo.client.shader.ColorShiftEffect;
 import com.github.standobyte.jojo.client.shader.ColorShiftShader;
 import com.github.standobyte.jojo.client.shader.ModShaders;
-import com.github.standobyte.jojo.client.sound.bgmloop.BgmPlayer;
-import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo;
-import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackLoader;
+import com.github.standobyte.jojo.client.sound.bgmloop.BgmEngine;
+import com.github.standobyte.jojo.client.sound.bgmloop.BgmInstance;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.OOPMoment;
-import com.github.standobyte.jojo.util.objects_mc.WeightsList;
 
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
@@ -30,24 +28,22 @@ public class ClientResolveVisuals {
 				&& mc.player.isAlive()
 				&& ResolveModeEffect.getResolveEffectLvl(mc.player) >= 0;
 		if (resolveEffect && !prevTickResolveEffect) {
-//			StandSkin standSkin = StandSkinsLoader.getCurSkin();
-//			if (standSkin != null) {
-//				WeightsList<BgmTrackInfo> tracks = standSkin.getResolveBGM();
-//				if (tracks != null) {
-//					BgmPlayer player = new BgmPlayer(tracks);
-//					player.start();
-//				}
-//			}
+			StandSkin standSkin = StandSkinsLoader.getCurSkin();
+			if (standSkin != null) {
+				BgmInstance resolveBgm = BgmInstance.standResolve(standSkin);
+				if (resolveBgm != null) {
+					resolveBgm.start();
+				}
+			}
 			if (colorShift != null && JojoMod.config.getClient().resolveShaders.getAsBoolean()) {
 				colorShift.parameters = ColorShiftEffect.Parameters.createRandom(OOPMoment.RANDOM);
 			}
 		}
 		else if (!resolveEffect && prevTickResolveEffect) {
-			// TODO make sure the BGM is from resolve and not smth else
-//			BgmPlayer curPlaying = BgmTrackLoader.getInstance().bgmPlaying;
-//			if (curPlaying != null) {
-//				curPlaying.finishWithOutro();
-//			}
+			BgmInstance curPlaying = BgmEngine.getCurTrackPlaying();
+			if (curPlaying != null && curPlaying.bgmType == BgmInstance.BgmType.STAND_RESOLVE) {
+				curPlaying.finishWithOutro();
+			}
 			if (colorShift != null) {
 				colorShift.parameters = null;
 			}

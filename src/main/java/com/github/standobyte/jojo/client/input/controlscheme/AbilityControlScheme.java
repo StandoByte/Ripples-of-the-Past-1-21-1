@@ -38,9 +38,8 @@ import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.settings.KeyModifier;
-import net.neoforged.neoforge.common.util.TriState;
 
-public class ClientControlScheme {
+public class AbilityControlScheme {
 	public PowerClass<?> powerClassCosmetic;
 	@ApiStatus.Internal public final Map<String, MoveGroup> moveGroups = new LinkedHashMap<>();
 	@ApiStatus.Internal protected MoveGroup curGroup;
@@ -51,8 +50,8 @@ public class ClientControlScheme {
 		@ApiStatus.Internal public Component name;
 		@ApiStatus.Internal public ClientInputBind toggleHudKey;
 		
-		@ApiStatus.Internal public List<Bind> binds = new ArrayList<>();
-		@ApiStatus.Internal public List<Hotbar> hotbars = new ArrayList<>();
+		@ApiStatus.Internal public List<AbilityBind> binds = new ArrayList<>();
+		@ApiStatus.Internal public List<AbilityHotbar> hotbars = new ArrayList<>();
 		
 		protected Map<ClientKey, InputsByKeyModifier> bindsMap = new TreeMap<>(Comparator.comparingInt(ClientKey::keyOrder));
 		
@@ -67,14 +66,14 @@ public class ClientControlScheme {
 		 */
 		public Map<ClientKey, InputsByKeyModifier> getBinds() {
 			bindsMap.clear();
-			for (Bind bind : binds) {
+			for (AbilityBind bind : binds) {
 				if (bind.input != null) {
 					ClientKey key = bind.input.getKey();
 					if (key != null) {
 						KeyModifier keyModifier = bind.input.getKeyModifier();
-						String abilityName = bind.ability.abilityName;
+						String abilityName = bind.ability.abilityName();
 						InputMethod inputMethod = bind.inputMethod;
-						PowerClass<?> powerClass = bind.ability.powerClass;
+						PowerClass<?> powerClass = bind.ability.powerClass();
 
 						InputsByKeyModifier keyAllBinds = bindsMap.computeIfAbsent(key, 
 								__ -> new InputsByKeyModifier());
@@ -88,85 +87,6 @@ public class ClientControlScheme {
 			}
 
 			return bindsMap;
-		}
-	}
-	
-	public static record AbilityControlsEntry(PowerClass<?> powerClass, String abilityName) {
-		
-		public AbilityConditionCheck getAbility() {
-			AvailableAbilities allAbilities = ClientPowerCache.getAvailableAbilities(this.powerClass);
-			return allAbilities.getContextVariationContainer(this.abilityName);
-		}
-	}
-	
-	public static class Bind {
-		public ClientInputBind input;
-		public InputMethod inputMethod;
-		public AbilityControlsEntry ability;
-		
-		public Bind(ClientInputBind input, InputMethod inputMethod, AbilityControlsEntry ability) {
-			this.input = input;
-			this.inputMethod = inputMethod;
-			this.ability = ability;
-		}
-	}
-
-	public static class Hotbar {
-		public ClientInputBind useAbilityKey;
-		@Nullable public ClientInputBind switchAbilityKey;
-		public List<HotbarSlot> slots = new ArrayList<>();
-		public int slotIndex = 0;
-		
-		public Hotbar(ClientInputBind useAbilityKey, @Nullable ClientInputBind switchAbilityKey) {
-			this.useAbilityKey = useAbilityKey;
-			this.switchAbilityKey = switchAbilityKey;
-		}
-		
-		@Nullable
-		public HotbarSlot getSelected() {
-			return this.slotIndex >= 0 && this.slotIndex < this.slots.size() ? this.slots.get(this.slotIndex) : null;
-		}
-		
-		public boolean alwaysSwitchAbility() {
-			return switchAbilityKey == null || switchAbilityKey.getKey() == null;
-		}
-	}
-	
-	public static class HotbarSlot {
-		public int index;
-		public final InputsByKeyModifier binds = new InputsByKeyModifier();
-		
-		public HotbarSlot(int index) {
-			this.index = index;
-		}
-		
-		public InputsByKeyModifier getBinds() {
-			return binds;
-		}
-		
-		@Nullable
-		public AbilityConditionCheck showAbility(KeyModifier curModifier) {
-			for (InputMethod inputMethod : InputMethod.values()) {
-				AbilityControlsEntry abilityEntry = this.binds.getFirst(curModifier, inputMethod);
-				if (abilityEntry != null) {
-					AbilityConditionCheck ability = abilityEntry.getAbility();
-					if (ability != null) {
-						boolean showAbility = AbilityInputState.showAbilityInHUD(ability, TriState.FALSE);
-						if (showAbility) {
-							return ability;
-						}
-					}
-				}
-			}
-			return null;
-		}
-		
-		public static int numberKey(int slotIndex) {
-			if (slotIndex >= 0 && slotIndex < 9) {
-				return slotIndex + 1;
-			}
-			if (slotIndex == 9) return 0;
-			return -1;
 		}
 	}
 	
@@ -187,7 +107,16 @@ public class ClientControlScheme {
 		@Nullable
 		public AbilityControlsEntry getFirst(@Nonnull KeyModifier curModifier, InputMethod inputMethod) {
 			List<AbilityControlsEntry> list = getAll(curModifier, inputMethod);
-			return !list.isEmpty() ? list.get(0) : null;
+			if (!list.isEmpty()) {
+				return list.get(0);
+			}
+			
+			if (curModifier != KeyModifier.NONE) {
+				return getFirst(KeyModifier.NONE, inputMethod);
+			}
+			else {
+				return null;
+			}
 		}
 	}
 
@@ -234,16 +163,16 @@ public class ClientControlScheme {
 	}
 	
 	public List<AbilityControlsEntry> getBindsWithModifier(InputMethod keyInputMethod, ClientKey key, KeyModifier currentModifier) {
-		ClientControlScheme.MoveGroup controls = getCurGroup();
+		AbilityControlScheme.MoveGroup controls = getCurGroup();
 		InputsByKeyModifier allBindsInKey = controls.getBinds().get(key);
 		if (allBindsInKey != null) {
 			return allBindsInKey.getAll(currentModifier, keyInputMethod);
 		}
 		
-		for (Hotbar hotbar : controls.hotbars) {
+		for (AbilityHotbar hotbar : controls.hotbars) {
 			ClientInputBind hotbarKey = hotbar.useAbilityKey;
 			if (hotbarKey.getKey() == key) {
-				HotbarSlot slot = hotbar.getSelected();
+				AbilityHotbarSlot slot = hotbar.getSelected();
 				if (slot != null) {
 					return slot.getBinds().getAll(currentModifier, keyInputMethod);
 				}
@@ -258,12 +187,14 @@ public class ClientControlScheme {
 			@Nullable Predicate<AbilityInputState> filter) {
 		dest.reset();
 		List<AbilityControlsEntry> abilityNames = getAbilities.apply(curModifier);
-		// shit code
+		// still shit code
 		Stream<Pair<Ability, AbilityConditionCheck>> stream = abilityNames.stream()
-				.map(abilityName -> {
-					AvailableAbilities allAbilities = ClientPowerCache.getAvailableAbilities(abilityName.powerClass);
-					Ability baseAbility = ClientPowerCache.getPower(abilityName.powerClass).getMoveset().getAbility(abilityName.abilityName);
-					AbilityConditionCheck resolvedAbility = allAbilities._inMoveset.get(abilityName.abilityName);
+				.map(_abilityName -> {
+					PowerClass<?> powerClass = _abilityName.powerClass();
+					String abilityName = _abilityName.abilityName();
+					AvailableAbilities allAbilities = ClientPowerCache.getAvailableAbilities(powerClass);
+					Ability baseAbility = ClientPowerCache.getPower(powerClass).getMoveset().getAbility(abilityName);
+					AbilityConditionCheck resolvedAbility = allAbilities._inMoveset.get(abilityName);
 					return baseAbility != null && resolvedAbility != null ? Pair.of(baseAbility, resolvedAbility) : null;
 				})
 				.filter(Objects::nonNull);
@@ -299,8 +230,8 @@ public class ClientControlScheme {
 	}
 	
 	
-	public static ClientControlScheme create(ControlSchemeTemplate template, PowerType powerType) {
-		ClientControlScheme controls = new ClientControlScheme();
+	public static AbilityControlScheme create(ControlSchemeTemplate template, PowerType powerType) {
+		AbilityControlScheme controls = new AbilityControlScheme();
 		PowerClass<?> powerClass = powerType.getPowerClass();
 		controls.powerClassCosmetic = powerClass;
 		
@@ -318,7 +249,7 @@ public class ClientControlScheme {
 			}
 			ClientInputBind toggleHudKeybind = ClientInputBind.toClientInput(toggleHudKey);
 			
-			ClientControlScheme.MoveGroup group = new ClientControlScheme.MoveGroup(groupTemplate.name, 
+			AbilityControlScheme.MoveGroup group = new AbilityControlScheme.MoveGroup(groupTemplate.name, 
 					Component.translatable(groupTemplate.name), toggleHudKeybind);
 			controls.moveGroups.put(groupTemplate.name, group);
 			
@@ -331,18 +262,18 @@ public class ClientControlScheme {
 					InputMethod inputMethod = input.getFirst();
 					String abilityName = bind.getKey();
 					AbilityControlsEntry ability = new AbilityControlsEntry(powerClass, abilityName);
-					group.binds.add(new Bind(inputBind, inputMethod, ability));
+					group.binds.add(new AbilityBind(inputBind, inputMethod, ability));
 				}
 			}
 			
 			// ability hotbars
 			int i = 0;
 			for (AbilitiesHotbar hotbarTemplate : groupTemplate.hotbars) {
-				Hotbar clientHotbar = new Hotbar(
+				AbilityHotbar clientHotbar = new AbilityHotbar(
 						ClientInputBind.toClientInput(hotbarTemplate.useAbilityKey), 
 						ClientInputBind.toClientInput(hotbarTemplate.switchAbilityKey));
 				for (Map<InputKey.Modifier, Map<InputMethod, String>> slotTemplate : hotbarTemplate.slots) {
-					HotbarSlot slot = new HotbarSlot(i++);
+					AbilityHotbarSlot slot = new AbilityHotbarSlot(i++);
 					for (var slotVariation : slotTemplate.entrySet()) {
 						InputKey.Modifier modifier = slotVariation.getKey();
 						for (var abilityEntry : slotVariation.getValue().entrySet()) {

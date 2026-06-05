@@ -29,6 +29,7 @@ import com.github.standobyte.jojo.subsystems.ServerBlockDestroyTracker;
 import com.github.standobyte.jojo.subsystems.entity_grab.LivingComponentGrab;
 import com.github.standobyte.jojo.subsystems.target.ActionTarget;
 import com.github.standobyte.jojo.subsystems.target.AimingEntity;
+import com.github.standobyte.jojo.util.functions.JojoModUtil;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -217,28 +218,29 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 		protected void hitBlock(ActionTarget target, Level level, StandEntity stand) {
 			BlockPos blockPos = target.getBlockPos();
 			BlockState blockState = level.getBlockState(blockPos);
-			
-			double standStrength = stand.getAttackDamage();
-			double standSpeed = stand.getAttackSpeed();
-			
-			float blockHardnessForStand = StandStatFormulas.getBlockHardness(standStrength, blockState, level, blockPos);
-			if (blockHardnessForStand >= 0) {
-				float standEfficiency = StandStatFormulas.getBarrageBlockMiningEfficiency(standStrength, standSpeed);
-				float destroyProgress = standEfficiency / (blockHardnessForStand * 100);
+			if (JojoModUtil.canEntityDestroy(level, blockPos, blockState, stand)) {
+				double standStrength = stand.getAttackDamage();
+				double standSpeed = stand.getAttackSpeed();
 				
-				boolean breakBlock = blockHardnessForStand == 0 || ServerBlockDestroyTracker.addBlockDestroyProgress((ServerLevel) level, stand, 
-						blockPos, blockState, destroyProgress).progressNew >= 1;
-				if (breakBlock) {
-					boolean dropBlock = !isUserCreative();
-					level.destroyBlock(blockPos, dropBlock, stand);
+				float blockHardnessForStand = StandStatFormulas.getBlockHardness(standStrength, blockState, level, blockPos);
+				if (blockHardnessForStand >= 0) {
+					float standEfficiency = StandStatFormulas.getBarrageBlockMiningEfficiency(standStrength, standSpeed);
+					float destroyProgress = standEfficiency / (blockHardnessForStand * 100);
+					
+					boolean breakBlock = blockHardnessForStand == 0 || ServerBlockDestroyTracker.addBlockDestroyProgress((ServerLevel) level, stand, 
+							blockPos, blockState, destroyProgress).progressNew >= 1;
+							if (breakBlock) {
+								boolean dropBlock = !isUserCreative();
+								level.destroyBlock(blockPos, dropBlock, stand);
+							}
 				}
-			}
-			
-			if (blockHardnessForStand != 0) {
-				if (curPhaseTick % 2 == 0) {
-					SoundType blockSounds = blockState.getSoundType(level, blockPos, stand);
-					level.playSound(null, blockPos, blockSounds.getHitSound(), SoundSource.BLOCKS, 
-							(blockSounds.getVolume() + 1.0F) / 8.0F, blockSounds.getPitch() * 0.5F);
+				
+				if (blockHardnessForStand != 0) {
+					if (curPhaseTick % 2 == 0) {
+						SoundType blockSounds = blockState.getSoundType(level, blockPos, stand);
+						level.playSound(null, blockPos, blockSounds.getHitSound(), SoundSource.BLOCKS, 
+								(blockSounds.getVolume() + 1.0F) / 8.0F, blockSounds.getPitch() * 0.5F);
+					}
 				}
 			}
 		}

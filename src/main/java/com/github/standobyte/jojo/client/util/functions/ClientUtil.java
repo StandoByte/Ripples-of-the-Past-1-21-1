@@ -19,6 +19,10 @@ import net.minecraft.world.entity.player.PlayerModelPart;
 public class ClientUtil {
 	public static final int MAX_LIGHT = 0xF000F0;
 	public static final int NO_OVERLAY = OverlayTexture.NO_OVERLAY;
+	
+	public static final float PLAYER_RENDER_SCALE = 0.9375F;
+	public static final float DEFAULT_STAND_WIDTH = 0.6f;
+	public static final float DEFAULT_STAND_HEIGHT = 1.8f;
 
 	public static void setCameraEntityPreventShaderSwitch(Entity entity) {
 		Minecraft mc = Minecraft.getInstance();

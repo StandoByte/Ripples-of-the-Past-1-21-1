@@ -9,5 +9,6 @@
 		"stats": "#FFD800",
 		"aura": "#FFD800"
 	},
-	"story_part": "jojo_ripples:p3"
+	"story_part": "jojo_ripples:p3",
+	"scale": [ 0.7, 2.1 ]
 }
