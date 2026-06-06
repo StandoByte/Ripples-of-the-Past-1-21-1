@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.init;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.sewing.SewingMachineBlock;
-import com.github.standobyte.jojo.mechanics.standarrow.MeteoriteCoreBlock;
+import com.github.standobyte.jojo.mechanics.standmeteorite.MeteoriteCoreBlock;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
