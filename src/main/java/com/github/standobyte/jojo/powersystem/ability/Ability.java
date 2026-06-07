@@ -16,6 +16,7 @@ import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbiliti
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
+import com.github.standobyte.jojo.powersystem.ability.cooldown.AbilityCooldownTracker;
 import com.github.standobyte.jojo.powersystem.ability.finisher.AbilityStandFinisherData;
 import com.github.standobyte.jojo.powersystem.ability.input.ActionInputBuffer.BufferingState;
 import com.github.standobyte.jojo.powersystem.entityaction.HeldInput;
@@ -157,6 +158,12 @@ public class Ability {
 	
 	@ApiStatus.Internal
 	public ConditionCheck checkMainModLogicConditions(AbilityUsageContext context) {
+		LivingEntity user = context.power.getUser();
+		AbilityCooldownTracker cooldowns = AbilityCooldownTracker.get(user);
+		if (cooldowns != null && cooldowns.isOnCooldown(this)) {
+			return ConditionCheck.NEGATIVE;
+		}
+		
 		return ConditionCheck.POSITIVE;
 	}
 	
