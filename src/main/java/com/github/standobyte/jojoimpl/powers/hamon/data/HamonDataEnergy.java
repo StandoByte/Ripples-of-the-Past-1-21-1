@@ -1,6 +1,5 @@
 package com.github.standobyte.jojoimpl.powers.hamon.data;
 
-import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.objects_java.Lerp;
 import com.github.standobyte.jojoimpl.powers.hamon.HamonData;
 
@@ -56,14 +55,16 @@ public class HamonDataEnergy {
 		int HAMON_BREATH_MAX_TICKS = 80;
 		float MAX_ENERGY_GAIN_MULTIPLIER = 4;
 		int KEEP_BREATH_BUFF_TIME_MULTIPLIER = 4;
+		int BREATH_BUFF_WEAR_OFF_DURATION = 10;
 		
 		float curEnergy = energyAmount.get();
 
 		float maxPassive = getMaxEnergyPassive();
 		float maxPossible = getMaxEnergyPossible();
 		float energyLimit = isHamonBreathing ? maxPossible : maxPassive;
-		if (maxAmountIncreaseNoDecayTime > 0) {
-			energyLimit = Math.max(energyLimit, curEnergy);
+		if (maxAmountIncreaseNoDecayTime > -BREATH_BUFF_WEAR_OFF_DURATION) {
+			float buffRatio = Mth.clamp(1 + (float) maxAmountIncreaseNoDecayTime / BREATH_BUFF_WEAR_OFF_DURATION, 0, 1);
+			energyLimit = Mth.clamp(curEnergy, energyLimit, maxPassive + (maxPossible - maxPassive) * buffRatio);
 		}
 		
 		float energyGain = maxPossible / FULL_BAR_GAIN_TIME;
@@ -82,7 +83,7 @@ public class HamonDataEnergy {
 			maxAmountIncreaseNoDecayTime = Math.min(maxAmountIncreaseNoDecayTime + KEEP_BREATH_BUFF_TIME_MULTIPLIER,
 					HAMON_BREATH_MAX_TICKS * KEEP_BREATH_BUFF_TIME_MULTIPLIER);
 		}
-		else if (maxAmountIncreaseNoDecayTime > 0) {
+		else if (maxAmountIncreaseNoDecayTime > -BREATH_BUFF_WEAR_OFF_DURATION) {
 			maxAmountIncreaseNoDecayTime--;
 		}
 	}

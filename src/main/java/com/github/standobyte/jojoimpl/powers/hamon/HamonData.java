@@ -32,6 +32,11 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 // TODO atrribute for Hamon efficiency (decreased by freezing and bleeding, affects Hamon strength and Hamon energy gain speed)
+/* add other attributes modified by Hamon leveling?
+ *   energy capacity
+ *   energy refill speed
+ *   energy staying time
+ */
 public class HamonData extends PlayerPowerData {
 	public HamonDataEnergy energy = new HamonDataEnergy(this);
 	public HamonDataStats stats = new HamonDataStats(this);
