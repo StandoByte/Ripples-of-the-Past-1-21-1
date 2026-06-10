@@ -7,9 +7,9 @@ import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 
-public class HamonOverdriveBeatAbility extends EntityActionAbility {
+public class HamonOverdriveAbility extends EntityActionAbility {
 
-	public HamonOverdriveBeatAbility(AbilityType<?> abilityType, AbilityId abilityId) {
+	public HamonOverdriveAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId, HamonOverdriveBeat::new);
 		setDefaultPhaseLength(ActionPhase.WINDUP, 5);
 		setDefaultPhaseLength(ActionPhase.PERFORM, 3);

@@ -269,14 +269,8 @@
   "jojo_ripples.overlay.stand_strength": "Stand Strength: %s",
   "jojo_ripples.notification.stand_skill": "New Stand skills available:",
   
-  "ripples_hud.energy_hamon": "Hamon Energy",
-  "ripples_hud.energy_hamon.desc": "WIP",
-  
   "ripples_hud.hold_key": "Hold %s",
   "ripples_hud.hotbar_switch": "(%s to switch ability)",
-  
-  "jojo_ripples.class.stand": "Stand: %s",
-  "jojo_ripples.class.player_power": "Character Power: %s",
   
   
   "power.jojo_ripples.hamon": "Hamon",
@@ -288,10 +282,23 @@
   "moveset_group.hamon.combat": "Hamon: Combat",
   "moveset_group.hamon.utility": "Hamon: Utility",
   
+  "ripples_hud.energy_hamon": "Hamon Energy",
+  "ripples_hud.energy_hamon.desc": "WIP",
+  
+  "jojo_ripples.ability.hamon_breath": "Hamon Breath",
+  "jojo_ripples.ability.hamon_overdrive": "Overdrive",
+  "jojo_ripples.ability.hamon_sunlight_yellow_overdrive": "Sunlight Yellow Overdrive",
+  "jojo_ripples.ability.hamon_rebuff_overdrive": "Rebuff Overdrive",
+  
+  "jojo.message.action_condition.no_air": "You cannot breathe in",
+  
   
   "power.jojo_ripples.vampirism": "Vampirism",
   "jojo_ripples.vampirism.skills": "Skills",
   
+  
+  "jojo_ripples.class.stand": "Stand: %s",
+  "jojo_ripples.class.player_power": "Character Power: %s",
   
   "item.jojo_ripples.stand_disc": "Stand Disc",
   "item.jojo_ripples.stand_disc.wip": "Work in progress",

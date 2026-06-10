@@ -269,14 +269,8 @@
   "jojo_ripples.overlay.stand_strength": "Сила Стенда: %s",
   "jojo_ripples.notification.stand_skill": "Доступны новые навыки Стенда:",
   
-  "ripples_hud.energy_hamon": "Энергия Хамона",
-  "ripples_hud.energy_hamon.desc": "В разработке",
-  
   "ripples_hud.hold_key": "Удерж. %s",
   "ripples_hud.hotbar_switch": "(%s - выбрать способность)",
-  
-  "jojo_ripples.class.stand": "Стенд: %s",
-  "jojo_ripples.class.player_power": "Сила персонажа: %s",
   
   
   "power.jojo_ripples.hamon": "Хамон",
@@ -288,10 +282,23 @@
   "moveset_group.hamon.combat": "Хамон: бой",
   "moveset_group.hamon.utility": "Хамон: поддержка",
   
+  "ripples_hud.energy_hamon": "Энергия Хамона",
+  "ripples_hud.energy_hamon.desc": "В разработке",
+  
+  "jojo_ripples.ability.hamon_breath": "Дыхание Хамона",
+  "jojo_ripples.ability.hamon_overdrive": "Овердрайв",
+  "jojo_ripples.ability.hamon_sunlight_yellow_overdrive": "Солнечно-жёлтый Овердрайв",
+  "jojo_ripples.ability.hamon_rebuff_overdrive": "Овердрайв Отпора",
+  
+  "jojo.message.action_condition.no_air": "Вы не можете вдохнуть",
+  
   
   "power.jojo_ripples.vampirism": "Вампиризм",
   "jojo_ripples.vampirism.skills": "Навыки",
   
+  
+  "jojo_ripples.class.stand": "Стенд: %s",
+  "jojo_ripples.class.player_power": "Сила персонажа: %s",
 
   "item.jojo_ripples.stand_disc": "Диск со Стендом",
   "item.jojo_ripples.stand_disc.wip": "В разработке",

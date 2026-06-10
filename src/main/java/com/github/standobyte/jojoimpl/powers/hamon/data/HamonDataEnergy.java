@@ -53,38 +53,53 @@ public class HamonDataEnergy {
 	public void tick(LivingEntity user) {
 		float FULL_BAR_GAIN_TIME = 200;
 		int HAMON_BREATH_MAX_TICKS = 80;
-		float MAX_ENERGY_GAIN_MULTIPLIER = 4;
 		int KEEP_BREATH_BUFF_TIME_MULTIPLIER = 4;
 		int BREATH_BUFF_WEAR_OFF_DURATION = 10;
 		
 		float curEnergy = energyAmount.get();
-
-		float maxPassive = getMaxEnergyPassive();
-		float maxPossible = getMaxEnergyPossible();
-		float energyLimit = isHamonBreathing ? maxPossible : maxPassive;
-		if (maxAmountIncreaseNoDecayTime > -BREATH_BUFF_WEAR_OFF_DURATION) {
-			float buffRatio = Mth.clamp(1 + (float) maxAmountIncreaseNoDecayTime / BREATH_BUFF_WEAR_OFF_DURATION, 0, 1);
-			energyLimit = Mth.clamp(curEnergy, energyLimit, maxPassive + (maxPossible - maxPassive) * buffRatio);
+		int _air = user.getAirSupply();
+		if (_air <= 0) {
+			_maxEnergy.set(0, true);
+			energyAmount.set(0, true);
+			isHamonBreathing = false;
+			breathTicks = 0;
+			maxAmountIncreaseNoDecayTime = -BREATH_BUFF_WEAR_OFF_DURATION;
 		}
-		
-		float energyGain = maxPossible / FULL_BAR_GAIN_TIME;
-		if (isHamonBreathing && breathTicks >= 0) {
-			float breathFactor = Math.min((float) breathTicks / HAMON_BREATH_MAX_TICKS, 1);
-			energyGain *= breathFactor * (MAX_ENERGY_GAIN_MULTIPLIER - 1) + 1;
-		}
-		float newValue = Mth.clamp(curEnergy + energyGain, 0, energyLimit);
-		energyAmount.set(newValue, true);
-		
-		float max = Mth.clamp(newValue, maxPassive, maxPossible);
-		_maxEnergy.set(max, true);
-		
-		if (isHamonBreathing) {
-			breathTicks = Math.min(breathTicks + 1, HAMON_BREATH_MAX_TICKS);
-			maxAmountIncreaseNoDecayTime = Math.min(maxAmountIncreaseNoDecayTime + KEEP_BREATH_BUFF_TIME_MULTIPLIER,
-					HAMON_BREATH_MAX_TICKS * KEEP_BREATH_BUFF_TIME_MULTIPLIER);
-		}
-		else if (maxAmountIncreaseNoDecayTime > -BREATH_BUFF_WEAR_OFF_DURATION) {
-			maxAmountIncreaseNoDecayTime--;
+		else {
+			int _maxAir = user.getMaxAirSupply();
+			boolean atFullAir = _air >= _maxAir;
+			//float airRatio = !atFullAir ? (float) _air / (float) _maxAir : 1;
+			
+			float maxPassive = getMaxEnergyPassive();
+			float maxPossible = getMaxEnergyPossible();
+			
+			float energyLimit = isHamonBreathing ? maxPossible : maxPassive;
+			if (maxAmountIncreaseNoDecayTime > -BREATH_BUFF_WEAR_OFF_DURATION) {
+				float buffRatio = Mth.clamp(1 + (float) maxAmountIncreaseNoDecayTime / BREATH_BUFF_WEAR_OFF_DURATION, 0, 1);
+				float curMax = maxPassive + (maxPossible - maxPassive) * buffRatio;
+				energyLimit = Mth.clamp(curEnergy, energyLimit, curMax);
+			}
+			
+			if (atFullAir) {
+				float energyGain = maxPossible / FULL_BAR_GAIN_TIME;
+				if (isHamonBreathing && breathTicks >= 0 && curEnergy < maxPassive) {
+					energyGain *= 2;
+				}
+				curEnergy = Mth.clamp(curEnergy + energyGain, 0, energyLimit);
+			}
+			
+			float max = Mth.clamp(curEnergy, maxPassive, maxPossible);
+			_maxEnergy.set(max, true);
+			energyAmount.set(Math.min(curEnergy, max), true);
+			
+			if (isHamonBreathing) {
+				breathTicks = Math.min(breathTicks + 1, HAMON_BREATH_MAX_TICKS);
+				maxAmountIncreaseNoDecayTime = Math.min(maxAmountIncreaseNoDecayTime + KEEP_BREATH_BUFF_TIME_MULTIPLIER,
+						HAMON_BREATH_MAX_TICKS * KEEP_BREATH_BUFF_TIME_MULTIPLIER);
+			}
+			else if (maxAmountIncreaseNoDecayTime > -BREATH_BUFF_WEAR_OFF_DURATION) {
+				maxAmountIncreaseNoDecayTime--;
+			}
 		}
 	}
 

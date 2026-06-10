@@ -4,9 +4,11 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
+import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.ability.EntityActionAbility;
+import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -23,6 +25,15 @@ public class HamonBreathAbility extends EntityActionAbility {
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 5); // just for the animation
 	}
 
+	@Override
+	public ConditionCheck checkSpecificConditions(Power<?> context) {
+		LivingEntity user = context.getUser();
+		if (user.getAirSupply() < user.getMaxAirSupply()) {
+			return ConditionCheck.createNegative("no_air");
+		}
+		return ConditionCheck.POSITIVE;
+	}
+
 	public static class HamonBreath extends EntityActionInstance {
 		HamonData hamon;
 		
@@ -37,6 +48,14 @@ public class HamonBreathAbility extends EntityActionAbility {
 			boolean clientSide = user.level().isClientSide();
 			if (!clientSide || user == ClientProxy.getClientPlayer()) {
 				hamon = PlayerPower.getPowerData(user, ModPlayerPowers.HAMON).orElse(null);
+			}
+		}
+		
+		@Override
+		public void actionTick() {
+			if (phase == ActionPhase.PERFORM && !level().isClientSide()
+					&& performer.getAirSupply() < performer.getMaxAirSupply()) {
+				startRecovery();
 			}
 		}
 
