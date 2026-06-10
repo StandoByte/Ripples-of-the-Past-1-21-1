@@ -12,6 +12,7 @@ import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerData;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
+import com.github.standobyte.jojoimpl.powers.pillarman.PillarmanAttributeModifiers;
 
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
@@ -92,6 +93,20 @@ public class CharacterSpecies {
 			}
 		}
 		return nativeSpecies;
+	}
+	
+	public static void updateSpeciesAttributes(LivingEntity entity, 
+			CharacterSpecies prevSpecies, CharacterSpecies species) {
+		if (species == PILLAR_MAN) {
+			for (var modifier : PillarmanAttributeModifiers.SPECIES_MODIFIERS) {
+				modifier.addOrUpdateTransient(entity);
+			}
+		}
+		else if (prevSpecies == PILLAR_MAN) {
+			for (var modifier : PillarmanAttributeModifiers.SPECIES_MODIFIERS) {
+				modifier.remove(entity);
+			}
+		}
 	}
 	
 }

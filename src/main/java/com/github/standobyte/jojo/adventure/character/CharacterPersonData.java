@@ -69,9 +69,15 @@ public class CharacterPersonData implements SynchronizablePlayerData, TickingEnt
 		 */
 		PlayerPower playerPower = PlayerPower.get(entity);
 		StandPower standPower = StandPower.get(entity);
-		this.__species = CharacterSpecies.replaceSpeciesIfIncompatible(nativeSpecies, 
+		CharacterSpecies species = CharacterSpecies.replaceSpeciesIfIncompatible(nativeSpecies, 
 				playerPower != null ? (PlayerPowerData) playerPower.getCurTypeData() : null, 
 				standPower != null ? standPower.getPowerType() : null);
+		if (this.__species != species) {
+			if (!entity.level().isClientSide()) {
+				CharacterSpecies.updateSpeciesAttributes(entity, __species, species);
+			}
+			this.__species = species;
+		}
 	}
 	
 	
