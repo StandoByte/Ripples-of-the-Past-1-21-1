@@ -4,6 +4,7 @@ import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ui.hud_power.Bars;
 import com.github.standobyte.jojo.client.ui.hud_power.HudElement;
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHud;
+import com.github.standobyte.jojo.client.ui.hud_power.PowerHudControlsElement;
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHud.AbilityHud;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
@@ -68,7 +69,7 @@ public class HamonEnergyBar extends HudElement {
 	public boolean shouldRender() {
 		if (hud.forContainerMenu.isTrue()) return false;
 		HamonPowerType hamon = ModPlayerPowers.HAMON.get();
-		return hamon != null && controlsHaveTypeAndAbility(PowerClass.PLAYER_POWER, hamon);
+		return hamon != null && PowerHudControlsElement.controlsHaveTypeAndAbility(PowerClass.PLAYER_POWER, hamon);
 	}
 
 	@Override
