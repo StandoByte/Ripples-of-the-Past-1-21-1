@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.firstperson;
 
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 import org.joml.Matrix4f;
@@ -529,7 +531,8 @@ public class FirstPersonRender {
 	
 	public static void renderLayers(LivingEntityRenderer renderer, LivingEntity entity, PoseStack poseStack, 
 			MultiBufferSource buffer, int light, HumanoidArm handSide) {
-		for (FirstPersonModelLayer layer : ((FirstPersonLayersAccess) renderer).jojo_ripples$firstPersonHandLayers()) {
+		List<FirstPersonModelLayer> layers = ((LivingLayersAccess) renderer).jojo_ripples$firstPersonHandLayers();
+		for (FirstPersonModelLayer layer : layers) {
 			layer.renderHandFirstPerson(handSide, poseStack, buffer, light, entity, renderer);
 		}
 	}

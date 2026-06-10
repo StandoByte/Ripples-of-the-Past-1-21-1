@@ -11,6 +11,7 @@ import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
+// TODO tie to "pillar_man" CharacterSpecies
 public class PillarmanPowerType extends PlayerPowerType<PillarmanData> {
 
 	public static final DeferredHolder<AbilityType<?>, AbilityType<Ability>> PILLAR_MAN_ABSORPTION = ABILITY_TYPES.register(

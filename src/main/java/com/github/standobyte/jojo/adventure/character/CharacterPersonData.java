@@ -1,11 +1,14 @@
 package com.github.standobyte.jojo.adventure.character;
 
+import javax.annotation.Nonnull;
+
 import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.entityattachment.ComponentUtil;
 import com.github.standobyte.jojo.entityattachment.SynchronizablePlayerData;
 import com.github.standobyte.jojo.entityattachment.TickingEntityData;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
+import com.github.standobyte.jojo.util.functions.NBTUtil;
 
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
@@ -24,6 +27,8 @@ import net.neoforged.neoforge.network.PacketDistributor;
 @EventBusSubscriber(modid = JojoMod.MOD_ID)
 public class CharacterPersonData implements SynchronizablePlayerData, TickingEntityData, INBTSerializable<CompoundTag> {
 	public final LivingEntity entity;
+	
+	@Nonnull public CharacterSpecies species = CharacterSpecies.HUMAN;
 	
 	public CharacterPersonData(LivingEntity entity) {
 		this.entity = entity;
@@ -92,12 +97,15 @@ public class CharacterPersonData implements SynchronizablePlayerData, TickingEnt
 	public CompoundTag serializeNBT(Provider provider) {
 		CompoundTag nbt = new CompoundTag();
 		nbt.putLong("Age", age);
+		nbt.put("Species", species.toNBT());
 		return nbt;
 	}
 
 	@Override
 	public void deserializeNBT(Provider provider, CompoundTag nbt) {
 		this.age = nbt.getLong("Age");
+		this.species = NBTUtil.getCompoundOptional(nbt, "Species")
+				.map(CharacterSpecies::fromNBT).orElse(CharacterSpecies.HUMAN);
 	}
 	
 

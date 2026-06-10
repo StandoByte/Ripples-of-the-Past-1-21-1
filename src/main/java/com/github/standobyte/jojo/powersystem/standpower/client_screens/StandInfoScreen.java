@@ -36,8 +36,6 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.LivingEntity;
 
 public class StandInfoScreen extends Screen implements IJojoMenuScreen {
-	public static final ResourceLocation WINDOW = JojoMod.resLoc("textures/gui/paper_style/empty3.png");
-	
 	protected ResourceLocation texture;
 	protected TabCategory category;
 	protected Tab tab;

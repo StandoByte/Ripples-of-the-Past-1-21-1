@@ -4,6 +4,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.github.standobyte.jojo.adventure.character.client.CharacterProfileScreen;
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.ClientTickHandler;
@@ -90,7 +91,8 @@ public class JojoMenuTabs {
 			Component curCharacterName = curCharacter != null ? curCharacter.getDisplayName() : CommonComponents.EMPTY;
 			return Component.translatable(JojoMod.MOD_ID + ".menu.player.profile", curCharacterName);
 		}
-	};
+	}
+			.withScreen(tab -> new CharacterProfileScreen(tab.category, tab));
 	
 	public static final Tab GROUP = new Tab(CATEGORY_ADVENTURE)
 			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.player.group"))
@@ -120,7 +122,6 @@ public class JojoMenuTabs {
 			
 	static {
 		if (JojoMod.disableDevStuff()) {
-			PLAYER_PROFILE.isDisabled = true;
 			GROUP.isDisabled = true;
 			STORY_ARCS.isDisabled = true;
 			ADVENTURE_SETTINGS.isDisabled = true;
