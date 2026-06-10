@@ -2,12 +2,17 @@ package com.github.standobyte.jojo.adventure.character;
 
 import javax.annotation.Nonnull;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.entityattachment.ComponentUtil;
 import com.github.standobyte.jojo.entityattachment.SynchronizablePlayerData;
 import com.github.standobyte.jojo.entityattachment.TickingEntityData;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
+import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
+import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerData;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.util.functions.NBTUtil;
 
 import net.minecraft.core.HolderLookup.Provider;
@@ -28,7 +33,8 @@ import net.neoforged.neoforge.network.PacketDistributor;
 public class CharacterPersonData implements SynchronizablePlayerData, TickingEntityData, INBTSerializable<CompoundTag> {
 	public final LivingEntity entity;
 	
-	@Nonnull public CharacterSpecies species = CharacterSpecies.HUMAN;
+	@Nonnull private CharacterSpecies nativeSpecies = CharacterSpecies.HUMAN;
+	private CharacterSpecies __species;
 	
 	public CharacterPersonData(LivingEntity entity) {
 		this.entity = entity;
@@ -57,6 +63,25 @@ public class CharacterPersonData implements SynchronizablePlayerData, TickingEnt
 			entity.refreshDimensions();
 		}
 		this.prevAge = age;
+		
+		/* this doesn't need to run every tick, but trying to optimize every single time
+		 * is making my head explode at this point, we'll roll with that for now
+		 */
+		PlayerPower playerPower = PlayerPower.get(entity);
+		StandPower standPower = StandPower.get(entity);
+		this.__species = CharacterSpecies.replaceSpeciesIfIncompatible(nativeSpecies, 
+				playerPower != null ? (PlayerPowerData) playerPower.getCurTypeData() : null, 
+				standPower != null ? standPower.getPowerType() : null);
+	}
+	
+	
+	@ApiStatus.Internal
+	public void __initializeCharacterSpecies(CharacterSpecies species) {
+		this.nativeSpecies = species;
+	}
+	
+	public CharacterSpecies getSpecies() {
+		return __species;
 	}
 
 	
@@ -97,14 +122,14 @@ public class CharacterPersonData implements SynchronizablePlayerData, TickingEnt
 	public CompoundTag serializeNBT(Provider provider) {
 		CompoundTag nbt = new CompoundTag();
 		nbt.putLong("Age", age);
-		nbt.put("Species", species.toNBT());
+		nbt.put("Species", nativeSpecies.toNBT());
 		return nbt;
 	}
 
 	@Override
 	public void deserializeNBT(Provider provider, CompoundTag nbt) {
 		this.age = nbt.getLong("Age");
-		this.species = NBTUtil.getCompoundOptional(nbt, "Species")
+		this.nativeSpecies = NBTUtil.getCompoundOptional(nbt, "Species")
 				.map(CharacterSpecies::fromNBT).orElse(CharacterSpecies.HUMAN);
 	}
 	

@@ -47,7 +47,6 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
@@ -146,7 +145,7 @@ public class CharacterProfileScreen extends Screen implements IJojoMenuScreen {
 		List<FormattedCharSequence> textLines = new ArrayList<>();
 		if (characterData != null) {
 			addLine(textLines, Component.translatable("jojo_ripples.char_profile.species", 
-					characterData.species.getResultingName(entity, power)));
+					characterData.getSpecies().getResultingName(entity, power)));
 		}
 		
 		if (powerData != null) {

@@ -3,12 +3,16 @@ package com.github.standobyte.jojo.adventure.character;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.powersystem.PowerData;
 import com.github.standobyte.jojo.powersystem.PowerType;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
+import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerData;
+import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
-import net.minecraft.Util;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -16,15 +20,14 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
 public class CharacterSpecies {
-	public static final Map<String, CharacterSpecies> SPECIES = Util.make(new HashMap<>(), map -> {
-		map.computeIfAbsent("human", CharacterSpecies::new);
-		map.computeIfAbsent("maybe_alien", CharacterSpecies::new);
-		map.computeIfAbsent("pillar_man", CharacterSpecies::new);
-		map.computeIfAbsent("rock_human", CharacterSpecies::new);
-		map.computeIfAbsent("plankton", CharacterSpecies::new);
-		// different animals species also go here
-	});
+	public static final Map<String, CharacterSpecies> SPECIES = new HashMap<>();
+	
 	public static final CharacterSpecies HUMAN = fromName("human");
+	public static final CharacterSpecies MAYBE_ALIEN = fromName("maybe_alien");
+	public static final CharacterSpecies PILLAR_MAN = fromName("pillar_man");
+	public static final CharacterSpecies ROCK_HUMAN = fromName("rock_human");
+	public static final CharacterSpecies PLANKTON = fromName("plankton");
+	// different animal species also go here
 	
 	public final String name;
 	public final Component nameTl;
@@ -71,6 +74,24 @@ public class CharacterSpecies {
         return (((v = SPECIES.get(name)) != null) || SPECIES.containsKey(name))
             ? v
             : new CharacterSpecies(name);
+	}
+	
+	
+	public static CharacterSpecies replaceSpeciesIfIncompatible(CharacterSpecies nativeSpecies, 
+			@Nullable PlayerPowerData playerPowerData, @Nullable StandType standType) {
+//		if (standType != null && standType == ModStands.FOO_FIGHTERS.get()) {
+//			return PLANKTON;
+//		}
+		if (playerPowerData != null) {
+			PlayerPowerType<?> playerPowerType = playerPowerData.getPowerType();
+			if (playerPowerType == ModPlayerPowers.PILLAR_MAN.get()) {
+				return PILLAR_MAN;
+			}
+			if (playerPowerType != null && (nativeSpecies == PILLAR_MAN || nativeSpecies == PLANKTON)) {
+				return HUMAN;
+			}
+		}
+		return nativeSpecies;
 	}
 	
 }
