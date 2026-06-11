@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 import com.github.standobyte.jojo.JojoModEntityVariables;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectType;
+import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataExtended;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.network.s2c.EntityDirectPosNoLerpPacket;
@@ -205,7 +206,7 @@ public class TimeStopEffect extends StandEffectInstance implements TimeStopInsta
 			variables.synchedData.set(JojoModEntityVariables.INSIDE_TIME_STOP_ZONE.param, true);
 			variables.synchedData.set(JojoModEntityVariables.STOPPED_IN_TIME.param, isFrozen);
 			variables.synchedData.set(JojoModEntityVariables.CAN_SEE_IN_STOPPED_TIME.param, canSee);
-			variables.tickSyncDirtyData();
+			SynchedDataExtended.tickSyncDirtyData(variables.synchedData.getDataSyncher(), entity);
 			if (isFrozen) {
 				// should prevent the old position desync if the entity was moving at high speed
 				PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new EntityDirectPosNoLerpPacket(entity.getId(), entity.position()));
@@ -217,7 +218,7 @@ public class TimeStopEffect extends StandEffectInstance implements TimeStopInsta
 				variables.synchedData.set(JojoModEntityVariables.INSIDE_TIME_STOP_ZONE.param, false);
 				variables.synchedData.set(JojoModEntityVariables.STOPPED_IN_TIME.param, false);
 				variables.synchedData.set(JojoModEntityVariables.CAN_SEE_IN_STOPPED_TIME.param, true);
-				variables.tickSyncDirtyData();
+				SynchedDataExtended.tickSyncDirtyData(variables.synchedData.getDataSyncher(), entity);
 			}
 		}
 	}
