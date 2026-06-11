@@ -1,7 +1,6 @@
 package com.github.standobyte.jojo;
 
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,9 +9,9 @@ import java.util.List;
 import com.github.standobyte.jojo.client.shader.ColorShiftEffect;
 import com.github.standobyte.jojo.client.shader.ColorShiftShader;
 import com.github.standobyte.jojo.client.shader.ModShaders;
-import com.github.standobyte.jojo.client.sound.bgmloop.BgmPlayer;
+import com.github.standobyte.jojo.client.sound.bgmloop.BgmEngine;
+import com.github.standobyte.jojo.client.sound.bgmloop.BgmInstance;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo;
-import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackLoader;
 import com.github.standobyte.jojo.client.sound.bgmloop.DebugBgm;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
@@ -102,13 +101,13 @@ public class DebugItem extends Item {
 						if (standSkin != null) {
 							Weighted<BgmTrackInfo> track = DebugBgm.cycleVariation(DebugBgm.BgmTrackType.STAND_SKINS, standSkin.skinId);
 							if (track != null) {
-								BgmPlayer player = new BgmPlayer(track);
-								player.start();
+								BgmInstance bgm = new BgmInstance(track, BgmInstance.BgmType.STAND_RESOLVE);
+								bgm.start();
 							}
 						}
 					}
 					case 1 -> {
-						BgmPlayer curPlaying = BgmTrackLoader.getInstance().bgmPlaying;
+						BgmInstance curPlaying = BgmEngine.getCurTrackPlaying();
 						if (curPlaying != null) {
 							curPlaying.finishWithOutro();
 						}

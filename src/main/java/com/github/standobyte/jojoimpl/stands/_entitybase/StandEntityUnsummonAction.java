@@ -13,10 +13,9 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-// XXX (gradual unsummon) remove the hud as soon as you press the button
-// XXX (gradual unsummon) move the stand inside the user
 public class StandEntityUnsummonAction extends SpecialEntityActionType {
 
 	public StandEntityUnsummonAction(ResourceLocation id) {
@@ -38,7 +37,7 @@ public class StandEntityUnsummonAction extends SpecialEntityActionType {
 
 		protected StandUnsummonInstance(EntityActionType ability) {
 			super(ability);
-			phasesLength.put(ActionPhase.PERFORM, 2f); // set to 5 when the todos are done
+			phasesLength.put(ActionPhase.PERFORM, 10f);
 		}
 		
 		@Override
@@ -55,10 +54,12 @@ public class StandEntityUnsummonAction extends SpecialEntityActionType {
 				}
 			}
 		}
-		
+
+		protected static final double OFFSET_REDUCE_PER_TICK = 0.1;
+		protected static final double MIN_OFFSET = 0.2;
 		@Override
 		protected void _incPhaseTick() {
-			if (performer instanceof StandEntity standEntity && (standEntity.isCloseToUser() || standEntity.isFollowingUser())) {
+			if (performer instanceof StandEntity standEntity && canTickUnsummon(standEntity)) {
 				if (!performer.level().isClientSide() && !playedSound) {
 					LivingEntity user = getPowerUser();
 					if (user != null) {
@@ -66,8 +67,22 @@ public class StandEntityUnsummonAction extends SpecialEntityActionType {
 						playedSound = true;
 					}
 				}
+				
+				Vec3 offsetVec = standEntity.offsetFromUser.relativeOffset;
+				if (offsetVec != null) {
+					double offsetDist = offsetVec.lengthSqr();
+					if (offsetDist > MIN_OFFSET * MIN_OFFSET) {
+						offsetDist = Math.sqrt(offsetDist);
+						standEntity.offsetFromUser.relativeOffset = offsetVec.scale(
+								Math.max((offsetDist - OFFSET_REDUCE_PER_TICK), MIN_OFFSET) / offsetDist);
+					}
+				}
 				super._incPhaseTick();
 			}
+		}
+		
+		public static boolean canTickUnsummon(StandEntity standEntity) {
+			return standEntity.isCloseToUser() || standEntity.isFollowingUser();
 		}
 
 		@Override

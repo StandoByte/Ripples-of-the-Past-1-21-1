@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.client.ClientTickables;
 import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.init.ModParticles;
 import com.github.standobyte.jojo.mechanics.standarrow.StandArrowItem;
+import com.github.standobyte.jojo.mechanics.standarrow.StandArrowLore;
 import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.util.OOPMoment;
 
@@ -29,7 +30,7 @@ import net.minecraft.world.phys.Vec3;
 public class SpawnArrowsInSusBlocks {
 
 	@Nullable
-	public static Item standArrowToPut(LivingEntity player, ServerLevel level) {
+	public static ItemStack standArrowToPut(LivingEntity player, ServerLevel level, BlockPos blockPos) {
 		Holder<Item> arrowToPut = null;
 		JojoModLivingVariables playerVars = JojoModLivingVariables.get(player);
 		ServerSavedData serverVars = ServerSavedData.get(level.getServer());
@@ -65,8 +66,11 @@ public class SpawnArrowsInSusBlocks {
 
 		if (arrowToPut != null) {
 			playerVars.foundAnArrow = true;
+			ItemStack item = arrowToPut.value().getDefaultInstance();
+			StandArrowLore.onArrowFoundInSusBlock(item, player, level, blockPos);
+			return item;
 		}
-		return arrowToPut != null ? arrowToPut.value() : null;
+		return null;
 	}
 	
 	public static void onItemSynchedToClient(BlockEntity brushableBlockEntity, ItemStack item) {

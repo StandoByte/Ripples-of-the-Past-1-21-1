@@ -12,6 +12,24 @@
   "item.jojo_ripples.meteoric_scrap": "Meteoric Scrap",
   "item.jojo_ripples.meteoric_ingot": "Meteoric Ingot",
   
+  "jojo_ripples.stand_arrow.lore.ancient": "This arrow was discovered in an archaeological excavation.",
+  "jojo_ripples.stand_arrow.lore.ancient.name": "This arrow was discovered by %s in an archaeological excavation.",
+  "jojo_ripples.stand_arrow.lore.ancient.structure": "This arrow was discovered in an archaeological excavation in %s.",
+  "jojo_ripples.stand_arrow.lore.ancient.name.structure": "This arrow was discovered by %1$s in an archaeological excavation in %2$s.",
+  "prepositional.structure.minecraft.trail_ruins": "Trail Ruins",
+  "prepositional.structure.minecraft.ocean_ruin_cold": "a Cold Ocean Ruin",
+  "prepositional.structure.minecraft.ocean_ruin_warm": "a Warm Ocean Ruin",
+  "prepositional.structure.minecraft.desert_pyramid": "a Desert Pyramid",
+  "jojo_ripples.stand_arrow.lore.ancient.used": "The ancients who crafted these arrows sought to acquire powers like an almighty god.",
+  "jojo_ripples.stand_arrow.lore.meteorite": "The tip of this arrow is made of a mysterious rock material from inside a meteorite. Said material contains a dangerous virus causing violent symptoms in those infected.",
+  "jojo_ripples.stand_arrow.lore.meteorite.name": "The tip of this arrow crafted by %s is made of a mysterious rock material from inside a meteorite. Said material contains a dangerous virus causing violent symptoms in those infected.",
+  "jojo_ripples.stand_arrow.lore.meteorite.used": "However, those who survive awaken supernatural abilities, which is why the purpose of the virus is believed to be the evolution of the Overworld's life.",
+  "jojo_ripples.stand_shard.lore": "One of the shards of the tip of a broken Arrow. It is very sharp and is still capable of awakening a Stand.",
+  "jojo_ripples.stand_shard.lore.item_name": "One of the shards of the tip of a broken %s. It is very sharp and is still capable of awakening a Stand.",
+  "jojo_ripples.stand_shard.lore.user_name": "One of the shards of the tip of a broken Arrow used by %s. It is very sharp and is still capable of awakening a Stand.",
+  "jojo_ripples.stand_shard.lore.item_name.user_name": "One of the shards of the tip of a broken %1$s used by %2$s. It is very sharp and is still capable of awakening a Stand.",
+  "trim_material.jojo_ripples.jojo_meteor": "Meteoric Material",
+  
   "key.categories.jojo_ripples": "JoJo: Ripples of the Past",
   "jojo_ripples.key.toggle_stand": "Summon/unsummon Stand",
   "jojo_ripples.key.toggle_stand.desc": "Also toggles the Stand controls HUD.",
@@ -79,6 +97,10 @@
   "rotp_tag_wip": "Work in progress",
   "rotp_tag_nyi": "Not yet implemented",
   
+  "jojo_ripples.options.player_pref": "Player preference",
+  "jojo_ripples.options.player_pref.composed": "%s: Player preference",
+  "jojo_ripples.toggle_overruled": "This toggle is overruled by the server setting (%s)",
+  "jojo_ripples.toggle.show_in_hud": "Show in HUD",
   "jojo_ripples.config": "ROTP & addons config",
   "jojo_ripples.config_category.client": "Client",
   "jojo_ripples.config_category.common": "Gameplay",
@@ -97,6 +119,8 @@
   
   "jojo_ripples.config.title": "ROTP",
   
+  "jojo_ripples.config.standsBreakBlocks": "Stands break blocks",
+  "jojo_ripples.config.standsBreakBlocks.tooltip": "Server-wide setting of Stands destroying blocks. If set to \"Player preference\", each player can set it for themself individually.",
   "jojo_ripples.config.dropStandAsDisc": "Drop Stand as Disc",
   "jojo_ripples.config.dropStandAsDisc.tooltip": "If enabled, Stand users also drop their Stand in form of a Disc item upon death.",
   "jojo_ripples.config.standStamina": "Stand Stamina",
@@ -277,6 +301,12 @@
   "item.jojo_ripples.stand_disc.data_pack": "Data pack Stand",
   "jojo_ripples.menu.stand.info": "Stand Info",
   "jojo_ripples.menu.stand.skills": "Skills",
+  "jojo_ripples.menu.stand.toggles": "Toggles",
+  
+  "jojo_ripples.stand_toggles.destroy_blocks": "Break blocks",
+  "jojo_ripples.stand_toggles.stand_pick_up_items": "Pick up items",
+  "jojo_ripples.stand_toggles.stand_move_beyond_eff_range": "Move beyond effective range",
+  
   "jojo_ripples.menu.stand.skins": "Stand Skins",
   "moveset_default_group": "Moveset",
   "moveset_group.stand.tooltip": "This enables the controls of your Stand without immediately summoning it - some of the abilies let you summon just your Stand's arms this way.",

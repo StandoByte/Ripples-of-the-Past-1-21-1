@@ -89,8 +89,8 @@ public class RotpAnimDefinition {
 				String poseName = key.name;
 				boolean addToStandInfoScreen = key.isCoolPose;
 				float timestamp = timestampEntry.getFloatValue();
-				AnimFramePose frame = calcAnimPose(timestamp, 1, null, null);
-				frame = frame.deepCopy();
+				AnimFramePose frame = new AnimFramePose();
+				calcAnimPose(frame, timestamp, 1, null, null);
 				poses.put(poseName, new SavedPose(frame, addToStandInfoScreen));
 			}
 		}

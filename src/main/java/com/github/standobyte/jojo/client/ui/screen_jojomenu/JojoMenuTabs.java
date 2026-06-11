@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.client.standskin.text.StandNameSetColor;
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHud;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
+import com.github.standobyte.jojo.config.stand_toggles.StandTogglesScreen;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.powersystem.Power;
@@ -162,6 +163,11 @@ public class JojoMenuTabs {
 			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.stand.skills"))
 			.withScreen(tab -> new StandSkillsScreen(Component.empty(), tab.category, tab))
 			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/stand_skills.png"), 16, 16));
+	
+	public static final Tab STAND_TOGGLES = new Tab(CATEGORY_STAND)
+			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.stand.toggles"))
+			.withScreen(tab -> new StandTogglesScreen(Component.empty(), tab.category, tab))
+			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/stand_toggles.png"), 16, 16));
 	
 	public static final Tab STAND_SKINS = new Tab(CATEGORY_STAND) {
 		@Override

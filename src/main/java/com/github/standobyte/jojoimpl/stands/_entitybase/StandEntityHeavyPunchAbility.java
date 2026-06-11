@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityLingeringSoundInstance;
+import com.github.standobyte.jojo.config.RotpConfig;
 import com.github.standobyte.jojo.customobjects.DamageSourceModified;
 import com.github.standobyte.jojo.customobjects.entity_projectile.BlockShardEntity;
 import com.github.standobyte.jojo.customobjects.explosion.CustomExplosion;
@@ -39,8 +40,8 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromU
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
 import com.github.standobyte.jojo.subsystems.entity_grab.LivingComponentGrab;
 import com.github.standobyte.jojo.subsystems.target.ActionTarget;
-import com.github.standobyte.jojo.subsystems.target.AimingEntity;
 import com.github.standobyte.jojo.subsystems.target.ActionTarget.TargetType;
+import com.github.standobyte.jojo.subsystems.target.AimingEntity;
 import com.github.standobyte.jojo.util.functions.JojoModUtil;
 import com.github.standobyte.jojo.util.functions_network.StreamCodecs;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDBlockBulletAbility;
@@ -263,7 +264,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 					aoeDmgSource, 
 					pos.x, pos.y, pos.z, 
 					explRadius, false, 
-					JojoModUtil.breakingBlocksEnabled(level) ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.KEEP)
+					RotpConfig.canStandBreakBlocks(getPowerUser()) ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.KEEP)
 					.aoeDamage(aoeDmg)
 					.createBlockShards(stand.getAttackDamage(), stand.getPrecision());
 			CustomExplosion.explode(explosion);

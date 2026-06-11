@@ -1,12 +1,21 @@
 package com.github.standobyte.jojo.mechanics.standarrow;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.locale.Language;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -48,15 +57,42 @@ public class StandArrowShardItem extends Item {
         return InteractionResultHolder.fail(shard);
     }
 
+    static List<Object> tlArgs = new ArrayList<>(2);
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
     	StandArrowItem.addStandNamesToTooltip(tooltipComponents, context);
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+        tooltipComponents.add(CommonComponents.EMPTY);
+        
+    	@Nullable StandArrowShardLore lore = stack.get(ModItemDataComponents.ARROW_SHARD_LORE);
+    	Component arrowItemName = lore != null ? lore.arrowItemName().orElse(null) : null;
+    	Component userName = lore != null ? lore.userCharacterName().orElse(null) : null;
+    	MutableComponent loreLine;
+    	
+    	String tlKey = "jojo_ripples.stand_shard.lore";
+    	tlArgs.clear();
+    	if (arrowItemName != null) {
+    		if (arrowItemName.getContents() instanceof TranslatableContents arrowNameTl) {
+    			String conjugation = "genitive." + arrowNameTl.key;
+    			if (Language.getInstance().has(conjugation)) {
+    				arrowItemName = Component.translatableWithFallback(conjugation, null, arrowNameTl.args);
+    			}
+    		}
+    		tlKey += ".item_name";
+    		tlArgs.add(arrowItemName);
+    	}
+    	if (userName != null) {
+    		tlKey += ".user_name";
+    		tlArgs.add(userName);
+    	}
+		loreLine = Component.translatable(tlKey, tlArgs.toArray());
+    	
+    	tooltipComponents.add(loreLine.withStyle(ChatFormatting.GRAY));
     }
     
     
     @SubscribeEvent(priority = EventPriority.HIGH)
-    public static void onTouchitemEntity(ItemEntityPickupEvent.Pre event) {
+    public static void onTouchItemEntity(ItemEntityPickupEvent.Pre event) {
     	ItemEntity itemEntity = event.getItemEntity();
     	ItemStack item = itemEntity.getItem();
     	if (!item.isEmpty() && item.is(ModItems.STAND_ARROW_SHARD)) {

@@ -42,7 +42,7 @@ public record BgmTrackInfo(@Nullable BgmLoopPartitioning loop, Sound sound) {
 			if (!parsed.hasLoop) return null;
 			
 			if (parsed.loopStart.isPresent() && parsed.loopBack.isPresent() && parsed.loopBack.getAsFloat() <= parsed.loopStart.getAsFloat()) {
-				BgmTrackLoader.LOGGER.error("loopBack timestamp can't come earlier than loopStart! ({} < {})", 
+				BgmEngine.LOGGER.error("loopBack timestamp can't come earlier than loopStart! ({} < {})", 
 						parsed.loopBack.getAsFloat(), parsed.loopStart);
 				return null;
 			}

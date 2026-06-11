@@ -10,9 +10,9 @@ import org.lwjgl.glfw.GLFW;
 
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.input.InputHandler;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.AbilityControlsEntry;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme.HotbarSlot;
+import com.github.standobyte.jojo.client.input.controlscheme.AbilityControlsEntry;
+import com.github.standobyte.jojo.client.input.controlscheme.AbilityHotbar;
+import com.github.standobyte.jojo.client.input.controlscheme.AbilityHotbarSlot;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
@@ -45,10 +45,10 @@ import net.neoforged.neoforge.client.settings.KeyModifier;
 public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 	protected static final ResourceLocation DEFAULT_TEXTURE = JojoMod.resLoc("textures/ability_wheel.png");
 	protected ResourceLocation texture;
-	public ClientControlScheme.Hotbar abilities;
+	public AbilityHotbar abilities;
 	protected StandSkin standSkin;
 
-	public AbilitySelectionWheel(ClientControlScheme.Hotbar abilities) {
+	public AbilitySelectionWheel(AbilityHotbar abilities) {
 		super(Component.translatable("jojo_ripples.screen.ability_selection_wheel"));
 		this.abilities = abilities;
 	}
@@ -141,7 +141,7 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 		
 		AbilityIconSprites abilityIconSprites = StandSkinsLoader.getInstance().abilityIcons;
 		for (int i = 0; i < n; i++) {
-			HotbarSlot slot = abilities.slots.get(i);
+			AbilityHotbarSlot slot = abilities.slots.get(i);
 			KeyModifier curModifier = InputHandler.getInstance().getCurModifier();
 			AbilityConditionCheck ability = slot.showAbility(curModifier);
 			boolean showAbility = ability != null;
@@ -176,7 +176,7 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 			
 
 			if (showAbility) {
-				int numberKey = HotbarSlot.numberKey(slot.index);
+				int numberKey = AbilityHotbarSlot.numberKey(slot.index);
 				if (numberKey != -1) {
 					int[] digitPos = posAtSector(i, n, 90);
 					guiGraphics.drawCenteredString(minecraft.font, String.valueOf(numberKey), 
@@ -216,7 +216,7 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 	}
 
 	protected int hoveredSlotIndex;
-	protected HotbarSlot hoveredSlot;
+	protected AbilityHotbarSlot hoveredSlot;
 	protected List<Component> abilityNames = new ArrayList<>(2);
 
 	public int getSlotIndexAt(int mouseX, int mouseY) {

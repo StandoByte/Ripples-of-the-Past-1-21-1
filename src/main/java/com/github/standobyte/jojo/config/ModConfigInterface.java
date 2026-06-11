@@ -12,4 +12,6 @@ public interface ModConfigInterface<C1, C2, C3> {
 	void saveClient();
 	void sendClientBroadcast();
 	void saveCommon();
+	
+	String modId();
 }

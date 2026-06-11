@@ -98,6 +98,14 @@ public abstract class PowerClass<P extends Power<P>> {
 		return ordinal;
 	}
 	
+	public static PowerClass<?> fromName(String name) {
+		return switch (name) {
+			case "stand" -> PowerClass.STAND;
+			case "player" -> PowerClass.PLAYER_POWER;
+			default -> null;
+		};
+	}
+	
 	
 	public static final StreamCodec<ByteBuf, PowerClass<?>> NETWORK_CODEC = new StreamCodec<>() {
 

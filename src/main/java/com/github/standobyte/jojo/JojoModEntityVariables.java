@@ -4,15 +4,13 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.entityattachment.ComponentUtil;
 import com.github.standobyte.jojo.entityattachment.SynchronizablePlayerData;
 import com.github.standobyte.jojo.entityattachment.TickingEntityData;
 import com.github.standobyte.jojo.entityattachment.syncheddata.DataParameter;
 import com.github.standobyte.jojo.entityattachment.syncheddata.SyncedDataHolderExtended;
-import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataExtended;
 import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataHelper;
-import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataPacketHandlerTemplate;
+import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataPacket;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 
 import net.minecraft.core.HolderLookup.Provider;
@@ -28,7 +26,6 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-// TODO Map<String, DataParameter<?>> to allow for adding syncable variables externally
 public class JojoModEntityVariables<T extends Entity> implements INBTSerializable<CompoundTag>, TickingEntityData, SynchronizablePlayerData, SyncedDataHolderExtended {
 	public static final DataParameter<Boolean> INSIDE_TIME_STOP_ZONE = DataParameter.defineId(
 			JojoModEntityVariables.class, EntityDataSerializers.BOOLEAN, false);
@@ -40,27 +37,32 @@ public class JojoModEntityVariables<T extends Entity> implements INBTSerializabl
 	protected final T entity;
 	public final SynchedDataHelper synchedData;
 	
+	private static final String SYNCHED_PACKET_HANDLER_TYPE = "vars";
+	static {
+		SynchedDataPacket.Handler.specificHandlers.put(SYNCHED_PACKET_HANDLER_TYPE, 
+				(Entity entity, List<SynchedEntityData.DataValue<?>> packedItems, 
+						SynchedDataPacket payload, IPayloadContext context) -> {
+							JojoModEntityVariables<?> vars = get(entity);
+							vars.synchedData.getDataSyncher().assignValues(packedItems);
+						});
+	}
+	
 	public JojoModEntityVariables(T entity) {
 		this.entity = entity;
-		this.synchedData = new SynchedDataHelper(this, () -> entity.level().isClientSide());
+		this.synchedData = new SynchedDataHelper(SYNCHED_PACKET_HANDLER_TYPE, this, () -> entity.level().isClientSide());
 		addTicking(entity);
 		addSynchronization(entity);
 	}
 	
-	public void tick() {
-		if (!entity.level().isClientSide()) {
-			tickSyncDirtyData();
-		}
-	}
+	@Override
+	public void tick() {}
 
 	@Override
 	public void syncToTracking(ServerPlayer trackingPlayer) {
-		onStartedTracking(trackingPlayer);
 	}
 
 	@Override
 	public void syncToPlayer(ServerPlayer entityAsPlayer) {
-		onStartedTracking(entityAsPlayer);
 	}
 
 	@Override
@@ -114,28 +116,6 @@ public class JojoModEntityVariables<T extends Entity> implements INBTSerializabl
 		}
 		
 		return new JojoModEntityVariables<>(entity);
-	}
-	
-
-
-	public static final SynchedDataPacketHandlerTemplate SYNC_HANDLER = new SynchedDataPacketHandlerTemplate(JojoMod.resLoc("entvars")) {
-
-		@Override
-		public void handle(Entity entity, List<SynchedEntityData.DataValue<?>> packedItems, 
-				SynchedDataPacket payload, IPayloadContext context) {
-			JojoModEntityVariables<?> vars = get(entity);
-			vars.synchedData.getDataSyncher().assignValues(packedItems);
-		}
-	};
-		
-	public void onStartedTracking(ServerPlayer tracking) {
-		SynchedDataExtended synchedData = this.synchedData.getDataSyncher();
-		SYNC_HANDLER.onStartedTracking(synchedData, tracking, entity);
-	}
-	
-	public void tickSyncDirtyData() {
-		SynchedDataExtended synchedData = this.synchedData.getDataSyncher();
-		SYNC_HANDLER.tickSyncDirtyData(synchedData, entity);
 	}
 	
 }

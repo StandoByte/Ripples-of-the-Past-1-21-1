@@ -63,6 +63,11 @@ public class ModConfig<C1, C2, C3> implements ModConfigInterface<C1, C2, C3> {
 		commonConfig.saveToFileSystem();
 	}
 	
+	@Override
+	public String modId() {
+		return modId;
+	}
+	
 	
 	public CommonConfig<C3> getCommonCfgState() {
 		if (currentEnvironment == Dist.CLIENT && commonConfigRemote != null) {

@@ -130,6 +130,7 @@
 	"client.text.tooltip.ClientTextTooltipMixin",
 	"client.BleedingHealthGui",
 	"client.modcompat.WoRStandRendering",
+	"client.SoundEngineMixin",
 	"client.CloseResources",
 	"client.keybindui.KeyEntryMixin",
 	"client.keybindui.AbstractSelectionListMixin",

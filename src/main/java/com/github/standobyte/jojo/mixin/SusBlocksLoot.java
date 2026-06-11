@@ -16,7 +16,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -37,9 +36,9 @@ public abstract class SusBlocksLoot extends BlockEntity {
 	@Inject(method = "unpackLootTable", at = @At("HEAD"))
 	public void replaceUnpackedItem(Player player, CallbackInfo ci) {
 		if (!rolledSpecialLoot && this.item.isEmpty()) {
-			Item arrow = SpawnArrowsInSusBlocks.standArrowToPut(player, (ServerLevel) level);
+			ItemStack arrow = SpawnArrowsInSusBlocks.standArrowToPut(player, (ServerLevel) level, worldPosition);
 			if (arrow != null) {
-				this.item = arrow.getDefaultInstance();
+				this.item = arrow;
 				this.lootTable = null;
 			}
 		}

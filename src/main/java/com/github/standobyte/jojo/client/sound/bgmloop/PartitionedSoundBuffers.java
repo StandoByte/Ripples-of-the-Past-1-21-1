@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.client.sound.bgmloop;
 
 import java.nio.ByteBuffer;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -17,30 +18,37 @@ import net.minecraft.client.sounds.SoundBufferLibrary;
 import net.minecraft.resources.ResourceLocation;
 
 public class PartitionedSoundBuffers {
-	private final Map<BgmLoopPartitioning, CompletableFuture<Map<BgmPart, SoundBuffer>>> cache = new IdentityHashMap<>();
+	private final Map<BgmLoopPartitioning, CompletableFuture<Map<BgmPart, SoundBuffer>>> byBgmData = new IdentityHashMap<>();
+	private final Map<TrackPart, SoundBuffer> cache = new HashMap<>();
 
 	public PartitionedSoundBuffers() {}
+	
+	protected static record TrackPart(ResourceLocation sound, BgmLoopPartitioning.Partition timestamps) {}
+	
 
 	public CompletableFuture<Map<BgmPart, SoundBuffer>> getPartitionedBuffers(ResourceLocation soundPath, 
 			SoundBufferLibrary fullSoundCache, BgmLoopPartitioning partitioning) {
-		return SoundUtil.computeIfKeyAbsent(this.cache, partitioning, 
+		return SoundUtil.computeIfKeyAbsent(this.byBgmData, partitioning, 
 				_partitioning -> fullSoundCache.getCompleteBuffer(soundPath).thenApply(buffer -> {
 					Map<BgmPart, SoundBuffer> partition = new EnumMap<>(BgmPart.class);
 					ByteBuffer fullAudio = buffer.data;
 					int fullSize = fullAudio.limit();
 					AudioFormat format = buffer.format;
 					for (var part : _partitioning.partition.entrySet()) {
-						ByteBuffer partBuffer = partition(fullAudio, fullSize, format, part.getValue());
-						SoundBuffer soundBuffer = new SoundBuffer(partBuffer, format);
+						BgmLoopPartitioning.Partition timestamps = part.getValue();
+						SoundBuffer soundBuffer = cache.computeIfAbsent(new TrackPart(soundPath, timestamps), __ -> {
+							ByteBuffer partBuffer = partition(fullAudio, fullSize, format, timestamps);
+							return new SoundBuffer(partBuffer, format);
+						});
 						partition.put(part.getKey(), soundBuffer);
 					}
 					return partition;
 				}));
 	}
 
-	protected ByteBuffer partition(ByteBuffer fullAudio, int fullSize, AudioFormat format, BgmLoopPartitioning.Partition timing) {
-		int start = timeToBytes(timing.start(), format);
-		int end = timing.end().isPresent() ? timeToBytes(timing.end().getAsFloat(), format) : fullSize;
+	protected ByteBuffer partition(ByteBuffer fullAudio, int fullSize, AudioFormat format, BgmLoopPartitioning.Partition timestamps) {
+		int start = timeToBytes(timestamps.start(), format);
+		int end = timestamps.end().isPresent() ? timeToBytes(timestamps.end().getAsFloat(), format) : fullSize;
 		ByteBuffer partition = fullAudio.slice(start, end - start);//.order(ByteOrder.nativeOrder());
 		return partition;
 	}
@@ -51,9 +59,9 @@ public class PartitionedSoundBuffers {
 		return bytes;
 	}
 
-	// FIXME !!!!! (bgm) [Render thread/ERROR] [mojang/OpenAlUtil]: Deleting stream buffers: Invalid operation.
 	public void clear() {
-		this.cache.values().forEach(track -> track.thenAccept(map -> map.values().forEach(SoundBuffer::discardAlBuffer)));
-		this.cache.clear();
+		cache.values().forEach(SoundBuffer::discardAlBuffer);
+		cache.clear();
+		byBgmData.clear();
 	}
 }

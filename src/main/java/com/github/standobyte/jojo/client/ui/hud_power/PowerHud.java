@@ -1,6 +1,8 @@
 package com.github.standobyte.jojo.client.ui.hud_power;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -8,7 +10,7 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ClientTickHandler;
 import com.github.standobyte.jojo.client.input.InputHandler;
-import com.github.standobyte.jojo.client.input.controlscheme.ClientControlScheme;
+import com.github.standobyte.jojo.client.input.controlscheme.AbilityControlScheme;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.text.StandNameSetColor;
@@ -21,6 +23,8 @@ import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.TextUtil;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
+import com.github.standobyte.jojo.config.stand_toggles.ClientStandToggle;
+import com.github.standobyte.jojo.config.stand_toggles.ClientStandToggles;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveModeEffect;
@@ -41,10 +45,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.LayeredDraw;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.navigation.ScreenPosition;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
@@ -147,6 +155,7 @@ public class PowerHud {
 				(int) staminaBar.xOffsetL + staminaBar.getWidth() + 10, (int) staminaBar.yOffsetU, -1, -1));
 		public Finisher finisherBar = 			addElement(new Finisher("stand_finisher", 
 				HudElement.SnappingH.CENTER, HudElement.SnappingV.CENTER, -16, -16, 32, 32));
+		public StandToggles toggles = 			addElement(new StandToggles("stand_toggles", 4, 4, 32, 32));
 		
 		@Override
 		public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
@@ -267,7 +276,13 @@ public class PowerHud {
 		public void renderElement(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 			if (powerClass != null) {
 				if (powerClass == PowerClass.STAND) {
-					renderClientStandIcon(guiGraphics.pose(), getX(), getY());
+					float alpha = 1;
+					if (ClientGlobals.playerStandEntity != null) {
+						StandEntity entity = ClientGlobals.playerStandEntity;
+						float partialTick = ClientUtil.partialTick(entity, deltaTracker, entity.level().tickRateManager());
+						alpha = ClientGlobals.playerStandEntity.clientStuff.getAlpha(entity, partialTick);
+					}
+					renderClientStandIcon(guiGraphics.pose(), getX(), getY(), ARGB.white(alpha));
 				}
 				else {
 					Power<?> power = ClientPowerCache.getPower(powerClass);
@@ -304,10 +319,14 @@ public class PowerHud {
 	}
 	
 	public static void renderClientStandIcon(PoseStack pose, int x, int y) {
-		renderStandIcon(ClientPowerCache.getPower(PowerClass.STAND), pose, x, y);
+		renderStandIcon(ClientPowerCache.getPower(PowerClass.STAND), pose, x, y, BlitFloat.NO_TINT);
 	}
 	
-	public static void renderStandIcon(StandPower standPower, PoseStack pose, int x, int y) {
+	public static void renderClientStandIcon(PoseStack pose, int x, int y, int color) {
+		renderStandIcon(ClientPowerCache.getPower(PowerClass.STAND), pose, x, y, color);
+	}
+	
+	public static void renderStandIcon(StandPower standPower, PoseStack pose, int x, int y, int color) {
 		if (standPower != null) {
 			StandSkin skin = StandSkinsLoader.getInstance().getSkin(standPower);
 			if (skin != null) {
@@ -315,7 +334,7 @@ public class PowerHud {
 				if (icon != null) {
 					RenderSystem.enableBlend();
 					RenderSystem.defaultBlendFunc();
-					icon.render(pose, x, y);
+					icon.render(pose, x, y, color);
 					RenderSystem.disableBlend();
 				}
 			}
@@ -395,7 +414,7 @@ public class PowerHud {
 			if (hud.forContainerMenu == TriState.TRUE) return false;
 			ResolveCounter resolve = ResolveCounter.getIfEnabled(Minecraft.getInstance().player);
 			if (resolve != null) {
-				ClientControlScheme controlScheme = InputHandler.getInstance().getActiveControlScheme();
+				AbilityControlScheme controlScheme = InputHandler.getInstance().getActiveControlScheme();
 				return controlScheme != null && controlScheme.hasAbility(ability -> ability.powerClass() == PowerClass.STAND);
 			}
 			
@@ -610,7 +629,7 @@ public class PowerHud {
 			if (hud.forContainerMenu.isTrue() || !JojoMod.config.getCommon().standStamina.getAsBoolean()) return false;
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 			if (standPower != null && !standPower.isUserCreative() && standPower.usesStamina()) {
-				ClientControlScheme controlScheme = InputHandler.getInstance().getActiveControlScheme();
+				AbilityControlScheme controlScheme = InputHandler.getInstance().getActiveControlScheme();
 				return controlScheme != null && controlScheme.hasAbility(ability -> ability.powerClass() == PowerClass.STAND);
 			}
 			
@@ -756,6 +775,81 @@ public class PowerHud {
 			}
 			updateRectangle(width, height);
 		}
+	}
+	
+	
+	public static class StandToggles extends HudElement {
+
+		public StandToggles(String name, int x0, int y0, int width, int height) {
+			super(name, x0, y0, width, height);
+		}
+
+		public List<ClientStandToggle> togglesToRender = new ArrayList<>();
+		@Override
+		public boolean shouldRender() {
+			if (hud.forContainerMenu.isTrue()) return false;
+			
+			togglesToRender.clear();
+			ClientStandToggle[] toggles = ClientStandToggles.lazyInitToggles();
+			for (var toggle : toggles) {
+				if (toggle.hudVisibilitySetting.get() && toggle.activeWhen.getAsBoolean()) {
+					togglesToRender.add(toggle);
+				}
+			}
+			
+			return !togglesToRender.isEmpty();
+		}
+		
+		static final int ICON_SIZE = ClientStandToggle.ICON_SIZE;
+		static final int INTERVAL = 2;
+		@Override
+		public void updateRectangle() {
+			int x = getX();
+			int y = hud.controls.shouldRender() ? hud.controls.getY() + hud.controls.getHeight() : 4;
+			int width = togglesToRender.size() * (ICON_SIZE + INTERVAL) - INTERVAL;
+			int height = ICON_SIZE;
+			rectangle = new ScreenRectangle(new ScreenPosition(x, y), width, height);
+		}
+		
+		@Override
+		public void renderElement(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+			int x = getX();
+			int y = getY();
+			
+			PoseStack poseStack = guiGraphics.pose();
+			for (ClientStandToggle toggle : togglesToRender) {
+				if (toggle.hudVisibilitySetting.get() && toggle.activeWhen.getAsBoolean()) {
+					toggle.renderIcon(poseStack, x, y);
+					x += ICON_SIZE + INTERVAL;
+				}
+			}
+		}
+		
+		@Override
+		protected void checkTooltip(double mouseX, double mouseY, DeltaTracker deltaTracker) {
+			ClientStandToggle hoveredToggle = null;
+			if (isHovered) {
+				int x = (int) mouseX - getX();
+				if (x % (ICON_SIZE + INTERVAL) < ICON_SIZE) {
+					int index = x / (ICON_SIZE + INTERVAL);
+					if (index >= 0 && index < togglesToRender.size()) {
+						hoveredToggle = togglesToRender.get(index);
+					}
+				}
+			}
+			
+			if (hoveredToggle != null) {
+				Component text = CommonComponents.optionStatus(
+						hoveredToggle.text, hoveredToggle.getResultingValue())
+						.withStyle(ChatFormatting.BLACK);
+				tooltip.set(Tooltip.create(text));
+			}
+			else {
+				tooltip.set(null);
+			}
+			super.checkTooltip(mouseX, mouseY, deltaTracker);
+		}
+		
 	}
 	
 }

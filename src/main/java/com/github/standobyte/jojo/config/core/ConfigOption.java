@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.config.core;
 
+import java.util.function.Supplier;
+
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.JojoMod;
@@ -10,8 +12,7 @@ import com.mojang.serialization.JsonOps;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
-public abstract class ConfigOption<T> {
-	public abstract T get();
+public abstract class ConfigOption<T> implements Supplier<T> {
 	public abstract void set(T value);
 	public abstract boolean isDefault();
 	public abstract void reset();

@@ -52,7 +52,7 @@ public class EntityActionInstance implements HeldInput {
 	@ApiStatus.Internal public Object2FloatMap<ActionPhase> phasesLength = new Object2FloatArrayMap<>();
 	@ApiStatus.Internal @Nullable public Object2FloatMap<ActionPhase> skippedWindupPhase = null;
 	
-	public SynchedDataHelper synchedData = new SynchedDataHelper(this, () -> this.level().isClientSide());
+	public SynchedDataHelper synchedData = new SynchedDataHelper("act", this, () -> this.level().isClientSide());
 	
 	@ApiStatus.Internal @Nonnull public ActionPhase phase;
 	@ApiStatus.Internal public int curPhaseTick;
@@ -164,7 +164,7 @@ public class EntityActionInstance implements HeldInput {
 	}
 	
 	@ApiStatus.OverrideOnly
-	public boolean canBeCancelledInto(EntityActionType cancellingAbility) {
+	public boolean canBeCancelledInto(@Nullable EntityActionType cancellingAbility) {
 		return phase == ActionPhase.RECOVERY;
 	}
 	
