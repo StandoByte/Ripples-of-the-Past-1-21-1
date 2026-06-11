@@ -13,6 +13,8 @@ import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerData;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojoimpl.powers.pillarman.PillarmanAttributeModifiers;
+import com.github.standobyte.jojoimpl.powers.pillarman.PillarmanData;
+import com.github.standobyte.jojoimpl.powers.pillarman.PillarmanStage;
 
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
@@ -49,6 +51,9 @@ public class CharacterSpecies {
 						|| powerType == ModPlayerPowers.PILLAR_MAN.get();
 				if (overtakesSpeciesName) {
 					ResourceLocation id = powerType.getId();
+					if (powerData instanceof PillarmanData pillarMan && pillarMan.getStage() == PillarmanStage.ULTIMATE_THING) {
+						return Component.translatable("jojo_ripples.species.power_subtype." + id.getNamespace() + "." + id.getPath() + ".ulf", nameTl);
+					}
 					return Component.translatable("jojo_ripples.species.power_subtype." + id.getNamespace() + "." + id.getPath(), nameTl);
 				}
 			}

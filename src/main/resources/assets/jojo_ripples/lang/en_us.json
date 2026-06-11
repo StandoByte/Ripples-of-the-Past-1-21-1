@@ -250,6 +250,7 @@
   "jojo_ripples.species.power_subtype.jojo_ripples.vampirism": "Vampire (formerly %s)",
   "jojo_ripples.species.power_subtype.jojo_ripples.zombie": "Zombie (formerly %s)",
   "jojo_ripples.species.power_subtype.jojo_ripples.pillar_man": "Pillar Man",
+  "jojo_ripples.species.power_subtype.jojo_ripples.pillar_man.ulf": "Ultimate Life Form",
   "jojo_ripples.species.subtype.ghost": "Ghost (formerly %s)",
   
   "jojo_ripples.screen.edit_hud_layout": "Edit Controls (NYI)",

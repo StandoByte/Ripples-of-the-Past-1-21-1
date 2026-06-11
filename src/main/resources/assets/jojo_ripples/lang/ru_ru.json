@@ -249,6 +249,7 @@
   "jojo_ripples.species.power_subtype.jojo_ripples.vampirism": "Вампир (ранее %s)",
   "jojo_ripples.species.power_subtype.jojo_ripples.zombie": "Зомби (ранее %s)",
   "jojo_ripples.species.power_subtype.jojo_ripples.pillar_man": "Человек из Колонны",
+  "jojo_ripples.species.power_subtype.jojo_ripples.pillar_man.ulf": "Совершенная Форма Жизни",
   "jojo_ripples.species.subtype.ghost": "Призрак (ранее %s)",
   
   "jojo_ripples.screen.edit_hud_layout": "Настройки управления (NYI)",
