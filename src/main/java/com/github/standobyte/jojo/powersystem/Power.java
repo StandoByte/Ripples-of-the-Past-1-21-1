@@ -59,12 +59,18 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	@Nullable
 	public abstract PowerType getPowerType();
 	
-	protected void onSetPowerType(@Nullable PowerType oldPower, @Nullable PowerType newPower) {
-		moveset = initMoveset(newPower);
+	protected void onSetPowerType(@Nullable PowerData oldPowerData, @Nullable PowerType newPowerType) {
+		moveset = initMoveset(newPowerType);
 
 		if (!user.level().isClientSide()) {
+			if (oldPowerData != null) {
+				oldPowerData.removeAttributeModifiers(user);
+			}
+			
 			PowerData curData = getCurTypeData();
 			if (curData != null) {
+				curData.addAttributeModifiers(user);
+				
 				curData.syncToAllTracking(user);
 				if (user instanceof ServerPlayer player) {
 					curData.syncToPlayer(player);

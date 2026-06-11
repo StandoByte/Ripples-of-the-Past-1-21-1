@@ -197,6 +197,19 @@ public class NetworkUtil {
 		int value = varInt ? buf.readVarInt() : buf.readInt();
 		return OptionalInt.of(value);
 	}
+	
+	
+	/** "Small" means less than 128 elements */
+	public static void writeNullableSmallEnum(FriendlyByteBuf buf, @Nullable Enum<?> val) {
+		buf.writeVarInt(val != null ? val.ordinal() : 127);
+	}
+	
+	@Nullable
+	public static <T extends Enum<T>> T readNullableSmallEnum(FriendlyByteBuf buf, Class<T> enumClass) {
+		int ordinal = buf.readVarInt();
+		T[] enumConstants = enumClass.getEnumConstants();
+		return ordinal < enumConstants.length ? enumConstants[ordinal] : null;
+	}
 
 	
 	public static <T, B extends FriendlyByteBuf> void writeAsSingletonCollection(B buf, T obj, StreamEncoder<? super B, T> writer) {
