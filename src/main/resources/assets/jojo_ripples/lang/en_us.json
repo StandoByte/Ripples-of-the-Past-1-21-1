@@ -243,12 +243,13 @@
   "jojo_ripples.char_profile.fav_block": "★ Favorite Block: %s",
   
   "jojo_ripples.species.human": "Human",
-  "jojo_ripples.species.pillar_man": "Tribe of Darkness",
+  "jojo_ripples.species.pillar_man": "Creature of Darkness",
   "jojo_ripples.species.rock_human": "Rock Human",
   "jojo_ripples.species.plankton": "Plankton Colony",
   "jojo_ripples.species.maybe_alien": "Alien?",
   "jojo_ripples.species.power_subtype.jojo_ripples.vampirism": "Vampire (formerly %s)",
   "jojo_ripples.species.power_subtype.jojo_ripples.zombie": "Zombie (formerly %s)",
+  "jojo_ripples.species.power_subtype.jojo_ripples.pillar_man": "Pillar Man",
   "jojo_ripples.species.subtype.ghost": "Ghost (formerly %s)",
   
   "jojo_ripples.screen.edit_hud_layout": "Edit Controls (NYI)",

@@ -242,12 +242,13 @@
   "jojo_ripples.char_profile.fav_block": "★ Любимый блок: %s",
   
   "jojo_ripples.species.human": "Человек",
-  "jojo_ripples.species.pillar_man": "Клан Тьмы",
+  "jojo_ripples.species.pillar_man": "Создание из Тьмы",
   "jojo_ripples.species.rock_human": "Каменный человек",
   "jojo_ripples.species.plankton": "Колония планктона",
   "jojo_ripples.species.maybe_alien": "Пришелец?",
   "jojo_ripples.species.power_subtype.jojo_ripples.vampirism": "Вампир (ранее %s)",
   "jojo_ripples.species.power_subtype.jojo_ripples.zombie": "Зомби (ранее %s)",
+  "jojo_ripples.species.power_subtype.jojo_ripples.pillar_man": "Человек из Колонны",
   "jojo_ripples.species.subtype.ghost": "Призрак (ранее %s)",
   
   "jojo_ripples.screen.edit_hud_layout": "Настройки управления (NYI)",

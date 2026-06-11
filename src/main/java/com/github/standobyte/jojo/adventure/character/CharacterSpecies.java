@@ -43,8 +43,10 @@ public class CharacterSpecies {
 			PowerData powerData = playerPower.getCurTypeData();
 			if (powerData != null) {
 				PowerType powerType = powerData.getPowerType();
-				boolean overtakesSpeciesName = powerType == ModPlayerPowers.VAMPIRISM.get()
-						|| powerType == ModPlayerPowers.ZOMBIE.get();
+				boolean overtakesSpeciesName = 
+						powerType == ModPlayerPowers.VAMPIRISM.get()
+						|| powerType == ModPlayerPowers.ZOMBIE.get()
+						|| powerType == ModPlayerPowers.PILLAR_MAN.get();
 				if (overtakesSpeciesName) {
 					ResourceLocation id = powerType.getId();
 					return Component.translatable("jojo_ripples.species.power_subtype." + id.getNamespace() + "." + id.getPath(), nameTl);

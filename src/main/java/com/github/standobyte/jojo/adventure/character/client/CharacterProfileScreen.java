@@ -47,11 +47,13 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.phys.Vec3;
@@ -169,7 +171,8 @@ public class CharacterProfileScreen extends Screen implements IJojoMenuScreen {
 //		textLines.add(CommonComponents.EMPTY.getVisualOrderText());
 //		
 //		addLine(textLines, Component.translatable("jojo_ripples.char_profile.blood_type", ""));
-//		addLine(textLines, Component.translatable("jojo_ripples.char_profile.height", 187));
+//		int cm = (int) (187.5f * entity.getAttributeValue(Attributes.SCALE));
+//		addLine(textLines, Component.translatable("jojo_ripples.char_profile.height", cm));
 //		addLine(textLines, Component.translatable("jojo_ripples.char_profile.body_type", ""));
 //		addLine(textLines, Component.translatable("jojo_ripples.char_profile.eye_color", ""));
 //		addLine(textLines, Component.translatable("jojo_ripples.char_profile.day_of_spawn", ""));
