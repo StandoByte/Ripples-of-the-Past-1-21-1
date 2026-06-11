@@ -52,6 +52,7 @@ public class JojoModEntityVariables<T extends Entity> implements INBTSerializabl
 		this.synchedData = new SynchedDataHelper(SYNCHED_PACKET_HANDLER_TYPE, this, () -> entity.level().isClientSide());
 		addTicking(entity);
 		addSynchronization(entity);
+		addSynchedData(entity, synchedData);
 	}
 	
 	@Override
