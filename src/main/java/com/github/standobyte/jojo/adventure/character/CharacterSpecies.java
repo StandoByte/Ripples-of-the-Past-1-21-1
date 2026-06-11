@@ -35,7 +35,7 @@ public class CharacterSpecies {
 	public final String name;
 	public final Component nameTl;
 	
-	public CharacterSpecies(String name) {
+	protected CharacterSpecies(String name) {
 		this.name = name;
 		this.nameTl = Component.translatable("jojo_ripples.species." + name);
 	}
@@ -78,10 +78,7 @@ public class CharacterSpecies {
 	}
 	
 	public static CharacterSpecies fromName(String name) {
-		CharacterSpecies v;
-        return (((v = SPECIES.get(name)) != null) || SPECIES.containsKey(name))
-            ? v
-            : new CharacterSpecies(name);
+		return SPECIES.computeIfAbsent(name, CharacterSpecies::new);
 	}
 	
 	

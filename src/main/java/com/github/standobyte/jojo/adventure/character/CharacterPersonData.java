@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.adventure.character;
 
+import java.util.List;
+
 import javax.annotation.Nonnull;
 
 import org.jetbrains.annotations.ApiStatus;
@@ -9,6 +11,10 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.entityattachment.ComponentUtil;
 import com.github.standobyte.jojo.entityattachment.SynchronizablePlayerData;
 import com.github.standobyte.jojo.entityattachment.TickingEntityData;
+import com.github.standobyte.jojo.entityattachment.syncheddata.DataParameter;
+import com.github.standobyte.jojo.entityattachment.syncheddata.SyncedDataHolderExtended;
+import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataHelper;
+import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataPacket;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerData;
@@ -18,7 +24,12 @@ import com.github.standobyte.jojo.util.functions.NBTUtil;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.network.syncher.SynchedEntityData.Builder;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -27,19 +38,48 @@ import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-// why do "character" (of a story) and "character" (as in a symbol) have the same word? English is so stupid sometimes lol
 @EventBusSubscriber(modid = JojoMod.MOD_ID)
-public class CharacterPersonData implements SynchronizablePlayerData, TickingEntityData, INBTSerializable<CompoundTag> {
+public class CharacterPersonData implements SynchronizablePlayerData, TickingEntityData, INBTSerializable<CompoundTag>, SyncedDataHolderExtended {
 	public final LivingEntity entity;
-	
+	public final SynchedDataHelper synchedData;
+
+	public static final DataParameter<String> NATIVE_SPECIES_NAME = DataParameter.defineId(
+			CharacterPersonData.class, EntityDataSerializers.STRING, "human");
 	@Nonnull private CharacterSpecies nativeSpecies = CharacterSpecies.HUMAN;
-	private CharacterSpecies __species;
+	@Nonnull private CharacterSpecies __species = CharacterSpecies.HUMAN;
+	
+	private static final String SYNCHED_PACKET_HANDLER_TYPE = "chr";
+	static {
+		SynchedDataPacket.Handler.specificHandlers.put(SYNCHED_PACKET_HANDLER_TYPE, 
+				(Entity entity, List<SynchedEntityData.DataValue<?>> packedItems, 
+						SynchedDataPacket payload, IPayloadContext context) -> {
+							CharacterPersonData charData = entity.getData(ModDataAttachmentTypes.CHARACTER_DATA);
+							if (charData != null) {
+								charData.synchedData.getDataSyncher().assignValues(packedItems);
+							}
+						});
+	}
 	
 	public CharacterPersonData(LivingEntity entity) {
 		this.entity = entity;
+		this.synchedData = new SynchedDataHelper(SYNCHED_PACKET_HANDLER_TYPE, this, () -> entity.level().isClientSide());
 		addSynchronization(entity);
 		addTicking(entity);
+		addSynchedData(entity, synchedData);
+	}
+
+	@Override
+	public void defineSynchedData(Builder builder) {
+		NATIVE_SPECIES_NAME.define(builder);
+	}
+
+	@Override
+	public <V> void onSyncedDataUpdated(V oldValue, V newValue, EntityDataAccessor<V> dataAccessor) {
+		if (dataAccessor == NATIVE_SPECIES_NAME.param) {
+			nativeSpecies = CharacterSpecies.fromName((String) newValue);
+		}
 	}
 
 	
@@ -64,6 +104,16 @@ public class CharacterPersonData implements SynchronizablePlayerData, TickingEnt
 		}
 		this.prevAge = age;
 		
+		tickCheckSpecies();
+	}
+	
+	
+	@ApiStatus.Internal
+	public void __initializeCharacterSpecies(CharacterSpecies species) {
+		synchedData.set(NATIVE_SPECIES_NAME.param, species.name);
+	}
+	
+	private void tickCheckSpecies() {
 		/* this doesn't need to run every tick, but trying to optimize every single time
 		 * is making my head explode at this point, we'll roll with that for now
 		 */
@@ -78,12 +128,6 @@ public class CharacterPersonData implements SynchronizablePlayerData, TickingEnt
 			}
 			this.__species = species;
 		}
-	}
-	
-	
-	@ApiStatus.Internal
-	public void __initializeCharacterSpecies(CharacterSpecies species) {
-		this.nativeSpecies = species;
 	}
 	
 	public CharacterSpecies getSpecies() {
@@ -135,8 +179,9 @@ public class CharacterPersonData implements SynchronizablePlayerData, TickingEnt
 	@Override
 	public void deserializeNBT(Provider provider, CompoundTag nbt) {
 		this.age = nbt.getLong("Age");
-		this.nativeSpecies = NBTUtil.getCompoundOptional(nbt, "Species")
-				.map(CharacterSpecies::fromNBT).orElse(CharacterSpecies.HUMAN);
+		NBTUtil.getOptional(nbt, "Species", CharacterSpecies::fromNBT).ifPresent(species -> {
+			synchedData.set(NATIVE_SPECIES_NAME.param, species.name);	
+		});
 	}
 	
 
