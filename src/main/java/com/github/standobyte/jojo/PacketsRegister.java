@@ -13,6 +13,7 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.customobjects.explosion.CustomExplosionPacket;
 import com.github.standobyte.jojo.entityattachment.custom_effect.TrEntityCustomEffectsPacket;
 import com.github.standobyte.jojo.entityattachment.custom_effect.sync.TrStandEffectSynchedDataPacket;
+import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataPacket;
 import com.github.standobyte.jojo.mechanics.clothes.TrClothesItemsPacket;
 import com.github.standobyte.jojo.mechanics.clothes.sewing.ClSetSewingMachineItemPacket;
 import com.github.standobyte.jojo.mechanics.resolve.ClActivateResolvePacket;
@@ -140,7 +141,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new ExternalContainerSyncSetSlotPacket.Handler(JojoMod.resLoc("extcslot")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new ExternalContainerSyncSetContentPacket.Handler(JojoMod.resLoc("extccont")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new ExternalContainerSyncSetDataPacket.Handler(JojoMod.resLoc("extcdata")));
-		registerPacket(registrar, PayloadRegistrar::playToClient, JojoModEntityVariables.SYNC_HANDLER);
+		registerPacket(registrar, PayloadRegistrar::playToClient, new SynchedDataPacket.Handler(JojoMod.resLoc("syncd")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new EntitySyncMotionBypassingPacket.Handler(JojoMod.resLoc("motfix")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new EntityDirectPosNoLerpPacket.Handler(JojoMod.resLoc("posfix")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrResetDeathTimePacket.Handler(JojoMod.resLoc("undeath")));
