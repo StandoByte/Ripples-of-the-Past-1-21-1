@@ -25,15 +25,16 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerType;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
+import com.github.standobyte.jojo.powersystem.standpower.StandAwakening.AwakeningStage;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
-import com.github.standobyte.jojo.powersystem.standpower.StandAwakening.AwakeningStage;
 import com.github.standobyte.jojo.powersystem.standpower.datapack.DataDrivenStandsLoader;
 import com.github.standobyte.jojo.powersystem.standpower.datapack.StandTypeClass;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand.BlankSummonedStand;
 import com.github.standobyte.jojo.util.functions.AttributeUtil;
+import com.github.standobyte.jojo.util.functions.JojoModUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -222,11 +223,11 @@ public class StandType extends PowerType {
 		return switch (awakeningStage) {
 			case FULL_CONTROL -> true;
 			case PARTIALLY_AWAKENED -> {
-				user.sendSystemMessage(Component.translatable("stand_summon.not_in_full_control"));
+				JojoModUtil.sendOverlayMsg(user, Component.translatable("stand_summon.not_in_full_control"));
 				yield false;
 			}
 			case AWAKENING_PASSIVE -> {
-				user.sendSystemMessage(Component.translatable("stand_summon.dormant"));
+				JojoModUtil.sendOverlayMsg(user, Component.translatable("stand_summon.dormant"));
 				yield false;
 			}
 		};
