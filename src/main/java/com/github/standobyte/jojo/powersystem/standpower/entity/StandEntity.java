@@ -160,7 +160,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
     }
 
     @Override
-    public EntityDimensions getDimensions(Pose pose) {
+    public EntityDimensions getDefaultDimensions(Pose pose) {
         return standDimensions != null ? standDimensions.scale(this.getAgeScale()) : super.getDefaultDimensions(pose);
     }
 
