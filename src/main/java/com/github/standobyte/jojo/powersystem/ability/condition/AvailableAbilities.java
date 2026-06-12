@@ -26,7 +26,6 @@ public class AvailableAbilities {
 	
 	public AvailableAbilities() {}
 	
-	static AbilityUsageContext ctxInstance = new AbilityUsageContext();
 	public void update(Power<?> power, Moveset baseMoveset) {
 		_inMoveset.clear();
 		
@@ -42,6 +41,7 @@ public class AvailableAbilities {
 			}
 		}
 		
+		AbilityUsageContext ctxInstance = new AbilityUsageContext();
 		LivingEntity user = power.getUser();
 		ctxInstance.power = power;
 		ctxInstance.isFrozenInTime = TimeStopEffect.getIsFrozenInTime(user);
