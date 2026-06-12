@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mechanics.standarrow;
+package com.github.standobyte.jojo.mechanics.standmeteorite;
 
 import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffect;
 import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectType;
@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.entityattachment.syncheddata.SyncedDataHolderE
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModEntityCustomEffects;
 import com.github.standobyte.jojo.init.ModStatusEffects;
+import com.github.standobyte.jojo.mechanics.standarrow.StandArrowItem;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.util.functions.DamageUtil;
 

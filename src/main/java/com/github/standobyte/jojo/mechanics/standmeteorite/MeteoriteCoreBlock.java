@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.mechanics.standarrow;
+package com.github.standobyte.jojo.mechanics.standmeteorite;
 
 import javax.annotation.Nullable;
 

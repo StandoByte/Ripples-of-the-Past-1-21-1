@@ -8,7 +8,7 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.BleedingEffect;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveModeEffect;
-import com.github.standobyte.jojo.mechanics.standarrow.StandVirusEffect;
+import com.github.standobyte.jojo.mechanics.standmeteorite.StandVirusEffect;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
