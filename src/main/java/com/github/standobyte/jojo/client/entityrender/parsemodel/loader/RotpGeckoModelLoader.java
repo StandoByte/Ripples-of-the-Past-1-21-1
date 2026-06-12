@@ -73,6 +73,11 @@ public class RotpGeckoModelLoader extends SimplePreparableReloadListener<Map<Res
 		new ModelFileFormatPath(ModelFormat.GECKO, "geo_rotp", ".geo.json"), 
 		new ModelFileFormatPath(ModelFormat.GENERIC, "bb", ".bbmodel"), 
 	};
+	public static ModelFileFormatPath[] STAND_SKIN_PATHS = new ModelFileFormatPath[] {
+			new ModelFileFormatPath(ModelFormat.GECKO, "geo", ".geo.json"), // they won't conflict with GeckoLib, so they can stay in "geo"
+			new ModelFileFormatPath(ModelFormat.GECKO, "geo_rotp", ".geo.json"), 
+			new ModelFileFormatPath(ModelFormat.GENERIC, "bb", ".bbmodel"), 
+		};
 	
 	@Override
 	protected Map<ResourceLocation, LayerDefinition> prepare(ResourceManager resourceManager, ProfilerFiller profiler) {

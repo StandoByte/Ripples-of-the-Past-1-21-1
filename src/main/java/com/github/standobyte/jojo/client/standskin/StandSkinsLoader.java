@@ -418,7 +418,7 @@ public class StandSkinsLoader implements PreparableReloadListener, AutoCloseable
 	private void loadResource(List<Resource> resource, SkinResPath resPath, 
 			StandSkinResourceBuilder builder, Logger logger, ResourceLocation fullFilePath, 
 			Preps resourcePreps, ResourceManager resourceManager) {
-		for (ModelFileFormatPath format : RotpGeckoModelLoader.PATHS) {
+		for (ModelFileFormatPath format : RotpGeckoModelLoader.STAND_SKIN_PATHS) {
 			if (resPath.assetPathWDirAndExtension.startsWith(format.directory()) /* is in the correct directory */
 					&& resPath.assetPathWDirAndExtension.endsWith(format.extension()) /* has the correct extension */ ) {
 				readModel(resource, builder, resPath.assetNamespace, 
