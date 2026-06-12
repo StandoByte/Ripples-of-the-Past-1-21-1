@@ -12,6 +12,8 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
+import com.github.standobyte.jojo.config.RotpConfig;
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.customobjects.DamageSourceModified;
 import com.github.standobyte.jojo.customobjects.EntityStandVisibility;
 import com.github.standobyte.jojo.customobjects.EntityWithStandSkin;
@@ -36,14 +38,12 @@ import com.github.standobyte.jojo.subsystems.entity_externalcontainer._stand.Sta
 import com.github.standobyte.jojo.subsystems.entity_grab.LivingComponentGrab;
 import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.client.ClientEntityController;
 import com.github.standobyte.jojo.subsystems.target.ActionTarget;
-import com.github.standobyte.jojo.subsystems.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.functions.AttributeUtil;
 import com.github.standobyte.jojo.util.functions.BitwiseFlagUtil;
 import com.github.standobyte.jojo.util.functions.DamageUtil;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.jojo.util.functions.MathUtil.AABBDist;
 import com.github.standobyte.jojo.util.functions.UtilFunctions;
-import com.github.standobyte.jojo.util.objects_java.Lerp;
 import com.github.standobyte.jojo.util.objects_mc.PrevRotations;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityUnsummonAction;
 
@@ -68,13 +68,7 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -100,6 +94,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 public class StandEntity extends LivingEntity implements SummonedStand, IEntityWithComplexSpawn, LivingReactToNewAction, EntityStandVisibility, EntityWithStandSkin {
 	protected ResourceLocation standId;
+    protected EntityDimensions standDimensions;
 	protected static final EntityDataAccessor<Byte> STAND_FLAGS = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.BYTE);
 	protected static final EntityDataAccessor<Integer> USER_ID = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_BABY_ID = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.BOOLEAN);
@@ -113,9 +108,9 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	public StandOffsetFromUser offsetFromUser;
     public double rangeEfficiency = 1;
     public double staminaCondition = 1;
-    public Lerp.FloatValue modelAlpha = new Lerp.FloatValue(1);
 	
 	public ClientStandEntityStuff clientStuff;
+	public int summonPoseRandomByte;
 
 	public StandEntity(EntityType<? extends StandEntity> type, Level level) {
 		super(type, level);
@@ -124,12 +119,19 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		if (level.isClientSide()) {
 			this.clientStuff = new ClientStandEntityStuff();
 		}
+		else {
+			this.summonPoseRandomByte = random.nextInt(128);
+		}
 	}
 	
 	public StandEntity withStandType(StandType standType) {
 		if (isAddedToLevel()) throw new IllegalStateException();
 		this.standId = standType.getId();
 		initStandStatsValues(standType.getStandStats());
+        if (standType instanceof EntityStandType entityStandType) {
+            standDimensions = entityStandType.standDimensions;
+            this.refreshDimensions();
+        }
 		return this;
 	}
 
@@ -154,13 +156,20 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		
 		openStandHandsContainer();
 	}
-	
+
+    public EntityDimensions getStandDimensions() {
+        return standDimensions;
+    }
+
+    @Override
+    public EntityDimensions getDefaultDimensions(Pose pose) {
+        return standDimensions != null ? standDimensions.scale(this.getAgeScale()) : super.getDefaultDimensions(pose);
+    }
 
 	public PrevRotations rotO = new PrevRotations();
 	@Override
 	public void tick() {
 		fallDistance = 0;
-		modelAlpha.set(1, true);
 		rotO.rememberAngles(this);
 		LivingEntity user = getUser();
 		Level level = level();
@@ -169,6 +178,9 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 				this.remove(user != null ? user.getRemovalReason() : RemovalReason.DISCARDED);
 				return;
 			}
+		}
+		else {
+			clientStuff.tick();
 		}
 		
 		updateStandStatAttributes(this, user);
@@ -351,7 +363,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		}
 		else {
 			ActionTarget crosshairTarget = standAction.entityAim.getTarget();
-			if (crosshairTarget.getType() == TargetType.ENTITY) {
+			if (crosshairTarget.getEntity() instanceof LivingEntity) {
 				lookTarget = crosshairTarget;
 			}
 			else {
@@ -366,7 +378,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		return switch (target.getType()) {
 			case ENTITY -> {
 				Entity targetEntity = target.getEntity();
-                if (targetEntity != null){
+                if (targetEntity != null) {
                     // TODO (stand aiming) look closer to where the user is looking (legs/head aiming)
                     double y = targetEntity instanceof LivingEntity ?
                             targetEntity.getEyeY() :
@@ -456,7 +468,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		if (user != null && user.level() == level) {
 			AABBDist bbDistance = MathUtil.getAABBDistanceDetailed(this.getBoundingBox(), user.getBoundingBox());
 			double distance = bbDistance.distance();
-			double range = getMaxRange();
+			double range = getMaxRangeForMovement(user);
 			if (distance > range) {
 				Vec3 standPos = bbDistance.posBB1();
 				Vec3 userPos = bbDistance.posBB2();
@@ -467,6 +479,16 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 				updateUserOffset(user);
 			}
 		}
+	}
+	
+	public double getMaxRangeForMovement(LivingEntity user) {
+		if (user instanceof Player player) {
+			RotpConfig.ClientBroadcast config = JojoMod.config.getPlayerBroadcast(player);
+			if (config != null && !config.standMovesBeyondEffRange.getAsBoolean()) {
+				return getEffectiveRange();
+			}
+		}
+		return getMaxRange();
 	}
 
 	protected void moveWithoutCollision(Vec3 moveVec) {
@@ -628,7 +650,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	
 	
 	public void multiplyTranslucency(float multiplier) {
-		modelAlpha.set(modelAlpha.get() * multiplier, false);
+		clientStuff.modelAlpha.set(clientStuff.modelAlpha.get() * multiplier, false);
 	}
 	
 	
@@ -777,6 +799,8 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	public boolean isArmsOnlyMode() {
 		return false;
 	}
+	
+	public void fullSummonFromArms() {}
 
 	
 	@Override
@@ -1261,6 +1285,13 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	protected void pickUpItemEntities() {
 		Level level = this.level();
 		if (!level.isClientSide() && this.isManuallyControlled() && getCurStandAction() == null && this.getHealth() > 0) {
+			boolean pickUpDisabled = false;
+			if (getUser() instanceof Player player) {
+				RotpConfig.ClientBroadcast config = JojoMod.config.getPlayerBroadcast(player);
+				pickUpDisabled = config != null && !config.standPicksUpItems.getAsBoolean();
+			}
+			if (pickUpDisabled) return;
+			
 			AABB aabb;
 			if (this.isPassenger() && !this.getVehicle().isRemoved()) {
 				aabb = this.getBoundingBox().minmax(this.getVehicle().getBoundingBox()).inflate(1.0, 0.0, 1.0);
@@ -1268,7 +1299,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 				aabb = this.getBoundingBox().inflate(1.0, 0.5, 1.0);
 			}
 
-			List<Entity> list = this.level().getEntities(this, aabb);
+			List<Entity> list = level.getEntities(this, aabb);
 
 			for (Entity entity : list) {
 				if (!entity.isRemoved()) {
@@ -1423,6 +1454,9 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		ResourceLocation.STREAM_CODEC.encode(buffer, standId);
 		buffer.writeFloat(yBodyRot);
 		buffer.writeVarInt(tickCount);
+        buffer.writeFloat(standDimensions.width());
+        buffer.writeFloat(standDimensions.height());
+		buffer.writeVarInt(summonPoseRandomByte);
 	}
 
 	@Override
@@ -1431,6 +1465,9 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		yBodyRot = additionalData.readFloat();
 		yBodyRotO = yBodyRot;
 		tickCount = additionalData.readVarInt();
+        standDimensions = EntityDimensions.scalable(additionalData.readFloat(), additionalData.readFloat());
+        this.refreshDimensions();
+		summonPoseRandomByte = additionalData.readVarInt();
 	}
 
 	@Override

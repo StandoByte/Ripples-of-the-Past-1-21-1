@@ -2,6 +2,8 @@ package com.github.standobyte.jojo.network.s2c;
 
 import java.util.Optional;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.PacketsRegister;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
@@ -24,12 +26,13 @@ public record StandSkinSoundPacket(Vec3 position, Holder<SoundEvent> sound,
 		ResourceLocation standType, Optional<ResourceLocation> standSkin, 
 		SoundSource soundCategory, float volume, float pitch) implements CustomPacketPayload {
 	
+	@Nullable
 	public static StandSkinSoundPacket play(Vec3 position, Holder<SoundEvent> sound, 
 			StandPower userPower, SoundSource soundCategory, float volume, float pitch) {
+		if (userPower == null) return null;
 		StandInstance stand = userPower.getStandInstance().orElse(null);
-		if (stand == null) {
-			throw new IllegalArgumentException();
-		}
+		if (stand == null) return null;
+		
 		return new StandSkinSoundPacket(position, sound, 
 				stand.getStandType().getId(), stand.getSelectedSkin(), 
 				soundCategory, volume, pitch);

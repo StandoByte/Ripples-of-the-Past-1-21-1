@@ -136,12 +136,7 @@ public class ExtendableOBB {
     }
 
     public void updatePosition(Level level, Vec3 pos, Vec3 offset, float xRot, float yRot){
-        if (!level.isClientSide()){
-            obb.center = pos.add(offset);
-        }
-        else {
-            obb.center = offset;
-        }
+        obb.center = pos.add(offset);
         obb = rotatableHitbox().setRotation(yRot, xRot).updateVertex();
     }
 }

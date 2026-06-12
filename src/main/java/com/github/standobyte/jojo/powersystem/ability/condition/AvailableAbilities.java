@@ -72,7 +72,7 @@ public class AvailableAbilities {
 		inMovesetAndCanBeUsed.clear();
 		for (var abilityEntry : _inMoveset.entrySet()) {
 			AbilityConditionCheck ability = abilityEntry.getValue();
-			if (ability.conditionCheck.isPositive()) {
+			if (ability.conditionCheck.positive()) {
 				inMovesetAndCanBeUsed.put(abilityEntry.getKey(), ability.ability);
 			}
 		}

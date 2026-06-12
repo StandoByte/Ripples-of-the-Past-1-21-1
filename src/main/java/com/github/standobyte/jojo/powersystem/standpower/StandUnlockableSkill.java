@@ -21,7 +21,7 @@ public class StandUnlockableSkill extends UnlockableSkill {
 	@Override
 	public ConditionCheck canUnlockFromMenu(Power<?> userPower, PowerData data) {
 		ConditionCheck prerequisiteCheck = super.canUnlockFromMenu(userPower, data);
-		if (!prerequisiteCheck.isPositive()) {
+		if (!prerequisiteCheck.positive()) {
 			return prerequisiteCheck;
 		}
 		

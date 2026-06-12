@@ -58,6 +58,7 @@ public class ClPlayerBroadcastConfigPacket implements CustomPacketPayload {
 		public void handle(ClPlayerBroadcastConfigPacket payload, IPayloadContext context) {
 			ServerPlayer player = (ServerPlayer) context.player();
 			ConfigNetworkFunctions.srvAcceptPlayerBroadcastConfig(player, payload);
+			if (payload.read != null) payload.read.release();
 		}
 		
 	}

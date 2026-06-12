@@ -80,12 +80,12 @@ public class StandTypePersistentData extends PowerData {
 	public void setExp(float exp, StandPower userPower, boolean clientSideNewSkillNotification) {
 		if (clientSideNewSkillNotification && userPower.hasPower()) {
 			Collection<? extends UnlockableSkill> couldUnlock = getAllSkills().values().stream()
-					.filter(skill -> skill.canUnlockFromMenu(userPower, this).isPositive()).collect(Collectors.toSet());
+					.filter(skill -> skill.canUnlockFromMenu(userPower, this).positive()).collect(Collectors.toSet());
 			
 			this.exp = exp;
 			
 			Collection<? extends UnlockableSkill> newSkillsToUnlock = getAllSkills().values().stream()
-					.filter(skill -> skill.canUnlockFromMenu(userPower, this).isPositive() && !couldUnlock.contains(skill)).toList();
+					.filter(skill -> skill.canUnlockFromMenu(userPower, this).positive() && !couldUnlock.contains(skill)).toList();
 			if (!newSkillsToUnlock.isEmpty()) {
 				StandInstance stand = userPower.getStandInstance().get();
 				BottomLeftNotifications.add(Component.translatable("jojo_ripples.notification.stand_skill"));

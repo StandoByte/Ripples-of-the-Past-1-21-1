@@ -14,10 +14,37 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
-public record AbilityId(PowerClass<?> powerClass, ResourceLocation powerTypeId, String nameInMoveset) {
+public record AbilityId(@Nullable PowerClass<?> powerClass, ResourceLocation powerTypeId, String nameInMoveset) {
 	
 	static <A extends Ability> A makeDefaultAbilityInstance(AbilityType<A> abilityType) {
 		return abilityType.createInstance(new AbilityId(null, null, abilityType.registryKey.toString()));
+	}
+	
+	@Override
+	public String toString() {
+		if (powerClass != null) {
+			return powerClass.toString() + "#" + powerTypeId.toString() + "/" + nameInMoveset;
+		}
+		else {
+			return powerTypeId.toString() + "/" + nameInMoveset;
+		}
+	}
+	
+	public static AbilityId parse(String string) {
+		int namePos = string.indexOf("/");
+		if (namePos > 0) {
+			PowerClass<?> powerClass = null;
+			int powerClassPos = string.indexOf("#");
+			if (powerClassPos > 0 && powerClassPos < namePos) {
+				powerClass = PowerClass.fromName(string.substring(0, powerClassPos));
+			}
+			ResourceLocation powerTypeId = ResourceLocation.tryParse(string.substring(powerClassPos + 1, namePos));
+			if (powerTypeId != null) {
+				String name = string.substring(namePos + 1);
+				return new AbilityId(powerClass, powerTypeId, name);
+			}
+		}
+		return null;
 	}
 
 

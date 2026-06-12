@@ -43,37 +43,46 @@ public class ScrollingStringButton extends Button {
         int buttonWidth = x1 - x0;
         if (textWidth > buttonWidth && isHovered()) {
             switch (alignment) {
-            case LEFT:
-                guiGraphics.drawString(font, text, x0, y, color);
-                break;
-            case RIGHT:
-                guiGraphics.drawString(font, text, x1 - textWidth, y, color);
-                break;
+            	case LEFT -> guiGraphics.drawString(font, text, x0, y, color);
+            	case CENTER -> guiGraphics.drawString(font, text, (x0 + x1 - textWidth) / 2, y, color);
+            	case RIGHT -> guiGraphics.drawString(font, text, x1 - textWidth, y, color);
             }
         }
         else {
-        	_renderScrollingString(guiGraphics, font, text, (x0 + x1) / 2, x0, y0, x1, y1, color, categoryOpenedTimestampSoThatScrollingDoesntSuck);
+        	_renderScrollingString(guiGraphics, font, text, x0, y0, x1, y1, color, categoryOpenedTimestampSoThatScrollingDoesntSuck);
         }
     }
 
     public static void _renderScrollingString(GuiGraphics guiGraphics, Font font, 
-    		Component text, int centerX, int minX, int minY, int maxX, int maxY, int color, 
-    		long startingTime) {
-    	int i = font.width(text);
-    	int j = (minY + maxY - 9) / 2 + 1;
-    	int k = maxX - minX;
-    	if (i > k) {
-    		int l = i - k;
+    		Component text, int minX, int minY, int maxX, int maxY, 
+    		int color, long startingTime) {
+    	_renderScrollingString(guiGraphics, font, 
+    			text, Alignment.CENTER, minX, minY, maxX, maxY, 
+    			color, true, startingTime);
+    }
+
+    public static void _renderScrollingString(GuiGraphics guiGraphics, Font font, 
+    		Component text, Alignment alignment, int minX, int minY, int maxX, int maxY, 
+    		int color, boolean dropShadow, long startingTime) {
+    	int textWidth = font.width(text);
+    	int y = (minY + maxY - 9) / 2 + 1;
+    	int maxWidth = maxX - minX;
+    	if (textWidth > maxWidth) {
+    		int l = textWidth - maxWidth;
     		double d0 = (double)(Util.getMillis() - startingTime) / 1000.0;
     		double d1 = Math.max((double)l * 0.5, 3.0);
     		double d2 = 1 - (Math.sin((Math.PI / 2) * Math.cos((Math.PI * 2) * d0 / d1)) / 2.0 + 0.5);
     		double d3 = Mth.lerp(d2, 0.0, (double)l);
     		GuiScissor.enableScissor(guiGraphics, minX, minY, maxX, maxY);
-    		guiGraphics.drawString(font, text, minX - (int)d3, j, color);
+    		guiGraphics.drawString(font, text, minX - (int)d3, y, color, dropShadow);
     		guiGraphics.disableScissor();
     	} else {
-    		int i1 = Mth.clamp(centerX, minX + i / 2, maxX - i / 2);
-    		guiGraphics.drawCenteredString(font, text, i1, j, color);
+    		int x = switch (alignment) {
+    			case LEFT -> minX;
+    			case CENTER -> Mth.clamp((minX + maxX) / 2, minX + textWidth / 2, maxX - textWidth / 2) - textWidth / 2;
+    			case RIGHT -> maxX - textWidth;
+    		};
+    		guiGraphics.drawString(font, text, x, y, color, dropShadow);
     	}
     }
     

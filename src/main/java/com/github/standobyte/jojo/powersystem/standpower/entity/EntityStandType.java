@@ -9,29 +9,36 @@ import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.network.s2c.StandEntitySoundPacket;
 import com.github.standobyte.jojo.network.s2c.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.powersystem.MovesetBuilder;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.entityaction.netcode.SyncType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.datapack.StandTypeClass;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.objects_java.DefaultedValue;
+import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityUnsummonAction;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 // TODO EntityStandType stuff (arms-only summon, etc.)
-// TODO stand hitbox size parameter (+the size to stretch the model to)
 public class EntityStandType extends StandType {
 	static {
 		StandTypeClass.registerStandClass(EntityStandType.class, "entity", EntityStandType::new);
 	}
 	
 	protected DefaultedValue<EntityType<? extends StandEntity>> entityType;
+
+    public EntityDimensions standDimensions = ModEntityTypes.HUMANOID_STAND.get().getDimensions();
 	
 	public EntityStandType(StandStats stats, MovesetBuilder moveset, 
 			ResourceLocation id) {
@@ -45,6 +52,10 @@ public class EntityStandType extends StandType {
 		Objects.requireNonNull(standEntityType);
 		this.entityType = new DefaultedValue<>(standEntityType);
 	}
+
+    public <T extends EntityStandType> T standDimensions(float width, float height) {
+        return init(stand -> stand.standDimensions = EntityDimensions.scalable(width, height));
+    }
 	
 	@Override
 	public JsonObject makeConfigTemplate() {
@@ -73,22 +84,30 @@ public class EntityStandType extends StandType {
 	}
 	
 	
-//	@Override
-//	public void toggleSummon(LivingEntity user, StandPower standPower) {
-//		if (!standPower.isSummoned()) {
-//			summon(standPower.getUser(), standPower);
-//		}
-//		else {
-//			StandEntity standEntity = (StandEntity) standPower.getSummonedStand();
-//			if (standEntity.isArmsOnlyMode()) {
-//				standEntity.fullSummonFromArms();
-//				triggerAdvancement(standPower, standPower.getSummonedStand());
-//			}
-//			else {
-//				unsummon(standPower.getUser(), standPower);
-//			}
-//		}
-//	}
+	@Override
+	public void onUserSummonCommand(LivingEntity user, StandPower standPower) {
+		if (!standPower.isSummoned()) {
+			summon(standPower.getUser(), standPower);
+		}
+		else {
+			StandEntity standEntity = (StandEntity) standPower.getSummonedStand();
+			EntityActionInstance curAction = standEntity.getCurStandAction();
+			if (curAction != null) {
+				if (curAction.ability instanceof StandEntityUnsummonAction) {
+					forceUnsummon(user, standPower);
+				}
+				else if (curAction.canBeCancelledInto(null)) {
+					standEntity.getStandActionComponent().setAction(null, SyncType.TRACKING_AND_SELF);
+				}
+			}
+			else if (standEntity.isArmsOnlyMode()) {
+				standEntity.fullSummonFromArms();
+			}
+			else {
+				unsummon(user, standPower);
+			}
+		}
+	}
 
 	@Override
 	public boolean summon(LivingEntity user, StandPower standPower) {
@@ -112,6 +131,7 @@ public class EntityStandType extends StandType {
 			if (!standPower.isSummoned()) {
 				StandEntity standEntity = entityType.value.create(level/*, EntitySpawnReason.NATURAL*/)
 						.withStandType(this);
+                standEntity.refreshDimensions();
 				standEntity.copyPosition(user);
 				standEntity.copyStandUserRotation(user);
 				standPower.setSummonedStand(standEntity);
@@ -173,6 +193,19 @@ public class EntityStandType extends StandType {
 //		else if (user.is(ClientUtil.getClientPlayer())) {
 //			StandUtil.setManualControl(ClientUtil.getClientPlayer(), false, false);
 //		}
+	}
+	
+	@Override
+	public boolean showHUD(StandPower standPower) {
+		if (super.showHUD(standPower)) {
+			StandEntity standEntity = standPower.getSummonedStandEntity();
+			if (standEntity != null) {
+				EntityActionInstance curAction = standEntity.getCurStandAction();
+				return !(curAction != null && curAction.ability instanceof StandEntityUnsummonAction);
+			}
+		}
+		
+		return false;
 	}
 	
 	public EntityType<?> getEntityType() {

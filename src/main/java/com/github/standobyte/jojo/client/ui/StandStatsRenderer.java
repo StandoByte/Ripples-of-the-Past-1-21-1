@@ -436,7 +436,7 @@ public class StandStatsRenderer {
 
 		StandSkin skin = StandSkinsLoader.getInstance().getSkin(power);
 		int standNameColor = skin != null && knownStand ? skin.getColors().text() : 0xFFFFFFFF;
-		int statsHexagonColor = skin != null && knownStand ? FastColor.ARGB32.color(191, skin.getColors().primary()) : FastColor.ARGB32.color(127, bnw(BLACK, invertBnW));
+		int statsHexagonColor = skin != null && knownStand ? FastColor.ARGB32.color(191, skin.getColors().stats()) : FastColor.ARGB32.color(127, bnw(BLACK, invertBnW));
 
 		float[] statVal = new float[6];
 		String[] statRank = new String[6];

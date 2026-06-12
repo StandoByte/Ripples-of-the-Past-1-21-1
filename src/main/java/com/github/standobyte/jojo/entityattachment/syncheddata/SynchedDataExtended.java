@@ -8,21 +8,26 @@ import org.apache.commons.lang3.ObjectUtils;
 
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.entity.Entity;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class SynchedDataExtended extends SynchedEntityData {
+	public final String type;
 	protected final SyncedDataHolderExtended entity2;
 	public List<SynchedEntityData.DataValue<?>> serverTrackedDataValues;
 
-	public SynchedDataExtended(SyncedDataHolderExtended entity, SynchedEntityData.DataItem<?>[] itemsById, boolean clientSide) {
+	public SynchedDataExtended(SyncedDataHolderExtended entity, String type, 
+			SynchedEntityData.DataItem<?>[] itemsById, boolean clientSide) {
 		super(entity, itemsById);
 		this.entity2 = entity;
 		if (!clientSide) {
 			serverTrackedDataValues = this.getNonDefaultValues();
 		}
+		this.type = type;
 	}
 
-	public SynchedDataExtended(SynchedEntityData.Builder builder, boolean clientSide) {
-		this((SyncedDataHolderExtended) builder.entity, builder.itemsById, clientSide);
+	public SynchedDataExtended(SynchedEntityData.Builder builder, String type, boolean clientSide) {
+		this((SyncedDataHolderExtended) builder.entity, type, builder.itemsById, clientSide);
 	}
 
 	@Nullable
@@ -37,6 +42,15 @@ public class SynchedDataExtended extends SynchedEntityData {
 			serverTrackedDataValues = this.getNonDefaultValues();
 		}
 		return dirty;
+	}
+	
+	
+	public static void tickSyncDirtyData(SynchedDataExtended helper, Entity entity) {
+		List<SynchedEntityData.DataValue<?>> dirtyData = helper.syncDirtyData();
+		if (dirtyData != null) {
+			PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, 
+					new SynchedDataPacket(entity.getId(), helper.type, dirtyData));
+		}
 	}
 
 

@@ -9,10 +9,12 @@ public record StandSkinColor(
 		int secondary, 
 		int text, 
 		int text_white_bg /*using the same case as in the jsons*/, 
+		int disc,
+		int stats,
 		int aura) {
 
 	public StandSkinColor(int color) {
-		this(color, color, color, color, color);
+		this(color, color, color, color, color, color, color);
 	}
 	
 	public static StandSkinColor fromJson(JsonElement json) {
@@ -25,9 +27,13 @@ public record StandSkinColor(
 					primary);
 			int textWhiteBg = JSONUtil.getOr("text_white_bg", jsonObj, StandSkinColor::parseColor, 
 					text);
+			int disc = JSONUtil.getOr("disc", jsonObj, StandSkinColor::parseColor, 
+					primary);
+			int stats = JSONUtil.getOr("stats", jsonObj, StandSkinColor::parseColor, 
+					primary);
 			int aura = JSONUtil.getOr("aura", jsonObj, StandSkinColor::parseColor, 
 					secondary);
-			return new StandSkinColor(primary, secondary, text, textWhiteBg, aura);
+			return new StandSkinColor(primary, secondary, text, textWhiteBg, disc, stats, aura);
 		}
 		else {
 			int color = parseColor(json);
@@ -41,6 +47,6 @@ public record StandSkinColor(
 	
 	
 	public static final StandSkinColor FALLBACK = new StandSkinColor(
-			0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF000000, 0xFFFF60FF);
+			0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF, 0xFFFF60FF, 0xFFFF60FF);
 	
 }

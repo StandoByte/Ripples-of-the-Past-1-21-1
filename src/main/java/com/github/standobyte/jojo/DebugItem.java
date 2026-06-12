@@ -1,29 +1,42 @@
 package com.github.standobyte.jojo;
 
+import java.io.FileWriter;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import com.github.standobyte.jojo.client.shader.ColorShiftEffect;
 import com.github.standobyte.jojo.client.shader.ColorShiftShader;
 import com.github.standobyte.jojo.client.shader.ModShaders;
-import com.github.standobyte.jojo.client.sound.bgmloop.BgmPlayer;
+import com.github.standobyte.jojo.client.sound.bgmloop.BgmEngine;
+import com.github.standobyte.jojo.client.sound.bgmloop.BgmInstance;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo;
-import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackLoader;
 import com.github.standobyte.jojo.client.sound.bgmloop.DebugBgm;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.network.c2s.ClDebugCommandPacket;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.subsystems.itemtracking.ItemTracker;
 import com.github.standobyte.jojo.subsystems.itemtracking.ItemTracking;
 import com.github.standobyte.jojo.util.OOPMoment;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 
+import net.minecraft.FileUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.sounds.Weighted;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -32,6 +45,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -67,7 +81,7 @@ public class DebugItem extends Item {
 			"__blank2",
 			"__blank3",
 			"__blank4",
-			"__blank5",
+			"serialize_stands",
 			"track_offhand",
 			"drop_tracked"
 	};
@@ -87,13 +101,13 @@ public class DebugItem extends Item {
 						if (standSkin != null) {
 							Weighted<BgmTrackInfo> track = DebugBgm.cycleVariation(DebugBgm.BgmTrackType.STAND_SKINS, standSkin.skinId);
 							if (track != null) {
-								BgmPlayer player = new BgmPlayer(track);
-								player.start();
+								BgmInstance bgm = new BgmInstance(track, BgmInstance.BgmType.STAND_RESOLVE);
+								bgm.start();
 							}
 						}
 					}
 					case 1 -> {
-						BgmPlayer curPlaying = BgmTrackLoader.getInstance().bgmPlaying;
+						BgmInstance curPlaying = BgmEngine.getCurTrackPlaying();
 						if (curPlaying != null) {
 							curPlaying.finishWithOutro();
 						}
@@ -117,7 +131,8 @@ public class DebugItem extends Item {
 		};
 	}
 	
-	public static void handleServer(String option, Player player, int mouseButton) {
+	public static void handleServer(String option, ServerPlayer player, int mouseButton) {
+		if (!player.hasPermissions(2)) return;
 		switch (option) {
 			case "track_offhand" -> {
 				ItemStack item = player.getOffhandItem();
@@ -141,6 +156,26 @@ public class DebugItem extends Item {
 							ItemEntity dropItem = new ItemEntity(level, pos.x, pos.y, pos.z, itemToDrop);
 							level.addFreshEntity(dropItem);
 						}
+					}
+				}
+			}
+			case "serialize_stands" -> {
+				MinecraftServer server = ((ServerLevel) player.level()).getServer();
+				Path dir = server.getWorldPath(LevelResource.GENERATED_DIR).normalize();
+				for (var standEntry : JojoRegistries.DEFAULT_STANDS_REG.entrySet()) {
+					ResourceLocation standId = standEntry.getKey().location();
+					Path modIdDir = dir.resolve(standId.getNamespace()).resolve("stands");
+					Path file = FileUtil.createPathToResource(modIdDir, standId.getPath(), ".json");
+					StandType stand = standEntry.getValue();
+					JsonElement standJson = stand.makeConfigTemplate();
+					Gson gson = new GsonBuilder().setPrettyPrinting().create();
+					try {
+						Files.createDirectories(Files.exists(modIdDir) ? modIdDir.toRealPath() : modIdDir);
+						try (Writer writer = new FileWriter(file.toFile())) {
+							gson.toJson(standJson, writer);
+						}
+					} catch (Exception e) {
+						JojoMod.getLogger().error("womp womp", e);
 					}
 				}
 			}

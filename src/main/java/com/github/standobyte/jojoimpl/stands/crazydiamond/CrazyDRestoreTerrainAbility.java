@@ -216,27 +216,33 @@ public class CrazyDRestoreTerrainAbility extends StandEntityAbility {
 			builder.define(IS_RESTORING, false);
 		}
 
+		protected boolean startedSound = false;
 		@Override
 		public <T> void onSyncedDataUpdated(T oldValue, T newValue, EntityDataAccessor<T> dataAccessor) {
 			if (dataAccessor == IS_RESTORING) {
 				Level level = level();
-				if (level.isClientSide() && performer instanceof StandEntity standEntity) {
-					if ((Boolean) newValue) {
-						ClientsideSoundsHelper.playNonVanillaClassSound(new EntityLingeringSoundInstance(ClientsideSoundsHelper.withStandSkin(
-								ModSoundEvents.CRAZY_DIAMOND_FIX_STARTED.get(), standEntity), 
-								standEntity.getSoundSource(), 1, 1, standEntity, level));
-						
-						ClientsideSoundsHelper.playNonVanillaClassSound(new EntityStoppableSoundInstance(ClientsideSoundsHelper.withStandSkin(
-								ModSoundEvents.CRAZY_DIAMOND_FIX_LOOP.get(), standEntity), 
-								standEntity.getSoundSource(), 1, 1, standEntity, level.random.nextLong(), 
-								() -> this.isOver() || this.phase != ActionPhase.PERFORM || !this.synchedData.get(IS_RESTORING)));
-					}
-					else {
-						ClientsideSoundsHelper.playNonVanillaClassSound(new EntityLingeringSoundInstance(ClientsideSoundsHelper.withStandSkin(
-								ModSoundEvents.CRAZY_DIAMOND_FIX_ENDED.get(), standEntity), 
-								standEntity.getSoundSource(), 1, 1, standEntity, level));
-					}
+				if (level.isClientSide() && (Boolean) newValue && !startedSound && performer instanceof StandEntity standEntity) {
+					ClientsideSoundsHelper.playNonVanillaClassSound(new EntityLingeringSoundInstance(ClientsideSoundsHelper.withStandSkin(
+							ModSoundEvents.CRAZY_DIAMOND_FIX_STARTED.get(), standEntity), 
+							standEntity.getSoundSource(), 1, 1, standEntity, level));
+					
+					ClientsideSoundsHelper.playNonVanillaClassSound(new EntityStoppableSoundInstance(ClientsideSoundsHelper.withStandSkin(
+							ModSoundEvents.CRAZY_DIAMOND_FIX_LOOP.get(), standEntity), 
+							standEntity.getSoundSource(), 1, 1, standEntity, level.random.nextLong(), 
+							() -> this.isOver() || this.phase != ActionPhase.PERFORM));
+					
+					startedSound = true;
 				}
+			}
+		}
+		
+		@Override
+		public void onActionCleared(@Nullable EntityActionInstance newAction) {
+			Level level = level();
+			if (level.isClientSide() && startedSound && performer instanceof StandEntity standEntity) {
+				ClientsideSoundsHelper.playNonVanillaClassSound(new EntityLingeringSoundInstance(ClientsideSoundsHelper.withStandSkin(
+						ModSoundEvents.CRAZY_DIAMOND_FIX_ENDED.get(), standEntity), 
+						standEntity.getSoundSource(), 1, 1, standEntity, level));
 			}
 		}
 	}

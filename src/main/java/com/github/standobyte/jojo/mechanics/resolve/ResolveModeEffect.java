@@ -10,7 +10,6 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.customobjects.StatusEffectModified;
 import com.github.standobyte.jojo.init.ModStatusEffects;
-import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 
 import net.minecraft.core.Holder;
 import net.minecraft.world.effect.MobEffect;
@@ -38,15 +37,14 @@ public class ResolveModeEffect extends StatusEffectModified {
 	@Override
 	public void onAdded(LivingEntity entity, MobEffectInstance instance, @Nullable Entity source) {
 		super.onAdded(entity, instance, source);
-		StandPower standPower = StandPower.get(entity);
-		if (standPower != null && standPower.usesResolve()) {
-			ResolveCounter resolve = standPower.resolveCounter;
-			resolve.onResolveEffectStart(standPower, entity, instance);
+		ResolveCounter resolve = ResolveCounter.getIfEnabled(entity);
+		if (resolve != null) {
+			resolve.onResolveEffectStart(instance);
 			addStandAttributeModifiers(entity, instance.getAmplifier());
 			if (!entity.level().isClientSide()) {
 				float supposedToHaveResolve = ResolveCounter.getMaxResolveValue(instance.getAmplifier());
 				if (resolve.getResolveValue() < supposedToHaveResolve) {
-					resolve.setResolveValue(standPower, supposedToHaveResolve);
+					resolve.setResolveValue(supposedToHaveResolve);
 				}
 			}
 		}
@@ -55,10 +53,9 @@ public class ResolveModeEffect extends StatusEffectModified {
 	@Override
 	public void onUpdated(LivingEntity entity, MobEffectInstance instance, @Nullable Entity source) {
 		super.onUpdated(entity, instance, source);
-		StandPower standPower = StandPower.get(entity);
-		if (standPower != null && standPower.usesResolve()) {
-			ResolveCounter resolve = standPower.resolveCounter;
-			resolve.onResolveEffectStart(standPower, entity, instance);
+		ResolveCounter resolve = ResolveCounter.getIfEnabled(entity);
+		if (resolve != null) {
+			resolve.onResolveEffectStart(instance);
 			addStandAttributeModifiers(entity, instance.getAmplifier());
 		}
 	}
@@ -66,10 +63,9 @@ public class ResolveModeEffect extends StatusEffectModified {
 	@Override
 	public void onRemoved(LivingEntity entity, MobEffectInstance instance) {
 		super.onRemoved(entity, instance);
-		StandPower standPower = StandPower.get(entity);
-		if (standPower != null) {
-			ResolveCounter resolve = standPower.resolveCounter;
-			resolve.onResolveEffectEnd(standPower, entity, instance);
+		ResolveCounter resolve = ResolveCounter.getIfEnabled(entity);
+		if (resolve != null) {
+			resolve.onResolveEffectEnd(instance);
 			removeStandAttributeModifiers(entity);
 		}
 	}

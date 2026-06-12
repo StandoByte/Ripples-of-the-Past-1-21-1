@@ -1,7 +1,13 @@
 package com.github.standobyte.jojo.mechanics.resolve;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.entityattachment.ComponentUtil;
+import com.github.standobyte.jojo.entityattachment.SynchronizablePlayerData;
+import com.github.standobyte.jojo.entityattachment.TickingEntityData;
 import com.github.standobyte.jojo.init.ModDamageTypes;
+import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModParticles;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -9,6 +15,7 @@ import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,22 +29,26 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID)
-public class ResolveCounter {
-	public static final Double[] DEFAULT_MAX_RESOLVE_VALUES = { 500.0, 1500.0, 3500.0, 7500.0 };
+public class ResolveCounter implements SynchronizablePlayerData, TickingEntityData, INBTSerializable<CompoundTag> {
+	public static final Double[] DEFAULT_MAX_RESOLVE_VALUES = { 1440.0, 2880.0, 5760.0, 10080.0 };
 	public static final int MAX_STAGE = DEFAULT_MAX_RESOLVE_VALUES.length - 1;
 	public static final int[] RESOLVE_EFFECT_MIN = { 300, 400, 500, 600 };
 	public static final int[] RESOLVE_EFFECT_MAX = { 600, 1200, 1800, 2400 };
 
 	public static final float RESOLVE_FOR_DMG_POINT = 1F;
 	public static final float RESOLVE_FOR_DMG_TAKEN = 2F;
+	
+	protected final LivingEntity entity;
 	
 	protected float value;
 	protected int unlockedStage = 0;
@@ -47,35 +58,43 @@ public class ResolveCounter {
 	protected boolean activatedEffectOnMaxStage = false;
 
 
-	public ResolveCounter() {}
+	public ResolveCounter(LivingEntity entity) {
+		this.entity = entity;
+		addTicking(entity);
+		addSynchronization(entity);
+	}
 	
-	public void copyValues(ResolveCounter prev, boolean wasDeath) {
-		this.unlockedStage = prev.unlockedStage;
-		this.passedLastStage = prev.passedLastStage;
+	@Override
+	public void onPlayerClone(Player newPlayer, boolean wasDeath) {
+		ResolveCounter newObj = ResolveCounter.getOrCreate(newPlayer);
+		newObj.unlockedStage = this.unlockedStage;
+		newObj.passedLastStage = this.passedLastStage;
 		if (!wasDeath) {
-			this.value = prev.value;
-			this.resolveModeTimer = prev.resolveModeTimer;
-			this.resolveModeInitial = prev.resolveModeInitial;
-			this.activatedEffectOnMaxStage = prev.activatedEffectOnMaxStage;
+			newObj.value = this.value;
+			newObj.resolveModeTimer = this.resolveModeTimer;
+			newObj.resolveModeInitial = this.resolveModeInitial;
+			newObj.activatedEffectOnMaxStage = this.activatedEffectOnMaxStage;
 		}
 	}
-
-
-	public void syncToTracking(LivingEntity user, ServerPlayer player) {
-		PacketDistributor.sendToPlayer(player, new TrResolvePacket(user.getId(), false, this));
-	}
-
-	public void syncToUser(ServerPlayer user) {
-		PacketDistributor.sendToPlayer(user, new TrResolvePacket(user.getId(), true, this));
+	
+	@Override
+	public void syncToTracking(ServerPlayer trackingPlayer) {
+		PacketDistributor.sendToPlayer(trackingPlayer, new TrResolvePacket(entity.getId(), false, this));
 	}
 	
-	protected void sync(LivingEntity user, boolean toTracking) {
-		if (!user.level().isClientSide()) {
+	@Override
+	public void syncToPlayer(ServerPlayer entityAsPlayer) {
+		PacketDistributor.sendToPlayer(entityAsPlayer, new TrResolvePacket(entity.getId(), true, this));
+	}
+
+	
+	protected void sync(boolean toTracking) {
+		if (!entity.level().isClientSide()) {
 			if (toTracking) {
-				PacketDistributor.sendToPlayersTrackingEntity(user, new TrResolvePacket(user.getId(), false, this));
+				PacketDistributor.sendToPlayersTrackingEntity(entity, new TrResolvePacket(entity.getId(), false, this));
 			}
-			if (user instanceof ServerPlayer player) {
-				PacketDistributor.sendToPlayer(player, new TrResolvePacket(user.getId(), true, this));
+			if (entity instanceof ServerPlayer player) {
+				PacketDistributor.sendToPlayer(player, new TrResolvePacket(entity.getId(), true, this));
 			}
 		}
 	}
@@ -102,7 +121,8 @@ public class ResolveCounter {
 		}
 	}
 
-	public CompoundTag writeNBT() {
+	@Override
+	public CompoundTag serializeNBT(HolderLookup.Provider provider) {
 		CompoundTag nbt = new CompoundTag();
 		nbt.putFloat("Resolve", value);
 		nbt.putInt("Stage", unlockedStage);
@@ -114,7 +134,8 @@ public class ResolveCounter {
 		return nbt;
 	}
 
-	public void readNBT(CompoundTag nbt) {
+	@Override
+	public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
 		value = nbt.getFloat("Resolve");
 		setUnlockedStage(nbt.getInt("Stage"));
 		resolveModeTimer = nbt.getInt("ResolveMode");
@@ -133,10 +154,19 @@ public class ResolveCounter {
 		resolveModeInitial = -1;
 		resolveModeTimer = -1;
 		activatedEffectOnMaxStage = false;
-		sync(user, true);
+		sync(true);
 	}
 
 
+	
+	public static boolean resolveEnabled(LivingEntity entity) {
+		StandPower stand = StandPower.get(entity);
+		if (stand != null && stand.usesResolve()) {
+			return true;
+		}
+		// player power users will have it too
+		return false;
+	}
 	
 	public float getResolveBarFill() {
 		int curStage = this.getCurStage();
@@ -150,29 +180,28 @@ public class ResolveCounter {
 		return 1f / (ResolveCounter.MAX_STAGE + 1) /*0.25f*/ * (curStage + 1 + lerp);
 	}
 
-	public void tick(StandPower stand) {
-		if (stand.usesResolve()) {
-			LivingEntity user = stand.getUser();
-			
+	@Override
+	public void tick() {
+		if (resolveEnabled(entity)) {
 			if (resolveModeTimer > 0) {
 				resolveModeTimer--;
-				if (ResolveStageBuffs.keepResolveModeAtHalfPassively(stand, this)) {
+				if (ResolveStageBuffs.keepResolveModeAtHalfPassively(this, entity)) {
 					keepResolveModeMinTimerAtHalf();
 				}
 			}
 			else if (resolveModeTimer == 0) {
-				if (!user.level().isClientSide()) {
-					user.removeEffect(ModStatusEffects.RESOLVE);
+				if (!entity.level().isClientSide()) {
+					entity.removeEffect(ModStatusEffects.RESOLVE);
 				}
 				resolveModeInitial = -1;
 				resolveModeTimer = -1;
 			}
 			
-			if (user.level().isClientSide()) {
-				if (!user.isInvisible() && user.tickCount % 3 == 0 && 
+			if (entity.level().isClientSide()) {
+				if (!entity.isInvisible() && entity.tickCount % 3 == 0 && 
 						(getResolveValue() >= getMaxResolveUnlocked() || activatedEffectOnMaxStage)) {
-					user.level().addParticle(ModParticles.KATAKANA_DO.get(), 
-							user.getRandomX(2.5), user.getY(user.getRandom().nextDouble() * 1.5), user.getRandomZ(2.5), 0, 0, 0);
+					entity.level().addParticle(ModParticles.KATAKANA_DO.get(), 
+							entity.getRandomX(2.5), entity.getY(entity.getRandom().nextDouble() * 1.5), entity.getRandomZ(2.5), 0, 0, 0);
 				}
 			}
 		}
@@ -214,27 +243,25 @@ public class ResolveCounter {
 
 
 
-	public void setResolveValue(StandPower stand, float resolve) {
+	public void setResolveValue(float resolve) {
 		resolve = Mth.clamp(resolve, 0, getMaxResolveUnlocked());
 		this.value = resolve;
 
-		LivingEntity user = stand.getUser();
-		if (!user.level().isClientSide()) {
-			sync(user, true);
+		if (!entity.level().isClientSide()) {
+			sync(true);
 		}
 	}
 
-	public void addResolveValue(StandPower stand, float resolve) {
-		LivingEntity user = stand.getUser();
-		MobEffectInstance resolveMode = user.getEffect(ModStatusEffects.RESOLVE);
+	public void addResolveValue(float resolve) {
+		MobEffectInstance resolveMode = entity.getEffect(ModStatusEffects.RESOLVE);
 		
 		if (resolveMode != null) {
 			keepResolveModeMinTimerAtHalf();
 		}
 		// will also sync the timer above
-		setResolveValue(stand, getResolveValue() + resolve);
+		setResolveValue(getResolveValue() + resolve);
 		//if (!user.level().isClientSide() && getResolveValue() >= getMaxResolveUnlocked(user)) {
-		//	startResolveMode(stand);
+		//	startResolveMode();
 		//}
 	}
 	
@@ -243,18 +270,16 @@ public class ResolveCounter {
 	}
 	
 	
-	public boolean canEnterResolveMode(StandPower stand) {
-		LivingEntity user = stand.getUser();
-		return user != null && getCurStage() >= 0 && !user.hasEffect(ModStatusEffects.RESOLVE);
+	public boolean canEnterResolveMode() {
+		return entity != null && getCurStage() >= 0 && !entity.hasEffect(ModStatusEffects.RESOLVE);
 	}
 	
-	public boolean startResolveMode(StandPower stand) {
-		if (canEnterResolveMode(stand)) {
-			LivingEntity user = stand.getUser();
-			if (!user.level().isClientSide()) {
+	public boolean startResolveMode() {
+		if (canEnterResolveMode()) {
+			if (!entity.level().isClientSide()) {
 				int resolveLevel = getCurStage();
 				int duration = RESOLVE_EFFECT_MAX[Mth.clamp(resolveLevel, 0, RESOLVE_EFFECT_MAX.length - 1)];
-				stand.getUser().addEffect(new MobEffectInstance(ModStatusEffects.RESOLVE, 
+				entity.addEffect(new MobEffectInstance(ModStatusEffects.RESOLVE, 
 						duration, resolveLevel, false, false, true));
 			}
 			return true;
@@ -262,8 +287,8 @@ public class ResolveCounter {
 		return false;
 	}
 	
-	public void onResolveEffectStart(StandPower stand, LivingEntity user, MobEffectInstance resolveEffect) {
-		if (user != null) {
+	public void onResolveEffectStart(MobEffectInstance resolveEffect) {
+		if (entity != null) {
 			boolean hasMinDuration = false;
 			if (resolveEffect.is(ModStatusEffects.RESOLVE)) {
 				int resolveLevel = resolveEffect.getAmplifier();
@@ -281,15 +306,15 @@ public class ResolveCounter {
 			}
 			resolveModeTimer = resolveModeInitial;
 			
-			if (!user.level().isClientSide()) {
-				sync(user, true);
+			if (!entity.level().isClientSide()) {
+				sync(true);
 			}
 		}
 	}
 	
-	public void onResolveEffectEnd(StandPower stand, LivingEntity user, MobEffectInstance resolveEffect) {
+	public void onResolveEffectEnd(MobEffectInstance resolveEffect) {
 		//if (hasAnotherResolveEffect()) {
-		//	onResolveEffectStart(stand, user, resolveEffect);
+		//	onResolveEffectStart(resolveEffect);
 		//}
 		//else {
 			this.value = 0;
@@ -300,8 +325,8 @@ public class ResolveCounter {
 			if (stage >= MAX_STAGE) { // after Resolve IV is over
 				passedLastStage = true;
 			}
-			if (!user.level().isClientSide()) {
-				sync(user, true);
+			if (!entity.level().isClientSide()) {
+				sync(true);
 			}
 		//}
 	}
@@ -333,46 +358,43 @@ public class ResolveCounter {
 			Entity attacker = dmgSource.getEntity();
 			if (attacker instanceof LivingEntity living) {
 				LivingEntity standUser = StandUtil.getStandUser(living);
-				StandPower attackerStand = StandPower.get(standUser);
-				if (attackerStand != null && attackerStand.hasPower()) {
-					addResolve(attackerStand, target, points);
-				}
+				addResolve(standUser, target, points);
 			}
 		}
 
 		else if (dmgSource.getEntity() instanceof LivingEntity attacker) {
 			StandPower attackerStand = StandPower.get(attacker);
 			if (attackerStand != null && attackerStand.isSummoned()) {
-				addResolve(attackerStand, target, points * 0.5F);
+				addResolve(attacker, target, points * 0.5F);
 			}
 		}
 	}
     
 
-	public static void addResolve(StandPower attackerStand, LivingEntity attackTarget, float dmgAmount) {
-		if (attackerStand == null || !attackerStand.usesResolve()) return;
+	public static void addResolve(LivingEntity attacker, LivingEntity attackTarget, float dmgAmount) {
 		attackTarget = StandUtil.getStandUser(attackTarget);
-		LivingEntity attacker = attackerStand.getUser();
 		boolean hitSelf = attackTarget != null && attacker != null && attackTarget.is(attacker);
 		if (!hitSelf && attackTarget.isAlive() && attackingTargetGivesResolve(attackTarget)) {
-			ResolveCounter resolve = attackerStand.getResolveCounter();
-			float points = dmgAmount * RESOLVE_FOR_DMG_POINT;
-
-			//for (PowerClass<?> classification : PowerClass.values()) {
-			//	points *= classification.getOptional(attackTarget).map(power -> {
-			//		if (power.hasPower()) {
-			//			return power.getPowerType().getTargetResolveMultiplier(getThis(), attackerStand);
-			//		}
-			//		return 1F;
-			//	}).orElse(1F);
-			//}
-
-			if (ResolveModeEffect.getResolveEffectLvl(attackTarget) >= 0) {
-				points *= 1 + resolve.getResolveBarFill() * 3;
+			ResolveCounter resolve = ResolveCounter.getIfEnabled(attacker);
+			if (resolve != null) {
+				float points = dmgAmount * RESOLVE_FOR_DMG_POINT;
+				
+				//for (PowerClass<?> classification : PowerClass.values()) {
+				//	points *= classification.getOptional(attackTarget).map(power -> {
+				//		if (power.hasPower()) {
+				//			return power.getPowerType().getTargetResolveMultiplier(getThis(), attackerStand);
+				//		}
+				//		return 1F;
+				//	}).orElse(1F);
+				//}
+				
+				if (ResolveModeEffect.getResolveEffectLvl(attackTarget) >= 0) {
+					points *= 1 + resolve.getResolveBarFill() * 3;
+				}
+				
+				float multiplier = resolve.totalMultiplier(attacker);
+				resolve.addResolveValue(points * multiplier);
 			}
-
-			float multiplier = resolve.totalMultiplier(attacker);
-			resolve.addResolveValue(attackerStand, points * multiplier);
 		}
 	}
 
@@ -410,39 +432,49 @@ public class ResolveCounter {
     @SubscribeEvent(priority = EventPriority.NORMAL)
     public static void resolveOnTakingDamage(LivingDamageEvent.Pre event) {
     	LivingEntity target = event.getEntity();
-    	StandPower stand = StandPower.get(target);
-    	if (stand != null && stand.usesResolve()) {
+    	ResolveCounter resolve = ResolveCounter.getIfEnabled(target);
+    	if (resolve != null) {
     		LivingEntity user = target;
-    		ResolveCounter resolve = stand.getResolveCounter();
     		DamageSource dmgSource = event.getSource();
     		float dmgAmount = event.getNewDamage();
     		
     		Entity attacker = dmgSource.getEntity();
-    		if (attacker != null && !attacker.level().isClientSide() && stand.usesResolve() && attacker != null && !attacker.is(user)) {
+    		if (attacker != null && !attacker.level().isClientSide() && attacker != null && !attacker.is(user)) {
     			float missingHpMult = resolve.missingHpMultiplier(user, dmgAmount);
     			if (missingHpMult > 1) {
     				float points = dmgAmount * RESOLVE_FOR_DMG_TAKEN;
     				float multiplier = resolve.totalMultiplier(user)
     						/ resolve.missingHpMultiplier(user, 0) * missingHpMult; // correcting the multiplier to count for the user's hp *after* the hit
-    				resolve.addResolveValue(stand, points * multiplier);
+    				resolve.addResolveValue(points * multiplier);
+    			}
+    		}
+
+    		// damage resistance from Resolve value
+    		if (!event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+    			float dmgReduction = ResolveStageBuffs.getDamageResistance(resolve, target);
+    			if (dmgReduction > 0) {
+    				event.setNewDamage(event.getNewDamage() * (1 - dmgReduction));
     			}
     		}
     	}
     }
 
-    @SubscribeEvent(priority = EventPriority.LOW)
-    public static void reduceDamageFromResolve(LivingDamageEvent.Pre event) {
-        if (event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
-            return;
-        }
-        LivingEntity target = event.getEntity();
-        StandPower stand = StandPower.get(target);
-        if (stand != null) {
-        	float dmgReduction = ResolveStageBuffs.getDamageResistance(stand, stand.resolveCounter, target);
-        	if (dmgReduction > 0) {
-        		event.setNewDamage(event.getNewDamage() * (1 - dmgReduction));
-        	}
-        }
+
+    @Nullable
+    public static ResolveCounter getIfEnabled(LivingEntity entity) {
+    	if (resolveEnabled(entity)) {
+    		return entity.getData(ModDataAttachmentTypes.RESOLVE);
+    	}
+    	return null;
+    }
+
+    @Nullable
+    public static ResolveCounter getExisting(LivingEntity entity) {
+    	return ComponentUtil.getExistingDataOrNull(entity, ModDataAttachmentTypes.RESOLVE);
+    }
+    
+    public static ResolveCounter getOrCreate(LivingEntity entity) {
+		return entity.getData(ModDataAttachmentTypes.RESOLVE);
     }
     
 }

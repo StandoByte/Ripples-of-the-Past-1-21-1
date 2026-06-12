@@ -97,8 +97,13 @@ public class AnimationLoader extends SimplePreparableReloadListener<Map<Resource
 			if (!animName.startsWith("unused#")) {
 				try {
 					JsonObject animJson = animJsonEntry.getValue().getAsJsonObject();
-					RotpAnimDefinition anim = ParseGeckoAnims.parseAnim(animJson);
-					animSetBuilder.putNamedAnim(animName, anim);
+					RotpAnimDefinition anim = ParseGeckoAnims.parseAnim(animName, animJson);
+					if (animName.startsWith("always")) {
+						animSetBuilder.addAlwaysAnim(anim);
+					}
+					else {
+						animSetBuilder.putNamedAnim(animName, anim);
+					}
 				}
 				catch (Exception e) {
 					JojoMod.getLogger().error("Failed to load animation {} from {}", animName, resPath, e);

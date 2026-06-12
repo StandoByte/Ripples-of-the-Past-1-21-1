@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.client.standskin.text.StandNameSetColor;
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHud;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
+import com.github.standobyte.jojo.config.stand_toggles.StandTogglesScreen;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.powersystem.Power;
@@ -77,12 +78,6 @@ public class JojoMenuTabs {
 			.withName(Component.translatable("jojo_ripples.ui.adventure"))
 			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/adventure.png"), 16, 16));
 	
-	static {
-		if (JojoMod.disableDevStuff()) {
-			TabCategory.ALL_CATEGORIES.remove(CATEGORY_ADVENTURE);
-		}
-	}
-	
 	public static final Tab PLAYER_PROFILE = new Tab(CATEGORY_ADVENTURE) {
 		@Override
 		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
@@ -121,7 +116,17 @@ public class JojoMenuTabs {
 	}
 			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.player.adventure_settings"))
 			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/adventure_settings.png"), 16, 16));
-	
+
+			
+	static {
+		if (JojoMod.disableDevStuff()) {
+			PLAYER_PROFILE.isDisabled = true;
+			GROUP.isDisabled = true;
+			STORY_ARCS.isDisabled = true;
+			ADVENTURE_SETTINGS.isDisabled = true;
+		}
+	}
+			
 	// Stand
 	
 	public static final TabCategory CATEGORY_STAND = new TabCategory(PowerClass.STAND, null) {
@@ -158,6 +163,11 @@ public class JojoMenuTabs {
 			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.stand.skills"))
 			.withScreen(tab -> new StandSkillsScreen(Component.empty(), tab.category, tab))
 			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/stand_skills.png"), 16, 16));
+	
+	public static final Tab STAND_TOGGLES = new Tab(CATEGORY_STAND)
+			.withName(Component.translatable(JojoMod.MOD_ID + ".menu.stand.toggles"))
+			.withScreen(tab -> new StandTogglesScreen(Component.empty(), tab.category, tab))
+			.withIcon(new GuiIcon(JojoMod.resLoc("textures/gui/stand_toggles.png"), 16, 16));
 	
 	public static final Tab STAND_SKINS = new Tab(CATEGORY_STAND) {
 		@Override

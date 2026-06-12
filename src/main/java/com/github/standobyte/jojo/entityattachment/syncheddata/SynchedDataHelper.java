@@ -10,6 +10,8 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 
 public class SynchedDataHelper {
+	public final String type;
+	
 	protected Object entityLikeObject;
 	protected BooleanSupplier clientSideCheck;
 	
@@ -20,10 +22,12 @@ public class SynchedDataHelper {
 	protected boolean didLazyInit;
 	
 	/**
+	 * @param packetHandlerType
 	 * @param entityLikeObject should implement {@link SyncedDataHolderExtended}
 	 * @param isClientSide
 	 */
-	public SynchedDataHelper(Object entityLikeObject, BooleanSupplier isClientSide) {
+	public SynchedDataHelper(String packetHandlerType, Object entityLikeObject, BooleanSupplier isClientSide) {
+		this.type = packetHandlerType;
 		this.entityLikeObject = entityLikeObject;
 		this.clientSideCheck = isClientSide;
 		this.objClassName = entityLikeObject.getClass().getName();
@@ -37,7 +41,7 @@ public class SynchedDataHelper {
 			if (entityLikeObject instanceof SyncedDataHolderExtended withSynchedData) {
 				SynchedEntityData.Builder builder = new SynchedEntityData.Builder(withSynchedData);
 				withSynchedData.defineSynchedData(builder);
-				synchedData = new SynchedDataExtended(builder, clientSide);
+				synchedData = new SynchedDataExtended(builder, type, clientSide);
 			}
 			didLazyInit = true;
 			

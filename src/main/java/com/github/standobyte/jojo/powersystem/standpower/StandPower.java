@@ -8,7 +8,6 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.entityattachment.PostNbtReadEntityData;
 import com.github.standobyte.jojo.init.ModEntityAttributes;
-import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveStageBuffs;
 import com.github.standobyte.jojo.mechanics.standarrow.StandArrowItem;
 import com.github.standobyte.jojo.network.s2c.TrPowerStandInstancePacket;
@@ -44,7 +43,6 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	protected Lerp.FloatValue staminaLerp = new Lerp.FloatValue();
 	protected float staminaAddNextTick = 0;
 	
-	public ResolveCounter resolveCounter = new ResolveCounter();
 	public UserStandEffects userStandEffects = new UserStandEffects(this);
 	public StandAwakening userStandAwakeningState = new StandAwakening();
 	public boolean healingDamageFromArrow = false;
@@ -59,7 +57,6 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	public void tick() {
 		super.tick();
 		tickStamina();
-		tickResolve();
 		if (hasPower()) {
 			userStandEffects.tick();
 		}
@@ -254,14 +251,6 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		return hasPower() && getPowerType().usesResolve(this) && userStandAwakeningState.stage == AwakeningStage.FULL_CONTROL;
 	}
 	
-	public ResolveCounter getResolveCounter() {
-		return resolveCounter;
-	}
-	
-	protected void tickResolve() {
-		resolveCounter.tick(this);
-	}
-	
 	
 	public void setSelectedSkin(Optional<ResourceLocation> skin) {
 		if (standInstance.isPresent()) {
@@ -292,7 +281,6 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		PacketDistributor.sendToPlayer(user, new TrPowerStandInstancePacket(user.getId(), standInstance));
 		super.syncToPlayer(user);
 		syncStaminaFixed(user, user);
-		resolveCounter.syncToUser(user);
 		PacketDistributor.sendToPlayer(user, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
 		userStandEffects.syncToPlayer(user);
 		userStandAwakeningState.syncToUser(user);
@@ -303,7 +291,6 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		PacketDistributor.sendToPlayer(player, new TrPowerStandInstancePacket(user.getId(), standInstance));
 		super.syncToTracking(player);
 		syncStaminaFixed(player, user);
-		resolveCounter.syncToTracking(user, player);
 		PacketDistributor.sendToPlayer(player, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
 		userStandEffects.syncToTracking(player);
 	}
@@ -327,7 +314,6 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		super.onPlayerCloneData(newEntityData, wasDeath);
 		newEntityData.standInstance = this.standInstance;
 		newEntityData.staminaLerp = this.staminaLerp;
-		newEntityData.resolveCounter.copyValues(this.resolveCounter, wasDeath);
 		newEntityData.userStandEffects = this.userStandEffects;
 		newEntityData.userStandEffects.setPowerData(newEntityData);
 		newEntityData.userStandAwakeningState = this.userStandAwakeningState;
@@ -341,7 +327,6 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 				stand -> StandInstance.CODEC.encodeStart(NbtOps.INSTANCE, stand)
 				.ifSuccess(standNbt -> nbt.put("StandInstance", standNbt)));
 		nbt.putFloat("Stamina", staminaLerp.get());
-		nbt.put("Resolve", resolveCounter.writeNBT());
 		nbt.put("Effects", userStandEffects.serializeNBT(provider));
 		nbt.put("Awakening", userStandAwakeningState.serializeNBT());
 		nbt.putBoolean("HealFromArrow", healingDamageFromArrow);
@@ -355,7 +340,6 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 				.flatMap(standNbt -> StandInstance.CODEC.decode(NbtOps.INSTANCE, standNbt).result())
 				.map(pair -> pair.getFirst());
 		staminaLerp.set(nbt.getFloat("Stamina"), false);
-		NBTUtil.getCompoundOptional(nbt, "Resolve").ifPresent(resolveCounter::readNBT);
 		NBTUtil.getCompoundOptional(nbt, "Effects").ifPresent(effectsNbt -> userStandEffects.deserializeNBT(provider, effectsNbt));
 		NBTUtil.getCompoundOptional(nbt, "Awakening").ifPresent(userStandAwakeningState::deserializeNBT);
 		healingDamageFromArrow = nbt.getBoolean("HealFromArrow");

@@ -21,21 +21,10 @@ public class StandItemInput {
 
 	public static void handlePacket(Action action, StandEntity standEntity, LivingEntity user) {
 		switch (action) {
-			case DROP -> {
-				if (!standEntity.getMainHandItem().isEmpty()) {
-					standEntity.tossItem(InteractionHand.MAIN_HAND, false);
-				}
-				else {
-					standEntity.tossItem(InteractionHand.OFF_HAND, false);
-				}
-			}
-			case DROP_FULL_STACK -> {
-				if (!standEntity.getMainHandItem().isEmpty()) {
-					standEntity.tossItem(InteractionHand.MAIN_HAND, true);
-				}
-				else {
-					standEntity.tossItem(InteractionHand.OFF_HAND, true);
-				}
+			case DROP, DROP_FULL_STACK -> {
+				boolean singleItem = action != Action.DROP_FULL_STACK;
+				InteractionHand hand = !standEntity.getMainHandItem().isEmpty() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+				standEntity.tossItem(hand, singleItem);
 			}
 			case SWAP_HANDS -> {
 				ItemStack lItem = standEntity.getOffhandItem();
@@ -45,7 +34,7 @@ public class StandItemInput {
 			}
 			case SWAP_USER_AND_STAND -> {
 				ConditionCheck condition = distanceCondition(standEntity, user);
-				if (!condition.isPositive()) {
+				if (!condition.positive()) {
 					ConditionCheck.sendActionFailedMessage(null, condition, user);
 					return;
 				}

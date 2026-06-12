@@ -5,7 +5,10 @@
 		"secondary": "#60b62e",
 		"text": "#FFD800",
 		"text_white_bg": "#60b62e",
+		"disc": "#FFD800",
+		"stats": "#FFD800",
 		"aura": "#FFD800"
 	},
-	"story_part": "jojo_ripples:p3"
+	"story_part": "jojo_ripples:p3",
+	"scale": [ 0.7, 2.1 ]
 }

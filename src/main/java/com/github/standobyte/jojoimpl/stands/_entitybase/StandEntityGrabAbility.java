@@ -29,6 +29,7 @@ import com.github.standobyte.jojo.subsystems.target.AimingEntity;
 import com.github.standobyte.jojo.subsystems.target.HitResultUtil;
 import com.github.standobyte.jojo.subsystems.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.functions.ItemUtil;
+import com.github.standobyte.jojo.util.functions.JojoModUtil;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDRestoreTerrainAbility;
 
 import net.minecraft.ChatFormatting;
@@ -111,7 +112,7 @@ public class StandEntityGrabAbility extends StandEntityAbility {
 									if (blockItem.getCount() != 1) blockItem = null;
 								}
 								if (blockItem == null) {
-									user.sendSystemMessage(ConditionCheck.message("grab_block.weird_drops"));
+									JojoModUtil.sendOverlayMsg(user, ConditionCheck.message("grab_block.weird_drops"));
 								}
 								else {
 									addOriginalPos(blockItem, blockPos, serverLevel);
@@ -132,7 +133,7 @@ public class StandEntityGrabAbility extends StandEntityAbility {
 							else {
 								float hardness = blockState.getDestroySpeed(level, blockPos);
 								if (hardness > 0) {
-									user.sendSystemMessage(ConditionCheck.message("grab_block.too_hard"));
+									JojoModUtil.sendOverlayMsg(user, ConditionCheck.message("grab_block.too_hard"));
 								}
 							}
 						}

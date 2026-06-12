@@ -114,6 +114,7 @@ public class ClAbilityInputPacket implements CustomPacketPayload {
 				}
 				case RELEASE -> AbilityInput.keyRelease(payload.key, player);
 			}
+			if (payload.extraData != null) payload.extraData.release();
 		}
 		
 	}

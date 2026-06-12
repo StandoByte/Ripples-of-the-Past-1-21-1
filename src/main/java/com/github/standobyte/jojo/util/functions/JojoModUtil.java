@@ -12,15 +12,22 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import com.github.standobyte.jojo.config.BoolOrPlayerPref;
+import com.github.standobyte.jojo.config.RotpConfig;
+import com.github.standobyte.jojo.config.RotpConfig.Common;
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.customobjects.explosion.CustomExplosion;
 import com.github.standobyte.jojo.network.s2c.BrokenBlocksParticlesAndSoundsPacket;
 import com.github.standobyte.jojo.network.s2c.TrResetDeathTimePacket;
+import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDRestoreTerrainAbility;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -41,29 +48,21 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 public class JojoModUtil {
 
-	public static boolean canEntityDestroy(ServerLevel level, BlockPos blockPos, BlockState blockState, LivingEntity entity) {
-		if (breakingBlocksEnabled(level)
+	public static boolean canEntityDestroy(Level level, BlockPos blockPos, BlockState blockState, LivingEntity entity) {
+		LivingEntity standUser = StandUtil.getStandUser(entity);
+		if (RotpConfig.canStandBreakBlocks(standUser)
 				&& blockState.canEntityDestroy(level, blockPos, entity)
 				&& EventHooks.onEntityDestroyBlock(entity, blockPos, blockState)) {
-			Player player = null;
-			if (entity instanceof Player) {
-				player = (Player) entity;
-			}
-			else if (entity instanceof StandEntity) {
-				LivingEntity standUser = ((StandEntity) entity).getUser();
-				if (standUser instanceof Player) {
-					player = (Player) standUser;
-				}
-			}
+			Player player = standUser instanceof Player pl ? pl : null;
 			return player == null || level.mayInteract(player, blockPos);
 		}
 		return false;
 	}
 
+	@Deprecated
 	public static boolean breakingBlocksEnabled(Level level) {
-		return true;
-		// FIXME jojoAbilitiesBreakBlocks gamerule
-//		return level.getGameRules().getBoolean(ModGamerules.BREAK_BLOCKS);
+		Common commonConfig = JojoMod.config.getCommon();
+		return commonConfig == null || commonConfig.standsBreakBlocks.get() != BoolOrPlayerPref.FALSE;
 	}
 
 	public static void blockCatchFire(Level level, BlockPos blockPos, BlockState blockState, @Nullable Direction face, @Nullable LivingEntity igniter) {
@@ -202,6 +201,18 @@ public class JojoModUtil {
 					player.setExperiencePoints(0);
 				}
 			}
+		}
+	}
+
+
+	public static Iterable<Entity> getAllEntities(Level level) {
+		return level.isClientSide() ? ((ClientLevel) level).entitiesForRendering() : ((ServerLevel) level).getAllEntities();
+	}
+
+
+	public static void sendOverlayMsg(LivingEntity entity, Component message) {
+		if (entity instanceof ServerPlayer player) {
+			player.connection.send(new ClientboundSystemChatPacket(message, true));
 		}
 	}
 

@@ -50,7 +50,7 @@ public abstract class PlayerInventoryMixin implements Container {
 	public void jojo_ripples$onItemSetToSlot(int slot, ItemStack item, CallbackInfo ci) {
 		Level level = player.level();
 		if (!level.isClientSide()) {
-			ItemTracker tracker = ItemTracking.getItemTracker(item, level);
+			ItemTracker tracker = ItemTracking.getItemTracker(item, level, true);
 			if (tracker != null) {
 				tracker.setAtEntity(item, player.getId(), level, KnownItemState.ENTITY_HAS_ITEM, trackerId -> 
 						compartments.stream().flatMap(Collection::stream).anyMatch(ItemTracking.trackerIdCheck(trackerId)));

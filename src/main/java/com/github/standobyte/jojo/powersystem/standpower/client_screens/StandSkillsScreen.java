@@ -120,8 +120,8 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			public Tooltip updateToolip() {
 				if (selectedSkill != null) {
 					ConditionCheck canLearn = unlockSkillChecks.get(selectedSkill.skillName);
-					if (!canLearn.isPositive()) {
-						Component message = canLearn.getWarning();
+					if (!canLearn.positive()) {
+						Component message = canLearn.warning();
 						if (message != null) {
 							return Tooltip.create(message.plainCopy().withStyle(ChatFormatting.RED));
 						}
@@ -183,7 +183,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		}
 		
 		learnSkillButton.visible = selectedSkill != null && !levelingData.isSkillUnlocked(selectedSkill.skillName);
-		learnSkillButton.active = selectedSkill != null && unlockSkillChecks.get(selectedSkill.skillName).isPositive();
+		learnSkillButton.active = selectedSkill != null && unlockSkillChecks.get(selectedSkill.skillName).positive();
 		
 		resetSkillsButton.visible = selectedSkill == null && minecraft.player.isCreative();
 		learnAllSkillsButton.visible = selectedSkill == null && minecraft.player.isCreative();
@@ -311,7 +311,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 	public static final int STAND_EXP_NUMBER_COLOR = 0x00A000;
 	protected int getExpCostColor(StandUnlockableSkill skill) {
 		ConditionCheck check = unlockSkillChecks.get(skill.skillName);
-		if (check != null && (check.isPositive() || check == StandUnlockableSkill.NOT_ENOUGH_EXP)) {
+		if (check != null && (check.positive() || check == StandUnlockableSkill.NOT_ENOUGH_EXP)) {
 			return STAND_EXP_NUMBER_COLOR;
 		}
 		else {

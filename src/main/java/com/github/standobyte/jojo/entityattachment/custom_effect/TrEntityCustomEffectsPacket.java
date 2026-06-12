@@ -144,6 +144,7 @@ public class TrEntityCustomEffectsPacket implements CustomPacketPayload {
 						effect.withTargetEntityId(targetEntityId);
 					}
 			}
+			if (payload.buf != null) payload.buf.release();
 		}
 	}
 

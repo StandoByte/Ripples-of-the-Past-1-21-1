@@ -25,15 +25,16 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerType;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
+import com.github.standobyte.jojo.powersystem.standpower.StandAwakening.AwakeningStage;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
-import com.github.standobyte.jojo.powersystem.standpower.StandAwakening.AwakeningStage;
 import com.github.standobyte.jojo.powersystem.standpower.datapack.DataDrivenStandsLoader;
 import com.github.standobyte.jojo.powersystem.standpower.datapack.StandTypeClass;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand.BlankSummonedStand;
 import com.github.standobyte.jojo.util.functions.AttributeUtil;
+import com.github.standobyte.jojo.util.functions.JojoModUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -84,6 +85,7 @@ public class StandType extends PowerType {
 	}
 	
 	public <T extends StandType> T discTooltipWIP() { return discTooltipWIP(false); }
+	
 	public <T extends StandType> T discTooltipWIP(boolean translucentDisc) { 
 		return init(stand -> {
 			stand.discExtraTooltip.add(
@@ -91,6 +93,16 @@ public class StandType extends PowerType {
 					.withStyle(ChatFormatting.ITALIC).withColor(0x808000));
 			stand.discCategoryPriority = 200;
 			stand.translucentDisc = translucentDisc;
+		});
+	}
+	
+	public <T extends StandType> T discTooltipOld() { 
+		return init(stand -> {
+			stand.discExtraTooltip.add(
+					Component.translatable("item.jojo_ripples.stand_disc.old")
+					.withStyle(ChatFormatting.ITALIC).withColor(0x808000));
+			stand.discCategoryPriority = 201;
+			stand.translucentDisc = true;
 		});
 	}
 	
@@ -193,9 +205,12 @@ public class StandType extends PowerType {
 			if (user != null && !user.level().isClientSide()) {
 				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrNonEntityStandSummonPacket(user.getId(), true));
 				if (playSummonSound) {
-					PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, StandSkinSoundPacket.play(
+					StandSkinSoundPacket soundPacket = StandSkinSoundPacket.play(
 							user.position(), ModSoundEvents.STAND_SUMMON, 
-							standPower, user.getSoundSource(), 1, 1));
+							standPower, user.getSoundSource(), 1, 1);
+					if (soundPacket != null) {
+						PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, soundPacket);
+					}
 				}
 			}
 			return true;
@@ -208,11 +223,11 @@ public class StandType extends PowerType {
 		return switch (awakeningStage) {
 			case FULL_CONTROL -> true;
 			case PARTIALLY_AWAKENED -> {
-				user.sendSystemMessage(Component.translatable("stand_summon.not_in_full_control"));
+				JojoModUtil.sendOverlayMsg(user, Component.translatable("stand_summon.not_in_full_control"));
 				yield false;
 			}
 			case AWAKENING_PASSIVE -> {
-				user.sendSystemMessage(Component.translatable("stand_summon.dormant"));
+				JojoModUtil.sendOverlayMsg(user, Component.translatable("stand_summon.dormant"));
 				yield false;
 			}
 		};
@@ -235,12 +250,19 @@ public class StandType extends PowerType {
 			if (user != null && !user.level().isClientSide()) {
 				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrNonEntityStandSummonPacket(user.getId(), false));
 				if (playUnsummonSound) {
-					PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, StandSkinSoundPacket.play(
+					StandSkinSoundPacket soundPacket = StandSkinSoundPacket.play(
 							user.position(), ModSoundEvents.STAND_UNSUMMON, 
-							standPower, user.getSoundSource(), 1, 1));
+							standPower, user.getSoundSource(), 1, 1);
+					if (soundPacket != null) {
+						PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, soundPacket);
+					}
 				}
 			}
 		}
+	}
+	
+	public boolean showHUD(StandPower standPower) {
+		return standPower.isSummoned();
 	}
 	
 	

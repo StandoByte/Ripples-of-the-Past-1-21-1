@@ -78,6 +78,7 @@ public class TrPowerDataPacket implements CustomPacketPayload {
 					PowerData perTypePlayerData = power.getCurTypeData();
 					if (perTypePlayerData != null) {
 						perTypePlayerData.fromBuf(payload.clientPowerTypeData, payload.isSentToTracking);
+						if (payload.clientPowerTypeData != null) payload.clientPowerTypeData.release();
 					}
 				}
 			}

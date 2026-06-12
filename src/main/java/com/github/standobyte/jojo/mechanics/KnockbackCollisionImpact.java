@@ -10,13 +10,13 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.apache.commons.lang3.tuple.Pair;
 
+import com.github.standobyte.jojo.config.RotpConfig;
 import com.github.standobyte.jojo.customobjects.entity_projectile.BlockShardEntity;
 import com.github.standobyte.jojo.customobjects.explosion.CustomExplosion;
 import com.github.standobyte.jojo.entityattachment.TickingEntityData;
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
-import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
@@ -147,7 +147,7 @@ public class KnockbackCollisionImpact implements TickingEntityData, INBTSerializ
 			return false;
 		}
 
-		boolean canBreakBlocks = JojoModUtil.breakingBlocksEnabled(level);
+		boolean canBreakBlocks = RotpConfig.canStandBreakBlocks(attackerStandUser);
 		boolean collidedWithBlocks = !movementVec.equals(collidedVec);
 		collideBoundingBox(entity, movementVec, collidedWithBlocks, canBreakBlocks);
 		return canBreakBlocks && collidedWithBlocks;
@@ -400,10 +400,7 @@ public class KnockbackCollisionImpact implements TickingEntityData, INBTSerializ
 	protected boolean hurtTarget(Entity target, DamageSource dmgSource, float amount) {
 		boolean hurt = DamageUtil.hurtThroughInvulTicks(target, dmgSource, amount);
 		if (attackerIsStand && attackerStandUser != null && target instanceof LivingEntity targetLiving) {
-			StandPower attackerStand = StandPower.get(attackerStandUser);
-			if (attackerStand != null) {
-				ResolveCounter.addResolve(attackerStand, targetLiving, amount);
-			}
+			ResolveCounter.addResolve(attackerStandUser, targetLiving, amount);
 		}
 		return hurt;
 	}

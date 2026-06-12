@@ -3,6 +3,8 @@ package com.github.standobyte.jojo.adventure.npc.debug;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lwjgl.glfw.GLFW;
+
 import com.github.standobyte.jojo.adventure.npc.NpcInventoryExchangeContainer;
 import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.mechanics.clothes.client.ui.PlayerClothesScreen;
@@ -133,6 +135,21 @@ public class NpcDebugSettingsScreen extends AbstractContainerScreen<NpcInventory
 			super.renderString(guiGraphics, font, color);
 	    }
 
+	}
+	
+	
+	@Override
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		/* prevent the behavior on key press (closing the screen on E) 
+		 * when what I want is to type that E with Screen#charTyped) instead
+		 */
+		if (getFocused() instanceof EditBox textBox
+				&& textBox.canConsumeInput() && keyCode != GLFW.GLFW_KEY_ESCAPE) {
+			textBox.keyPressed(keyCode, scanCode, modifiers);
+			return true;
+		}
+
+		return super.keyPressed(keyCode, scanCode, modifiers);
 	}
 	
 	

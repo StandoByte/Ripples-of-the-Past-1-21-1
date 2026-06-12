@@ -165,7 +165,7 @@ public class StandDiscRenderer extends BlockEntityWithoutLevelRenderer {
 		if (stand != null) {
 			StandSkin skin = StandSkinsLoader.getInstance().getSkin(stand);
 			if (skin != null) {
-				return skin.getColors().primary();
+				return skin.getColors().disc();
 			}
 		}
 		

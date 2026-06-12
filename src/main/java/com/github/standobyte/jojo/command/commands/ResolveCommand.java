@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import com.github.standobyte.jojo.command.MultipleTargetsCommandResult;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
@@ -13,6 +13,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 
 public class ResolveCommand {
 	public static final MultipleTargetsCommandResult RESET_MSG = new MultipleTargetsCommandResult(
@@ -42,11 +43,17 @@ public class ResolveCommand {
 	}
 
 	private static int resetResolve(CommandSourceStack source, Collection<? extends Entity> targets) throws CommandSyntaxException {
-		Collection<StandPower> stands = StandCommand.getStands(targets);
-		for (StandPower stand : stands) {
-			stand.resolveCounter.reset(stand.getUser());
+		int i = 0;
+		for (Entity entity : targets) {
+			if (entity instanceof LivingEntity living) {
+				ResolveCounter resolve = ResolveCounter.getExisting(living);
+				if (resolve != null) {
+					resolve.reset(living);
+					i++;
+				}
+			}
 		}
 
-		return RESET_MSG.trySend(source, true, targets, stands.size());
+		return RESET_MSG.trySend(source, true, targets, i);
 	}
 }
