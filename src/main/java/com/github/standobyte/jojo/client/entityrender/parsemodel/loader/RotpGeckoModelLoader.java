@@ -70,7 +70,7 @@ public class RotpGeckoModelLoader extends SimplePreparableReloadListener<Map<Res
 
 	public static record ModelFileFormatPath(ModelFormat format, String directory, String extension) {}
 	public static ModelFileFormatPath[] PATHS = new ModelFileFormatPath[] {
-		new ModelFileFormatPath(ModelFormat.GECKO, "geo", ".geo.json"), 
+		new ModelFileFormatPath(ModelFormat.GECKO, "geo_rotp", ".geo.json"), 
 		new ModelFileFormatPath(ModelFormat.GENERIC, "bb", ".bbmodel"), 
 	};
 	
@@ -80,7 +80,7 @@ public class RotpGeckoModelLoader extends SimplePreparableReloadListener<Map<Res
 
 		try (Zone zone = _ProfilerFiller.zone(profiler, JojoMod.MOD_ID)) {
 			for (ModelFileFormatPath format : PATHS) {
-				String DIR = format.directory() + "/rotp";
+				String DIR = format.directory() + "/misc";
 				String EXTENSION = format.extension();
 				Map<ResourceLocation, Resource> resources = resourceManager.listResources(DIR, path -> path.getPath().endsWith(EXTENSION));
 				for (var resourceEntry : resources.entrySet()) {

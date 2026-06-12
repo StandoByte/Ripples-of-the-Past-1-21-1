@@ -203,9 +203,7 @@ public class BleedingEffect extends StatusEffectModified implements StatusEffect
 
 //	public static boolean applyStoneMask(LivingEntity entity, ItemStack headStack) {
 //		if (entity.level().getDifficulty() == Difficulty.PEACEFUL) {
-//			if (entity instanceof ServerPlayer player) {
-//				player.displayClientMessage(Component.translatable("jojo.chat.message.stone_mask_peaceful"), true);
-//			}
+//			JojoModUtil.sendOverlayMsg(entity, Component.translatable("jojo.chat.message.stone_mask_peaceful"));
 //			return false;
 //		}
 //		if (entity instanceof Player player) {

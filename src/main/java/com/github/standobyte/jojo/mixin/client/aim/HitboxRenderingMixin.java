@@ -74,7 +74,9 @@ public class HitboxRenderingMixin {
                 StandEntity standEntity = (StandEntity) p_entity;
                 EntityActionInstance action = standEntity.getCurStandAction();
                 if (action instanceof ActionOBB && ((ActionOBB)action).extendableOBB() != null){
+                    poseStack.translate(-p_entity.getX(), -p_entity.getY(), -p_entity.getZ());
                     drawOutline(poseStack, ((ActionOBB)action).extendableOBB().rotatableHitbox(), false);
+                    poseStack.translate(p_entity.getX(), p_entity.getY(), p_entity.getZ());
                 }
             }
         }

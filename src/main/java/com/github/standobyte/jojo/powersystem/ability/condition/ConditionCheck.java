@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.powersystem.ability.condition;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.powersystem.ability.Ability;
+import com.github.standobyte.jojo.util.functions.JojoModUtil;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -50,7 +51,7 @@ public record ConditionCheck(boolean positive, boolean greenHighlight, @Nullable
 			Component message = result.warning();
 			
 			if (message != null && user instanceof ServerPlayer player) {
-				player.displayClientMessage(message, true);
+				JojoModUtil.sendOverlayMsg(user, message);
 			}
 		}
 	}

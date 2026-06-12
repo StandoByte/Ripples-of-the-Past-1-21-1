@@ -40,7 +40,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID)
 public class ResolveCounter implements SynchronizablePlayerData, TickingEntityData, INBTSerializable<CompoundTag> {
-	public static final Double[] DEFAULT_MAX_RESOLVE_VALUES = { 500.0, 1500.0, 3500.0, 7500.0 };
+	public static final Double[] DEFAULT_MAX_RESOLVE_VALUES = { 1440.0, 2880.0, 5760.0, 10080.0 };
 	public static final int MAX_STAGE = DEFAULT_MAX_RESOLVE_VALUES.length - 1;
 	public static final int[] RESOLVE_EFFECT_MIN = { 300, 400, 500, 600 };
 	public static final int[] RESOLVE_EFFECT_MAX = { 600, 1200, 1800, 2400 };

@@ -26,6 +26,8 @@ import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDRestoreTerrainAb
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -205,6 +207,13 @@ public class JojoModUtil {
 
 	public static Iterable<Entity> getAllEntities(Level level) {
 		return level.isClientSide() ? ((ClientLevel) level).entitiesForRendering() : ((ServerLevel) level).getAllEntities();
+	}
+
+
+	public static void sendOverlayMsg(LivingEntity entity, Component message) {
+		if (entity instanceof ServerPlayer player) {
+			player.connection.send(new ClientboundSystemChatPacket(message, true));
+		}
 	}
 
 }
