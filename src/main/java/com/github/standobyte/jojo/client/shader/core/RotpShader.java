@@ -22,7 +22,7 @@ public abstract class RotpShader {
 	public void loadCoreShaders(RegisterShadersEvent event) {}
 	public abstract void resize(int width, int height);
 	public abstract void close();
-	public void frameRenderCallback(RenderLevelStageEvent event) {}
+	public void frameRenderCallback(RenderLevelStageEvent.Stage renderStage) {}
 
 	public static MainTarget createMainTargetBuffer(Minecraft mc) {
 		MainTarget frameBuffer = new MainTarget(mc.getWindow().getWidth(), mc.getWindow().getHeight()/*, false*/);

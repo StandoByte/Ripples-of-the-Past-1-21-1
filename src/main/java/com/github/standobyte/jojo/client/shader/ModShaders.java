@@ -68,7 +68,7 @@ public class ModShaders implements ResourceManagerReloadListener, AutoCloseable 
 			ModClientResources.closeables.add(instance);
 			event.registerReloadListener(instance);
 			
-			NeoForge.EVENT_BUS.addListener(instance::frameRenderCallback);
+			NeoForge.EVENT_BUS.addListener(instance::_frameRenderCallback);
 		}
 	}
 	
@@ -109,9 +109,18 @@ public class ModShaders implements ResourceManagerReloadListener, AutoCloseable 
 		}
 	}
 	
-	private void frameRenderCallback(RenderLevelStageEvent event) {
+	private void _frameRenderCallback(RenderLevelStageEvent event) {
+		frameRenderCallback(event.getStage());
+	}
+	
+	public void frameRenderCallback(RenderLevelStageEvent.Stage stage) {
+		if (stage == null) {
+			JojoMod.getLogger().warn("Custom level render stage is null!");
+			return;
+		}
+		
 		for (RotpShader shader : _allShaders) {
-			shader.frameRenderCallback(event);
+			shader.frameRenderCallback(stage);
 		}
 	}
 
