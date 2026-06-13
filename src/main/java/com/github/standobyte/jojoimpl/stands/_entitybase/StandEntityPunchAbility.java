@@ -32,9 +32,9 @@ import com.github.standobyte.jojo.subsystems.ServerBlockDestroyTracker;
 import com.github.standobyte.jojo.subsystems.ServerBlockDestroyTracker.BlockBreakResult;
 import com.github.standobyte.jojo.subsystems.entity_grab.LivingComponentGrab;
 import com.github.standobyte.jojo.subsystems.target.ActionTarget;
+import com.github.standobyte.jojo.subsystems.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.subsystems.target.AimingEntity;
 import com.github.standobyte.jojo.subsystems.target.HitResultUtil;
-import com.github.standobyte.jojo.subsystems.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.OOPMoment;
 import com.github.standobyte.jojo.util.functions.JojoModUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._EntitySelector;
@@ -280,7 +280,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 	
 	// 
 	
-	protected static List<String> punchNamesBuffer = new ArrayList<>();
+	protected String[] comboPunchNames;
 	@Nullable
 	protected Ability getComboPunch(StandPower standPower) {
 		if (standPower == null) return null;
@@ -289,16 +289,22 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 		StandEntity standEntity = standPower.getSummonedStandEntity();
 		
 		if (this.isSubAbility) return null;
-		
-		punchNamesBuffer.clear();
-		String baseName = this.name();
-		punchNamesBuffer.add(baseName);
-		for (int i = 2; ; i++) {
-			String comboPunchName = baseName + i;
-			if (moveset.getAbility(comboPunchName) != null) {
-				punchNamesBuffer.add(comboPunchName);
+
+		if (this.comboPunchNames == null) {
+			String baseName = this.name();
+			int punchesCount = 1;
+			for (int i = 2; ; i++) {
+				String comboPunchName = baseName + i;
+				if (moveset.getAbility(comboPunchName) != null) {
+					punchesCount = i;
+				}
+				else break;
 			}
-			else break;
+			comboPunchNames = new String[punchesCount];
+			comboPunchNames[0] = baseName;
+			for (int i = 1; i < comboPunchNames.length; i++) {
+				comboPunchNames[i] = baseName + String.valueOf(i + 1);
+			}
 		}
 		
 		int startFromPunch = 0;
@@ -306,9 +312,8 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 			AbilityId curAbility = LivingComponentAction.getComponent(standEntity).comboString.getLast();
 			if (curAbility != null) {
 				String actionName = curAbility.nameInMoveset();
-				for (int i = 0; i < punchNamesBuffer.size(); i++) {
-					// FIXME !!!!! java.lang.NullPointerException: Cannot invoke "String.equals(Object)" because the return value of "java.util.List.get(int)" is null
-					if (punchNamesBuffer.get(i).equals(actionName)) {
+				for (int i = 0; i < comboPunchNames.length; i++) {
+					if (comboPunchNames[i].equals(actionName)) {
 						startFromPunch = i + 1;
 						break;
 					}
@@ -316,10 +321,10 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 			}
 		}
 		
-		int size = punchNamesBuffer.size();
+		int size = comboPunchNames.length;
 		for (int i = 0; i < size; i++) {
 			int index = (startFromPunch + i) % size;
-			String nextPunchName = punchNamesBuffer.get(index);
+			String nextPunchName = comboPunchNames[index];
 			Ability nextPunch = moveset.getAbility(nextPunchName);
 			if (nextPunch != null && nextPunch.isAbilityAvailable(standPower)) {
 				return nextPunch;
