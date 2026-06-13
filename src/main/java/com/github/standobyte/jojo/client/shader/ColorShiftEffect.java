@@ -130,7 +130,7 @@ public class ColorShiftEffect extends ManualInitPostChain {
 				dummy, dummy, false, null, null), textureManager);
 		
 		blitFromSwap = addPassNode(this, new PassDefinition(
-				"blit", 
+				JojoMod.resLoc("blit_solid").toString(), 
 				"swap", MAIN_RENDER_TARGET, false, null, null), textureManager);
 	}
 
