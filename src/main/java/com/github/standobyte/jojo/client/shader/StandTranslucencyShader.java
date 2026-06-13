@@ -70,8 +70,7 @@ public class StandTranslucencyShader extends RotpShader {
 	}
 	
 	@Override
-	public void frameRenderCallback(RenderLevelStageEvent event) {
-		RenderLevelStageEvent.Stage stage = event.getStage();
+	public void frameRenderCallback(RenderLevelStageEvent.Stage stage) {
 		if (isBeforeEntities(stage)) {
 			// clear the frame
 			this.usedThisFrame = false;

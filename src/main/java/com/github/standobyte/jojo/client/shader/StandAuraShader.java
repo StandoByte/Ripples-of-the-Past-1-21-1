@@ -148,10 +148,9 @@ public class StandAuraShader extends RotpShader {
 	}
 	
 	@Override
-	public void frameRenderCallback(RenderLevelStageEvent event) {
+	public void frameRenderCallback(RenderLevelStageEvent.Stage stage) {
 		if (!JojoMod.config.getClient().standAura.getAsBoolean()) return;
 		
-		RenderLevelStageEvent.Stage stage = event.getStage();
 		if (isBeforeEntities(stage)) {
 			this.usedThisFrame = false;
 			frameBuffer.clearBuffer();

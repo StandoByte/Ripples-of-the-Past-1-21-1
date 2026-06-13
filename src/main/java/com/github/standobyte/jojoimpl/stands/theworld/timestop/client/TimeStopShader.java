@@ -55,8 +55,7 @@ public class TimeStopShader extends RotpShader {
 
 	// FIXME (color shift) doesn't apply to the stand rendered with StandTranslucencyShader
 	@Override
-	public void frameRenderCallback(RenderLevelStageEvent event) {
-		RenderLevelStageEvent.Stage stage = event.getStage();
+	public void frameRenderCallback(RenderLevelStageEvent.Stage stage) {
 		if (isLastInLevelRender(stage)) {
 			Minecraft mc = Minecraft.getInstance();
 
