@@ -25,7 +25,7 @@ public class ColorShiftEffect extends ManualInitPostChain {
 		public boolean split = false;
 
 		static final float ALWAYS_FLIP_THRESHOLD = 0.1667f;
-		static final int DESAT_OR_EXCLUDE_WEIGHT_EACH = 4;
+		static final int DESAT_OR_EXCLUDE_WEIGHT_EACH = 2;
 		public static ColorShiftEffect.Parameters createRandom(RandomSource random) {
 			ColorShiftEffect.Parameters effect = new ColorShiftEffect.Parameters();
 			effect.hueShift = random.nextFloat();
@@ -36,9 +36,9 @@ public class ColorShiftEffect extends ManualInitPostChain {
 			effect.split = random.nextBoolean();
 			
 			final int effWeight = DESAT_OR_EXCLUDE_WEIGHT_EACH;
-			int mode = random.nextInt(1 + effWeight * 2); // 0-8
-			if (mode < effWeight) 			effect.desaturateSector = random.nextFloat();// 0-3
-			else if (mode < effWeight * 2)	effect.excludeHalf = random.nextFloat(); // 4-7
+			int mode = random.nextInt(1 + effWeight * 2); // 0-4
+			if (mode < effWeight) 			effect.desaturateSector = random.nextFloat();// 0-1
+			else if (mode < effWeight * 2)	effect.excludeHalf = random.nextFloat(); // 2-3
 			
 			if (SharedConstants.IS_RUNNING_IN_IDE) {
 				JojoMod.getLogger().debug("{}", effect);
