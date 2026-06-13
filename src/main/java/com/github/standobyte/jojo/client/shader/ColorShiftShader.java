@@ -61,21 +61,18 @@ public class ColorShiftShader extends RotpShader {
 
 
 
-	// FIXME (color shift) doesn't apply to the stand rendered with StandTranslucencyShader
 	@Override
 	public void frameRenderCallback(RenderLevelStageEvent.Stage stage) {
 		if (parameters == null) return;
 		
-		if (stage == CustomLevelRenderStages.BEFORE_SPECTATOR_SHADER) {
+		if (glslShaderChain != null && stage == CustomLevelRenderStages.BEFORE_SPECTATOR_SHADER) {
 			Minecraft mc = Minecraft.getInstance();
 
-			if (glslShaderChain != null) {
-				RenderSystem.disableBlend();
-				RenderSystem.disableDepthTest();
-				RenderSystem.resetTextureMatrix();
-				glslShaderChain.process(parameters, mc.getTimer().getGameTimeDeltaTicks());
-				mc.getMainRenderTarget().bindWrite(true);
-			}
+			RenderSystem.disableBlend();
+			RenderSystem.disableDepthTest();
+			RenderSystem.resetTextureMatrix();
+			glslShaderChain.process(parameters, mc.getTimer().getGameTimeDeltaTicks());
+			mc.getMainRenderTarget().bindWrite(true);
 		}
 	}
 

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojoimpl.stands.theworld.timestop.client;
 
+import com.github.standobyte.jojo.client.shader.CustomLevelRenderStages;
 import com.github.standobyte.jojo.client.shader.core.ManualInitPostChain;
 import com.github.standobyte.jojo.client.shader.core.RotpShader;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -53,19 +54,16 @@ public class TimeStopShader extends RotpShader {
 
 
 
-	// FIXME (color shift) doesn't apply to the stand rendered with StandTranslucencyShader
 	@Override
 	public void frameRenderCallback(RenderLevelStageEvent.Stage stage) {
-		if (isLastInLevelRender(stage)) {
+		if (glslShaderChain != null && stage == CustomLevelRenderStages.BEFORE_SPECTATOR_SHADER) {
 			Minecraft mc = Minecraft.getInstance();
 
-			if (glslShaderChain != null) {
-				RenderSystem.disableBlend();
-				RenderSystem.disableDepthTest();
-				RenderSystem.resetTextureMatrix();
-				glslShaderChain.process(mc.getTimer().getGameTimeDeltaTicks());
-				mc.getMainRenderTarget().bindWrite(true);
-			}
+			RenderSystem.disableBlend();
+			RenderSystem.disableDepthTest();
+			RenderSystem.resetTextureMatrix();
+			glslShaderChain.process(mc.getTimer().getGameTimeDeltaTicks());
+			mc.getMainRenderTarget().bindWrite(true);
 		}
 	}
 	
