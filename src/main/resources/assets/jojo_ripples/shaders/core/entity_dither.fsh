@@ -1,0 +1,42 @@
+#version 150
+
+#moj_import <fog.glsl>
+
+uniform sampler2D Sampler0;
+
+uniform vec4 ColorModulator;
+uniform float FogStart;
+uniform float FogEnd;
+uniform vec4 FogColor;
+
+in float vertexDistance;
+in vec4 vertexColor;
+in vec4 lightMapColor;
+in vec4 overlayColor;
+in vec2 texCoord0;
+
+out vec4 fragColor;
+
+// Simplified https://github.com/hughsk/glsl-dither/blob/master/2x2.glsl
+// This software is released under the MIT license:
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
+bool dither(vec2 position) {
+    int x = int(mod(position.x, 2.0));
+    int y = int(mod(position.y, 2.0));
+    int index = x + y * 2;
+
+    return x < 8 && index > 0 && index < 3;
+}
+
+void main() {
+    vec4 color = texture(Sampler0, texCoord0);
+    if (color.a < 0.1 || dither(gl_FragCoord.xy)) {
+        discard;
+    }
+    color *= vertexColor * ColorModulator;
+    color.rgb = mix(overlayColor.rgb, color.rgb, overlayColor.a);
+    color *= lightMapColor;
+    fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
+}

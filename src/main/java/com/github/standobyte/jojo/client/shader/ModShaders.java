@@ -16,6 +16,7 @@ import com.github.standobyte.jojoimpl.stands.theworld.timestop.client.TimeStopSh
 import com.google.gson.JsonSyntaxException;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.client.Minecraft;
@@ -44,21 +45,28 @@ public class ModShaders implements ResourceManagerReloadListener, AutoCloseable 
 	}
 
 	public ColorShiftShader colorShift;
-	public StandTranslucencyShader firstPersonStandTranslucency;
+	//public StandTranslucencyShader firstPersonStandTranslucency;
 	public StandAuraShader standAura;
 	public TimeStopShader timeStop;
 	@ApiStatus.Internal public List<RotpShader> _allShaders = new ArrayList<>();
+	
+	public ShaderInstance coreEntityDither;
 	
 	private void init() {
 		Minecraft mc = Minecraft.getInstance();
 		SequencedMap<RenderType, ByteBufferBuilder> fixedRenderBuffers = ClientReflection.getFixedBuffers(mc.renderBuffers().bufferSource());
 
-		_allShaders.add(firstPersonStandTranslucency = new StandTranslucencyShader(mc, fixedRenderBuffers));
+		// Old translucency shader. R.I.P.
+		//_allShaders.add(firstPersonStandTranslucency = new StandTranslucencyShader(mc, fixedRenderBuffers));
 		_allShaders.add(colorShift = new ColorShiftShader());
 		_allShaders.add(standAura = new StandAuraShader(mc, fixedRenderBuffers));
 		_allShaders.add(timeStop = new TimeStopShader());
 	}
 	
+	private void loadCoreStandalone(RegisterShadersEvent event) {
+		loadCoreShader(event, JojoMod.resLoc("entity_dither"), 
+				DefaultVertexFormat.NEW_ENTITY, shader -> coreEntityDither = shader);
+	}
 	
 	
 	public static void init(RegisterClientReloadListenersEvent event) {
@@ -101,6 +109,7 @@ public class ModShaders implements ResourceManagerReloadListener, AutoCloseable 
 		for (RotpShader shader : instance._allShaders) {
 			shader.loadCoreShaders(event);
 		}
+		ModShaders.getInstance().loadCoreStandalone(event);
 	}
 
 	public void resize(int width, int height) {

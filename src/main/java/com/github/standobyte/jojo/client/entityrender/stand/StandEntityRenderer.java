@@ -10,8 +10,7 @@ import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.client.entityrender.PreFrameEntityRenderCallback;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
-import com.github.standobyte.jojo.client.shader.ModShaders;
-import com.github.standobyte.jojo.client.shader.StandTranslucencyShader;
+import com.github.standobyte.jojo.client.rendertype.ModRenderTypes;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
@@ -314,24 +313,40 @@ public class StandEntityRenderer<
 
 		this.model = modelFrom(renderState);
 		
-		if (renderState.mayObstructView) {
-			ModShaders shaders = ModShaders.getInstance();
-			if (shaders != null) {
-				StandTranslucencyShader translucencyShader = shaders.firstPersonStandTranslucency;
-				if (translucencyShader != null) {
-					bufferSource = translucencyShader.useBufferSource(bufferSource);
-				}
-			}
-		}
+		// Old translucency shader. R.I.P.
+//		if (renderState.mayObstructView) {
+//			ModShaders shaders = ModShaders.getInstance();
+//			if (shaders != null) {
+//				StandTranslucencyShader translucencyShader = shaders.firstPersonStandTranslucency;
+//				if (translucencyShader != null) {
+//					bufferSource = translucencyShader.useBufferSource(bufferSource);
+//				}
+//			}
+//		}
 		
 		if (this.model != null) {
+			useDitheringRenderType = renderState.mayObstructView;
 			this.doRender(entity, entityYaw, partialTicks, poseStack, bufferSource, light);
+			useDitheringRenderType = false;
 		}
 		postRender();
 	}
 
     public void doRender(T entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
 		super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, light);
+    }
+
+    protected boolean useDitheringRenderType = false;
+    @Override
+    protected RenderType getRenderType(T livingEntity, boolean bodyVisible, boolean translucent, boolean glowing) {
+    	ResourceLocation texture = this.getTextureLocation(livingEntity);
+    	if (translucent) {
+    		return RenderType.itemEntityTranslucentCull(texture);
+    	} else if (bodyVisible) {
+    		return useDitheringRenderType ? ModRenderTypes.entityDither(texture) : this.model.renderType(texture);
+    	} else {
+    		return glowing ? RenderType.outline(texture) : null;
+    	}
     }
 
 	@Override
