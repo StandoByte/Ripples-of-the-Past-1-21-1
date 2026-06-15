@@ -182,7 +182,7 @@
 						},
 						"2.0": {
 							"vector": [0, 0.75, 0],
-							"easing": "easeInOutSine"
+							"easing": "easeOutSine"
 						},
 						"6.0": {
 							"vector": [0, -0.75, 0],
@@ -190,7 +190,7 @@
 						},
 						"8.0": {
 							"vector": [0, 0, 0],
-							"easing": "easeInOutSine"
+							"easing": "easeInSine"
 						}
 					}
 				},
