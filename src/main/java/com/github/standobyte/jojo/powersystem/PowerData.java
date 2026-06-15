@@ -129,6 +129,11 @@ public abstract class PowerData implements INBTSerializable<CompoundTag> {
 		_lockedAbilities.addAll(_allLockedAbilities);
 	}
 	
+	
+	public void addAttributeModifiers(LivingEntity user) {}
+	
+	public void removeAttributeModifiers(LivingEntity user) {}
+	
 
 	public abstract PowerClass<?> getPowerClass();
 	

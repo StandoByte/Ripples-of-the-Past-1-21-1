@@ -9,6 +9,8 @@ import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.network.s2c.TrPowerTypePacket;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.PowerData;
+import com.github.standobyte.jojo.powersystem.PowerType;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -30,8 +32,9 @@ public class PlayerPower extends Power<PlayerPower> {
 	}
 	
 	public void setPowerType(@Nullable PlayerPowerType<?> type) {
-		PlayerPowerType<?> old = getPowerType();
-		if (old != type) {
+		@Nullable PowerData old = getCurTypeData();
+		@Nullable PowerType powerType = old != null ? old.powerType : null;
+		if (powerType != type) {
 			this.curPowerType = Optional.ofNullable(type);
 			if (!user.level().isClientSide()) {
 				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrPowerTypePacket(user.getId(), type));

@@ -65,6 +65,13 @@ public class NBTUtil {
 		return codec.decode(NbtOps.INSTANCE, valueNbt).result().map(Pair::getFirst);
 	}
 	
+	public static <T> Optional<T> getOptional(CompoundTag nbt, String key, Function<Tag, T> codec) {
+		Tag valueNbt = nbt.get(key);
+		if (valueNbt == null) return Optional.empty();
+		
+		return Optional.ofNullable(codec.apply(valueNbt));
+	}
+	
 	public static <T extends Enum<T>> void putEnum(CompoundTag nbt, String key, T enumVal) {
 		nbt.putInt(key, enumVal.ordinal());
 	}

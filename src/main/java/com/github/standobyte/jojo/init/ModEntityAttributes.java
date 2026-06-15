@@ -41,6 +41,10 @@ public class ModEntityAttributes {
 			() -> new RangedAttribute("attribute.name.jojo_ripples.stand_precision", 0, 0, 160).setSyncable(true));
 	
 	// TODO stamina regen attribute
+
+
+	public static final Holder<Attribute> SUN_BURN_DAMAGE = ATTRIBUTES.register("sun_burn_damage", 
+			() -> new RangedAttribute("attribute.name.jojo_ripples.sun_burn_damage", 0, 0, 1024));
 	
 	
 	@SubscribeEvent

@@ -198,6 +198,18 @@
   "rotp.commands.non_stand.remove.success.multiple": "Removed powers from %s players",
   "rotp.commands.non_stand.query.failed.single": "%s doesn't have a power",
   "rotp.commands.non_stand.query.failed.multiple": "All %s players do not have powers",
+  "rotp.commands.pillarman.stage.success.single": "Set %s Pillar Man evolution stage on %s",
+  "rotp.commands.pillarman.stage.success.multiple": "Set %s Pillar Man evolution stage on %s characters",
+  "rotp.commands.pillarman.stage.failed.single": "%s is not a Pillar Man",
+  "rotp.commands.pillarman.stage.failed.multiple": "All %s characters are not Pillar Men",
+  "rotp.commands.pillarman.mode.success.single": "Set %s Pillar Man Mode on %s",
+  "rotp.commands.pillarman.mode.success.multiple": "Set %s Pillar Man Mode on %s characters",
+  "rotp.commands.pillarman.mode.failed.single": "%s is not a Pillar Man",
+  "rotp.commands.pillarman.mode.failed.multiple": "All %s characters are not Pillar Men",
+  "rotp.commands.species.success.single": "Set %s species on %s",
+  "rotp.commands.species.success.multiple": "Set %s species on %s characters",
+  "rotp.commands.species.failed.single": "Failed to set species on %s",
+  "rotp.commands.species.failed.multiple": "Failed to set species on %s characters",
   "rotp.commands.standexp.set.success.single": "Set %s Stand exp on %s",
   "rotp.commands.standexp.set.success.multiple": "Set %s Stand exp on %s players",
   "rotp.commands.standexp.add.success.single": "Gave %s Stand exp to %s",
@@ -216,11 +228,42 @@
   "commands.jojo_ripples.bgm.stop.success.multiple": "Stopped playing soundtrack for %s players",
   "commands.jojo_ripples.bgm.stop.success.single": "Stopped playing soundtrack for %s",
   
-  "jojo_ripples.ui.adventure": "Adventure (NYI)",
-  "jojo_ripples.menu.player.profile": "Character Profile: %s (NYI)",
+  "jojo_ripples.ui.adventure": "Adventure (WIP)",
+  "jojo_ripples.menu.player.profile": "Character Profile: %s (WIP)",
   "jojo_ripples.menu.player.group": "Group (NYI)",
   "jojo_ripples.menu.player.story_arcs": "Story Arcs (NYI)",
   "jojo_ripples.menu.player.adventure_settings": "Storytelling (NYI)",
+  
+  "jojo_ripples.char_profile.species": "★ Species: %s",
+  "jojo_ripples.char_profile.human_power": "★ Special Abilities: %s",
+  "jojo_ripples.char_profile.stand": "★ Stand Name: %s",
+  "jojo_ripples.char_profile.blood_type": "★ Blood Type: %s",
+  "jojo_ripples.blood_type.a": "A",
+  "jojo_ripples.blood_type.b": "B",
+  "jojo_ripples.blood_type.ab": "AB",
+  "jojo_ripples.blood_type.o": "O",
+  "jojo_ripples.char_profile.height": "★ Height: %s cm",
+  "jojo_ripples.char_profile.body_type": "★ Body Type: %s",
+  "jojo_ripples.body_type.regular": "Regular",
+  "jojo_ripples.body_type.slim": "Slim",
+  "jojo_ripples.char_profile.eye_color": "★ Eye Color: %s",
+  "jojo_ripples.char_profile.day_of_spawn": "★ Day of Spawn: %s",
+  "jojo_ripples.char_profile.spawn_biome": "★ Spawn Biome: %s",
+  "jojo_ripples.char_profile.pets": "★ Pets: %s",
+  "jojo_ripples.char_profile.fav_food": "★ Favorite Food: %s",
+  "jojo_ripples.char_profile.fav_weapon": "★ Favorite Weapon: %s",
+  "jojo_ripples.char_profile.fav_block": "★ Favorite Block: %s",
+  
+  "jojo_ripples.species.human": "Human",
+  "jojo_ripples.species.pillar_man": "Creature of Darkness",
+  "jojo_ripples.species.rock_human": "Rock Human",
+  "jojo_ripples.species.plankton": "Plankton Colony",
+  "jojo_ripples.species.maybe_alien": "Alien?",
+  "jojo_ripples.species.power_subtype.jojo_ripples.vampirism": "Vampire (formerly %s)",
+  "jojo_ripples.species.power_subtype.jojo_ripples.zombie": "Zombie (formerly %s)",
+  "jojo_ripples.species.power_subtype.jojo_ripples.pillar_man": "Pillar Man",
+  "jojo_ripples.species.power_subtype.jojo_ripples.pillar_man.ulf": "Ultimate Life Form",
+  "jojo_ripples.species.subtype.ghost": "Ghost (formerly %s)",
   
   "jojo_ripples.screen.edit_hud_layout": "Edit Controls (NYI)",
   "jojo_ripples.screen.ability_selection_wheel": "Choose an ability",
@@ -269,14 +312,8 @@
   "jojo_ripples.overlay.stand_strength": "Stand Strength: %s",
   "jojo_ripples.notification.stand_skill": "New Stand skills available:",
   
-  "ripples_hud.energy_hamon": "Hamon Energy",
-  "ripples_hud.energy_hamon.desc": "",
-  
   "ripples_hud.hold_key": "Hold %s",
   "ripples_hud.hotbar_switch": "(%s to switch ability)",
-  
-  "jojo_ripples.class.stand": "Stand: %s",
-  "jojo_ripples.class.player_power": "Character Power: %s",
   
   
   "power.jojo_ripples.hamon": "Hamon",
@@ -288,10 +325,23 @@
   "moveset_group.hamon.combat": "Hamon: Combat",
   "moveset_group.hamon.utility": "Hamon: Utility",
   
+  "ripples_hud.energy_hamon": "Hamon Energy",
+  "ripples_hud.energy_hamon.desc": "WIP",
+  
+  "jojo_ripples.ability.hamon_breath": "Hamon Breath",
+  "jojo_ripples.ability.hamon_overdrive": "Overdrive",
+  "jojo_ripples.ability.hamon_sunlight_yellow_overdrive": "Sunlight Yellow Overdrive",
+  "jojo_ripples.ability.hamon_rebuff_overdrive": "Rebuff Overdrive",
+  
+  "jojo.message.action_condition.no_air": "You cannot breathe in",
+  
   
   "power.jojo_ripples.vampirism": "Vampirism",
   "jojo_ripples.vampirism.skills": "Skills",
   
+  
+  "jojo_ripples.class.stand": "Stand: %s",
+  "jojo_ripples.class.player_power": "Character Power: %s",
   
   "item.jojo_ripples.stand_disc": "Stand Disc",
   "item.jojo_ripples.stand_disc.wip": "Work in progress",

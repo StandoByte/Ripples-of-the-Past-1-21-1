@@ -82,10 +82,11 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	}
 	
 	public void setStandInstance(Optional<StandInstance> standInstance) {
-		StandType oldStand = getPowerType();
-		boolean standChanged = standInstance.map(newStand -> oldStand != newStand.getStandType()).orElseGet(() -> oldStand != null);
-		if (oldStand != null && standChanged) {
-			oldStand.forceUnsummon(user, this);
+		@Nullable StandTypePersistentData oldStandPersistentData = getCurTypeData();
+		@Nullable StandType oldStandType = oldStandPersistentData != null ? oldStandPersistentData.getPowerType() : null;
+		boolean standChanged = standInstance.map(newStand -> oldStandType != newStand.getStandType()).orElseGet(() -> oldStandType != null);
+		if (oldStandType != null && standChanged) {
+			oldStandType.forceUnsummon(user, this);
 		}
 		
 		this.standInstance = standInstance;
@@ -104,7 +105,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		if (newStand == null) {
 			setStamina(0);
 		}
-		onSetPowerType(oldStand, newStand);
+		onSetPowerType(oldStandPersistentData, newStand);
 	}
 
 	@Override

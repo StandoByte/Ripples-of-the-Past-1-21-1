@@ -197,6 +197,18 @@
   "rotp.commands.non_stand.remove.success.multiple": "Убраны особые силы у %s игроков",
   "rotp.commands.non_stand.query.failed.single": "У %s нет особой силы",
   "rotp.commands.non_stand.query.failed.multiple": "У всех %s игроков нет особых сил",
+  "rotp.commands.pillarman.stage.success.single": "Установлена стадия эволюции Человека из Колонны %s для персонажа %s",
+  "rotp.commands.pillarman.stage.success.multiple": "Установлена стадия эволюции Человека из Колонны %s для %s персонажей",
+  "rotp.commands.pillarman.stage.failed.single": "%s не Человек из Колонны",
+  "rotp.commands.pillarman.stage.failed.multiple": "Все %s персонажей не являются Людьми из Колонны",
+  "rotp.commands.pillarman.mode.success.single": "Установлен боевой режим Человека из Колонны %s для персонажа %s",
+  "rotp.commands.pillarman.mode.success.multiple": "Установлен боевой режим Человека из Колонны %s для %s персонажей",
+  "rotp.commands.pillarman.mode.failed.single": "%s не Человек из Колонны",
+  "rotp.commands.pillarman.mode.failed.multiple": "Все %s персонажей не являются Людьми из Колонны",
+  "rotp.commands.species.success.single": "Установлен вид %s для персонажа %s",
+  "rotp.commands.species.success.multiple": "Установлен вид %s для %s персонажей",
+  "rotp.commands.species.failed.single": "Не удалось установить вид для персонажа %s",
+  "rotp.commands.species.failed.multiple": "Не удалось установить вид для %s персонажей",
   "rotp.commands.standexp.set.success.single": "Установлено %s очков опыта Стенда для игрока %s",
   "rotp.commands.standexp.set.success.multiple": "Установлено %s очков опыта Стенда для %s игроков",
   "rotp.commands.standexp.add.success.single": "Выдано %s очков опыта Стенда игроку %s",
@@ -215,11 +227,42 @@
   "commands.jojo_ripples.bgm.stop.success.multiple": "Остановлена звуковая дорожка у %s игроков",
   "commands.jojo_ripples.bgm.stop.success.single": "Остановлена звуковая дорожка у игрока %s",
   
-  "jojo_ripples.ui.adventure": "Приключение (NYI)",
-  "jojo_ripples.menu.player.profile": "Профиль персонажа: %s (NYI)",
+  "jojo_ripples.ui.adventure": "Приключение (WIP)",
+  "jojo_ripples.menu.player.profile": "Профиль персонажа: %s (WIP)",
   "jojo_ripples.menu.player.group": "Группа (NYI)",
   "jojo_ripples.menu.player.story_arcs": "Сюжетные арки (NYI)",
   "jojo_ripples.menu.player.adventure_settings": "Повествование (NYI)",
+  
+  "jojo_ripples.char_profile.species": "★ Вид: %s",
+  "jojo_ripples.char_profile.human_power": "★ Особые способности: %s",
+  "jojo_ripples.char_profile.stand": "★ Имя Стенда: %s",
+  "jojo_ripples.char_profile.blood_type": "★ Группа крови: %s",
+  "jojo_ripples.blood_type.a": "II",
+  "jojo_ripples.blood_type.b": "III",
+  "jojo_ripples.blood_type.ab": "IV",
+  "jojo_ripples.blood_type.o": "I",
+  "jojo_ripples.char_profile.height": "★ Высота: %s cm",
+  "jojo_ripples.char_profile.body_type": "★ Тип тела: %s",
+  "jojo_ripples.body_type.regular": "обычное",
+  "jojo_ripples.body_type.slim": "худое",
+  "jojo_ripples.char_profile.eye_color": "★ Цвет глаз: %s",
+  "jojo_ripples.char_profile.day_of_spawn": "★ День спавна: %s",
+  "jojo_ripples.char_profile.spawn_biome": "★ Биом спавна: %s",
+  "jojo_ripples.char_profile.pets": "★ Питомцы: %s",
+  "jojo_ripples.char_profile.fav_food": "★ Любимая еда: %s",
+  "jojo_ripples.char_profile.fav_weapon": "★ Любимое оружие: %s",
+  "jojo_ripples.char_profile.fav_block": "★ Любимый блок: %s",
+  
+  "jojo_ripples.species.human": "Человек",
+  "jojo_ripples.species.pillar_man": "Создание из Тьмы",
+  "jojo_ripples.species.rock_human": "Каменный человек",
+  "jojo_ripples.species.plankton": "Колония планктона",
+  "jojo_ripples.species.maybe_alien": "Пришелец?",
+  "jojo_ripples.species.power_subtype.jojo_ripples.vampirism": "Вампир (ранее %s)",
+  "jojo_ripples.species.power_subtype.jojo_ripples.zombie": "Зомби (ранее %s)",
+  "jojo_ripples.species.power_subtype.jojo_ripples.pillar_man": "Человек из Колонны",
+  "jojo_ripples.species.power_subtype.jojo_ripples.pillar_man.ulf": "Совершенная Форма Жизни",
+  "jojo_ripples.species.subtype.ghost": "Призрак (ранее %s)",
   
   "jojo_ripples.screen.edit_hud_layout": "Настройки управления (NYI)",
   "jojo_ripples.screen.ability_selection_wheel": "Выберите способность",
@@ -269,14 +312,8 @@
   "jojo_ripples.overlay.stand_strength": "Сила Стенда: %s",
   "jojo_ripples.notification.stand_skill": "Доступны новые навыки Стенда:",
   
-  "ripples_hud.energy_hamon": "Энергия Хамона",
-  "ripples_hud.energy_hamon.desc": "",
-  
   "ripples_hud.hold_key": "Удерж. %s",
   "ripples_hud.hotbar_switch": "(%s - выбрать способность)",
-  
-  "jojo_ripples.class.stand": "Стенд: %s",
-  "jojo_ripples.class.player_power": "Сила персонажа: %s",
   
   
   "power.jojo_ripples.hamon": "Хамон",
@@ -288,10 +325,23 @@
   "moveset_group.hamon.combat": "Хамон: бой",
   "moveset_group.hamon.utility": "Хамон: поддержка",
   
+  "ripples_hud.energy_hamon": "Энергия Хамона",
+  "ripples_hud.energy_hamon.desc": "В разработке",
+  
+  "jojo_ripples.ability.hamon_breath": "Дыхание Хамона",
+  "jojo_ripples.ability.hamon_overdrive": "Овердрайв",
+  "jojo_ripples.ability.hamon_sunlight_yellow_overdrive": "Солнечно-жёлтый Овердрайв",
+  "jojo_ripples.ability.hamon_rebuff_overdrive": "Овердрайв Отпора",
+  
+  "jojo.message.action_condition.no_air": "Вы не можете вдохнуть",
+  
   
   "power.jojo_ripples.vampirism": "Вампиризм",
   "jojo_ripples.vampirism.skills": "Навыки",
   
+  
+  "jojo_ripples.class.stand": "Стенд: %s",
+  "jojo_ripples.class.player_power": "Сила персонажа: %s",
 
   "item.jojo_ripples.stand_disc": "Диск со Стендом",
   "item.jojo_ripples.stand_disc.wip": "В разработке",

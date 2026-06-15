@@ -13,8 +13,6 @@ import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.subsystems.StoryPart;
 import com.github.standobyte.jojo.util.reflection.CommonReflection;
-import com.github.standobyte.jojoimpl.powers.hamon.HamonSkill;
-import com.github.standobyte.jojoimpl.powers.hamon.HamonTechnique;
 
 import net.minecraft.core.Registry;
 import net.minecraft.resources.RegistryDataLoader;
@@ -44,21 +42,6 @@ public final class JojoRegistries {
 			.sync(true)
 			.create();
 	
-	
-	public static final ResourceKey<Registry<HamonSkill>> HAMON_SKILLS_REG_KEY = ResourceKey.createRegistryKey(
-			JojoMod.resLoc("hamon_skill"));
-	
-	public static final Registry<HamonSkill> HAMON_SKILLS_REG = new RegistryBuilder<>(HAMON_SKILLS_REG_KEY)
-			.sync(true)
-			.create();
-	
-	
-	public static final ResourceKey<Registry<HamonTechnique>> HAMON_TECHNIQUES_REG_KEY = ResourceKey.createRegistryKey(
-			JojoMod.resLoc("hamon_technique"));
-	
-	public static final Registry<HamonTechnique> HAMON_TECHNIQUES_REG = new RegistryBuilder<>(HAMON_TECHNIQUES_REG_KEY)
-			.sync(true)
-			.create();
 	
 	public static final ResourceKey<Registry<EntityCustomEffectType<?>>> ENTITY_CUSTOM_EFFECTS_REG_KEY = ResourceKey.createRegistryKey(
 			JojoMod.resLoc("custom_effects"));
@@ -104,8 +87,6 @@ public final class JojoRegistries {
 	public static void registerRegistries(NewRegistryEvent event) {
 		event.register(ABILITY_TYPES_REG);
 		event.register(PLAYER_POWER_TYPES_REG);
-		event.register(HAMON_SKILLS_REG);
-		event.register(HAMON_TECHNIQUES_REG);
 		event.register(STAND_EFFECTS_REG);
 		event.register(DEFAULT_STANDS_REG);
 		event.register(NON_POWER_ACTIONS_REG);
