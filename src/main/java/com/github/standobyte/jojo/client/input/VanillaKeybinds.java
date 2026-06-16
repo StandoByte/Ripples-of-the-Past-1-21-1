@@ -174,6 +174,7 @@ public class VanillaKeybinds {
 					if (keybind != null && keybind.consumeClick()) {
 						if (toggle.clientCanToggle()) {
 							toggle.toggle();
+							toggle.fadeOut.reset();
 						}
 						else {
 							mc.gui.setOverlayMessage(Component.translatable("jojo_ripples.toggle_overruled", 

@@ -19,6 +19,7 @@ import com.github.standobyte.jojo.client.ui.hud_power.PowerHudControlsElement.Ab
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHudControlsElement.BindUI;
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHudControlsElement.HotbarUILine;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
+import com.github.standobyte.jojo.client.ui.utils.ElementTransparency;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.TextUtil;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
@@ -39,6 +40,8 @@ import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import it.unimi.dsi.fastutil.floats.FloatArrayList;
+import it.unimi.dsi.fastutil.floats.FloatList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -785,15 +788,22 @@ public class PowerHud {
 		}
 
 		public List<ClientStandToggle> togglesToRender = new ArrayList<>();
+		public FloatList transparencies = new FloatArrayList();
 		@Override
 		public boolean shouldRender() {
 			if (hud.forContainerMenu.isTrue()) return false;
 			
 			togglesToRender.clear();
+			transparencies.clear();
+			
 			ClientStandToggle[] toggles = ClientStandToggles.lazyInitToggles();
+			float partialTick = ClientUtil.partialTick(Minecraft.getInstance().getTimer(), false);
 			for (var toggle : toggles) {
-				if (toggle.hudVisibilitySetting.get() && toggle.activeWhen.getAsBoolean()) {
+				boolean alwaysRender = toggle.hudVisibilitySetting.get();
+				ElementTransparency fadeOut = toggle.fadeOut;
+				if (toggle.activeWhen.getAsBoolean() && (alwaysRender || fadeOut.shouldRender())) {
 					togglesToRender.add(toggle);
+					transparencies.add(alwaysRender ? 1f : fadeOut.getAlpha(partialTick));
 				}
 			}
 			
@@ -817,11 +827,11 @@ public class PowerHud {
 			int y = getY();
 			
 			PoseStack poseStack = guiGraphics.pose();
-			for (ClientStandToggle toggle : togglesToRender) {
-				if (toggle.hudVisibilitySetting.get() && toggle.activeWhen.getAsBoolean()) {
-					toggle.renderIcon(poseStack, x, y);
-					x += ICON_SIZE + INTERVAL;
-				}
+			for (int i = 0; i < togglesToRender.size(); i++) {
+				ClientStandToggle toggle = togglesToRender.get(i);
+				int color = ARGB.white(transparencies.getFloat(i));
+				toggle.renderIcon(poseStack, x, y, color);
+				x += ICON_SIZE + INTERVAL;
 			}
 		}
 		

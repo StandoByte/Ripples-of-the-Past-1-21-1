@@ -11,6 +11,8 @@ import com.github.standobyte.jojo.client.ui.KeybindsEditingUI;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ToggleButton;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ToggleSwitch;
 import com.github.standobyte.jojo.client.ui.utils.Alignment;
+import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
+import com.github.standobyte.jojo.client.ui.utils.ElementTransparency;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
 import com.github.standobyte.jojo.config.BoolOrPlayerPref;
@@ -50,6 +52,7 @@ public class ClientStandToggle implements Renderable {
 	public ToggleSwitch toggle;
 	public Button keybindButton;
 	public ToggleButton visibilityToggle;
+	public ElementTransparency fadeOut = new ElementTransparency();
 	
 	public ClientStandToggle(ConfigOption<Boolean> setting, @Nullable ConfigOption<BoolOrPlayerPref> overrulingCommonSetting,
 			ModConfigType configToSave, 
@@ -131,25 +134,26 @@ public class ClientStandToggle implements Renderable {
 	}
 
 	public static final GuiIcon SWITCH_DISABLED = new GuiIcon(JojoMod.resLoc("textures/gui/sprites/hud_switch_disabled.png"), 20, 20);
-	public void renderIcon(PoseStack poseStack, int x, int y) {
+	public void renderIcon(PoseStack poseStack, int x, int y) { renderIcon(poseStack, x, y, BlitFloat.NO_TINT); }
+	public void renderIcon(PoseStack poseStack, int x, int y, int color) {
 		boolean value = this.getResultingValue();
 		if (value || this.offHudIcon == null) {
-			_renderIcon(this.hudIcon, poseStack, x, y);
+			_renderIcon(this.hudIcon, poseStack, x, y, color);
 		}
 		if (!value) {
 			if (this.offHudIcon != null) {
-				_renderIcon(this.offHudIcon, poseStack, x, y);
+				_renderIcon(this.offHudIcon, poseStack, x, y, color);
 			}
 			else {
-				_renderIcon(SWITCH_DISABLED, poseStack, x, y);
+				_renderIcon(SWITCH_DISABLED, poseStack, x, y, color);
 			}
 		}
 	}
 	
 	public static final int ICON_SIZE = 24;
-	protected static void _renderIcon(GuiIcon icon, PoseStack poseStack, int x, int y) {
+	protected static void _renderIcon(GuiIcon icon, PoseStack poseStack, int x, int y, int color) {
 		int offset = (int) (ICON_SIZE - icon.width) / 2;
-		icon.render(poseStack, x + offset, y + offset);
+		icon.render(poseStack, x + offset, y + offset, color);
 	}
 	
 	public void toggle() {
