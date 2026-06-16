@@ -104,6 +104,7 @@ public class StandEntityRenderer<
 		
 		Minecraft mc = Minecraft.getInstance();
 		renderState.mayObstructView = mc.options.getCameraType().isFirstPerson() && entity.isFollowingUser();
+		renderState.doScalingFromStandSkin = true;
 		if (renderState.mayObstructView) {
 			Entity cameraEntity = mc.getCameraEntity();
 			if (cameraEntity == null) cameraEntity = mc.player;
@@ -167,10 +168,12 @@ public class StandEntityRenderer<
 	protected void scale(T livingEntity, PoseStack poseStack, float partialTickTime) {
 		if (RenderStateCrutches.currentEntityRenderState != null) {
 			S renderState = (S) RenderStateCrutches.currentEntityRenderState;
-			StandSkin standSkin = renderState.skin;
-			if (standSkin != null) {
-				float[] scale = standSkin.getModelScale();
-				poseStack.scale(scale[0], scale[1], scale[0]);
+			if (renderState.doScalingFromStandSkin) {
+				StandSkin standSkin = renderState.skin;
+				if (standSkin != null) {
+					float[] scale = standSkin.getModelScale();
+					poseStack.scale(scale[0], scale[1], scale[0]);
+				}
 			}
 		}
 	}

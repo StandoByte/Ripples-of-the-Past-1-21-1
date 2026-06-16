@@ -95,6 +95,7 @@ public class FirstPersonRender {
 				StandEntityRenderState renderState = standRenderer.createRenderState(entity, partialTick);
 				renderState.visibleParts = HumanoidPart.reduce(renderState.visibleParts, HumanoidPart.ARMS_ONLY);
 				renderState.mayObstructView = false;
+				renderState.doScalingFromStandSkin = false;
 
 				poseStack.pushPose();
 				poseStack.mulPose(Axis.XP.rotationDegrees(renderState.xRot));
