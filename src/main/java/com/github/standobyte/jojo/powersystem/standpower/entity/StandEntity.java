@@ -609,7 +609,6 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 	public void onUnsummonUserInput() {
-		// TODO on unsummon input, only cancel current stand action
 		if (!this.isBeingRetracted()) {
 			this.retractAndUnsummon();
 		}

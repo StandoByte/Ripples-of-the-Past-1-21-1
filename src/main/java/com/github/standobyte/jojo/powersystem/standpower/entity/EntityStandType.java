@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.network.s2c.StandEntitySoundPacket;
 import com.github.standobyte.jojo.network.s2c.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.powersystem.MovesetBuilder;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.SyncType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -92,18 +93,21 @@ public class EntityStandType extends StandType {
 		else {
 			StandEntity standEntity = (StandEntity) standPower.getSummonedStand();
 			EntityActionInstance curAction = standEntity.getCurStandAction();
-			if (curAction != null) {
-				if (curAction.ability instanceof StandEntityUnsummonAction) {
-					forceUnsummon(user, standPower);
-				}
-				else if (curAction.canBeCancelledInto(null)) {
-					standEntity.getStandActionComponent().setAction(null, SyncType.TRACKING_AND_SELF);
-				}
-			}
-			else if (standEntity.isArmsOnlyMode()) {
+			if (standEntity.isArmsOnlyMode()) {
 				standEntity.fullSummonFromArms();
 			}
 			else {
+				if (curAction != null) {
+					if (curAction.ability instanceof StandEntityUnsummonAction) {
+						forceUnsummon(user, standPower);
+						return;
+					}
+					else if ((curAction.phase == ActionPhase.BUTTON_CHARGE || curAction.phase == ActionPhase.WINDUP) && curAction.canBeCancelledInto(null)) {
+						standEntity.getStandActionComponent().setAction(null, SyncType.TRACKING_AND_SELF);
+						return;
+					}
+				}
+				
 				unsummon(user, standPower);
 			}
 		}
