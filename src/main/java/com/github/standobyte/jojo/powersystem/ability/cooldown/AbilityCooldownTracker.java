@@ -18,7 +18,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameType;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class AbilityCooldownTracker implements INBTSerializable<CompoundTag>, TickingEntityData, SynchronizablePlayerData {
@@ -165,6 +169,22 @@ public class AbilityCooldownTracker implements INBTSerializable<CompoundTag>, Ti
 
 	public static AbilityCooldownTracker getOrCreate(LivingEntity user) {
 		return user.getData(ModDataAttachmentTypes.ABILITY_COOLDOWNS);
+	}
+
+
+
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public static void onGameModeChange(PlayerEvent.PlayerChangeGameModeEvent event) {
+		if (event.getNewGameMode() == GameType.CREATIVE) {
+			Player player = event.getEntity();
+			AbilityCooldownTracker cooldowns = AbilityCooldownTracker.get(player);
+			if (cooldowns != null) {
+				cooldowns.resetCooldowns();
+			}
+			//player.removeEffect(ModStatusEffects.IMMOBILIZE.get());
+			//player.removeEffect(ModStatusEffects.STUN.get());
+			//player.removeEffect(ModStatusEffects.HAMON_SHOCK.get());
+		}
 	}
 
 }
