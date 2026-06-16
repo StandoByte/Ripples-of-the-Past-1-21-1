@@ -31,9 +31,9 @@ public record Meshy(boolean normalized_uvs, Vector3f[] positions, Vector3f[] nor
 				VertexDefinition[] vertices = new VertexDefinition[face.length];
 				int i = 0;
 				for (Vector3i vertexDefinition : face) {
-					Vector3f pos = positions[vertexDefinition.x];
-					Vector2f uv = uvs[vertexDefinition.z];
-					vertices[i++] = new VertexDefinition(pos, uv.x, uv.y); 
+					Vector3f pos = positions[vertexDefinition.get(0)];
+					Vector2f uv = uvs[vertexDefinition.get(2)];
+					vertices[i++] = new VertexDefinition(new Vector3f(pos).mul(-1, 1, 1), uv.x, uv.y); 
 				}
 				
 				MeshFaceBuilder faceBuilder = meshBuilder.startFaceCalcNormal();
