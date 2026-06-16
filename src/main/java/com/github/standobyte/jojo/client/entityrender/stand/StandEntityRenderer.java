@@ -148,6 +148,9 @@ public class StandEntityRenderer<
 					if (poses != null && !poses.isEmpty()) {
 						pose = poses.get(StandInfoScreen.rand % poses.size());
 					}
+					else {
+						pose = skin.getStandIdlePose();
+					}
 				}
 			}
 		}
