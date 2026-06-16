@@ -11,6 +11,8 @@ import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataExtend
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.network.s2c.EntityDirectPosNoLerpPacket;
+import com.github.standobyte.jojo.powersystem.ability.AbilityId;
+import com.github.standobyte.jojo.powersystem.ability.cooldown.AbilityCooldownTracker;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
@@ -25,6 +27,8 @@ import com.mojang.serialization.Codec;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -42,10 +46,12 @@ import net.neoforged.neoforge.network.PacketDistributor;
  *   so TimeStopLevelTracker#add does nothing - defer the call somehow
  */
 public class TimeStopEffect extends StandEffectInstance implements TimeStopInstance {
+	public AbilityId timeStopAbility;
 	public boolean playedFX = false;
 	public boolean playedResumeFX = false;
 	public int duration = 100;
 	public ChunkPos initialPos;
+	public int tsTicks = 0;
 
 	public TimeStopEffect(EntityCustomEffectType<?> effectType) {
 		super(effectType);
@@ -90,12 +96,13 @@ public class TimeStopEffect extends StandEffectInstance implements TimeStopInsta
 
 	@Override
 	protected void tick() {
+		tsTicks++;
 		if (!level.isClientSide()) {
-			if (tickCount >= duration) {
+			if (tsTicks >= duration) {
 				this.remove();
 				return;
 			}
-			if (tickCount == duration - TIME_RESUME_SOUND_TICKS) {
+			if (tsTicks == duration - TIME_RESUME_SOUND_TICKS) {
 				doTimeResumeFX();
 			}
 		}
@@ -137,6 +144,11 @@ public class TimeStopEffect extends StandEffectInstance implements TimeStopInsta
 		if (this.level != null && !level.isClientSide()) {
 			TimeStopLevelTracker levelTracker = level.getData(ModDataAttachmentTypes.TIME_STOP_LEVEL_TRACKER);
 			levelTracker.remove(this);
+			
+			if (timeStopAbility != null) {
+				int cooldown = tickCount * 3;
+				AbilityCooldownTracker.setCooldown(getStandUser(), timeStopAbility, cooldown);
+			}
 		}
 	}
 	
@@ -180,23 +192,43 @@ public class TimeStopEffect extends StandEffectInstance implements TimeStopInsta
 			intStream -> Util.fixedSize(intStream, 2).map(arr -> new ChunkPos(arr[0], arr[1])),
 			chunkPos -> IntStream.of(chunkPos.x, chunkPos.z))
 			.stable() /* unlike my mental state */;
-		
+
+	
+	@Override
+	public void writeAdditionalPacketData(FriendlyByteBuf buf, boolean sendingToUser) {
+		super.writeAdditionalPacketData(buf, sendingToUser);
+		buf.writeVarInt(tsTicks);
+	}
+
+	@Override
+	public void readAdditionalPacketData(FriendlyByteBuf buf, boolean clientIsUser) {
+		super.readAdditionalPacketData(buf, clientIsUser);
+		tsTicks = buf.readVarInt();
+	}
+	
 	@Override
 	protected void writeAdditionalSaveData(CompoundTag nbt) {
 		super.writeAdditionalSaveData(nbt);
+		nbt.putInt("TSTicks", tsTicks);
 		nbt.putInt("Duration", duration);
 		nbt.putBoolean("PlayedFX", playedFX);
 		nbt.putBoolean("PlayedResumeFX", playedResumeFX);
 		NBTUtil.put(nbt, "Pos", initialPos, FUCK_MY_LIFE);
+		if (timeStopAbility != null) {
+			nbt.putString("Ability", timeStopAbility.toString());
+		}
 	}
 
 	@Override
 	protected void readAdditionalSaveData(CompoundTag nbt) {
 		super.readAdditionalSaveData(nbt);
+		tsTicks = nbt.getInt("TSTicks");
 		duration = nbt.getInt("Duration");
 		playedFX = nbt.getBoolean("PlayedFX");
 		playedResumeFX = nbt.getBoolean("PlayedResumeFX");
 		initialPos = NBTUtil.getOptional(nbt, "Pos", FUCK_MY_LIFE).orElseThrow();
+		timeStopAbility = NBTUtil.getElementOptional(nbt, "Ability", StringTag.class)
+				.map(strTag -> AbilityId.parse(strTag.toString())).orElse(null);
 	}
 	
 	

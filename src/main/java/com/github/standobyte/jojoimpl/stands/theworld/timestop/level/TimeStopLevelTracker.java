@@ -154,7 +154,7 @@ public class TimeStopLevelTracker {
 				if (entity instanceof ServerPlayer player) {
 					TimeStopEffect earliestEffect = tracker.activeEffects.values().stream()
 							.filter(effect -> !effect.isStopped())
-							.max(Comparator.comparingInt(effect -> effect.tickCount))
+							.max(Comparator.comparingInt(effect -> effect.tsTicks))
 							.orElse(null);
 					if (earliestEffect != null) {
 						PacketDistributor.sendToPlayer(player, 

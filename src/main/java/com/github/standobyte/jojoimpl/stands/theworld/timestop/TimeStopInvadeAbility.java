@@ -47,7 +47,7 @@ public class TimeStopInvadeAbility extends Ability {
 	@Override
 	public void onClick(Level level, LivingEntity user, FriendlyByteBuf extraClientInput) {
 		// TODO a variation which stops as soon as the other time stop instances stop (Star Platinum asspull path)
-		TimeStopAbility.addTimeStopEffect(user, TimeStopAbility.getDuration(user), true);
+		TimeStopAbility.addTimeStopEffect(user, this, TimeStopAbility.getDuration(user), true);
 	}
 
 }

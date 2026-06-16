@@ -7,6 +7,7 @@ import com.github.standobyte.jojo.init.ModSpecialActions;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.ability.EntityActionAbility;
@@ -52,7 +53,7 @@ public class TimeStopAbility extends EntityActionAbility {
 			if (standPower != null && TimeStopInvadeAbility.canInvadeTimeStop(standPower)) {
 				// instantly give the time stop effect when invading
 				bufferingState.isActionSuccess = true;
-				addTimeStopEffect(user, getDuration(user), false);
+				addTimeStopEffect(user, this, getDuration(user), false);
 			}
 			else {
 				// set the action with the windup (EntityActionAbility logic)
@@ -125,7 +126,7 @@ public class TimeStopAbility extends EntityActionAbility {
 		@Override
 		public void actionPerformStart() {
 			LivingEntity user = performer;
-			addTimeStopEffect(user, getDuration(user), false);
+			addTimeStopEffect(user, (Ability) ability, getDuration(user), false);
 		}
 		
 	}
@@ -153,7 +154,7 @@ public class TimeStopAbility extends EntityActionAbility {
 	}
 	
 	
-	public static void addTimeStopEffect(LivingEntity user, int duration, boolean stopWhenOtherTSEnds) {
+	public static void addTimeStopEffect(LivingEntity user, Ability ability, int duration, boolean stopWhenOtherTSEnds) {
 		Level level = user.level();
 		if (!level.isClientSide()) {
 			StandPower standPower = StandPower.get(user);
@@ -161,6 +162,7 @@ public class TimeStopAbility extends EntityActionAbility {
 				// should be empty, but just in case
 				Stream<TimeStopEffect> oldEffects = standPower.userStandEffects.getEffectsOfType(ModStandAbilities.EFFECT_TIME_STOP.get());
 				TimeStopEffect timeStop = ModStandAbilities.EFFECT_TIME_STOP.get().create(level);
+				timeStop.timeStopAbility = ability.getAbilityId();
 				standPower.userStandEffects.addEffect(timeStop);
 				oldEffects.forEach(effect -> {
 					effect.remove();
