@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.client.input;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -21,9 +22,11 @@ import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ClientTickHandler;
 import com.github.standobyte.jojo.client.input.clickhold.AmbiguousKeyPress;
 import com.github.standobyte.jojo.client.input.controlscheme.AbilityControlScheme;
+import com.github.standobyte.jojo.client.input.controlscheme.AbilityControlsEntry;
 import com.github.standobyte.jojo.client.input.controlscheme.AbilityHotbar;
 import com.github.standobyte.jojo.client.input.controlscheme.AbilityHotbarSlot;
 import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientInputBind;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientKey;
 import com.github.standobyte.jojo.client.ui.AbilitySelectionWheel;
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHud;
@@ -174,6 +177,11 @@ public class InputHandler {
 	protected boolean noInputProcessing() {
 		return mc.isPaused() 
 				|| !(mc.screen == null || PowerHud.isInContainerScreen() || mc.screen instanceof AbilitySelectionWheel);
+	}
+	
+	public static boolean isNonWheelScreenOpened() {
+		Minecraft mc = Minecraft.getInstance();
+		return mc.screen != null && !(mc.screen instanceof AbilitySelectionWheel);
 	}
 	
 	protected boolean shouldQueueKeyRelease() {
@@ -534,14 +542,32 @@ public class InputHandler {
 		
 		if (controlScheme != null) {
 			AbilityControlScheme.setPrioritizedAbility(input.heldAbility, keyModifier, 
-					(KeyModifier mod) -> controlScheme.getBindsWithModifier(InputMethod.HOLD, key, mod), 
+					(KeyModifier mod) -> getAbilitiesThatCanBeInputRn(controlScheme, InputMethod.HOLD, key, mod), 
 					filter);
 			AbilityControlScheme.setPrioritizedAbility(input.clickAbility, keyModifier, 
-					(KeyModifier mod) -> controlScheme.getBindsWithModifier(InputMethod.CLICK, key, mod), 
+					(KeyModifier mod) -> getAbilitiesThatCanBeInputRn(controlScheme, InputMethod.CLICK, key, mod), 
 					filter);
 		}
 		
 		return input;
+	}
+	
+	private List<AbilityControlsEntry> getAbilitiesThatCanBeInputRn(AbilityControlScheme controlScheme, 
+			InputMethod inputMethod, ClientKey key, KeyModifier keyModifier) {
+		if (mc.screen instanceof AbilitySelectionWheel hotbarWheel) {
+			AbilityHotbar hotbar = hotbarWheel.abilities;
+			ClientInputBind hotbarKey = hotbar.useAbilityKey;
+			if (hotbarKey.getKey() == key) {
+				AbilityHotbarSlot slot = hotbar.getSelected();
+				if (slot != null) {
+					List<AbilityControlsEntry> inThisHotbar = slot.getBinds().getAll(keyModifier, inputMethod);
+					return inThisHotbar;
+				}
+			}
+			return Collections.emptyList();
+		}
+		
+		return controlScheme.getBindsWithModifier(inputMethod, key, keyModifier);
 	}
 	
 	@Nullable
