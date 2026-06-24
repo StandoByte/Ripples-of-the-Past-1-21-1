@@ -165,21 +165,45 @@ public class AbilityControlScheme {
 	public List<AbilityControlsEntry> getBindsWithModifier(InputMethod keyInputMethod, ClientKey key, KeyModifier currentModifier) {
 		AbilityControlScheme.MoveGroup controls = getCurGroup();
 		InputsByKeyModifier allBindsInKey = controls.getBinds().get(key);
-		if (allBindsInKey != null) {
-			return allBindsInKey.getAll(currentModifier, keyInputMethod);
-		}
+		
+		List<AbilityControlsEntry> fromBinds = allBindsInKey != null ? allBindsInKey.getAll(currentModifier, keyInputMethod) : Collections.emptyList();
+		List<AbilityControlsEntry> fromHotbars = Collections.emptyList();
+		boolean mergedHotbars = false;
 		
 		for (AbilityHotbar hotbar : controls.hotbars) {
 			ClientInputBind hotbarKey = hotbar.useAbilityKey;
 			if (hotbarKey.getKey() == key) {
 				AbilityHotbarSlot slot = hotbar.getSelected();
 				if (slot != null) {
-					return slot.getBinds().getAll(currentModifier, keyInputMethod);
+					List<AbilityControlsEntry> inThisHotbar = slot.getBinds().getAll(currentModifier, keyInputMethod);
+					if (fromHotbars.isEmpty()) {
+						fromHotbars = inThisHotbar;
+					}
+					else if (!mergedHotbars) {
+						fromHotbars = new ArrayList<>(fromHotbars.size() + inThisHotbar.size());
+						fromHotbars.addAll(fromHotbars);
+						fromHotbars.addAll(inThisHotbar);
+						mergedHotbars = true;
+					}
+					else {
+						fromHotbars.addAll(inThisHotbar);
+					}
 				}
 			}
 		}
 		
-		return Collections.emptyList();
+		if (!fromBinds.isEmpty() && !fromHotbars.isEmpty()) {
+			List<AbilityControlsEntry> merged = new ArrayList<>(fromBinds.size() + fromHotbars.size());
+			merged.addAll(fromBinds);
+			merged.addAll(fromHotbars);
+			return merged;
+		}
+		else if (!fromBinds.isEmpty()) {
+			return fromBinds;
+		}
+		else {
+			return fromHotbars;
+		}
 	}
 	
 	public static void setPrioritizedAbility(BaseAndActiveAbility dest, KeyModifier curModifier, 
