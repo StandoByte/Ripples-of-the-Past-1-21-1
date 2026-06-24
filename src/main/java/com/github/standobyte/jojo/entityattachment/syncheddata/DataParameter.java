@@ -11,6 +11,8 @@ public class DataParameter<T> {
 	public final EntityDataAccessor<T> param;
 	public final T defaultValue;
 
+	// defineId called for: class /*clazz*/ from class com.github.standobyte.jojo.entityattachment.syncheddata.DataParameter
+	// ^ This message is fine, but you now have to be careful with the clazz argument once again
 	public static <T> DataParameter<T> defineId(Class<? extends SyncedDataHolder> clazz, EntityDataSerializer<T> serializer, T defaultValue) {
 		EntityDataAccessor<T> param = SynchedEntityData.defineId(clazz, serializer);
 		return new DataParameter<>(param, defaultValue);
