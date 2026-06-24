@@ -635,6 +635,7 @@
   "jojo_ripples.skill.blood_cutter.controls": "Special ability",
   "jojo_ripples.ability.blood_cutter": "Blood Cutter",
   
+  "jojo.message.action_condition.full_health": "You aren't injured",
   "jojo.message.action_condition.item_hard_material": "You need to hold a block made of a hard material",
   
   

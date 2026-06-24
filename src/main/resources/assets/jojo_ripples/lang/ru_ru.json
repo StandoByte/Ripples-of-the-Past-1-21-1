@@ -635,6 +635,7 @@
   "jojo_ripples.skill.blood_cutter.controls": "Особая способность",
   "jojo_ripples.ability.blood_cutter": "Резак из крови",
   
+  "jojo.message.action_condition.full_health": "Вы не ранены",
   "jojo.message.action_condition.item_hard_material": "Вам нужно держать блок из твёрдого материала",
   
   
