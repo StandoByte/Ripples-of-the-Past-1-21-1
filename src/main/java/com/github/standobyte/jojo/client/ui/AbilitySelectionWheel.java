@@ -4,13 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalInt;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.lwjgl.glfw.GLFW;
 
 import com.github.standobyte.jojo.client.ClientPowerCache;
+import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.input.InputHandler.CurInput;
+import com.github.standobyte.jojo.client.input.controlscheme.AbilityControlScheme;
 import com.github.standobyte.jojo.client.input.controlscheme.AbilityControlsEntry;
 import com.github.standobyte.jojo.client.input.controlscheme.AbilityHotbar;
 import com.github.standobyte.jojo.client.input.controlscheme.AbilityHotbarSlot;
@@ -43,12 +46,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.neoforged.neoforge.client.settings.KeyModifier;
+import net.neoforged.neoforge.common.util.TriState;
 
 public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 	protected static final ResourceLocation DEFAULT_TEXTURE = JojoMod.resLoc("textures/ability_wheel.png");
 	protected ResourceLocation texture;
 	public AbilityHotbar abilities;
 	protected StandSkin standSkin;
+	protected AbilityIconSprites abilityIconSprites;
 	public int initialSlot;
 
 	public AbilitySelectionWheel(AbilityHotbar abilities) {
@@ -69,6 +74,8 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 		if (texture == null) {
 			texture = DEFAULT_TEXTURE;
 		}
+		
+		abilityIconSprites = StandSkinsLoader.getInstance().abilityIcons;
 	}
 	
 	@Nullable protected int[] mouseIgnorePos = null;
@@ -120,6 +127,8 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 	 * LMB - use ability and confirm selection
 	 * RMB - cancel
 	 */
+	static final float ICON_WIDTH = 16;
+	static final float ICON_HEIGHT = 16;
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 		if (abilities == null || !InputHandler.getInstance().isSelectingAbility(abilities)) {
@@ -150,13 +159,18 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 			fill = -fill;
 		}
 		
-		AbilityIconSprites abilityIconSprites = StandSkinsLoader.getInstance().abilityIcons;
 		for (int i = 0; i < n; i++) {
 			AbilityHotbarSlot slot = abilities.slots.get(i);
 			KeyModifier curModifier = InputHandler.getInstance().getCurModifier();
-			AbilityConditionCheck ability = slot.showAbility(curModifier);
-			boolean showAbility = ability != null;
-			TextureAtlasSprite abilitySprite = ability != null ? abilityIconSprites.getAbilityIcon(ability.ability.name(), standSkin) : null;
+			
+			AbilityConditionCheck clickAbility = AbilityControlScheme.prioritizedAbility(curModifier, 
+					(KeyModifier mod) -> slot.getBinds().getAll(mod, InputMethod.CLICK), 
+					(AbilityInputState state) -> AbilityInputState.showAbilityInHUD(state, TriState.FALSE));
+			AbilityConditionCheck holdAbility = AbilityControlScheme.prioritizedAbility(curModifier, 
+					(KeyModifier mod) -> slot.getBinds().getAll(mod, InputMethod.HOLD), 
+					(AbilityInputState state) -> AbilityInputState.showAbilityInHUD(state, TriState.FALSE));
+			
+			boolean showAbility = clickAbility != null || holdAbility != null;
 			
 			if (i == hoveredSlotIndex && !showAbility) { 
 				hoveredSlotIndex = -1;
@@ -176,13 +190,17 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 			if (highlight) {
 				pose.popPose();
 			}
-			
-			if (abilitySprite != null) {
-				int[] iconPos = posAtSector(i, n, 75);
-				float iconWidth = 16;
-				float iconHeight = 16;
-				BlitFloat.blit(pose, minecraft, abilitySprite, 
-						iconPos[0] - iconWidth / 2, iconPos[1] - iconHeight / 2, iconWidth, iconHeight, 0, BlitFloat.NO_TINT);
+
+			int[] iconPos = posAtSector(i, n, 75);
+			if (clickAbility != null && holdAbility != null) {
+				renderSprite(clickAbility, pose, iconPos[0] - 10, iconPos[1]);
+				renderSprite(holdAbility, pose, iconPos[0] + 10, iconPos[1]);
+			}
+			else {
+				AbilityConditionCheck ability = clickAbility != null ? clickAbility : holdAbility;
+				if (ability != null) {
+					renderSprite(ability, pose, iconPos[0], iconPos[1]);
+				}
 			}
 			
 
@@ -224,6 +242,14 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 			TooltipParams.set(TooltipParams.paperStyle());
 			guiGraphics.renderComponentTooltip(font, abilityNames, mouseX, mouseY);
 		}
+	}
+	
+	public void renderSprite(@Nonnull AbilityConditionCheck _ability, PoseStack pose, int centerX, int centerY) {
+		Ability ability = _ability.ability;
+		TextureAtlasSprite abilitySprite = abilityIconSprites.getAbilityIcon(ability, 
+				ClientPowerCache.getPower(ability.getAbilityId().powerClass()), standSkin); // context-dependent
+		BlitFloat.blit(pose, minecraft, abilitySprite, 
+				centerX - ICON_WIDTH / 2, centerY - ICON_HEIGHT / 2, ICON_WIDTH, ICON_HEIGHT, 0, BlitFloat.NO_TINT);
 	}
 
 	protected int hoveredSlotIndex;
