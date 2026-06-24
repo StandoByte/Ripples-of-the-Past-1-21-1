@@ -35,7 +35,6 @@ import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersisten
 import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData.StandExpSummary;
 import com.github.standobyte.jojo.powersystem.unlockableskill.ClLearnSkillPacket;
 import com.github.standobyte.jojo.powersystem.unlockableskill.UnlockableSkill;
-import com.github.standobyte.jojo.powersystem.unlockableskill.UnlockableSkill.DevStatus;
 import com.google.common.collect.Iterables;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -228,8 +227,11 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 				String expCostLine = expToUnlock > 0 ? String.valueOf(expToUnlock) : "-";
 				guiGraphics.drawString(font, expCostLine, spriteX + 18, spriteY + 4, expCostColor, false);
 			}
-			if (skill.implemented == DevStatus.NYI) {
-				guiGraphics.fill(spriteX - 1, spriteY - 1, spriteX + 37, spriteY + 17, 0x80FF0000);
+			
+			switch (skill.implemented) {
+				case NYI -> guiGraphics.fill(spriteX - 1, spriteY - 1, spriteX + 37, spriteY + 17, 0x80FF0000);
+				case WIP -> guiGraphics.fill(spriteX - 1, spriteY - 1, spriteX + 37, spriteY + 17, 0x80FFFF00);
+				default -> {}
 			}
 			spriteY += 20;
 		}
