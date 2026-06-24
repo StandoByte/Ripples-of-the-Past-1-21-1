@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.Queue;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
@@ -263,7 +264,6 @@ public class InputHandler {
 	 */
 	public boolean input(ClientKey key, int inputType, int modifiers) {
 		boolean cancelVanilla = false;
-		short keyId = key.keyId();
 		
 		boolean dontProcess = noInputProcessing();
 		if (dontProcess || shouldQueueKeyRelease()) {
@@ -294,78 +294,14 @@ public class InputHandler {
 						&& PowerHud.abilityHUDInstance.resolveBar.shouldRender() 
 						&& resolve.getCurStage() >= 0;
 				
-				cancelVanilla |= hotbarPickSlot(key);
+				cancelVanilla |= hotbarPickSlot(key); // FIXME won't be set in HeldKeyTimer
 				
 				KeyModifier keyModifier = getCurModifier();
-				
 				CurInput input = getInputAbilitiesOnClick(controlScheme, key, keyModifier);
-				@Nullable BaseAndActiveAbility heldAbility = input.heldAbility.curActiveAbility != null ? input.heldAbility : null;
-				@Nullable BaseAndActiveAbility clickAbility = input.clickAbility.curActiveAbility != null ? input.clickAbility : null;
-				
-				cancelVanilla |= heldAbility != null || clickAbility != null;
-				HeldKeyTimer heldKeyTimer = new HeldKeyTimer(key, cancelVanilla, keyModifier);
-				
-				int ambiguity = 0;
-				if (canEnterResolveMode) ambiguity++;
-				if (heldAbility != null) ambiguity++;
-				if (clickAbility != null) ambiguity++;
-				
-				AmbiguousKeyPress ambiguousKeyPress = null;
-				if (ambiguity >= 2) {
-					ambiguousKeyPress = new AmbiguousKeyPress();
-					
-					if (canEnterResolveMode) {
-						ambiguousKeyPress.onDualKeyClick = (ClientKey secondKeyPressed, float timeTook) -> {
-							if (key == LMB && secondKeyPressed == RMB || key == RMB && secondKeyPressed == LMB) {
-								PacketDistributor.sendToServer(new ClActivateResolvePacket(true));
-								return true;
-							}
-							return false;
-						};
-					}
-
-					if (heldAbility != null) {
-						Ability heldBaseAbility = heldAbility.baseAbility;
-						ambiguousKeyPress.onHold = (float ticksToResolveHeld) -> {
-							AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(heldBaseAbility.abilityId.powerClass());
-							AbilityConditionCheck abilityResolved = curAbilities.getContextVariationContainer(heldBaseAbility);
-							doClickInput(InputEventType.PRESS_HOLD, keyId, heldBaseAbility, abilityResolved, ticksToResolveHeld);
-						};
-					}
-					
-					if (clickAbility != null) {
-						Ability clickBaseAbility = clickAbility.baseAbility;
-						ambiguousKeyPress.onClick = (float ticksToResolveClick) -> {
-							AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(clickBaseAbility.abilityId.powerClass());
-							AbilityConditionCheck abilityResolved = curAbilities.getContextVariationContainer(clickBaseAbility);
-							doClickInput(InputEventType.PRESS_CLICK, keyId, clickBaseAbility, abilityResolved, ticksToResolveClick);
-						};
-					}
-				}
-				
-				if (ambiguousKeyPress != null) {
-					heldKeyTimer.setAmbiguousInputMethod(ambiguousKeyPress);
-				}
-				else {
-					InputMethod inputMethod = 
-							heldAbility != null ? InputMethod.HOLD : 
-							clickAbility != null ? InputMethod.CLICK : 
-							null;
-					if (inputMethod != null) {
-						switch (inputMethod) {
-							case HOLD -> doClickInput(InputEventType.PRESS_HOLD, keyId, heldAbility.baseAbility, heldAbility.curActiveAbility, 0);
-							case CLICK -> doClickInput(InputEventType.PRESS_CLICK, keyId, clickAbility.baseAbility, input.clickAbility.curActiveAbility, 0);
-						}
-					}
-				}
-				
-				putHeldKeyTimer(key, heldKeyTimer);
-				
-				if (heldAbility == null && clickAbility == null && mc.screen == null) {
-					checkStartHotbarSelection(key);
-				}
+				cancelVanilla |= useAbilitiesOnKeyPress(input, key, keyModifier, cancelVanilla, canEnterResolveMode);
 			}
 			case InputConstants.RELEASE -> {
+				short keyId = key.keyId();
 				HeldKeyTimer heldTicks = getHeldKeyTimer(key);
 				if (heldTicks != null) {
 					clickHeldOnRelease(heldTicks, keyId);
@@ -381,6 +317,82 @@ public class InputHandler {
 			}
 		}
 		return cancelVanilla;
+	}
+	
+	public boolean useAbilitiesOnKeyPress(CurInput abilities, ClientKey key, KeyModifier keyModifier, 
+			boolean cancelVanillaKeyRelease, boolean dualClickToEnterResolve /* nice variables, shitlord */) {
+		short keyId = key.keyId();
+		@Nullable BaseAndActiveAbility heldAbility = abilities.heldAbility.curActiveAbility != null ? abilities.heldAbility : null;
+		@Nullable BaseAndActiveAbility clickAbility = abilities.clickAbility.curActiveAbility != null ? abilities.clickAbility : null;
+
+		boolean cancelVanilla = heldAbility != null || clickAbility != null;
+		HeldKeyTimer heldKeyTimer = new HeldKeyTimer(key, cancelVanillaKeyRelease || cancelVanilla, keyModifier);
+		
+		int ambiguity = 0;
+		if (dualClickToEnterResolve) ambiguity++;
+		if (heldAbility != null) ambiguity++;
+		if (clickAbility != null) ambiguity++;
+		
+		AmbiguousKeyPress ambiguousKeyPress = null;
+		if (ambiguity >= 2) {
+			ambiguousKeyPress = new AmbiguousKeyPress();
+			
+			if (dualClickToEnterResolve) {
+				ambiguousKeyPress.onDualKeyClick = (ClientKey secondKeyPressed, float timeTook) -> {
+					if (key == LMB && secondKeyPressed == RMB || key == RMB && secondKeyPressed == LMB) {
+						PacketDistributor.sendToServer(new ClActivateResolvePacket(true));
+						return true;
+					}
+					return false;
+				};
+			}
+
+			if (heldAbility != null) {
+				Ability heldBaseAbility = heldAbility.baseAbility;
+				ambiguousKeyPress.onHold = (float ticksToResolveHeld) -> {
+					AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(heldBaseAbility.abilityId.powerClass());
+					AbilityConditionCheck abilityResolved = curAbilities.getContextVariationContainer(heldBaseAbility);
+					doClickInput(InputEventType.PRESS_HOLD, keyId, heldBaseAbility, abilityResolved, ticksToResolveHeld);
+				};
+			}
+			
+			if (clickAbility != null) {
+				Ability clickBaseAbility = clickAbility.baseAbility;
+				ambiguousKeyPress.onClick = (float ticksToResolveClick) -> {
+					AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(clickBaseAbility.abilityId.powerClass());
+					AbilityConditionCheck abilityResolved = curAbilities.getContextVariationContainer(clickBaseAbility);
+					doClickInput(InputEventType.PRESS_CLICK, keyId, clickBaseAbility, abilityResolved, ticksToResolveClick);
+				};
+			}
+		}
+		
+		if (ambiguousKeyPress != null) {
+			heldKeyTimer.setAmbiguousInputMethod(ambiguousKeyPress);
+		}
+		else {
+			InputMethod inputMethod = 
+					heldAbility != null ? InputMethod.HOLD : 
+					clickAbility != null ? InputMethod.CLICK : 
+					null;
+			if (inputMethod != null) {
+				switch (inputMethod) {
+					case HOLD -> doClickInput(InputEventType.PRESS_HOLD, keyId, heldAbility.baseAbility, heldAbility.curActiveAbility, 0);
+					case CLICK -> doClickInput(InputEventType.PRESS_CLICK, keyId, clickAbility.baseAbility, abilities.clickAbility.curActiveAbility, 0);
+				}
+			}
+		}
+		
+		putHeldKeyTimer(key, heldKeyTimer);
+		
+		if (heldAbility == null && clickAbility == null && mc.screen == null) {
+			checkStartHotbarSelection(key);
+		}
+		
+		return cancelVanilla;
+	}
+	
+	public boolean useAbilitiesOnKeyPress(CurInput abilities, ClientKey key, KeyModifier keyModifier) {
+		return useAbilitiesOnKeyPress(abilities, key, keyModifier, false, false);
 	}
 	
 	private FriendlyByteBuf extraInputBuf = new FriendlyByteBuf(Unpooled.buffer());
@@ -537,17 +549,20 @@ public class InputHandler {
 	static Predicate<AbilityInputState> filter = (AbilityInputState inputState)
 			-> AbilityInputState.isInputActive(inputState, PowerHud.isInContainerScreen());
 	private CurInput getInputAbilitiesOnClick(AbilityControlScheme controlScheme, ClientKey key, KeyModifier keyModifier) {
+		return makeAbilitiesInput(keyModifier, (KeyModifier mod, InputMethod inputMethod)
+				-> getAbilitiesThatCanBeInputRn(controlScheme, inputMethod, key, mod));
+	}
+	
+	public CurInput makeAbilitiesInput(KeyModifier keyModifier, BiFunction<KeyModifier, InputMethod, List<AbilityControlsEntry>> getAbilities) {
 		CurInput input = CurInput.instance;
 		input.reset();
 		
-		if (controlScheme != null) {
-			AbilityControlScheme.setPrioritizedAbility(input.heldAbility, keyModifier, 
-					(KeyModifier mod) -> getAbilitiesThatCanBeInputRn(controlScheme, InputMethod.HOLD, key, mod), 
-					filter);
-			AbilityControlScheme.setPrioritizedAbility(input.clickAbility, keyModifier, 
-					(KeyModifier mod) -> getAbilitiesThatCanBeInputRn(controlScheme, InputMethod.CLICK, key, mod), 
-					filter);
-		}
+		AbilityControlScheme.setPrioritizedAbility(input.heldAbility, keyModifier, 
+				(KeyModifier mod) -> getAbilities.apply(mod, InputMethod.HOLD), 
+				filter);
+		AbilityControlScheme.setPrioritizedAbility(input.clickAbility, keyModifier, 
+				(KeyModifier mod) -> getAbilities.apply(mod, InputMethod.CLICK), 
+				filter);
 		
 		return input;
 	}
@@ -567,8 +582,13 @@ public class InputHandler {
 			return Collections.emptyList();
 		}
 		
-		return controlScheme.getBindsWithModifier(inputMethod, key, keyModifier);
+		if (controlScheme != null) {
+			return controlScheme.getBindsWithModifier(inputMethod, key, keyModifier);
+		}
+		
+		return Collections.emptyList();
 	}
+	
 	
 	@Nullable
 	protected AbilityControlScheme getCurControlScheme(Power<?> power) {
@@ -578,7 +598,7 @@ public class InputHandler {
 		return null;
 	}
 	
-	static class CurInput {
+	public static class CurInput {
 		private static CurInput instance = new CurInput();
 		
 		public final BaseAndActiveAbility heldAbility = new BaseAndActiveAbility();

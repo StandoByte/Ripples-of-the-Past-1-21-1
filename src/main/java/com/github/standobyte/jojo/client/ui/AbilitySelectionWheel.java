@@ -10,6 +10,7 @@ import org.lwjgl.glfw.GLFW;
 
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.input.InputHandler;
+import com.github.standobyte.jojo.client.input.InputHandler.CurInput;
 import com.github.standobyte.jojo.client.input.controlscheme.AbilityControlsEntry;
 import com.github.standobyte.jojo.client.input.controlscheme.AbilityHotbar;
 import com.github.standobyte.jojo.client.input.controlscheme.AbilityHotbarSlot;
@@ -28,6 +29,7 @@ import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbiliti
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -47,10 +49,12 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 	protected ResourceLocation texture;
 	public AbilityHotbar abilities;
 	protected StandSkin standSkin;
+	public int initialSlot;
 
 	public AbilitySelectionWheel(AbilityHotbar abilities) {
 		super(Component.translatable("jojo_ripples.screen.ability_selection_wheel"));
 		this.abilities = abilities;
+		this.initialSlot = abilities.slotIndex;
 	}
 	
 	public void init() {
@@ -109,6 +113,13 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 	
 	protected static final boolean COUNTER_CLOCKWISE = true;
 
+	// XXX add controls hint to the right?
+	/*
+	 * Release C to confirm selection
+	 * X - use ability
+	 * LMB - use ability and confirm selection
+	 * RMB - cancel
+	 */
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 		if (abilities == null || !InputHandler.getInstance().isSelectingAbility(abilities)) {
@@ -254,9 +265,26 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (super.mouseClicked(mouseX, mouseY, button)) return true;
 		
-		if (pickAbilityAt((int) mouseX, (int) mouseY)) {
-			onClose();
-			return true;
+		switch (button) {
+			case InputConstants.MOUSE_BUTTON_LEFT -> {
+				AbilityHotbarSlot slot = abilities.getSelected();
+				if (slot != null) {
+					InputHandler inputHandler = InputHandler.getInstance();
+					KeyModifier keyModifier = inputHandler.getCurModifier();
+					CurInput input = inputHandler.makeAbilitiesInput(keyModifier, slot.getBinds()::getAll);
+					inputHandler.useAbilitiesOnKeyPress(input, InputHandler.LMB, keyModifier);
+				}
+				onClose();
+				return true;
+			}
+			case InputConstants.MOUSE_BUTTON_RIGHT -> {
+				abilities.slotIndex = initialSlot;
+				onClose();
+				return true;
+			}
+			case InputConstants.MOUSE_BUTTON_MIDDLE -> {
+				
+			}
 		}
 		
 		return false;
