@@ -38,7 +38,7 @@ public class AnimatedEntityInterfaceMixin implements AnimatedEntity {
 	
 	@Override
 	public boolean jojo_ripples$crouchDisabled() {
-		return modelPose != null;
+		return hasPose;
 	}
 
 }
