@@ -43,7 +43,8 @@ public class JojoPowerCommand {
 							src -> setPower(
 								src.getSource(),
 								EntityArgument.getEntities(src, "targets"),
-                                PlayerPowerTypeArgument.getPlayerPower(src, "player_power")
+                                PlayerPowerTypeArgument.getPlayerPower(src, "player_power"),
+                                true
 								)
 							)
 						)
@@ -62,13 +63,13 @@ public class JojoPowerCommand {
 		JojoCommandsCommand.addCommand("power");
 	}
 	
-	private static int setPower(CommandSourceStack src, Collection<? extends Entity> targets, PlayerPowerType<?> powerType) throws CommandSyntaxException {
+	private static int setPower(CommandSourceStack src, Collection<? extends Entity> targets, PlayerPowerType<?> powerType, boolean replace) throws CommandSyntaxException {
 		int i = 0;
 		for (Entity entity : targets) {
 			if (entity instanceof LivingEntity living) {
 				PowerClass.PLAYER_POWER.attachPower(living);
 				PlayerPower power = PowerClass.PLAYER_POWER.get(living);
-				if (power != null && !power.hasPower()) {
+				if (power != null && (replace || !power.hasPower())) {
 					power.setPowerType(powerType);
 					i++;
 				}

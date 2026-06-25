@@ -51,7 +51,7 @@ public class StandCommand {
 								src.getSource(),
 								EntityArgument.getEntities(src, "targets"),
 								StandArgument.getStand(src, "stand"),
-								false
+								true
 								)
 							)
 							.then(
