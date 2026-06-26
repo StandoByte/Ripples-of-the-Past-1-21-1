@@ -2,6 +2,8 @@ package com.github.standobyte.jojo.client.entityanim.player;
 
 import java.util.List;
 
+import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
+import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
 import com.github.standobyte.jojo.client.entityrender.ModelWithExtraFeatures;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.ResourceModelEntry;
 import com.github.standobyte.jojo.client.entityrender.replace_player_model.CustomPlayerModel;
@@ -26,7 +28,7 @@ import net.minecraft.world.entity.HumanoidArm;
  * parrot on shoulder
  * arrows and bee stingers
  */
-// FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!! (player anim) adjust the clothes models for this (render them regularly)
+// FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!! (bend) adjust the clothes models for the bends
 public class RenderAnimatedPlayerModel {
 	
 	public static float getLimbHeight(ModelPart limb) {
@@ -171,6 +173,26 @@ public class RenderAnimatedPlayerModel {
 			HumanoidModel<?> model, ResourceModelEntry rig, 
 			HumanoidArm side, PoseStack poseStack, boolean slim) {
 		CustomPlayerModel.translateToItemHoldPos(side, poseStack, (ModelWithExtraFeatures) rig.getModel(), slim ? -0.5f : 0);
+	}
+	
+	
+	static String[] LIMB_BENDS = new String[] { "left_arm_bend", "right_arm_bend", "left_leg_bend", "right_leg_bend" };
+	public static void adjustComplexBends(AnimFramePose pose) {
+		for (String limbBend : LIMB_BENDS) {
+			ModelPartFrame bonePose = pose.getIfPresent(limbBend);
+			if (bonePose != null) {
+				bonePose.rotationOffset.set(bonePose.rotationOffset.x, 0, 0);
+			}
+		}
+		ModelPartFrame torsoBendPose = pose.getIfPresent("torso_bend");
+		if (torsoBendPose != null) {
+			float yRot = torsoBendPose.rotationOffset.y;
+			torsoBendPose.rotationOffset.set(torsoBendPose.rotationOffset.x, 0, 0);
+			ModelPartFrame parent = pose.getIfPresent("waist");
+			if (parent != null) {
+				parent.rotationOffset.add(0, yRot, 0);
+			}
+		}
 	}
 	
 }

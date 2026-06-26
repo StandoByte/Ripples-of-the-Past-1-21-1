@@ -12,6 +12,7 @@ import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.AnimWithId;
 import com.github.standobyte.jojo.client.entityanim.barrage.BarrageSwings;
 import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery.AnimMolangVariables;
+import com.github.standobyte.jojo.client.entityanim.player.RenderAnimatedPlayerModel;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimatedEntity;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
@@ -133,6 +134,7 @@ public class PreFrameEntityRenderCallback {
 			anim = getPlayerAnim(animVariables.animSet, animVariables.animId);
 		}
 		
+		boolean adjustComplexBends = false;
 		if (model instanceof PlayerModel playerModel) {
 			ReplacePlayerModelEvent event = ModClientEventHooks.preRenderReplacePlayerModel(
 					living, renderer, partialTick, animVariables);
@@ -140,6 +142,7 @@ public class PreFrameEntityRenderCallback {
 			if (event.animation != null) {
 				anim = event.animation;
 			}
+			adjustComplexBends = event.replacingModel == null;
 		}
 		
 		AnimFramePose pose = AnimFramePose.reused.clear();
@@ -157,6 +160,9 @@ public class PreFrameEntityRenderCallback {
 			anim.calcAnimPose(pose, timeSeconds, 1, 
 					AnimMolangVariables.extract(living, partialTick), 
 					actionComponent != null ? actionComponent.clPrevPunchPose : null);
+			if (adjustComplexBends) {
+				RenderAnimatedPlayerModel.adjustComplexBends(pose);
+			}
 			
 			if (newFrame) {
 				BarrageSwings barrageSwings = EntityActionRenderState.getBarrageSwings(living);
