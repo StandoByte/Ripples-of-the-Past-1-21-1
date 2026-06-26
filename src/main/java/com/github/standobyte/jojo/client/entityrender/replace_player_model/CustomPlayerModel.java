@@ -18,10 +18,12 @@ import net.minecraft.world.entity.HumanoidArm;
 
 public class CustomPlayerModel extends PlayerModel {
 	public ModelPart root;
+	public final boolean slim;
 
 	@Deprecated
 	public CustomPlayerModel(ModelPart root, boolean slim) {
 		super(root, slim);
+		this.slim = slim;
 	}
 	
 	@Override
@@ -90,10 +92,10 @@ public class CustomPlayerModel extends PlayerModel {
 
 	@Override
 	public void translateToHand(HumanoidArm side, PoseStack poseStack) {
-		translateToItemHoldPos(side, poseStack, (ModelWithExtraFeatures) this);
+		translateToItemHoldPos(side, poseStack, (ModelWithExtraFeatures) this, slim ? -0.5f : 0);
 	}
 	
-	public static void translateToItemHoldPos(HumanoidArm side, PoseStack poseStack, ModelWithExtraFeatures model) {
+	public static void translateToItemHoldPos(HumanoidArm side, PoseStack poseStack, ModelWithExtraFeatures model, float xOffset) {
 		var modelParts = switch (side) {
 			case LEFT -> model.jojo_ripples$getPathToModelPart("left_item");
 			case RIGHT -> model.jojo_ripples$getPathToModelPart("right_item");
@@ -103,7 +105,7 @@ public class CustomPlayerModel extends PlayerModel {
 				part.part().translateAndRotate(poseStack);
 			}
 			// counteract the vanilla transforms hardcoded in ItemInHandLayer
-			poseStack.translate((float)(side == HumanoidArm.LEFT ? -1 : 1) / 16.0F, -0.5F, 0.125F);
+			poseStack.translate((float)(side == HumanoidArm.LEFT ? -1 : 1) * (1 - xOffset) / 16.0F, -0.5F, 0.125F);
 		}
 	}
 }

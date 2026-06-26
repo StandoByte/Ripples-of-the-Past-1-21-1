@@ -4,9 +4,11 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.barrage.BarrageSwings;
+import com.github.standobyte.jojo.client.entityanim.player.PlayerRigLoader;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimatedEntity;
 import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
+import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.ResourceModelEntry;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.v1_21_4_stuff.renderstate.HumanoidRenderState;
@@ -25,12 +27,18 @@ public class EntityActionRenderState {
 		renderState.barrageSwings = getBarrageSwings(entity);
 	}
 
-	public static boolean setupModelAnim(HumanoidModel<?> model, HumanoidRenderState vanillaRenderState, RipplesPlayerRenderState modRenderState) {
+	@Nullable
+	public static ResourceModelEntry setupModelAnim(HumanoidModel<?> model, 
+			HumanoidRenderState vanillaRenderState, RipplesPlayerRenderState modRenderState) {
 		if (modRenderState.entityAction.pose != null) {
-			RotpAnimDefinition.animate(model, modRenderState.entityAction.pose);
-			return true;
+			ResourceModelEntry rig = PlayerRigLoader.getInstance().getDefault();
+			if (rig != null) {
+				RotpAnimDefinition.animateVanillaHumanoid(rig.getModel(), 
+						model, modRenderState.entityAction.pose);
+				return rig;
+			}
 		}
-		return false;
+		return null;
 	}
 	
 	

@@ -20,7 +20,7 @@ import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery.AnimM
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.AnimationChannelQuery;
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.IAnimationChannel;
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.KeyframeQuery;
-import com.github.standobyte.jojo.client.entityanim.playerbend.PlayerModelBends;
+import com.github.standobyte.jojo.client.entityanim.player.RenderAnimatedPlayerModel;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
 import com.github.standobyte.jojo.client.entityrender.HiddenModelPartsUtil;
@@ -32,6 +32,7 @@ import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.jojo.util.objects_java.OptionalFloat;
 import com.github.standobyte.v1_21_4_stuff.OldPlayerModelJank;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
+import com.github.standobyte.v1_21_4_stuff.renderstate.EntityRenderState;
 import com.google.common.collect.Maps;
 
 import it.unimi.dsi.fastutil.floats.Float2ObjectMap;
@@ -125,26 +126,24 @@ public class RotpAnimDefinition {
 		}
 	}
 	
+	public static void animateVanillaHumanoid(Model rigModel, HumanoidModel<?> vanillaModel, AnimFramePose frame) {
+		RenderAnimatedPlayerModel.beforePlayerAnim(vanillaModel);
+		EntityRenderState.resetPose(rigModel);
+		animate(rigModel, frame);
+		OldPlayerModelJank._onAnimate(vanillaModel);
+	}
+	
 	public static void animate(Model model, AnimFramePose frame) {
-		HumanoidModel<?> humanoidModelCast = model instanceof HumanoidModel __ ? __ : null;
 		Model_1_21_2plus backportModelCast = (Model_1_21_2plus) model;
 		ModelWithExtraFeatures rotpModelCast = (ModelWithExtraFeatures) model;
 		
-		if (humanoidModelCast != null) {
-			PlayerModelBends.beforePlayerAnim(humanoidModelCast);
-		}
-		
 		for (var modelPartEntry : frame.pose.entrySet()) {
 			String modelPartName = modelPartEntry.getKey();
-			ModelPart modelPart = getModelPart(modelPartName, model, humanoidModelCast, backportModelCast);
+			ModelPart modelPart = getModelPart(modelPartName, model, backportModelCast);
 			if (modelPart != null) {
 				HiddenModelPartsUtil.onAnimate(rotpModelCast, modelPart);
 				modelPartEntry.getValue().apply(modelPart);
 			}
-		}
-		
-		if (humanoidModelCast != null) {
-			OldPlayerModelJank._onAnimate(humanoidModelCast);
 		}
 	}
 
@@ -173,13 +172,7 @@ public class RotpAnimDefinition {
 	}
 	
 
-	public static ModelPart getModelPart(String animBoneName, Model model, @Nullable HumanoidModel<?> humanoidModelCast, @Nullable Model_1_21_2plus rotpModelCast) {
-		if (humanoidModelCast != null) {
-			ModelPart playerModelPart = PlayerModelBends.getModelPartForPlayerAnim(humanoidModelCast, animBoneName);
-			if (playerModelPart != null) {
-				return playerModelPart;
-			}
-		}
+	public static ModelPart getModelPart(String animBoneName, Model model, Model_1_21_2plus rotpModelCast) {
 		if (rotpModelCast != null) {
 			Optional<ModelPart> modelPart = rotpModelCast.jojo_ripples$getAnyDescendantWithName(animBoneName);
 			if (modelPart.isPresent()) return modelPart.get();

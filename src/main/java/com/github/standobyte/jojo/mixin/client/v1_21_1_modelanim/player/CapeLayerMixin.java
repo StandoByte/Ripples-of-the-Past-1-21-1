@@ -6,8 +6,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.client.entityanim.IHumanoidAnimModel;
-import com.github.standobyte.jojo.client.entityanim.playerbend.IPlayerBendModel;
-import com.github.standobyte.jojo.client.entityanim.playerbend.PlayerModelBends;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.model.PlayerModel;
@@ -32,7 +30,8 @@ public abstract class CapeLayerMixin extends RenderLayer<AbstractClientPlayer, P
 			float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
 		PlayerModel<AbstractClientPlayer> model = getParentModel();
 		if (((IHumanoidAnimModel) model).jojo_rippes$isPlayingAnimation()) {
-			PlayerModelBends.repositionCloak(model, (IPlayerBendModel) model, poseStack);
+			// FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!! (bend) cape layer
+			//RenderAnimatedPlayerModel.repositionCloak(model, (IPlayerBendModel) model, poseStack);
 		}
 	}
 }

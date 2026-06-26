@@ -162,7 +162,7 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 
 	@Override
 	public void translateToHand(HumanoidArm side, PoseStack poseStack) {
-		CustomPlayerModel.translateToItemHoldPos(side, poseStack, (ModelWithExtraFeatures) this);
+		CustomPlayerModel.translateToItemHoldPos(side, poseStack, (ModelWithExtraFeatures) this, 0);
 	}
 
 

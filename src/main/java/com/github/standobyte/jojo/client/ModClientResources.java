@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.github.standobyte.jojo.client.entityanim.AnimationLoader;
+import com.github.standobyte.jojo.client.entityanim.player.PlayerRigLoader;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
 import com.github.standobyte.jojo.client.shader.ModShaders;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmEngine;
@@ -29,6 +30,7 @@ public class ModClientResources {
 		StandSkinsLoader.init(event);
 		AnimationLoader.init(event);
 		ClothesModelLoader.init(event);
+		PlayerRigLoader.init(event);
 		ModShaders.init(event);
 		BgmEngine.init(event);
 	}

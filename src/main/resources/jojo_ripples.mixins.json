@@ -95,7 +95,6 @@
     "client.model.AnimatedEntityInterfaceMixin",
     "client.model.ModelAnimOptimization",
     "client.model.ModelExtraFeatures",
-    "client.model.PlayerAnimModelPartMixin",
 	"client.model.ReplacePlayerModelMixin",
 	"client.model.ReplaceLivingModelMixin",
 	
