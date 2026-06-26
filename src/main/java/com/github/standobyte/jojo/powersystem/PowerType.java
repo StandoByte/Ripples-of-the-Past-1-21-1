@@ -19,9 +19,9 @@ public abstract class PowerType implements JsonConfigurable {
 	protected final DefaultedValue<MovesetBuilder> movesetConfigured;
 	protected Moveset baseMoveset;
 	
-	public PowerType(MovesetBuilder defaultMoveset) {
+	public PowerType(ResourceLocation id, MovesetBuilder defaultMoveset) {
 		this.movesetConfigured = new DefaultedValue<>(defaultMoveset);
-		initBaseMoveset();
+		initBaseMoveset(id);
 	}
 	
 	@Nonnull public abstract PowerData newDataInstance();
@@ -62,7 +62,7 @@ public abstract class PowerType implements JsonConfigurable {
 		else {
 			movesetConfigured.reset();
 		}
-		initBaseMoveset();
+		initBaseMoveset(getId());
 	}
 	
 	@Override
@@ -76,8 +76,8 @@ public abstract class PowerType implements JsonConfigurable {
 		return this.movesetConfigured.defaultValue;
 	}
 	
-	protected void initBaseMoveset() {
-		this.baseMoveset = this.movesetConfigured.value.build(getPowerClass(), getId());
+	protected void initBaseMoveset(ResourceLocation powerTypeId) {
+		this.baseMoveset = this.movesetConfigured.value.build(getPowerClass(), powerTypeId);
 	}
 	
 	public Moveset getBaseMoveset() {

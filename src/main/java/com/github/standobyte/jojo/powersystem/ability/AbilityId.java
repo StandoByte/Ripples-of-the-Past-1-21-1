@@ -74,15 +74,16 @@ public record AbilityId(@Nullable PowerClass<?> powerClass, ResourceLocation pow
 				return;
 			}
 			
-			SyncStrategy strategy;
+			SyncStrategy strategy = SyncStrategy.FROM_POWER_TYPE_MOVESET;
 			if (abilityId.powerTypeId == null) {
 				strategy = SyncStrategy.DEFAULT_ABILITY_TYPE_INSTANCE;
 			}
-			else if (user == null) {
-				strategy = SyncStrategy.FROM_POWER_TYPE_MOVESET;
-			}
-			else {
-				strategy = SyncStrategy.FROM_PLAYER_MOVESET;
+			else if (user != null) {
+				// a bit of server computation as a tradeoff for less packet size (to not send the power type id)
+				Power<?> power = abilityId.powerClass.get(user);
+				if (power != null && power.hasPower() && abilityId.powerTypeId.equals(power.getPowerType().getId())) {
+					strategy = SyncStrategy.FROM_PLAYER_MOVESET;
+				}
 			}
 			buffer.writeEnum(strategy);
 			
@@ -121,7 +122,7 @@ public record AbilityId(@Nullable PowerClass<?> powerClass, ResourceLocation pow
 					ResourceLocation powerTypeId = buffer.readResourceLocation();
 					String abilityName = buffer.readUtf();
 
-					yield new AbilityInputNetwork(SyncStrategy.FROM_PLAYER_MOVESET, 0, powerClass, powerTypeId, abilityName);
+					yield new AbilityInputNetwork(SyncStrategy.FROM_POWER_TYPE_MOVESET, 0, powerClass, powerTypeId, abilityName);
 				}
 				case DEFAULT_ABILITY_TYPE_INSTANCE -> {
 					String abilityName = buffer.readUtf();

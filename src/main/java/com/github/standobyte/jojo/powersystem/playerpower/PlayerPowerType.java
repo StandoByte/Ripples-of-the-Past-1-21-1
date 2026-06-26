@@ -21,7 +21,7 @@ public abstract class PlayerPowerType<D extends PlayerPowerData> extends PowerTy
 	private final ResourceLocation registryKey;
 
 	public PlayerPowerType(ResourceLocation registryKey, MovesetBuilder abilitySet) {
-		super(abilitySet);
+		super(registryKey, abilitySet);
 		this.registryKey = registryKey;
 	}
 	

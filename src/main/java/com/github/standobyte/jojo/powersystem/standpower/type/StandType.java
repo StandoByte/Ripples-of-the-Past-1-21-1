@@ -69,7 +69,7 @@ public class StandType extends PowerType {
 	
 	public StandType(StandStats stats, MovesetBuilder moveset, 
 			ResourceLocation id) {
-		super(moveset);
+		super(id, moveset);
 		this.standTypeId = id;
 		if (stats == null) stats = new StandStats(0, 0, 0, 0, 0, 0);
 		this.stats = stats;
