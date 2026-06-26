@@ -81,11 +81,15 @@ public class RotpGeckoModelLoader extends SimplePreparableReloadListener<Map<Res
 	
 	@Override
 	protected Map<ResourceLocation, LayerDefinition> prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
+		return parseModels("misc", resourceManager, profiler);
+	}
+	
+	public static Map<ResourceLocation, LayerDefinition> parseModels(String subdir, ResourceManager resourceManager, ProfilerFiller profiler) {
 		Map<ResourceLocation, LayerDefinition> models = new HashMap<>();
 
-		try (Zone zone = _ProfilerFiller.zone(profiler, JojoMod.MOD_ID)) {
+		try (Zone zone = _ProfilerFiller.zone(profiler, JojoMod.MOD_ID + "_" + subdir)) {
 			for (ModelFileFormatPath format : PATHS) {
-				String DIR = format.directory() + "/misc";
+				String DIR = format.directory() + "/" + subdir;
 				String EXTENSION = format.extension();
 				Map<ResourceLocation, Resource> resources = resourceManager.listResources(DIR, path -> path.getPath().endsWith(EXTENSION));
 				for (var resourceEntry : resources.entrySet()) {
@@ -97,7 +101,7 @@ public class RotpGeckoModelLoader extends SimplePreparableReloadListener<Map<Res
 						json = JSONUtil.parse(reader);
 					}
 					catch (IOException e) {
-						JojoMod.getLogger().error("Failed to parse model {}", modelPath, e);
+						JojoMod.getLogger().error("Failed to parse model {}/{}", subdir, modelPath, e);
 					}
 					if (json != null) {
 						LayerDefinition model = ParseModEntityModel.parse(json, format.format());
