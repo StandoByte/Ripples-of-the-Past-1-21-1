@@ -66,36 +66,36 @@ public class HumanoidModelCubesBent {
 		obj.head = model.head.cubes;
 		obj.head2 = model.hat.cubes;
 		
-		var split = split(model.body, 6, true);
+		var split = split(model.body, 0, 6, 0, -6, true);
 		obj.torso_lower = split.getLeft();
 		obj.torso_bend = split.getRight();
-		split = split(model.rightArm, 4, false);
+		split = split(model.rightArm, 1, 4, 0, 0, false);
 		obj.right_arm = split.getLeft();
 		obj.right_arm_bend = split.getRight();
-		split = split(model.leftArm, 4, false);
+		split = split(model.leftArm, -1, 4, 0, 0, false);
 		obj.left_arm = split.getLeft();
 		obj.left_arm_bend = split.getRight();
-		split = split(model.rightLeg, 6, false);
+		split = split(model.rightLeg, 0, 6, 0, 0, false);
 		obj.right_leg = split.getLeft();
 		obj.right_leg_bend = split.getRight();
-		split = split(model.leftLeg, 6, false);
+		split = split(model.leftLeg, 0, 6, 0, 0, false);
 		obj.left_leg = split.getLeft();
 		obj.left_leg_bend = split.getRight();
 		
 		if (model instanceof PlayerModel playerModel) {
-			split = split(playerModel.jacket, 6, true);
+			split = split(playerModel.jacket, 0, 6, 0, -6, true);
 			obj.torso_lower2 = split.getLeft();
 			obj.torso_bend2 = split.getRight();
-			split = split(playerModel.rightSleeve, 4, false);
+			split = split(playerModel.rightSleeve, 1, 4, 0, 0, false);
 			obj.right_arm2 = split.getLeft();
 			obj.right_arm_bend2 = split.getRight();
-			split = split(playerModel.leftSleeve, 4, false);
+			split = split(playerModel.leftSleeve, -1, 4, 0, 0, false);
 			obj.left_arm2 = split.getLeft();
 			obj.left_arm_bend2 = split.getRight();
-			split = split(playerModel.rightPants, 6, false);
+			split = split(playerModel.rightPants, 0, 6, 0, 0, false);
 			obj.right_leg2 = split.getLeft();
 			obj.right_leg_bend2 = split.getRight();
-			split = split(playerModel.leftPants, 6, false);
+			split = split(playerModel.leftPants, 0, 6, 0, 0, false);
 			obj.left_leg2 = split.getLeft();
 			obj.left_leg_bend2 = split.getRight();
 		}
@@ -107,7 +107,8 @@ public class HumanoidModelCubesBent {
 	static List<ModelPart.Polygon> bendQuads = new ArrayList<>(6);
 	static List<ModelPart.Vertex> yLess = new ArrayList<>(4);
 	static List<ModelPart.Vertex> yMore = new ArrayList<>(4);
-	static Pair<List<ModelPart.Cube>, List<ModelPart.Cube>> split(ModelPart modelPart, float ySplitAt, boolean invert) {
+	static Pair<List<ModelPart.Cube>, List<ModelPart.Cube>> split(ModelPart modelPart, 
+			float x, float y, float z, float yOffset, boolean bendIsAbove) {
 		List<ModelPart.Cube> baseHalf = new ArrayList<>(modelPart.cubes.size());
 		List<ModelPart.Cube> bentHalf = new ArrayList<>(modelPart.cubes.size());
 		for (ModelPart.Cube cube : modelPart.cubes) {
@@ -117,10 +118,10 @@ public class HumanoidModelCubesBent {
 				yLess.clear();
 				yMore.clear();
 				for (ModelPart.Vertex vertex : quad.vertices) {
-					if (vertex.pos.y < ySplitAt) {
+					if (vertex.pos.y < y) {
 						yLess.add(vertex);
 					}
-					else if (vertex.pos.y > ySplitAt) {
+					else if (vertex.pos.y > y) {
 						yMore.add(vertex);
 					}
 				}
@@ -132,40 +133,44 @@ public class HumanoidModelCubesBent {
 					float v2 = vertMore.v;
 					float y0 = vertLess.pos.y;
 					float y2 = vertMore.pos.y;
-					float yRatio = Mth.inverseLerp(ySplitAt, y0, y2);
+					float yRatio = Mth.inverseLerp(y, y0, y2);
 					float vSplit = Mth.lerp(yRatio, v0, v2);
 					
 					ModelPart.Vertex[] vertices = new ModelPart.Vertex[4];
 					ModelPart.Vertex vert1 = yLess.get(0);
 					ModelPart.Vertex vert2 = yLess.get(1);
-					if (invert) {
-						vert1 = new ModelPart.Vertex(vert1.pos.x, vert1.pos.y - ySplitAt, vert1.pos.z, vert1.u, vert1.v);
-						vert2 = new ModelPart.Vertex(vert2.pos.x, vert2.pos.y - ySplitAt, vert2.pos.z, vert2.u, vert2.v);
+					if (bendIsAbove) {
+						vert1 = new ModelPart.Vertex(vert1.pos.x + x, vert1.pos.y - y, vert1.pos.z + z, vert1.u, vert1.v);
+						vert2 = new ModelPart.Vertex(vert2.pos.x + x, vert2.pos.y - y, vert2.pos.z + z, vert2.u, vert2.v);
 						vertices[0] = vert1;
 						vertices[1] = vert2;
 						vertices[2] = new ModelPart.Vertex(vert2.pos.x, 0, vert2.pos.z, vert2.u, vSplit);
 						vertices[3] = new ModelPart.Vertex(vert1.pos.x, 0, vert1.pos.z, vert1.u, vSplit);
 					}
 					else {
+						vert1 = new ModelPart.Vertex(vert1.pos.x, vert1.pos.y + yOffset, vert1.pos.z, vert1.u, vert1.v);
+						vert2 = new ModelPart.Vertex(vert2.pos.x, vert2.pos.y + yOffset, vert2.pos.z, vert2.u, vert2.v);
 						vertices[0] = vert1;
 						vertices[1] = vert2;
-						vertices[2] = new ModelPart.Vertex(vert2.pos.x, ySplitAt, vert2.pos.z, vert2.u, vSplit);
-						vertices[3] = new ModelPart.Vertex(vert1.pos.x, ySplitAt, vert1.pos.z, vert1.u, vSplit);
+						vertices[2] = new ModelPart.Vertex(vert2.pos.x, y + yOffset, vert2.pos.z, vert2.u, vSplit);
+						vertices[3] = new ModelPart.Vertex(vert1.pos.x, y + yOffset, vert1.pos.z, vert1.u, vSplit);
 					}
 					ModelPart.Polygon yLessQuad = _ModelPart$Polygon.create(vertices, quad.normal);
 
 					vertices = new ModelPart.Vertex[4];
 					vert1 = yMore.get(0);
 					vert2 = yMore.get(1);
-					if (invert) {
+					if (bendIsAbove) {
+						vert1 = new ModelPart.Vertex(vert1.pos.x, vert1.pos.y + yOffset, vert1.pos.z, vert1.u, vert1.v);
+						vert2 = new ModelPart.Vertex(vert2.pos.x, vert2.pos.y + yOffset, vert2.pos.z, vert2.u, vert2.v);
 						vertices[0] = vert1;
 						vertices[1] = vert2;
-						vertices[2] = new ModelPart.Vertex(vert2.pos.x, ySplitAt, vert2.pos.z, vert2.u, vSplit);
-						vertices[3] = new ModelPart.Vertex(vert1.pos.x, ySplitAt, vert1.pos.z, vert1.u, vSplit);
+						vertices[2] = new ModelPart.Vertex(vert2.pos.x, y + yOffset, vert2.pos.z, vert2.u, vSplit);
+						vertices[3] = new ModelPart.Vertex(vert1.pos.x, y + yOffset, vert1.pos.z, vert1.u, vSplit);
 					}
 					else {
-						vert1 = new ModelPart.Vertex(vert1.pos.x, vert1.pos.y - ySplitAt, vert1.pos.z, vert1.u, vert1.v);
-						vert2 = new ModelPart.Vertex(vert2.pos.x, vert2.pos.y - ySplitAt, vert2.pos.z, vert2.u, vert2.v);
+						vert1 = new ModelPart.Vertex(vert1.pos.x + x, vert1.pos.y - y, vert1.pos.z + z, vert1.u, vert1.v);
+						vert2 = new ModelPart.Vertex(vert2.pos.x + x, vert2.pos.y - y, vert2.pos.z + z, vert2.u, vert2.v);
 						vertices[0] = vert1;
 						vertices[1] = vert2;
 						vertices[2] = new ModelPart.Vertex(vert2.pos.x, 0, vert2.pos.z, vert2.u, vSplit);
@@ -173,7 +178,7 @@ public class HumanoidModelCubesBent {
 					}
 					ModelPart.Polygon yMoreQuad = _ModelPart$Polygon.create(vertices, quad.normal);
 					
-					if (invert) {
+					if (bendIsAbove) {
 						baseQuads.add(yMoreQuad);
 						bendQuads.add(yLessQuad);
 					}
@@ -185,29 +190,39 @@ public class HumanoidModelCubesBent {
 					// FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!! (bend) connect the split cubes
 				}
 				else if (yLess.isEmpty()) {
-					if (invert) {
-						baseQuads.add(quad);
+					if (bendIsAbove) {
+						ModelPart.Vertex[] vertices = new ModelPart.Vertex[quad.vertices.length];
+						for (int i = 0; i < quad.vertices.length; i++) {
+							ModelPart.Vertex oldV = quad.vertices[i];
+							vertices[i] = new ModelPart.Vertex(oldV.pos.x, oldV.pos.y + yOffset, oldV.pos.z, oldV.u, oldV.v);
+						}
+						baseQuads.add(_ModelPart$Polygon.create(vertices, quad.normal));
 					}
 					else {
 						ModelPart.Vertex[] vertices = new ModelPart.Vertex[quad.vertices.length];
 						for (int i = 0; i < quad.vertices.length; i++) {
 							ModelPart.Vertex oldV = quad.vertices[i];
-							vertices[i] = new ModelPart.Vertex(oldV.pos.x, oldV.pos.y - ySplitAt, oldV.pos.z, oldV.u, oldV.v);
+							vertices[i] = new ModelPart.Vertex(oldV.pos.x + x, oldV.pos.y - y, oldV.pos.z + z, oldV.u, oldV.v);
 						}
 						bendQuads.add(_ModelPart$Polygon.create(vertices, quad.normal));
 					}
 				}
 				else {
-					if (invert) {
+					if (bendIsAbove) {
 						ModelPart.Vertex[] vertices = new ModelPart.Vertex[quad.vertices.length];
 						for (int i = 0; i < quad.vertices.length; i++) {
 							ModelPart.Vertex oldV = quad.vertices[i];
-							vertices[i] = new ModelPart.Vertex(oldV.pos.x, oldV.pos.y - ySplitAt, oldV.pos.z, oldV.u, oldV.v);
+							vertices[i] = new ModelPart.Vertex(oldV.pos.x + x, oldV.pos.y - y, oldV.pos.z + z, oldV.u, oldV.v);
 						}
 						bendQuads.add(_ModelPart$Polygon.create(vertices, quad.normal));
 					}
 					else {
-						baseQuads.add(quad);
+						ModelPart.Vertex[] vertices = new ModelPart.Vertex[quad.vertices.length];
+						for (int i = 0; i < quad.vertices.length; i++) {
+							ModelPart.Vertex oldV = quad.vertices[i];
+							vertices[i] = new ModelPart.Vertex(oldV.pos.x, oldV.pos.y + yOffset, oldV.pos.z, oldV.u, oldV.v);
+						}
+						baseQuads.add(_ModelPart$Polygon.create(vertices, quad.normal));
 					}
 				}
 			}
