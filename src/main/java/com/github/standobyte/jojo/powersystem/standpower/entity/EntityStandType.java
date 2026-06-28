@@ -21,8 +21,6 @@ import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityUnsummonActi
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;

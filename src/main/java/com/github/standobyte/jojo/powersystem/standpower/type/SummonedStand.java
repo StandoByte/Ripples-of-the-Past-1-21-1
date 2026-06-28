@@ -8,10 +8,12 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 
 public interface SummonedStand {
 	void setUserAndPower(LivingEntity user, StandPower power);
+	default void syncTo(ServerPlayer trackingPlayer, LivingEntity user) {}
 	void tickStand(LivingEntity user, StandPower userStand);
 	@Nullable StandEntity getStandEntity();
 	default void setSelectedSkin(Optional<ResourceLocation> skin) {}
