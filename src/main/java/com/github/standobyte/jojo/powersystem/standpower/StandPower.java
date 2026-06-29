@@ -291,6 +291,9 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	public void syncToTracking(ServerPlayer player) {
 		PacketDistributor.sendToPlayer(player, new TrPowerStandInstancePacket(user.getId(), standInstance));
 		super.syncToTracking(player);
+		if (summonedStand != null) {
+			summonedStand.syncTo(player, user);
+		}
 		syncStaminaFixed(player, user);
 		PacketDistributor.sendToPlayer(player, new TrStandSkinPacket(user.getId(), getSelectedSkin()));
 		userStandEffects.syncToTracking(player);

@@ -22,38 +22,51 @@ public class SoundEngineMixin {
 	@Inject(method = "pause", at = @At("TAIL"))
 	public void pauseSeparateChannels(CallbackInfo ci) {
 		if (loaded) {
-			BgmEngine.getInstance().pause();
+			BgmEngine bgmSystem = BgmEngine.getInstance();
+			if (bgmSystem != null) {
+				bgmSystem.pause();
+			}
 		}
 	}
 
 	@Inject(method = "resume", at = @At("TAIL"))
 	public void resumeSeparateChannels(CallbackInfo ci) {
 		if (loaded) {
-			BgmEngine.getInstance().unpause();
+			BgmEngine bgmSystem = BgmEngine.getInstance();
+			if (bgmSystem != null) {
+				bgmSystem.unpause();
+			}
 		}
 	}
 	
 	@Inject(method = "updateCategoryVolume", at = @At("TAIL"))
 	public void onUpdateCategoryVolume(SoundSource category, float volume, CallbackInfo ci) {
 		if (loaded) {
-			BgmEngine.getInstance().updateCategoryVolume(category, volume);
+			BgmEngine bgmSystem = BgmEngine.getInstance();
+			if (bgmSystem != null) {
+				bgmSystem.updateCategoryVolume(category, volume);
+			}
 		}
 	}
 	
 	@Inject(method = "stopAll", at = @At("TAIL"))
 	public void stopSeparateChannels(CallbackInfo ci) {
 		if (loaded) {
-			BgmEngine.getInstance().stopBgm();
+			BgmEngine bgmSystem = BgmEngine.getInstance();
+			if (bgmSystem != null) {
+				bgmSystem.stopBgm();
+			}
 		}
 	}
 	
 	@Inject(method = "stop(Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/sounds/SoundSource;)V", at = @At("TAIL"))
 	public void stopSeparateChannelsMatchingCategory(@Nullable ResourceLocation soundName, @Nullable SoundSource category, CallbackInfo ci) {
-		if (loaded) {
-			if (category != null) {
+		if (loaded && category != null) {
+			BgmEngine bgmSystem = BgmEngine.getInstance();
+			if (bgmSystem != null) {
 				BgmInstance bgm = BgmEngine.getCurTrackPlaying();
 				if (bgm != null && bgm.category == category) {
-					BgmEngine.getInstance().stopBgm();
+					bgmSystem.stopBgm();
 				}
 			}
 		}

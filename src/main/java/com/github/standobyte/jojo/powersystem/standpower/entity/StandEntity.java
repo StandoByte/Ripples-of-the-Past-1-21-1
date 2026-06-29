@@ -68,7 +68,15 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -228,6 +236,11 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			entityData.set(USER_ID, user.getId());
 		}
 		this.userPower = power;
+	}
+	
+	@Override
+	public void syncTo(ServerPlayer trackingPlayer, LivingEntity user) {
+		PacketDistributor.sendToPlayer(trackingPlayer, new TrSetStandEntityPacket(user.getId(), this.getId()));
 	}
 
 	@Override
