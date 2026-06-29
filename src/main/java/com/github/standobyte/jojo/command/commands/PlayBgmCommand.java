@@ -254,7 +254,10 @@ public class PlayBgmCommand {
 						}
 					}
 					case ABRUPT_STOP -> {
-						BgmEngine.getInstance().stopBgm();
+						BgmEngine bgmSystem = BgmEngine.getInstance();
+						if (bgmSystem != null) {
+							bgmSystem.stopBgm();
+						}
 					}
 				}
 			}
