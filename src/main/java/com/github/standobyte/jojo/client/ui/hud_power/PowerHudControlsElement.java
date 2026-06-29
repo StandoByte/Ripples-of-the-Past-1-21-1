@@ -677,6 +677,9 @@ public class PowerHudControlsElement extends HudElement {
 	public static Component getKeyName(@Nullable ClientKey key, KeyModifier modifier) { return getKeyName(key, getKeyName(key), modifier); }
 
 	public static Component getKeyName(ClientKey key) {
+		if (key == null) {
+			return Component.translatable("key.keyboard.unknown");
+		}
 		if (key == InputHandler.LMB) {
 			return Component.literal(Character.toString(IconSymbols.LMB_CLICK_LARGE));
 		}
