@@ -69,7 +69,7 @@ public class AnimationSet {
 		}
 		
 		public boolean isEmpty() {
-			return namedAnimations.isEmpty();
+			return namedAnimations.isEmpty() && alwaysAnim == null;
 		}
 		
 		public AnimationSet build() {
