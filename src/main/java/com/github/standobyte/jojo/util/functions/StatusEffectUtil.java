@@ -8,6 +8,11 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 
 public class StatusEffectUtil {
+	
+	public static void give(LivingEntity entity, Holder<MobEffect> effect, int duration, int amplifier) {
+		MobEffectInstance effectInstance = new MobEffectInstance(effect, duration, amplifier, false, false, true);
+		entity.addEffect(effectInstance);
+	}
 
 	public static boolean reduceEffect(LivingEntity entity, Holder<MobEffect> effect, int reduceDuration, int reduceAmplifier) {
 		MobEffectInstance mainEffectInstance = entity.getEffect(effect);
