@@ -10,8 +10,8 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
 public final class MathUtil {
-	public static final float DEG_TO_RAD = (float) (Math.PI / 180D);
-	public static final float RAD_TO_DEG = (float) (180D / Math.PI);
+	public static final float DEG_TO_RAD = Mth.DEG_TO_RAD; // THEY NOW HAVE THEM TOO?????
+	public static final float RAD_TO_DEG = Mth.RAD_TO_DEG;
 	public static final float PI = (float) Math.PI;
 	public static final float DOUBLE_PI = PI * 2F;
 	

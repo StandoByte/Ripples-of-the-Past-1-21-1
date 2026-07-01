@@ -6,8 +6,8 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.standskin.sound.SoundInstanceWithStandSkin;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.customobjects.EntityWithStandSkin;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
-import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
 import net.minecraft.client.Minecraft;
@@ -70,7 +70,7 @@ public class ClientsideSoundsHelper {
 		return soundEvent;
 	}
 	
-	public static SoundEvent withStandSkin(SoundEvent soundEvent, StandEntity standEntity) {
+	public static SoundEvent withStandSkin(SoundEvent soundEvent, EntityWithStandSkin standEntity) {
 		return withStandSkin(soundEvent, standEntity.getStandType(), standEntity.getStandSkin());
 	}
 	

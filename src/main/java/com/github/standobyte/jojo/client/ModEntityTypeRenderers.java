@@ -49,10 +49,12 @@ public class ModEntityTypeRenderers {
 		event.registerEntityRenderer(ModEntityTypes.NUGGET_BEARING.get(), ctx -> new ThrownItemRenderer<>(ctx, 0.5f, false));
 		event.registerEntityRenderer(ModEntityTypes.CD_BLOOD_CUTTER.get(), ctx -> new SimpleEntityRenderer<>(ctx)
 				.initTexture(JojoMod.resLoc("textures/entity/blood_cutter.png"), true)
-				.initResourceModel(JojoMod.resLoc("blood_cutter"), SimpleEntityModel::new, true));
+				.initResourceModel(JojoMod.resLoc("blood_cutter"), SimpleEntityModel::new, true)
+				.setDefaultSkinId(JojoMod.resLoc("crazy_diamond")));
 		event.registerEntityRenderer(ModEntityTypes.CD_BLOCK_BULLET.get(), ctx -> new CrazyDBlockBulletRenderer(ctx)
-				.initResourceModel(JojoMod.resLoc("block_bullet"), SimpleEntityModel::new, true));
-		// стандо добавь пж initFromRenderer()
+				.initResourceModel(JojoMod.resLoc("block_bullet"), SimpleEntityModel::new, true)
+				.setDefaultSkinId(JojoMod.resLoc("crazy_diamond")));
+		// стандо добавь пж initFromRenderer() (не понял, для чего / как оно должно работать)
 		event.registerEntityRenderer(ModEntityTypes.STAND_ARROW.get(), StandArrowRenderer::new);
 	}
 
