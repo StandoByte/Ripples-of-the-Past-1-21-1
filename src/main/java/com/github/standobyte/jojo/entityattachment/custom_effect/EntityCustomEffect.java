@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataHelper;
 
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -108,20 +109,22 @@ public abstract class EntityCustomEffect {
 	public void syncWithTrackingOrUser(ServerPlayer player) {
 	}
 
-	public CompoundTag toNBT() {
+	public CompoundTag toNBT(HolderLookup.Provider registries) {
 		CompoundTag nbt = new CompoundTag();
 		nbt.putString("Type", effectType.registryKey.toString());
 		nbt.putInt("TickCount", tickCount);
 		writeAdditionalSaveData(nbt);
+		writeAdditionalSaveData(nbt, registries);
 		return nbt;
 	}
 
-	public static EntityCustomEffect fromNBT(CompoundTag nbt, Level level) {
+	public static EntityCustomEffect fromNBT(CompoundTag nbt, HolderLookup.Provider registries, Level level) {
 		EntityCustomEffectType<?> effectType = JojoRegistries.STAND_EFFECTS_REG.get(ResourceLocation.parse(nbt.getString("Type")));
 		if (effectType == null) return null;
 		EntityCustomEffect effect = effectType.create(level);
 		effect.tickCount = nbt.getInt("TickCount");
 		effect.readAdditionalSaveData(nbt);
+		effect.readAdditionalSaveData(nbt, registries);
 		return effect;
 	}
 
@@ -129,7 +132,13 @@ public abstract class EntityCustomEffect {
 
 	public void readAdditionalPacketData(FriendlyByteBuf buf, boolean clientIsUser) {}
 
+	protected void writeAdditionalSaveData(CompoundTag nbt, HolderLookup.Provider registries) {}
+
+	protected void readAdditionalSaveData(CompoundTag nbt, HolderLookup.Provider registries) {}
+
+	@Deprecated(forRemoval = true)
 	protected void writeAdditionalSaveData(CompoundTag nbt) {}
 
+	@Deprecated(forRemoval = true)
 	protected void readAdditionalSaveData(CompoundTag nbt) {}
 }

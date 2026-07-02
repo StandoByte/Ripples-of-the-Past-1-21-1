@@ -158,7 +158,7 @@ public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements Tic
 		ListTag effectsList = new ListTag();
 		effects.forEach((id, effect) -> {
 			if (!effect.isStopped()) {
-				effectsList.add(effect.toNBT());
+				effectsList.add(effect.toNBT(registries));
 			}
 		});
 		nbt.put("Effects", effectsList);
@@ -171,7 +171,7 @@ public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements Tic
 			Entity entity = getEntity();
 			Level level = entity.level();
 			nbt.getList("Effects", Tag.TAG_COMPOUND).forEach(effectNBT -> {
-				T effect = (T) EntityCustomEffect.fromNBT((CompoundTag) effectNBT, level);
+				T effect = (T) EntityCustomEffect.fromNBT((CompoundTag) effectNBT, registries, level);
 				if (effect != null) {
 					try {
 						putEffectInstance(effect);
