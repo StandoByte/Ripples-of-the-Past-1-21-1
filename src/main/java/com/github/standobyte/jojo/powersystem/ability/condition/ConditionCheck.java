@@ -50,7 +50,7 @@ public record ConditionCheck(boolean positive, boolean greenHighlight, @Nullable
 		if (!user.level().isClientSide() /* && (ability == null || ability.sendsConditionMessage()) */) {
 			Component message = result.warning();
 			
-			if (message != null && user instanceof ServerPlayer player) {
+			if (message != null) {
 				JojoModUtil.sendOverlayMsg(user, message);
 			}
 		}

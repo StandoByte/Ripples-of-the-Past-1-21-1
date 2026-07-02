@@ -83,4 +83,25 @@ public class EntityResolver {
 	public int getNetworkId() {
 		return entityNetworkId;
 	}
+
+
+	public static class Generic<T extends Entity> extends EntityResolver {
+		protected final Class<T> entityClass;
+		protected T castEntity;
+
+		public Generic(Class<T> entityClass) {
+			this.entityClass = entityClass;
+		}
+
+		public T getEntityCast(Level world) {
+			updateEntity(world);
+			return castEntity;
+		}
+
+		@Override
+		protected void _setNewEntity(Entity entity) {
+			super._setNewEntity(entity);
+			this.castEntity = entity != null && entityClass.isAssignableFrom(entity.getClass()) ? (T) entity : null;
+		}
+	}
 }
