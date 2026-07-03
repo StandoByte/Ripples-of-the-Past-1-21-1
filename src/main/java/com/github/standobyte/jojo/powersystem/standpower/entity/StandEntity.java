@@ -814,6 +814,9 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	
 	public void fullSummonFromArms() {}
 
+
+	@Override public StandSkinPath getStandSkinId() { return null; }
+	@Override public void setStandSkinId(StandSkinPath skin) {}
 	
 	@Override
 	public ResourceLocation getStandType() {
