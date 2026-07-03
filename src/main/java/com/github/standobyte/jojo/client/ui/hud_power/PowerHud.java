@@ -321,15 +321,15 @@ public class PowerHud {
 		}
 	}
 	
-	public static void renderClientStandIcon(PoseStack pose, int x, int y) {
+	public static void renderClientStandIcon(PoseStack pose, float x, float y) {
 		renderStandIcon(ClientPowerCache.getPower(PowerClass.STAND), pose, x, y, BlitFloat.NO_TINT);
 	}
 	
-	public static void renderClientStandIcon(PoseStack pose, int x, int y, int color) {
+	public static void renderClientStandIcon(PoseStack pose, float x, float y, int color) {
 		renderStandIcon(ClientPowerCache.getPower(PowerClass.STAND), pose, x, y, color);
 	}
 	
-	public static void renderStandIcon(StandPower standPower, PoseStack pose, int x, int y, int color) {
+	public static void renderStandIcon(StandPower standPower, PoseStack pose, float x, float y, int color) {
 		if (standPower != null) {
 			StandSkin skin = StandSkinsLoader.getInstance().getSkin(standPower);
 			if (skin != null) {
