@@ -170,10 +170,12 @@ public class MovesetBuilder {
 		return this;
 	}
 	
+	@Deprecated
 	public MovesetBuilder addHumanoidStandSkills() {
 		return this
 		.addSkill(StandUnlockableSkill.startingAbility("guard").setNotYetImplemented())
 		.addSkill(StandUnlockableSkill.startingAbility("manual_control"))
+		.addSkill(StandUnlockableSkill.startingAbility("item_use"))
 		.addSkill(StandUnlockableSkill.startingAbility("ledge_grab").setNotYetImplemented());
 	}
 	
