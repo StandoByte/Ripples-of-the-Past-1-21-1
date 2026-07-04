@@ -182,7 +182,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 		
 		@Override
 		public boolean canBeCancelledInto(EntityActionType cancellingAbility) {
-			return cancellingAbility != this.ability;
+			return cancellingAbility != null && cancellingAbility != this.ability;
 		}
 		
 		protected float getHitsPerTick(StandEntity stand) {

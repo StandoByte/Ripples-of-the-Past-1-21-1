@@ -105,8 +105,9 @@ public class EntityStandType extends StandType {
 						return;
 					}
 				}
-				
-				unsummon(user, standPower);
+				else {
+					unsummon(user, standPower);
+				}
 			}
 		}
 	}

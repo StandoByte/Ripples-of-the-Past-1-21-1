@@ -165,7 +165,7 @@ public class EntityActionInstance implements HeldInput {
 	
 	@ApiStatus.OverrideOnly
 	public boolean canBeCancelledInto(@Nullable EntityActionType cancellingAbility) {
-		return phase == ActionPhase.RECOVERY;
+		return cancellingAbility == null || phase == ActionPhase.RECOVERY;
 	}
 	
 	
