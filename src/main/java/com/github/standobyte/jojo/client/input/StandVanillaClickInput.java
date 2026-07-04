@@ -8,12 +8,15 @@ import com.github.standobyte.jojo.client.input.controlscheme.AbilityControlsEntr
 import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientKey;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.init.ModSpecialActions;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData;
 import com.github.standobyte.jojo.subsystems.entity_useitem.ClStandClickPacket;
 import com.github.standobyte.jojo.subsystems.entity_useitem.ServerSideLivingClick;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -39,15 +42,19 @@ public class StandVanillaClickInput {
 			switch (keyCode) {
 				case 0 -> {} // LMB
 				case 1 -> { // RMB
-					if (standCanRightClickItems && (stand.isManuallyControlled() || !InputHandler.inputsDisabled && ServerSideLivingClick.isEntityHoldingAnItem(stand))) {
-						event.setCanceled(true);
-						event.setSwingHand(false);
-						
-						ClientKey key = ClientKey.make(InputConstants.Type.MOUSE, keyCode);
-						InputHandler.getInstance().putHeldKeyTimer(key, new HeldKeyTimer(key, false, KeyModifier.NONE));
-
-						HitResult target = Minecraft.getInstance().hitResult;
-						PacketDistributor.sendToServer(new ClStandClickPacket(target, key.keyId(), InteractionHand.MAIN_HAND, InteractionHand.OFF_HAND));
+					if (standCanRightClickItemsOrBlocks) {
+						boolean rightClickWithStandInsteadOfPlayer = stand.isManuallyControlled() || 
+								!InputHandler.inputsDisabled && ServerSideLivingClick.isEntityHoldingAnItem(stand);
+						if (rightClickWithStandInsteadOfPlayer) {
+							event.setCanceled(true);
+							event.setSwingHand(false);
+							
+							ClientKey key = ClientKey.make(InputConstants.Type.MOUSE, keyCode);
+							InputHandler.getInstance().putHeldKeyTimer(key, new HeldKeyTimer(key, false, KeyModifier.NONE));
+							
+							HitResult target = Minecraft.getInstance().hitResult;
+							PacketDistributor.sendToServer(new ClStandClickPacket(target, key.keyId(), InteractionHand.MAIN_HAND, InteractionHand.OFF_HAND));
+						}
 					}
 				}
 				default -> {}
@@ -57,15 +64,36 @@ public class StandVanillaClickInput {
 	
 	public static void onMovesUpdate(Power<?> power, AvailableAbilities abilities) {
 		StandPower standPower = PowerClass.STAND.cast(power);
+		
 		if (standPower != null) {
+			standCanRightClickItemsOrBlocks = standCanRightClick(standPower);
 			hideMouseButtonStandKeybinds(standPower, abilities);
 		}
 	}
 	
-	private static boolean standCanRightClickItems = true;
+	public static boolean standCanRightClickItemsOrBlocks = true;
+	
+	private static boolean standCanRightClick(StandPower standPower) {
+		if (InputHandler.getInstance().isModifierKeyPressed(KeyModifier.SHIFT)) {
+			return false;
+		}
+		
+		StandEntity standEntity = ClientGlobals.playerStandEntity;
+		if (standEntity == null) return false;
+		EntityActionInstance action = standEntity.getCurStandAction();
+		if (action != null
+				&& action.ability != ModSpecialActions.RMB_CLICK_ITEM.get()
+				&& action.ability != ModSpecialActions.RMB_USING_ITEM.get()) {
+			return false;
+		}
+		
+		if (standPower == null) return false;
+		StandTypePersistentData unlockedSkills = standPower.getCurTypeData();
+		return unlockedSkills.isSkillUnlocked("item_use");
+	}
 	
 	private static void hideMouseButtonStandKeybinds(StandPower power, AvailableAbilities abilities) {
-		if (!standCanRightClickItems) return;
+		if (!standCanRightClickItemsOrBlocks) return;
 		
 		if (ServerSideLivingClick.isEntityHoldingAnItem(power.getSummonedStandEntity())) {
 			AbilityControlScheme controlScheme = AllControlSchemes.getForPowerType(power.getPowerType());

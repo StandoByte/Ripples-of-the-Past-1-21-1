@@ -543,6 +543,10 @@ public class InputHandler {
 		return !modifiersQueue.isEmpty() ? modifiersQueue.get(modifiersQueue.size() - 1) : KeyModifier.NONE;
 	}
 	
+	public boolean isModifierKeyPressed(KeyModifier modifier) {
+		return modifiersQueue.contains(modifier);
+	}
+	
 	
 	// The function that figures out what ability has the player inputed.
 

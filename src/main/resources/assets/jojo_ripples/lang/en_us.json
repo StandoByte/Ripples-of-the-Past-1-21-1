@@ -584,7 +584,7 @@
   
   "jojo_ripples.skill.leave_object": "Leave object",
   "jojo_ripples.skill.leave_object.desc": "After punching a hole in the target's abdomen, leave a held item inside of them and partially heal the injury. Some items have special effects.",
-  "jojo_ripples.skill.leave_object.controls": "Shift + Charged Heavy Punch + \uEAFE while Crazy Diamond is holding an item",
+  "jojo_ripples.skill.leave_object.controls": "Charged Heavy Punch + \uEAFE while Crazy Diamond is holding an item",
   "jojo_ripples.ability.leave_object": "Leave object",
   
   "jojo_ripples.skill.repair_item": "Repair item",
