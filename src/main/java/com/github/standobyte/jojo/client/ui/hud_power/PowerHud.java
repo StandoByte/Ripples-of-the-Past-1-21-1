@@ -208,7 +208,7 @@ public class PowerHud {
 			
 			for (BindUI bind : controls.binds) {
 				for (AbilityBindUI bindAbility : bind.abilities.values()) {
-					if (abilityName.equals(bindAbility.ability.ability.name())) {
+					if (bindAbility.isOfAbility(abilityName)) {
 						return true;
 					}
 				}
@@ -216,7 +216,7 @@ public class PowerHud {
 			for (HotbarUILine hotbar : controls.hotbars) {
 				if (hotbar.selected != null) {
 					for (AbilityBindUI bindAbility : hotbar.selected.abilities.values()) {
-						if (abilityName.equals(bindAbility.ability.ability.name())) {
+						if (bindAbility.isOfAbility(abilityName)) {
 							return true;
 						}
 					}

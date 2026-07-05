@@ -3,10 +3,14 @@ package com.github.standobyte.jojo.client.input;
 import java.util.List;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
+import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.input.controlscheme.AbilityControlScheme;
 import com.github.standobyte.jojo.client.input.controlscheme.AbilityControlsEntry;
 import com.github.standobyte.jojo.client.input.controlscheme.AllControlSchemes;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientKey;
+import com.github.standobyte.jojo.client.ui.hud_power.PowerHudControlsElement;
+import com.github.standobyte.jojo.client.ui.hud_power.PowerHudControlsElement.AbilityBindUI;
+import com.github.standobyte.jojo.client.ui.hud_power.PowerHudControlsElement.BindUI;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModSpecialActions;
 import com.github.standobyte.jojo.powersystem.Power;
@@ -22,7 +26,10 @@ import com.github.standobyte.jojo.subsystems.entity_useitem.ServerSideLivingClic
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -98,7 +105,7 @@ public class StandVanillaClickInput {
 		if (ServerSideLivingClick.isEntityHoldingAnItem(power.getSummonedStandEntity())) {
 			AbilityControlScheme controlScheme = AllControlSchemes.getForPowerType(power.getPowerType());
 			if (controlScheme != null) {
-				ClientKey RMB = ClientKey.make(InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_RIGHT);
+				ClientKey RMB = InputHandler.RMB;
 				for (InputMethod inputMethod : InputMethod.values()) {
 					List<AbilityControlsEntry> rmbAbilities = controlScheme.getBindsWithModifier(inputMethod, RMB, KeyModifier.NONE);
 					for (AbilityControlsEntry abilityName : rmbAbilities) {
@@ -110,6 +117,64 @@ public class StandVanillaClickInput {
 								inputState.setFlag(AbilityInputState.VISIBLE_WHEN_INACTIVE, false);
 							}
 							ability.clientInputState = inputState._value;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public static void addItemRightClickBindIcon(AbilityControlScheme controlScheme, PowerHudControlsElement ui) {
+		if (controlScheme.powerClassCosmetic == PowerClass.STAND && standCanRightClickItemsOrBlocks) {
+			StandEntity standEntity = ClientGlobals.playerStandEntity;
+			if (standEntity != null) {
+				// for example, on Ctrl the grab is active instead, so item usage won't trigger - in this case don't add it to the UI
+				boolean anotherMoveIsActive = false;
+				
+				ClientKey RMB = InputHandler.RMB;
+				KeyModifier curModifier = InputHandler.getInstance().getCurModifier();
+				AvailableAbilities abilities = ClientPowerCache.getAvailableAbilities(PowerClass.STAND);
+				
+				for (InputMethod inputMethod : InputMethod.values()) {
+					List<AbilityControlsEntry> rmbAbilities = controlScheme.getBindsWithModifier(inputMethod, RMB, curModifier);
+					for (AbilityControlsEntry abilityName : rmbAbilities) {
+						var ability = abilities._inMoveset.get(abilityName.abilityName());
+						if (ability != null) {
+							AbilityInputState inputState = AbilityInputState.withValue(ability.clientInputState);
+							if (inputState.getFlag(AbilityInputState.IS_ACTIVE)) {
+								anotherMoveIsActive |= true;
+								break;
+							}
+						}
+					}
+					
+					if (anotherMoveIsActive) break;
+				}
+				
+				if (!anotherMoveIsActive) {
+					for (InteractionHand hand : InteractionHand.values()) {
+						ItemStack item = standEntity.getItemInHand(hand);
+						if (!item.isEmpty()) {
+
+							BindUI bindUI = new BindUI(RMB);
+							Component bindName = PowerHudControlsElement.getKeyName(RMB, KeyModifier.NONE);
+
+							AbilityBindUI abilityBindUI = new AbilityBindUI(
+									RMB, KeyModifier.NONE, InputMethod.CLICK, 
+									bindName, Component.translatable("ripples_hud.key_ability", bindName, 
+											Component.translatable("jojo_ripples.ability.item_use")), 
+									0 /* TODO tie stand item cooldowns to the user's item cooldowns */) {
+
+								@Override
+								public void renderInside(GuiGraphics guiGraphics, float x, float y, Minecraft mc, float partialTick, int alpha) {
+									guiGraphics.renderItem(standEntity, item, (int) x + 3, (int) y + 3, 67);
+								}
+
+							};
+							bindUI.abilities.put(InputMethod.CLICK, abilityBindUI);
+
+							ui.addBind(bindUI, InputHandler.RMB);
+							break;
 						}
 					}
 				}
