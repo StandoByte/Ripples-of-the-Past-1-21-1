@@ -21,7 +21,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class ClientStandItemInputs {
 
-	public static KeyMapping keyDrop = new KeyMapping("jojo_ripples.key.swap_items", KeyConflictContext.UNIVERSAL, 
+	public static KeyMapping keySwap = new KeyMapping("jojo_ripples.key.swap_items", KeyConflictContext.UNIVERSAL, 
 			KeyModifier.CONTROL, InputConstants.Type.KEYSYM, InputConstants.KEY_F, "key.categories.inventory");
 
 	@SubscribeEvent
@@ -29,7 +29,7 @@ public class ClientStandItemInputs {
 		StandEntity standEntity = ClientGlobals.playerStandEntity;
 		if (standEntity != null) {
 			if (Screen.hasControlDown()) {
-				while (keyDrop.consumeClick()) {
+				while (keySwap.consumeClick()) {
 					PacketDistributor.sendToServer(ClStandItemInputPacket.packet(StandItemInput.Action.SWAP_USER_AND_STAND));
 				}
 			}

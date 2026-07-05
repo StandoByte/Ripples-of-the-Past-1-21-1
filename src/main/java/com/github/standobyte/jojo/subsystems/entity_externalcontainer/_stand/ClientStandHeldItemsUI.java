@@ -133,7 +133,7 @@ public class ClientStandHeldItemsUI extends ClientExternalContainerUI {
 					slotTooltip.add(Component.translatable("stand_hand_slot.hint2").withStyle(ChatFormatting.GRAY));
 					slotTooltip.add(Component.translatable("stand_hand_slot.hint3").withStyle(ChatFormatting.GRAY));
 					slotTooltip.add(Component.translatable("stand_hand_slot.hint4", 
-							PowerHudControlsElement.getKeybindNoSpaceAtModifierPlus(ClientStandItemInputs.keyDrop))
+							PowerHudControlsElement.getKeybindNoSpaceAtModifierPlus(ClientStandItemInputs.keySwap))
 							.withStyle(ChatFormatting.GRAY));
 				}
 				else {
