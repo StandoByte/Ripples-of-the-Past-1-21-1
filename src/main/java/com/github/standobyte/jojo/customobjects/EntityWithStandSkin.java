@@ -21,14 +21,7 @@ public interface EntityWithStandSkin {
 	@ApiStatus.Internal void setStandSkinId(StandSkinPath skin);
 	
 	default void setStandSkinIdFrom(StandPower userPower) {
-		StandSkinPath skin = null;
-		if (userPower != null) {
-			StandInstance standInstance = userPower.getStandInstance().orElse(null);
-			if (standInstance != null) {
-				skin = new StandSkinPath(standInstance.getStandId(), standInstance.getSelectedSkin());
-			}
-		}
-		setStandSkinId(skin);
+		setStandSkinId(StandSkinPath.from(userPower));
 	}
 	
 	default ResourceLocation getStandType() {
@@ -42,6 +35,16 @@ public interface EntityWithStandSkin {
 	}
 
 	public static record StandSkinPath(ResourceLocation standType, Optional<ResourceLocation> standSkin) {
+		
+		public static StandSkinPath from(StandPower standPower) {
+			StandInstance stand = standPower != null ? standPower.getStandInstance().orElse(null) : null;
+			return from(stand);
+		}
+		
+		public static StandSkinPath from(StandInstance standInstance) {
+			return standInstance != null ? new StandSkinPath(standInstance.getStandId(), standInstance.getSelectedSkin()) : null;
+		}
+		
 		public static final StreamCodec<ByteBuf, StandSkinPath> STREAM_CODEC = StreamCodec.composite(
 				ResourceLocation.STREAM_CODEC, StandSkinPath::standType,
 				ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs::optional), StandSkinPath::standSkin,
