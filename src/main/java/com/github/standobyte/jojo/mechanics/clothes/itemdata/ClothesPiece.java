@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.EquipmentAsset;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.EquipmentAssets;
 import com.mojang.serialization.Codec;
@@ -27,6 +28,8 @@ import net.minecraft.util.StringRepresentable;
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
 public class ClothesPiece {
+	public static final ResourceKey<EquipmentAsset> DEFAULT_SKIN_MODEL = ResourceKey.create(EquipmentAssets.ROOT_ID, JojoMod.resLoc("default_skin"));
+	
 	public final ResourceKey<EquipmentAsset> modelId;
 	public final ResourceKey<EquipmentAsset> textureId;
 	public final ResourceLocation itemModel;
@@ -109,7 +112,7 @@ public class ClothesPiece {
 	@ApiStatus.Internal
 	public static final Codec<ClothesPiece> CODEC_NO_SPLIT_PARTS = RecordCodecBuilder.create(
 			builder -> builder.group(
-					ResourceKey.codec(EquipmentAssets.ROOT_ID).fieldOf("asset_id").forGetter(piece -> piece.modelId),
+					ResourceKey.codec(EquipmentAssets.ROOT_ID).optionalFieldOf("asset_id", DEFAULT_SKIN_MODEL).forGetter(piece -> piece.modelId),
 					ResourceKey.codec(EquipmentAssets.ROOT_ID).optionalFieldOf("texture_id").forGetter(piece -> piece.textureId.equals(piece.modelId) ? Optional.empty() : Optional.of(piece.textureId)),
 					ResourceLocation.CODEC.fieldOf("item_model").forGetter(piece -> piece.itemModel),
 					ComponentSerialization.CODEC.fieldOf("item_name").forGetter(piece -> piece.itemName),
@@ -119,7 +122,7 @@ public class ClothesPiece {
 	
 	public static final Codec<ClothesPiece> CODEC = RecordCodecBuilder.create(
 			builder -> builder.group(
-					ResourceKey.codec(EquipmentAssets.ROOT_ID).fieldOf("asset_id").forGetter(piece -> piece.modelId),
+					ResourceKey.codec(EquipmentAssets.ROOT_ID).optionalFieldOf("asset_id", DEFAULT_SKIN_MODEL).forGetter(piece -> piece.modelId),
 					ResourceKey.codec(EquipmentAssets.ROOT_ID).optionalFieldOf("texture_id").forGetter(piece -> piece.textureId.equals(piece.modelId) ? Optional.empty() : Optional.of(piece.textureId)),
 					ResourceLocation.CODEC.fieldOf("item_model").forGetter(piece -> piece.itemModel),
 					ComponentSerialization.CODEC.fieldOf("item_name").forGetter(piece -> piece.itemName),
