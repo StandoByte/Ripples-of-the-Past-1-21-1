@@ -225,6 +225,7 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 				CrazyDBlockBulletEntity bullet = new CrazyDBlockBulletEntity(performer, level);
 				bullet.setShootingPosOf(user);
 				bullet.setBlock(blockAndItem.block());
+				bullet.setStandSkinIdFrom(standPower);
 				
 				if (standPower != null && !isHomingDisabled) {
 					UserStandEffects.getEffectLookedAt(standPower, ModStandAbilities.EFFECT_CD_BLOOD_DROPS.get(), PLAYER_TRACKING_RANGE, user).ifPresent(effect -> {

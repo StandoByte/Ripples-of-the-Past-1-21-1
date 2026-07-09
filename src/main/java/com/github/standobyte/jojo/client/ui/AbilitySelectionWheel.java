@@ -127,8 +127,6 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 	 * LMB - use ability and confirm selection
 	 * RMB - cancel
 	 */
-	static final float ICON_WIDTH = 16;
-	static final float ICON_HEIGHT = 16;
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 		if (abilities == null || !InputHandler.getInstance().isSelectingAbility(abilities)) {
@@ -193,13 +191,13 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 
 			int[] iconPos = posAtSector(i, n, 75);
 			if (clickAbility != null && holdAbility != null) {
-				renderSprite(clickAbility, pose, iconPos[0] - 10, iconPos[1]);
-				renderSprite(holdAbility, pose, iconPos[0] + 10, iconPos[1]);
+				renderSprite(clickAbility, guiGraphics, iconPos[0] - 10, iconPos[1]);
+				renderSprite(holdAbility, guiGraphics, iconPos[0] + 10, iconPos[1]);
 			}
 			else {
 				AbilityConditionCheck ability = clickAbility != null ? clickAbility : holdAbility;
 				if (ability != null) {
-					renderSprite(ability, pose, iconPos[0], iconPos[1]);
+					renderSprite(ability, guiGraphics, iconPos[0], iconPos[1]);
 				}
 			}
 			
@@ -244,12 +242,12 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 		}
 	}
 	
-	public void renderSprite(@Nonnull AbilityConditionCheck _ability, PoseStack pose, int centerX, int centerY) {
+	public void renderSprite(@Nonnull AbilityConditionCheck _ability, GuiGraphics guiGraphics, int centerX, int centerY) {
 		Ability ability = _ability.ability;
-		TextureAtlasSprite abilitySprite = abilityIconSprites.getAbilityIcon(ability, 
-				ClientPowerCache.getPower(ability.getAbilityId().powerClass()), standSkin); // context-dependent
-		BlitFloat.blit(pose, minecraft, abilitySprite, 
-				centerX - ICON_WIDTH / 2, centerY - ICON_HEIGHT / 2, ICON_WIDTH, ICON_HEIGHT, 0, BlitFloat.NO_TINT);
+		Power<?> context = ClientPowerCache.getPower(ability.getAbilityId().powerClass());
+		TextureAtlasSprite abilitySprite = abilityIconSprites.getAbilityIcon(ability, context, standSkin); // context-dependent
+		ability.renderAbilityIcon(context, guiGraphics, abilitySprite, 
+				centerX - 8, centerY - 8, BlitFloat.NO_TINT);
 	}
 
 	protected int hoveredSlotIndex;

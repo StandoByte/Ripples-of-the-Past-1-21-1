@@ -211,7 +211,7 @@ public class JojoModUtil {
 
 
 	public static void sendOverlayMsg(LivingEntity entity, Component message) {
-		if (entity instanceof ServerPlayer player) {
+		if (entity instanceof ServerPlayer player && message != null) {
 			player.connection.send(new ClientboundSystemChatPacket(message, true));
 		}
 	}

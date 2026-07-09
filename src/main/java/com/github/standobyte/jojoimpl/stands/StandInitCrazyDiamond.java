@@ -132,6 +132,8 @@ public class StandInitCrazyDiamond {
 				.addSkill(StandUnlockableSkill.startingAbility("grab").setIncomplete())
 				.addSkill(StandUnlockableSkill.startingAbility("block_toss").setNotYetImplemented())
 				
+				.addSkill(StandUnlockableSkill.startingAbility("guard").setNotYetImplemented())
+				
 				.addSkill(StandUnlockableSkill.startingAbility("repair_item"))
 
 				.addSkill(StandUnlockableSkill.unlockableAbility("heal", 100))
@@ -146,7 +148,10 @@ public class StandInitCrazyDiamond {
 				.addSkill(StandUnlockableSkill.unlockableAbility("blood_cutter", 150))
 
 				.addSkill(StandUnlockableSkill.unlockableAbility("leap", 250).setNotYetImplemented())
-				.addHumanoidStandSkills()
+				.addSkill(StandUnlockableSkill.startingAbility("ledge_grab").setNotYetImplemented())
+				
+				.addSkill(StandUnlockableSkill.startingAbility("manual_control"))
+				.addSkill(StandUnlockableSkill.startingAbility("item_use"))
 
 				, id)
 			.discTooltipWIP()

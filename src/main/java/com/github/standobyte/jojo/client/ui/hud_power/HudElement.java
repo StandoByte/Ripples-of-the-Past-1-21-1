@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.navigation.ScreenPosition;
@@ -30,6 +31,9 @@ public abstract class HudElement implements GuiEventListener {
 
 	public SnappingH snappingHorizontal;
 	public SnappingV snappingVertical;
+	
+	protected Minecraft mc;
+	protected Font font;
 //	@Nullable public double[] draggedAt;
 	
 	public HudElement(String name, int x0, int y0, int width, int height) {
@@ -52,6 +56,9 @@ public abstract class HudElement implements GuiEventListener {
 			default -> {}
 		}
 		updateRectangle(width, height);
+		
+		this.mc = Minecraft.getInstance();
+		this.font = mc.font;
 	}
 	
 	protected void initText() {

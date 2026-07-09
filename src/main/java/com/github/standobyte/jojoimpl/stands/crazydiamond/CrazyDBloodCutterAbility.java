@@ -57,8 +57,10 @@ public class CrazyDBloodCutterAbility extends StandEntityAbility {
 			Level level = level();
 			if (!level.isClientSide()) {
 				LivingEntity user = getPowerUser();
+				StandPower standPower = StandPower.get(user);
 				CrazyDBloodCutterEntity cutter = new CrazyDBloodCutterEntity(user, level);
 				cutter.setShootingPosOf(user);
+				cutter.setStandSkinIdFrom(standPower);
 				
 				Vec3 pos = cutter.position();
 				// TODO (blood cutter) offset it a bit to the right (doesn't work correctly when looking up/down but i wanna go sleep already)
@@ -71,7 +73,6 @@ public class CrazyDBloodCutterAbility extends StandEntityAbility {
 				cutter.shootFromRotation(user, 1.5f, 0);
 				addProjectileWithStandStats(cutter);
 
-				StandPower standPower = StandPower.get(user);
 				if (standPower != null) {
 					int cooldown = 300;
 					if (!standPower.isUserCreative() && standPower.getUser() != null) {

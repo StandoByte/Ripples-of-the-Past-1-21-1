@@ -5,10 +5,11 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.ResourceModelEntry;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
+import com.github.standobyte.jojo.client.standskin.ModelFromStandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.client.standskin.TextureFromStandSkin;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.customobjects.EntityWithStandSkin;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -28,19 +29,15 @@ import net.minecraft.world.entity.Entity;
 public class SimpleEntityRenderer<T extends Entity, M extends EntityModel<T>> extends EntityRenderer<T> {
 	protected M hardcodedModel;
 	
-	protected ResourceModelEntry resourceModel;
-	
-	protected ResourceLocation texPath;
-	protected boolean texFromStandSkin;
-	protected boolean modelFromStandSkin;
+	protected ModelFromStandSkin modelPath;
+	protected TextureFromStandSkin texPath;
 
 	public SimpleEntityRenderer(EntityRendererProvider.Context renderManager) {
 		super(renderManager);
 	}
 	
 	public SimpleEntityRenderer<T, M> initTexture(ResourceLocation texPath, boolean loadFromStandSkin) {
-		this.texPath = texPath;
-		this.texFromStandSkin = loadFromStandSkin;
+		this.texPath = new TextureFromStandSkin(texPath, loadFromStandSkin);
 		return this;
 	}
 	
@@ -49,21 +46,30 @@ public class SimpleEntityRenderer<T extends Entity, M extends EntityModel<T>> ex
 		return this;
 	}
 	
+	public SimpleEntityRenderer<T, M> setDefaultSkinId(ResourceLocation skinId) {
+		if (modelPath != null) {
+			modelPath.defaultSkinId = skinId;
+		}
+		if (texPath != null) {
+			texPath.defaultSkinId = skinId;
+		}
+		return this;
+	}
+	
 	public SimpleEntityRenderer<T, M> initResourceModel(ResourceLocation modelPath, 
 			Function<ModelPart, M> modelClass, boolean loadFromStandSkin) {
-		this.resourceModel = RotpGeckoModelLoader.getInstance().getModelContainer(modelPath);
-		this.modelFromStandSkin = loadFromStandSkin;
-		this.resourceModel.rendererInit(modelClass);
+		this.modelPath = new ModelFromStandSkin(RotpGeckoModelLoader.getInstance().getModelContainer(modelPath), loadFromStandSkin);
+		this.modelPath.resourceModel.rendererInit(modelClass);
 		return this;
 	}
 	
 
 	@SuppressWarnings("unchecked")
 	protected M getEntityModel(T entity) {
-		if (resourceModel != null) {
-			EntityModel<T> modelFromResource = resourceModel.getModel(modelFromStandSkin ? SimpleEntityRenderer.getStandSkin(entity) : null);
-			if (modelFromResource != null) {
-				return (M) modelFromResource;
+		if (modelPath != null) {
+			EntityModel<?> model = modelPath.getModel(entity);
+			if (model != null) {
+				return (M) model;
 			}
 		}
 		
@@ -72,14 +78,7 @@ public class SimpleEntityRenderer<T extends Entity, M extends EntityModel<T>> ex
 
 	@Override
 	public ResourceLocation getTextureLocation(T entity) {
-		if (texFromStandSkin) {
-			StandSkin standSkin = getStandSkin(entity);
-			if (standSkin != null) {
-				return standSkin.getTexture(texPath);
-			}
-		}
-		
-		return texPath;
+		return texPath.getTextureLocation(entity);
 	}
 	
 	@Nullable

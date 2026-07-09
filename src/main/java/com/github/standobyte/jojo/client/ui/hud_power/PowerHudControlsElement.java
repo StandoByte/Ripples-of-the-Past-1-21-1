@@ -1,6 +1,8 @@
 package com.github.standobyte.jojo.client.ui.hud_power;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +15,7 @@ import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.input.HeldKeyTimer;
 import com.github.standobyte.jojo.client.input.InputHandler;
+import com.github.standobyte.jojo.client.input.StandVanillaClickInput;
 import com.github.standobyte.jojo.client.input.controlscheme.AbilityControlScheme;
 import com.github.standobyte.jojo.client.input.controlscheme.AbilityControlScheme.InputsByKeyModifier;
 import com.github.standobyte.jojo.client.input.controlscheme.AbilityControlsEntry;
@@ -72,7 +75,6 @@ public class PowerHudControlsElement extends HudElement {
 		InputHandler input = InputHandler.getInstance();
 		if (input == null) return false;
 
-		Minecraft mc = Minecraft.getInstance();
 		if (mc.player == null) return false;
 
 		AbilityControlScheme controlScheme = input.getActiveControlScheme();
@@ -85,15 +87,13 @@ public class PowerHudControlsElement extends HudElement {
 	public void renderElement(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 		clear();
 
-		Minecraft mc = Minecraft.getInstance();
 		InputHandler input = InputHandler.getInstance();
-		Font font = mc.font;
 		AbilityControlScheme controlScheme = input.getActiveControlScheme();
 		float partialTick = ClientUtil.partialTick(deltaTracker, false);
 		StandSkin standSkin = StandSkinsLoader.getCurSkin();
 		int textColor = controlScheme.powerClassCosmetic == PowerClass.STAND && standSkin != null ? standSkin.getColors().text() : 0xFFFFFFFF;
 
-		this.prepare(hud, controlScheme, font, input.getCurModifier(), standSkin);
+		this.prepare(hud, controlScheme, input.getCurModifier(), standSkin);
 		// XXX (controls HUD) update size
 		this.renderControls(this.getX(), this.getY(), mc, guiGraphics, deltaTracker, font, textColor, partialTick);
 	}
@@ -105,7 +105,7 @@ public class PowerHudControlsElement extends HudElement {
 			ScreenRectangle rectangle = abilitySlot.getSecond();
 			boolean isHovered = rectangle.containsPoint((int) mouseX, (int) mouseY);
 			if (isHovered) {
-				Screen screen = Minecraft.getInstance().screen;
+				Screen screen = mc.screen;
 				if (screen != null) {
 					List<Component> tooltip = new ArrayList<>();
 					for (var byInputMethod : slot.abilities.entrySet()) {
@@ -115,14 +115,9 @@ public class PowerHudControlsElement extends HudElement {
 							case CLICK -> slot.fullKeybind;
 							case HOLD -> Component.translatable("ripples_hud.hold_key", slot.fullKeybind);
 						};
-						Ability ability = bindUI.ability.ability;
-						Power<?> power = ClientPowerCache.getPower(ability.abilityId.powerClass());
-						Component abilityName = ability.getName(power);
-						Component line = Component.translatable("ripples_hud.key_ability", keyName, abilityName)
-								.withStyle(ChatFormatting.BLACK);
-						tooltip.add(line);
+						bindUI.addHoverTooltip(tooltip, keyName);
 					}
-					screen.setTooltipForNextRenderPass(TextUtil.splitMultiLine(Minecraft.getInstance().font, 
+					screen.setTooltipForNextRenderPass(TextUtil.splitMultiLine(mc.font, 
 							tooltip, TextUtil.TOOLTIP_MAX_WIDTH), new BelowOrAboveWidgetTooltipPositioner(rectangle), true);
 					TooltipParams.set(TooltipParams.paperStyle());
 				}
@@ -138,8 +133,6 @@ public class PowerHudControlsElement extends HudElement {
 	public static final int SLOT_HEIGHT = 20;
 	
 	public static class AbilityBindUI {
-		public AbilityConditionCheck ability;
-		public TextureAtlasSprite sprite;
 		public ClientKey key;
 		public KeyModifier modifier = KeyModifier.NONE;
 		public InputMethod inputMethod;
@@ -147,12 +140,9 @@ public class PowerHudControlsElement extends HudElement {
 		public Component keybindAbilityName;
 		public float cooldownRatio;
 		
-		public AbilityBindUI(AbilityConditionCheck ability, TextureAtlasSprite sprite,
-				ClientKey key, KeyModifier modifier, InputMethod inputMethod, 
+		public AbilityBindUI(ClientKey key, KeyModifier modifier, InputMethod inputMethod, 
 				Component keybindName, Component keybindAbilityName,
 				float cooldownRatio) {
-			this.ability = ability;
-			this.sprite = sprite;
 			this.key = key;
 			this.modifier = modifier;
 			this.inputMethod = inputMethod;
@@ -160,9 +150,80 @@ public class PowerHudControlsElement extends HudElement {
 			this.keybindAbilityName = keybindAbilityName;
 			this.cooldownRatio = cooldownRatio;
 		}
+
+		public void renderInside(GuiGraphics guiGraphics, float x, float y, Minecraft mc, float partialTick, int alpha) {}
+		
+		public void addHoverTooltip(List<Component> tooltipLines, Component keyName) {
+			tooltipLines.add(keybindAbilityName.copy().withStyle(ChatFormatting.BLACK));
+		}
+		
+		public boolean greenHighlight() {
+			return false;
+		}
+		
+		public boolean isOfAbility(String abilityName) {
+			return false;
+		}
+	}
+	
+	public static class MovesetAbilityBindUI extends AbilityBindUI {
+		public AbilityConditionCheck ability;
+		public TextureAtlasSprite sprite;
+		
+		public MovesetAbilityBindUI(AbilityConditionCheck ability, TextureAtlasSprite sprite,
+				ClientKey key, KeyModifier modifier, InputMethod inputMethod, 
+				Component keybindName, Component keybindAbilityName,
+				float cooldownRatio) {
+			super(key, modifier, inputMethod, keybindName, keybindAbilityName, cooldownRatio);
+			this.ability = ability;
+			this.sprite = sprite;
+		}
+		
+		@Override
+		public void renderInside(GuiGraphics guiGraphics, float x, float y, Minecraft mc, float partialTick, int alpha) {
+			AbilityConditionCheck abilityCheck = this.ability;
+			Ability ability = abilityCheck.ability;
+			TextureAtlasSprite sprite = this.sprite;
+			
+			Power<?> power = ClientPowerCache.getPower(ability.abilityId.powerClass());
+			ability.renderAbilityIcon(power, guiGraphics, sprite, 
+					x + 3, y + 3, abilityColor(alpha, abilityCheck));
+
+			float cooldown = this.cooldownRatio;
+			renderCooldown(guiGraphics, x, y, cooldown);
+
+			if (mc.player != null) {
+				WindupIndicator windup = ability.cl_windupIndicator(mc.player, windupIndicator, partialTick);
+				if (windup != null) {
+					renderWindupIndicator(guiGraphics, x + 13, y + 13, windup.value, windup.maxValue, mc, alpha);
+					WindupAtCrosshair.setRender(windup);
+				}
+			}
+		}
+
+		@Override
+		public void addHoverTooltip(List<Component> tooltipLines, Component keyName) {
+			Ability ability = this.ability.ability;
+			Power<?> power = ClientPowerCache.getPower(ability.abilityId.powerClass());
+			Component abilityName = ability.getName(power);
+			Component line = Component.translatable("ripples_hud.key_ability", keyName, abilityName)
+					.withStyle(ChatFormatting.BLACK);
+			tooltipLines.add(line);
+		}
+
+		@Override
+		public boolean greenHighlight() {
+			return this.ability.conditionCheck.greenHighlight();
+		}
+		
+		@Override
+		public boolean isOfAbility(String abilityName) {
+			return abilityName.equals(this.ability.ability.name());
+		}
 	}
 	
 	public static class BindUI {
+		public ClientKey key;
 		public Component mainKey;
 		@Nullable public Component modifierKey;
 		public Component fullKeybind;
@@ -172,6 +233,10 @@ public class PowerHudControlsElement extends HudElement {
 		public int y;
 		public int keybindWidth;
 		public int width;
+		
+		public BindUI(ClientKey key) {
+			this.key = key;
+		}
 	}
 
 	public static class HotbarUILine {
@@ -190,9 +255,13 @@ public class PowerHudControlsElement extends HudElement {
 	
 	public static class HotbarSlotUI {
 		public int slotIndex;
-		public BindUI bind = new BindUI();
+		public BindUI bind;
 		@Nullable public AbilityBindUI sprite;
 		public Map<InputMethod, AbilityBindUI> abilities = new EnumMap<>(InputMethod.class);
+		
+		public HotbarSlotUI(ClientKey key) {
+			this.bind = new BindUI(key);
+		}
 	}
 
 
@@ -206,7 +275,7 @@ public class PowerHudControlsElement extends HudElement {
 		hoverableAbilities.clear();
 	}
 
-	public void prepare(AbilityHud hud, AbilityControlScheme controlScheme, Font font, 
+	public void prepare(AbilityHud hud, AbilityControlScheme controlScheme, 
 			@Nonnull KeyModifier modifier, @Nullable StandSkin standSkin) {
 		if (controlScheme == null) return;
 		AbilityControlScheme.MoveGroup curGroup = controlScheme.getCurGroup();
@@ -214,7 +283,6 @@ public class PowerHudControlsElement extends HudElement {
 		AbilityIconSprites abilityIconSprites = StandSkinsLoader.getInstance().abilityIcons;
 		
 		InputHandler modInput = InputHandler.getInstance();
-		Minecraft mc = Minecraft.getInstance();
 		@Nullable AbilityCooldownTracker cooldowns = AbilityCooldownTracker.get(mc.player);
 		float partialTick = ClientUtil.partialTick(mc.getTimer(), false);
 
@@ -222,7 +290,7 @@ public class PowerHudControlsElement extends HudElement {
 		Map<ClientKey, InputsByKeyModifier> binds = curGroup.getBinds();
 		for (var bindEntry : binds.entrySet()) {
 			ClientKey key = bindEntry.getKey();
-			BindUI bindUI = new BindUI();
+			BindUI bindUI = new BindUI(key);
 			InputsByKeyModifier bindsForInputMethod = bindEntry.getValue();
 			
 			boolean hasBind = false;
@@ -231,7 +299,7 @@ public class PowerHudControlsElement extends HudElement {
 						(KeyModifier mod) -> bindsForInputMethod.getAll(mod, inputMethod), 
 						modifier, key, false, 
 						abilityIconSprites, standSkin, 
-						font, hud.forContainerMenu,
+						hud.forContainerMenu,
 						partialTick, cooldowns);
 				if (abilityBindUI != null) {
 					bindUI.modifier = null;
@@ -249,7 +317,7 @@ public class PowerHudControlsElement extends HudElement {
 									(KeyModifier mod) -> bindsForInputMethod.getAll(mod, inputMethod), 
 									otherModifier, key, true, 
 									abilityIconSprites, standSkin, 
-									font, hud.forContainerMenu,
+									hud.forContainerMenu,
 									partialTick, cooldowns);
 							
 							if (abilityBindUI != null) {
@@ -263,20 +331,9 @@ public class PowerHudControlsElement extends HudElement {
 				}
 			}
 			
-			if (!bindUI.abilities.isEmpty()) {
-				bindUI.mainKey = getKeyName(key);
-				bindUI.modifierKey = getModifierName(bindUI.modifier);
-				bindUI.fullKeybind = getKeyName(key, bindUI.mainKey, bindUI.modifier);
-				
-				bindUI.keybindWidth = font.width(bindUI.mainKey);
-				if (bindUI.modifierKey != null) 
-					bindUI.keybindWidth = Math.max(bindUI.keybindWidth, font.width(bindUI.modifierKey));
-				bindUI.keybindWidth += 4;
-				
-				bindUI.width = bindUI.keybindWidth + bindUI.abilities.size() * SLOT_WIDTH + 4;
-				this.binds.add(bindUI);
-			}
+			addBind(bindUI, key, false /* the control scheme binds are already sorted in the correct order, this needs to be true for binds that are added from outside */);
 		}
+		StandVanillaClickInput.addItemRightClickBindIcon(controlScheme, this);
 
 		// hotbars
 		for (AbilityHotbar hotbar : curGroup.hotbars) {
@@ -290,8 +347,8 @@ public class PowerHudControlsElement extends HudElement {
 				hotbarUI.highlight = hotbarUI.isSelectingAbility && !hotbar.alwaysSwitchAbility();
 
 				for (AbilityHotbarSlot slot : hotbar.slots) {
-					HotbarSlotUI slotUI = new HotbarSlotUI();
 					ClientKey key = input.getKey();
+					HotbarSlotUI slotUI = new HotbarSlotUI(key);
 					slotUI.bind.mainKey = getKeyName(key);
 					slotUI.bind.modifierKey = getModifierName(input.getKeyModifier());
 					slotUI.bind.fullKeybind = getKeyName(key, slotUI.bind.mainKey, input.getKeyModifier());
@@ -304,7 +361,7 @@ public class PowerHudControlsElement extends HudElement {
 								(KeyModifier mod) -> slotBinds.getAll(mod, inputMethod), 
 								modifier, key, false, 
 								abilityIconSprites, standSkin, 
-								font, hud.forContainerMenu,
+								hud.forContainerMenu,
 								partialTick, cooldowns);
 						if (bind != null) {
 							if (slotUI.sprite == null || inputMethod == InputMethod.HOLD && InputHandler.getInstance().isHeld(key, modifier)) {
@@ -407,6 +464,35 @@ public class PowerHudControlsElement extends HudElement {
 		
 		rectangle = new ScreenRectangle(rectangle.position(), width, height);
 	}
+	
+	public void addBind(BindUI bindUI, ClientKey key) {
+		addBind(bindUI, key, true);
+	}
+	
+	private void addBind(BindUI bindUI, ClientKey key, boolean searchForInsertionIndexInKeycodeOrder) {
+		if (!bindUI.abilities.isEmpty()) {
+			bindUI.mainKey = getKeyName(key);
+			bindUI.modifierKey = getModifierName(bindUI.modifier);
+			bindUI.fullKeybind = getKeyName(key, bindUI.mainKey, bindUI.modifier);
+			
+			bindUI.keybindWidth = font.width(bindUI.mainKey);
+			if (bindUI.modifierKey != null) 
+				bindUI.keybindWidth = Math.max(bindUI.keybindWidth, font.width(bindUI.modifierKey));
+			bindUI.keybindWidth += 4;
+			
+			bindUI.width = bindUI.keybindWidth + bindUI.abilities.size() * SLOT_WIDTH + 4;
+			
+			if (searchForInsertionIndexInKeycodeOrder) {
+				int insertionIndex = Collections.binarySearch(this.binds, bindUI, Comparator.comparing(
+						bind -> bind.key, Comparator.comparingInt(ClientKey::keyOrder)));
+				insertionIndex = insertionIndex > 0 ? insertionIndex + 1 : ~insertionIndex;
+				this.binds.add(insertionIndex, bindUI);
+			}
+			else {
+				this.binds.add(bindUI);
+			}
+		}
+	}
 
 
 	@Nullable
@@ -414,7 +500,7 @@ public class PowerHudControlsElement extends HudElement {
 			Function<KeyModifier, List<AbilityControlsEntry>> getAbilities, 
 			@Nonnull KeyModifier modifier, ClientKey key, boolean withModifierName, 
 			AbilityIconSprites abilitySprites, @Nullable StandSkin standSkin, 
-			Font font, TriState forContainerMenu,
+			TriState forContainerMenu,
 			float partialTick, @Nullable AbilityCooldownTracker cooldowns) {
 		AbilityConditionCheck ability = AbilityControlScheme.prioritizedAbility(modifier, 
 				getAbilities, 
@@ -422,7 +508,7 @@ public class PowerHudControlsElement extends HudElement {
 		return ability == null ? null : makeAbilityBindUI(key, withModifierName ? modifier : KeyModifier.NONE, 
 				inputMethod, ability, 
 				abilitySprites, standSkin, 
-				font, forContainerMenu,
+				forContainerMenu,
 				partialTick, cooldowns);
 	}
 
@@ -430,7 +516,7 @@ public class PowerHudControlsElement extends HudElement {
 	private static AbilityBindUI makeAbilityBindUI(ClientKey key, KeyModifier modifier, 
 			InputMethod inputMethod, AbilityConditionCheck abilityCtx, 
 			AbilityIconSprites abilitySprites, @Nullable StandSkin standSkin, 
-			Font font, TriState forContainerMenu, 
+			TriState forContainerMenu, 
 			float partialTick, @Nullable AbilityCooldownTracker cooldowns) {
 		if (abilityCtx != null && abilityCtx.ability != null) {
 			boolean showAbility = AbilityInputState.showAbilityInHUD(abilityCtx, forContainerMenu);
@@ -443,7 +529,7 @@ public class PowerHudControlsElement extends HudElement {
 				Power<?> userPower = ClientPowerCache.getPower(abilityId.powerClass());
 				float cooldown = cooldowns != null ? cooldowns.getCooldownRatio(abilityId, partialTick) : 0;
 
-				AbilityBindUI bindUI = new AbilityBindUI(abilityCtx, abilitySprites.getAbilityIcon(ability, userPower, standSkin),
+				AbilityBindUI bindUI = new MovesetAbilityBindUI(abilityCtx, abilitySprites.getAbilityIcon(ability, userPower, standSkin),
 						key, modifier, inputMethod,
 						bindName, Component.translatable("ripples_hud.key_ability", bindName, ability.getName(userPower)),
 						cooldown);
@@ -496,7 +582,7 @@ public class PowerHudControlsElement extends HudElement {
 			Runnable drawSelection = null;
 			for (Map.Entry<InputMethod, AbilityBindUI> abilitySprite : bind.abilities.entrySet()) {
 				AbilityBindUI abilityUI = abilitySprite.getValue();
-				boolean greenHighlight = abilityUI.ability.conditionCheck.greenHighlight();
+				boolean greenHighlight = abilityUI.greenHighlight();
 				DrawHotbar.drawHotbarSlot(hotbarLength, i, greenHighlight, guiGraphics.pose(), x, y, alpha);
 				renderAbility(guiGraphics, x, y, abilityUI, mc, partialTick, alpha);
 
@@ -549,7 +635,7 @@ public class PowerHudControlsElement extends HudElement {
 				Runnable drawSelection = null;
 				for (HotbarSlotUI slot : hotbar.slots) {
 					AbilityBindUI abilityUI = slot.sprite;
-					boolean greenHighlight = abilityUI != null && abilityUI.ability.conditionCheck.greenHighlight();
+					boolean greenHighlight = abilityUI != null && abilityUI.greenHighlight();
 					DrawHotbar.drawHotbarSlot(hotbarLength, i, greenHighlight, guiGraphics.pose(), x, y, alpha);
 					if (abilityUI != null) {
 						renderAbility(guiGraphics, x, y, abilityUI, mc, partialTick, alpha);
@@ -607,26 +693,13 @@ public class PowerHudControlsElement extends HudElement {
 	}
 
 	public static void renderAbility(GuiGraphics guiGraphics, float x, float y, AbilityBindUI abilityUi, Minecraft mc, float partialTick, int alpha) {
-		AbilityConditionCheck abilityCheck = abilityUi.ability;
-		Ability ability = abilityCheck.ability;
-		TextureAtlasSprite sprite = abilityUi.sprite;
-		
-		Power<?> power = ClientPowerCache.getPower(ability.abilityId.powerClass());
-		ability.renderAbilityIcon(power, guiGraphics, sprite, 
-				x + 3, y + 3, abilityColor(alpha, abilityCheck));
-
-		float cooldown = abilityUi.cooldownRatio;
-		if (cooldown > 0) {
+		abilityUi.renderInside(guiGraphics, x, y, mc, partialTick, alpha);
+	}
+	
+	public static void renderCooldown(GuiGraphics guiGraphics, float bindX, float bindY, float cooldownRatio) {
+		if (cooldownRatio > 0) {
 			DrawRect.fillSingleRect(guiGraphics, 
-					x + 3, y + 3 + 16.0F * (1.0F - cooldown), 16, 16.0F * cooldown, 0x80FFFFFF);
-		}
-
-		if (mc.player != null) {
-			WindupIndicator windup = ability.cl_windupIndicator(mc.player, windupIndicator, partialTick);
-			if (windup != null) {
-				renderWindupIndicator(guiGraphics, x + 13, y + 13, windup.value, windup.maxValue, mc, alpha);
-				WindupAtCrosshair.setRender(windup);
-			}
+					bindX + 3, bindY + 3 + 16.0F * (1.0F - cooldownRatio), 16, 16.0F * cooldownRatio, 0x80FFFFFF);
 		}
 	}
 	

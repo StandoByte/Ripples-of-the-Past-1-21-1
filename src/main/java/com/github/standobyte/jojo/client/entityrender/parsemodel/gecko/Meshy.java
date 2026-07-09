@@ -33,13 +33,13 @@ public record Meshy(boolean normalized_uvs, Vector3f[] positions, Vector3f[] nor
 				for (Vector3i vertexDefinition : face) {
 					Vector3f pos = positions[vertexDefinition.get(0)];
 					Vector2f uv = uvs[vertexDefinition.get(2)];
-					vertices[i++] = new VertexDefinition(new Vector3f(pos).mul(-1, 1, 1), uv.x, uv.y); 
+					vertices[i++] = new VertexDefinition(pos, uv.x, uv.y); 
 				}
 				
 				MeshFaceBuilder faceBuilder = meshBuilder.startFaceCalcNormal();
 				for (VertexDefinition vertex : vertices) {
 					faceBuilder.withVertex(
-							vertex.pos().x() - bonePivot.x(), 
+							-(vertex.pos().x() - bonePivot.x()), 
 							vertex.pos().y() - bonePivot.y(), 
 							vertex.pos().z() - bonePivot.z(), 
 							vertex.uPos(), vertex.vPos());

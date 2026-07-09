@@ -2,6 +2,10 @@ package com.github.standobyte.jojo.subsystems.entity_useitem;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.subsystems.entity_playerwrapper.ServerPlayerLivingWrapper;
+import com.github.standobyte.jojo.util.functions.AttributeUtil;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._ItemStack;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -20,10 +24,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
-
-import com.github.standobyte.jojo.subsystems.entity_playerwrapper.ServerPlayerLivingWrapper;
-import com.github.standobyte.jojo.util.functions.AttributeUtil;
-import com.github.standobyte.v1_21_4_stuff.missingmethods._ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -69,8 +69,11 @@ public class ServerSideLivingClick {
 				entity.swing(hand, true);
 			}
 			entityWrapper.checkInventoryChanges();
-			return result.consumesAction();
+			if (result.consumesAction()) {
+				return true;
+			}
 		}
+		
 		return false;
 	}
 

@@ -1,6 +1,5 @@
 package com.github.standobyte.jojo.customobjects.entity_projectile;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
@@ -15,10 +14,11 @@ import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
-import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.functions.DamageUtil;
 import com.github.standobyte.jojo.util.functions.JojoModUtil;
 import com.github.standobyte.jojo.util.functions.MathUtil;
+import com.github.standobyte.jojo.util.functions.NBTUtil;
+import com.github.standobyte.jojo.util.functions_network.NetworkUtil;
 import com.github.standobyte.jojo.util.objects_java.LazyNullable;
 
 import net.minecraft.core.BlockPos;
@@ -28,7 +28,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
@@ -407,41 +406,25 @@ public abstract class DamagingEntity extends Projectile implements IEntityWithCo
 	}
 
 	
-	/* TODO initialize both ResourceLocation standType and Optional<ResourceLocation> standSkin as fields instead 
-	 *   init the fields on server when shooting each projectile
-	 *     default field values:
-	 *       standType = the stand that is supposed to use it (JojoMod.resLoc("crazy_diamond") in CrazyDBloodCutterEntity)
-	 *       standSkin = Optional.empty()
-	 *   sync with writeSpawnData and readSpawnData
-	 *     standType - use NetworkUtil.writeOptionally(buffer) and NetworkUtil.readOptional(additionalData).ifPresent(readType -> this.standType = readType)
-	 *   save both fields in NBT
-	 */
+	protected StandSkinPath standSkin = null;
 	@Override
-	public ResourceLocation getStandType() {
-		StandPower userStand = this.userStandPower.get();
-		if (userStand != null) {
-			StandType standType = userStand.getPowerType();
-			if (standType != null) {
-				return standType.getId();
-			}
-		}
-		
-		return null;
+	public StandSkinPath getStandSkinId() {
+		return standSkin;
 	}
 	
 	@Override
-	public Optional<ResourceLocation> getStandSkin() {
-		StandPower userStand = this.userStandPower.get();
-		return userStand != null ? userStand.getSelectedSkin() : Optional.empty();
+	public void setStandSkinId(StandSkinPath skin) {
+		this.standSkin = skin;
 	}
 	
-
+	
 	@Override
 	protected void addAdditionalSaveData(CompoundTag nbt) {
 		super.addAdditionalSaveData(nbt);
 		nbt.putFloat("DamageFactor", damageFactor);
 		nbt.putDouble("SpeedFactor", speedFactor);
 		nbt.putInt("Age", tickCount);
+		NBTUtil.put(nbt, "StandSkin", standSkin, StandSkinPath.CODEC);
 	}
 
 	@Override
@@ -450,6 +433,7 @@ public abstract class DamagingEntity extends Projectile implements IEntityWithCo
 		damageFactor = nbt.getFloat("DamageFactor");
 		speedFactor = nbt.getDouble("SpeedFactor");
 		tickCount = nbt.getInt("Age");
+		standSkin = NBTUtil.getOptional(nbt, "StandSkin", StandSkinPath.CODEC).orElse(null);
 	}
 
 	@Override
@@ -459,12 +443,14 @@ public abstract class DamagingEntity extends Projectile implements IEntityWithCo
 	public void writeSpawnData(RegistryFriendlyByteBuf buffer) {
 		buffer.writeInt(tickCount);
 		buffer.writeDouble(speedFactor);
+		NetworkUtil.writeOptionally(standSkin, buffer, StandSkinPath.STREAM_CODEC);
 	}
 
 	@Override
 	public void readSpawnData(RegistryFriendlyByteBuf additionalData) {
 		tickCount = additionalData.readInt();
 		speedFactor = additionalData.readDouble();
+		standSkin = NetworkUtil.readOptional(additionalData, StandSkinPath.STREAM_CODEC).orElse(null);
 	}
 
 }

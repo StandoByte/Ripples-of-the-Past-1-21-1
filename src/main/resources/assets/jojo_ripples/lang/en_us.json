@@ -435,6 +435,8 @@
   "jojo_ripples.subtitle.ora_rush": "ORA ORA ORA",
   "jojo_ripples.subtitle.muda": "MUDA",
   "jojo_ripples.subtitle.muda_rush": "MUDA MUDA MUDA",
+  "jojo_ripples.subtitle.dora": "DORA",
+  "jojo_ripples.subtitle.dora_rush": "DORARARARA",
   
   "jojo_ripples.skill.punch": "Punch",
   "jojo_ripples.skill.punch.desc": "A repeatable combo of fast and precise punches.",
@@ -488,6 +490,11 @@
   "jojo_ripples.skill.manual_control.desc": "Directly control your Stand's movement within its maximum range.",
   "jojo_ripples.skill.manual_control.controls": "O",
   "jojo_ripples.ability.manual_control": "Manual control",
+
+  "jojo_ripples.skill.item_use": "Use Item",
+  "jojo_ripples.skill.item_use.desc": "Your Stand can right-click blocks and items in its hands.\n§7§oHolding Shift disables item usage and lets you use regular \uEAFE Stand attacks instead.",
+  "jojo_ripples.skill.item_use.controls": "\uEAFE while Stand is holding an item (while not holding Shift)",
+  "jojo_ripples.ability.item_use": "Use Item",
 
   "jojo_ripples.ability.bearing_shot": "Bearing Shot",
 
@@ -569,7 +576,7 @@
   
   "jojo_ripples.skill.hit_armor_fix": "Hit & Armor Fix",
   "jojo_ripples.skill.hit_armor_fix.desc": "Crazy Diamond's heavy punch tears off a chunk of the target's armor, and fixes it back together to bring the target back to the melee range.",
-  "jojo_ripples.skill.hit_armor_fix.controls": "Heavy Punch + \uEAFE §lon an armored target",
+  "jojo_ripples.skill.hit_armor_fix.controls": "Heavy Punch + \uEAFE on an armored target",
   "jojo_ripples.ability.hit_armor_fix": "Fix armor",
   
   "jojo_ripples.skill.mishealing_punch": "Mishealing Punch",
@@ -579,7 +586,7 @@
   
   "jojo_ripples.skill.leave_object": "Leave object",
   "jojo_ripples.skill.leave_object.desc": "After punching a hole in the target's abdomen, leave a held item inside of them and partially heal the injury. Some items have special effects.",
-  "jojo_ripples.skill.leave_object.controls": "Charged Heavy Punch + \uEAFE",
+  "jojo_ripples.skill.leave_object.controls": "Charged Heavy Punch + \uEAFE while Crazy Diamond is holding an item",
   "jojo_ripples.ability.leave_object": "Leave object",
   
   "jojo_ripples.skill.repair_item": "Repair item",

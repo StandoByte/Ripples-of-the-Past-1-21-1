@@ -115,6 +115,8 @@ public class StandInitStarPlatinum {
 				.addSkill(StandUnlockableSkill.startingAbility("block_toss").setNotYetImplemented())
 				.addSkill(StandUnlockableSkill.unlockableAbility("grab_throw", 100).prerequisiteSkill("grab").setIncomplete())
 				.addSkill(StandUnlockableSkill.unlockableAbility("grab_terrain", 150).setNotYetImplemented().withAbility("terrain_throw").prerequisiteSkill("grab"))
+				
+				.addSkill(StandUnlockableSkill.startingAbility("guard").setNotYetImplemented())
 
 				.addSkill(StandUnlockableSkill.startingAbility("enhanced_eyesight").setNotYetImplemented())
 				.addSkill(StandUnlockableSkill.unlockableAbility("star_finger", 250)/*.withAbility("star_finger_swipe")*/)
@@ -122,7 +124,10 @@ public class StandInitStarPlatinum {
 				.addSkill(StandUnlockableSkill.unlockableAbility("time_stop", 5000).withAbility("time_resume").setIncomplete())
 
 				.addSkill(StandUnlockableSkill.unlockableAbility("leap", 250).setNotYetImplemented())
-				.addHumanoidStandSkills()
+				.addSkill(StandUnlockableSkill.startingAbility("ledge_grab").setNotYetImplemented())
+				
+				.addSkill(StandUnlockableSkill.startingAbility("manual_control"))
+				.addSkill(StandUnlockableSkill.startingAbility("item_use"))
 
 				, id)
 			.discTooltipWIP()

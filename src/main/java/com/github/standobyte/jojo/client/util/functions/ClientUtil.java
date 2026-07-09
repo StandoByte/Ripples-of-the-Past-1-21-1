@@ -93,22 +93,24 @@ public class ClientUtil {
 		return Math.min(alpha, maxAlpha - minAlpha) + minAlpha;
 	}
 
-	public static void renderEntityFace(PoseStack poseStack, int x, int y, LivingEntity entity) {
+	public static void renderEntityFace(PoseStack poseStack, float x, float y, LivingEntity entity) { renderEntityFace(poseStack, x, y, entity, BlitFloat.NO_TINT, true); }
+	public static void renderEntityFace(PoseStack poseStack, float x, float y, LivingEntity entity, int color, boolean showOuterLayer) {
 		if (entity instanceof AbstractClientPlayer player) {
-			renderPlayerFace(poseStack, x, y, player);
+			renderPlayerFace(poseStack, x, y, player, color, showOuterLayer);
 		}
 	}
 
 	public static final float OUTER_LAYER_SCALE = 9f/8f;
-	public static void renderPlayerFace(PoseStack poseStack, int x, int y, AbstractClientPlayer player) {
+	public static void renderPlayerFace(PoseStack poseStack, float x, float y, AbstractClientPlayer player) { renderPlayerFace(poseStack, x, y, player, BlitFloat.NO_TINT, true); }
+	public static void renderPlayerFace(PoseStack poseStack, float x, float y, AbstractClientPlayer player, int color, boolean showOuterLayer) {
 		Minecraft mc = Minecraft.getInstance();
 		PlayerSkin playerSkin = player.getSkin();
 		ResourceLocation playerFace = playerSkin.texture();
 		BlitFloat.blit(poseStack, mc, playerFace, 
 				x, y, 16, 16, 0, 
 				8, 8, 8, 8, 64, 64, 
-				BlitFloat.NO_TINT);
-		if (player.isModelPartShown(PlayerModelPart.HAT)) {
+				color);
+		if (showOuterLayer && player.isModelPartShown(PlayerModelPart.HAT)) {
 			poseStack.pushPose();
 			poseStack.translate(x + 8, y + 8, 0);
 			poseStack.scale(OUTER_LAYER_SCALE, OUTER_LAYER_SCALE, 0);
@@ -116,7 +118,7 @@ public class ClientUtil {
 			BlitFloat.blit(poseStack, mc, playerFace, 
 					x, y, 16, 16, 0, 
 					40, 8, 8, 8, 64, 64, 
-					BlitFloat.NO_TINT);
+					color);
 			poseStack.popPose();
 		}
 	}
