@@ -11,8 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.client.entityanim.IHumanoidAnimModel;
-import com.github.standobyte.jojo.client.entityanim.player.HumanoidModelCubesBent;
-import com.github.standobyte.jojo.client.entityanim.player.RenderAnimatedPlayerModel;
+import com.github.standobyte.jojo.client.entityanim.player.HumanoidModelPartsWithBends;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState;
 import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
@@ -31,7 +30,7 @@ import net.minecraft.world.entity.HumanoidArm;
 @Mixin(HumanoidModel.class)
 public abstract class HumanoidModelMixin/* extends ModelMixinSuperclass*/ extends AgeableModelMixinSuperclass implements IHumanoidAnimModel {
 	@Nullable protected ResourceModelEntry jojo_ripples$playerAnimRig;
-	protected HumanoidModelCubesBent humanoidModelWithBends;
+	protected HumanoidModelPartsWithBends humanoidModelWithBends;
 	
 	@Inject(method = "<init>("
 			+ "Lnet/minecraft/client/model/geom/ModelPart;"
@@ -56,10 +55,9 @@ public abstract class HumanoidModelMixin/* extends ModelMixinSuperclass*/ extend
 			int packedLight, int packedOverlay, int color, CallbackInfo ci) {
 		if (jojo_ripples$playerAnimRig != null) {
 			if (humanoidModelWithBends == null) {
-				humanoidModelWithBends = HumanoidModelCubesBent.createFromBase((HumanoidModel<?>) (Object) this);
+				humanoidModelWithBends = HumanoidModelPartsWithBends.createFromBase((HumanoidModel<?>) (Object) this);
 			}
-			RenderAnimatedPlayerModel.renderWithBends((HumanoidModel<?>) (Object) this, 
-					humanoidModelWithBends, jojo_ripples$playerAnimRig, 
+			humanoidModelWithBends.renderWithBends((HumanoidModel<?>) (Object) this, jojo_ripples$playerAnimRig, 
 					poseStack, buffer, packedLight, packedOverlay, color);
 			ci.cancel();
 		}
@@ -68,7 +66,7 @@ public abstract class HumanoidModelMixin/* extends ModelMixinSuperclass*/ extend
 	@Inject(method = "translateToHand", at = @At("HEAD"), cancellable = true)
 	public void jojo_ripples$translateToBentHandBefore(HumanoidArm side, PoseStack poseStack, CallbackInfo ci) {
 		if (jojo_ripples$playerAnimRig != null) {
-			RenderAnimatedPlayerModel.translateToAnimHand(
+			HumanoidModelPartsWithBends.translateToAnimHand(
 					(HumanoidModel<?>) (Object) this, jojo_ripples$playerAnimRig, 
 					side, poseStack, false);
 			ci.cancel();

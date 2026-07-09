@@ -1,116 +1,35 @@
 package com.github.standobyte.jojo.client.entityanim.player;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-import org.apache.commons.lang3.tuple.Pair;
+import java.util.Map;
 
 import com.github.standobyte.jojo.client.entityrender.parsemodel.generic.BlockbenchMeshDefinition;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._ModelPart$Polygon;
 import com.google.common.collect.Iterables;
 
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.LivingEntity;
 
-public class HumanoidModelCubesBent {
-	public List<ModelPart.Cube> head;
-	public List<ModelPart.Cube> head2;
-	public List<ModelPart.Cube> torso_lower;
-	public List<ModelPart.Cube> torso_lower2;
-	public List<ModelPart.Cube> torso_bend;
-	public List<ModelPart.Cube> torso_bend2;
-	public List<ModelPart.Cube> right_arm;
-	public List<ModelPart.Cube> right_arm2;
-	public List<ModelPart.Cube> right_arm_bend;
-	public List<ModelPart.Cube> right_arm_bend2;
-	public List<ModelPart.Cube> left_arm;
-	public List<ModelPart.Cube> left_arm2;
-	public List<ModelPart.Cube> left_arm_bend;
-	public List<ModelPart.Cube> left_arm_bend2;
-	public List<ModelPart.Cube> right_leg;
-	public List<ModelPart.Cube> right_leg2;
-	public List<ModelPart.Cube> right_leg_bend;
-	public List<ModelPart.Cube> right_leg_bend2;
-	public List<ModelPart.Cube> left_leg;
-	public List<ModelPart.Cube> left_leg2;
-	public List<ModelPart.Cube> left_leg_bend;
-	public List<ModelPart.Cube> left_leg_bend2;
-	
-	public List<ModelPart.Cube> getCubes(String modelPartName, boolean outerLayer) {
-		return switch (modelPartName) {
-			case "left_arm" -> 			outerLayer ? left_arm2 : left_arm;
-			case "right_arm" -> 		outerLayer ? right_arm2 : right_arm;
-			case "left_leg" ->			outerLayer ? left_leg2 : left_leg;
-			case "right_leg" -> 		outerLayer ? right_leg2 : right_leg;
-			case "head" -> 				outerLayer ? head2 : head;
-			case "torso_lower" -> 		outerLayer ? torso_lower2 : torso_lower;
-			case "torso_bend" -> 		outerLayer ? torso_bend2 : torso_bend;
-			case "left_arm_bend" -> 	outerLayer ? left_arm_bend2 : left_arm_bend;
-			case "right_arm_bend" -> 	outerLayer ? right_arm_bend2 : right_arm_bend;
-			case "left_leg_bend" -> 	outerLayer ? left_leg_bend2 : left_leg_bend;
-			case "right_leg_bend" -> 	outerLayer ? right_leg_bend2 : right_leg_bend;
-////			case "cape" -> 				playerModel.body.children.get("cape");
-//			case "cape" -> 				((Model_1_21_2plus) playerModel).jojo_ripples$root().children.get("cloak");
-//			case "cape_bend" -> 		((IPlayerBendModel) playerModel).jojo_ripples$animCapeBend();
-			default -> null;
-		};
-	}
-	
-	
+public class BendUtil {
 
-	public static <T extends LivingEntity> HumanoidModelCubesBent createFromBase(HumanoidModel<T> model) {
-		HumanoidModelCubesBent obj = new HumanoidModelCubesBent();
-		obj.head = model.head.cubes;
-		obj.head2 = model.hat.cubes;
-		
-		var split = split(model.body, 0, 6, 0, -6, true);
-		obj.torso_lower = split.getLeft();
-		obj.torso_bend = split.getRight();
-		split = split(model.rightArm, 1, 4, 0, 0, false);
-		obj.right_arm = split.getLeft();
-		obj.right_arm_bend = split.getRight();
-		split = split(model.leftArm, -1, 4, 0, 0, false);
-		obj.left_arm = split.getLeft();
-		obj.left_arm_bend = split.getRight();
-		split = split(model.rightLeg, 0, 6, 0, 0, false);
-		obj.right_leg = split.getLeft();
-		obj.right_leg_bend = split.getRight();
-		split = split(model.leftLeg, 0, 6, 0, 0, false);
-		obj.left_leg = split.getLeft();
-		obj.left_leg_bend = split.getRight();
-		
-		if (model instanceof PlayerModel playerModel) {
-			split = split(playerModel.jacket, 0, 6, 0, -6, true);
-			obj.torso_lower2 = split.getLeft();
-			obj.torso_bend2 = split.getRight();
-			split = split(playerModel.rightSleeve, 1, 4, 0, 0, false);
-			obj.right_arm2 = split.getLeft();
-			obj.right_arm_bend2 = split.getRight();
-			split = split(playerModel.leftSleeve, -1, 4, 0, 0, false);
-			obj.left_arm2 = split.getLeft();
-			obj.left_arm_bend2 = split.getRight();
-			split = split(playerModel.rightPants, 0, 6, 0, 0, false);
-			obj.right_leg2 = split.getLeft();
-			obj.right_leg_bend2 = split.getRight();
-			split = split(playerModel.leftPants, 0, 6, 0, 0, false);
-			obj.left_leg2 = split.getLeft();
-			obj.left_leg_bend2 = split.getRight();
+	public static record LimbHalf(List<ModelPart.Cube> cubes, Map<String, ModelPart> children) {
+		public ModelPart makePart() {
+			return new ModelPart(cubes, children);
 		}
-		
-		return obj;
 	}
+	public static record LimbSplit(LimbHalf base, LimbHalf bend, Map<String, ModelPart> joint) {}
 
 	static List<ModelPart.Polygon> baseQuads = new ArrayList<>(6);
 	static List<ModelPart.Polygon> bendQuads = new ArrayList<>(6);
 	static List<ModelPart.Vertex> yLess = new ArrayList<>(4);
 	static List<ModelPart.Vertex> yMore = new ArrayList<>(4);
-	static Pair<List<ModelPart.Cube>, List<ModelPart.Cube>> split(ModelPart modelPart, 
+	static LimbSplit split(ModelPart modelPart, 
 			float x, float y, float z, float yOffset, boolean bendIsAbove) {
-		List<ModelPart.Cube> baseHalf = new ArrayList<>(modelPart.cubes.size());
-		List<ModelPart.Cube> bentHalf = new ArrayList<>(modelPart.cubes.size());
+		List<ModelPart.Cube> baseHalfCubes = new ArrayList<>(modelPart.cubes.size());
+		List<ModelPart.Cube> bendHalfCubes = new ArrayList<>(modelPart.cubes.size());
 		for (ModelPart.Cube cube : modelPart.cubes) {
 			baseQuads.clear();
 			bendQuads.clear();
@@ -230,11 +149,35 @@ public class HumanoidModelCubesBent {
 			ModelPart.Cube baseCube = fromPolygons(baseQuads);
 			ModelPart.Cube bendCube = fromPolygons(bendQuads);
 
-			baseHalf.add(baseCube);
-			bentHalf.add(bendCube);
+			baseHalfCubes.add(baseCube);
+			bendHalfCubes.add(bendCube);
 		}
 		
-		return Pair.of(baseHalf, bentHalf);
+		LimbHalf baseHalf = new LimbHalf(baseHalfCubes, new HashMap<>());
+		LimbHalf bendHalf = new LimbHalf(bendHalfCubes, new HashMap<>());
+		Map<String, ModelPart> joint = new HashMap<>();
+		
+		if (!modelPart.children.isEmpty()) {
+			Map<String, ModelPart> yMoreChildren = (bendIsAbove ? baseHalf : bendHalf).children;
+			Map<String, ModelPart> yLessChildren = (bendIsAbove ? bendHalf : baseHalf).children;
+			for (var childEntry : modelPart.children.entrySet()) {
+				ModelPart child = childEntry.getValue();
+				if (!BendUtil.isSamePivotAsParent(child)) {
+					float childY = child.y;
+					if (childY < yOffset) {
+						yLessChildren.put(childEntry.getKey(), child);
+					}
+					else if (childY > yOffset) {
+						yMoreChildren.put(childEntry.getKey(), child);
+					}
+					else {
+						joint.put(childEntry.getKey(), child);
+					}
+				}
+			}
+		}
+		
+		return new LimbSplit(baseHalf, bendHalf, joint);
 	}
 	
 	public static ModelPart.Cube fromPolygons(Iterable<ModelPart.Polygon> polygons) {
@@ -262,4 +205,10 @@ public class HumanoidModelCubesBent {
 		return cube;
 	}
 	
+	public static boolean isSamePivotAsParent(ModelPart modelPart) {
+		PartPose initialPose = modelPart.getInitialPose();
+		return 
+				initialPose.xRot == 0 && initialPose.yRot == 0 && initialPose.zRot == 0 
+				&& initialPose.x == 0 && initialPose.y == 0 && initialPose.z == 0;
+	}
 }

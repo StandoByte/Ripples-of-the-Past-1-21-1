@@ -20,7 +20,7 @@ import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery.AnimM
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.AnimationChannelQuery;
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.IAnimationChannel;
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.KeyframeQuery;
-import com.github.standobyte.jojo.client.entityanim.player.RenderAnimatedPlayerModel;
+import com.github.standobyte.jojo.client.entityanim.player.HumanoidModelPartsWithBends;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
 import com.github.standobyte.jojo.client.entityrender.HiddenModelPartsUtil;
@@ -127,7 +127,7 @@ public class RotpAnimDefinition {
 	}
 	
 	public static void animateVanillaHumanoid(Model rigModel, HumanoidModel<?> vanillaModel, AnimFramePose frame) {
-		RenderAnimatedPlayerModel.beforePlayerAnim(vanillaModel);
+		HumanoidModelPartsWithBends.beforePlayerAnim(vanillaModel);
 		EntityRenderState.resetPose(rigModel);
 		animate(rigModel, frame);
 		OldPlayerModelJank._onAnimate(vanillaModel);
