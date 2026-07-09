@@ -18,8 +18,6 @@ import net.minecraft.world.entity.LivingEntity;
 
 // TODO (clothes) fix the model z-fighting
 // TODO (clothes) fix the way it looks with armor equipped
-// FIXME model bend on left leg
-// WHY IS IT ONLY LEFT LEG SPECIFICALLY FOR BOTH????
 public class HumanoidClothesModel extends HumanoidPlayerModel<LivingEntity>/*<HumanoidRenderState>*/ {
 	private Map<ClothesSlotType, List<ModelPart>> byClothesPart = new EnumMap<>(ClothesSlotType.class);
 
