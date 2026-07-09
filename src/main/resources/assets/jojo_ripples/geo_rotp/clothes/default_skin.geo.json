@@ -118,7 +118,7 @@
 				{
 					"name": "slot2_lLeg",
 					"parent": "left_leg",
-					"pivot": [0, 0, 0],
+					"pivot": [1.9, 12, 0],
 					"cubes": [
 						{"origin": [-0.1, 0, -2], "size": [4, 12, 4], "uv": [16, 48]},
 						{"origin": [-0.1, 0, -2], "size": [4, 12, 4], "inflate": 0.25, "uv": [0, 48]}
@@ -127,7 +127,7 @@
 				{
 					"name": "slot3_lLeg",
 					"parent": "left_leg",
-					"pivot": [0, 0, 0],
+					"pivot": [1.9, 12, 0],
 					"cubes": [
 						{"origin": [-0.1, 0, -2], "size": [4, 12, 4], "uv": [16, 112]},
 						{"origin": [-0.1, 0, -2], "size": [4, 12, 4], "inflate": 0.25, "uv": [0, 112]}
