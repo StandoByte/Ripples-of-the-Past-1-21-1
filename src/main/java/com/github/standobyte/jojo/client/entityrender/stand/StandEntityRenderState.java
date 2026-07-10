@@ -15,4 +15,16 @@ public class StandEntityRenderState extends HumanoidRenderState {
 	public boolean doScalingFromStandSkin;
 
     public static void extractStandRenderState(StandEntity entity, StandEntityRenderState reusedState, float partialTick) {}
+    
+    @Override
+    public void clear(float ageInTicks) {
+    	super.clear(ageInTicks);
+    	this.skin = null;
+    	this.action.clear();
+    	this.tint = -1;
+    	this.alpha = 1;
+    	this.visibleParts = HumanoidPart.ALL;
+    	this.mayObstructView = false;
+    	this.doScalingFromStandSkin = false;
+    }
 }

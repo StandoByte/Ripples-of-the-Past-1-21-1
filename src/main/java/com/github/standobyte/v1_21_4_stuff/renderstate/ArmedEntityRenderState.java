@@ -25,4 +25,14 @@ public class ArmedEntityRenderState extends LivingEntityRenderState {
         reusedState.rightHandItem = _LivingEntity.getItemHeldByArm(entity, HumanoidArm.RIGHT);
         reusedState.leftHandItem = _LivingEntity.getItemHeldByArm(entity, HumanoidArm.LEFT);
     }
+    
+    @Override
+    public void clear(float ageInTicks) {
+    	super.clear(ageInTicks);
+    	this.mainArm = HumanoidArm.RIGHT;
+    	this.rightArmPose = HumanoidModel.ArmPose.EMPTY;
+    	this.rightHandItem = ItemStack.EMPTY;
+    	this.leftArmPose = HumanoidModel.ArmPose.EMPTY;
+    	this.leftHandItem = ItemStack.EMPTY;
+    }
 }

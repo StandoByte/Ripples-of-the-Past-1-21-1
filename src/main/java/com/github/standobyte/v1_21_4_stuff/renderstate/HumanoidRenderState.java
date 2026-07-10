@@ -63,6 +63,30 @@ public class HumanoidRenderState extends ArmedEntityRenderState implements Rippl
         reusedState.legsEquipment = entity.getItemBySlot(EquipmentSlot.LEGS).copy();
         reusedState.feetEquipment = entity.getItemBySlot(EquipmentSlot.FEET).copy();
     }
+    
+    @Override
+    public void clear(float ageInTicks) {
+    	super.clear(ageInTicks);
+        this.swimAmount = 0;
+        this.attackTime = 0;
+        this.speedValue = 1;
+        this.maxCrossbowChargeDuration = 0;
+        this.ticksUsingItem = 0;
+        this.attackArm = HumanoidArm.RIGHT;
+        this.useItemHand = InteractionHand.MAIN_HAND;
+        this.isCrouching = false;
+        this.isFallFlying = false;
+        this.isVisuallySwimming = false;
+        this.isPassenger = false;
+        this.isUsingItem = false;
+//        this.elytraRotX = 0;
+//        this.elytraRotY = 0;
+//        this.elytraRotZ = 0;
+        this.headEquipment = ItemStack.EMPTY;
+        this.chestEquipment = ItemStack.EMPTY;
+        this.legsEquipment = ItemStack.EMPTY;
+        this.feetEquipment = ItemStack.EMPTY;
+    }
 
     private static HumanoidArm getAttackArm(LivingEntity entity) {
         HumanoidArm humanoidarm = entity.getMainArm();

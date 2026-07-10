@@ -98,6 +98,25 @@ public class EntityRenderState {
 
     	reusedState.partialTick = partialTick;
     }
+    
+    public void clear(float ageInTicks) {
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
+        this.ageInTicks = ageInTicks;
+        this.boundingBoxWidth = 0;
+        this.boundingBoxHeight = 0;
+        this.eyeHeight = 0;
+        this.distanceToCameraSq = 0;
+        this.isInvisible = false;
+        this.isDiscrete = false;
+        this.displayFireAnimation = false;
+        this.passengerOffset = null;
+        this.nameTag = null;
+        this.nameTagAttachment = null;
+        this.leashState = null;
+        this.partialTick = Mth.frac(ageInTicks);
+    }
 
 
     public static float getXRot(Entity entity, float partialTick) {

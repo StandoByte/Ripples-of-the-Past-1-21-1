@@ -26,6 +26,11 @@ public class EntityActionRenderState {
 		renderState.pose = preCalcPose.jojo_ripples$getModelPose(AnimatedEntity.PoseType.FINAL);
 		renderState.barrageSwings = getBarrageSwings(entity);
 	}
+	
+	public void clear() {
+		this.pose = null;
+		this.barrageSwings = null;
+	}
 
 	@Nullable
 	public static ResourceModelEntry setupModelAnim(HumanoidModel<?> model, 
