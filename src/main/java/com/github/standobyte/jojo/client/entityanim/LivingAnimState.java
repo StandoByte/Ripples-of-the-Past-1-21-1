@@ -10,6 +10,8 @@ import net.minecraft.resources.ResourceLocation;
 public class LivingAnimState {
 	@Nullable public ResourceLocation animSet;
 	@Nullable public ActionAnimIdentifier animId;
+	public boolean animFromJojoPosesLoader;
+	
 	public float time;
 	@Nullable public ActionPhase actionPhase;
 	public float phaseTime;
@@ -18,6 +20,7 @@ public class LivingAnimState {
 	public void reset() {
 		this.animSet = null;
 		this.animId = null;
+		this.animFromJojoPosesLoader = false;
 		this.time = -1;
 		this.actionPhase = null;
 		this.phaseTime = -1;

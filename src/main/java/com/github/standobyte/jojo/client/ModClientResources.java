@@ -12,6 +12,7 @@ import com.github.standobyte.jojo.client.sound.util.SoundCache;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.client.layer.ClothesModelLoader;
+import com.github.standobyte.jojo.mechanics.jojopose.resource.ClientJojoPoseLoader;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -29,6 +30,7 @@ public class ModClientResources {
 		RotpGeckoModelLoader.init(event);
 		StandSkinsLoader.init(event);
 		AnimationLoader.init(event);
+		ClientJojoPoseLoader.init(event);
 		ClothesModelLoader.init(event);
 		PlayerRigLoader.init(event);
 		ModShaders.init(event);

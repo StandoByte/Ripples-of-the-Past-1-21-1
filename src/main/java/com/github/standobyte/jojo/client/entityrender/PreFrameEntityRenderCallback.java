@@ -23,6 +23,8 @@ import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.event.client.ModClientEventHooks;
 import com.github.standobyte.jojo.event.client.ReplacePlayerModelEvent;
+import com.github.standobyte.jojo.mechanics.jojopose.resource.ClientJojoPoseLoader;
+import com.github.standobyte.jojo.mechanics.jojopose.resource.JojoPoseAnimSet;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
@@ -36,7 +38,6 @@ import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.TickRateManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -93,7 +94,7 @@ public class PreFrameEntityRenderCallback {
 		}
 
 		List<RotpAnimDefinition> animsPre = null;
-		RotpAnimDefinition anim;
+		RotpAnimDefinition anim = null;
 		if (stand != null) {
 			StandSkin standSkin = StandSkinsLoader.getInstance().getSkin(stand);
 			boolean isGrabbing = LivingComponentGrab.getEntityGrabbedBy(stand) != null;
@@ -131,7 +132,22 @@ public class PreFrameEntityRenderCallback {
 			}
 		}
 		else {
-			anim = getPlayerAnim(animVariables.animSet, animVariables.animId);
+			if (animVariables.animFromJojoPosesLoader) {
+				if (animVariables.animSet != null && animVariables.animId != null) {
+					JojoPoseAnimSet animSet = ClientJojoPoseLoader.getInstance().getAnimSet(animVariables.animSet);
+					if (animSet != null) {
+						anim = animSet.anims().getNamedAnim(animVariables.animId);
+					}
+				}
+			}
+			else {
+				if (animVariables.animSet != null && animVariables.animId != null) {
+					AnimationSet animSet = AnimationLoader.getInstance().getAnimSet(animVariables.animSet);
+					if (animSet != null) {
+						anim = animSet.getNamedAnim(animVariables.animId);
+					}
+				}
+			}
 		}
 		
 		boolean adjustComplexBends = false;
@@ -188,17 +204,6 @@ public class PreFrameEntityRenderCallback {
 			return pose;
 		}
 		
-		return null;
-	}
-	
-	public static RotpAnimDefinition getPlayerAnim(ResourceLocation animSetPath, ActionAnimIdentifier animId) {
-		if (animSetPath != null && animId != null) {
-			AnimationSet animSet = AnimationLoader.getInstance().getAnimSet(animSetPath);
-			if (animSet != null) {
-				RotpAnimDefinition anim = animSet.getNamedAnim(animId);
-				return anim;
-			}
-		}
 		return null;
 	}
 	
