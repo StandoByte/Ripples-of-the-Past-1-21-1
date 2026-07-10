@@ -71,6 +71,7 @@ public record TrClothesItemsPacket(int entityId, List<Pair<ClothesSlotType, Item
 				for (var slot : payload.slots()) {
 					livingClothes.setItemSlot(slot.getFirst(), slot.getSecond());
 				}
+				livingClothes.onChanged();
 			}
 		}
 
