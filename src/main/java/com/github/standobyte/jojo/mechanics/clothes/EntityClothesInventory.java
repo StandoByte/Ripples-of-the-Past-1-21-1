@@ -16,12 +16,15 @@ import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
+import com.github.standobyte.jojo.mechanics.clothes.itemdata.StoryCharacter;
+import com.github.standobyte.jojo.subsystems.StoryPart;
 import com.github.standobyte.jojo.util.functions.EnumUtil;
 import com.github.standobyte.jojo.util.functions.ItemUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._ItemStack;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
 
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -120,6 +123,7 @@ public class EntityClothesInventory implements Container, SynchronizablePlayerDa
 				lastItems.put(slot, newItemCopy);
 			});
 			PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new TrClothesItemsPacket(entity.getId(), list));
+			onChanged();
 		}
 	}
 
@@ -144,6 +148,15 @@ public class EntityClothesInventory implements Container, SynchronizablePlayerDa
 //			}
 //		});
 //		EnchantmentHelper.runLocationChangedEffects(serverLevel, newItem, this, slot);
+	}
+	
+	@Nullable private Holder<StoryCharacter> character; @Nullable public Holder<StoryCharacter> getCharacter() { return character; } // we have lombok at home
+	@Nullable private Holder<StoryPart> storyPart; @Nullable public Holder<StoryPart> getStoryPart() { return storyPart; }
+	/** Unlike the two methods above, this is called on both server and client sides */
+	public void onChanged() {
+		CharacterFromClothes data = CharacterFromClothes.fromClothes(this);
+		character = data.character().orElse(null);
+		storyPart = data.storyPart().orElse(null);
 	}
 
 
