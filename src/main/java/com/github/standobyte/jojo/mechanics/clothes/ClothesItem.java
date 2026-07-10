@@ -5,23 +5,31 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
+import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesPiece;
+import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesPiece.SubClothingPiece;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSet;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
-import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesPiece.SubClothingPiece;
 import com.github.standobyte.v1_21_4_stuff.itemmodel.__ItemModelComponent;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._ItemStack;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.dispenser.BlockSource;
+import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -33,11 +41,52 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.phys.AABB;
 
 public class ClothesItem extends Item {
 	
 	public ClothesItem(Item.Properties properties) {
 		super(properties.stacksTo(1));
+
+		DispenserBlock.registerBehavior(this, new DefaultDispenseItemBehavior() {
+			@Override
+			protected ItemStack execute(BlockSource blockSource, ItemStack itemStack) {
+				BlockPos entityPos = blockSource.pos().relative(blockSource.state().getValue(DispenserBlock.FACING));
+				List<LivingEntity> entitiesAt = blockSource.level().getEntitiesOfClass(LivingEntity.class, new AABB(entityPos), 
+						EntitySelector.NO_SPECTATORS.and(_entity -> {
+							LivingEntity entity = (LivingEntity) _entity;
+							if (!canEntityTypePutOnClothes(entity)) {
+								return false;
+							}
+							if (entity instanceof Mob mob && !mob.canPickUpLoot()) {
+								return false;
+							}
+							
+							ClothesDataComponent clothesPiece = itemStack.get(ModItemDataComponents.CLOTHES_PIECE);
+							EntityClothesInventory clothes = entity.getData(ModDataAttachmentTypes.HUMANOID_CLOTHES);
+							return clothes != null && clothesPiece != null && clothes.getClothingPiece(clothesPiece.getSlot()).isEmpty();
+						}));
+				if (!entitiesAt.isEmpty()) {
+					LivingEntity entity = entitiesAt.get(0);
+
+					EntityClothesInventory clothes = entity.getData(ModDataAttachmentTypes.HUMANOID_CLOTHES);
+					ClothesDataComponent clothesPiece = itemStack.get(ModItemDataComponents.CLOTHES_PIECE);
+					clothes.setItemSlot(clothesPiece.getSlot(), itemStack.split(1));
+					return itemStack;
+				}
+				
+				return super.execute(blockSource, itemStack);
+			}
+		});
+	}
+	
+	public static boolean canEntityTypePutOnClothes(LivingEntity entity) {
+		EntityType<?> entityType = entity.getType();
+		return 
+				entityType == EntityType.PLAYER 
+				|| entityType == ModEntityTypes.MANNEQUIN.get() 
+				|| entityType == ModEntityTypes.CHARACTER.get();
 	}
 	
 	@Nullable
