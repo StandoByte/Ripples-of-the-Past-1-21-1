@@ -12,7 +12,12 @@
 			},
 			"bones": [
 				{
+					"name": "body_rot",
+					"pivot": [0, 24, 0]
+				},
+				{
 					"name": "body",
+					"parent": "body_rot",
 					"pivot": [0, 12, 0]
 				},
 				{
@@ -250,6 +255,11 @@
 				{
 					"name": "head",
 					"parent": "neck",
+					"pivot": [0, 24, 0]
+				},
+				{
+					"name": "head_rot",
+					"parent": "head",
 					"pivot": [0, 24, 0],
 					"cubes": [
 						{
