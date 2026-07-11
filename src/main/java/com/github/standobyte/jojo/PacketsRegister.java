@@ -18,6 +18,7 @@ import com.github.standobyte.jojo.mechanics.clothes.TrClothesItemsPacket;
 import com.github.standobyte.jojo.mechanics.clothes.sewing.ClSetSewingMachineItemPacket;
 import com.github.standobyte.jojo.mechanics.resolve.ClActivateResolvePacket;
 import com.github.standobyte.jojo.mechanics.resolve.TrResolvePacket;
+import com.github.standobyte.jojo.mechanics.voiceline.PlayVoiceLinePacket;
 import com.github.standobyte.jojo.network.c2s.ClAbilityInputPacket;
 import com.github.standobyte.jojo.network.c2s.ClAimTargetPacket;
 import com.github.standobyte.jojo.network.c2s.ClDebugCommandPacket;
@@ -128,6 +129,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrStandSkinPacket.Handler(JojoMod.resLoc("standskin")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new StandSkinSoundPacket.Handler(JojoMod.resLoc("standsound")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new StandEntitySoundPacket.Handler(JojoMod.resLoc("standsound2")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new PlayVoiceLinePacket.Handler(JojoMod.resLoc("voiceline")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrSyncStandOffsetPacket.Handler(JojoMod.resLoc("standoffset")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrPlayerMovementInputPacket.Handler(JojoMod.resLoc("movinput")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new SetClientControllerPacket.Handler(JojoMod.resLoc("ctrltarget")));
