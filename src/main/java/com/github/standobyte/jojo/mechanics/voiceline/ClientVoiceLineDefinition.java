@@ -9,7 +9,4 @@ import net.minecraft.resources.ResourceLocation;
 
 public record ClientVoiceLineDefinition(
 		List<ResourceLocation> sounds,
-		@Nullable Component subtitle,
-		ResourceLocation storyCharacter, 
-		@Nullable List<ResourceLocation> storyPartsFilter, 
-		@Nullable List<ResourceLocation> standTypesFilter) {}
+		@Nullable Component subtitle) {}

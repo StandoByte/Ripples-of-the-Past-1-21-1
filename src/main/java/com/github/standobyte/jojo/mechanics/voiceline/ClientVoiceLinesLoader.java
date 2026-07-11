@@ -48,7 +48,7 @@ public class ClientVoiceLinesLoader extends SimplePreparableReloadListener<Map<R
 	}
 	
 	
-	public Map<ResourceLocation, List<ClientVoiceLineDefinition>> voiceLines = new HashMap<>();
+	public Map<ResourceLocation, List<ClientVoiceLineWithFilters>> voiceLines = new HashMap<>();
 	
 	public Stream<ClientVoiceLineDefinition> getVoiceLine(Holder<SoundEvent> soundEvent, 
 			Holder<StoryCharacter> playerCharacter, 
@@ -63,7 +63,7 @@ public class ClientVoiceLinesLoader extends SimplePreparableReloadListener<Map<R
 			return Stream.empty();
 		}
 		
-		List<ClientVoiceLineDefinition> sounds = voiceLines.get(soundEventId);
+		List<ClientVoiceLineWithFilters> sounds = voiceLines.get(soundEventId);
 		if (sounds == null) {
 			return Stream.empty();
 		}
@@ -77,7 +77,7 @@ public class ClientVoiceLinesLoader extends SimplePreparableReloadListener<Map<R
 			return playerCharacter.is(voiceLine.storyCharacter()) && 
 					(storyPartsFilter == null || playerStoryPart != null && storyPartsFilter.contains(playerStoryPartId)) &&
 					(standTypesFilter == null || playerStandType != null && standTypesFilter.contains(playerStandType));
-		});
+		}).map(ClientVoiceLineWithFilters::sounds);
 	}
 	
 
@@ -181,11 +181,13 @@ public class ClientVoiceLinesLoader extends SimplePreparableReloadListener<Map<R
 			entry.sounds.forEach((soundEvent, sound) -> {
 				ClientVoiceLineDefinition voiceLineSound = new ClientVoiceLineDefinition(
 						sound.sounds,
-						sound.subtitle, 
+						sound.subtitle);
+				ClientVoiceLineWithFilters filters = new ClientVoiceLineWithFilters(
+						voiceLineSound,
 						entry.characterId, 
 						entry.storyPartFilter, 
 						sound.standTypeFilter);
-				this.voiceLines.computeIfAbsent(soundEvent, __ -> new ArrayList<>()).add(voiceLineSound);
+				this.voiceLines.computeIfAbsent(soundEvent, __ -> new ArrayList<>()).add(filters);
 			});
 		});
 		JojoMod.getLogger().info("Loaded {} voice line entries", prep.size());
