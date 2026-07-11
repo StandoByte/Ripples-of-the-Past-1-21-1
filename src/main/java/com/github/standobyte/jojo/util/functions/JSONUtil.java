@@ -7,6 +7,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -32,6 +33,7 @@ import com.google.gson.stream.JsonWriter;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Decoder;
 import com.mojang.serialization.JsonOps;
 
 import net.minecraft.core.Registry;
@@ -72,6 +74,10 @@ public class JSONUtil {
 		} catch (IOException ioexception) {
 			throw new JsonParseException(ioexception);
 		}
+	}
+	
+	public static <T> Optional<T> fromJson(JsonElement json, Decoder<T> codec) {
+		return codec.decode(JsonOps.INSTANCE, json).result().map(Pair::getFirst);
 	}
 	
 	

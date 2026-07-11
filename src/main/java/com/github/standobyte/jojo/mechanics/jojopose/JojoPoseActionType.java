@@ -2,6 +2,11 @@ package com.github.standobyte.jojo.mechanics.jojopose;
 
 import com.github.standobyte.jojo.client.entityanim.LivingAnimState;
 import com.github.standobyte.jojo.init.ModSpecialActions;
+import com.github.standobyte.jojo.mechanics.jojopose.resource.ClientJojoPoseLoader;
+import com.github.standobyte.jojo.mechanics.jojopose.resource.JojoPoseAnimSet;
+import com.github.standobyte.jojo.mechanics.jojopose.resource.JojoPoseAnimSet.JojoPoseAnimData;
+import com.github.standobyte.jojo.mechanics.voiceline.ClientVoiceLineDefinition;
+import com.github.standobyte.jojo.mechanics.voiceline.VoiceLineClientSide;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
@@ -70,6 +75,22 @@ public class JojoPoseActionType extends SpecialEntityActionType {
 			return poseId;
 		}
 
+		
+		@Override
+		public void actionPerformStart() {
+			if (level().isClientSide()) {
+				JojoPoseAnimSet animSet = ClientJojoPoseLoader.getInstance().getAnimSet(animationSet);
+				if (animSet != null) {
+					JojoPoseAnimData animSpecificData = animSet.data().getAnimSpecificData(poseId.getOriginalAnimName());
+					if (animSpecificData != null) {
+						ClientVoiceLineDefinition voiceLine = animSpecificData.voiceLine();
+						if (voiceLine != null) {
+							VoiceLineClientSide.play(voiceLine, false);
+						}
+					}
+				}
+			}
+		}
 		
 		@Override
 		public void actionTick() {

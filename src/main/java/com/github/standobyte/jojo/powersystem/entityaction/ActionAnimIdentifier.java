@@ -72,7 +72,7 @@ public class ActionAnimIdentifier {
 	
 	@Override
 	public String toString() {
-		String name = index > 0 ? this.name + index : this.name;
+		String name = getOriginalAnimName();
 		if (isIdle) {
 			name += " (idle)";
 		}
@@ -80,6 +80,10 @@ public class ActionAnimIdentifier {
 			name += " (summon)";
 		}
 		return name;
+	}
+	
+	public String getOriginalAnimName() {
+		return index > 0 ? this.name + index : this.name;
 	}
 	
 	

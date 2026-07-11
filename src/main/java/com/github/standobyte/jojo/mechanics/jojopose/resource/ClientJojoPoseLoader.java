@@ -20,8 +20,6 @@ import com.github.standobyte.jojo.util.functions.JSONUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Zone;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._ProfilerFiller;
 import com.google.gson.JsonObject;
-import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.JsonOps;
 
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
@@ -106,7 +104,7 @@ public class ClientJojoPoseLoader extends SimplePreparableReloadListener<Map<Res
 						for (var resource : resourceEntry.getValue()) {
 							try (var reader = resource.openAsReader()) {
 								JsonObject json = JSONUtil.parse(reader);
-								Optional<JojoPoseAnimSetData> poseData = JojoPoseAnimSetData.CODEC.decode(JsonOps.INSTANCE, json).result().map(Pair::getFirst);
+								Optional<JojoPoseAnimSetData> poseData = JSONUtil.fromJson(json, JojoPoseAnimSetData.CODEC);
 								poseData.ifPresent(data -> animSetEntry.poseData = data);
 							}
 							catch (Exception e) {
