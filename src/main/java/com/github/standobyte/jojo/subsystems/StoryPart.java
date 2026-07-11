@@ -16,9 +16,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.RegistryFixedCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -98,6 +101,9 @@ public class StoryPart {
 
 
 	public static final Codec<Holder<StoryPart>> REG_CODEC = RegistryFixedCodec.create(JojoRegistries.STORY_PARTS_REG_KEY);
+	
+	public static final StreamCodec<RegistryFriendlyByteBuf, Holder<StoryPart>> STREAM_CODEC = 
+			ByteBufCodecs.holderRegistry(JojoRegistries.STORY_PARTS_REG_KEY);
 
 
 

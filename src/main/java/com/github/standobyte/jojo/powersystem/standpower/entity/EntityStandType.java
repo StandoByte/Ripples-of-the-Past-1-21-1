@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
+import com.github.standobyte.jojo.mechanics.voiceline.VoiceLineServerSide;
 import com.github.standobyte.jojo.network.s2c.StandEntitySoundPacket;
 import com.github.standobyte.jojo.network.s2c.TrSetStandEntityPacket;
 import com.github.standobyte.jojo.powersystem.MovesetBuilder;
@@ -141,6 +142,9 @@ public class EntityStandType extends StandType {
 				beforeTheSummon.accept(standEntity);
 				
 				if (addToWorld) {
+					if (!user.isShiftKeyDown()) {
+						VoiceLineServerSide.play(user, ModSoundEvents.VOICELINE_STAND_SUMMON);
+					}
 					finalizeStandSummonFromAction(user, standPower, standEntity, true);
 				}
 				return true;

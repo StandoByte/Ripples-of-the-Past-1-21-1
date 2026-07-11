@@ -13,6 +13,7 @@ import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.client.layer.ClothesModelLoader;
 import com.github.standobyte.jojo.mechanics.jojopose.resource.ClientJojoPoseLoader;
+import com.github.standobyte.jojo.mechanics.voiceline.ClientVoiceLinesLoader;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -31,6 +32,7 @@ public class ModClientResources {
 		StandSkinsLoader.init(event);
 		AnimationLoader.init(event);
 		ClientJojoPoseLoader.init(event);
+		ClientVoiceLinesLoader.init(event);
 		ClothesModelLoader.init(event);
 		PlayerRigLoader.init(event);
 		ModShaders.init(event);

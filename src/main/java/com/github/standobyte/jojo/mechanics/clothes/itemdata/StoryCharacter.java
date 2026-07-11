@@ -11,7 +11,10 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.RegistryFixedCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -60,4 +63,6 @@ public class StoryCharacter {
 	
 	public static final Codec<Holder<StoryCharacter>> REG_CODEC = RegistryFixedCodec.create(JojoRegistries.STORY_CHARACTERS_REG_KEY);
 	
+	public static final StreamCodec<RegistryFriendlyByteBuf, Holder<StoryCharacter>> STREAM_CODEC = 
+			ByteBufCodecs.holderRegistry(JojoRegistries.STORY_CHARACTERS_REG_KEY);
 }
