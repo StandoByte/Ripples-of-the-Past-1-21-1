@@ -95,7 +95,8 @@ public class ClientJojoPoseLoader extends SimplePreparableReloadListener<Map<Res
 				switch (fileName) {
 					case ANIM_FILE_NAME -> {
 						PoseAnimSetPrep animSetEntry = animSetEntries.computeIfAbsent(entryId, __ -> new PoseAnimSetPrep());
-						AnimationSet.Builder anim = AnimationLoader.loadAnimations(resourceEntry.getValue(), resourcePathFull);
+						AnimationSet.Builder anim = AnimationLoader.loadAnimations(resourceEntry.getValue(), 
+								resourcePathFull, true);
 						if (!anim.isEmpty()) {
 							animSetEntry.animSet = anim;
 						}

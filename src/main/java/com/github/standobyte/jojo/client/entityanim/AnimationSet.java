@@ -3,10 +3,10 @@ package com.github.standobyte.jojo.client.entityanim;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -51,8 +51,14 @@ public class AnimationSet {
 	
 	
 	public static class Builder {
-		protected Map<String, Int2ObjectMap<RotpAnimDefinition>> namedAnimations = new HashMap<>();
+		protected boolean preserveOrder;
+		protected Map<String, Int2ObjectMap<RotpAnimDefinition>> namedAnimations = new LinkedHashMap<>();
 		@Nullable protected List<RotpAnimDefinition> alwaysAnim;
+		
+		public Builder(boolean preserveOrder) {
+			this.preserveOrder = preserveOrder;
+			this.namedAnimations = preserveOrder ? new LinkedHashMap<>() : new HashMap<>();
+		}
 		
 		public void putNamedAnim(String name, RotpAnimDefinition anim) {
 			Pair<String, OptionalInt> enumeratedName = StringUtil.splitIntAtTheEnd(name);
@@ -73,14 +79,16 @@ public class AnimationSet {
 		}
 		
 		public AnimationSet build() {
-			Map<String, AnimVariantsList> anims = this.namedAnimations.entrySet().stream()
-					.collect(Collectors.toMap(
-							Map.Entry::getKey, 
-							entry -> new AnimVariantsList(entry.getValue()
-								.int2ObjectEntrySet().stream()
-								.sorted(Comparator.comparingInt(Int2ObjectMap.Entry::getIntKey))
-								.map(Int2ObjectMap.Entry::getValue)
-								.toList())));
+			Map<String, AnimVariantsList> anims = preserveOrder ? 
+					LinkedHashMap.newLinkedHashMap(this.namedAnimations.size()) :
+					HashMap.newHashMap(this.namedAnimations.size());
+			this.namedAnimations.forEach((name, anim) -> {
+				anims.put(name, new AnimVariantsList(anim
+						.int2ObjectEntrySet().stream()
+						.sorted(Comparator.comparingInt(Int2ObjectMap.Entry::getIntKey))
+						.map(Int2ObjectMap.Entry::getValue)
+						.toList()));
+			});
 			AnimationSet animationSet = new AnimationSet(anims);
 			animationSet.alwaysAnim = this.alwaysAnim;
 			return animationSet;
