@@ -32,7 +32,7 @@ import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 
-public class ClientJojoPoseLoader extends SimplePreparableReloadListener<ClientJojoPoseLoader.Prep> {
+public class ClientJojoPoseLoader extends SimplePreparableReloadListener<Map<ResourceLocation, ClientJojoPoseLoader.PoseAnimSetPrep>> {
 	private static ClientJojoPoseLoader instance;
 	
 	@ApiStatus.Internal
@@ -66,67 +66,75 @@ public class ClientJojoPoseLoader extends SimplePreparableReloadListener<ClientJ
 		return anims.entrySet().stream().filter(animSetEntry -> {
 			JojoPoseAnimSet animSet = animSetEntry.getValue();
 			JojoPoseAnimSetData data = animSet.data();
-			return // isSameCharacter && (poseForAnyPart || playerStoryPart != null && poseFitsThisPart)
-					data.character().filter(c -> playerCharacter.is(c)).isPresent()
-					&& (data.storyPart().isEmpty()
-							|| playerStoryPart != null 
-							&& data.storyPart().map(parts -> parts.contains(storyPartId)).isPresent());
+			
+			@Nullable ResourceLocation characterFilter = data.character();
+			@Nullable List<ResourceLocation> storyPartsFilter = data.storyPart();
+			
+			return (characterFilter == null || playerCharacter.is(characterFilter)) &&
+					(storyPartsFilter == null || playerStoryPart != null && storyPartsFilter.contains(storyPartId));
 		});
 	}
 	
 
 	private static final String TOP_DIR = "jojo_pose";
+	private static final String FILE_EXT = ".json";
 	private static final String ANIM_FILE_NAME = "animation.json";
 	private static final String DATA_FILE_NAME = "data.json";
 	
 	@Override
-	protected Prep prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
-		Map<ResourceLocation, AnimationSet.Builder> anims = new HashMap<>();
-		Map<ResourceLocation, JojoPoseAnimSetData> posesData = new HashMap<>();
-
+	protected Map<ResourceLocation, PoseAnimSetPrep> prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
+		Map<ResourceLocation, PoseAnimSetPrep> animSetEntries = new HashMap<>();
+		
 		try (Zone zone = _ProfilerFiller.zone(profiler, JojoMod.MOD_ID + "_jojo_poses")) {
-			Map<ResourceLocation, List<Resource>> animResources = resourceManager.listResourceStacks(TOP_DIR, path -> path.getPath().endsWith("/" + ANIM_FILE_NAME));
+			Map<ResourceLocation, List<Resource>> animResources = resourceManager.listResourceStacks(TOP_DIR, path -> path.getPath().endsWith(FILE_EXT));
 			for (var resourceEntry : animResources.entrySet()) {
 				ResourceLocation resourcePathFull = resourceEntry.getKey();
-				ResourceLocation animPath = resourcePathFull.withPath(path -> path.substring(
-						TOP_DIR.length() + 1, path.length() - (ANIM_FILE_NAME.length() + 1)));
-				AnimationSet.Builder anim = AnimationLoader.loadAnimations(resourceEntry.getValue(), resourcePathFull);
-				if (!anim.isEmpty()) {
-					anims.put(animPath, anim);
-				}
-			}
-
-			Map<ResourceLocation, Resource> dataResources = resourceManager.listResources(TOP_DIR, path -> path.getPath().endsWith("/" + DATA_FILE_NAME));
-			for (var resourceEntry : dataResources.entrySet()) {
-				ResourceLocation resourcePathFull = resourceEntry.getKey();
-				ResourceLocation animPath = resourcePathFull.withPath(path -> path.substring(
-						TOP_DIR.length() + 1, path.length() - (DATA_FILE_NAME.length() + 1)));
-				try (var reader = resourceEntry.getValue().openAsReader()) {
-					JsonObject json = JSONUtil.parse(reader);
-					Optional<JojoPoseAnimSetData> poseData = JojoPoseAnimSetData.CODEC.decode(JsonOps.INSTANCE, json).result().map(Pair::getFirst);
-					poseData.ifPresent(data -> posesData.put(animPath, data));
-				}
-				catch (Exception e) {
-					JojoMod.getLogger().error("Failed to read JoJo pose data from {}", resourcePathFull, e);
+				String[] path = resourcePathFull.getPath().split("/");
+				String fileName = path[path.length - 1];
+				ResourceLocation entryId = resourcePathFull.withPath(p -> p.substring(TOP_DIR.length() + 1, p.length() - fileName.length() - 1));
+				switch (fileName) {
+					case ANIM_FILE_NAME -> {
+						PoseAnimSetPrep animSetEntry = animSetEntries.computeIfAbsent(entryId, __ -> new PoseAnimSetPrep());
+						AnimationSet.Builder anim = AnimationLoader.loadAnimations(resourceEntry.getValue(), resourcePathFull);
+						if (!anim.isEmpty()) {
+							animSetEntry.animSet = anim;
+						}
+					}
+					case DATA_FILE_NAME -> {
+						PoseAnimSetPrep animSetEntry = animSetEntries.computeIfAbsent(entryId, __ -> new PoseAnimSetPrep());
+						for (var resource : resourceEntry.getValue()) {
+							try (var reader = resource.openAsReader()) {
+								JsonObject json = JSONUtil.parse(reader);
+								Optional<JojoPoseAnimSetData> poseData = JojoPoseAnimSetData.CODEC.decode(JsonOps.INSTANCE, json).result().map(Pair::getFirst);
+								poseData.ifPresent(data -> animSetEntry.poseData = data);
+							}
+							catch (Exception e) {
+								JojoMod.getLogger().error("Failed to read JoJo pose data from {}", resourcePathFull, e);
+							}
+						}
+					}
 				}
 			}
 		}
 		
-		return new Prep(anims, posesData);
+		return animSetEntries;
 	}
 	
-	static record Prep(
-			Map<ResourceLocation, AnimationSet.Builder> anims,
-			Map<ResourceLocation, JojoPoseAnimSetData> poseData) {}
+	static class PoseAnimSetPrep {
+		AnimationSet.Builder animSet;
+		JojoPoseAnimSetData poseData;
+	}
 	
 	
 	@Override
-	protected void apply(Prep prep, ResourceManager resourceManager, ProfilerFiller profiler) {
+	protected void apply(Map<ResourceLocation, PoseAnimSetPrep> prep, ResourceManager resourceManager, ProfilerFiller profiler) {
 		this.anims.clear();
-		prep.anims.forEach((key, animBuilder) -> {
-			this.anims.put(key, new JojoPoseAnimSet(
-					animBuilder.build(), 
-					Optional.ofNullable(prep.poseData.get(key)).orElse(JojoPoseAnimSet.EMPTY_DATA)));
+		prep.forEach((key, loaded) -> {
+			if (loaded.animSet != null) {
+				this.anims.put(key, new JojoPoseAnimSet(
+						loaded.animSet.build(), 
+						Optional.ofNullable(loaded.poseData).orElse(JojoPoseAnimSet.EMPTY_DATA)));
+			}
 		});
 		JojoMod.getLogger().info("Loaded {} JoJo pose files", this.anims.size());
 	}
