@@ -15,7 +15,6 @@ import com.github.standobyte.jojo.client.entityrender.HumanoidPlayerModel;
 import com.github.standobyte.jojo.client.entityrender.ModelWithExtraFeatures;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.ResourceModelEntry;
 import com.github.standobyte.jojo.client.entityrender.replace_player_model.CustomPlayerModel;
-import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -86,35 +85,35 @@ public class HumanoidModelPartsWithBends {
 		
 		addPart(model.head, "head", head);
 		
-		addBendPart(model.body, "body", torso_lower, torso_bend, null, 0, 6, 0, -6, true);
+		addBendPart(model.body, "torso", torso_lower, torso_bend, null, 0, 6, 0, -6, true);
 		if (playerModel != null) {
-			addBendPart(playerModel.jacket, "body2", torso_lower, torso_bend, null, 0, 6, 0, -6, true);
+			addBendPart(playerModel.jacket, "torso", torso_lower, torso_bend, null, 0, 6, 0, -6, true);
 		}
 		
 		addBendPart(model.leftArm, "left_arm", left_arm, left_arm_bend, left_arm_joint, -1, 4, 0, 0, false);
 		if (playerModel != null) {
-			addBendPart(playerModel.leftSleeve, "left_arm2", left_arm, left_arm_bend, left_arm_joint, -1, 4, 0, 0, false);
+			addBendPart(playerModel.leftSleeve, "left_arm", left_arm, left_arm_bend, left_arm_joint, -1, 4, 0, 0, false);
 		}
 		else if (clothesModel != null) {
-			addBendPart(clothesModel.leftArmSlim, "left_arm_slim", left_arm, left_arm_bend, left_arm_joint, -1, 4, 0, 0, false);
+			addBendPart(clothesModel.leftArmSlim, "left_arm", left_arm, left_arm_bend, left_arm_joint, -1, 4, 0, 0, false);
 		}
 		
 		addBendPart(model.rightArm, "right_arm", right_arm, right_arm_bend, right_arm_joint, 1, 4, 0, 0, false);
 		if (playerModel != null) {
-			addBendPart(playerModel.rightSleeve, "right_arm2", right_arm, right_arm_bend, right_arm_joint, 1, 4, 0, 0, false);
+			addBendPart(playerModel.rightSleeve, "right_arm", right_arm, right_arm_bend, right_arm_joint, 1, 4, 0, 0, false);
 		}
 		else if (clothesModel != null) {
-			addBendPart(clothesModel.rightArmSlim, "right_arm_slim", right_arm, right_arm_bend, right_arm_joint, 1, 4, 0, 0, false);
+			addBendPart(clothesModel.rightArmSlim, "right_arm", right_arm, right_arm_bend, right_arm_joint, 1, 4, 0, 0, false);
 		}
 		
 		addBendPart(model.leftLeg, "left_leg", left_leg, left_leg_bend, left_leg_joint, 0, 6, 0, 0, false);
 		if (playerModel != null) {
-			addBendPart(playerModel.leftPants, "left_leg2", left_leg, left_leg_bend, left_leg_joint, 0, 6, 0, 0, false);
+			addBendPart(playerModel.leftPants, "left_leg", left_leg, left_leg_bend, left_leg_joint, 0, 6, 0, 0, false);
 		}
 		
 		addBendPart(model.rightLeg, "right_leg", right_leg, right_leg_bend, right_leg_joint, 0, 6, 0, 0, false);
 		if (playerModel != null) {
-			addBendPart(playerModel.rightPants, "right_leg2", right_leg, right_leg_bend, right_leg_joint, 0, 6, 0, 0, false);
+			addBendPart(playerModel.rightPants, "right_leg", right_leg, right_leg_bend, right_leg_joint, 0, 6, 0, 0, false);
 		}
 		
 		return obj;
@@ -133,13 +132,13 @@ public class HumanoidModelPartsWithBends {
 		LimbSplit split = BendUtil.split(part, x, y, z, yOffset, bendIsAbove);
 		
 		AlternativeModelPart basePart = new AlternativeModelPart(part, split.base().makePart(), name);
-		AlternativeModelPart bendPart = new AlternativeModelPart(part, split.bend().makePart(), name);
+		AlternativeModelPart bendPart = new AlternativeModelPart(part, split.bend().makePart(), name + "_bend");
 		AlternativeModelPart jointPart = null;
 		
 		baseDest.add(basePart);
 		bendDest.add(bendPart);
 		if (jointDest != null && !split.joint().isEmpty()) {
-			jointPart = new AlternativeModelPart(part, new ModelPart(Collections.emptyList(), split.joint()), name);
+			jointPart = new AlternativeModelPart(part, new ModelPart(Collections.emptyList(), split.joint()), name + "_joint");
 			jointDest.add(jointPart);
 		}
 		
@@ -165,6 +164,8 @@ public class HumanoidModelPartsWithBends {
 			PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
 		Model_1_21_2plus rigModel = (Model_1_21_2plus) rig.getModel();
 		ModelPart root = rigModel.jojo_ripples$root();
+		
+		TmpBendCrutches.setBends(rigModel);
 		
 		renderModelPart(model, root, "root", 
 				poseStack, buffer, packedLight, packedOverlay, color);
@@ -198,6 +199,9 @@ public class HumanoidModelPartsWithBends {
 			if (vanillaModelPart.visible) {
 				ModelPart modelPart = this.part;
 				if (!vanillaModelPart.skipDraw) {
+					// FIXME (clothes player animation) doesn't work on clothes
+					TmpBendCrutches.modifyVertices(name, modelPart.cubes);
+					
 					for (ModelPart.Cube cube : modelPart.cubes) {
 						cube.compile(poseStack.last(), buffer, packedLight, packedOverlay, color);
 					}
@@ -212,10 +216,7 @@ public class HumanoidModelPartsWithBends {
 					// FIXME (clothes player animation) incorrect position of rotated torso parts
 					/* Jotaro's belts, coat, chain
 					 */
-					boolean isTorsoPart = !this.name.contains("head");
-					if (isTorsoPart) {
-						poseStack.translate(0, -0.375, 0);
-					}
+					TmpBendCrutches.partiallyFixTorsoClothesParts(this, poseStack);
 					
 					for (ModelPart rotatedVanillaChild : modelPart.children.values()) {
 						rotatedVanillaChild.render(poseStack, buffer, packedLight, packedOverlay, color);

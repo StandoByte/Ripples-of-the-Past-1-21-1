@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.github.standobyte.jojo.client.entityrender.parsemodel.generic.BlockbenchMeshDefinition;
+import com.github.standobyte.jojo.client.entityanim.player.bend_crutches.DeformableCube;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._ModelPart$Polygon;
 import com.google.common.collect.Iterables;
 
@@ -146,8 +146,8 @@ public class BendUtil {
 				}
 			}
 			
-			ModelPart.Cube baseCube = fromPolygons(baseQuads);
-			ModelPart.Cube bendCube = fromPolygons(bendQuads);
+			DeformableCube baseCube = fromPolygons(baseQuads);
+			DeformableCube bendCube = fromPolygons(bendQuads);
 
 			baseHalfCubes.add(baseCube);
 			bendHalfCubes.add(bendCube);
@@ -180,7 +180,7 @@ public class BendUtil {
 		return new LimbSplit(baseHalf, bendHalf, joint);
 	}
 	
-	public static ModelPart.Cube fromPolygons(Iterable<ModelPart.Polygon> polygons) {
+	public static DeformableCube fromPolygons(Iterable<ModelPart.Polygon> polygons) {
 		float minX = Float.MAX_VALUE;
 		float minY = Float.MAX_VALUE;
 		float minZ = Float.MAX_VALUE;
@@ -197,11 +197,8 @@ public class BendUtil {
 				maxZ = Math.max(maxZ, vertex.pos.z);
 			}
 		}
-		ModelPart.Cube cube = new ModelPart.Cube(0, 0, 
-				minX, minY, minZ, 
-				maxX - minX, maxY - minY, maxZ - minZ, 
-				0, 0, 0, false, 1, 1, BlockbenchMeshDefinition.NO_DIRECTIONAL_FACES);
-		cube.polygons = Iterables.toArray(polygons, ModelPart.Polygon.class);
+		DeformableCube cube = new DeformableCube(Iterables.toArray(polygons, ModelPart.Polygon.class),
+				minX, minY, minZ, maxX, maxY, maxZ);
 		return cube;
 	}
 	
