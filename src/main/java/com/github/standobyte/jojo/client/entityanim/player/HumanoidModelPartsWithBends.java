@@ -24,7 +24,6 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.HumanoidArm;
 
-// TODO (player animation) fix model bends with smaller child cubes
 // TODO (player animation) parent xrot bones for limbs
 // TODO (player animation) 1st person animation
 // TODO (clothes player animation) rotate joints
@@ -37,86 +36,105 @@ import net.minecraft.world.entity.HumanoidArm;
  * parrot on shoulder
  * arrows and bee stingers
  */
-// FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!! (player anim) 1st person render
 public class HumanoidModelPartsWithBends {
 	protected Map<String, List<AlternativeModelPart>> vanillaCounterparts = new HashMap<>();
-	protected Map<String, ModelPart> otherParts;
+	protected Map<String, List<LimbSplit>> bendables = new HashMap<>();
 	
 	public static HumanoidModelPartsWithBends createFromBase(HumanoidModel<?> model) {
 		HumanoidModelPartsWithBends obj = new HumanoidModelPartsWithBends();
+		obj.initHumanoid(model);
+		return obj;
+	}
+	
+	@Deprecated
+	void __reinitialize(HumanoidModel<?> model) {
+		vanillaCounterparts.clear();
+		bendables.clear();
+		initHumanoid(model);
+	}
+	
+	void initHumanoid(HumanoidModel<?> model) {
 		PlayerModel<?> playerModel = model instanceof PlayerModel __ ? __ : null;
 		HumanoidPlayerModel<?> clothesModel = model instanceof HumanoidPlayerModel __ ? __ : null;
 		
 		List<AlternativeModelPart> head = new ArrayList<>();
-		obj.vanillaCounterparts.put("head", head);
-		
+		this.vanillaCounterparts.put("head", head);
+
+		List<LimbSplit> torso = new ArrayList<>();
 		List<AlternativeModelPart> torso_lower = new ArrayList<>();
 		List<AlternativeModelPart> torso_bend = new ArrayList<>();
-		obj.vanillaCounterparts.put("torso_lower", torso_lower);
-		obj.vanillaCounterparts.put("torso_bend", torso_bend);
-		
+		this.vanillaCounterparts.put("torso_lower", torso_lower);
+		this.vanillaCounterparts.put("torso_bend", torso_bend);
+		this.bendables.put("torso_bend", torso);
+
+		List<LimbSplit> leftArm = new ArrayList<>();
 		List<AlternativeModelPart> left_arm = new ArrayList<>();
 		List<AlternativeModelPart> left_arm_bend = new ArrayList<>();
 		List<AlternativeModelPart> left_arm_joint = new ArrayList<>();
-		obj.vanillaCounterparts.put("left_arm", left_arm);
-		obj.vanillaCounterparts.put("left_arm_bend", left_arm_bend);
-		obj.vanillaCounterparts.put("left_arm_joint", left_arm_joint);
-		
+		this.vanillaCounterparts.put("left_arm", left_arm);
+		this.vanillaCounterparts.put("left_arm_bend", left_arm_bend);
+		this.vanillaCounterparts.put("left_arm_joint", left_arm_joint);
+		this.bendables.put("left_arm_bend", leftArm);
+
+		List<LimbSplit> rightArm = new ArrayList<>();
 		List<AlternativeModelPart> right_arm = new ArrayList<>();
 		List<AlternativeModelPart> right_arm_bend = new ArrayList<>();
 		List<AlternativeModelPart> right_arm_joint = new ArrayList<>();
-		obj.vanillaCounterparts.put("right_arm", right_arm);
-		obj.vanillaCounterparts.put("right_arm_bend", right_arm_bend);
-		obj.vanillaCounterparts.put("right_arm_joint", right_arm_joint);
-		
+		this.vanillaCounterparts.put("right_arm", right_arm);
+		this.vanillaCounterparts.put("right_arm_bend", right_arm_bend);
+		this.vanillaCounterparts.put("right_arm_joint", right_arm_joint);
+		this.bendables.put("right_arm_bend", rightArm);
+
+		List<LimbSplit> leftLeg = new ArrayList<>();
 		List<AlternativeModelPart> left_leg = new ArrayList<>();
 		List<AlternativeModelPart> left_leg_bend = new ArrayList<>();
 		List<AlternativeModelPart> left_leg_joint = new ArrayList<>();
-		obj.vanillaCounterparts.put("left_leg", left_leg);
-		obj.vanillaCounterparts.put("left_leg_bend", left_leg_bend);
-		obj.vanillaCounterparts.put("left_leg_joint", left_leg_joint);
-		
+		this.vanillaCounterparts.put("left_leg", left_leg);
+		this.vanillaCounterparts.put("left_leg_bend", left_leg_bend);
+		this.vanillaCounterparts.put("left_leg_joint", left_leg_joint);
+		this.bendables.put("left_leg_bend", leftLeg);
+
+		List<LimbSplit> rightLeg = new ArrayList<>();
 		List<AlternativeModelPart> right_leg = new ArrayList<>();
 		List<AlternativeModelPart> right_leg_bend = new ArrayList<>();
 		List<AlternativeModelPart> right_leg_joint = new ArrayList<>();
-		obj.vanillaCounterparts.put("right_leg", right_leg);
-		obj.vanillaCounterparts.put("right_leg_bend", right_leg_bend);
-		obj.vanillaCounterparts.put("right_leg_joint", right_leg_joint);
+		this.vanillaCounterparts.put("right_leg", right_leg);
+		this.vanillaCounterparts.put("right_leg_bend", right_leg_bend);
+		this.vanillaCounterparts.put("right_leg_joint", right_leg_joint);
+		this.bendables.put("right_leg_bend", rightLeg);
 		
 		addPart(model.head, "head", head);
 		
-		addBendPart(model.body, "torso", torso_lower, torso_bend, null, 0, 6, 0, -6, true);
+		addBendPart(model.body, "torso", torso, torso_lower, torso_bend, null, 0, 6, 0, -6, true);
 		if (playerModel != null) {
-			addBendPart(playerModel.jacket, "torso", torso_lower, torso_bend, null, 0, 6, 0, -6, true);
+			addBendPart(playerModel.jacket, "torso", torso, torso_lower, torso_bend, null, 0, 6, 0, -6, true);
 		}
 		
-		addBendPart(model.leftArm, "left_arm", left_arm, left_arm_bend, left_arm_joint, -1, 4, 0, 0, false);
+		addBendPart(model.leftArm, "left_arm", leftArm, left_arm, left_arm_bend, left_arm_joint, -1, 4, 0, 0, false);
 		if (playerModel != null) {
-			addBendPart(playerModel.leftSleeve, "left_arm", left_arm, left_arm_bend, left_arm_joint, -1, 4, 0, 0, false);
+			addBendPart(playerModel.leftSleeve, "left_arm", leftArm, left_arm, left_arm_bend, left_arm_joint, -1, 4, 0, 0, false);
 		}
 		else if (clothesModel != null) {
-			addBendPart(clothesModel.leftArmSlim, "left_arm", left_arm, left_arm_bend, left_arm_joint, -1, 4, 0, 0, false);
+			addBendPart(clothesModel.leftArmSlim, "left_arm", leftArm, left_arm, left_arm_bend, left_arm_joint, -1, 4, 0, 0, false);
 		}
 		
-		addBendPart(model.rightArm, "right_arm", right_arm, right_arm_bend, right_arm_joint, 1, 4, 0, 0, false);
+		addBendPart(model.rightArm, "right_arm", rightArm, right_arm, right_arm_bend, right_arm_joint, 1, 4, 0, 0, false);
 		if (playerModel != null) {
-			addBendPart(playerModel.rightSleeve, "right_arm", right_arm, right_arm_bend, right_arm_joint, 1, 4, 0, 0, false);
+			addBendPart(playerModel.rightSleeve, "right_arm", rightArm, right_arm, right_arm_bend, right_arm_joint, 1, 4, 0, 0, false);
 		}
 		else if (clothesModel != null) {
-			addBendPart(clothesModel.rightArmSlim, "right_arm", right_arm, right_arm_bend, right_arm_joint, 1, 4, 0, 0, false);
+			addBendPart(clothesModel.rightArmSlim, "right_arm", rightArm, right_arm, right_arm_bend, right_arm_joint, 1, 4, 0, 0, false);
 		}
 		
-		addBendPart(model.leftLeg, "left_leg", left_leg, left_leg_bend, left_leg_joint, 0, 6, 0, 0, false);
+		addBendPart(model.leftLeg, "left_leg", leftLeg, left_leg, left_leg_bend, left_leg_joint, 0, 6, 0, 0, false);
 		if (playerModel != null) {
-			addBendPart(playerModel.leftPants, "left_leg", left_leg, left_leg_bend, left_leg_joint, 0, 6, 0, 0, false);
+			addBendPart(playerModel.leftPants, "left_leg", leftLeg, left_leg, left_leg_bend, left_leg_joint, 0, 6, 0, 0, false);
 		}
 		
-		addBendPart(model.rightLeg, "right_leg", right_leg, right_leg_bend, right_leg_joint, 0, 6, 0, 0, false);
+		addBendPart(model.rightLeg, "right_leg", rightLeg, right_leg, right_leg_bend, right_leg_joint, 0, 6, 0, 0, false);
 		if (playerModel != null) {
-			addBendPart(playerModel.rightPants, "right_leg", right_leg, right_leg_bend, right_leg_joint, 0, 6, 0, 0, false);
+			addBendPart(playerModel.rightPants, "right_leg", rightLeg, right_leg, right_leg_bend, right_leg_joint, 0, 6, 0, 0, false);
 		}
-		
-		return obj;
 	}
 	
 	protected static void addPart(ModelPart part, String name, List<AlternativeModelPart> dest) {
@@ -125,27 +143,29 @@ public class HumanoidModelPartsWithBends {
 	}
 	
 	protected static void addBendPart(ModelPart part, String name, 
+			List<LimbSplit> bendables, 
 			List<AlternativeModelPart> baseDest, 
 			List<AlternativeModelPart> bendDest, 
 			@Nullable List<AlternativeModelPart> jointDest, 
 			float x, float y, float z, float yOffset, boolean bendIsAbove) {
-		LimbSplit split = BendUtil.split(part, x, y, z, yOffset, bendIsAbove);
+		LimbSplit bendable = BendUtil.split(part, x, y, z, yOffset, bendIsAbove);
+		bendables.add(bendable);
 		
-		AlternativeModelPart basePart = new AlternativeModelPart(part, split.base().makePart(), name);
-		AlternativeModelPart bendPart = new AlternativeModelPart(part, split.bend().makePart(), name + "_bend");
+		AlternativeModelPart basePart = new AlternativeModelPart(part, bendable.base().makePart(), name);
+		AlternativeModelPart bendPart = new AlternativeModelPart(part, bendable.bend().makePart(), name + "_bend");
 		AlternativeModelPart jointPart = null;
 		
 		baseDest.add(basePart);
 		bendDest.add(bendPart);
-		if (jointDest != null && !split.joint().isEmpty()) {
-			jointPart = new AlternativeModelPart(part, new ModelPart(Collections.emptyList(), split.joint()), name + "_joint");
+		if (jointDest != null && !bendable.joint().isEmpty()) {
+			jointPart = new AlternativeModelPart(part, new ModelPart(Collections.emptyList(), bendable.joint()), name + "_joint");
 			jointDest.add(jointPart);
 		}
 		
 		for (var childEntry : part.children.entrySet()) {
 			ModelPart child = childEntry.getValue();
 			if (BendUtil.isSamePivotAsParent(child)) {
-				addBendPart(child, childEntry.getKey(), 
+				addBendPart(child, childEntry.getKey(), bendables, 
 						basePart.children, bendPart.children, jointPart != null ? jointPart.children : null, 
 						x, y, z, yOffset, bendIsAbove);
 			}
@@ -164,8 +184,24 @@ public class HumanoidModelPartsWithBends {
 			PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
 		Model_1_21_2plus rigModel = (Model_1_21_2plus) rig.getModel();
 		ModelPart root = rigModel.jojo_ripples$root();
-		
-		TmpBendCrutches.setBends(rigModel);
+
+		for (var bendableEntry : bendables.entrySet()) {
+			rigModel.jojo_ripples$getAnyDescendantWithName(bendableEntry.getKey())
+			.ifPresent(animPart -> {
+				float bend = animPart.xRot;
+				List<LimbSplit> bendables = bendableEntry.getValue();
+				for (LimbSplit bendable : bendables) {
+					BendUtil.connectVertices(bendable.base(), bend, 
+							bendable.x(), 
+							bendable.y() + bendable.yOffset(), 
+							bendable.z(), 
+							false);
+					
+					BendUtil.connectVertices(bendable.bend(), bend, 
+							0, 0, 0, true);
+				}
+			});
+		}
 		
 		renderModelPart(model, root, "root", 
 				poseStack, buffer, packedLight, packedOverlay, color);
@@ -199,9 +235,6 @@ public class HumanoidModelPartsWithBends {
 			if (vanillaModelPart.visible) {
 				ModelPart modelPart = this.part;
 				if (!vanillaModelPart.skipDraw) {
-					// FIXME (clothes player animation) doesn't work on clothes
-					TmpBendCrutches.modifyVertices(name, modelPart.cubes);
-					
 					for (ModelPart.Cube cube : modelPart.cubes) {
 						cube.compile(poseStack.last(), buffer, packedLight, packedOverlay, color);
 					}

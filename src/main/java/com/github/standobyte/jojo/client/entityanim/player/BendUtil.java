@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.github.standobyte.jojo.client.entityanim.player.bend_crutches.DeformableCube;
+import com.github.standobyte.jojo.client.entityanim.player.bend_crutches.DeformableQuad;
+import com.github.standobyte.jojo.client.entityanim.player.bend_crutches.DeformableVertex;
+import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._ModelPart$Polygon;
 import com.google.common.collect.Iterables;
 
@@ -20,7 +23,9 @@ public class BendUtil {
 			return new ModelPart(cubes, children);
 		}
 	}
-	public static record LimbSplit(LimbHalf base, LimbHalf bend, Map<String, ModelPart> joint) {}
+	
+	public static record LimbSplit(LimbHalf base, LimbHalf bend, Map<String, ModelPart> joint,
+			float x, float y, float z, float yOffset, boolean bendIsAbove) {}
 
 	static List<ModelPart.Polygon> baseQuads = new ArrayList<>(6);
 	static List<ModelPart.Polygon> bendQuads = new ArrayList<>(6);
@@ -105,8 +110,6 @@ public class BendUtil {
 						baseQuads.add(yLessQuad);
 						bendQuads.add(yMoreQuad);
 					}
-
-					// FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!! (bend) connect the split cubes
 				}
 				else if (yLess.isEmpty()) {
 					if (bendIsAbove) {
@@ -177,7 +180,8 @@ public class BendUtil {
 			}
 		}
 		
-		return new LimbSplit(baseHalf, bendHalf, joint);
+		return new LimbSplit(baseHalf, bendHalf, joint,
+				x, y, z, yOffset, bendIsAbove);
 	}
 	
 	public static DeformableCube fromPolygons(Iterable<ModelPart.Polygon> polygons) {
@@ -208,4 +212,35 @@ public class BendUtil {
 				initialPose.xRot == 0 && initialPose.yRot == 0 && initialPose.zRot == 0 
 				&& initialPose.x == 0 && initialPose.y == 0 && initialPose.z == 0;
 	}
+	
+	
+	// TODO smoother bends on high bend value
+	public static void connectVertices(LimbHalf limbPart, float bend, 
+			float bendX, float bendY, float bendZ, boolean isBendPart) {
+		for (ModelPart.Cube _cube : limbPart.cubes) {
+			DeformableCube cube = (DeformableCube) _cube;
+			cube.reset();
+			
+			if (bend != 0) {
+				float width = (cube.maxZ - cube.minZ) / 2;
+				float yDiff = width * MathUtil.tan(bend / 2);
+				for (DeformableQuad quad : cube.dQuads) {
+					for (DeformableVertex vertex : quad.vertices) {
+						if (vertex.pos.y == bendY) {
+							if (vertex.pos.z - bendZ < 0) {
+								if (isBendPart)	vertex.pos.y -= yDiff;
+								else			vertex.pos.y += yDiff;
+							}
+							else {
+								if (isBendPart)	vertex.pos.y += yDiff;
+								else			vertex.pos.y -= yDiff;
+							}
+						}
+					}
+				}
+			}
+		}
+		
+	}
+	
 }
