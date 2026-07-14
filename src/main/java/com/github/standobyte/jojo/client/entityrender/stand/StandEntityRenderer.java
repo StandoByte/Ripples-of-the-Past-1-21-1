@@ -83,7 +83,6 @@ public class StandEntityRenderer<
 		return (M) new StandEntityModel<>(definition.bakeRoot());
 	}
 
-	public static final ActionAnimIdentifier SUMMON_ANIM = ActionAnimIdentifier.getOrCreate("summon").setSummon();
 	public static final ActionAnimIdentifier IDLE_ANIM = ActionAnimIdentifier.getOrCreate("idle").setIdle();
 	public static final ActionAnimIdentifier GRAB_IDLE_ANIM = ActionAnimIdentifier.getOrCreate("grab").setIdle();
 //	@Override // 1.21.2+

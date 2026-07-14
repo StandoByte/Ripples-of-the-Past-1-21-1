@@ -6,14 +6,13 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.OptionalInt;
 
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.util.functions.StringUtil;
-import com.mojang.datafixers.util.Pair;
+import com.github.standobyte.jojo.util.functions.StringUtil.StringWithNumber;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -64,10 +63,10 @@ public class AnimationSet {
 		
 		public void putNamedAnim(String name, RotpAnimDefinition anim) {
 			if (groupByName) {
-				Pair<String, OptionalInt> enumeratedName = StringUtil.splitIntAtTheEnd(name);
+				StringWithNumber enumeratedName = StringUtil.StringWithNumber.splitIntAtTheEnd(name);
 				Int2ObjectMap<RotpAnimDefinition> anims = this.namedAnimations.computeIfAbsent(
-						enumeratedName.getFirst(), __ -> new Int2ObjectArrayMap<>());
-				anims.put(enumeratedName.getSecond().orElse(0), anim);
+						enumeratedName.str(), __ -> new Int2ObjectArrayMap<>());
+				anims.put(enumeratedName.number().orElse(0), anim);
 			}
 			else {
 				Int2ObjectMap<RotpAnimDefinition> anims = this.namedAnimations.computeIfAbsent(

@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.entityanim.AnimationSet;
 import com.github.standobyte.jojo.mechanics.voiceline.ClientVoiceLineDefinition;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.util.functions.CodecUtil;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -18,14 +19,14 @@ public record JojoPoseAnimSet(AnimationSet anims, JojoPoseAnimSetData data) {
 	public static final JojoPoseAnimSetData EMPTY_DATA = new JojoPoseAnimSetData(null, null, null);
 	
 	public static record JojoPoseAnimData(
-			@Nullable String standSummonPose,
+			@Nullable ActionAnimIdentifier standSummonPose,
 			@Nullable ClientVoiceLineDefinition voiceLine) {
 		// Note to self: when using optionalFieldOf(String name, A defaultValue), defaultValue can't be null
-		public static JojoPoseAnimData absoluteDogshit(Optional<String> standSummonPose, Optional<ClientVoiceLineDefinition> voiceLine) { return new JojoPoseAnimData(standSummonPose.orElse(null), voiceLine.orElse(null)); }
+		public static JojoPoseAnimData absoluteDogshit(Optional<ActionAnimIdentifier> standSummonPose, Optional<ClientVoiceLineDefinition> voiceLine) { return new JojoPoseAnimData(standSummonPose.orElse(null), voiceLine.orElse(null)); }
 		
 		public static final Codec<JojoPoseAnimData> CODEC = RecordCodecBuilder.create(
 				builder -> builder.group(
-						Codec.STRING.optionalFieldOf("stand_summon_pose").forGetter(data -> Optional.ofNullable(data.standSummonPose)),
+						ActionAnimIdentifier.NAME_CODEC.optionalFieldOf("stand_summon_pose").forGetter(data -> Optional.ofNullable(data.standSummonPose)),
 						ClientVoiceLineDefinition.CODEC.optionalFieldOf("voice_line").forGetter(data -> Optional.ofNullable(data.voiceLine)))
 				.apply(builder, JojoPoseAnimData::absoluteDogshit));
 		

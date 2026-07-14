@@ -2,13 +2,13 @@ package com.github.standobyte.jojo.powersystem.entityaction;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.OptionalInt;
 
 import org.spongepowered.include.com.google.common.base.Objects;
 
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.util.functions.StringUtil;
-import com.mojang.datafixers.util.Pair;
+import com.github.standobyte.jojo.util.functions.StringUtil.StringWithNumber;
+import com.mojang.serialization.Codec;
 
 import net.minecraft.world.entity.HumanoidArm;
 
@@ -16,7 +16,6 @@ public class ActionAnimIdentifier {
 	public final String name;
 	public final int index;
 	public boolean isIdle;
-	public boolean isSummon;
 	
 	public ActionAnimIdentifier(String name, int index) {
 		this.name = name;
@@ -26,16 +25,24 @@ public class ActionAnimIdentifier {
 	public ActionAnimIdentifier(String name) {
 		this(name, 0);
 	}
+	
+	public static final Codec<ActionAnimIdentifier> NAME_CODEC = StringWithNumber.CODEC.xmap(
+			ActionAnimIdentifier::getOrCreate, 
+			animId -> StringUtil.StringWithNumber.splitIntAtTheEnd(animId.getOriginalAnimName()));
 
 	private static final Map<ActionAnimIdentifier, ActionAnimIdentifier> ANIM_IDS = new HashMap<>();
 	/**
 	 * Automatically splits the number at the end of the animation name.
 	 */
 	public static ActionAnimIdentifier getOrCreate(String animName) {
-		Pair<String, OptionalInt> enumeratedName = StringUtil.splitIntAtTheEnd(animName);
+		StringWithNumber enumeratedName = StringUtil.StringWithNumber.splitIntAtTheEnd(animName);
+		return getOrCreate(enumeratedName);
+	}
+	
+	public static ActionAnimIdentifier getOrCreate(StringWithNumber enumeratedName) {
 		return getOrCreate(
-				enumeratedName.getFirst(), 
-				enumeratedName.getSecond().orElse(1) - 1 /* 1-based indexing in anims */);
+				enumeratedName.str(), 
+				enumeratedName.number().orElse(1) - 1 /* 1-based indexing in anims */);
 	}
 	
 	public static ActionAnimIdentifier getOrCreate(String animName, int index) {
@@ -59,14 +66,8 @@ public class ActionAnimIdentifier {
 		return this;
 	}
 	
-	public ActionAnimIdentifier setSummon() {
-		this.isSummon = true;
-		return this;
-	}
-	
 	public ActionAnimIdentifier copyFrom(ActionAnimIdentifier source) {
 		this.isIdle = source.isIdle;
-		this.isSummon = source.isSummon;
 		return this;
 	}
 	
@@ -75,9 +76,6 @@ public class ActionAnimIdentifier {
 		String name = getOriginalAnimName();
 		if (isIdle) {
 			name += " (idle)";
-		}
-		if (isSummon) {
-			name += " (summon)";
 		}
 		return name;
 	}

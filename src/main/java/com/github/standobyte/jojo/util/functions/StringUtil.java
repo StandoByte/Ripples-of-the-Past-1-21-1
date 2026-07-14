@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.util.functions;
 
 import java.util.OptionalInt;
 
-import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
 
 public final class StringUtil {
 
@@ -25,15 +25,28 @@ public final class StringUtil {
 		return string.substring(0, string.length() - characters);
 	}
 	
-	public static Pair<String, OptionalInt> splitIntAtTheEnd(String string) {
-		if (string.isEmpty()) return Pair.of(string, OptionalInt.empty());
-		int i;
-		for (i = string.length(); i > 0 && Character.isDigit(string.charAt(i - 1)); i--) {}
-		if (i == string.length()) return Pair.of(string, OptionalInt.empty());
+	
+	public static record StringWithNumber(String str, OptionalInt number) {
 		
-		String substr = string.substring(0, i);
-		int number = Integer.parseInt(string.substring(i));
-		return Pair.of(substr, OptionalInt.of(number));
+		public static StringWithNumber splitIntAtTheEnd(String string) {
+			if (string.isEmpty()) return new StringWithNumber(string, OptionalInt.empty());
+			int i;
+			for (i = string.length(); i > 0 && Character.isDigit(string.charAt(i - 1)); i--) {}
+			if (i == string.length()) return new StringWithNumber(string, OptionalInt.empty());
+			
+			String substr = string.substring(0, i);
+			int number = Integer.parseInt(string.substring(i));
+			return new StringWithNumber(substr, OptionalInt.of(number));
+		}
+		
+		// дожили
+		public static final Codec<StringWithNumber> CODEC = Codec.STRING.xmap(
+				StringWithNumber::splitIntAtTheEnd, StringWithNumber::toString);
+		
+		@Override
+		public String toString() {
+			return number.isPresent() ? str + number.getAsInt() : str;
+		}
 	}
 	
 }

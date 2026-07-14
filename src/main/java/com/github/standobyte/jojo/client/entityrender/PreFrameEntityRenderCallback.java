@@ -26,6 +26,7 @@ import com.github.standobyte.jojo.event.client.ReplacePlayerModelEvent;
 import com.github.standobyte.jojo.init.ModSpecialActions;
 import com.github.standobyte.jojo.mechanics.jojopose.resource.ClientJojoPoseLoader;
 import com.github.standobyte.jojo.mechanics.jojopose.resource.JojoPoseAnimSet;
+import com.github.standobyte.jojo.mechanics.jojopose.resource.JojoPoseAnimSet.JojoPoseAnimData;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
@@ -124,7 +125,7 @@ public class PreFrameEntityRenderCallback {
 			animVariables.animId = animPossiblyReplaced.animId;
 			animsPre = standSkin.getStandAlwaysAnimations();
 			
-			if (!stand.clientStuff.summonAnimStopped && !animVariables.animId.isSummon) {
+			if (!stand.clientStuff.summonAnimStopped && standSummonAnim == null) {
 				stand.clientStuff.summonAnimStopped = true;
 			}
 		}
@@ -185,7 +186,7 @@ public class PreFrameEntityRenderCallback {
 			}
 			
 			if (JojoMod.config.getClient().standMotionTilt.getAsBoolean() && stand != null
-					&& (animVariables.animId == null || !animVariables.animId.isSummon)) {
+					&& stand.clientStuff.summonAnimStopped) {
 				// XXX interpolate motion tilt from summon pose
 				// FIXME save the pose without motion tilt separately (fixes punch combo interpolation)
 				if (renderer instanceof StandEntityRenderer standEntityRenderer) {
@@ -220,8 +221,32 @@ public class PreFrameEntityRenderCallback {
 					}
 				}
 				
-				int summonAnimIndex = stand.summonPoseRandomByte;
-				AnimWithId standSummonAnim = getStandSummonAnim(standSkin, summonAnimIndex);
+				AnimWithId standSummonAnim = null;
+				
+				if (stand.clientStuff.specificSummonAnim != null) {
+					standSummonAnim = stand.clientStuff.specificSummonAnim;
+				}
+				else if (userJojoPose != null) {
+					ActionAnimIdentifier specificAnimFromUserPose = null;
+					JojoPoseAnimSet userPoseAnimSet = ClientJojoPoseLoader.getInstance().getAnimSet(userJojoPose.getEntityAnimSet());
+					if (userPoseAnimSet != null) {
+						JojoPoseAnimData animData = userPoseAnimSet.data().getAnimSpecificData(userJojoPose.getEntityAnim().name);
+						if (animData != null) {
+							specificAnimFromUserPose = animData.standSummonPose();
+						}
+					}
+					
+					if (specificAnimFromUserPose != null) {
+						standSummonAnim = getStandAnim(standSkin, specificAnimFromUserPose, null);
+						if (standSummonAnim != null) {
+							stand.clientStuff.specificSummonAnim = standSummonAnim;
+						}
+					}
+				}
+				
+				if (standSummonAnim == null) {
+					standSummonAnim = getStandSummonAnim(standSkin, stand.summonPoseRandomByte);
+				}
 				
 				if (standSummonAnim != null) {
 					boolean freezeAtSummonPose = userJojoPose != null;
@@ -254,21 +279,21 @@ public class PreFrameEntityRenderCallback {
 		if (summonAnims != null) {
 			index %= summonAnims.anims.size();
 			RotpAnimDefinition summonAnim = summonAnims.get(index);
-			return AnimWithId.with(ActionAnimIdentifier.getOrCreate("summon", index).setSummon(), summonAnim);
+			return AnimWithId.with(ActionAnimIdentifier.getOrCreate("summon", index), summonAnim);
 		}
 		return null;
 	}
 	
-	public static AnimWithId getStandAnim(StandSkin skin, ActionAnimIdentifier animId, ActionAnimIdentifier curIdleAnim) {
+	public static AnimWithId getStandAnim(StandSkin skin, ActionAnimIdentifier animId, ActionAnimIdentifier defaultAnim) {
 		if (skin != null) {
 			if (animId != null) {
 				RotpAnimDefinition anim = skin.getStandAnimation(animId);
 				if (anim != null) {
 					return AnimWithId.with(animId, anim);
 				}
-				else {
-					anim = skin.getStandAnimation(curIdleAnim);
-					return AnimWithId.with(curIdleAnim, anim);
+				else if (defaultAnim != null) {
+					anim = skin.getStandAnimation(defaultAnim);
+					return AnimWithId.with(defaultAnim, anim);
 				}
 			}
 		}
