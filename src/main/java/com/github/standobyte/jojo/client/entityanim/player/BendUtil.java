@@ -5,9 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joml.Vector3f;
+
 import com.github.standobyte.jojo.client.entityanim.player.bend_crutches.DeformableCube;
-import com.github.standobyte.jojo.client.entityanim.player.bend_crutches.DeformableQuad;
-import com.github.standobyte.jojo.client.entityanim.player.bend_crutches.DeformableVertex;
+import com.github.standobyte.jojo.client.entityanim.player.bend_crutches.RememberingPos;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._ModelPart$Polygon;
 import com.google.common.collect.Iterables;
@@ -224,17 +225,17 @@ public class BendUtil {
 			if (bend != 0) {
 				float width = (cube.maxZ - cube.minZ) / 2;
 				float yDiff = width * MathUtil.tan(bend / 2);
-				for (DeformableQuad quad : cube.dQuads) {
-					for (DeformableVertex vertex : quad.vertices) {
-						if (vertex.pos.y == bendY) {
-							if (vertex.pos.z - bendZ < 0) {
-								if (isBendPart)	vertex.pos.y -= yDiff;
-								else			vertex.pos.y += yDiff;
-							}
-							else {
-								if (isBendPart)	vertex.pos.y += yDiff;
-								else			vertex.pos.y -= yDiff;
-							}
+				
+				for (RememberingPos vertex : cube.distinctVertices) {
+					Vector3f pos = vertex.mutablePos();
+					if (pos.y == bendY) {
+						if (pos.z - bendZ < 0) {
+							if (isBendPart)	pos.y -= yDiff;
+							else			pos.y += yDiff;
+						}
+						else {
+							if (isBendPart)	pos.y += yDiff;
+							else			pos.y -= yDiff;
 						}
 					}
 				}

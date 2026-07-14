@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.entityanim.player.bend_crutches;
 
+import java.util.Map;
+
 import org.joml.Vector3f;
 
 import net.minecraft.client.model.geom.ModelPart;
@@ -13,10 +15,11 @@ public class DeformableQuad {
 		this.normal = normal;
 	}
 	
-	public static DeformableQuad fromVanilla(ModelPart.Polygon quad) {
+	public static DeformableQuad fromVanilla(ModelPart.Polygon quad, 
+			Map<Vector3f, RememberingPos> cubeVertices) {
 		DeformableVertex[] vertices = new DeformableVertex[quad.vertices.length];
 		for (int i = 0; i < vertices.length; i++) {
-			vertices[i] = DeformableVertex.fromVanilla(quad.vertices[i]);
+			vertices[i] = DeformableVertex.fromVanilla(quad.vertices[i], cubeVertices);
 		}
 		return new DeformableQuad(vertices, quad.normal);
 	}

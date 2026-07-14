@@ -1,32 +1,31 @@
 package com.github.standobyte.jojo.client.entityanim.player.bend_crutches;
 
+import java.util.Map;
+
 import org.joml.Vector3f;
 
 import net.minecraft.client.model.geom.ModelPart;
 
 public class DeformableVertex {
-	public final float originalX;
-	public final float originalY;
-	public final float originalZ;
-	public final Vector3f pos;
+	public final RememberingPos pos;
 	public final float u;
 	public final float v;
 	
-	public DeformableVertex(float x, float y, float z, float u, float v) {
-		this.pos = new Vector3f(x, y, z);
-		this.originalX = x;
-		this.originalY = y;
-		this.originalZ = z;
+	public DeformableVertex(RememberingPos pos, float u, float v) {
+		this.pos = pos;
 		this.u = u;
 		this.v = v;
 	}
 	
-	public void reset() {
-		this.pos.set(originalX, originalY, originalZ);
+	public Vector3f pos() {
+		return pos.mutablePos();
 	}
 	
-	public static DeformableVertex fromVanilla(ModelPart.Vertex vertex) {
-		return new DeformableVertex(vertex.pos.x, vertex.pos.y, vertex.pos.z, vertex.u, vertex.v);
+	public static DeformableVertex fromVanilla(ModelPart.Vertex vertex, 
+			Map<Vector3f, RememberingPos> cubeVertices) {
+		Vector3f posHash = vertex.pos;
+		RememberingPos cubeVertex = cubeVertices.computeIfAbsent(posHash, RememberingPos::new);
+		return new DeformableVertex(cubeVertex, vertex.u, vertex.v);
 	}
 	
 }
