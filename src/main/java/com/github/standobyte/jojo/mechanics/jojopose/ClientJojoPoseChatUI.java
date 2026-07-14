@@ -85,9 +85,22 @@ public class ClientJojoPoseChatUI {
 						posesListUI.setHeight(actualListHeight);
 					}
 					event.addListener(posesListUI);
+					((PolShestogoDed) screen).jojo_ripples$setJojoPoseScrolleableList(posesListUI);
 				}
 			}
 		}
+	}
+	
+	public static interface PolShestogoDed {
+		public void jojo_ripples$setJojoPoseScrolleableList(ScrolleableButtonList list);
+	}
+	
+	public static boolean scrollPoseList(Screen chatScreen, ScrolleableButtonList jojoPosesList, 
+			double mouseX, double mouseY, double scrollX, double scrollY) {
+		if (jojoPosesList.isMouseOver(mouseX, mouseY)) {
+			return jojoPosesList.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+		}
+		return false;
 	}
 	
 	
