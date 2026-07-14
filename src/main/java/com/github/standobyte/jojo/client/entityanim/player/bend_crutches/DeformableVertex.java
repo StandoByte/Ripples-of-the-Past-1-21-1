@@ -24,7 +24,8 @@ public class DeformableVertex {
 	public static DeformableVertex fromVanilla(ModelPart.Vertex vertex, 
 			Map<Vector3f, RememberingPos> cubeVertices) {
 		Vector3f posHash = vertex.pos;
-		RememberingPos cubeVertex = cubeVertices.computeIfAbsent(posHash, RememberingPos::new);
+		RememberingPos cubeVertex = cubeVertices.computeIfAbsent(posHash, 
+				pos -> new RememberingPos(new Vector3f(pos)));
 		return new DeformableVertex(cubeVertex, vertex.u, vertex.v);
 	}
 	

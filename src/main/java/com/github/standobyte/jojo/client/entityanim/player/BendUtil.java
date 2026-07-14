@@ -223,20 +223,16 @@ public class BendUtil {
 			cube.reset();
 			
 			if (bend != 0) {
-				float width = (cube.maxZ - cube.minZ) / 2;
-				float yDiff = width * MathUtil.tan(bend / 2);
-				
+				float tan = MathUtil.tan(bend / 2);
 				for (RememberingPos vertex : cube.distinctVertices) {
 					Vector3f pos = vertex.mutablePos();
+					
+					float width = pos.z - bendZ;
+					float yDiff = width * tan;
+					
 					if (pos.y == bendY) {
-						if (pos.z - bendZ < 0) {
-							if (isBendPart)	pos.y -= yDiff;
-							else			pos.y += yDiff;
-						}
-						else {
-							if (isBendPart)	pos.y += yDiff;
-							else			pos.y -= yDiff;
-						}
+						if (isBendPart)	pos.y += yDiff;
+						else			pos.y -= yDiff;
 					}
 				}
 			}
