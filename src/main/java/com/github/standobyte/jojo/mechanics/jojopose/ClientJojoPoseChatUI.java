@@ -72,7 +72,8 @@ public class ClientJojoPoseChatUI {
 							return null;
 						}
 					};
-					
+
+					ChatScreenWithPosesList chatScreen = (ChatScreenWithPosesList) screen;
 					for (var animSetEntry : poses) {
 						ResourceLocation animSetId = animSetEntry.getKey();
 						AnimationSet anims = animSetEntry.getValue().anims();
@@ -80,7 +81,7 @@ public class ClientJojoPoseChatUI {
 							String poseName = poseEntry.getKey();
 							RotpAnimDefinition anim = poseEntry.getValue().getSingle();
 							AnimFramePose pose = getPose(anim);
-							JojoPoseWidget button = new JojoPoseWidget(0, 0, pose, animSetId, poseName);
+							JojoPoseWidget button = new JojoPoseWidget(chatScreen, 0, 0, pose, animSetId, poseName);
 							posesListUI.addEntry(new EntryWithButtons().add(button, 0, 0));
 						}
 					}
@@ -92,14 +93,15 @@ public class ClientJojoPoseChatUI {
 						posesListUI.setHeight(actualListHeight);
 					}
 					event.addListener(posesListUI);
-					((PolShestogoDed) screen).jojo_ripples$setJojoPoseScrolleableList(posesListUI);
+					((ChatScreenWithPosesList) screen).jojo_ripples$setJojoPoseScrolleableList(posesListUI);
 				}
 			}
 		}
 	}
 	
-	public static interface PolShestogoDed {
+	public static interface ChatScreenWithPosesList {
 		public void jojo_ripples$setJojoPoseScrolleableList(ScrolleableButtonList list);
+		public void jojo_ripples$simulatePressingEnter(); // ChatScreen#input doesn't even have a getter
 	}
 	
 	public static boolean scrollPoseList(Screen chatScreen, ScrolleableButtonList jojoPosesList, 
@@ -132,13 +134,15 @@ public class ClientJojoPoseChatUI {
 				JojoMod.resLoc("widget/pose_slot"),
 				JojoMod.resLoc("widget/pose_slot"),
 				JojoMod.resLoc("widget/pose_slot_selection"));
+		protected ChatScreenWithPosesList chatScreen;
 		protected AnimFramePose pose;
 		protected ResourceLocation animationSet;
 		protected String animName;
 
-		public JojoPoseWidget(int x, int y, AnimFramePose pose, 
+		public JojoPoseWidget(ChatScreenWithPosesList chatScreen, int x, int y, AnimFramePose pose, 
 				ResourceLocation animationSet, String animName) {
 			super(x, y, 64, 64, CommonComponents.EMPTY);
+			this.chatScreen = (ChatScreenWithPosesList) chatScreen;
 			this.pose = pose;
 			this.animationSet = animationSet;
 			this.animName = animName;
@@ -202,7 +206,12 @@ public class ClientJojoPoseChatUI {
 			Minecraft mc = Minecraft.getInstance();
 			PacketDistributor.sendToServer(ClJojoPoseActionPacket.start(
 					mc.player.getId(), animationSet, animName));
-			mc.setScreen(null);
+			if (chatScreen != null) {
+				chatScreen.jojo_ripples$simulatePressingEnter();
+			}
+			if (chatScreen == null || mc.screen == chatScreen) {
+				mc.setScreen(null);
+			}
 		}
 
 		@Override
