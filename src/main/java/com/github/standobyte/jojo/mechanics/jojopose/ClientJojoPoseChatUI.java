@@ -66,11 +66,18 @@ public class ClientJojoPoseChatUI {
 					int x = screen.width - 74;
 					
 					Minecraft mc = Minecraft.getInstance();
-					ScrolleableButtonList posesListUI = new ScrolleableButtonList(mc, x, 0, 74, screen.height - 16, 68) {
+					/* scissors don't work correctly with entity models, 
+					 * so we'll just put the list all the way to the bottom
+					 * to make it look not as scuffed
+					 */
+					ScrolleableButtonList posesListUI = new ScrolleableButtonList(mc, x, 0, 74, screen.height/* - 16*/, 68) {
 						@Override // this makes it so that the buttons don't get focused when we press arrow keys
 						public ComponentPath nextFocusPath(FocusNavigationEvent event) {
 							return null;
 						}
+						
+						@Override protected void renderListBackground(GuiGraphics guiGraphics) {}
+						@Override protected void renderListSeparators(GuiGraphics guiGraphics) {}
 					};
 
 					ChatScreenWithPosesList chatScreen = (ChatScreenWithPosesList) screen;
@@ -173,7 +180,15 @@ public class ClientJojoPoseChatUI {
 			AbstractClientPlayer player = mc.player;
 			PlayerRenderer renderer = (PlayerRenderer) (Object) entityRenderDispatcher.getRenderer(player);
 			PlayerModel<?> model = renderer.getModel();
-        	
+
+			model.setAllVisible(true);
+			model.hat.visible = false;
+			model.jacket.visible = false;
+			model.leftPants.visible = false;
+			model.rightPants.visible = false;
+			model.leftSleeve.visible = false;
+			model.rightSleeve.visible = false;
+			
         	HumanoidRenderState renderState = RenderModelWithPose.clearSetupPose(model, pose, player.tickCount + partialTick);
         	renderState.isBaby = player.isBaby();
         	LivingEntityRenderState.setUpsideDown(renderState, player);
