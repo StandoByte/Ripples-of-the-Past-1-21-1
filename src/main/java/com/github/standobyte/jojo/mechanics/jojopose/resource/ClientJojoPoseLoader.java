@@ -4,16 +4,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.client.entityanim.AnimVariantsList;
 import com.github.standobyte.jojo.client.entityanim.AnimationLoader;
 import com.github.standobyte.jojo.client.entityanim.AnimationSet;
+import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.StoryCharacter;
+import com.github.standobyte.jojo.mechanics.jojopose.resource.JojoPoseAnimSet.JojoPoseAnimData;
 import com.github.standobyte.jojo.mechanics.jojopose.resource.JojoPoseAnimSet.JojoPoseAnimSetData;
 import com.github.standobyte.jojo.subsystems.StoryPart;
 import com.github.standobyte.jojo.util.functions.JSONUtil;
@@ -54,7 +58,8 @@ public class ClientJojoPoseLoader extends SimplePreparableReloadListener<Map<Res
 		return anims.get(geckoAnimFilePath);
 	}
 	
-	// TODO cache
+	// shit code - don't call the two methods below too often, or make the query process better
+	
 	public Stream<Map.Entry<ResourceLocation, JojoPoseAnimSet>> getForCharacter(Holder<StoryCharacter> playerCharacter, @Nullable Holder<StoryPart> playerStoryPart) {
 		if (playerCharacter == null) {
 			return Stream.empty();
@@ -72,6 +77,26 @@ public class ClientJojoPoseLoader extends SimplePreparableReloadListener<Map<Res
 					(storyPartsFilter == null || playerStoryPart != null && storyPartsFilter.contains(storyPartId));
 		});
 	}
+	
+	public Stream<JojoPoseAnim> getPosesForCharacter(Holder<StoryCharacter> playerCharacter, @Nullable Holder<StoryPart> playerStoryPart) {
+		return getForCharacter(playerCharacter, playerStoryPart).flatMap(animSetEntry -> {
+			ResourceLocation animSetId = animSetEntry.getKey();
+			JojoPoseAnimSet animSet = animSetEntry.getValue();
+			JojoPoseAnimSetData dataMap = animSet.data();
+			return animSet.anims().namedAnimations.entrySet().stream().flatMap(animEntry -> {
+				AnimVariantsList anims = animEntry.getValue();
+				String animBaseName = animEntry.getKey();
+				JojoPoseAnimData data = dataMap.getAnimSpecificData(animBaseName);
+				
+				return IntStream.range(0, anims.anims.size()).mapToObj(index -> new JojoPoseAnim(
+						animSetId, animEntry.getKey(), index, anims.anims.get(index), data));
+			});
+		});
+	}
+	
+	public static record JojoPoseAnim(ResourceLocation animSet, String animName, int animIndex, 
+			RotpAnimDefinition anim, @Nullable JojoPoseAnimData data) {}
+	
 	
 
 	private static final String TOP_DIR = "jojo_pose";

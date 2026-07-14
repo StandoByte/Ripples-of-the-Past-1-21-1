@@ -172,8 +172,10 @@ public class ClientJojoPoseChatUI {
 		}
 		
 		public void onPress() {
-			PacketDistributor.sendToServer(ClJojoPoseActionPacket.start(animationSet, animName, animIndex));
-			Minecraft.getInstance().setScreen(null);
+			Minecraft mc = Minecraft.getInstance();
+			PacketDistributor.sendToServer(ClJojoPoseActionPacket.start(
+					mc.player.getId(), animationSet, animName, animIndex));
+			mc.setScreen(null);
 		}
 
 		@Override

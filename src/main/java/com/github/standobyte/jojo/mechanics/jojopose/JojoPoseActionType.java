@@ -98,7 +98,9 @@ public class JojoPoseActionType extends SpecialEntityActionType {
 				boolean stopPosing = performer.swinging;
 				if (!stopPosing) {
 					PlayerMovementInputData input = PlayerMovementInputData.get(performer);
-					stopPosing |= input.jumping || input.shiftKeyDown || input.left != 0 || input.forward != 0;
+					if (input != null) {
+						stopPosing |= input.jumping || input.shiftKeyDown || input.left != 0 || input.forward != 0;
+					}
 				}
 				
 				if (stopPosing) {
