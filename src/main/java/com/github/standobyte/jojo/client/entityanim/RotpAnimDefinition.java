@@ -92,13 +92,13 @@ public class RotpAnimDefinition {
 				float timestamp = timestampEntry.getFloatValue();
 				AnimFramePose frame = new AnimFramePose();
 				calcAnimPose(frame, timestamp, 1, null, null);
-				poses.put(poseName, new SavedPose(frame, addToStandInfoScreen));
+				poses.put(poseName, new SavedPose(frame, timestamp, addToStandInfoScreen));
 			}
 		}
 	}
 	
 	protected static record _PoseNameInit(String name, boolean isCoolPose) {}
-	public static record SavedPose(AnimFramePose pose, boolean addToStandInfoScreen) {}
+	public static record SavedPose(AnimFramePose pose, float timeInSeconds, boolean addToStandInfoScreen) {}
 
 
 	public AnimFramePose calcAnimPose(float seconds, float animSpeed,

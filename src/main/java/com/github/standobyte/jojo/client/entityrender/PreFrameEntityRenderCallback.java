@@ -23,6 +23,7 @@ import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.event.client.ModClientEventHooks;
 import com.github.standobyte.jojo.event.client.ReplacePlayerModelEvent;
+import com.github.standobyte.jojo.init.ModSpecialActions;
 import com.github.standobyte.jojo.mechanics.jojopose.resource.ClientJojoPoseLoader;
 import com.github.standobyte.jojo.mechanics.jojopose.resource.JojoPoseAnimSet;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
@@ -117,12 +118,8 @@ public class PreFrameEntityRenderCallback {
 				stand.nonIdlePoseTimeStamp = stand.tickCount;
 			}
 			
-			if (!stand.clientStuff.summonAnimStopped && !animVariables.animId.isIdle) {
-				stand.clientStuff.summonAnimStopped = true;
-			}
-
-			AnimWithId animPossiblyReplaced = getStandAnim(standSkin, animVariables.animId, idleAnim, 
-					!stand.clientStuff.summonAnimStopped ? stand.summonPoseRandomByte : -1, animVariables.time);
+			AnimWithId standSummonAnim = getCurSummonAnimAndAdjustFreezeTime(stand, standSkin, animVariables);
+			AnimWithId animPossiblyReplaced = standSummonAnim != null ? standSummonAnim : getStandAnim(standSkin, animVariables.animId, idleAnim);
 			anim = animPossiblyReplaced.anim;
 			animVariables.animId = animPossiblyReplaced.animId;
 			animsPre = standSkin.getStandAlwaysAnimations();
@@ -207,24 +204,63 @@ public class PreFrameEntityRenderCallback {
 		return null;
 	}
 	
-	public static AnimWithId getStandAnim(StandSkin skin, ActionAnimIdentifier animId, ActionAnimIdentifier curIdleAnim) {
-		return getStandAnim(skin, animId, curIdleAnim, -1, 0);
-	}
-	
-	public static AnimWithId getStandAnim(StandSkin skin, ActionAnimIdentifier animId, ActionAnimIdentifier curIdleAnim, 
-			int doSummonAnim, float ticks) {
-		if (skin != null) {
-			if (doSummonAnim >= 0 && animId == curIdleAnim) {
-				AnimVariantsList summonAnims = skin.getStandAnimations("summon");
-				if (summonAnims != null) {
-					int index = doSummonAnim % summonAnims.anims.size();
-					RotpAnimDefinition summonAnim = summonAnims.get(index);
-					if (summonAnim.lengthInSeconds * 20 > ticks) {
-						return AnimWithId.with(ActionAnimIdentifier.getOrCreate("summon", index).setSummon(), summonAnim);
+	@Nullable
+	private static AnimWithId getCurSummonAnimAndAdjustFreezeTime(StandEntity stand, StandSkin standSkin, LivingAnimState animVariables) {
+		if (!stand.clientStuff.summonAnimStopped) {
+			if (!animVariables.animId.isIdle) {
+				stand.clientStuff.summonAnimStopped = true;
+			}
+			else {
+				EntityActionInstance userJojoPose = null;
+				LivingEntity user = stand.getUser();
+				if (user != null) {
+					var userAction = LivingComponentAction.getCurEntityAction(user);
+					if (userAction != null && userAction.ability == ModSpecialActions.JOJO_POSE.get()) {
+						userJojoPose = userAction;
+					}
+				}
+				
+				int summonAnimIndex = stand.summonPoseRandomByte;
+				AnimWithId standSummonAnim = getStandSummonAnim(standSkin, summonAnimIndex);
+				
+				if (standSummonAnim != null) {
+					boolean freezeAtSummonPose = userJojoPose != null;
+					if (freezeAtSummonPose && !standSummonAnim.anim.poses.isEmpty()) {
+						float freezeAtSummonPoseTimestamp = standSummonAnim.anim.poses.values().iterator().next().timeInSeconds() * 20;
+						
+						if (animVariables.time > freezeAtSummonPoseTimestamp) {
+							stand.clientStuff.freezeAtSummonPoseTime = animVariables.time - freezeAtSummonPoseTimestamp;
+						}
+					}
+					
+					if (stand.clientStuff.freezeAtSummonPoseTime > 0) {
+						animVariables.time -= stand.clientStuff.freezeAtSummonPoseTime;
+					}
+					
+					if (standSummonAnim.anim.lengthInSeconds * 20 > animVariables.time) {
+						return standSummonAnim;
 					}
 				}
 			}
-			
+		}
+		
+		return null;
+	}
+	
+	
+	@Nullable
+	public static AnimWithId getStandSummonAnim(StandSkin skin, int index) {
+		AnimVariantsList summonAnims = skin.getStandAnimations("summon");
+		if (summonAnims != null) {
+			index %= summonAnims.anims.size();
+			RotpAnimDefinition summonAnim = summonAnims.get(index);
+			return AnimWithId.with(ActionAnimIdentifier.getOrCreate("summon", index).setSummon(), summonAnim);
+		}
+		return null;
+	}
+	
+	public static AnimWithId getStandAnim(StandSkin skin, ActionAnimIdentifier animId, ActionAnimIdentifier curIdleAnim) {
+		if (skin != null) {
 			if (animId != null) {
 				RotpAnimDefinition anim = skin.getStandAnimation(animId);
 				if (anim != null) {

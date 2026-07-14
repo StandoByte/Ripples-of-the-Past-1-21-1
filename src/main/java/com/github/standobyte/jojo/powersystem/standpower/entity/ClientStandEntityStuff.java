@@ -14,6 +14,7 @@ public class ClientStandEntityStuff {
 	public List<Vec3> tiltVecQueue = new ArrayList<>();
 	public float lastMotionTiltTick = -1;
 	
+	public float freezeAtSummonPoseTime = 0;
 	public boolean summonAnimStopped = false;
     public Lerp.FloatValue modelAlpha = new Lerp.FloatValue(1);
     

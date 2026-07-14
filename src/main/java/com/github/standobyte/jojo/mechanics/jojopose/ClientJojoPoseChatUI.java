@@ -128,7 +128,7 @@ public class ClientJojoPoseChatUI {
 			
 			AnimFramePose frame = new AnimFramePose();
 			anim.calcAnimPose(frame, anim.lengthInSeconds, 1, null, null);
-			anim.poses.put("lastPose", new SavedPose(frame, true));
+			anim.poses.put("lastPose", new SavedPose(frame, anim.lengthInSeconds, true));
 		}
 		
 		return anim.poses.values().iterator().next().pose();
