@@ -24,11 +24,13 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.CommonInputs;
+import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.model.PlayerModel;
@@ -64,7 +66,12 @@ public class ClientJojoPoseChatUI {
 					int x = screen.width - 74;
 					
 					Minecraft mc = Minecraft.getInstance();
-					ScrolleableButtonList posesListUI = new ScrolleableButtonList(mc, x, 0, 74, screen.height - 16, 68);
+					ScrolleableButtonList posesListUI = new ScrolleableButtonList(mc, x, 0, 74, screen.height - 16, 68) {
+						@Override // this makes it so that the buttons don't get focused when we press arrow keys
+						public ComponentPath nextFocusPath(FocusNavigationEvent event) {
+							return null;
+						}
+					};
 					
 					for (var animSetEntry : poses) {
 						ResourceLocation animSetId = animSetEntry.getKey();
