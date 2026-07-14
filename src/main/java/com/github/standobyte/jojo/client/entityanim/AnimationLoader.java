@@ -64,7 +64,7 @@ public class AnimationLoader extends SimplePreparableReloadListener<Map<Resource
 				ResourceLocation resourcePathFull = resourceEntry.getKey();
 				ResourceLocation animPath = resourcePathFull.withPath(
 						StringUtil.trimEnding(resourceEntry.getKey().getPath(), EXTENSION).substring(TOP_DIR.length() + 1));
-				AnimationSet.Builder anim = loadAnimations(resourceEntry.getValue(), resourcePathFull, false);
+				AnimationSet.Builder anim = loadAnimations(resourceEntry.getValue(), resourcePathFull, false, true);
 				if (!anim.isEmpty()) {
 					anims.put(animPath, anim);
 				}
@@ -75,8 +75,8 @@ public class AnimationLoader extends SimplePreparableReloadListener<Map<Resource
 	}
 	
 	public static AnimationSet.Builder loadAnimations(List<Resource> resources, 
-			ResourceLocation resourcePath, boolean preserveOrder) {
-		AnimationSet.Builder animationSet = new AnimationSet.Builder(preserveOrder);
+			ResourceLocation resourcePath, boolean preserveOrder, boolean groupByName) {
+		AnimationSet.Builder animationSet = new AnimationSet.Builder(preserveOrder, groupByName);
 		for (var animFile : resources) {
 			try (var reader = animFile.openAsReader()) {
 				JsonObject json = JSONUtil.parse(reader);

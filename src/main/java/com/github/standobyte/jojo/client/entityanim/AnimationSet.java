@@ -52,19 +52,28 @@ public class AnimationSet {
 	
 	public static class Builder {
 		protected boolean preserveOrder;
+		protected boolean groupByName;
 		protected Map<String, Int2ObjectMap<RotpAnimDefinition>> namedAnimations = new LinkedHashMap<>();
 		@Nullable protected List<RotpAnimDefinition> alwaysAnim;
 		
-		public Builder(boolean preserveOrder) {
+		public Builder(boolean preserveOrder, boolean groupByName) {
 			this.preserveOrder = preserveOrder;
+			this.groupByName = groupByName;
 			this.namedAnimations = preserveOrder ? new LinkedHashMap<>() : new HashMap<>();
 		}
 		
 		public void putNamedAnim(String name, RotpAnimDefinition anim) {
-			Pair<String, OptionalInt> enumeratedName = StringUtil.splitIntAtTheEnd(name);
-			Int2ObjectMap<RotpAnimDefinition> anims = this.namedAnimations.computeIfAbsent(
-					enumeratedName.getFirst(), __ -> new Int2ObjectArrayMap<>());
-			anims.put(enumeratedName.getSecond().orElse(0), anim);
+			if (groupByName) {
+				Pair<String, OptionalInt> enumeratedName = StringUtil.splitIntAtTheEnd(name);
+				Int2ObjectMap<RotpAnimDefinition> anims = this.namedAnimations.computeIfAbsent(
+						enumeratedName.getFirst(), __ -> new Int2ObjectArrayMap<>());
+				anims.put(enumeratedName.getSecond().orElse(0), anim);
+			}
+			else {
+				Int2ObjectMap<RotpAnimDefinition> anims = this.namedAnimations.computeIfAbsent(
+						name, __ -> new Int2ObjectArrayMap<>());
+				anims.put(0, anim);
+			}
 		}
 		
 		public void addAlwaysAnim(RotpAnimDefinition anim) {

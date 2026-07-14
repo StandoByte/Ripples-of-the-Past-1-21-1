@@ -66,14 +66,11 @@ public class ClientJojoPoseChatUI {
 						AnimationSet anims = animSetEntry.getValue().anims();
 						for (var poseEntry : anims.namedAnimations.entrySet()) {
 							String poseName = poseEntry.getKey();
-							int i = 0;
-							for (RotpAnimDefinition anim : poseEntry.getValue().anims) {
-								AnimFramePose pose = getPose(anim);
-								JojoPoseWidget button = new JojoPoseWidget(x, y, pose, animSetId, poseName, i);
-								event.addListener(button);
-								y -= 68;
-								i++;
-							}
+							RotpAnimDefinition anim = poseEntry.getValue().getSingle();
+							AnimFramePose pose = getPose(anim);
+							JojoPoseWidget button = new JojoPoseWidget(x, y, pose, animSetId, poseName);
+							event.addListener(button);
+							y -= 68;
 						}
 					}
 				}
@@ -106,15 +103,13 @@ public class ClientJojoPoseChatUI {
 		protected AnimFramePose pose;
 		protected ResourceLocation animationSet;
 		protected String animName;
-		protected int animIndex;
 
 		public JojoPoseWidget(int x, int y, AnimFramePose pose, 
-				ResourceLocation animationSet, String animName, int animIndex) {
+				ResourceLocation animationSet, String animName) {
 			super(x, y, 64, 64, CommonComponents.EMPTY);
 			this.pose = pose;
 			this.animationSet = animationSet;
 			this.animName = animName;
-			this.animIndex = animIndex;
 		}
 
 		@Override
@@ -174,7 +169,7 @@ public class ClientJojoPoseChatUI {
 		public void onPress() {
 			Minecraft mc = Minecraft.getInstance();
 			PacketDistributor.sendToServer(ClJojoPoseActionPacket.start(
-					mc.player.getId(), animationSet, animName, animIndex));
+					mc.player.getId(), animationSet, animName));
 			mc.setScreen(null);
 		}
 

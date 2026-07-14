@@ -27,14 +27,12 @@ public class JojoPoseActionType extends SpecialEntityActionType {
 	public static class PosingInstance extends EntityActionInstance {
 		public ResourceLocation animationSet;
 		public String animName;
-		public int animIndex;
 		public ActionAnimIdentifier poseId;
 
-		public PosingInstance(ResourceLocation animationSet, String animName, int animIndex) {
+		public PosingInstance(ResourceLocation animationSet, String animName) {
 			this(ModSpecialActions.JOJO_POSE.get());
 			this.animationSet = animationSet;
 			this.animName = animName;
-			this.animIndex = animIndex;
 			this.setStartingPhase();
 		}
 
@@ -48,15 +46,13 @@ public class JojoPoseActionType extends SpecialEntityActionType {
 		public void toBuf(FriendlyByteBuf buf) {
 			ResourceLocation.STREAM_CODEC.encode(buf, animationSet);
 			buf.writeUtf(animName);
-			buf.writeVarInt(animIndex);
 		}
 
 		@Override
 		public void fromBuf(FriendlyByteBuf buf) {
 			animationSet = ResourceLocation.STREAM_CODEC.decode(buf);
 			animName = buf.readUtf();
-			animIndex = buf.readVarInt();
-			poseId = ActionAnimIdentifier.getOrCreate(animName, animIndex);
+			poseId = ActionAnimIdentifier.getOrCreate(animName, 0);
 		}
 		
 		@Override

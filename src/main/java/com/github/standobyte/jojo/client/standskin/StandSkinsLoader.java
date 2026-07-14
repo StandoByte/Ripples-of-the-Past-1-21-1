@@ -433,7 +433,7 @@ public class StandSkinsLoader implements PreparableReloadListener, AutoCloseable
 				if (json != null) {
 					if (builder.animations == null) builder.animations = new HashMap<>();
 					ResourceLocation path = json.getFirst();
-					AnimationLoader.addAnimsToAnimSet(json.getSecond(), builder.animations.computeIfAbsent(path, __ -> new AnimationSet.Builder(false)), path);
+					AnimationLoader.addAnimsToAnimSet(json.getSecond(), builder.animations.computeIfAbsent(path, __ -> new AnimationSet.Builder(false, true)), path);
 				}
 			}
 			case "textures" -> {

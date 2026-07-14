@@ -20,23 +20,21 @@ public class ClJojoPoseActionPacket implements CustomPacketPayload {
 	private final PacketType packetType;
 	private final ResourceLocation animationSet;
 	private final String animName;
-	private final int animIndex;
 	
-	public static ClJojoPoseActionPacket start(int entityId, ResourceLocation animationSet, String animName, int animIndex) {
-		return new ClJojoPoseActionPacket(entityId, PacketType.START, animationSet, animName, animIndex);
+	public static ClJojoPoseActionPacket start(int entityId, ResourceLocation animationSet, String animName) {
+		return new ClJojoPoseActionPacket(entityId, PacketType.START, animationSet, animName);
 	}
 	
 	public static ClJojoPoseActionPacket stop(int entityId) {
-		return new ClJojoPoseActionPacket(entityId, PacketType.STOP, null, null, 0);
+		return new ClJojoPoseActionPacket(entityId, PacketType.STOP, null, null);
 	}
 	
 	private ClJojoPoseActionPacket(int entityId, PacketType packetType, 
-			ResourceLocation animationSet, String animName, int animIndex) {
+			ResourceLocation animationSet, String animName) {
 		this.entityId = entityId;
 		this.packetType = packetType;
 		this.animationSet = animationSet;
 		this.animName = animName;
-		this.animIndex = animIndex;
 	}
 
 	enum PacketType {
@@ -67,7 +65,6 @@ public class ClJojoPoseActionPacket implements CustomPacketPayload {
 				case START -> {
 					ResourceLocation.STREAM_CODEC.encode(buf, packet.animationSet);
 					buf.writeUtf(packet.animName);
-					buf.writeVarInt(packet.animIndex);
 				}
 				case STOP -> {}
 			}
@@ -81,8 +78,7 @@ public class ClJojoPoseActionPacket implements CustomPacketPayload {
 				case START -> {
 					ResourceLocation animationSet = ResourceLocation.STREAM_CODEC.decode(buf);
 					String animName = buf.readUtf();
-					int animIndex = buf.readVarInt();
-					yield start(entityId, animationSet, animName, animIndex);
+					yield start(entityId, animationSet, animName);
 				}
 				case STOP -> stop(entityId);
 			};
@@ -108,7 +104,7 @@ public class ClJojoPoseActionPacket implements CustomPacketPayload {
 					case START -> {
 						LivingComponentAction actionComponent = LivingComponentAction.getComponent(posingEntity);
 						EntityActionInstance poseAction = new JojoPoseActionType.PosingInstance(
-								payload.animationSet, payload.animName, payload.animIndex);
+								payload.animationSet, payload.animName);
 						actionComponent.setAction(poseAction, SyncType.TRACKING_AND_SELF);
 					}
 					case STOP -> {

@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
@@ -83,18 +82,16 @@ public class ClientJojoPoseLoader extends SimplePreparableReloadListener<Map<Res
 			ResourceLocation animSetId = animSetEntry.getKey();
 			JojoPoseAnimSet animSet = animSetEntry.getValue();
 			JojoPoseAnimSetData dataMap = animSet.data();
-			return animSet.anims().namedAnimations.entrySet().stream().flatMap(animEntry -> {
+			return animSet.anims().namedAnimations.entrySet().stream().map(animEntry -> {
 				AnimVariantsList anims = animEntry.getValue();
 				String animBaseName = animEntry.getKey();
 				JojoPoseAnimData data = dataMap.getAnimSpecificData(animBaseName);
-				
-				return IntStream.range(0, anims.anims.size()).mapToObj(index -> new JojoPoseAnim(
-						animSetId, animEntry.getKey(), index, anims.anims.get(index), data));
+				return new JojoPoseAnim(animSetId, animEntry.getKey(), anims.getSingle(), data);
 			});
 		});
 	}
 	
-	public static record JojoPoseAnim(ResourceLocation animSet, String animName, int animIndex, 
+	public static record JojoPoseAnim(ResourceLocation animSet, String animName, 
 			RotpAnimDefinition anim, @Nullable JojoPoseAnimData data) {}
 	
 	
@@ -119,7 +116,7 @@ public class ClientJojoPoseLoader extends SimplePreparableReloadListener<Map<Res
 					case ANIM_FILE_NAME -> {
 						PoseAnimSetPrep animSetEntry = animSetEntries.computeIfAbsent(entryId, __ -> new PoseAnimSetPrep());
 						AnimationSet.Builder anim = AnimationLoader.loadAnimations(resourceEntry.getValue(), 
-								resourcePathFull, true);
+								resourcePathFull, true, false);
 						if (!anim.isEmpty()) {
 							animSetEntry.animSet = anim;
 						}

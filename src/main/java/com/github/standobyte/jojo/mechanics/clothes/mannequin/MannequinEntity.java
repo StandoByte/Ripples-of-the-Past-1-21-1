@@ -91,7 +91,7 @@ public class MannequinEntity extends ArmorStand {
 					if (!poses.isEmpty()) {
 						JojoPoseAnim pose = poses.get((++poseCycle) % poses.size());
 						PacketDistributor.sendToServer(ClJojoPoseActionPacket.start(
-								this.getId(), pose.animSet(), pose.animName(), pose.animIndex()));
+								this.getId(), pose.animSet(), pose.animName()));
 					}
 				}
 				
