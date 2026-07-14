@@ -38,6 +38,11 @@ public class ScrolleableButtonList extends ContainerObjectSelectionList<Scrollea
 		return super.addEntry(entry);
 	}
 
+	@Override
+	public int getMaxPosition() {
+		return super.getMaxPosition();
+	}
+
 	public static class EntryWithButtons extends ContainerObjectSelectionList.Entry<EntryWithButtons> {
 		protected List<AbstractWidget> children = new ArrayList<>();
 		protected List<Object> renderables = new ArrayList<>();

@@ -6,6 +6,8 @@ import com.github.standobyte.jojo.client.entityanim.AnimationSet;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.SavedPose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
+import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList;
+import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList.EntryWithButtons;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
@@ -60,7 +62,10 @@ public class ClientJojoPoseChatUI {
 				var poses = ClientJojoPoseLoader.getInstance().getForCharacter(character, storyPart).toList();
 				if (!poses.isEmpty()) {
 					int x = screen.width - 74;
-					int y = screen.height - 84;
+					
+					Minecraft mc = Minecraft.getInstance();
+					ScrolleableButtonList posesListUI = new ScrolleableButtonList(mc, x, 0, 74, screen.height - 16, 68);
+					
 					for (var animSetEntry : poses) {
 						ResourceLocation animSetId = animSetEntry.getKey();
 						AnimationSet anims = animSetEntry.getValue().anims();
@@ -68,11 +73,18 @@ public class ClientJojoPoseChatUI {
 							String poseName = poseEntry.getKey();
 							RotpAnimDefinition anim = poseEntry.getValue().getSingle();
 							AnimFramePose pose = getPose(anim);
-							JojoPoseWidget button = new JojoPoseWidget(x, y, pose, animSetId, poseName);
-							event.addListener(button);
-							y -= 68;
+							JojoPoseWidget button = new JojoPoseWidget(0, 0, pose, animSetId, poseName);
+							posesListUI.addEntry(new EntryWithButtons().add(button, 0, 0));
 						}
 					}
+					
+					int screenHeight = posesListUI.getHeight();
+					int actualListHeight = posesListUI.getMaxPosition() + 4;
+					if (actualListHeight < posesListUI.getHeight()) {
+						posesListUI.setY(screenHeight - actualListHeight);
+						posesListUI.setHeight(actualListHeight);
+					}
+					event.addListener(posesListUI);
 				}
 			}
 		}
