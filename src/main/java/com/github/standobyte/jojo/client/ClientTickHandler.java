@@ -5,6 +5,7 @@ import com.github.standobyte.jojo.client.ui.hud_misc.BottomLeftNotifications;
 import com.github.standobyte.jojo.client.ui.utils.FadeOut;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
+import com.github.standobyte.jojo.mechanics.voiceline.VoiceLineClientSoundTracker;
 import com.github.standobyte.jojo.modcompat.ModInteractionUtil;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
@@ -34,6 +35,7 @@ public class ClientTickHandler {
 		ModInteractionUtil.clientTickPre();
 		ClientGlobals.tick(mc);
 		ClientEntityController.clientTickPre();
+		VoiceLineClientSoundTracker.tick();
 		++tickCount;
 	}
 
