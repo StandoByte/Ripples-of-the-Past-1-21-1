@@ -124,8 +124,6 @@ public class ModSoundEvents {
 	public static final DeferredHolder<SoundEvent, SoundEvent> VOICELINE_TIME_STOP = register("vl_time_stop");
 	public static final DeferredHolder<SoundEvent, SoundEvent> VOICELINE_TIME_RESUME = register("vl_time_resume");
 
-    public static final DeferredHolder<SoundEvent, SoundEvent> JOTARO_STAR_FINGER = SOUNDS.register("jotaro_star_finger", SoundEvent::createVariableRangeEvent);
-
 	public static final DeferredHolder<SoundEvent, SoundEvent> TIME_STOP = SOUNDS.register("time_stop", SoundEvent::createVariableRangeEvent);
 	public static final DeferredHolder<SoundEvent, SoundEvent> TIME_RESUME = SOUNDS.register("time_resume", SoundEvent::createVariableRangeEvent);
 	public static final DeferredHolder<SoundEvent, SoundEvent> TIME_STOP_BLINK = SOUNDS.register("time_stop_blink", SoundEvent::createVariableRangeEvent);
