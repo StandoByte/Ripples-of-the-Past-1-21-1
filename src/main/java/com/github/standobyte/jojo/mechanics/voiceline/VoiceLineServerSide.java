@@ -30,6 +30,14 @@ public class VoiceLineServerSide {
 		if (clothes != null) {
 			Holder<StoryCharacter> character = clothes.getCharacter();
 			if (character != null) {
+				if (delay > 0) {
+					VoiceLineServerDelayTracker delayTracker = VoiceLineServerDelayTracker.get(entity);
+					if (delayTracker.isOnDelay(soundEvent)) {
+						return;
+					}
+					delayTracker.setDelay(soundEvent, delay);
+				}
+				
 				@Nullable Holder<StoryPart> storyPart = clothes.getStoryPart();
 				@Nullable ResourceLocation standType = StandPower.getOptional(entity)
 						.map(Power::getPowerType).map(PowerType::getId).orElse(null);
