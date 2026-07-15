@@ -30,19 +30,31 @@ public class VoiceLineClientSide {
 		if (!voiceLines.isEmpty()) {
 			ClientVoiceLineDefinition voiceLine = ListUtil.getRandom(voiceLines);
 			Vec3 pos = entity.getEyePosition();
-			play(voiceLine, canInterrupt, soundCategory, volume, pitch, pos.x, pos.y, pos.z);
+			play(voiceLine, entity, canInterrupt, soundCategory, volume, pitch, pos.x, pos.y, pos.z);
 		}
 	}
 	
-	public static void play(ClientVoiceLineDefinition voiceLine, boolean canInterrupt, 
+	public static void play(ClientVoiceLineDefinition voiceLine, 
+			Entity entity, boolean canInterrupt, 
 			SoundSource soundCategory, float volume, float pitch,
 			double x, double y, double z) {
 		Minecraft mc = Minecraft.getInstance();
 		ResourceLocation soundLocation = ListUtil.getRandom(voiceLine.sounds());
 		
+		SoundInstance curPlayingVoiceLine = VoiceLineClientSoundTracker.getPlayingVoiceLineSound(entity);
+		if (curPlayingVoiceLine != null) {
+			if (canInterrupt) {
+				mc.getSoundManager().stop(curPlayingVoiceLine);
+			}
+			else {
+				return;
+			}
+		}
+		
 		SoundInstance soundInstance = SoundUtil.justPutTheSoundInTheBag(soundLocation, voiceLine.subtitle(),
 				soundCategory, volume, pitch, SoundInstance.Attenuation.LINEAR, x, y, z);
 		mc.getSoundManager().play(soundInstance);
+		VoiceLineClientSoundTracker.setSound(entity, soundInstance);
 	}
 	
 }
