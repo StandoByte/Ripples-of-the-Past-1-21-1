@@ -81,7 +81,7 @@ public class JojoPoseActionType extends SpecialEntityActionType {
 					if (animSpecificData != null) {
 						ClientVoiceLineDefinition voiceLine = animSpecificData.voiceLine();
 						if (voiceLine != null) {
-							VoiceLineClientSide.play(voiceLine, false);
+							VoiceLineClientSide.play(voiceLine, performer, false);
 						}
 					}
 				}

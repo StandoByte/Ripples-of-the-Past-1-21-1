@@ -35,6 +35,13 @@ public class VoiceLineClientSide {
 	}
 	
 	public static void play(ClientVoiceLineDefinition voiceLine, 
+			Entity entity, boolean canInterrupt) {
+		Vec3 pos = entity.getEyePosition();
+		play(voiceLine, entity, canInterrupt,
+				SoundSource.VOICE, 1, 1, pos.x, pos.y, pos.z);
+	}
+	
+	public static void play(ClientVoiceLineDefinition voiceLine, 
 			Entity entity, boolean canInterrupt, 
 			SoundSource soundCategory, float volume, float pitch,
 			double x, double y, double z) {
