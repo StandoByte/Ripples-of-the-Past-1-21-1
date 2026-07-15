@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.StoryCharacter;
 import com.github.standobyte.jojo.subsystems.StoryPart;
+import com.github.standobyte.jojo.util.functions.java.ListUtil;
 
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -23,10 +24,15 @@ public class VoiceLineClientSide {
 		List<ClientVoiceLineDefinition> voiceLines = ClientVoiceLinesLoader.getInstance().getVoiceLine(
 				soundEvent, character, 
 				storyPart, standType).toList();
-		for (ClientVoiceLineDefinition voiceLine : voiceLines) {
-			for (ResourceLocation soundFile : voiceLine.sounds()) {
-				JojoMod.LOGGER.debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ {}", soundFile);
-			}
+		if (!voiceLines.isEmpty()) {
+			ClientVoiceLineDefinition voiceLine = ListUtil.getRandom(voiceLines);
+			play(voiceLine, canInterrupt);
+		}
+	}
+	
+	public static void play(ClientVoiceLineDefinition voiceLine, boolean canInterrupt) {
+		for (ResourceLocation soundFile : voiceLine.sounds()) {
+			JojoMod.LOGGER.debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ {}", soundFile);
 		}
 	}
 }
