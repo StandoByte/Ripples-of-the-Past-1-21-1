@@ -1,16 +1,17 @@
 package com.github.standobyte.jojo.powersystem;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.network.s2c.PowerDataUnlockedSkillsPacket;
 import com.github.standobyte.jojo.network.s2c.TrPowerDataPacket;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.unlockableskill.UnlockableSkill;
 import com.github.standobyte.jojo.util.functions.NBTUtil;
-import com.github.standobyte.jojo.util.functions_network.NetworkUtil;
 
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
@@ -36,6 +37,7 @@ public abstract class PowerData implements INBTSerializable<CompoundTag> {
 			UnlockableSkill skill = skillEntry.getValue();
 			_allLockedAbilities.addAll(skill.unlocksAbilities);
 		}
+		unlockStartingSkills();
 	}
 	
 	public PowerType getPowerType() {
@@ -46,8 +48,7 @@ public abstract class PowerData implements INBTSerializable<CompoundTag> {
 		return powerType.getUnlockableSkills();
 	}
 	
-	
-	public void onInit(Power<?> userPower) {
+	protected void unlockStartingSkills() {
 		for (var skillEntry : getAllSkills().entrySet()) {
 			UnlockableSkill skill = skillEntry.getValue();
 			if (skill.isStarting) {
@@ -56,6 +57,9 @@ public abstract class PowerData implements INBTSerializable<CompoundTag> {
 			}
 		}
 	}
+	
+	
+	public void onInit(Power<?> userPower) {}
 	
 	public void tick(Power<?> userPower) {}
 	
@@ -75,7 +79,7 @@ public abstract class PowerData implements INBTSerializable<CompoundTag> {
 				ConditionCheck canUnlock = skill.canUnlockFromMenu(userPower, this);
 				if (canUnlock.positive()) {
 					_setSkillUnlocked(skillName, true, true);
-					syncOnUpdate(user);
+					syncUnlockedSkills(user);
 					return true;
 				}
 			}
@@ -95,7 +99,7 @@ public abstract class PowerData implements INBTSerializable<CompoundTag> {
 			}
 		}
 		
-		syncOnUpdate(user);
+		syncUnlockedSkills(user);
 	}
 	
 	@ApiStatus.NonExtendable
@@ -127,6 +131,7 @@ public abstract class PowerData implements INBTSerializable<CompoundTag> {
 		unlockedSkills.clear();
 		_lockedAbilities.clear();
 		_lockedAbilities.addAll(_allLockedAbilities);
+		unlockStartingSkills();
 	}
 	
 	
@@ -164,23 +169,21 @@ public abstract class PowerData implements INBTSerializable<CompoundTag> {
 	
 	
 	public void toBuf(FriendlyByteBuf buf, boolean isSentToTracking) {
-		if (!isSentToTracking) {
-			NetworkUtil.writeCollection(buf, unlockedSkills, FriendlyByteBuf::writeUtf);
-		}
 	}
 	
 	public void fromBuf(FriendlyByteBuf buf, boolean isSentToTracking) {
-		if (!isSentToTracking) {
-			_clearUnlockedSkills();
-			for (String skillName : NetworkUtil.readCollection(buf, FriendlyByteBuf::readUtf)) {
-				_setSkillUnlocked(skillName, true, false);
-			}
-		}
 	}
 	
 	@ApiStatus.NonExtendable
 	public void syncToPlayer(ServerPlayer user) {
 		PacketDistributor.sendToPlayer(user, new TrPowerDataPacket(user.getId(), getPowerClass(), this, false));
+	}
+	
+	@ApiStatus.NonExtendable
+	public void syncUnlockedSkills(LivingEntity user) {
+		if (user instanceof ServerPlayer player) {
+			PacketDistributor.sendToPlayer(player, new PowerDataUnlockedSkillsPacket(user.getId(), getPowerClass(), unlockedSkills));
+		}
 	}
 
 	@ApiStatus.NonExtendable
@@ -199,6 +202,13 @@ public abstract class PowerData implements INBTSerializable<CompoundTag> {
 			if (user instanceof ServerPlayer player) {
 				syncToPlayer(player);
 			}
+		}
+	}
+	
+	public void clSetUnlockedSkills(Collection<String> fromPacket) {
+		_clearUnlockedSkills();
+		for (String skillName : fromPacket) {
+			_setSkillUnlocked(skillName, true, false);
 		}
 	}
 	

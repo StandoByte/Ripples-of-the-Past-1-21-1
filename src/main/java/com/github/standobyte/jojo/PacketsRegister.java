@@ -37,6 +37,7 @@ import com.github.standobyte.jojo.network.s2c.TrAbilityUsePacket;
 import com.github.standobyte.jojo.network.s2c.TrAimTargetPacket;
 import com.github.standobyte.jojo.network.s2c.TrNonEntityStandSummonPacket;
 import com.github.standobyte.jojo.network.s2c.TrPowerDataPacket;
+import com.github.standobyte.jojo.network.s2c.PowerDataUnlockedSkillsPacket;
 import com.github.standobyte.jojo.network.s2c.TrPowerStandInstancePacket;
 import com.github.standobyte.jojo.network.s2c.TrPowerTypePacket;
 import com.github.standobyte.jojo.network.s2c.TrResetDeathTimePacket;
@@ -118,6 +119,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrPowerStandInstancePacket.Handler(JojoMod.resLoc("standinst")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrPowerTypePacket.Handler(JojoMod.resLoc("plpowertype")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrPowerDataPacket.Handler(JojoMod.resLoc("powerdata")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new PowerDataUnlockedSkillsPacket.Handler(JojoMod.resLoc("skills")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrSetStandEntityPacket.Handler(JojoMod.resLoc("standentity")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrNonEntityStandSummonPacket.Handler(JojoMod.resLoc("nestandsummon")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrEntityCustomEffectsPacket.Handler(JojoMod.resLoc("standeffect")));

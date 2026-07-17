@@ -175,7 +175,7 @@ public class MovesetBuilder {
 		return this
 		.addSkill(StandUnlockableSkill.startingAbility("guard").setNotYetImplemented())
 		.addSkill(StandUnlockableSkill.startingAbility("manual_control"))
-		.addSkill(StandUnlockableSkill.startingAbility("item_use"))
+		.addSkill(new StandUnlockableSkill("item_use").setIsStartingSkill())
 		.addSkill(StandUnlockableSkill.startingAbility("ledge_grab").setNotYetImplemented());
 	}
 	

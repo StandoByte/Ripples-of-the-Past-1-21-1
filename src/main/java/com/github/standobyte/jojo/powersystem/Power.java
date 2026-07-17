@@ -78,6 +78,7 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 				curData.syncToAllTracking(user);
 				if (user instanceof ServerPlayer player) {
 					curData.syncToPlayer(player);
+					curData.syncUnlockedSkills(player);
 				}
 			}
 		}
@@ -178,6 +179,7 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 		PowerData curData = getCurTypeData();
 		if (curData != null) {
 			curData.syncToPlayer(user);
+			curData.syncUnlockedSkills(user);
 		}
 	}
 
