@@ -278,6 +278,7 @@
   "jojo_ripples.story_part.p9": "The JOJOLands",
 
   "jojo_ripples.menu.player.clothes": "Одежда (WIP)",
+  "jojo_ripples.menu.player.clothes.cur_character": "Персонаж из ДжоДжо: %s",
   "block.jojo_ripples.sewing_machine": "Швейная машинка (WIP)",
   "item.jojo_ripples.sewing_needle": "Швейная игла",
   "item.jojo_ripples.mannequin": "Манекен",
