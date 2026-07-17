@@ -1,7 +1,5 @@
 package com.github.standobyte.jojo;
 
-import java.util.List;
-
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.entityattachment.ComponentUtil;
@@ -11,20 +9,19 @@ import com.github.standobyte.jojo.entityattachment.syncheddata.DataParameter;
 import com.github.standobyte.jojo.entityattachment.syncheddata.SyncedDataHolderExtended;
 import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataHelper;
 import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataPacket;
+import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataPacketHandler;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.network.syncher.SynchedEntityData.Builder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class JojoModEntityVariables<T extends Entity> implements INBTSerializable<CompoundTag>, TickingEntityData, SynchronizablePlayerData, SyncedDataHolderExtended {
 	public static final DataParameter<Boolean> INSIDE_TIME_STOP_ZONE = DataParameter.defineId(
@@ -39,12 +36,20 @@ public class JojoModEntityVariables<T extends Entity> implements INBTSerializabl
 	
 	private static final String SYNCHED_PACKET_HANDLER_TYPE = "vars";
 	static {
-		SynchedDataPacket.Handler.specificHandlers.put(SYNCHED_PACKET_HANDLER_TYPE, 
-				(Entity entity, List<SynchedEntityData.DataValue<?>> packedItems, 
-						SynchedDataPacket payload, IPayloadContext context) -> {
-							JojoModEntityVariables<?> vars = get(entity);
-							vars.synchedData.getDataSyncher().assignValues(packedItems);
-						});
+		SynchedDataPacket.Handler.specificHandlers.put(SYNCHED_PACKET_HANDLER_TYPE, new SynchedDataPacketHandler() {
+
+			@Override
+			public SynchedDataHelper getDataSyncHelper(Entity entity) {
+				return get(entity).synchedData;
+			}
+
+			@Override
+			public SynchedDataHelper getOrCreateDataSyncHelper(Entity entity) {
+				var variables = getIfPresent(entity);
+				return variables != null ? variables.synchedData : null;
+			}
+			
+		});
 	}
 	
 	public JojoModEntityVariables(T entity) {

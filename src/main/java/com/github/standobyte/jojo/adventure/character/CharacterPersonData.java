@@ -1,7 +1,5 @@
 package com.github.standobyte.jojo.adventure.character;
 
-import java.util.List;
-
 import javax.annotation.Nonnull;
 
 import org.jetbrains.annotations.ApiStatus;
@@ -15,6 +13,7 @@ import com.github.standobyte.jojo.entityattachment.syncheddata.DataParameter;
 import com.github.standobyte.jojo.entityattachment.syncheddata.SyncedDataHolderExtended;
 import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataHelper;
 import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataPacket;
+import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataPacketHandler;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerData;
@@ -26,7 +25,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.network.syncher.SynchedEntityData.Builder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -38,7 +36,6 @@ import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID)
 public class CharacterPersonData implements SynchronizablePlayerData, TickingEntityData, INBTSerializable<CompoundTag>, SyncedDataHolderExtended {
@@ -52,14 +49,24 @@ public class CharacterPersonData implements SynchronizablePlayerData, TickingEnt
 	
 	private static final String SYNCHED_PACKET_HANDLER_TYPE = "chr";
 	static {
-		SynchedDataPacket.Handler.specificHandlers.put(SYNCHED_PACKET_HANDLER_TYPE, 
-				(Entity entity, List<SynchedEntityData.DataValue<?>> packedItems, 
-						SynchedDataPacket payload, IPayloadContext context) -> {
-							CharacterPersonData charData = entity.getData(ModDataAttachmentTypes.CHARACTER_DATA);
-							if (charData != null) {
-								charData.synchedData.getDataSyncher().assignValues(packedItems);
-							}
-						});
+		SynchedDataPacket.Handler.specificHandlers.put(SYNCHED_PACKET_HANDLER_TYPE, new SynchedDataPacketHandler() {
+
+			@Override
+			public SynchedDataHelper getDataSyncHelper(Entity entity) {
+				if (entity instanceof LivingEntity living && isCharacter(living)) {
+					CharacterPersonData characterData = entity.getData(ModDataAttachmentTypes.CHARACTER_DATA);
+					return characterData.synchedData;
+				}
+				return null;
+			}
+
+			@Override
+			public SynchedDataHelper getOrCreateDataSyncHelper(Entity entity) {
+				CharacterPersonData characterData = ComponentUtil.getExistingDataOrNull(entity, ModDataAttachmentTypes.CHARACTER_DATA);
+				return characterData != null ? characterData.synchedData : null;
+			}
+			
+		});
 	}
 	
 	public CharacterPersonData(LivingEntity entity) {

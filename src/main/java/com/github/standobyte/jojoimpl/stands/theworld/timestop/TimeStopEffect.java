@@ -233,25 +233,28 @@ public class TimeStopEffect extends StandEffectInstance implements TimeStopInsta
 	
 	
 	public static void setTimeStopState(Entity entity, boolean isInTimeStop, boolean isFrozen, boolean canSee) {
+		JojoModEntityVariables<?> variables;
 		if (isInTimeStop) {
-			var variables = JojoModEntityVariables.get(entity);
+			variables = JojoModEntityVariables.get(entity);
 			variables.synchedData.set(JojoModEntityVariables.INSIDE_TIME_STOP_ZONE.param, true);
 			variables.synchedData.set(JojoModEntityVariables.STOPPED_IN_TIME.param, isFrozen);
 			variables.synchedData.set(JojoModEntityVariables.CAN_SEE_IN_STOPPED_TIME.param, canSee);
-			SynchedDataExtended.tickSyncDirtyData(variables.synchedData.getDataSyncher(), entity);
 			if (isFrozen) {
 				// should prevent the old position desync if the entity was moving at high speed
 				PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new EntityDirectPosNoLerpPacket(entity.getId(), entity.position()));
 			}
 		}
 		else {
-			var variables = JojoModEntityVariables.getIfPresent(entity);
+			variables = JojoModEntityVariables.getIfPresent(entity);
 			if (variables != null) {
 				variables.synchedData.set(JojoModEntityVariables.INSIDE_TIME_STOP_ZONE.param, false);
 				variables.synchedData.set(JojoModEntityVariables.STOPPED_IN_TIME.param, false);
 				variables.synchedData.set(JojoModEntityVariables.CAN_SEE_IN_STOPPED_TIME.param, true);
-				SynchedDataExtended.tickSyncDirtyData(variables.synchedData.getDataSyncher(), entity);
 			}
+		}
+		
+		if (variables != null && entity.isAddedToLevel()) {
+			SynchedDataExtended.tickSyncDirtyData(variables.synchedData.getDataSyncher(), entity);
 		}
 	}
 	

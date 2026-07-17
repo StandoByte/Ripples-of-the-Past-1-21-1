@@ -72,7 +72,10 @@ public class SynchedDataPacket implements CustomPacketPayload {
 			if (handler != null) {
 				Entity entity = ClientProxy.getEntityById(payload.entityId);
 				if (entity != null) {
-					handler.handle(entity, payload.packedItems, payload, context);
+					SynchedDataHelper dataObj = handler.getDataSyncHelper(entity);
+					if (dataObj != null) {
+						dataObj.getDataSyncher().assignValues(payload.packedItems);
+					}
 				}
 			}
 		}
