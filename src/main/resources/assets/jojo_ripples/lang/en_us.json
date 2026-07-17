@@ -553,6 +553,12 @@
   "jojo_ripples.skill.time_stop.controls": "Special ability",
   "jojo_ripples.ability.time_stop": "Time Stop (%ss)",
   
+  "jojo_ripples.vl_subtitle.star_platinum": "『Star Platinum!』",
+  "jojo_ripples.vl_subtitle.star_finger": "『Star Finger!』",
+  "jojo_ripples.vl_subtitle.star_platinum_the_world": "『Star Platinum, The World!』",
+  "jojo_ripples.vl_subtitle.time_resumes.dasu": "Time resumes.",
+  "jojo_ripples.vl_subtitle.time_resumes.hajimeta": "Time resumes.",
+  
   
   "stand.jojo_ripples.the_world": "The World",
   "stand.jojo_ripples.the_world.desc": "An extremely powerful close range power-type Stand, with strength and speed rivaled only by Star Platinum, and an ability to temporarily stop time for everyone except the user.",
@@ -644,6 +650,8 @@
   
   "jojo.message.action_condition.full_health": "You aren't injured",
   "jojo.message.action_condition.item_hard_material": "You need to hold a block made of a hard material",
+  
+  "jojo_ripples.vl_subtitle.crazy_diamond": "『Crazy Diamond!』",
   
   
   "jojo_ripples.subtitle.life_created": "Life created",

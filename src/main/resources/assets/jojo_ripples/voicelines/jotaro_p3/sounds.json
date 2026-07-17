@@ -1,0 +1,39 @@
+{
+	"vl_stand_summon": {
+		"stand_type": "jojo_ripples:star_platinum",
+		"subtitle": "jojo_ripples.vl_subtitle.star_platinum",
+		"sounds": [
+			"jojo_ripples:stand_user/jotaro_star_platinum",
+			"jojo_ripples:stand_user/jotaro_star_platinum_2",
+			"jojo_ripples:stand_user/jotaro_star_platinum_3",
+			"jojo_ripples:stand_user/jotaro_star_platinum_4"
+		]
+	},
+	"vl_star_finger": {
+		"stand_type": "jojo_ripples:star_platinum",
+		"subtitle": "jojo_ripples.vl_subtitle.star_finger",
+		"sounds": [
+			"jojo_ripples:stand_user/jotaro_star_finger"
+		]
+	},
+	"vl_time_stop": {
+		"subtitle": "jojo_ripples.vl_subtitle.star_platinum_the_world",
+		"sounds": [
+			"jojo_ripples:stand_user/jotaro_star_platinum_the_world"
+		]
+	},
+	"vl_time_resume": [
+		{
+			"subtitle": "jojo_ripples.vl_subtitle.time_resumes.dasu",
+			"sounds": [
+				"jojo_ripples:stand_user/jotaro_time_resumes_1"
+			]
+		},
+		{
+			"subtitle": "jojo_ripples.vl_subtitle.time_resumes.hajimeta",
+			"sounds": [
+				"jojo_ripples:stand_user/jotaro_time_resumes_2"
+			]
+		}
+	]
+}

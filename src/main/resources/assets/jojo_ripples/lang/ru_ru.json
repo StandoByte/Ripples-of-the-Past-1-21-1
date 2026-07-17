@@ -553,6 +553,12 @@
   "jojo_ripples.skill.time_stop.controls": "Особая способность",
   "jojo_ripples.ability.time_stop": "Time Stop (%ss)",
   
+  "jojo_ripples.vl_subtitle.star_platinum": "『Star Platinum!』",
+  "jojo_ripples.vl_subtitle.star_finger": "『Звёздный палец!』",
+  "jojo_ripples.vl_subtitle.star_platinum_the_world": "『Star Platinum, The World!』",
+  "jojo_ripples.vl_subtitle.time_resumes.dasu": "Время возобновило свой ход.",
+  "jojo_ripples.vl_subtitle.time_resumes.hajimeta": "Время возобновило свой ход.",
+  
   
   "stand.jojo_ripples.the_world": "The World",
   "stand.jojo_ripples.the_world.desc": "Чрезвычайно сильный Стенд ближнего действия силового типа. Обладает силой и скоростью, с которыми может посоперничать только Star Platinum, а также способностью ненадолго останавливать время для всех, кроме обладателя.",

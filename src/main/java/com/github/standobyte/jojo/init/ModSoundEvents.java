@@ -113,14 +113,16 @@ public class ModSoundEvents {
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAND_PUNCH_CRY = register("stand_punch_cry");
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAND_PUNCH_HEAVY_CRY = register("stand_punch_heavy_cry");
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAND_BARRAGE_CRY = register("stand_barrage_cry");
+	public static final DeferredHolder<SoundEvent, SoundEvent> VOICELINE_STAND_SUMMON = register("vl_stand_summon");
 
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAR_PLATINUM_STAR_FINGER = SOUNDS.register("star_platinum_star_finger", SoundEvent::createVariableRangeEvent);
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAR_PLATINUM_ZOOM = SOUNDS.register("star_platinum_zoom", SoundEvent::createVariableRangeEvent);
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAR_PLATINUM_ZOOM_CLICK = SOUNDS.register("star_platinum_zoom_click", SoundEvent::createVariableRangeEvent);
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAR_PLATINUM_INHALE = SOUNDS.register("star_platinum_inhale", SoundEvent::createVariableRangeEvent);
 	public static final DeferredHolder<SoundEvent, SoundEvent> BEARING_SHOT = SOUNDS.register("bearing_shot", SoundEvent::createVariableRangeEvent);
-
-    public static final DeferredHolder<SoundEvent, SoundEvent> JOTARO_STAR_FINGER = SOUNDS.register("jotaro_star_finger", SoundEvent::createVariableRangeEvent);
+	public static final DeferredHolder<SoundEvent, SoundEvent> VOICELINE_STAR_FINGER = register("vl_star_finger");
+	public static final DeferredHolder<SoundEvent, SoundEvent> VOICELINE_TIME_STOP = register("vl_time_stop");
+	public static final DeferredHolder<SoundEvent, SoundEvent> VOICELINE_TIME_RESUME = register("vl_time_resume");
 
 	public static final DeferredHolder<SoundEvent, SoundEvent> TIME_STOP = SOUNDS.register("time_stop", SoundEvent::createVariableRangeEvent);
 	public static final DeferredHolder<SoundEvent, SoundEvent> TIME_RESUME = SOUNDS.register("time_resume", SoundEvent::createVariableRangeEvent);

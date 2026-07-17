@@ -15,6 +15,7 @@ import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEff
 import com.github.standobyte.jojo.mechanics.KnockbackCollisionImpact;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
+import com.github.standobyte.jojo.mechanics.voiceline.VoiceLineServerDelayTracker;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.cooldown.AbilityCooldownTracker;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInputState;
@@ -70,6 +71,9 @@ public final class ModDataAttachmentTypes {
 	
 	public static final Supplier<AttachmentType<AbilityCooldownTracker>> ABILITY_COOLDOWNS = ATTACHMENT_TYPES.register("ability_cooldowns", 
 			() -> AttachmentType.serializable(obj -> obj instanceof LivingEntity entity ? new AbilityCooldownTracker(entity) : null).build());
+	
+	public static final Supplier<AttachmentType<VoiceLineServerDelayTracker>> VOICE_LINE_DELAY = ATTACHMENT_TYPES.register("voice_line_delay", 
+			() -> AttachmentType.builder(obj -> obj instanceof LivingEntity entity ? new VoiceLineServerDelayTracker(entity) : null).build());
 
 	@ApiStatus.Internal
 	public static final Supplier<AttachmentType<EntityActionInputState>> ENTITY_ABILITY_INPUT = ATTACHMENT_TYPES.register("player_ability_input", 

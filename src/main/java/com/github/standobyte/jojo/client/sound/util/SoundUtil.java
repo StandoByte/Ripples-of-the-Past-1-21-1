@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.client.sound.util;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -11,14 +12,20 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.standskin.sound.CustomPathSound;
 import com.github.standobyte.jojo.core.JojoMod;
 
 import net.minecraft.client.resources.sounds.Sound;
+import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.client.sounds.Weighted;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.valueproviders.ConstantFloat;
+import net.minecraft.util.valueproviders.FloatProvider;
 
 public class SoundUtil {
 	
@@ -162,6 +169,27 @@ public class SoundUtil {
 		}
 		
 		return empty;
+	}
+	
+	
+	
+	static final Map<ResourceLocation, Sound> SOUNDS_CACHE = new HashMap<>();
+	public static final FloatProvider DEFAULT_FLOAT = ConstantFloat.of(1.0F);
+	public static SoundInstance justPutTheSoundInTheBag(ResourceLocation soundLocation, @Nullable Component subtitle,
+			SoundSource soundCategory, float volume, float pitch, SoundInstance.Attenuation attenuation,
+			double x, double y, double z) {
+		Sound sound = SOUNDS_CACHE.computeIfAbsent(soundLocation, path -> new CustomPathSound(path, 
+				DEFAULT_FLOAT, DEFAULT_FLOAT, 
+				1, Sound.Type.FILE,
+				false, false, 16, 
+				Sound.SOUND_LISTER.idToFile(path)));
+		
+		SoundInstance soundInstance = new EventlessSound(
+				sound, soundCategory, subtitle,
+				volume, pitch, false, 0,
+				attenuation, x, y, z, false);
+		
+		return soundInstance;
 	}
 	
 }

@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.init.ModSoundEvents;
+import com.github.standobyte.jojo.mechanics.voiceline.VoiceLineServerSide;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionOBB;
@@ -102,15 +103,18 @@ public class StarFingerAbility extends StandEntityAbility {
         public void onSetPhase(ActionPhase newPhase) {
             Level level = level();
             if (newPhase == ActionPhase.PERFORM){
-                if (level.isClientSide() && performer instanceof StandEntity stand) {
-                    if (ClientGlobals.canHearStands){
+                if (level.isClientSide()) {
+                    if (performer instanceof StandEntity stand && ClientGlobals.canHearStands){
                         level.playLocalSound(stand, ClientsideSoundsHelper.withStandSkin(
                                         ModSoundEvents.STAR_PLATINUM_STAR_FINGER.get(), stand),
                                 stand.getSoundSource(), 1, 1);
                     }
-                    level.playLocalSound(stand, ClientsideSoundsHelper.withStandSkin(
-                                    ModSoundEvents.JOTARO_STAR_FINGER.get(), stand),
-                            stand.getSoundSource(), 1, 1);
+                }
+                else {
+                    LivingEntity user = getPowerUser();
+					if (user != null && !user.isShiftKeyDown()) {
+						VoiceLineServerSide.play(user, ModSoundEvents.VOICELINE_STAR_FINGER);
+					}
                 }
             }
         }
