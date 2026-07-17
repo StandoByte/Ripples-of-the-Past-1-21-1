@@ -651,6 +651,8 @@
   "jojo.message.action_condition.full_health": "You aren't injured",
   "jojo.message.action_condition.item_hard_material": "You need to hold a block made of a hard material",
   
+  "jojo_ripples.vl_subtitle.crazy_diamond": "『Crazy Diamond!』",
+  
   
   "jojo_ripples.subtitle.life_created": "Life created",
   "jojo_ripples.subtitle.life_reverted": "Life reverted",
