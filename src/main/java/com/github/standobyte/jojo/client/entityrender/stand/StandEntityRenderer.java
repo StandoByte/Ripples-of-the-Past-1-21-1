@@ -15,6 +15,7 @@ import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.modcompat.interfaces.OtherModInterfaces;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.standpower.client_screens.StandInfoScreen;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -331,9 +332,9 @@ public class StandEntityRenderer<
 //		}
 		
 		if (this.model != null) {
-			useDitheringRenderType = renderState.mayObstructView;
+			useSeeThroughRenderType = renderState.mayObstructView;
 			this.doRender(entity, entityYaw, partialTicks, poseStack, bufferSource, light);
-			useDitheringRenderType = false;
+			useSeeThroughRenderType = false;
 		}
 		postRender();
 	}
@@ -342,14 +343,21 @@ public class StandEntityRenderer<
 		super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, light);
     }
 
-    protected boolean useDitheringRenderType = false;
+    protected boolean useSeeThroughRenderType = false;
     @Override
     protected RenderType getRenderType(T livingEntity, boolean bodyVisible, boolean translucent, boolean glowing) {
     	ResourceLocation texture = this.getTextureLocation(livingEntity);
     	if (translucent) {
     		return RenderType.itemEntityTranslucentCull(texture);
     	} else if (bodyVisible) {
-    		return useDitheringRenderType ? ModRenderTypes.entityDither(texture) : this.model.renderType(texture);
+    		if (useSeeThroughRenderType) {
+    			boolean irisShaderEnabled = OtherModInterfaces.iris.isShaderPackInUse();
+    			if (!irisShaderEnabled) {
+    				return ModRenderTypes.entityDither(texture);
+    			}
+    		}
+    		
+			return this.model.renderType(texture);
     	} else {
     		return glowing ? RenderType.outline(texture) : null;
     	}

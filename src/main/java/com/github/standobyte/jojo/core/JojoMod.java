@@ -24,6 +24,7 @@ import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.init.power.ModStands;
+import com.github.standobyte.jojo.modcompat.interfaces.OtherModInterfaces;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.resources.ResourceLocation;
@@ -32,6 +33,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
@@ -75,7 +77,14 @@ public class JojoMod {
 	@SubscribeEvent
 	private void commonSetup(FMLCommonSetupEvent event) {
 	}
-	
+
+	@SubscribeEvent
+	private void interMod(InterModEnqueueEvent event) {
+		event.enqueueWork(() -> {
+			OtherModInterfaces.init();
+		});
+	}
+
 	@SubscribeEvent
 	private void registerNetwork(RegisterPayloadHandlersEvent event) {
 		PacketsRegister.register(event);

@@ -95,6 +95,20 @@ configurations {
     runtimeClasspath.extendsFrom localRuntime
 }
 
+repositories {
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
+}
+
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
     jarJar(implementation('team.unnamed:mocha')) {
@@ -104,6 +118,9 @@ dependencies {
         }
     }
     additionalRuntimeClasspath 'team.unnamed:mocha:3.0.1'
+    
+    compileOnly("maven.modrinth:sodium:mc1.21.1-0.6.13-neoforge")
+    compileOnly("maven.modrinth:iris:1.8.12+1.21.1-neoforge")
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
