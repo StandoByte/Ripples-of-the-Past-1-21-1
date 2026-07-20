@@ -168,10 +168,10 @@ public class BendUtil {
 				ModelPart child = childEntry.getValue();
 				if (!BendUtil.isSamePivotAsParent(child)) {
 					float childY = child.y;
-					if (childY < yOffset) {
+					if (childY < y) {
 						yLessChildren.put(childEntry.getKey(), child);
 					}
-					else if (childY > yOffset) {
+					else if (childY > y) {
 						yMoreChildren.put(childEntry.getKey(), child);
 					}
 					else {
