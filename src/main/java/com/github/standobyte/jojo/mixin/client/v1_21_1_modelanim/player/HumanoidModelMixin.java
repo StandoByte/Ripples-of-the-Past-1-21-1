@@ -11,8 +11,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.client.entityanim.IHumanoidAnimModel;
+import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.player.HumanoidModelPartsWithBends;
-import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
+import com.github.standobyte.jojo.client.entityanim.player.PlayerRigLoader;
+import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState;
 import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.ResourceModelEntry;
@@ -42,7 +44,21 @@ public abstract class HumanoidModelMixin/* extends ModelMixinSuperclass*/ extend
 	@Override
 	public void jojo_ripples$setupHumanoidAnim(HumanoidRenderState renderState) {
 		RipplesPlayerRenderState jojoRenderState = ((RipplesRenderStateExtensionMixin) renderState).get();
-		this.jojo_ripples$playerAnimRig = EntityActionRenderState.setupModelAnim((HumanoidModel<?>) (Object) this, renderState, jojoRenderState);
+		jojo_ripples$setupHumanoidPose(jojoRenderState.entityAction.pose);
+	}
+
+	@Override
+	public void jojo_ripples$setupHumanoidPose(@Nullable AnimFramePose pose) {
+		if (pose != null) {
+			this.jojo_ripples$playerAnimRig = PlayerRigLoader.getInstance().getDefault();
+			if (jojo_ripples$playerAnimRig != null) {
+				RotpAnimDefinition.animateVanillaHumanoid(jojo_ripples$playerAnimRig.getModel(), 
+						(HumanoidModel<?>) (Object) this, pose);
+			}
+		}
+		else {
+			this.jojo_ripples$playerAnimRig = null;
+		}
 	}
 	
 	@Override

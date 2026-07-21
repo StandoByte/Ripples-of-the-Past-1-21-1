@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 
 import org.joml.Matrix4f;
 
-import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
+import com.github.standobyte.jojo.client.entityanim.IHumanoidAnimModel;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimatedEntity;
 import com.github.standobyte.jojo.client.entityrender.stand.HumanoidPart;
@@ -180,7 +180,7 @@ public class FirstPersonRender {
 	}
 	
 	public static boolean renderPlayer1stPersonAnim(Minecraft mc, LivingEntity cameraPlayer, float partialTick, PoseStack poseStack, BufferSource bufferSource, int light) {
-		if (mc.player != null && !mc.player.isInvisible()) {
+		if (cameraPlayer != null && !cameraPlayer.isInvisible()) {
 			AnimFramePose rotpAnimPose = ((AnimatedEntity) cameraPlayer).jojo_ripples$getModelPose(AnimatedEntity.PoseType.FINAL);
 			if (rotpAnimPose != null
 					&& mc.getEntityRenderDispatcher().getRenderer(cameraPlayer) instanceof LivingEntityRenderer renderer
@@ -199,8 +199,7 @@ public class FirstPersonRender {
 				model.swimAmount = 0.0F;
 				model.young = false;
 				model.setupAnim(cameraPlayer, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
-				// FIXME (1st person anim) body rotation sometimes breaks if you do F5
-				RotpAnimDefinition.animate(model, rotpAnimPose);
+				((IHumanoidAnimModel) model).jojo_ripples$setupHumanoidPose(rotpAnimPose);
 				ResourceLocation texture = renderer.getTextureLocation(cameraPlayer);
 				
 				poseStack.mulPose(Axis.XP.rotationDegrees(180.0F));
