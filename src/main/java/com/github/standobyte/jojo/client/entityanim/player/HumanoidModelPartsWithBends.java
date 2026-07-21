@@ -138,7 +138,7 @@ public class HumanoidModelPartsWithBends {
 	}
 	
 	protected static void addPart(ModelPart part, String name, List<AlternativeModelPart> dest) {
-		AlternativeModelPart altPart = new AlternativeModelPart(part, part, name);
+		AlternativeModelPart altPart = new AlternativeModelPart(part, part, name, 0);
 		dest.add(altPart);
 	}
 	
@@ -151,14 +151,14 @@ public class HumanoidModelPartsWithBends {
 		LimbSplit bendable = BendUtil.split(part, x, y, z, yOffset, bendIsAbove);
 		bendables.add(bendable);
 		
-		AlternativeModelPart basePart = new AlternativeModelPart(part, bendable.base().makePart(), name);
-		AlternativeModelPart bendPart = new AlternativeModelPart(part, bendable.bend().makePart(), name + "_bend");
+		AlternativeModelPart basePart = new AlternativeModelPart(part, bendable.base().makePart(), name, yOffset);
+		AlternativeModelPart bendPart = new AlternativeModelPart(part, bendable.bend().makePart(), name + "_bend", yOffset);
 		AlternativeModelPart jointPart = null;
 		
 		baseDest.add(basePart);
 		bendDest.add(bendPart);
 		if (jointDest != null && !bendable.joint().isEmpty()) {
-			jointPart = new AlternativeModelPart(part, new ModelPart(Collections.emptyList(), bendable.joint()), name + "_joint");
+			jointPart = new AlternativeModelPart(part, new ModelPart(Collections.emptyList(), bendable.joint()), name + "_joint", yOffset);
 			jointDest.add(jointPart);
 		}
 		
@@ -227,8 +227,8 @@ public class HumanoidModelPartsWithBends {
 		poseStack.popPose();
 	}
 	
-	protected static record AlternativeModelPart(ModelPart fromVanilla, ModelPart part, List<AlternativeModelPart> children, String name) {
-		protected AlternativeModelPart(ModelPart fromVanilla, ModelPart part, String name) { this(fromVanilla, part, new ArrayList<>(0), name); }
+	protected static record AlternativeModelPart(ModelPart fromVanilla, ModelPart part, List<AlternativeModelPart> children, String name, float yOffset) {
+		protected AlternativeModelPart(ModelPart fromVanilla, ModelPart part, String name, float yOffset) { this(fromVanilla, part, new ArrayList<>(0), name, yOffset); }
 		
 		protected void render(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
 			ModelPart vanillaModelPart = this.fromVanilla;
@@ -246,10 +246,9 @@ public class HumanoidModelPartsWithBends {
 				if (!modelPart.children.isEmpty()) {
 					poseStack.pushPose();
 					
-					// FIXME (clothes player animation) incorrect position of rotated torso parts
-					/* Jotaro's belts, coat, chain
-					 */
-					TmpBendCrutches.partiallyFixTorsoClothesParts(this, poseStack);
+					if (yOffset != 0) {
+						poseStack.translate(0, yOffset / 16, 0);
+					}
 					
 					for (ModelPart rotatedVanillaChild : modelPart.children.values()) {
 						rotatedVanillaChild.render(poseStack, buffer, packedLight, packedOverlay, color);
