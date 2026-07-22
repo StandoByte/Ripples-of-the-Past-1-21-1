@@ -34,6 +34,8 @@ import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
@@ -219,11 +221,15 @@ public class FirstPersonRender {
 				model.renderToBuffer(poseStack, bufferSource.getBuffer(RenderType.entityTranslucent(texture)), light, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
 			}
 			
-			List<FirstPersonModelLayer> layers = ((LivingLayersAccess) renderer).jojo_ripples$firstPersonHandLayers();
-			for (FirstPersonModelLayer layer : layers) {
-				layer.renderFirstPersonAnimated(pose, poseStack, bufferSource, light, cameraEntity, renderer);
+			List<RenderLayer> layers = ((LivingLayersAccess) renderer).jojo_ripples$allLayers();
+			for (RenderLayer renderlayer : layers) {
+				if (renderlayer instanceof FirstPersonModelLayer layer) {
+					layer.renderFirstPersonAnimated(pose, poseStack, bufferSource, light, cameraEntity, renderer);
+				}
+				else if (renderlayer instanceof ItemInHandLayer itemLayer) {
+					itemLayer.render(poseStack, bufferSource, light, cameraEntity, 0, 0, partialTick, 0, 0, 0);
+				}
 			}
-			// FIXME (1st person anim) render held items
 			
 			poseStack.popPose();
 			bufferSource.endBatch();
