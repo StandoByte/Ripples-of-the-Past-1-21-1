@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.firstperson;
 
+import com.github.standobyte.jojo.client.entityanim.IHumanoidAnimModel;
+import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
@@ -19,6 +21,11 @@ public interface FirstPersonModelLayer {
 	void renderHandFirstPerson(HumanoidArm side, PoseStack poseStack, 
 			MultiBufferSource buffer, int light, LivingEntity entity, 
 			LivingEntityRenderer<?, ?> entityRenderer);
+	
+	/** This WILL be an abstract method later on. */
+	default void renderFirstPersonAnimated(AnimFramePose pose, PoseStack poseStack, 
+			MultiBufferSource buffer, int light, LivingEntity entity, 
+			LivingEntityRenderer<?, ?> entityRenderer) {}
 
 	static void defaultRender(HumanoidArm side, PoseStack poseStack, 
 			MultiBufferSource buffer, int light, LivingEntity entity, 
@@ -46,6 +53,25 @@ public interface FirstPersonModelLayer {
 			armOuter.xRot = 0.0F;
 			armOuter.render(poseStack, vertexBuilder, light, OverlayTexture.NO_OVERLAY, color);
 		}
+	}
+
+	static void defaultRenderAnimated(AnimFramePose pose, PoseStack poseStack, 
+			MultiBufferSource buffer, int light, LivingEntity entity, 
+			LivingEntityRenderer<?, ?> entityRenderer, 
+			HumanoidModel<?> model, ResourceLocation texture,
+			int color) {
+		if (texture == null || entity.isSpectator()) return;
+		setupForFirstPersonRender(model, entity);
+		VertexConsumer vertexBuilder = buffer.getBuffer(RenderType.entityTranslucent(texture));
+
+		model.head.visible = false;
+		model.body.visible = false;
+		model.rightLeg.visible = false;
+		model.leftLeg.visible = false;
+		model.hat.visible = false;
+
+		((IHumanoidAnimModel) model).jojo_ripples$setupHumanoidPose(pose);
+		model.renderToBuffer(poseStack, vertexBuilder, light, OverlayTexture.NO_OVERLAY);
 	}
 
 

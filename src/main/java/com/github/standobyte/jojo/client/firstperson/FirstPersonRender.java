@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.client.firstperson;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.joml.Matrix4f;
@@ -75,8 +76,11 @@ public class FirstPersonRender {
 	 */
 	public static boolean onFirstPersonRender(Minecraft mc, float partialTick, PoseStack poseStack, BufferSource bufferSource, int light) {
 		Entity povEntity = mc.cameraEntity;
-		if (!JojoMod.disableDevStuff() && (povEntity == null || povEntity == mc.player)) {
-			return renderPlayer1stPersonAnim(mc, mc.player, partialTick, poseStack, bufferSource, light);
+		if (!JojoMod.disableDevStuff() && povEntity instanceof LivingEntity livingEntity) {
+			AnimFramePose rotpAnimPose = ((AnimatedEntity) povEntity).jojo_ripples$getModelPose(AnimatedEntity.PoseType.FINAL);
+			if (rotpAnimPose != null) {
+				return renderPlayer1stPersonAnim(mc, livingEntity, rotpAnimPose, partialTick, poseStack, bufferSource, light);
+			}
 		}
 
 		ClientEntityController curController = ClientEntityController.getInstance();
@@ -179,44 +183,50 @@ public class FirstPersonRender {
 		return true;
 	}
 	
-	public static boolean renderPlayer1stPersonAnim(Minecraft mc, LivingEntity cameraPlayer, float partialTick, PoseStack poseStack, BufferSource bufferSource, int light) {
-		if (cameraPlayer != null && !cameraPlayer.isInvisible()) {
-			AnimFramePose rotpAnimPose = ((AnimatedEntity) cameraPlayer).jojo_ripples$getModelPose(AnimatedEntity.PoseType.FINAL);
-			if (rotpAnimPose != null
-					&& mc.getEntityRenderDispatcher().getRenderer(cameraPlayer) instanceof LivingEntityRenderer renderer
-					&& renderer.getModel() instanceof HumanoidModel model) {
-				poseStack.pushPose();
-				
-				float f2 = Mth.lerp(partialTick, ((LocalPlayer)cameraPlayer).xBobO, ((LocalPlayer)cameraPlayer).xBob);
-				float f3 = Mth.lerp(partialTick, ((LocalPlayer)cameraPlayer).yBobO, ((LocalPlayer)cameraPlayer).yBob);
-				poseStack.mulPose(Axis.XP.rotationDegrees((cameraPlayer.getViewXRot(partialTick) - f2) * 0.1F));
-				poseStack.mulPose(Axis.YP.rotationDegrees((cameraPlayer.getViewYRot(partialTick) - f3) * 0.1F));
-				
-				model.rightArmPose = HumanoidModel.ArmPose.EMPTY;
-				model.leftArmPose = HumanoidModel.ArmPose.EMPTY;
-				model.attackTime = 0.0F;
-				model.crouching = false;
-				model.swimAmount = 0.0F;
-				model.young = false;
-				model.setupAnim(cameraPlayer, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
-				((IHumanoidAnimModel) model).jojo_ripples$setupHumanoidPose(rotpAnimPose);
-				ResourceLocation texture = renderer.getTextureLocation(cameraPlayer);
-				
-				poseStack.mulPose(Axis.XP.rotationDegrees(180.0F));
-				poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
-				poseStack.translate(0, 0.125, 0);
-				
-				model.head.visible = false;
-				model.hat.visible = false;
-				model.body.visible = false;
-				model.renderToBuffer(poseStack, bufferSource.getBuffer(RenderType.entityTranslucent(texture)), light, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
-				// FIXME (1st person anim) render held items and modded layers
-				
-				poseStack.popPose();
-				bufferSource.endBatch();
-				EntityRenderState.resetPose(model);
-				return true;
+	public static boolean renderPlayer1stPersonAnim(Minecraft mc, @Nonnull LivingEntity cameraEntity, @Nonnull AnimFramePose pose, 
+			float partialTick, PoseStack poseStack, BufferSource bufferSource, int light) {
+		if (mc.getEntityRenderDispatcher().getRenderer(cameraEntity) instanceof LivingEntityRenderer renderer
+				&& renderer.getModel() instanceof HumanoidModel model) {
+			poseStack.pushPose();
+			
+			if (cameraEntity instanceof LocalPlayer playerBob) {
+				float f2 = Mth.lerp(partialTick, playerBob.xBobO, playerBob.xBob);
+				float f3 = Mth.lerp(partialTick, playerBob.yBobO, playerBob.yBob);
+				poseStack.mulPose(Axis.XP.rotationDegrees((cameraEntity.getViewXRot(partialTick) - f2) * 0.1F));
+				poseStack.mulPose(Axis.YP.rotationDegrees((cameraEntity.getViewYRot(partialTick) - f3) * 0.1F));
 			}
+			
+			model.rightArmPose = HumanoidModel.ArmPose.EMPTY;
+			model.leftArmPose = HumanoidModel.ArmPose.EMPTY;
+			model.attackTime = 0.0F;
+			model.crouching = false;
+			model.swimAmount = 0.0F;
+			model.young = false;
+			model.setupAnim(cameraEntity, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+			((IHumanoidAnimModel) model).jojo_ripples$setupHumanoidPose(pose);
+			ResourceLocation texture = renderer.getTextureLocation(cameraEntity);
+			
+			poseStack.mulPose(Axis.XP.rotationDegrees(180.0F));
+			poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+			poseStack.translate(0, 0.125, 0);
+			
+			model.head.visible = false;
+			model.hat.visible = false;
+			model.body.visible = false;
+			if (!cameraEntity.isInvisible()) {
+				model.renderToBuffer(poseStack, bufferSource.getBuffer(RenderType.entityTranslucent(texture)), light, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
+			}
+			
+			List<FirstPersonModelLayer> layers = ((LivingLayersAccess) renderer).jojo_ripples$firstPersonHandLayers();
+			for (FirstPersonModelLayer layer : layers) {
+				layer.renderFirstPersonAnimated(pose, poseStack, bufferSource, light, cameraEntity, renderer);
+			}
+			// FIXME (1st person anim) render held items and modded layers
+			
+			poseStack.popPose();
+			bufferSource.endBatch();
+			EntityRenderState.resetPose(model);
+			return true;
 		}
 		
 		return false;

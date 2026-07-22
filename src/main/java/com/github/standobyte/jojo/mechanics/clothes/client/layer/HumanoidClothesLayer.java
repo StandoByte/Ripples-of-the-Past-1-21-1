@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.mechanics.clothes.client.layer;
 
+import com.github.standobyte.jojo.client.entityanim.IHumanoidAnimModel;
+import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.firstperson.FirstPersonModelLayer;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
@@ -154,6 +156,45 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 			ModelPart armSlim = side == HumanoidArm.LEFT ? clothesModel.leftArmSlim : clothesModel.rightArmSlim;
 			armSlim.xRot = 0.0F;
 			armSlim.render(poseStack, vertexBuilder, light, OverlayTexture.NO_OVERLAY);
+		}
+		ExtractRSExtensionManually.resetClothes();
+	}
+	
+	@Override
+	public void renderFirstPersonAnimated(AnimFramePose pose, PoseStack poseStack, MultiBufferSource buffer, int light,
+			LivingEntity entity, LivingEntityRenderer<?, ?> entityRenderer) {
+		if (entity.isInvisible()) return;
+		
+		ExtractRSExtensionManually.extractClothes(entity);
+		HumanoidClothesRSExtension clothes = HumanoidClothesRSExtension.getCurRenderData();
+		if (clothes == null) return;
+		ClothesModelLoader clothesModels = ClothesModelLoader.getInstance();
+		if (clothesModels == null) return;
+		
+		M parentModel = getParentModel();
+		for (ClothesSlotType piece : RENDER_ORDER) {
+			ItemStack clothesItem = clothes.items.get(piece); if (clothesItem.isEmpty()) continue;
+			var clothesComponent = clothesItem.get(ModItemDataComponents.CLOTHES_PIECE.get()); if (clothesComponent == null) continue;
+			var clothesPiece = clothesComponent.getPiece(); if (clothesPiece == null) continue;
+			
+			ResourceLocation texturePath = clothesPiece.textureActualPath;
+			ResourceLocation modelPath = clothesPiece.modelId.location();
+			ClothesModelEntry modelEntry = clothesModels.getClothesModelEntry(modelPath); if (modelEntry == null) continue;
+			
+			HumanoidClothesModel clothesModel = modelEntry.getModel();
+			parentModel.copyPropertiesTo((M) clothesModel);
+			clothesModel.setClothesPartsVisibility(clothes.slimModel, piece);
+			clothesModel.poseClothes(parentModel);
+			VertexConsumer vertexBuilder = buffer.getBuffer(RenderType.entityCutoutNoCull(texturePath));
+			
+			clothesModel.head.visible = false;
+			clothesModel.body.visible = false;
+			clothesModel.rightLeg.visible = false;
+			clothesModel.leftLeg.visible = false;
+			clothesModel.hat.visible = false;
+
+			((IHumanoidAnimModel) clothesModel).jojo_ripples$setupHumanoidPose(pose);
+			clothesModel.renderToBuffer(poseStack, vertexBuilder, light, OverlayTexture.NO_OVERLAY);
 		}
 		ExtractRSExtensionManually.resetClothes();
 	}
