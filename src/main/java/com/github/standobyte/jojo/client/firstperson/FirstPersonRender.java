@@ -76,12 +76,6 @@ public class FirstPersonRender {
 	 */
 	public static boolean onFirstPersonRender(Minecraft mc, float partialTick, PoseStack poseStack, BufferSource bufferSource, int light) {
 		Entity povEntity = mc.cameraEntity;
-		if (!JojoMod.disableDevStuff() && povEntity instanceof LivingEntity livingEntity) {
-			AnimFramePose rotpAnimPose = ((AnimatedEntity) povEntity).jojo_ripples$getModelPose(AnimatedEntity.PoseType.FINAL);
-			if (rotpAnimPose != null) {
-				return renderPlayer1stPersonAnim(mc, livingEntity, rotpAnimPose, partialTick, poseStack, bufferSource, light);
-			}
-		}
 
 		ClientEntityController curController = ClientEntityController.getInstance();
 		Entity possessed = LivingComponentPossession.getEntityPossessedBy(mc.player);
@@ -89,98 +83,107 @@ public class FirstPersonRender {
 		boolean mechanicFromThisMod = 
 				curController != null && curController.entity == povEntity
 				|| possessed != null && possessed == povEntity;
-		// That means it's not our problem to deal with, or else we could accidentally mess with other mods
-		if (!mechanicFromThisMod) return false;
-
-		EntityRenderer<?> renderer = mc.getEntityRenderDispatcher().getRenderer(povEntity);
-		switch (renderer) {
-			case StandEntityRenderer standRenderer -> {
-				StandEntity entity = (StandEntity) povEntity;
-				StandEntityRenderState renderState = standRenderer.createRenderState(entity, partialTick);
-				renderState.visibleParts = HumanoidPart.reduce(renderState.visibleParts, HumanoidPart.ARMS_ONLY);
-				renderState.mayObstructView = false;
-				renderState.doScalingFromStandSkin = false;
-
-				poseStack.pushPose();
-				poseStack.mulPose(Axis.XP.rotationDegrees(renderState.xRot));
-				poseStack.mulPose(Axis.YP.rotationDegrees(180 + renderState.bodyRot));
-				poseStack.translate(0, -povEntity.getEyeHeight(), 0);
-				// standRenderer.render(renderState, poseStack, bufferSource, packedLight);
-				standRenderer.render(entity, renderState, 0, partialTick, poseStack, bufferSource, light);
-				poseStack.popPose();
-
-				bufferSource.endBatch();
-			}
-			case LivingEntityRenderer livingRenderer -> {
-				// WHO WOULD HAVE THOUGHT LIVING ENTITIES OTHER THAN PLAYERS HAVE ARMS AND CAN HOLD ITEMS? NO WAY
-				// The entirety of the code below is a copypaste from ItemInHandRenderer, with methods taking a LivingEntity argument instead of using Minecraft#player
-				// AND THIS FUCKING SUCKS
-				// OOP was a mistake.
-				LivingEntity entity = (LivingEntity) povEntity;
-				float swingAnim = entity.getAttackAnim(partialTick);
-				InteractionHand swingOrMainHand = MoreObjects.firstNonNull(entity.swingingArm, InteractionHand.MAIN_HAND);
-				float xRot = Mth.lerp(partialTick, entity.xRotO, entity.getXRot());
-
-				boolean renderMainHand;
-				boolean renderOffHand;
-				boolean hasBow = instance.mainHandItem.is(Items.BOW) || instance.offHandItem.is(Items.BOW);
-				boolean hasCrossbow = instance.mainHandItem.is(Items.CROSSBOW) || instance.offHandItem.is(Items.CROSSBOW);
-				if (!hasBow && !hasCrossbow) {
-					renderMainHand = true;
-					renderOffHand = true;
-				} else if (entity.isUsingItem()) {
-					ItemStack usedItem = entity.getUseItem();
-					InteractionHand usedItemHand = entity.getUsedItemHand();
-					if (!usedItem.is(Items.BOW) && !usedItem.is(Items.CROSSBOW)) {
+		// Stand entity manual control or puppet possession - mechanics which change the POV to another entity
+		if (mechanicFromThisMod) {
+			EntityRenderer<?> renderer = mc.getEntityRenderDispatcher().getRenderer(povEntity);
+			switch (renderer) {
+				case StandEntityRenderer standRenderer -> {
+					StandEntity entity = (StandEntity) povEntity;
+					StandEntityRenderState renderState = standRenderer.createRenderState(entity, partialTick);
+					renderState.visibleParts = HumanoidPart.reduce(renderState.visibleParts, HumanoidPart.ARMS_ONLY);
+					renderState.mayObstructView = false;
+					renderState.doScalingFromStandSkin = false;
+					
+					poseStack.pushPose();
+					poseStack.mulPose(Axis.XP.rotationDegrees(renderState.xRot));
+					poseStack.mulPose(Axis.YP.rotationDegrees(180 + renderState.bodyRot));
+					poseStack.translate(0, -povEntity.getEyeHeight(), 0);
+					// standRenderer.render(renderState, poseStack, bufferSource, packedLight);
+					standRenderer.render(entity, renderState, 0, partialTick, poseStack, bufferSource, light);
+					poseStack.popPose();
+					
+					bufferSource.endBatch();
+				}
+				case LivingEntityRenderer livingRenderer -> {
+					// WHO WOULD HAVE THOUGHT LIVING ENTITIES OTHER THAN PLAYERS HAVE ARMS AND CAN HOLD ITEMS? NO WAY
+					// The entirety of the code below is a copypaste from ItemInHandRenderer, with methods taking a LivingEntity argument instead of using Minecraft#player
+					// AND THIS FUCKING SUCKS
+					// OOP was a mistake.
+					LivingEntity entity = (LivingEntity) povEntity;
+					float swingAnim = entity.getAttackAnim(partialTick);
+					InteractionHand swingOrMainHand = MoreObjects.firstNonNull(entity.swingingArm, InteractionHand.MAIN_HAND);
+					float xRot = Mth.lerp(partialTick, entity.xRotO, entity.getXRot());
+					
+					boolean renderMainHand;
+					boolean renderOffHand;
+					boolean hasBow = instance.mainHandItem.is(Items.BOW) || instance.offHandItem.is(Items.BOW);
+					boolean hasCrossbow = instance.mainHandItem.is(Items.CROSSBOW) || instance.offHandItem.is(Items.CROSSBOW);
+					if (!hasBow && !hasCrossbow) {
 						renderMainHand = true;
-						renderOffHand = !(usedItemHand == InteractionHand.MAIN_HAND && instance.offHandItem.is(Items.CROSSBOW) && CrossbowItem.isCharged(instance.offHandItem));
-					}
-					else {
-						switch (usedItemHand) {
-							case MAIN_HAND -> {
-								renderMainHand = true;
-								renderOffHand = false;
-							}
-							case OFF_HAND -> {
-								renderMainHand = false;
-								renderOffHand = true;
-							}
-							default -> throw new AssertionError();
+						renderOffHand = true;
+					} else if (entity.isUsingItem()) {
+						ItemStack usedItem = entity.getUseItem();
+						InteractionHand usedItemHand = entity.getUsedItemHand();
+						if (!usedItem.is(Items.BOW) && !usedItem.is(Items.CROSSBOW)) {
+							renderMainHand = true;
+							renderOffHand = !(usedItemHand == InteractionHand.MAIN_HAND && instance.offHandItem.is(Items.CROSSBOW) && CrossbowItem.isCharged(instance.offHandItem));
 						}
+						else {
+							switch (usedItemHand) {
+								case MAIN_HAND -> {
+									renderMainHand = true;
+									renderOffHand = false;
+								}
+								case OFF_HAND -> {
+									renderMainHand = false;
+									renderOffHand = true;
+								}
+								default -> throw new AssertionError();
+							}
+						}
+					} else {
+						renderMainHand = true;
+						renderOffHand = !(instance.mainHandItem.is(Items.CROSSBOW) && CrossbowItem.isCharged(instance.mainHandItem));
 					}
-				} else {
-					renderMainHand = true;
-					renderOffHand = !(instance.mainHandItem.is(Items.CROSSBOW) && CrossbowItem.isCharged(instance.mainHandItem));
+					
+					float xBob = Mth.lerp(partialTick, instance.xBobO, instance.xBob);
+					float yBob = Mth.lerp(partialTick, instance.yBobO, instance.yBob);
+					poseStack.mulPose(Axis.XP.rotationDegrees((entity.getViewXRot(partialTick) - xBob) * 0.1F));
+					poseStack.mulPose(Axis.YP.rotationDegrees((entity.getViewYRot(partialTick) - yBob) * 0.1F));
+					if (renderMainHand) {
+						float swingProgress = swingOrMainHand == InteractionHand.MAIN_HAND ? swingAnim : 0.0F;
+						float handHeight = 1.0F - Mth.lerp(partialTick, instance.oMainHandHeight, instance.mainHandHeight);
+						if (!ClientHooks.renderSpecificFirstPersonHand(InteractionHand.MAIN_HAND, poseStack, bufferSource, light, partialTick, xRot, swingProgress, handHeight, instance.mainHandItem))
+							instance.renderArmWithItem(entity, partialTick, xRot, InteractionHand.MAIN_HAND, 
+									swingProgress, instance.mainHandItem, handHeight, poseStack, bufferSource, light,
+									false);
+					}
+					
+					if (renderOffHand) {
+						float swingProgress = swingOrMainHand == InteractionHand.OFF_HAND ? swingAnim : 0.0F;
+						float handHeight = 1.0F - Mth.lerp(partialTick, instance.oOffHandHeight, instance.offHandHeight);
+						if (!ClientHooks.renderSpecificFirstPersonHand(InteractionHand.OFF_HAND, poseStack, bufferSource, light, partialTick, xRot, swingProgress, handHeight, instance.offHandItem))
+							instance.renderArmWithItem(entity, partialTick, xRot, InteractionHand.OFF_HAND, 
+									swingProgress, instance.offHandItem, handHeight, poseStack, bufferSource, light,
+									false);
+					}
+					
+					bufferSource.endBatch();
 				}
-
-				float xBob = Mth.lerp(partialTick, instance.xBobO, instance.xBob);
-				float yBob = Mth.lerp(partialTick, instance.yBobO, instance.yBob);
-				poseStack.mulPose(Axis.XP.rotationDegrees((entity.getViewXRot(partialTick) - xBob) * 0.1F));
-				poseStack.mulPose(Axis.YP.rotationDegrees((entity.getViewYRot(partialTick) - yBob) * 0.1F));
-				if (renderMainHand) {
-					float swingProgress = swingOrMainHand == InteractionHand.MAIN_HAND ? swingAnim : 0.0F;
-					float handHeight = 1.0F - Mth.lerp(partialTick, instance.oMainHandHeight, instance.mainHandHeight);
-					if (!ClientHooks.renderSpecificFirstPersonHand(InteractionHand.MAIN_HAND, poseStack, bufferSource, light, partialTick, xRot, swingProgress, handHeight, instance.mainHandItem))
-						instance.renderArmWithItem(entity, partialTick, xRot, InteractionHand.MAIN_HAND, 
-								swingProgress, instance.mainHandItem, handHeight, poseStack, bufferSource, light,
-								false);
-				}
-
-				if (renderOffHand) {
-					float swingProgress = swingOrMainHand == InteractionHand.OFF_HAND ? swingAnim : 0.0F;
-					float handHeight = 1.0F - Mth.lerp(partialTick, instance.oOffHandHeight, instance.offHandHeight);
-					if (!ClientHooks.renderSpecificFirstPersonHand(InteractionHand.OFF_HAND, poseStack, bufferSource, light, partialTick, xRot, swingProgress, handHeight, instance.offHandItem))
-						instance.renderArmWithItem(entity, partialTick, xRot, InteractionHand.OFF_HAND, 
-								swingProgress, instance.offHandItem, handHeight, poseStack, bufferSource, light,
-								false);
-				}
-
-				bufferSource.endBatch();
+				default -> {}
 			}
-			default -> {}
+			return true;
 		}
-
-		return true;
+		
+		// The player is the POV entity, but it has a custom action animation
+		if (!JojoMod.disableDevStuff() && povEntity instanceof LivingEntity livingEntity) {
+			AnimFramePose rotpAnimPose = ((AnimatedEntity) povEntity).jojo_ripples$getModelPose(AnimatedEntity.PoseType.FINAL);
+			if (rotpAnimPose != null) {
+				return renderPlayer1stPersonAnim(mc, livingEntity, rotpAnimPose, partialTick, poseStack, bufferSource, light);
+			}
+		}
+		
+		return false;
 	}
 	
 	public static boolean renderPlayer1stPersonAnim(Minecraft mc, @Nonnull LivingEntity cameraEntity, @Nonnull AnimFramePose pose, 
