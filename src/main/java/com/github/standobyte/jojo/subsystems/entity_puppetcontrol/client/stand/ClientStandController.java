@@ -56,9 +56,9 @@ public class ClientStandController extends ClientEntityController {
 		moveStandManually(entityAsLiving, input.leftImpulse, input.forwardImpulse, 
 //				input.keyPresses.jump(), input.keyPresses.shift());
 				input.jumping, input.shiftKeyDown);
-		// FIXME (1.16) (stand manual control) do not reset deltaMovement in manual control
-		PacketDistributor.sendToServer(new ClStandManualMovementPacket(
-				entity.getX(), entity.getY(), entity.getZ(), entity.getXRot(), entity.getYRot(), prevTickInput));
+		PacketDistributor.sendToServer(new ClStandManualMovementPacket(entity.getX(), entity.getY(), entity.getZ(), 
+				entity.getXRot(), entity.getYRot(), prevTickInput, sendInputPacketToTracking));
+		sendInputPacketToTracking = false;
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
@@ -77,12 +77,14 @@ public class ClientStandController extends ClientEntityController {
 
 	static float manualMovementSpeed = 1;
 	private boolean prevTickInput = false;
+	private boolean sendInputPacketToTracking = false;
 	public void moveStandManually(LivingEntity standEntity, float strafe, float forward, boolean jumping, boolean sneaking) {
+		StandEntity stand = (StandEntity) standEntity;
 		boolean canStandMoveManually = true;
 		Vec3 motion = Vec3.ZERO;
 		if (canStandMoveManually) {
-			boolean input = jumping || sneaking || forward != 0 || strafe != 0;
-			if (input) {
+			boolean hasInput = jumping || sneaking || forward != 0 || strafe != 0;
+			if (hasInput) {
 				double speed = standEntity.getAttributeValue(Attributes.MOVEMENT_SPEED);
 				double y = jumping ? speed : 0;
 				if (sneaking) {
@@ -103,14 +105,24 @@ public class ClientStandController extends ClientEntityController {
 							.scale(actionWalkSpeed * manualMovementSpeed);
 //					standEntity.setDeltaMovement(motion);
 				}
+				if (!stand.clientStuff.summonAnimStopped) {
+					onMovedStand(stand);
+					sendInputPacketToTracking = true;
+				}
 			}
 			else if (prevTickInput) {
 //				standEntity.setDeltaMovement(Vec3.ZERO);
 			}
-			prevTickInput = input;
+			prevTickInput = hasInput;
 		}
-		StandEntity stand = (StandEntity) standEntity;
+		else {
+			prevTickInput = false;
+		}
 		stand.manualControlInput(motion);
+	}
+	
+	public static void onMovedStand(StandEntity stand) {
+		stand.clientStuff.summonAnimStopped = true;
 	}
 
 	private static Vec3 getAbsoluteMotion(Vec3 relative, double speed, float facingYRot) {
