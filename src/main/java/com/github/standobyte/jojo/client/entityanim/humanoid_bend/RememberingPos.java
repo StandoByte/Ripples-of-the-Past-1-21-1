@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.entityanim.player.bend_crutches;
+package com.github.standobyte.jojo.client.entityanim.humanoid_bend;
 
 import org.joml.Vector3f;
 

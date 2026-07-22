@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.entityanim.player;
+package com.github.standobyte.jojo.client.entityanim.humanoid_bend;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,7 +8,6 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.entityanim.player.BendUtil.LimbSplit;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
 import com.github.standobyte.jojo.client.entityrender.HumanoidPlayerModel;
@@ -38,7 +37,7 @@ import net.minecraft.world.entity.HumanoidArm;
  */
 public class HumanoidModelPartsWithBends {
 	protected Map<String, List<AlternativeModelPart>> vanillaCounterparts = new HashMap<>();
-	protected Map<String, List<LimbSplit>> bendables = new HashMap<>();
+	protected Map<String, List<BendableLimb>> bendables = new HashMap<>();
 	
 	public static HumanoidModelPartsWithBends createFromBase(HumanoidModel<?> model) {
 		HumanoidModelPartsWithBends obj = new HumanoidModelPartsWithBends();
@@ -60,14 +59,14 @@ public class HumanoidModelPartsWithBends {
 		List<AlternativeModelPart> head = new ArrayList<>();
 		this.vanillaCounterparts.put("head", head);
 
-		List<LimbSplit> torso = new ArrayList<>();
+		List<BendableLimb> torso = new ArrayList<>();
 		List<AlternativeModelPart> torso_lower = new ArrayList<>();
 		List<AlternativeModelPart> torso_bend = new ArrayList<>();
 		this.vanillaCounterparts.put("torso_lower", torso_lower);
 		this.vanillaCounterparts.put("torso_bend", torso_bend);
 		this.bendables.put("torso_bend", torso);
 
-		List<LimbSplit> leftArm = new ArrayList<>();
+		List<BendableLimb> leftArm = new ArrayList<>();
 		List<AlternativeModelPart> left_arm = new ArrayList<>();
 		List<AlternativeModelPart> left_arm_bend = new ArrayList<>();
 		List<AlternativeModelPart> left_arm_joint = new ArrayList<>();
@@ -76,7 +75,7 @@ public class HumanoidModelPartsWithBends {
 		this.vanillaCounterparts.put("left_arm_joint", left_arm_joint);
 		this.bendables.put("left_arm_bend", leftArm);
 
-		List<LimbSplit> rightArm = new ArrayList<>();
+		List<BendableLimb> rightArm = new ArrayList<>();
 		List<AlternativeModelPart> right_arm = new ArrayList<>();
 		List<AlternativeModelPart> right_arm_bend = new ArrayList<>();
 		List<AlternativeModelPart> right_arm_joint = new ArrayList<>();
@@ -85,7 +84,7 @@ public class HumanoidModelPartsWithBends {
 		this.vanillaCounterparts.put("right_arm_joint", right_arm_joint);
 		this.bendables.put("right_arm_bend", rightArm);
 
-		List<LimbSplit> leftLeg = new ArrayList<>();
+		List<BendableLimb> leftLeg = new ArrayList<>();
 		List<AlternativeModelPart> left_leg = new ArrayList<>();
 		List<AlternativeModelPart> left_leg_bend = new ArrayList<>();
 		List<AlternativeModelPart> left_leg_joint = new ArrayList<>();
@@ -94,7 +93,7 @@ public class HumanoidModelPartsWithBends {
 		this.vanillaCounterparts.put("left_leg_joint", left_leg_joint);
 		this.bendables.put("left_leg_bend", leftLeg);
 
-		List<LimbSplit> rightLeg = new ArrayList<>();
+		List<BendableLimb> rightLeg = new ArrayList<>();
 		List<AlternativeModelPart> right_leg = new ArrayList<>();
 		List<AlternativeModelPart> right_leg_bend = new ArrayList<>();
 		List<AlternativeModelPart> right_leg_joint = new ArrayList<>();
@@ -143,12 +142,12 @@ public class HumanoidModelPartsWithBends {
 	}
 	
 	protected static void addBendPart(ModelPart part, String name, 
-			List<LimbSplit> bendables, 
+			List<BendableLimb> bendables, 
 			List<AlternativeModelPart> baseDest, 
 			List<AlternativeModelPart> bendDest, 
 			@Nullable List<AlternativeModelPart> jointDest, 
 			float x, float y, float z, float yOffset, boolean bendIsAbove) {
-		LimbSplit bendable = BendUtil.split(part, x, y, z, yOffset, bendIsAbove);
+		BendableLimb bendable = BendableLimb.create(part, x, y, z, yOffset, bendIsAbove);
 		bendables.add(bendable);
 		
 		AlternativeModelPart basePart = new AlternativeModelPart(part, bendable.base().makePart(), name, yOffset);
@@ -189,8 +188,8 @@ public class HumanoidModelPartsWithBends {
 			rigModel.jojo_ripples$getAnyDescendantWithName(bendableEntry.getKey())
 			.ifPresent(animPart -> {
 				float bend = animPart.xRot;
-				List<LimbSplit> bendables = bendableEntry.getValue();
-				for (LimbSplit bendable : bendables) {
+				List<BendableLimb> bendables = bendableEntry.getValue();
+				for (BendableLimb bendable : bendables) {
 					BendUtil.connectVertices(bendable.base(), bend, 
 							bendable.x(), 
 							bendable.y() + bendable.yOffset(), 

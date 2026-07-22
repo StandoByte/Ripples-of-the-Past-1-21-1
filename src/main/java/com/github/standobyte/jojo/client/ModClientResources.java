@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.github.standobyte.jojo.client.entityanim.AnimationLoader;
-import com.github.standobyte.jojo.client.entityanim.player.PlayerRigLoader;
+import com.github.standobyte.jojo.client.entityanim.PlayerRigLoader;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
 import com.github.standobyte.jojo.client.shader.ModShaders;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmEngine;

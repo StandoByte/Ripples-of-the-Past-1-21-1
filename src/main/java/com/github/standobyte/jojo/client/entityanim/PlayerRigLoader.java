@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.entityanim.player;
+package com.github.standobyte.jojo.client.entityanim;
 
 import java.util.HashMap;
 import java.util.Map;

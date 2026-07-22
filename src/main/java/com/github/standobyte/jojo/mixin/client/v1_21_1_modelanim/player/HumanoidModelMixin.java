@@ -11,9 +11,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.client.entityanim.IHumanoidAnimModel;
+import com.github.standobyte.jojo.client.entityanim.PlayerRigLoader;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
-import com.github.standobyte.jojo.client.entityanim.player.HumanoidModelPartsWithBends;
-import com.github.standobyte.jojo.client.entityanim.player.PlayerRigLoader;
+import com.github.standobyte.jojo.client.entityanim.humanoid_bend.HumanoidModelPartsWithBends;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState;
 import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
