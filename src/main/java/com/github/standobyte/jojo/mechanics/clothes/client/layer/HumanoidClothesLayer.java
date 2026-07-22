@@ -10,6 +10,7 @@ import com.github.standobyte.v1_21_4_stuff.renderstate.ExtractRSExtensionManuall
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -88,8 +89,12 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 	
 	@SubscribeEvent
 	public static void beforeEntityRender(RenderLivingEvent.Pre<?, ?> event) {
-		ExtractRSExtensionManually.extractClothes(event.getEntity());
-		if (event.getRenderer().getModel() instanceof PlayerModel playerModel) {
+		beforeEntityRender(event.getEntity(), event.getRenderer().getModel());
+	}
+	
+	public static void beforeEntityRender(LivingEntity entity, EntityModel<?> model) {
+		ExtractRSExtensionManually.extractClothes(entity);
+		if (model instanceof PlayerModel playerModel) {
 			disablePlayerOuterLayer(playerModel, HumanoidClothesRSExtension.getCurRenderData());
 		}
 	}

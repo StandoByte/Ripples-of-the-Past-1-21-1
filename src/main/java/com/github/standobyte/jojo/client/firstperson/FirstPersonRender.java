@@ -10,9 +10,11 @@ import org.joml.Matrix4f;
 import com.github.standobyte.jojo.client.entityanim.IHumanoidAnimModel;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimatedEntity;
+import com.github.standobyte.jojo.client.entityrender.ModelUtil;
 import com.github.standobyte.jojo.client.entityrender.stand.HumanoidPart;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
+import com.github.standobyte.jojo.mechanics.clothes.client.layer.HumanoidClothesLayer;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.subsystems.entity_possessionv2.LivingComponentPossession;
 import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.client.ClientEntityController;
@@ -214,9 +216,17 @@ public class FirstPersonRender {
 			poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
 			poseStack.translate(0, 0.125, 0);
 			
+			if (model instanceof PlayerModel playerModel) {
+				if (cameraEntity instanceof AbstractClientPlayer clientPlayer) {
+					ModelUtil.setAllVisibleSetupOuterLayer(playerModel, clientPlayer);
+				}
+				HumanoidClothesLayer.beforeEntityRender(cameraEntity, model);
+			}
+
 			model.head.visible = false;
 			model.hat.visible = false;
 			model.body.visible = false;
+			
 			if (!cameraEntity.isInvisible()) {
 				model.renderToBuffer(poseStack, bufferSource.getBuffer(RenderType.entityTranslucent(texture)), light, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
 			}
