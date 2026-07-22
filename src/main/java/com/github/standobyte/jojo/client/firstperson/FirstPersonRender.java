@@ -13,7 +13,6 @@ import com.github.standobyte.jojo.client.entityanim.pose.AnimatedEntity;
 import com.github.standobyte.jojo.client.entityrender.stand.HumanoidPart;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
-import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.subsystems.entity_possessionv2.LivingComponentPossession;
 import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.client.ClientEntityController;
@@ -176,7 +175,7 @@ public class FirstPersonRender {
 		}
 		
 		// The player is the POV entity, but it has a custom action animation
-		if (!JojoMod.disableDevStuff() && povEntity instanceof LivingEntity livingEntity) {
+		if (povEntity instanceof LivingEntity livingEntity) {
 			AnimFramePose rotpAnimPose = ((AnimatedEntity) povEntity).jojo_ripples$getModelPose(AnimatedEntity.PoseType.FINAL);
 			if (rotpAnimPose != null) {
 				return renderPlayer1stPersonAnim(mc, livingEntity, rotpAnimPose, partialTick, poseStack, bufferSource, light);
@@ -224,7 +223,7 @@ public class FirstPersonRender {
 			for (FirstPersonModelLayer layer : layers) {
 				layer.renderFirstPersonAnimated(pose, poseStack, bufferSource, light, cameraEntity, renderer);
 			}
-			// FIXME (1st person anim) render held items and modded layers
+			// FIXME (1st person anim) render held items
 			
 			poseStack.popPose();
 			bufferSource.endBatch();
