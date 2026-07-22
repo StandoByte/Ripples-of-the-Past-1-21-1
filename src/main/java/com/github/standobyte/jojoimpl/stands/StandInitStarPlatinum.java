@@ -127,7 +127,7 @@ public class StandInitStarPlatinum {
 				.addSkill(StandUnlockableSkill.startingAbility("ledge_grab").setNotYetImplemented())
 				
 				.addSkill(StandUnlockableSkill.startingAbility("manual_control"))
-				.addSkill(StandUnlockableSkill.startingAbility("item_use"))
+				.addSkill(new StandUnlockableSkill("item_use").setIsStartingSkill())
 
 				, id)
 			.discTooltipWIP()

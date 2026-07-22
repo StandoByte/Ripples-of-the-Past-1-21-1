@@ -1,0 +1,10 @@
+{
+	"vl_stand_summon": {
+		"stand_type": "jojo_ripples:crazy_diamond",
+		"subtitle": "jojo_ripples.vl_subtitle.crazy_diamond",
+		"sounds": [
+			"jojo_ripples:stand_user/josuke_crazy_diamond",
+			"jojo_ripples:stand_user/josuke_crazy_diamond_2"
+		]
+	}
+}

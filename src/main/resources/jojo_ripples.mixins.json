@@ -75,6 +75,7 @@
 	"modcompat.MthInitBeforeLithium",
 	"SusBlocksLoot",
 	
+	"AfterEntityAddedToServerLevelMixin",
 	"EntityMixinSuperclass",
 	
 	"debughelper.CodecErrorMessageMixin"

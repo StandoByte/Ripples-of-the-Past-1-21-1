@@ -202,6 +202,11 @@ public class DebugItem extends Item {
 			}
 		}
 
+		@Override
+		public boolean isPauseScreen() {
+			return false;
+		}
+
 		public static void onDebugItemUsed() {
 			Minecraft.getInstance().setScreen(new DebugFunctionsScreen());
 		}

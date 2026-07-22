@@ -8,6 +8,7 @@ import org.apache.commons.lang3.ObjectUtils;
 
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -44,6 +45,16 @@ public class SynchedDataExtended extends SynchedEntityData {
 		return dirty;
 	}
 	
+	
+	public static void syncNonDefaultValues(ServerLevel level, Entity entity) {
+		for (var dataSyncEntry : SynchedDataPacket.Handler.specificHandlers.entrySet()) {
+			SynchedDataPacketHandler handler = dataSyncEntry.getValue();
+			SynchedDataHelper synchedData = handler.getOrCreateDataSyncHelper(entity);
+			if (synchedData != null) {
+				tickSyncDirtyData(synchedData.getDataSyncher(), entity);
+			}
+		}
+	}
 	
 	public static void tickSyncDirtyData(SynchedDataExtended helper, Entity entity) {
 		List<SynchedEntityData.DataValue<?>> dirtyData = helper.syncDirtyData();

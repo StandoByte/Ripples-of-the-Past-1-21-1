@@ -273,11 +273,12 @@
   "jojo_ripples.story_part.p4": "Diamond is Unbreakable",
   "jojo_ripples.story_part.p5": "Golden Wind",
   "jojo_ripples.story_part.p6": "Stone Ocean",
-  "jojo_ripples.story_part.p7": "Steel Ball Run",
+  "jojo_ripples.story_part.p7": "§4§lS§rteel §4§lB§rall §4§lR§run",
   "jojo_ripples.story_part.p8": "JoJolion",
   "jojo_ripples.story_part.p9": "The JOJOLands",
 
   "jojo_ripples.menu.player.clothes": "Одежда (WIP)",
+  "jojo_ripples.menu.player.clothes.cur_character": "Персонаж из ДжоДжо: %s",
   "block.jojo_ripples.sewing_machine": "Швейная машинка (WIP)",
   "item.jojo_ripples.sewing_needle": "Швейная игла",
   "item.jojo_ripples.mannequin": "Манекен",

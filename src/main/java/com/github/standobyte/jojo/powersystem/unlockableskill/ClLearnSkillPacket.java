@@ -105,7 +105,7 @@ public class ClLearnSkillPacket implements CustomPacketPayload {
 									powerData._setSkillUnlocked(skillName, true, false);
 								}
 							}
-							powerData.syncOnUpdate(player);
+							powerData.syncUnlockedSkills(player);
 						}
 //						case RESET -> {
 //							// remove skill

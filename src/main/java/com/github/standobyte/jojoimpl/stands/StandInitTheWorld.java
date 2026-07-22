@@ -44,6 +44,7 @@ public class StandInitTheWorld {
 
 
 				.addSkill(StandUnlockableSkill.unlockableAbility("time_stop", 500).withAbility("time_resume").setIncomplete())
+				.addSkill(new StandUnlockableSkill("item_use").setIsStartingSkill())
 
 				, id)
 			.discTooltipExperimental();

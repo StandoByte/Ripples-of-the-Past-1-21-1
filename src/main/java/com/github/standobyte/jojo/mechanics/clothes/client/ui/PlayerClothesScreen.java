@@ -1,11 +1,15 @@
 package com.github.standobyte.jojo.mechanics.clothes.client.ui;
 
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
 import com.github.standobyte.jojo.mechanics.clothes.container.PlayerClothesMenu;
+import com.github.standobyte.jojo.mechanics.clothes.itemdata.StoryCharacter;
+import com.github.standobyte.jojo.subsystems.StoryPart;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -34,6 +38,7 @@ public class PlayerClothesScreen extends EffectRenderingInventoryScreen<PlayerCl
 	@Override
 	protected void init() {
 		super.init();
+		this.imageHeight += 12;
 		this.widthTooNarrow = this.width < 379;
 //		this.recipeBookComponent.init(this.width, this.height, this.minecraft, this.widthTooNarrow, this.menu);
 //		this.leftPos = this.recipeBookComponent.updateScreenPosition(this.width, this.imageWidth);
@@ -48,7 +53,21 @@ public class PlayerClothesScreen extends EffectRenderingInventoryScreen<PlayerCl
 
 	@Override
 	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+		EntityClothesInventory clothes = menu.clothesInventory;
+		Holder<StoryCharacter> character = clothes.getCharacter();
+		if (character != null) {
+			Holder<StoryPart> storyPart = clothes.getStoryPart();
+			Component characterName = character.value().getName(true);
+			if (storyPart != null) {
+				characterName = characterName.copy().append(storyPart.value().getPartIconAsText());
+			}
+			int x = font.width(characterName) / 2;
+			int y = -6;
+			guiGraphics.drawString(font, Component.translatable("jojo_ripples.menu.player.clothes.cur_character", characterName), x, y, 4210752, false);
+		}
+		
+//		guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+//		guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
 	}
 
 	/**
@@ -80,7 +99,7 @@ public class PlayerClothesScreen extends EffectRenderingInventoryScreen<PlayerCl
 	protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
 		int i = this.leftPos;
 		int j = this.topPos;
-		guiGraphics.blit(SCREEN_TEXTURE, i, j, 0, 0, this.imageWidth, this.imageHeight);
+		guiGraphics.blit(SCREEN_TEXTURE, i, j - 12, 0, 0, this.imageWidth, this.imageHeight);
 		renderEntityInInventoryFollowsMouse(guiGraphics, i + 26, j + 8, i + 75, j + 78, 30, 0.0625F, this.xMouse, this.yMouse, this.minecraft.player);
 	}
 

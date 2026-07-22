@@ -274,11 +274,12 @@
   "jojo_ripples.story_part.p4": "Diamond is Unbreakable",
   "jojo_ripples.story_part.p5": "Golden Wind",
   "jojo_ripples.story_part.p6": "Stone Ocean",
-  "jojo_ripples.story_part.p7": "Steel Ball Run",
+  "jojo_ripples.story_part.p7": "§4§lS§rteel §4§lB§rall §4§lR§run",
   "jojo_ripples.story_part.p8": "JoJolion",
   "jojo_ripples.story_part.p9": "The JOJOLands",
   
   "jojo_ripples.menu.player.clothes": "Clothes (WIP)",
+  "jojo_ripples.menu.player.clothes.cur_character": "JoJo character: %s",
   "block.jojo_ripples.sewing_machine": "Sewing Machine (WIP)",
   "item.jojo_ripples.sewing_needle": "Sewing Needle",
   "item.jojo_ripples.mannequin": "Mannequin",
@@ -650,6 +651,8 @@
   
   "jojo.message.action_condition.full_health": "You aren't injured",
   "jojo.message.action_condition.item_hard_material": "You need to hold a block made of a hard material",
+  
+  "jojo_ripples.vl_subtitle.crazy_diamond": "『Crazy Diamond!』",
   
   
   "jojo_ripples.subtitle.life_created": "Life created",

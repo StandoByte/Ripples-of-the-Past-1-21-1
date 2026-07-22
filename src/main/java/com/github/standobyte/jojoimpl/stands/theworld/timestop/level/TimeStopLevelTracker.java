@@ -159,7 +159,7 @@ public class TimeStopLevelTracker {
 					if (earliestEffect != null) {
 						PacketDistributor.sendToPlayer(player, 
 								TimeStopInstancePacket.allOnLevelJoin(level.dimension(), tracker.activeEffects.values()), 
-								earliestEffect.shaderPacket(TimeStopVFXState.ACTIVE)); // NO WAY THAT'S THE FIRST TIME THE VARARGS WERE USEFUL (no shade thrown, just a bit annoying to always remove the payloads argument after autocomplete, it is nice to have them though)
+								earliestEffect.shaderPacket(TimeStopVFXState.ACTIVE));
 					}
 				}
 			}

@@ -45,8 +45,11 @@ public class VoiceLineClientSide {
 			Entity entity, boolean canInterrupt, 
 			SoundSource soundCategory, float volume, float pitch,
 			double x, double y, double z) {
+		List<ResourceLocation> sounds = voiceLine.sounds();
+		if (sounds.isEmpty()) return;
+		
 		Minecraft mc = Minecraft.getInstance();
-		ResourceLocation soundLocation = ListUtil.getRandom(voiceLine.sounds());
+		ResourceLocation soundLocation = ListUtil.getRandom(sounds);
 		
 		SoundInstance curPlayingVoiceLine = VoiceLineClientSoundTracker.getPlayingVoiceLineSound(entity);
 		if (curPlayingVoiceLine != null) {
