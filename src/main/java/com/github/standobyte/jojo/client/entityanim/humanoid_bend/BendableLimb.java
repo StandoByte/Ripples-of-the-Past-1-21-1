@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.client.entityanim.humanoid_bend;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,8 @@ public record BendableLimb(LimbHalf base, LimbHalf bend, Map<String, ModelPart> 
 		for (ModelPart.Cube cube : modelPart.cubes) {
 			baseQuads.clear();
 			bendQuads.clear();
+			float z0 = Float.MAX_VALUE;
+			float z1 = -Float.MAX_VALUE;
 			for (ModelPart.Polygon quad : cube.polygons) {
 				yLess.clear();
 				yMore.clear();
@@ -43,6 +46,9 @@ public record BendableLimb(LimbHalf base, LimbHalf bend, Map<String, ModelPart> 
 					else if (vertex.pos.y > y) {
 						yMore.add(vertex);
 					}
+					
+					z0 = Math.min(z0, vertex.pos.z);
+					z1 = Math.max(z1, vertex.pos.z);
 				}
 				
 				if (yLess.size() == 2 && yMore.size() == 2) {
@@ -144,8 +150,19 @@ public record BendableLimb(LimbHalf base, LimbHalf bend, Map<String, ModelPart> 
 				}
 			}
 			
-			DeformableCube baseCube = fromPolygons(baseQuads);
-			DeformableCube bendCube = fromPolygons(bendQuads);
+			int deformTexels = 2;
+			Box baseSize;
+			Box bendSize;
+			if (bendIsAbove) {
+				baseSize = cutUpPolygons(baseQuads, y + yOffset, deformTexels);
+				bendSize = cutUpPolygons(bendQuads, 0, -deformTexels);
+			}
+			else {
+				baseSize = cutUpPolygons(baseQuads, y + yOffset, -deformTexels);
+				bendSize = cutUpPolygons(bendQuads, 0, deformTexels);
+			}
+			DeformableCube baseCube = fromPolygons(baseQuads, baseSize);
+			DeformableCube bendCube = fromPolygons(bendQuads, bendSize);
 
 			baseHalfCubes.add(baseCube);
 			bendHalfCubes.add(bendCube);
@@ -178,6 +195,137 @@ public record BendableLimb(LimbHalf base, LimbHalf bend, Map<String, ModelPart> 
 		return new BendableLimb(baseHalf, bendHalf, joint,
 				x, y, z, yOffset, bendIsAbove);
 	}
+
+	static List<ModelPart.Polygon> buffer = new ArrayList<>(13);
+	public static Box cutUpPolygons(Collection<ModelPart.Polygon> polygons, 
+			float bendY, float distortYOffset) {
+		if (polygons.isEmpty()) return null;
+		
+		float minX = Float.MAX_VALUE;
+		float minY = Float.MAX_VALUE;
+		float minZ = Float.MAX_VALUE;
+		float maxX = -Float.MAX_VALUE;
+		float maxY = -Float.MAX_VALUE;
+		float maxZ = -Float.MAX_VALUE;
+		
+		for (ModelPart.Polygon quad : polygons) {
+//			boolean keepQuadIntact = true;
+			
+			float x0 = Float.MAX_VALUE;
+			float y0 = Float.MAX_VALUE;
+			float z0 = Float.MAX_VALUE;
+			float x1 = -Float.MAX_VALUE;
+			float y1 = -Float.MAX_VALUE;
+			float z1 = -Float.MAX_VALUE;
+			
+//			float v0 = Float.MAX_VALUE;
+//			float v1 = -Float.MAX_VALUE;
+//			
+//			ModelPart.Vertex y0_0 = null;
+//			ModelPart.Vertex y0_1 = null;
+//			ModelPart.Vertex y1_0 = null;
+//			ModelPart.Vertex y1_1 = null;
+			
+			for (ModelPart.Vertex vertex : quad.vertices) {
+				x0 = Math.min(x0, vertex.pos.x);
+				y0 = Math.min(y0, vertex.pos.y);
+				z0 = Math.min(z0, vertex.pos.z);
+				x1 = Math.max(x1, vertex.pos.x);
+				y1 = Math.max(y1, vertex.pos.y);
+				z1 = Math.max(z1, vertex.pos.z);
+				
+//				v0 = Math.min(v0, vertex.v);
+//				v1 = Math.max(v1, vertex.v);
+			}
+			
+			minX = Math.min(minX, x0);
+			minY = Math.min(minY, y0);
+			minZ = Math.min(minZ, z0);
+			maxX = Math.max(maxX, x1);
+			maxY = Math.max(maxY, y1);
+			maxZ = Math.max(maxZ, z1);
+			
+//			if (distortYOffset != 0 && y0 != y1) {
+//				for (ModelPart.Vertex vertex : quad.vertices) {
+//					if (vertex.pos.y == y0) {
+//						if (x0 != x1) {
+//							if (vertex.pos.x == x0)		y0_0 = vertex;
+//							else						y0_1 = vertex;
+//						}
+//						else {
+//							if (vertex.pos.z == z0)		y0_0 = vertex;
+//							else						y0_1 = vertex;
+//						}
+//					}
+//					else {
+//						if (x0 != x1) {
+//							if (vertex.pos.x == x0)		y1_0 = vertex;
+//							else						y1_1 = vertex;
+//						}
+//						else {
+//							if (vertex.pos.z == z0)		y1_0 = vertex;
+//							else						y1_1 = vertex;
+//						}
+//					}
+//				}
+//				
+//				if (y0_0 != null && y0_1 != null && y1_0 != null && y1_1 != null) {
+//					float maxOffsetAbs = Math.abs(distortYOffset);
+//					
+//					for (float offsetAbs = 0; offsetAbs <= maxOffsetAbs; /*offsetAbs++*/ offsetAbs += maxOffsetAbs) {
+//						float y0_2;
+//						float y1_2;
+//						if (distortYOffset > 0) {
+//							float offset = offsetAbs;
+//							y0_2 = bendY + offset;
+//							y1_2 = offsetAbs < maxOffsetAbs ? y0_2 + /*1*/maxOffsetAbs : y1;
+//						}
+//						else {
+//							float offset = -offsetAbs;
+//							y1_2 = bendY + offset;
+//							y0_2 = offsetAbs < maxOffsetAbs ? y1_2 - /*1*/maxOffsetAbs : y0;
+//						}
+//						
+//						if (y0_2 > y0 || y1_2 < y1) {
+//							float y0_border = y0;
+//							float y1_border = y1;
+//							
+//							if (y0_2 > y0) {
+//								y0_border = y0_2;
+//							}
+//							else if (y1_2 < y1) {
+//								y1_border = y1_2;
+//							}
+//							
+//							float vRatio = (v1 - v0) / (y1 - y0);
+//							float v0_border = v0 + (y0_border - y0) * vRatio;
+//							float v1_border = v0 + (y1_border - y0) * vRatio;
+//							ModelPart.Vertex[] newVertices = new ModelPart.Vertex[4];
+//							newVertices[0] = new ModelPart.Vertex(y0_0.pos.x, y0_border, y0_0.pos.z, y0_0.u, v0_border);
+//							newVertices[1] = new ModelPart.Vertex(y0_1.pos.x, y0_border, y0_1.pos.z, y0_1.u, v0_border);
+//							newVertices[2] = new ModelPart.Vertex(y1_1.pos.x, y1_border, y1_1.pos.z, y1_1.u, v1_border);
+//							newVertices[3] = new ModelPart.Vertex(y1_0.pos.x, y1_border, y1_0.pos.z, y1_0.u, v1_border);
+//							buffer.add(_ModelPart$Polygon.create(newVertices, quad.normal));
+//							
+//							keepQuadIntact = false;
+//						}
+//					}
+//				}
+//			}
+//			
+//			if (keepQuadIntact) {
+//				buffer.add(quad);
+//			}
+		}
+		
+//		polygons.clear();
+//		polygons.addAll(buffer);
+//		buffer.clear();
+		
+		return new Box(minX, minY, minZ, maxX, maxY, maxZ);
+	}
+	
+	static record Box(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {}
 	
 	public static DeformableCube fromPolygons(Iterable<ModelPart.Polygon> polygons) {
 		float minX = Float.MAX_VALUE;
@@ -196,6 +344,22 @@ public record BendableLimb(LimbHalf base, LimbHalf bend, Map<String, ModelPart> 
 				maxZ = Math.max(maxZ, vertex.pos.z);
 			}
 		}
+		return fromPolygons(polygons, minX, minY, minZ, maxX, maxY, maxZ);
+	}
+	
+	public static DeformableCube fromPolygons(Iterable<ModelPart.Polygon> polygons, Box size) {
+		if (size != null) {
+			return fromPolygons(polygons, 
+					size.minX, size.minY, size.minZ, 
+					size.maxX, size.maxY, size.maxZ);
+		}
+		else {
+			return fromPolygons(polygons);
+		}
+	}
+	
+	public static DeformableCube fromPolygons(Iterable<ModelPart.Polygon> polygons, 
+			float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
 		DeformableCube cube = new DeformableCube(Iterables.toArray(polygons, ModelPart.Polygon.class),
 				minX, minY, minZ, maxX, maxY, maxZ);
 		return cube;
