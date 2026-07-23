@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.joml.Quaternionf;
 
@@ -19,6 +20,7 @@ import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.StoryCharacter;
 import com.github.standobyte.jojo.mechanics.clothes.sewing.SewingMachineContainer;
 import com.github.standobyte.jojo.subsystems.StoryPart;
+import com.github.standobyte.jojo.util.functions.JojoModUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -27,6 +29,7 @@ import com.mojang.math.Axis;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.model.AnimationUtils;
 import net.minecraft.client.model.HumanoidModel;
@@ -310,9 +313,11 @@ public class SewingMachineScreen extends AbstractContainerScreen<SewingMachineCo
 				int y = getWindowY() + 43;
 				for (Holder<ClothesSet> holder : allClothes) {
 					ClothesSet clothes = holder.value();
+					Optional<String> authors = clothes.getAuthors();
+					Tooltip tooltip = authors.map(authorsName -> Tooltip.create(JojoModUtil.makeAssetCredits(authorsName))).orElse(null);
 					ClothesSetButton button = new ClothesSetButton(x, y, 134, 15, clothes.getName(), b -> {
 						character.setSelectedSet(holder);
-					}, clothes);
+					}, tooltip, clothes);
 					y += 17;
 					clothesSelection.put(clothes, button);
 					addWidget(button);

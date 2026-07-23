@@ -14,6 +14,10 @@ import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.ListBuilder;
 import com.mojang.serialization.codecs.PrimitiveCodec;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentContents;
+import net.minecraft.network.chat.contents.TranslatableContents;
+
 public class CodecUtil {
 
 	public static <V> Codec<V> placeholderCodec(V defaultValue) {
@@ -36,6 +40,19 @@ public class CodecUtil {
 				}, 
 				Enum::name);
 	}
+
+	
+	public static final Codec<Component> TRANSLATABLE_COMPONENT_KEY_CODEC = Codec.STRING.xmap(
+			Component::translatable, CodecUtil::getTlKey);
+	
+	static String getTlKey(Component component) {
+		ComponentContents contents = component.getContents();
+		if (contents instanceof TranslatableContents tlContents) {
+			return tlContents.key;
+		}
+		throw new IllegalArgumentException("Tried to get a translation key of something other than TranslatableContents (" + contents + ")");
+	}
+	
 	
 	public static <E> Codec<List<E>> listOrSingleCodec(final Codec<E> elementCodec) {
 		return listOrSingleCodec(elementCodec, 0, Integer.MAX_VALUE);
