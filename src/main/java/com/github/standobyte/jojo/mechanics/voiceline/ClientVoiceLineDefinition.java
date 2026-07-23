@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.mechanics.voiceline;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 
@@ -15,13 +16,11 @@ public record ClientVoiceLineDefinition(
 		List<ResourceLocation> sounds,
 		@Nullable Component subtitle) {
 	
-	public static final Codec<Component> TRANSLATABLE_CODEC_COMPONENT = Codec.STRING.xmap(
-			Component::translatable, 
-			component -> "i ain't doing this");
+	ClientVoiceLineDefinition(List<ResourceLocation> sounds, Optional<Component> subtitle) { this(sounds, subtitle.orElse(null)); }
 	
 	public static final Codec<ClientVoiceLineDefinition> CODEC = RecordCodecBuilder.create(
 			builder -> builder.group(
 					CodecUtil.listOrSingleCodec(ResourceLocation.CODEC).fieldOf("sounds").forGetter(ClientVoiceLineDefinition::sounds),
-					TRANSLATABLE_CODEC_COMPONENT.optionalFieldOf("subtitle", null).forGetter(ClientVoiceLineDefinition::subtitle))
+					CodecUtil.TRANSLATABLE_COMPONENT_KEY_CODEC.optionalFieldOf("subtitle").forGetter(voiceLine -> Optional.ofNullable(voiceLine.subtitle)))
 			.apply(builder, ClientVoiceLineDefinition::new));
 }

@@ -45,6 +45,7 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.functions.JSONUtil;
+import com.github.standobyte.jojo.util.functions.JojoModUtil;
 import com.github.standobyte.jojo.util.functions.StringUtil;
 import com.github.standobyte.jojo.util.objects_mc.WeightsList;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Zone;
@@ -58,6 +59,7 @@ import com.google.gson.reflect.TypeToken;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
@@ -342,6 +344,7 @@ public class StandSkinsLoader implements PreparableReloadListener, AutoCloseable
 		public Map<ResourceLocation, PostChainDefinition> shaderChains;
 		public Map<String, LanguagePrep> langFiles;
 		public Language language;
+		public String authors;
 		
 		public StandSkinResourceBuilder(ResourceLocation skinId) {
 			this.skinId = skinId;
@@ -381,6 +384,8 @@ public class StandSkinsLoader implements PreparableReloadListener, AutoCloseable
 			if (resolveBGM != null && !resolveBGM.isEmpty()) skin.withResolveBGM(resolveBGM);
 			if (shaderChains != null) skin.withShaders(shaderChains);
 			if (language != null) skin.withLanguage(language);
+			if (authors != null) skin.authors = JojoModUtil.makeAssetCredits(authors)
+					.withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC);
 			return skin;
 		}
 	}
@@ -411,6 +416,10 @@ public class StandSkinsLoader implements PreparableReloadListener, AutoCloseable
 						JSONUtil.getFloatOr("height", jsonObject, ClientUtil.DEFAULT_STAND_HEIGHT)
 				};
 			}
+		}
+		
+		if (skinInfoJson.has("authors")) {
+			builder.authors = skinInfoJson.get("authors").getAsString();
 		}
 	}
 	

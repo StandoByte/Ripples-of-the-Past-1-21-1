@@ -41,7 +41,6 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
@@ -220,10 +219,12 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 			StandSkin skin = hoveredSkin.get().skin;
 			Component name = skin.getName().copy().withColor(skin.getColors().text_white_bg());
 			Component desc = skin.getDescription();
+			Component authors = skin.getAuthors();
 			Tooltip tooltip;
-			if (desc != null) {
-				desc = desc.copy().withStyle(ChatFormatting.DARK_GRAY);
-				tooltip = new MultiLineScreenTooltip(name, desc);
+			if (desc != null || authors != null) {
+				if (desc == null)			tooltip = new MultiLineScreenTooltip(name, Component.literal(" "), authors);
+				else if (authors == null)	tooltip = new MultiLineScreenTooltip(name, desc);
+				else						tooltip = new MultiLineScreenTooltip(name, desc, Component.literal(" "), authors);
 			}
 			else {
 				tooltip = Tooltip.create(name);

@@ -37,5 +37,6 @@
 			},
 			"equip_sound": "item.armor.equip_generic"
 		}
-	}
+	},
+	"authors": "Motvik"
 }

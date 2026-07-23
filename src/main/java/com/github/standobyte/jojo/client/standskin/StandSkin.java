@@ -36,6 +36,7 @@ import com.github.standobyte.jojo.subsystems.StoryPart;
 import com.github.standobyte.jojo.util.objects_mc.WeightsList;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
@@ -85,6 +86,7 @@ public class StandSkin {
 	
 	protected Component name;
 	@Nullable protected Component desc;
+	@Nullable protected Component authors;
 	
 	protected Optional<GuiIcon> standIcon;
 	protected final Map<ResourceLocation, ResourcePathChecker> remapPathCache = new HashMap<>();
@@ -158,10 +160,10 @@ public class StandSkin {
 			}
 		}
 		if (language.has(KEY_DESC)) {
-			Component desc = MutableComponent.create(new CustomLangTranslatableContents.SpecificLang(
+			MutableComponent desc = MutableComponent.create(new CustomLangTranslatableContents.SpecificLang(
 					language, KEY_DESC, null, TranslatableContents.NO_ARGS));
 			if (!desc.getString().isEmpty()) {
-				this.desc = desc;
+				this.desc = desc.withStyle(ChatFormatting.DARK_GRAY);
 			}
 		}
 	}
@@ -188,6 +190,11 @@ public class StandSkin {
 	@Nullable
 	public Component getDescription() {
 		return desc;
+	}
+	
+	@Nullable
+	public Component getAuthors() {
+		return authors;
 	}
 	
 	@Deprecated
