@@ -139,12 +139,14 @@ public class ClientJojoPoseLoader extends SimplePreparableReloadListener<Map<Res
 	static record JojoPoseAnimSetDataPrep(
 			Optional<ResourceLocation> character, 
 			Optional<List<ResourceLocation>> storyPart, 
+			Optional<String> authors, 
 			Optional<Map<String, JojoPoseAnimDataPrep>> animSpecificData) {
 
 		public static final Codec<JojoPoseAnimSetDataPrep> CODEC = RecordCodecBuilder.create(
 				builder -> builder.group(
 						ResourceLocation.CODEC.optionalFieldOf("character").forGetter(JojoPoseAnimSetDataPrep::character),
 						CodecUtil.listOrSingleCodec(ResourceLocation.CODEC).optionalFieldOf("story_part").forGetter(JojoPoseAnimSetDataPrep::storyPart),
+						Codec.STRING.optionalFieldOf("authors").forGetter(JojoPoseAnimSetDataPrep::authors),
 						Codec.unboundedMap(Codec.STRING, JojoPoseAnimDataPrep.CODEC).optionalFieldOf("anim_specific").forGetter(JojoPoseAnimSetDataPrep::animSpecificData))
 				.apply(builder, JojoPoseAnimSetDataPrep::new));
 		
@@ -156,13 +158,15 @@ public class ClientJojoPoseLoader extends SimplePreparableReloadListener<Map<Res
 	
 	static record JojoPoseAnimDataPrep(
 			Optional<ActionAnimIdentifier> standSummonPose,
-			Optional<ClientVoiceLineDefinition> voiceLine) {
-		public static final JojoPoseAnimDataPrep EMPTY_DATA = new JojoPoseAnimDataPrep(Optional.empty(), Optional.empty());
+			Optional<ClientVoiceLineDefinition> voiceLine,
+			Optional<String> authors) {
+		public static final JojoPoseAnimDataPrep EMPTY_DATA = new JojoPoseAnimDataPrep(Optional.empty(), Optional.empty(), Optional.empty());
 		
 		public static final Codec<JojoPoseAnimDataPrep> CODEC = RecordCodecBuilder.create(
 				builder -> builder.group(
 						ActionAnimIdentifier.NAME_CODEC.optionalFieldOf("stand_summon_pose").forGetter(JojoPoseAnimDataPrep::standSummonPose),
-						ClientVoiceLineDefinition.CODEC.optionalFieldOf("voice_line").forGetter(JojoPoseAnimDataPrep::voiceLine))
+						ClientVoiceLineDefinition.CODEC.optionalFieldOf("voice_line").forGetter(JojoPoseAnimDataPrep::voiceLine),
+						Codec.STRING.optionalFieldOf("authors").forGetter(JojoPoseAnimDataPrep::authors))
 				.apply(builder, JojoPoseAnimDataPrep::new));
 		
 	}
@@ -183,11 +187,20 @@ public class ClientJojoPoseLoader extends SimplePreparableReloadListener<Map<Res
 					RotpAnimDefinition anim = animEntry.getValue().getSingle();
 					JojoPoseAnimDataPrep poseData = loaded.poseData != null ? loaded.poseData.getAnimSpecificData(animName) : null;
 					if (poseData == null) poseData = JojoPoseAnimDataPrep.EMPTY_DATA;
-					JojoPose pose = new JojoPose(animSetId, animName, 
-							anim, 
-							poseData.standSummonPose.orElse(null),
-							poseData.voiceLine.orElse(null));
-					animSet.anims.put(animName, pose);
+					try {
+						Optional<String> authors = poseData.authors.or(() ->
+								Optional.ofNullable(loaded.poseData).flatMap(animSetData -> animSetData.authors));
+						
+						JojoPose pose = new JojoPose(animSetId, animName, 
+								anim, 
+								poseData.standSummonPose.orElse(null),
+								poseData.voiceLine.orElse(null),
+								authors);
+						animSet.anims.put(animName, pose);
+					}
+					catch (Exception e) {
+						JojoMod.LOGGER.error("WEEWOOWEEWOO", e);
+					}
 				}
 			}
 		});

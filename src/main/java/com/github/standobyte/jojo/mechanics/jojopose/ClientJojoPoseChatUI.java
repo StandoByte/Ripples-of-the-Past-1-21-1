@@ -5,6 +5,7 @@ import java.util.List;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList.EntryWithButtons;
+import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
@@ -25,6 +26,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.CommonInputs;
@@ -84,6 +86,9 @@ public class ClientJojoPoseChatUI {
 						String poseName = jojoPoseDefinition.animName;
 						AnimFramePose modelPose = jojoPoseDefinition.getPose();
 						JojoPoseWidget button = new JojoPoseWidget(chatScreen, 0, 0, modelPose, animSetId, poseName);
+						if (jojoPoseDefinition.authors != null) {
+							button.setTooltip(Tooltip.create(jojoPoseDefinition.authors));
+						}
 						posesListUI.addEntry(new EntryWithButtons().add(button, 0, 0));
 					}
 					
@@ -137,6 +142,14 @@ public class ClientJojoPoseChatUI {
 		@Override
 		public void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
 			defaultButtonNarrationText(narrationElementOutput);
+		}
+		
+		@Override
+	    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+			super.render(guiGraphics, mouseX, mouseY, partialTick);
+			if (this.visible && this.tooltip.wasDisplayed) {
+				TooltipParams.set(TooltipParams.paperStyle());
+			}
 		}
 
 		@Override

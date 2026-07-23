@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.mechanics.jojopose.resource;
 
+import java.util.Optional;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -7,7 +9,10 @@ import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.mechanics.voiceline.ClientVoiceLineDefinition;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
+import com.github.standobyte.jojo.util.functions.JojoModUtil;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class JojoPose {
@@ -17,17 +22,22 @@ public class JojoPose {
 	public final @Nonnull RotpAnimDefinition anim;
 	public final @Nullable ActionAnimIdentifier standSummonPose;
 	public final @Nullable ClientVoiceLineDefinition voiceLine;
+	public final @Nullable Component authors;
 	private AnimFramePose pose;
 	
 	public JojoPose(ResourceLocation animSet, String animName, 
 			@Nonnull RotpAnimDefinition anim, 
 			@Nullable ActionAnimIdentifier standSummonPose, 
-			@Nullable ClientVoiceLineDefinition voiceLine) {
+			@Nullable ClientVoiceLineDefinition voiceLine,
+			Optional<String> authors) {
 		this.animSet = animSet;
 		this.animName = animName;
 		this.anim = anim;
 		this.standSummonPose = standSummonPose;
 		this.voiceLine = voiceLine;
+		this.authors = authors.map(authorName -> JojoModUtil.makeAssetCredits(authorName)
+				.withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC))
+				.orElse(null);
 	}
 	
 	public AnimFramePose getPose() {
