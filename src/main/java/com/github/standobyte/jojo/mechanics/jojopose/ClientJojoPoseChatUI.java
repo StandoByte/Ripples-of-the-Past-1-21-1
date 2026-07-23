@@ -1,10 +1,7 @@
 package com.github.standobyte.jojo.mechanics.jojopose;
 
-import java.util.HashMap;
+import java.util.List;
 
-import com.github.standobyte.jojo.client.entityanim.AnimationSet;
-import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
-import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.SavedPose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList.EntryWithButtons;
@@ -14,6 +11,7 @@ import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
 import com.github.standobyte.jojo.mechanics.clothes.client.layer.HumanoidClothesLayer;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.StoryCharacter;
 import com.github.standobyte.jojo.mechanics.jojopose.resource.ClientJojoPoseLoader;
+import com.github.standobyte.jojo.mechanics.jojopose.resource.JojoPose;
 import com.github.standobyte.jojo.subsystems.StoryPart;
 import com.github.standobyte.v1_21_4_stuff.renderstate.ExtractRSExtensionManually;
 import com.github.standobyte.v1_21_4_stuff.renderstate.HumanoidRenderState;
@@ -61,7 +59,7 @@ public class ClientJojoPoseChatUI {
 				Holder<StoryCharacter> character = clothes.getCharacter();
 				Holder<StoryPart> storyPart = clothes.getStoryPart();
 				
-				var poses = ClientJojoPoseLoader.getInstance().getForCharacter(character, storyPart).toList();
+				List<JojoPose> poses = ClientJojoPoseLoader.getInstance().getPosesForCharacter(character, storyPart).toList();
 				if (!poses.isEmpty()) {
 					int x = screen.width - 74;
 					
@@ -81,16 +79,12 @@ public class ClientJojoPoseChatUI {
 					};
 
 					ChatScreenWithPosesList chatScreen = (ChatScreenWithPosesList) screen;
-					for (var animSetEntry : poses) {
-						ResourceLocation animSetId = animSetEntry.getKey();
-						AnimationSet anims = animSetEntry.getValue().anims();
-						for (var poseEntry : anims.namedAnimations.entrySet()) {
-							String poseName = poseEntry.getKey();
-							RotpAnimDefinition anim = poseEntry.getValue().getSingle();
-							AnimFramePose pose = getPose(anim);
-							JojoPoseWidget button = new JojoPoseWidget(chatScreen, 0, 0, pose, animSetId, poseName);
-							posesListUI.addEntry(new EntryWithButtons().add(button, 0, 0));
-						}
+					for (JojoPose jojoPoseDefinition : poses) {
+						ResourceLocation animSetId = jojoPoseDefinition.animSet;
+						String poseName = jojoPoseDefinition.animName;
+						AnimFramePose modelPose = jojoPoseDefinition.getPose();
+						JojoPoseWidget button = new JojoPoseWidget(chatScreen, 0, 0, modelPose, animSetId, poseName);
+						posesListUI.addEntry(new EntryWithButtons().add(button, 0, 0));
 					}
 					
 					int screenHeight = posesListUI.getHeight();
@@ -117,21 +111,6 @@ public class ClientJojoPoseChatUI {
 			return jojoPosesList.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
 		}
 		return false;
-	}
-	
-	
-	public static AnimFramePose getPose(RotpAnimDefinition anim) {
-		if (anim.poses == null || anim.poses.isEmpty()) {
-			if (anim.poses == null) {
-				anim.poses = HashMap.newHashMap(1);
-			}
-			
-			AnimFramePose frame = new AnimFramePose();
-			anim.calcAnimPose(frame, anim.lengthInSeconds, 1, null, null);
-			anim.poses.put("lastPose", new SavedPose(frame, anim.lengthInSeconds, true));
-		}
-		
-		return anim.poses.values().iterator().next().pose();
 	}
 	
 	

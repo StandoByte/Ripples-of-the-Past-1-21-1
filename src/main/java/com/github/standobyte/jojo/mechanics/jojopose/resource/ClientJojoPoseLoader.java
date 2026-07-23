@@ -16,13 +16,16 @@ import com.github.standobyte.jojo.client.entityanim.AnimationSet;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.StoryCharacter;
-import com.github.standobyte.jojo.mechanics.jojopose.resource.JojoPoseAnimSet.JojoPoseAnimData;
-import com.github.standobyte.jojo.mechanics.jojopose.resource.JojoPoseAnimSet.JojoPoseAnimSetData;
+import com.github.standobyte.jojo.mechanics.voiceline.ClientVoiceLineDefinition;
+import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.subsystems.StoryPart;
+import com.github.standobyte.jojo.util.functions.CodecUtil;
 import com.github.standobyte.jojo.util.functions.JSONUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Zone;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._ProfilerFiller;
 import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
@@ -50,49 +53,36 @@ public class ClientJojoPoseLoader extends SimplePreparableReloadListener<Map<Res
 	}
 	
 	
-	public Map<ResourceLocation, JojoPoseAnimSet> anims = new HashMap<>();
+	public Map<ResourceLocation, JojoPoseAnimSet2> anims = new HashMap<>();
 	
 	@Nullable
-	public JojoPoseAnimSet getAnimSet(ResourceLocation geckoAnimFilePath) {
+	public JojoPoseAnimSet2 getAnimSet(ResourceLocation geckoAnimFilePath) {
 		return anims.get(geckoAnimFilePath);
 	}
 	
-	// shit code - don't call the two methods below too often, or make the query process better
+	// shit code - don't call the method below too often, or make the query process better
 	
-	public Stream<Map.Entry<ResourceLocation, JojoPoseAnimSet>> getForCharacter(Holder<StoryCharacter> playerCharacter, @Nullable Holder<StoryPart> playerStoryPart) {
+	public Stream<JojoPose> getPosesForCharacter(Holder<StoryCharacter> playerCharacter, @Nullable Holder<StoryPart> playerStoryPart) {
 		if (playerCharacter == null) {
 			return Stream.empty();
 		}
 		
 		ResourceLocation storyPartId = playerStoryPart != null ? playerStoryPart.unwrapKey().map(ResourceKey::location).orElse(null) : null;
-		return anims.entrySet().stream().filter(animSetEntry -> {
-			JojoPoseAnimSet animSet = animSetEntry.getValue();
-			JojoPoseAnimSetData data = animSet.data();
-			
-			@Nullable ResourceLocation characterFilter = data.character();
-			@Nullable List<ResourceLocation> storyPartsFilter = data.storyPart();
-			
-			return (characterFilter == null || playerCharacter.is(characterFilter)) &&
-					(storyPartsFilter == null || playerStoryPart != null && storyPartsFilter.contains(storyPartId));
-		});
+		return anims.entrySet().stream()
+				.filter(animSetEntry -> {
+					JojoPoseAnimSet2 animSet = animSetEntry.getValue();
+
+					@Nullable ResourceLocation characterFilter = animSet.character;
+					@Nullable List<ResourceLocation> storyPartsFilter = animSet.storyPart;
+
+					return (characterFilter == null || playerCharacter.is(characterFilter)) &&
+							(storyPartsFilter == null || playerStoryPart != null && storyPartsFilter.contains(storyPartId));
+				})
+				.flatMap(animSetEntry -> {
+					JojoPoseAnimSet2 animSet = animSetEntry.getValue();
+					return animSet.anims.values().stream();
+				});
 	}
-	
-	public Stream<JojoPoseAnim> getPosesForCharacter(Holder<StoryCharacter> playerCharacter, @Nullable Holder<StoryPart> playerStoryPart) {
-		return getForCharacter(playerCharacter, playerStoryPart).flatMap(animSetEntry -> {
-			ResourceLocation animSetId = animSetEntry.getKey();
-			JojoPoseAnimSet animSet = animSetEntry.getValue();
-			JojoPoseAnimSetData dataMap = animSet.data();
-			return animSet.anims().namedAnimations.entrySet().stream().map(animEntry -> {
-				AnimVariantsList anims = animEntry.getValue();
-				String animBaseName = animEntry.getKey();
-				JojoPoseAnimData data = dataMap.getAnimSpecificData(animBaseName);
-				return new JojoPoseAnim(animSetId, animEntry.getKey(), anims.getSingle(), data);
-			});
-		});
-	}
-	
-	public static record JojoPoseAnim(ResourceLocation animSet, String animName, 
-			RotpAnimDefinition anim, @Nullable JojoPoseAnimData data) {}
 	
 	
 
@@ -126,7 +116,7 @@ public class ClientJojoPoseLoader extends SimplePreparableReloadListener<Map<Res
 						for (var resource : resourceEntry.getValue()) {
 							try (var reader = resource.openAsReader()) {
 								JsonObject json = JSONUtil.parse(reader);
-								Optional<JojoPoseAnimSetData> poseData = JSONUtil.fromJson(json, JojoPoseAnimSetData.CODEC);
+								Optional<JojoPoseAnimSetDataPrep> poseData = JSONUtil.fromJson(json, JojoPoseAnimSetDataPrep.CODEC);
 								poseData.ifPresent(data -> animSetEntry.poseData = data);
 							}
 							catch (Exception e) {
@@ -143,18 +133,62 @@ public class ClientJojoPoseLoader extends SimplePreparableReloadListener<Map<Res
 	
 	static class PoseAnimSetPrep {
 		AnimationSet.Builder animSet;
-		JojoPoseAnimSetData poseData;
+		JojoPoseAnimSetDataPrep poseData;
+	}
+	
+	static record JojoPoseAnimSetDataPrep(
+			Optional<ResourceLocation> character, 
+			Optional<List<ResourceLocation>> storyPart, 
+			Optional<Map<String, JojoPoseAnimDataPrep>> animSpecificData) {
+
+		public static final Codec<JojoPoseAnimSetDataPrep> CODEC = RecordCodecBuilder.create(
+				builder -> builder.group(
+						ResourceLocation.CODEC.optionalFieldOf("character").forGetter(JojoPoseAnimSetDataPrep::character),
+						CodecUtil.listOrSingleCodec(ResourceLocation.CODEC).optionalFieldOf("story_part").forGetter(JojoPoseAnimSetDataPrep::storyPart),
+						Codec.unboundedMap(Codec.STRING, JojoPoseAnimDataPrep.CODEC).optionalFieldOf("anim_specific").forGetter(JojoPoseAnimSetDataPrep::animSpecificData))
+				.apply(builder, JojoPoseAnimSetDataPrep::new));
+		
+		@Nullable
+		public JojoPoseAnimDataPrep getAnimSpecificData(String animName) {
+			return animSpecificData.isPresent() ? animSpecificData.get().get(animName) : null;
+		}
+	}
+	
+	static record JojoPoseAnimDataPrep(
+			Optional<ActionAnimIdentifier> standSummonPose,
+			Optional<ClientVoiceLineDefinition> voiceLine) {
+		public static final JojoPoseAnimDataPrep EMPTY_DATA = new JojoPoseAnimDataPrep(Optional.empty(), Optional.empty());
+		
+		public static final Codec<JojoPoseAnimDataPrep> CODEC = RecordCodecBuilder.create(
+				builder -> builder.group(
+						ActionAnimIdentifier.NAME_CODEC.optionalFieldOf("stand_summon_pose").forGetter(JojoPoseAnimDataPrep::standSummonPose),
+						ClientVoiceLineDefinition.CODEC.optionalFieldOf("voice_line").forGetter(JojoPoseAnimDataPrep::voiceLine))
+				.apply(builder, JojoPoseAnimDataPrep::new));
+		
 	}
 	
 	
 	@Override
 	protected void apply(Map<ResourceLocation, PoseAnimSetPrep> prep, ResourceManager resourceManager, ProfilerFiller profiler) {
 		this.anims.clear();
-		prep.forEach((key, loaded) -> {
+		prep.forEach((animSetId, loaded) -> {
 			if (loaded.animSet != null) {
-				this.anims.put(key, new JojoPoseAnimSet(
-						loaded.animSet.build(), 
-						Optional.ofNullable(loaded.poseData).orElse(JojoPoseAnimSet.EMPTY_DATA)));
+				Map<String, AnimVariantsList> anims = loaded.animSet.build().namedAnimations;
+				@Nullable ResourceLocation character = loaded.poseData != null ? loaded.poseData.character.orElse(null) : null;
+				@Nullable List<ResourceLocation> storyPart = loaded.poseData != null ? loaded.poseData.storyPart.orElse(null) : null;
+				JojoPoseAnimSet2 animSet = new JojoPoseAnimSet2(character, storyPart);
+				this.anims.put(animSetId, animSet);
+				for (var animEntry : anims.entrySet()) {
+					String animName = animEntry.getKey();
+					RotpAnimDefinition anim = animEntry.getValue().getSingle();
+					JojoPoseAnimDataPrep poseData = loaded.poseData != null ? loaded.poseData.getAnimSpecificData(animName) : null;
+					if (poseData == null) poseData = JojoPoseAnimDataPrep.EMPTY_DATA;
+					JojoPose pose = new JojoPose(animSetId, animName, 
+							anim, 
+							poseData.standSummonPose.orElse(null),
+							poseData.voiceLine.orElse(null));
+					animSet.anims.put(animName, pose);
+				}
 			}
 		});
 		JojoMod.getLogger().info("Loaded {} JoJo pose files", this.anims.size());

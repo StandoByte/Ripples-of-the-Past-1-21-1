@@ -13,7 +13,7 @@ import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.StoryCharacter;
 import com.github.standobyte.jojo.mechanics.jojopose.ClJojoPoseActionPacket;
 import com.github.standobyte.jojo.mechanics.jojopose.resource.ClientJojoPoseLoader;
-import com.github.standobyte.jojo.mechanics.jojopose.resource.ClientJojoPoseLoader.JojoPoseAnim;
+import com.github.standobyte.jojo.mechanics.jojopose.resource.JojoPose;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.Rotations;
@@ -89,9 +89,9 @@ public class MannequinEntity extends ArmorStand {
 					var poses = ClientJojoPoseLoader.getInstance().getPosesForCharacter(
 							character, clothes.getStoryPart()).toList();
 					if (!poses.isEmpty()) {
-						JojoPoseAnim pose = poses.get((++poseCycle) % poses.size());
+						JojoPose pose = poses.get((++poseCycle) % poses.size());
 						PacketDistributor.sendToServer(ClJojoPoseActionPacket.start(
-								this.getId(), pose.animSet(), pose.animName()));
+								this.getId(), pose.animSet, pose.animName));
 					}
 				}
 				

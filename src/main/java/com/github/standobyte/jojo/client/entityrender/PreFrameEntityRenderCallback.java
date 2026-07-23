@@ -25,8 +25,8 @@ import com.github.standobyte.jojo.event.client.ModClientEventHooks;
 import com.github.standobyte.jojo.event.client.ReplacePlayerModelEvent;
 import com.github.standobyte.jojo.init.ModSpecialActions;
 import com.github.standobyte.jojo.mechanics.jojopose.resource.ClientJojoPoseLoader;
-import com.github.standobyte.jojo.mechanics.jojopose.resource.JojoPoseAnimSet;
-import com.github.standobyte.jojo.mechanics.jojopose.resource.JojoPoseAnimSet.JojoPoseAnimData;
+import com.github.standobyte.jojo.mechanics.jojopose.resource.JojoPose;
+import com.github.standobyte.jojo.mechanics.jojopose.resource.JojoPoseAnimSet2;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
@@ -132,9 +132,12 @@ public class PreFrameEntityRenderCallback {
 		else {
 			if (animVariables.animFromJojoPosesLoader) {
 				if (animVariables.animSet != null && animVariables.animId != null) {
-					JojoPoseAnimSet animSet = ClientJojoPoseLoader.getInstance().getAnimSet(animVariables.animSet);
+					JojoPoseAnimSet2 animSet = ClientJojoPoseLoader.getInstance().getAnimSet(animVariables.animSet);
 					if (animSet != null) {
-						anim = animSet.anims().getNamedAnim(animVariables.animId);
+						JojoPose pose = animSet.getPose(animVariables.animId.name);
+						if (pose != null) {
+							anim = pose.anim;
+						}
 					}
 				}
 			}
@@ -228,11 +231,11 @@ public class PreFrameEntityRenderCallback {
 				}
 				else if (userJojoPose != null) {
 					ActionAnimIdentifier specificAnimFromUserPose = null;
-					JojoPoseAnimSet userPoseAnimSet = ClientJojoPoseLoader.getInstance().getAnimSet(userJojoPose.getEntityAnimSet());
+					JojoPoseAnimSet2 userPoseAnimSet = ClientJojoPoseLoader.getInstance().getAnimSet(userJojoPose.getEntityAnimSet());
 					if (userPoseAnimSet != null) {
-						JojoPoseAnimData animData = userPoseAnimSet.data().getAnimSpecificData(userJojoPose.getEntityAnim().name);
-						if (animData != null) {
-							specificAnimFromUserPose = animData.standSummonPose();
+						JojoPose jojoPose = userPoseAnimSet.getPose(userJojoPose.getEntityAnim().name);
+						if (jojoPose != null) {
+							specificAnimFromUserPose = jojoPose.standSummonPose;
 						}
 					}
 					
