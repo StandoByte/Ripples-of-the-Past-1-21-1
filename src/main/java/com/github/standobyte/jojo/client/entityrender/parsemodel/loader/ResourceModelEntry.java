@@ -21,13 +21,15 @@ import net.minecraft.world.entity.Entity;
 public class ResourceModelEntry {
 	public final ResourceLocation modelPath;
 	public LoadedModel _model;
-	public Function<LayerDefinition, ? extends Model> _modelConstructor = layer -> {
-		ModelPart root = layer.bakeRoot();
-		Model model = new SimpleEntityModel<>(root);
+	public Function<LayerDefinition, ? extends Model> _modelConstructor = ResourceModelEntry::createModel;
+	
+	public static SimpleEntityModel<?> createModel(LayerDefinition modelDefinition) {
+		ModelPart root = modelDefinition.bakeRoot();
+		SimpleEntityModel<?> model = new SimpleEntityModel<>(root);
 		Model_1_21_2plus _this = (Model_1_21_2plus) model;
 		_this.jojo_ripples$initRoot(root);
 		return model;
-	};
+	}
 	
 	public ResourceModelEntry(ResourceLocation modelPath) {
 		this.modelPath = modelPath;

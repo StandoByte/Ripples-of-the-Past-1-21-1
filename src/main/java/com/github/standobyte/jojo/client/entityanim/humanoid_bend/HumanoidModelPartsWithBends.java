@@ -12,13 +12,13 @@ import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
 import com.github.standobyte.jojo.client.entityrender.HumanoidPlayerModel;
 import com.github.standobyte.jojo.client.entityrender.ModelWithExtraFeatures;
-import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.ResourceModelEntry;
 import com.github.standobyte.jojo.client.entityrender.replace_player_model.CustomPlayerModel;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.Model;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.HumanoidArm;
@@ -179,9 +179,9 @@ public class HumanoidModelPartsWithBends {
 		playerModel.body.loadPose(playerModel.body.getInitialPose());
 	}
 
-	public void renderWithBends(HumanoidModel<?> model, ResourceModelEntry rig, 
+	public void renderWithBends(HumanoidModel<?> model, Model rig, 
 			PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
-		Model_1_21_2plus rigModel = (Model_1_21_2plus) rig.getModel();
+		Model_1_21_2plus rigModel = (Model_1_21_2plus) rig;
 		ModelPart root = rigModel.jojo_ripples$root();
 
 		for (var bendableEntry : bendables.entrySet()) {
@@ -260,9 +260,9 @@ public class HumanoidModelPartsWithBends {
 	
 	
 	public static void translateToAnimHand(
-			HumanoidModel<?> model, ResourceModelEntry rig, 
+			HumanoidModel<?> model, Model rig, 
 			HumanoidArm side, PoseStack poseStack, boolean slim) {
-		CustomPlayerModel.translateToItemHoldPos(side, poseStack, (ModelWithExtraFeatures) rig.getModel(), slim ? -0.5f : 0);
+		CustomPlayerModel.translateToItemHoldPos(side, poseStack, (ModelWithExtraFeatures) rig, slim ? -0.5f : 0);
 	}
 	
 	
