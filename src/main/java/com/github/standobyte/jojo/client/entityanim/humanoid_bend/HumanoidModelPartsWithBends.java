@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.UglyCrutchesClient;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
 import com.github.standobyte.jojo.client.entityrender.HumanoidPlayerModel;
@@ -210,6 +211,7 @@ public class HumanoidModelPartsWithBends {
 			PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
 		poseStack.pushPose();
 		rigModelPart.translateAndRotate(poseStack);
+		UglyCrutchesClient.pushPlayerAnimPart(rigModelPart);
 		
 		List<AlternativeModelPart> vanillaToBend = this.vanillaCounterparts.get(animPartName);
 		if (vanillaToBend != null) {
@@ -223,6 +225,7 @@ public class HumanoidModelPartsWithBends {
 					poseStack, buffer, packedLight, packedOverlay, color);
 		}
 		
+		UglyCrutchesClient.popPlayerAnimPart();
 		poseStack.popPose();
 	}
 	
@@ -249,8 +252,12 @@ public class HumanoidModelPartsWithBends {
 						poseStack.translate(0, yOffset / 16, 0);
 					}
 					
-					for (ModelPart rotatedVanillaChild : modelPart.children.values()) {
-						rotatedVanillaChild.render(poseStack, buffer, packedLight, packedOverlay, color);
+					for (var rotatedVanillaChildEntry : modelPart.children.entrySet()) {
+						String childName = rotatedVanillaChildEntry.getKey();
+						ModelPart child = rotatedVanillaChildEntry.getValue();
+						UglyCrutchesClient.adjustClothesInROTPAnim(childName, child);
+						child.render(poseStack, buffer, packedLight, packedOverlay, color);
+						child.resetPose();
 					}
 					poseStack.popPose();
 				}

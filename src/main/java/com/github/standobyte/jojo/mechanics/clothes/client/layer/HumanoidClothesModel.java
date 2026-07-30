@@ -11,6 +11,7 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.client.entityrender.HumanoidPlayerModel;
 import com.github.standobyte.jojo.client.entityrender.NamedModelParts;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -47,6 +48,10 @@ public class HumanoidClothesModel extends HumanoidPlayerModel<LivingEntity>/*<Hu
 
 
 	public void poseClothes(HumanoidModel<?> originalModel) {
+		Model_1_21_2plus _this = (Model_1_21_2plus) this;
+		for (ModelPart modelPart : _this.jojo_ripples$allParts()) {
+			modelPart.loadPose(modelPart.getInitialPose());
+		}
 		this.head.copyFrom(originalModel.head);
 		this.body.copyFrom(originalModel.body);
 		this.rightArm.copyFrom(originalModel.rightArm);

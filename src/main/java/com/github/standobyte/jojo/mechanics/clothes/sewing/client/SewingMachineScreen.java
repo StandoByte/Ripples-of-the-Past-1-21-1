@@ -406,7 +406,9 @@ public class SewingMachineScreen extends AbstractContainerScreen<SewingMachineCo
 			VertexConsumer ivertexbuilder = buffer.getBuffer(rendertype);
 			entityModel.renderToBuffer(poseStack, ivertexbuilder, ClientUtil.MAX_LIGHT, OverlayTexture.NO_OVERLAY, BlitFloat.NO_TINT);
 		}
-		HumanoidClothesLayer.render(entityModel, poseStack, buffer, ClientUtil.MAX_LIGHT, OverlayTexture.NO_OVERLAY);
+		HumanoidClothesLayer.render(entityModel, 
+				null, 0, 
+				poseStack, buffer, ClientUtil.MAX_LIGHT, OverlayTexture.NO_OVERLAY);
 		
 		poseStack.popPose();
 	}

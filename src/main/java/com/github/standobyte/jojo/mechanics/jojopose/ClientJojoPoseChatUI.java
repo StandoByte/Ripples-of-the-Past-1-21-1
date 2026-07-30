@@ -194,7 +194,9 @@ public class ClientJojoPoseChatUI {
         	
         	RenderSystem.runAsFancy(() -> {
         		model.renderToBuffer(poseStack, buffer, ClientUtil.MAX_LIGHT, OverlayTexture.NO_OVERLAY);
-        		HumanoidClothesLayer.render(model, poseStack, buffers, ClientUtil.MAX_LIGHT, OverlayTexture.NO_OVERLAY);
+        		HumanoidClothesLayer.render(model, 
+        				null, 0, 
+        				poseStack, buffers, ClientUtil.MAX_LIGHT, OverlayTexture.NO_OVERLAY);
         	});
         	RenderModelWithPose.afterRender();
         	ExtractRSExtensionManually.resetClothes();
