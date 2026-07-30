@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.mechanics.jojopose.resource;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
@@ -21,14 +22,14 @@ public class JojoPose {
 	
 	public final @Nonnull RotpAnimDefinition anim;
 	public final @Nullable ActionAnimIdentifier standSummonPose;
-	public final @Nullable ClientVoiceLineDefinition voiceLine;
+	public final @Nullable List<ClientVoiceLineDefinition> voiceLine;
 	public final @Nullable Component authors;
 	private AnimFramePose pose;
 	
 	public JojoPose(ResourceLocation animSet, String animName, 
 			@Nonnull RotpAnimDefinition anim, 
 			@Nullable ActionAnimIdentifier standSummonPose, 
-			@Nullable ClientVoiceLineDefinition voiceLine,
+			@Nullable List<ClientVoiceLineDefinition> voiceLine,
 			Optional<String> authors) {
 		this.animSet = animSet;
 		this.animName = animName;

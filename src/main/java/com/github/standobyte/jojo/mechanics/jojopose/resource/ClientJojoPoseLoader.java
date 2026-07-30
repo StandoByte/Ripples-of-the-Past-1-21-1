@@ -158,14 +158,14 @@ public class ClientJojoPoseLoader extends SimplePreparableReloadListener<Map<Res
 	
 	static record JojoPoseAnimDataPrep(
 			Optional<ActionAnimIdentifier> standSummonPose,
-			Optional<ClientVoiceLineDefinition> voiceLine,
+			Optional<List<ClientVoiceLineDefinition>> voiceLine,
 			Optional<String> authors) {
 		public static final JojoPoseAnimDataPrep EMPTY_DATA = new JojoPoseAnimDataPrep(Optional.empty(), Optional.empty(), Optional.empty());
 		
 		public static final Codec<JojoPoseAnimDataPrep> CODEC = RecordCodecBuilder.create(
 				builder -> builder.group(
 						ActionAnimIdentifier.NAME_CODEC.optionalFieldOf("stand_summon_pose").forGetter(JojoPoseAnimDataPrep::standSummonPose),
-						ClientVoiceLineDefinition.CODEC.optionalFieldOf("voice_line").forGetter(JojoPoseAnimDataPrep::voiceLine),
+						CodecUtil.listOrSingleCodec(ClientVoiceLineDefinition.CODEC).optionalFieldOf("voice_line").forGetter(JojoPoseAnimDataPrep::voiceLine),
 						Codec.STRING.optionalFieldOf("authors").forGetter(JojoPoseAnimDataPrep::authors))
 				.apply(builder, JojoPoseAnimDataPrep::new));
 		

@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.mechanics.jojopose;
 
+import java.util.List;
+
 import com.github.standobyte.jojo.client.entityanim.LivingAnimState;
 import com.github.standobyte.jojo.init.ModSpecialActions;
 import com.github.standobyte.jojo.mechanics.jojopose.resource.ClientJojoPoseLoader;
@@ -79,8 +81,9 @@ public class JojoPoseActionType extends SpecialEntityActionType {
 				if (animSet != null) {
 					JojoPose jojoPose = animSet.getPose(poseId.getOriginalAnimName());
 					if (jojoPose != null) {
-						ClientVoiceLineDefinition voiceLine = jojoPose.voiceLine;
-						if (voiceLine != null) {
+						List<ClientVoiceLineDefinition> voiceLines = jojoPose.voiceLine;
+						if (voiceLines != null && !voiceLines.isEmpty()) {
+							ClientVoiceLineDefinition voiceLine = VoiceLineClientSide.pick(voiceLines);
 							VoiceLineClientSide.play(voiceLine, performer, false);
 						}
 					}

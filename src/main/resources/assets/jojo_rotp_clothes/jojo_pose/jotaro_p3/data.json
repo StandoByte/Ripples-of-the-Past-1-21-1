@@ -1,0 +1,17 @@
+{
+	"character": "jojo_ripples:jotaro",
+	"story_part": [ "jojo_ripples:p3" ],
+	"anim_specific": {
+		"volume13": {
+			"stand_summon_pose": "summon2"
+		},
+		"cap": {
+			"voice_line": {
+				"subtitle": "jojo.vl_subtitle.yare_yare",
+				"sounds": [
+					"jojo_ripples:stand_user/jotaro_yare_yare"
+				]
+			}
+		}
+	}
+}
