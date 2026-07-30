@@ -140,17 +140,7 @@ public class InputHandler {
 	public void handleKeyInput(PreKeyInputEvent event) {
 		if (mc.getConnection() == null) return;
 
-		InputConstants.Type keyType;
-		int keyCode;
-		if (event.getKey() == -1) {
-			keyType = InputConstants.Type.SCANCODE;
-			keyCode = event.getScanCode();
-		}
-		else {
-			keyType = InputConstants.Type.KEYSYM;
-			keyCode = event.getKey();
-		}
-		handleInputEvent(ClientKey.make(keyType, keyCode), event.getAction(), event.getModifiers(), event);
+		handleInputEvent(ClientKey.fromInputEvent(event), event.getAction(), event.getModifiers(), event);
 	}
 	
 	@SubscribeEvent(priority = EventPriority.LOW)

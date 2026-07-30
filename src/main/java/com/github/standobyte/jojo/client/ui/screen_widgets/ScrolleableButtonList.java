@@ -15,6 +15,8 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 
 public class ScrolleableButtonList extends ContainerObjectSelectionList<ScrolleableButtonList.EntryWithButtons> {
 	public int scrollbarPosOffset = 0;
+	public boolean disableBackground = false;
+	public boolean disableSeparators = false;
 	
 	public ScrolleableButtonList(Minecraft minecraft, int x, int y, 
 			int width, int height, int itemHeight) {
@@ -36,6 +38,20 @@ public class ScrolleableButtonList extends ContainerObjectSelectionList<Scrollea
 	@Override
 	public int addEntry(EntryWithButtons entry) {
 		return super.addEntry(entry);
+	}
+
+	@Override
+	protected void renderListBackground(GuiGraphics guiGraphics) {
+		if (!disableBackground) {
+			super.renderListBackground(guiGraphics);
+		}
+	}
+	
+	@Override
+	protected void renderListSeparators(GuiGraphics guiGraphics) {
+		if (!disableSeparators) {
+			super.renderListSeparators(guiGraphics);
+		}
 	}
 
 	public static class EntryWithButtons extends ContainerObjectSelectionList.Entry<EntryWithButtons> {
