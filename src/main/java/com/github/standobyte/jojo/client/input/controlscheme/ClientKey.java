@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.client.input.controlscheme;
 
 import org.lwjgl.glfw.GLFW;
 
+import com.github.standobyte.jojo.event.client.PreKeyInputEvent;
 import com.github.standobyte.jojo.util.objects_java.LazyNullable;
 import com.mojang.blaze3d.platform.InputConstants;
 
@@ -32,6 +33,20 @@ public class ClientKey {
 		return make(InputDevice.KEYBOARD_MOUSE, type, keyCode);
 	}
 
+	public static ClientKey fromInputEvent(PreKeyInputEvent event) {
+		InputConstants.Type keyType;
+		int keyCode;
+		if (event.getKey() == -1) {
+			keyType = InputConstants.Type.SCANCODE;
+			keyCode = event.getScanCode();
+		}
+		else {
+			keyType = InputConstants.Type.KEYSYM;
+			keyCode = event.getKey();
+		}
+		return ClientKey.make(keyType, keyCode);
+	}
+
 	public static ClientKey make(InputDevice device, InputConstants.Type type, int keyCode) {
 		short id = keyId(device, type, keyCode);
 		return cache.computeIfAbsent(id, _id -> new ClientKey(_id, device, type, keyCode));
@@ -57,6 +72,15 @@ public class ClientKey {
 					case SCANCODE -> vanillaKey.getValue();
 					case MOUSE -> vanillaKey.getValue() - 63;
 				};
+			}
+		};
+	}
+	
+	public boolean matches(KeyMapping keyMapping) {
+		return switch (this.device) {
+			case KEYBOARD_MOUSE -> {
+				InputConstants.Key mappingKey = keyMapping.getKey();
+				yield mappingKey.getType() == this.type && mappingKey.getValue() == this.keyCode;
 			}
 		};
 	}

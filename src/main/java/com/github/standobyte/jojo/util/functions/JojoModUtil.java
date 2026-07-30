@@ -18,6 +18,7 @@ import com.github.standobyte.jojo.config.RotpConfig.Common;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.customobjects.explosion.CustomExplosion;
 import com.github.standobyte.jojo.network.s2c.BrokenBlocksParticlesAndSoundsPacket;
+import com.github.standobyte.jojo.network.s2c.EntitySyncMotionBypassingPacket;
 import com.github.standobyte.jojo.network.s2c.TrResetDeathTimePacket;
 import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -29,6 +30,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
+import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -43,6 +45,7 @@ import net.minecraft.world.level.block.TntBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -208,6 +211,18 @@ public class JojoModUtil {
 
 	public static Iterable<Entity> getAllEntities(Level level) {
 		return level.isClientSide() ? ((ClientLevel) level).entitiesForRendering() : ((ServerLevel) level).getAllEntities();
+	}
+	
+	
+	public static void forceSyncMotion(Entity entity) {
+		Vec3 movement = entity.getDeltaMovement();
+		
+		ServerLevel level = (ServerLevel) entity.level();
+		ServerEntity serverEntity = level.getChunkSource().chunkMap.entityMap.get(entity.getId()).serverEntity;
+		serverEntity.lastSentMovement = movement;
+		
+		PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, 
+				new EntitySyncMotionBypassingPacket(entity.getId(), movement));
 	}
 
 
