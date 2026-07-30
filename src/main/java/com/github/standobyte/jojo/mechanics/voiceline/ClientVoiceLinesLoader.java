@@ -109,7 +109,7 @@ public class ClientVoiceLinesLoader extends SimplePreparableReloadListener<Map<R
 									JSONUtil.parseArrayOrSingleElement(soundEventEntry.getValue(), _soundEventJson -> {
 										JsonObject soundEventJson = _soundEventJson.getAsJsonObject();
 										SoundEventPrep soundEvent = new SoundEventPrep();
-										entry.sounds.put(soundEventId, soundEvent);
+										entry.sounds.computeIfAbsent(soundEventId, __ -> new ArrayList<>()).add(soundEvent);
 										
 										if (soundEventJson.has("subtitle")) {
 											soundEvent.subtitle = Component.translatable(soundEventJson.get("subtitle").getAsString());
@@ -159,7 +159,7 @@ public class ClientVoiceLinesLoader extends SimplePreparableReloadListener<Map<R
 		@Nonnull ResourceLocation characterId;
 		@Nullable List<ResourceLocation> storyPartFilter;
 		
-		final Map<ResourceLocation, SoundEventPrep> sounds = new HashMap<>();
+		final Map<ResourceLocation, List<SoundEventPrep>> sounds = new HashMap<>();
 		
 		public CharacterEntryPrep(ResourceLocation characterId) { 
 			this.characterId = characterId;
@@ -178,16 +178,18 @@ public class ClientVoiceLinesLoader extends SimplePreparableReloadListener<Map<R
 	protected void apply(Map<ResourceLocation, CharacterEntryPrep> prep, ResourceManager resourceManager, ProfilerFiller profiler) {
 		this.voiceLines.clear();
 		prep.values().forEach(entry -> {
-			entry.sounds.forEach((soundEvent, sound) -> {
-				ClientVoiceLineDefinition voiceLineSound = new ClientVoiceLineDefinition(
-						sound.sounds,
-						sound.subtitle);
-				ClientVoiceLineWithFilters filters = new ClientVoiceLineWithFilters(
-						voiceLineSound,
-						entry.characterId, 
-						entry.storyPartFilter, 
-						sound.standTypeFilter);
-				this.voiceLines.computeIfAbsent(soundEvent, __ -> new ArrayList<>()).add(filters);
+			entry.sounds.forEach((soundEvent, soundEventDefs) -> {
+				for (SoundEventPrep soundEventDef : soundEventDefs) {
+					ClientVoiceLineDefinition voiceLineSound = new ClientVoiceLineDefinition(
+							soundEventDef.sounds,
+							soundEventDef.subtitle);
+					ClientVoiceLineWithFilters filters = new ClientVoiceLineWithFilters(
+							voiceLineSound,
+							entry.characterId, 
+							entry.storyPartFilter, 
+							soundEventDef.standTypeFilter);
+					this.voiceLines.computeIfAbsent(soundEvent, __ -> new ArrayList<>()).add(filters);
+				}
 			});
 		});
 		JojoMod.getLogger().info("Loaded {} voice line entries", prep.size());

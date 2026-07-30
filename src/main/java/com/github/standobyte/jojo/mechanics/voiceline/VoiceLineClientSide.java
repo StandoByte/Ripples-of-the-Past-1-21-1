@@ -28,10 +28,14 @@ public class VoiceLineClientSide {
 				soundEvent, character, 
 				storyPart, standType).toList();
 		if (!voiceLines.isEmpty()) {
-			ClientVoiceLineDefinition voiceLine = ListUtil.getRandom(voiceLines);
+			ClientVoiceLineDefinition voiceLine = pick(voiceLines);
 			Vec3 pos = entity.getEyePosition();
 			play(voiceLine, entity, canInterrupt, soundCategory, volume, pitch, pos.x, pos.y, pos.z);
 		}
+	}
+	
+	public static ClientVoiceLineDefinition pick(List<ClientVoiceLineDefinition> definitionsWithDifferentSubtitles) {
+		return ListUtil.getRandom(definitionsWithDifferentSubtitles);
 	}
 	
 	public static void play(ClientVoiceLineDefinition voiceLine, 
