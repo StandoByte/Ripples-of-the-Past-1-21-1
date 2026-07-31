@@ -10,6 +10,9 @@ public class ListUtil {
 		if (list.isEmpty()) {
 			throw new IndexOutOfBoundsException();
 		}
+		if (list.size() == 1) {
+			return list.get(0);
+		}
 		return list.get(OOPMoment.RANDOM.nextInt(list.size()));
 	}
 }

@@ -61,9 +61,10 @@ public class PlayerClothesScreen extends EffectRenderingInventoryScreen<PlayerCl
 			if (storyPart != null) {
 				characterName = characterName.copy().append(storyPart.value().getPartIconAsText());
 			}
-			int x = font.width(characterName) / 2;
+			characterName = Component.translatable("jojo_ripples.menu.player.clothes.cur_character", characterName);
+			int x = (imageWidth - font.width(characterName)) / 2;
 			int y = -6;
-			guiGraphics.drawString(font, Component.translatable("jojo_ripples.menu.player.clothes.cur_character", characterName), x, y, 4210752, false);
+			guiGraphics.drawString(font, characterName, x, y, 4210752, false);
 		}
 		
 //		guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);

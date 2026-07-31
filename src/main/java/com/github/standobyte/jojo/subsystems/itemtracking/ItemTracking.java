@@ -49,13 +49,26 @@ public class ItemTracking implements INBTSerializable<ListTag> {
 		if (itemStack.getCount() != 1) {
 			throw new IllegalArgumentException("Cannot track stacked items, only item stacks with count == 1 are supported");
 		}
+		
+		ItemTracker tracker;
+		
+		@Nullable ItemTracker thisItemPrevTracker = getItemTracker(itemStack, level);
+		if (thisItemPrevTracker != null) {
+			if (thisItemPrevTracker.trackerId.equals(trackerId)) {
+				return thisItemPrevTracker;
+			}
+			else {
+				stopTracking(thisItemPrevTracker.trackerId, level);
+			}
+		}
 
-		ItemTracker tracker = new ItemTracker(trackerId, this);
-		ItemTracker prev = trackingMap.get(trackerId);
-		if (prev != null) {
-			prev.setItemStack(itemStack, level);
+		ItemTracker thisIdPrevTracker = trackingMap.get(trackerId);
+		if (thisIdPrevTracker != null) {
+			tracker = thisIdPrevTracker;
+			thisIdPrevTracker.setItemStack(itemStack, level);
 		}
 		else {
+			tracker = new ItemTracker(trackerId, this);
 			trackingMap.put(trackerId, tracker);
 		}
 		setDirty();

@@ -6,6 +6,7 @@ import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffect;
 import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectType;
 import com.github.standobyte.jojo.entityattachment.custom_effect.TrEntityCustomEffectsPacket;
@@ -46,6 +47,11 @@ public abstract class StandEffectInstance extends EntityCustomEffect {
 	
 	protected void initStandPower(StandPower userPower) {
 		this.userPower = userPower;
+		if (userPower == null) {
+			JojoMod.getLogger().warn("userPower was null when initializing a {} effect!", this.getClass().getSimpleName());
+			return;
+		}
+		
 		if (isFromStandAction) {
 			StandEntity standEntity = userPower.getSummonedStandEntity();
 			if (standEntity != null) standAction = LivingComponentAction.getCurEntityAction(standEntity);

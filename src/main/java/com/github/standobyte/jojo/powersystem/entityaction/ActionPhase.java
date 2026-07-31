@@ -4,5 +4,9 @@ public enum ActionPhase {
 	BUTTON_CHARGE,
 	WINDUP,
 	PERFORM,
-	RECOVERY
+	RECOVERY;
+	
+	public boolean isAtOfBefore(ActionPhase phase) {
+		return this.ordinal() <= phase.ordinal();
+	}
 }

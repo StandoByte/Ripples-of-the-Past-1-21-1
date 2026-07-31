@@ -96,6 +96,7 @@ public class StandVanillaClickInput {
 		
 		if (standPower == null) return false;
 		StandTypePersistentData unlockedSkills = standPower.getCurTypeData();
+		if (unlockedSkills == null) return false;
 		return unlockedSkills.isSkillUnlocked("item_use");
 	}
 	

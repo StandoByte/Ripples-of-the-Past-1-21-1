@@ -274,7 +274,7 @@
   "jojo_ripples.story_part.p4": "Diamond is Unbreakable",
   "jojo_ripples.story_part.p5": "Golden Wind",
   "jojo_ripples.story_part.p6": "Stone Ocean",
-  "jojo_ripples.story_part.p7": "Steel Ball Run",
+  "jojo_ripples.story_part.p7": "§4§lS§rteel §4§lB§rall §4§lR§run",
   "jojo_ripples.story_part.p8": "JoJolion",
   "jojo_ripples.story_part.p9": "The JOJOLands",
   
@@ -353,6 +353,8 @@
   "jojo_ripples.menu.stand.info": "Stand Info",
   "jojo_ripples.menu.stand.skills": "Skills",
   "jojo_ripples.menu.stand.toggles": "Toggles",
+  
+  "jojo_ripples.asset_credits": "Created by: %s",
   
   "jojo_ripples.stand_toggles.destroy_blocks": "Break blocks",
   "jojo_ripples.stand_toggles.stand_pick_up_items": "Pick up items",

@@ -156,7 +156,7 @@ public class KnockbackCollisionImpact implements TickingEntityData, INBTSerializ
 	@Override
 	public void tick() {
 		if (isActive()) {
-			if (knockbackImpactStrength <= 0) {
+			if (knockbackImpactStrength <= 0 || entity.onGround()) {
 				reset();
 				return;
 			}
