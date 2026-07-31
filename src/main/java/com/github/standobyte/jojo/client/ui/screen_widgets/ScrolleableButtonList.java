@@ -41,6 +41,11 @@ public class ScrolleableButtonList extends ContainerObjectSelectionList<Scrollea
 	}
 
 	@Override
+	public int getMaxPosition() {
+		return super.getMaxPosition();
+	}
+
+	@Override
 	protected void renderListBackground(GuiGraphics guiGraphics) {
 		if (!disableBackground) {
 			super.renderListBackground(guiGraphics);
