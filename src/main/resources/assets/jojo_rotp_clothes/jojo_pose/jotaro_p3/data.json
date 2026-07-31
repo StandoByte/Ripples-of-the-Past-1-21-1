@@ -9,12 +9,25 @@
 			}
 		},
 		"cap": {
-			"voice_line": {
-				"subtitle": "jojo.vl_subtitle.yare_yare",
-				"sounds": [
-					"jojo_ripples:stand_user/jotaro_yare_yare"
-				]
-			}
+			"voice_line": [
+				{
+					"subtitle": "jojo.vl_subtitle.yare_yare",
+					"sounds": [
+						"jojo_ripples:stand_user/jotaro_yare_yare_1",
+						"jojo_ripples:stand_user/jotaro_yare_yare_2",
+						"jojo_ripples:stand_user/jotaro_yare_yare_3",
+						"jojo_ripples:stand_user/jotaro_yare_yare_4"
+					]
+				},
+				{
+					"subtitle": "jojo.vl_subtitle.yare_yare_daze",
+					"sounds": [
+						"jojo_ripples:stand_user/jotaro_yare_yare_daze_1",
+						"jojo_ripples:stand_user/jotaro_yare_yare_daze_2",
+						"jojo_ripples:stand_user/jotaro_yare_yare_daze_3"
+					]
+				}
+			]
 		}
 	}
 }
