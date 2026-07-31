@@ -3,7 +3,10 @@
 	"story_part": [ "jojo_ripples:p3" ],
 	"anim_specific": {
 		"volume13": {
-			"stand_summon_pose": "summon2"
+			"stand_summon_pose": {
+				"stand_id": "jojo_ripples:star_platinum",
+				"anim_name": "summon2"
+			}
 		},
 		"cap": {
 			"voice_line": {

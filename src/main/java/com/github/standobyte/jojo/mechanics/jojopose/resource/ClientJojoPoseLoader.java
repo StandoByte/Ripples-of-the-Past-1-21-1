@@ -17,7 +17,6 @@ import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.StoryCharacter;
 import com.github.standobyte.jojo.mechanics.voiceline.ClientVoiceLineDefinition;
-import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.subsystems.StoryPart;
 import com.github.standobyte.jojo.util.functions.CodecUtil;
 import com.github.standobyte.jojo.util.functions.JSONUtil;
@@ -157,14 +156,14 @@ public class ClientJojoPoseLoader extends SimplePreparableReloadListener<Map<Res
 	}
 	
 	static record JojoPoseAnimDataPrep(
-			Optional<ActionAnimIdentifier> standSummonPose,
+			Optional<JojoPose.WithStandSummonPose> standSummonPose,
 			Optional<List<ClientVoiceLineDefinition>> voiceLine,
 			Optional<String> authors) {
 		public static final JojoPoseAnimDataPrep EMPTY_DATA = new JojoPoseAnimDataPrep(Optional.empty(), Optional.empty(), Optional.empty());
 		
 		public static final Codec<JojoPoseAnimDataPrep> CODEC = RecordCodecBuilder.create(
 				builder -> builder.group(
-						ActionAnimIdentifier.NAME_CODEC.optionalFieldOf("stand_summon_pose").forGetter(JojoPoseAnimDataPrep::standSummonPose),
+						JojoPose.WithStandSummonPose.CODEC.optionalFieldOf("stand_summon_pose").forGetter(JojoPoseAnimDataPrep::standSummonPose),
 						CodecUtil.listOrSingleCodec(ClientVoiceLineDefinition.CODEC).optionalFieldOf("voice_line").forGetter(JojoPoseAnimDataPrep::voiceLine),
 						Codec.STRING.optionalFieldOf("authors").forGetter(JojoPoseAnimDataPrep::authors))
 				.apply(builder, JojoPoseAnimDataPrep::new));
@@ -199,7 +198,7 @@ public class ClientJojoPoseLoader extends SimplePreparableReloadListener<Map<Res
 						animSet.anims.put(animName, pose);
 					}
 					catch (Exception e) {
-						JojoMod.LOGGER.error("WEEWOOWEEWOO", e);
+						JojoMod.LOGGER.error("Failed to load a JoJo pose {}#{}", animSetId, animName, e);
 					}
 				}
 			}

@@ -11,6 +11,8 @@ import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.mechanics.voiceline.ClientVoiceLineDefinition;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.util.functions.JojoModUtil;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -21,14 +23,14 @@ public class JojoPose {
 	public final String animName;
 	
 	public final @Nonnull RotpAnimDefinition anim;
-	public final @Nullable ActionAnimIdentifier standSummonPose;
+	public final @Nullable WithStandSummonPose standSummonPose;
 	public final @Nullable List<ClientVoiceLineDefinition> voiceLine;
 	public final @Nullable Component authors;
 	private AnimFramePose pose;
 	
 	public JojoPose(ResourceLocation animSet, String animName, 
 			@Nonnull RotpAnimDefinition anim, 
-			@Nullable ActionAnimIdentifier standSummonPose, 
+			@Nullable WithStandSummonPose standSummonPose, 
 			@Nullable List<ClientVoiceLineDefinition> voiceLine,
 			Optional<String> authors) {
 		this.animSet = animSet;
@@ -53,6 +55,15 @@ public class JojoPose {
 			}
 		}
 		return this.pose;
+	}
+	
+	
+	public static record WithStandSummonPose(ResourceLocation matchStandId, ActionAnimIdentifier standSummonPose) {
+		public static final Codec<WithStandSummonPose> CODEC = RecordCodecBuilder.create(
+				builder -> builder.group(
+						ResourceLocation.CODEC.fieldOf("stand_id").forGetter(WithStandSummonPose::matchStandId),
+						ActionAnimIdentifier.NAME_CODEC.fieldOf("anim_name").forGetter(WithStandSummonPose::standSummonPose))
+				.apply(builder, WithStandSummonPose::new));
 	}
 	
 }

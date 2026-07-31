@@ -234,8 +234,9 @@ public class PreFrameEntityRenderCallback {
 					JojoPoseAnimSet2 userPoseAnimSet = ClientJojoPoseLoader.getInstance().getAnimSet(userJojoPose.getEntityAnimSet());
 					if (userPoseAnimSet != null) {
 						JojoPose jojoPose = userPoseAnimSet.getPose(userJojoPose.getEntityAnim().name);
-						if (jojoPose != null) {
-							specificAnimFromUserPose = jojoPose.standSummonPose;
+						if (jojoPose != null && jojoPose.standSummonPose != null
+								&& jojoPose.standSummonPose.matchStandId().equals(standSkin.standTypeId)) {
+							specificAnimFromUserPose = jojoPose.standSummonPose.standSummonPose();
 						}
 					}
 					
