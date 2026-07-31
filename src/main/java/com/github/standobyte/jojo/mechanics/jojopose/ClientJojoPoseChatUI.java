@@ -40,6 +40,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
@@ -138,6 +139,8 @@ public class ClientJojoPoseChatUI {
 			this.animationSet = animationSet;
 			this.animName = animName;
 		}
+
+		@Override public void playDownSound(SoundManager handler) {}
 
 		@Override
 		public void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
