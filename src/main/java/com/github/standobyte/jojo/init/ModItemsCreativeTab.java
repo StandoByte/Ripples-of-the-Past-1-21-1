@@ -87,40 +87,41 @@ public class ModItemsCreativeTab extends CreativeModeTab implements CustomRender
 
 		// add clothes items
 		ClothesItem clothesFactory = ModItems.CLOTHES_BASE_ITEM.get();
+		
 		parameters.holders()
 		.lookup(JojoRegistries.CLOTHES_SETS_REG_KEY)
-		.ifPresent(
-				clothesSets -> clothesSets.listElements()
-				.map(setHolder -> {
-					List<ItemStack> items = new ArrayList<>(ClothesSlotType.values().length);
-					for (ClothesSlotType slot : ClothesSlotType.values()) {
-						ClothesDataComponent component = ClothesItem.makeItemComponent(setHolder, slot);
-						if (component != null) {
-							ItemStack item = clothesFactory.makeClothesPieceStack(component);
-							items.add(item);
-						}
-					}
-					return items;
-				})
-				.forEach(setItems -> {
-					int setSize = setItems.size();
-					int rowSpace = ROWLEN - tabItems.size() % ROWLEN;
-					
-					int spacesToAdd;
-					// if the set doesn't fit on the row, move it to the next row
-					if (rowSpace < setSize)									spacesToAdd = rowSpace;
-					// if it's not the beginning of the row, add a space between the previous and this sets
-					else if (rowSpace < ROWLEN && rowSpace >= setSize + 1)	spacesToAdd = 1;
-					else													spacesToAdd = 0;
-					for (int i = 0; i < spacesToAdd; i++) {
-						tabItems.add(ItemStack.EMPTY);
-					}
-					
-					for (ItemStack item : setItems) {
-						tabItems.add(item);
-						searchItems.add(item);
-					}
-				}));
+		.map(clothesSets -> clothesSets.listElements()).orElseGet(Stream::empty)
+		.sorted(Comparator.comparing(setHolder -> setHolder.value().getStoryPart().orElse(null), StoryPart.COMPARATOR))
+		.map(setHolder -> {
+			List<ItemStack> items = new ArrayList<>(ClothesSlotType.values().length);
+			for (ClothesSlotType slot : ClothesSlotType.values()) {
+				ClothesDataComponent component = ClothesItem.makeItemComponent(setHolder, slot);
+				if (component != null) {
+					ItemStack item = clothesFactory.makeClothesPieceStack(component);
+					items.add(item);
+				}
+			}
+			return items;
+		})
+		.forEach(setItems -> {
+			int setSize = setItems.size();
+			int rowSpace = ROWLEN - tabItems.size() % ROWLEN;
+
+			int spacesToAdd;
+			// if the set doesn't fit on the row, move it to the next row
+			if (rowSpace < setSize)									spacesToAdd = rowSpace;
+			// if it's not the beginning of the row, add a space between the previous and this sets
+			else if (rowSpace < ROWLEN && rowSpace >= setSize + 1)	spacesToAdd = 1;
+			else													spacesToAdd = 0;
+			for (int i = 0; i < spacesToAdd; i++) {
+				tabItems.add(ItemStack.EMPTY);
+			}
+
+			for (ItemStack item : setItems) {
+				tabItems.add(item);
+				searchItems.add(item);
+			}
+		});
 	}
 	
 	public static final int ROWLEN = 9;
