@@ -26,11 +26,15 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 
 public class ModItemsCreativeTab extends CreativeModeTab implements CustomRenderCreativeTab {
 	protected int standsRow = -1;
 	protected int clothesRow = -1;
+	protected int wipRow = -1;
+	public List<ItemLike> unfinishedItems = new ArrayList<>();
 
 	public ModItemsCreativeTab(Builder builder) {
 		super(builder);
@@ -67,7 +71,16 @@ public class ModItemsCreativeTab extends CreativeModeTab implements CustomRender
 //			}
 //		};
 		
-		standsRow = (tabItems.size() - 1) / ROWLEN + 1;
+		List<ItemLike> movedItems = new ArrayList<>();
+		for (ItemLike wipItem : unfinishedItems) {
+			Item item = wipItem.asItem();
+			if (tabItems.removeIf(e -> e.getItem() == item)) {
+				movedItems.add(item);
+			}
+			searchItems.removeIf(e -> e.getItem() == item);
+		}
+		
+		standsRow = rowCount(tabItems);
 		rowBreak(tabItems, true);
 		
 		// add Stand discs
@@ -82,7 +95,7 @@ public class ModItemsCreativeTab extends CreativeModeTab implements CustomRender
 			searchItems.add(item);
 		});
 
-		clothesRow = (tabItems.size() - 1) / ROWLEN + 1;
+		clothesRow = rowCount(tabItems);
 		rowBreak(tabItems, true);
 
 		// add clothes items
@@ -122,6 +135,20 @@ public class ModItemsCreativeTab extends CreativeModeTab implements CustomRender
 				searchItems.add(item);
 			}
 		});
+		
+		if (!JojoMod.disableDevStuff() && !movedItems.isEmpty()) {
+			wipRow = rowCount(tabItems);
+			rowBreak(tabItems, true);
+			for (ItemLike wipItem : movedItems) {
+				ItemStack stack = new ItemStack(wipItem);
+				tabItems.add(stack);
+				searchItems.add(stack);
+			}
+		}
+	}
+	
+	public static int rowCount(Collection<ItemStack> tabItems) {
+		return (tabItems.size() - 1) / ROWLEN + 1;
 	}
 	
 	public static final int ROWLEN = 9;
@@ -160,6 +187,20 @@ public class ModItemsCreativeTab extends CreativeModeTab implements CustomRender
 			renderCategoryNameAt(guiGraphics, clothesRow - rowScrolled, 
 					CATEGORY_CLOTHES, 
 					Component.translatable("jojo_ripples.menu.player.clothes"),
+					screen);
+		}
+		
+		if (clothesRow >= 0) {
+			renderCategoryNameAt(guiGraphics, clothesRow - rowScrolled, 
+					CATEGORY_CLOTHES, 
+					Component.translatable("jojo_ripples.menu.player.clothes"),
+					screen);
+		}
+		
+		if (wipRow >= 0) {
+			renderCategoryNameAt(guiGraphics, wipRow - rowScrolled, 
+					CATEGORY_CLOTHES, 
+					Component.literal("Not yet implemented"),
 					screen);
 		}
 	}

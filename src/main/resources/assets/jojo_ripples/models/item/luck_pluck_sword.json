@@ -1,0 +1,7 @@
+{
+  "parent": "jojo_ripples:item/luck_sword",
+  "textures": {
+    "layer0": "jojo_ripples:item/luck_pluck_sword",
+    "particle": "jojo_ripples:item/luck_pluck_sword"
+  }
+}

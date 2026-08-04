@@ -1,0 +1,6 @@
+{
+  "parent": "jojo_ripples:block/coffin2",
+  "textures": {
+    "1" : "jojo_ripples:block/coffin_inside/purple_wool"
+  }
+}

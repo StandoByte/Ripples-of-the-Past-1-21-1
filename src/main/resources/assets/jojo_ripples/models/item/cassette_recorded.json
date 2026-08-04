@@ -1,0 +1,33 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "jojo_ripples:item/cassette_recorded",
+    "layer1": "jojo_ripples:item/cassette_recording_dyed"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "jojo_ripples:cassette_distortion": 1
+      },
+      "model": "jojo_ripples:item/cassette_recorded1"
+    },
+    {
+      "predicate": {
+        "jojo_ripples:cassette_distortion": 2
+      },
+      "model": "jojo_ripples:item/cassette_recorded2"
+    },
+    {
+      "predicate": {
+        "jojo_ripples:cassette_distortion": 3
+      },
+      "model": "jojo_ripples:item/cassette_recorded3"
+    },
+    {
+      "predicate": {
+        "jojo_ripples:cassette_distortion": 4
+      },
+      "model": "jojo_ripples:item/cassette_recorded4"
+    }
+  ]
+}

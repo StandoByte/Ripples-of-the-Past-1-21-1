@@ -10,6 +10,8 @@ import com.github.standobyte.jojo.client.itemrender.custommodel.BakedCustomModel
 import com.github.standobyte.jojo.client.itemrender.custommodel.CustomBlockRenderer;
 import com.github.standobyte.jojo.client.itemrender.custommodel.CustomItemRenderer;
 import com.github.standobyte.jojo.client.itemrender.custommodel.ItemRendererProvider;
+import com.github.standobyte.jojo.client.itemrender.custommodel.ItemRendererProvider.BlockItemRendererProvider;
+import com.github.standobyte.jojo.client.itemrender.items.TommyGunRenderer;
 import com.github.standobyte.jojo.client.itemrender.standdisc.StandDiscRenderer;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModBlockEntities;
@@ -21,21 +23,22 @@ import com.mojang.logging.LogUtils;
 import com.mojang.math.Axis;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
-import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 
@@ -43,22 +46,17 @@ import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsE
 public class CustomItemRenderers {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
-	public static BlockEntityWithoutLevelRenderer modLogoRenderer;
-	public static StandDiscRenderer standDiscRenderer;
-	public static CustomBlockRenderer<SewingMachineBlockEntity> sewingMachineRenderer;
+	public static ItemRendererProvider<CustomItemRenderer> modLogoRenderer;
+	public static ItemRendererProvider<StandDiscRenderer> standDiscRenderer;
+	public static ItemRendererProvider<TommyGunRenderer> tommyGunRenderer;
+	public static ItemRendererProvider<CustomItemRenderer> polaroidRenderer;
+	public static BlockItemRendererProvider<CustomBlockRenderer<SewingMachineBlockEntity>, SewingMachineBlockEntity> sewingMachineRenderer;
 
 	@SubscribeEvent
 	public static void registerItemRenderers(RegisterClientExtensionsEvent event) {
-		event.registerItem(new ItemRendererProvider(() -> modLogoRenderer), ModItems.DEBUG_ITEM);
-		event.registerItem(new ItemRendererProvider(() -> standDiscRenderer), ModItems.STAND_DISC);
-		event.registerItem(new ItemRendererProvider(() -> sewingMachineRenderer), ModItems.SEWING_MACHINE);
-	}
-
-	@SubscribeEvent(priority = EventPriority.LOW)
-	public static void addListener(RegisterClientReloadListenersEvent event) {
 		Minecraft mc = Minecraft.getInstance();
 		
-		modLogoRenderer = new CustomItemRenderer(mc, 
+		modLogoRenderer = new ItemRendererProvider<>(() -> new CustomItemRenderer(mc, 
 				ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "mod_logo"),
 				ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "textures/mod_logo_model.png")) {
 			@Override
@@ -73,28 +71,48 @@ public class CustomItemRenderers {
 				super.renderByItem(stack, displayContext, poseStack, buffer, packedLight, packedOverlay);
 				poseStack.popPose();
 			}
-		};
+		});
 		
-		standDiscRenderer = new StandDiscRenderer(mc);
+		standDiscRenderer = new ItemRendererProvider<>(() -> new StandDiscRenderer(mc));
+		
+		tommyGunRenderer = new ItemRendererProvider<>(() -> new TommyGunRenderer(mc, 
+				ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "tommy_gun"),
+				ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "textures/item/tommy_gun.png")));
+		
+		polaroidRenderer = new ItemRendererProvider<>(() -> new CustomItemRenderer(mc, 
+				ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "polaroid"),
+				ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "textures/item/polaroid.png")));
+		
+		sewingMachineRenderer = new BlockItemRendererProvider<>(ctx -> new CustomBlockRenderer<>(ctx, 
+				ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "sewing_machine"),
+				ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "textures/block/sewing_machine.png"), 
+				new SewingMachineBlockEntity(BlockPos.ZERO, ModBlocks.SEWING_MACHINE.get().defaultBlockState())));
+		
+		
+		event.registerItem(modLogoRenderer, ModItems.DEBUG_ITEM);
+		event.registerItem(standDiscRenderer, ModItems.STAND_DISC);
+		event.registerItem(tommyGunRenderer, ModItems.TOMMY_GUN);
+		event.registerItem(polaroidRenderer, ModItems.POLAROID);
+		event.registerItem(sewingMachineRenderer, ModItems.SEWING_MACHINE);
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public static void registerBlockEntityModel(EntityRenderersEvent.RegisterRenderers event) {
-		event.registerBlockEntityRenderer(ModBlockEntities.SEWING_MACHINE.get(), ctx -> {
-			sewingMachineRenderer = new CustomBlockRenderer<>(ctx, 
-					ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "sewing_machine"),
-					ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "textures/block/sewing_machine.png"), 
-					new SewingMachineBlockEntity(BlockPos.ZERO, ModBlocks.SEWING_MACHINE.get().defaultBlockState()));
-			return sewingMachineRenderer;
-		});
+		event.registerBlockEntityRenderer(ModBlockEntities.SEWING_MACHINE.get(), sewingMachineRenderer);
 	}
 
 	@SubscribeEvent
 	public static void setItemModelsAsCustom(ModelEvent.ModifyBakingResult event) {
 		Map<ModelResourceLocation, BakedModel> registry = event.getModels();
-		CustomItemRenderers.registerCustomBakedModel(ModItems.DEBUG_ITEM.getId(), registry, model -> new BakedCustomModel(model));
-		CustomItemRenderers.registerCustomBakedModel(ModItems.STAND_DISC.getId(), registry, model -> new BakedCustomModel(model));
-		CustomItemRenderers.registerCustomBakedModel(ModItems.SEWING_MACHINE.getId(), registry, model -> new BakedCustomModel(model));
+		CustomItemRenderers.registerCustomBakedModel(ModItems.DEBUG_ITEM.getId(), registry, BakedCustomModel::new);
+		CustomItemRenderers.registerCustomBakedModel(ModItems.STAND_DISC.getId(), registry, BakedCustomModel::new);
+//		CustomItemRenderers.registerCustomBakedModel(ModItems.GLOVES.getId(), registry, BakedCustomModel::new);
+//		CustomItemRenderers.registerCustomBakedModel(ModItems.GLOVES_SOAP.getId(), registry, BakedCustomModel::new);
+//		CustomItemRenderers.registerCustomBakedModel(ModItems.CLACKERS.getId(), registry, BakedCustomModel::new);
+		CustomItemRenderers.registerCustomBakedModel(ModItems.TOMMY_GUN.getId(), registry, BakedCustomModel::new);
+		CustomItemRenderers.registerCustomBakedModel(ModItems.POLAROID.getId(), registry, BakedCustomModel::new);
+//		CustomItemRenderers.registerCustomBakedModel(ModItems.ROAD_ROLLER.getId(), registry, BakedCustomModel::new);
+		CustomItemRenderers.registerCustomBakedModel(ModItems.SEWING_MACHINE.getId(), registry, BakedCustomModel::new);
 	}
 
 
@@ -111,6 +129,37 @@ public class CustomItemRenderers {
 		else {
 			modelRegistry.put(modelResLoc, newModel.apply(existingModel));
 		}
+	}
+
+
+	@SubscribeEvent
+	public static void registerModelOverrides(FMLClientSetupEvent event) {
+		ItemProperties.register(ModItems.KNIFE.get(), JojoMod.resLoc("count"), (itemStack, clientWorld, livingEntity, seed) -> {
+			return livingEntity != null ? itemStack.getCount() : 1;
+		});
+//		ItemProperties.register(ModItems.STONE_MASK.get(), JojoMod.resLoc("stone_mask_activated"), (itemStack, clientWorld, livingEntity, seed) -> {
+//			return itemStack.getTag().getByte(StoneMaskItem.NBT_ACTIVATION_KEY) > 0 ? 1 : 0;
+//		});
+		ItemProperties.register(ModItems.TOMMY_GUN.get(), JojoMod.resLoc("swing"), (itemStack, clientWorld, livingEntity, seed) -> {
+			return livingEntity != null && livingEntity.swinging && livingEntity.getItemInHand(livingEntity.swingingArm) == itemStack ? 1 : 0;
+		});
+//		ItemProperties.register(Items.BOW, JojoMod.resLoc("stand_arrow"), (itemStack, clientWorld, livingEntity, seed) -> {
+//			return livingEntity != null && livingEntity.isUsingItem() && livingEntity.getUseItem() == itemStack
+//					&& livingEntity.getProjectile(itemStack).getItem() instanceof StandArrowItem ? 1 : 0;
+//		});
+//		ItemProperties.register(Items.CROSSBOW, JojoMod.resLoc("stand_arrow"), (itemStack, clientWorld, livingEntity, seed) -> {
+//			return livingEntity != null && CrossbowItem.isCharged(itemStack) && (
+//					CrossbowItem.containsChargedProjectile(itemStack, ModItems.STAND_ARROW.get()) || 
+//					CrossbowItem.containsChargedProjectile(itemStack, ModItems.STAND_ARROW_BEETLE.get())) ? 1 : 0;
+//		});
+//		ItemProperties.register(ModItems.CASSETTE_RECORDED.get(), JojoMod.resLoc("cassette_distortion"), (itemStack, clientWorld, livingEntity, seed) -> {
+//			return CassetteRecordedItem.getCassetteData(itemStack)
+//					.map(cap -> MathHelper.clamp(cap.getGeneration(), 0, CassetteCap.MAX_GENERATION))
+//					.orElse(0).floatValue();
+//		});
+		ItemProperties.register(ModItems.POLAROID.get(), JojoMod.resLoc("is_held"), (itemStack, clientWorld, livingEntity, seed) -> {
+			return livingEntity != null && (livingEntity.getItemInHand(InteractionHand.MAIN_HAND) == itemStack || livingEntity.getItemInHand(InteractionHand.OFF_HAND) == itemStack) ? 1 : 0;
+		});
 	}
 
 

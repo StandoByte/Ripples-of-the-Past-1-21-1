@@ -66,6 +66,20 @@ public final class ModEntityTypes {
 			.sized(0.5F, 0.5F)
 			.build(createIDFor(key)));
 
+//	public static final DeferredHolder<EntityType<?>, EntityType<KnifeEntity>> KNIFE;
+//	
+//	public static final DeferredHolder<EntityType<?>, EntityType<FirebombEntity>> FIREBOMB;
+//	
+//	public static final DeferredHolder<EntityType<?>, EntityType<ClackersEntity>> CLACKERS;
+//	
+//	public static final DeferredHolder<EntityType<?>, EntityType<BulletEntity>> BULLET;
+//	
+//	public static final DeferredHolder<EntityType<?>, EntityType<CrossbowMetalBallEntity>> CROSSBOW_METAL_BALL;
+//	
+//	public static final DeferredHolder<EntityType<?>, EntityType<RoadRollerEntity>> ROAD_ROLLER;
+//	
+//	public static final DeferredHolder<EntityType<?>, EntityType<OilTankerEntity>> OIL_TANKER;
+	
 	public static final DeferredHolder<EntityType<?>, EntityType<ThrownNuggetBearingEntity>> NUGGET_BEARING = ENTITY_TYPES.register("nugget_bearing", key -> 
 			EntityType.Builder.<ThrownNuggetBearingEntity>of(ThrownNuggetBearingEntity::new, MobCategory.MISC)
 //			.noLootTable()
@@ -73,6 +87,12 @@ public final class ModEntityTypes {
 			.clientTrackingRange(4)
 			.updateInterval(10)
 			.build(createIDFor(key)));
+	
+//	public static final DeferredHolder<EntityType<?>, EntityType<HarpoonEntity>> HARPOON;
+//	
+//	public static final DeferredHolder<EntityType<?>, EntityType<RockInsectAbsestosEntity>> ROCK_INSECT_DODODODEDADADA;
+//	
+//	public static final DeferredHolder<EntityType<?>, EntityType<RockInsectReplicatingEntity>> ROCK_INSECT_OBLADI_OBLADA;
 
 	public static final DeferredHolder<EntityType<?>, EntityType<CrazyDBlockBulletEntity>> CD_BLOCK_BULLET = ENTITY_TYPES.register("cd_block_bullet", key -> 
 			EntityType.Builder.<CrazyDBlockBulletEntity>of(CrazyDBlockBulletEntity::new, MobCategory.MISC)
