@@ -139,6 +139,7 @@
 	"client.CloseResources",
 	"client.keybindui.KeyEntryMixin",
 	"client.keybindui.AbstractSelectionListMixin",
+	"client.CreativeTabScreenMixin",
 	
 	"stand.theworld.timestop.client.LevelRendererPartialTickMixin",
 	"stand.theworld.timestop.client.GameRendererPartialTickMixin",

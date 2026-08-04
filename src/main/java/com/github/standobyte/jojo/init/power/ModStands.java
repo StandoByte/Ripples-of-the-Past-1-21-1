@@ -24,6 +24,7 @@ public class ModStands {
 	
 	
 	public static final SimpleTagKey<StandType> PLAYER_CAN_GET_FROM_ARROW = SimpleTagKey.create(StandType.class, JojoMod.resLoc("player_can_get_from_arrow"));
+	public static final SimpleTagKey<StandType> EXCLUDE_FROM_CREATIVE_TAB = SimpleTagKey.create(StandType.class, JojoMod.resLoc("exclude_from_creative_tab"));
 	
 	// Adding all the abilities and skills takes quite a few lines, so I decided to put each into a separate file.
 	// Makes it a bit easier to compare them between each other too.

@@ -344,6 +344,7 @@
   "jojo_ripples.class.stand": "Stand: %s",
   "jojo_ripples.class.player_power": "Character Power: %s",
   
+  "item.jojo_ripples.creative_tab.stand_discs": "Stand Discs",
   "item.jojo_ripples.stand_disc": "Stand Disc",
   "item.jojo_ripples.stand_disc.wip": "Work in progress",
   "item.jojo_ripples.stand_disc.old": "Old moveset (1.16.5 port)",
