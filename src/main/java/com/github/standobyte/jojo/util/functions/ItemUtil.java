@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.util.functions;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
@@ -117,6 +118,18 @@ public class ItemUtil {
 				.withOptionalParameter(LootContextParams.THIS_ENTITY, entity);
 		List<ItemStack> item = blockState.getDrops(lootparams$builder);
 		return item;
+	}
+
+	public static int tickTimerDown(ItemStack item, Supplier<DataComponentType<Integer>> timer) {
+		if (item.isEmpty() || !item.has(timer)) {
+			return -1;
+		}
+		int value = item.get(timer);
+		if (value > 0) {
+			item.set(timer, --value);
+			return value;
+		}
+		return -1;
 	}
 
 }

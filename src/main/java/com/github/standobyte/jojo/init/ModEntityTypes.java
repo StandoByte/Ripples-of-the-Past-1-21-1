@@ -7,6 +7,7 @@ import com.github.standobyte.jojo.customobjects.entity_projectile.ThrownNuggetBe
 import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinEntity;
 import com.github.standobyte.jojo.mechanics.standarrow.StandArrowEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.sidecontent.item.tommygun.BulletEntity;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDBlockBulletEntity;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDBloodCutterEntity;
 
@@ -71,9 +72,15 @@ public final class ModEntityTypes {
 //	public static final DeferredHolder<EntityType<?>, EntityType<FirebombEntity>> FIREBOMB;
 //	
 //	public static final DeferredHolder<EntityType<?>, EntityType<ClackersEntity>> CLACKERS;
-//	
-//	public static final DeferredHolder<EntityType<?>, EntityType<BulletEntity>> BULLET;
-//	
+	
+	public static final DeferredHolder<EntityType<?>, EntityType<BulletEntity>> BULLET = ENTITY_TYPES.register("bullet", key ->
+			EntityType.Builder.<BulletEntity>of(BulletEntity::new, MobCategory.MISC)
+			.sized(0.0625F, 0.0625F)
+			.clientTrackingRange(16)
+			.setUpdateInterval(1)
+			.fireImmune()
+			.build(createIDFor(key)));
+	
 //	public static final DeferredHolder<EntityType<?>, EntityType<CrossbowMetalBallEntity>> CROSSBOW_METAL_BALL;
 //	
 //	public static final DeferredHolder<EntityType<?>, EntityType<RoadRollerEntity>> ROAD_ROLLER;

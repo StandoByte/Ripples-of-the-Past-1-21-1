@@ -14,16 +14,21 @@ import com.github.standobyte.jojo.mechanics.standarrow.StandArrowItem;
 import com.github.standobyte.jojo.mechanics.standarrow.StandArrowShardItem;
 import com.github.standobyte.jojo.mechanics.standdisc.StandDiscItem;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
+import com.github.standobyte.jojo.sidecontent.item.tommygun.TommyGunItem;
 import com.google.common.collect.ImmutableMap;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -31,6 +36,8 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 // TODO datagen for crafting recipes, advancements and loot tables
+
+// Note: when adding custom components to items, registerItem can't be used, instead use register ||(so that the item properties are created later, when the components have been registered already)||
 public final class ModItems {
 	public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, JojoMod.MOD_ID);
 	public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(JojoMod.MOD_ID);
@@ -79,7 +86,18 @@ public final class ModItems {
 	public static final DeferredItem<Item> CLACKERS = ITEMS.registerItem("clackers", Item::new, new Item.Properties().stacksTo(1));
 	public static final DeferredItem<Item> SOAP = ITEMS.registerItem("soap", Item::new, new Item.Properties().stacksTo(1));
 	public static final DeferredItem<Item> GLOVES_SOAP = ITEMS.registerItem("gloves_soap", Item::new, new Item.Properties().stacksTo(1));
-	public static final DeferredItem<Item> TOMMY_GUN = ITEMS.registerItem("tommy_gun", Item::new, new Item.Properties().stacksTo(1));
+	public static final DeferredItem<Item> TOMMY_GUN = ITEMS.register("tommy_gun", () -> new TommyGunItem(new Item.Properties().stacksTo(1)
+			.component(ModItemDataComponents.GUN_AMMO, TommyGunItem.MAX_AMMO)
+			.attributes(ItemAttributeModifiers.builder()
+					.add(Attributes.ATTACK_SPEED, new AttributeModifier(JojoMod.resLoc("tommy_gun_atk_spd"), 
+							-2, 
+							AttributeModifier.Operation.ADD_VALUE), 
+							EquipmentSlotGroup.MAINHAND)
+					.add(Attributes.ENTITY_INTERACTION_RANGE, new AttributeModifier(JojoMod.resLoc("tommy_gun_range"), 
+							0.5, 
+							AttributeModifier.Operation.ADD_VALUE), 
+							EquipmentSlotGroup.MAINHAND)
+					.build())));
 	public static final DeferredItem<Item> METAL_BALL_CROSSBOW = ITEMS.registerItem("metal_ball_crossbow", Item::new, new Item.Properties().stacksTo(1));
 	public static final DeferredItem<Item> METAL_BALL = ITEMS.registerItem("metal_ball", Item::new, new Item.Properties().stacksTo(16));
 	public static final DeferredItem<Item> WEDDING_RING_OF_DEATH = ITEMS.registerItem("wedding_ring_of_death", Item::new, new Item.Properties());
@@ -222,7 +240,6 @@ public final class ModItems {
 				CLACKERS,
 				SOAP,
 				GLOVES_SOAP,
-				TOMMY_GUN,
 				METAL_BALL_CROSSBOW,
 				METAL_BALL,
 				AJA_STONE,

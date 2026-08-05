@@ -1,21 +1,27 @@
 package com.github.standobyte.jojo.client.util.functions;
 
+import java.util.List;
+
 import com.github.standobyte.jojo.client.ClientTickHandler;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojoimpl.stands.theworld.timestop.client.TimeStopClientState;
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.PlayerSkin;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.TickRateManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.world.item.Item;
 
 public class ClientUtil {
 	public static final int MAX_LIGHT = 0xF000F0;
@@ -123,4 +129,17 @@ public class ClientUtil {
 		}
 	}
 
+	public static void addItemReferenceQuote(List<Component> tooltip, Item item) {
+		ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(item);
+		addItemReferenceQuote(tooltip, item, itemId.getNamespace() + "." + itemId.getPath());
+	}
+
+	public static void addItemReferenceQuote(List<Component> tooltip, Item item, String itemName) {
+		tooltip.add(Component.literal(" "));
+		tooltip.add(Component.translatable("item." + itemName + ".reference_quote").withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY));
+	}
+
+	public static Component donoItemTooltip(String donoUsername) {
+		return Component.translatable("item.jojo_ripples.dono_tooltip", donoUsername).withStyle(ChatFormatting.DARK_GRAY);
+	}
 }

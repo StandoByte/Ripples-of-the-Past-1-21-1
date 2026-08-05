@@ -1,7 +1,8 @@
 package com.github.standobyte.jojo.client.itemrender;
 
+import java.util.List;
 import java.util.Map;
-import java.util.function.UnaryOperator;
+import java.util.function.Function;
 
 import org.joml.Matrix3f;
 import org.slf4j.Logger;
@@ -23,13 +24,20 @@ import com.mojang.logging.LogUtils;
 import com.mojang.math.Axis;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.model.BlockModel;
+import net.minecraft.client.renderer.block.model.ItemOverride;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.block.model.ItemOverrides.BakedOverride;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
@@ -77,7 +85,13 @@ public class CustomItemRenderers {
 		
 		tommyGunRenderer = new ItemRendererProvider<>(() -> new TommyGunRenderer(mc, 
 				ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "tommy_gun"),
-				ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "textures/item/tommy_gun.png")));
+				ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "textures/item/tommy_gun.png"))) {
+
+		    @Override
+		    public HumanoidModel.ArmPose getArmPose(LivingEntity entityLiving, InteractionHand hand, ItemStack itemStack) {
+		        return !entityLiving.swinging ? HumanoidModel.ArmPose.CROSSBOW_HOLD : super.getArmPose(entityLiving, hand, itemStack);
+		    }
+		};
 		
 		polaroidRenderer = new ItemRendererProvider<>(() -> new CustomItemRenderer(mc, 
 				ResourceLocation.fromNamespaceAndPath(JojoMod.MOD_ID, "polaroid"),
@@ -104,20 +118,26 @@ public class CustomItemRenderers {
 	@SubscribeEvent
 	public static void setItemModelsAsCustom(ModelEvent.ModifyBakingResult event) {
 		Map<ModelResourceLocation, BakedModel> registry = event.getModels();
-		CustomItemRenderers.registerCustomBakedModel(ModItems.DEBUG_ITEM.getId(), registry, BakedCustomModel::new);
-		CustomItemRenderers.registerCustomBakedModel(ModItems.STAND_DISC.getId(), registry, BakedCustomModel::new);
-//		CustomItemRenderers.registerCustomBakedModel(ModItems.GLOVES.getId(), registry, BakedCustomModel::new);
-//		CustomItemRenderers.registerCustomBakedModel(ModItems.GLOVES_SOAP.getId(), registry, BakedCustomModel::new);
-//		CustomItemRenderers.registerCustomBakedModel(ModItems.CLACKERS.getId(), registry, BakedCustomModel::new);
-		CustomItemRenderers.registerCustomBakedModel(ModItems.TOMMY_GUN.getId(), registry, BakedCustomModel::new);
-		CustomItemRenderers.registerCustomBakedModel(ModItems.POLAROID.getId(), registry, BakedCustomModel::new);
-//		CustomItemRenderers.registerCustomBakedModel(ModItems.ROAD_ROLLER.getId(), registry, BakedCustomModel::new);
-		CustomItemRenderers.registerCustomBakedModel(ModItems.SEWING_MACHINE.getId(), registry, BakedCustomModel::new);
+		ModelBakery modelBakery = event.getModelBakery();
+		CustomItemRenderers.registerCustomBakedModel(ModItems.DEBUG_ITEM.getId(),				registry, BakedCustomModel::new);
+		CustomItemRenderers.registerCustomBakedModel(ModItems.STAND_DISC.getId(),				registry, BakedCustomModel::new);
+//		CustomItemRenderers.registerCustomBakedModel(ModItems.GLOVES.getId(),					registry, BakedCustomModel::new);
+//		CustomItemRenderers.registerCustomBakedModel(ModItems.GLOVES_SOAP.getId(),				registry, BakedCustomModel::new);
+//		CustomItemRenderers.registerCustomBakedModel(ModItems.CLACKERS.getId(),					registry, BakedCustomModel::new);
+//		CustomItemRenderers.registerCustomBakedModel(JojoMod.resLoc("tommy_gun_flipped"),		registry, BakedCustomModel::new);
+		BakedCustomModel tommyGunModel = 
+		CustomItemRenderers.registerCustomBakedModel(ModItems.TOMMY_GUN.getId(),				registry, BakedCustomModel::new);
+		CustomItemRenderers.registerCustomBakedModel(ModItems.POLAROID.getId(), 				registry, BakedCustomModel::new);
+//		CustomItemRenderers.registerCustomBakedModel(ModItems.ROAD_ROLLER.getId(),				registry, BakedCustomModel::new);
+		CustomItemRenderers.registerCustomBakedModel(ModItems.SEWING_MACHINE.getId(),			registry, BakedCustomModel::new);
+		
+		replaceOverrideWithCustomBakedModel(tommyGunModel.existingModel.getOverrides(), ModItems.TOMMY_GUN.getId(), 
+				ModItems.TOMMY_GUN.getId().withPath(path -> path + "_flipped"), BakedCustomModel::new, modelBakery);
 	}
 
 
-	public static void registerCustomBakedModel(ResourceLocation itemResLoc, 
-			Map<ModelResourceLocation, BakedModel> modelRegistry, UnaryOperator<BakedModel> newModel) {
+	public static <T extends BakedModel> T registerCustomBakedModel(ResourceLocation itemResLoc, 
+			Map<ModelResourceLocation, BakedModel> modelRegistry, Function<BakedModel, T> newModel) {
 		ModelResourceLocation modelResLoc = ModelResourceLocation.inventory(itemResLoc);
 		BakedModel existingModel = modelRegistry.get(modelResLoc);
 		if (existingModel == null) {
@@ -127,7 +147,33 @@ public class CustomItemRenderers {
 			LOGGER.error("Tried to replace {} model twice", modelResLoc);
 		}
 		else {
-			modelRegistry.put(modelResLoc, newModel.apply(existingModel));
+			T model = newModel.apply(existingModel);
+			modelRegistry.put(modelResLoc, model);
+			return model;
+		}
+		
+		return null;
+	}
+	
+	public static <T extends BakedModel> void replaceOverrideWithCustomBakedModel(ItemOverrides bakedOverrides, ResourceLocation topModelId, 
+			ResourceLocation overrideModelId, Function<BakedModel, T> newModel, ModelBakery modelBakery) {
+		topModelId = topModelId.withPath(path -> "models/item/" + path + ".json");
+		overrideModelId = overrideModelId.withPath(path -> "item/" + path);
+		
+		Map<ResourceLocation, BlockModel> modelResources = modelBakery.modelResources;
+		BlockModel itemModel = modelResources.get(topModelId);
+		
+		if (itemModel != null) {
+			List<ItemOverride> overrideDefinitions = itemModel.getOverrides();
+			int i = 0;
+			for (int j = overrideDefinitions.size() - 1; j >= 0; j--) {
+				ItemOverride overrideDefinition = overrideDefinitions.get(j);
+				if (overrideDefinition.getModel().equals(overrideModelId)) {
+					BakedOverride override = bakedOverrides.overrides[i];
+					override.model = newModel.apply(override.model);
+				}
+				i++;
+			}
 		}
 	}
 

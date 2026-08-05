@@ -99,6 +99,10 @@ public class ModSoundEvents {
 	public static final DeferredHolder<SoundEvent, SoundEvent> HAMON_DETECTOR = register("hamon_detector");
 	public static final DeferredHolder<SoundEvent, SoundEvent> HAMON_REBUFF_PUNCH = register("hamon_rebuff_punch");
 
+	public static final DeferredHolder<SoundEvent, SoundEvent> VOICELINE_TOMMY_GUN_SCREAM = register("vl_tommy_gun_scream");
+	public static final DeferredHolder<SoundEvent, SoundEvent> VOICELINE_TOMMY_GUN_SHOT_MAGAZINE = register("vl_tommy_gun_shot_magazine");
+	public static final DeferredHolder<SoundEvent, SoundEvent> VOICELINE_TOMMY_GUN_PUNCH = register("vl_tommy_gun_punch");
+
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAND_SUMMON = register("stand_summon");
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAND_UNSUMMON = register("stand_unsummon");
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAND_DAMAGE_BLOCK = register("stand_damage_block");

@@ -57,6 +57,7 @@
   "item.jojo_ripples.soap": "Soap Solution",
   "item.jojo_ripples.gloves_soap": "Soap Coated Gloves",
   "item.jojo_ripples.tommy_gun": "Tommy Gun",
+  "item.jojo_ripples.tommy_gun.reference_quote": "\"I'll avenge uncle Speedwagon! This is a declaration of war!\"",
   "item.jojo_ripples.tommy_gun.hint": "Shift + RMB to reload (consumes iron nuggets and gunpowder).",
   "entity.jojo_ripples.bullet": "Bullet",
   "item.jojo_ripples.metal_ball_crossbow": "Large Crossbow",
@@ -95,6 +96,7 @@
   "item.jojo_ripples.dodododedadada": "Dododo Dedadada",
   "item.jojo_ripples.obladi_oblada": "Obladi Oblada",
   "item.jojo_ripples.gucci_bag": "Gucci Bag",
+  "item.jojo_ripples.dono_tooltip": "Requested by: %s",
   
   "jojo_ripples.stand_arrow.lore.ancient": "This arrow was discovered in an archaeological excavation.",
   "jojo_ripples.stand_arrow.lore.ancient.name": "This arrow was discovered by %s in an archaeological excavation.",
@@ -419,6 +421,10 @@
   "jojo_ripples.ability.hamon_rebuff_overdrive": "Rebuff Overdrive",
   
   "jojo.message.action_condition.no_air": "You cannot breathe in",
+  
+  "jojo_ripples.vl_subtitle.joseph_scream_shooting": "UOOOOOOOOOO!!",
+  "jojo_ripples.vl_subtitle.joseph_war_declaration": "This means war!",
+  "jojo_ripples.vl_subtitle.joseph_shoot": "Shoot!",
   
   
   "power.jojo_ripples.vampirism": "Vampirism",

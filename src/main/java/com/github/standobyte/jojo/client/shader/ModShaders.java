@@ -51,6 +51,7 @@ public class ModShaders implements ResourceManagerReloadListener, AutoCloseable 
 	@ApiStatus.Internal public List<RotpShader> _allShaders = new ArrayList<>();
 	
 	public ShaderInstance coreEntityDither;
+	public ShaderInstance coreEntityBulletTrail;
 	
 	private void init() {
 		Minecraft mc = Minecraft.getInstance();
@@ -66,6 +67,8 @@ public class ModShaders implements ResourceManagerReloadListener, AutoCloseable 
 	private void loadCoreStandalone(RegisterShadersEvent event) {
 		loadCoreShader(event, JojoMod.resLoc("entity_dither"), 
 				DefaultVertexFormat.NEW_ENTITY, shader -> coreEntityDither = shader);
+		loadCoreShader(event, JojoMod.resLoc("entity_bullet_trail"), 
+				DefaultVertexFormat.NEW_ENTITY, shader -> coreEntityBulletTrail = shader);
 	}
 	
 	
