@@ -24,20 +24,16 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public class BulletRenderer extends EntityRenderer<BulletEntity> {
-	protected double maxTrailLen = 4;
-	protected float V1 = 0.015625f;
-	protected float BEAM_WIDTH = 0.015f;
-	protected float BULLET_U = 0.01953125f;
 
 	public BulletRenderer(EntityRendererProvider.Context context) {
 		super(context);
 	}
 
-	private static final ResourceLocation TRAIL_TEX = JojoMod.resLoc("textures/entity/bullet_trace.png");
 	@Override
 	public ResourceLocation getTextureLocation(BulletEntity entity) {
 		return TRAIL_TEX;
@@ -49,40 +45,52 @@ public class BulletRenderer extends EntityRenderer<BulletEntity> {
 				entity.initialPos != null && pCamera.isVisible(new AABB(entity.initialPos, entity.position()));
 	}
 
-	public static final int COLOR_BULLET = 0xFFFFFFB9;
-	public static final int COLOR_BULLET_TRACE = 0xFFFF9C00;
 	@Override
 	public void render(BulletEntity entity, float yRotation, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
+		renderBullet(entity, entity.tracePos, 
+				4, 0.015f, 
+				getTextureLocation(entity), 0xFFFFFFB9, 0xFFFF9C00, 
+				poseStack, buffer);
+		super.render(entity, yRotation, partialTick, poseStack, buffer, packedLight);
+	}
+
+	public static final ResourceLocation TRAIL_TEX = JojoMod.resLoc("textures/entity/bullet_trace.png");
+	public static final float V1 = 0.015625f;
+	public static final float BULLET_U = 0.01953125f;
+	
+	public static void renderBullet(Entity bulletEntity, List<Vec3> trace, 
+			double maxTrailLen, float beamWidth, 
+			ResourceLocation texture, int colorBullet, int colorBulletTrace, 
+			PoseStack poseStack, MultiBufferSource buffer) {
 		double bulletLen = maxTrailLen * BULLET_U;
-		List<Vec3> trace = entity.tracePos;
 		if (trace.isEmpty()) {
 			trace = Util.make(new ArrayList<>(), list -> {
-				Vec3 pos = entity.position();
-				list.add(pos.subtract(entity.getDeltaMovement().normalize().scale(bulletLen)));
+				Vec3 pos = bulletEntity.position();
+				list.add(pos.subtract(bulletEntity.getDeltaMovement().normalize().scale(bulletLen)));
 				list.add(pos);
 			});
 		}
 
 		poseStack.pushPose();
-		poseStack.translate(0, entity.getBbHeight() / 2, 0);
+		poseStack.translate(0, bulletEntity.getBbHeight() / 2, 0);
 		// TODO use vanilla entityTranslucent with Iris shader enabled
-		VertexConsumer vertexBuilder = buffer.getBuffer(ModRenderTypes.entityBulletTrail(getTextureLocation(entity)));
+		VertexConsumer vertexBuilder = buffer.getBuffer(ModRenderTypes.entityBulletTrail(texture));
 
 		double traceLen = maxTrailLen;
 		int i;
 		
-		Vec3 pos = entity.position();
-		Vec3 deltaMovement = entity.getDeltaMovement();
+		Vec3 pos = bulletEntity.position();
+		Vec3 deltaMovement = bulletEntity.getDeltaMovement();
 		if (deltaMovement.lengthSqr() < 1.0E-4) {
-			deltaMovement = entity.getLookAngle();
+			deltaMovement = bulletEntity.getLookAngle();
 		}
 		else {
 			deltaMovement = deltaMovement.normalize();
 		}
-		Vec3 pos2 = entity.position().add(deltaMovement.scale(bulletLen));
+		Vec3 pos2 = bulletEntity.position().add(deltaMovement.scale(bulletLen));
 		trailSegment(pos, pos2, 1 - BULLET_U, 1, 
 				poseStack, vertexBuilder, 
-				entity, yRotation, partialTick, true, COLOR_BULLET);
+				bulletEntity, true, colorBullet, beamWidth);
 		
 		for (i = trace.size() - 1; i > 0 && traceLen > 0; i--) {
 			Vec3 posCur = trace.get(i);
@@ -106,23 +114,22 @@ public class BulletRenderer extends EntityRenderer<BulletEntity> {
 			u1 *= (1 - BULLET_U);
 			trailSegment(posPrev, posCur, u0, u1, 
 					poseStack, vertexBuilder, 
-					entity, yRotation, partialTick, false, COLOR_BULLET_TRACE);
+					bulletEntity, false, colorBulletTrace, beamWidth);
 		}
 
 		poseStack.popPose();
-		super.render(entity, yRotation, partialTick, poseStack, buffer, packedLight);
 	}
 
-	protected void trailSegment(Vec3 pos1, Vec3 pos2, float u0, float u1, 
+	public static void trailSegment(Vec3 pos1, Vec3 pos2, float u0, float u1, 
 			PoseStack poseStack, VertexConsumer vertexBuilder, 
-			BulletEntity entity, float yRotation, float partialTick, boolean first, int color) {
+			Entity entity, boolean first, int color, float beamWidth) {
 		poseStack.pushPose();
 		Vec3 trailSegmentVec = pos1.subtract(pos2);
 		float yRot = MathUtil.yRotDegFromVec(trailSegmentVec);
 		float xRot = MathUtil.xRotDegFromVec(trailSegmentVec);
 		poseStack.mulPose(Axis.YP.rotationDegrees(-90.0F - yRot));
 		poseStack.mulPose(Axis.ZP.rotationDegrees(-xRot));
-		poseStack.scale(1.0F, BEAM_WIDTH, BEAM_WIDTH);
+		poseStack.scale(1.0F, beamWidth, beamWidth);
 		Matrix3f lighting = poseStack.last().normal();
 		lighting.m00(1).m01(0).m02(0).m10(0).m11(1).m12(0).m20(0).m21(0).m22(1); // set identity
 		Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
@@ -142,7 +149,7 @@ public class BulletRenderer extends EntityRenderer<BulletEntity> {
 	}
 
 
-	private void renderSide(PoseStack poseStack, Vector3f lightNormal, float length, float u0, float u1, int color, VertexConsumer vertexBuilder) {
+	public static void renderSide(PoseStack poseStack, Vector3f lightNormal, float length, float u0, float u1, int color, VertexConsumer vertexBuilder) {
 		int packedLight = ClientUtil.MAX_LIGHT;
 		float v0 = 0;
 		float v1 = V1;
@@ -198,7 +205,7 @@ public class BulletRenderer extends EntityRenderer<BulletEntity> {
 		poseStack.popPose();
 	}
 
-	private void renderFront(PoseStack poseStack, Vector3f lightNormal, int color, VertexConsumer vertexBuilder) {
+	public static void renderFront(PoseStack poseStack, Vector3f lightNormal, int color, VertexConsumer vertexBuilder) {
 		int packedLight = ClientUtil.MAX_LIGHT;
 		float u0 = 0;
 		float u1 = u0 + V1;
