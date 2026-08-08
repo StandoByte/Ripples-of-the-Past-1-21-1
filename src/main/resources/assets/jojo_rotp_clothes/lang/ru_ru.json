@@ -1,4 +1,32 @@
 {
+  "character.jojo_ripples.jonathan": "Джонатан Джостар",
+  "character.jojo_ripples.jonathan.short": "Джонатан",
+  
+  
+  "character.jojo_ripples.zeppeli": "Уилл Антонио Цеппели",
+  "character.jojo_ripples.zeppeli.short": "Цеппели",
+  
+  
+  "character.jojo_ripples.speedwagon": "Роберт Э. О. Спидвагон",
+  "character.jojo_ripples.speedwagon.short": "Спидвагон",
+  
+  
+  "character.jojo_ripples.dio": "Дио Брандо",
+  "character.jojo_ripples.dio.short": "Дио",
+  
+  
+  "character.jojo_ripples.joseph": "Джозеф Джостар",
+  "character.jojo_ripples.joseph.short": "Джозеф",
+  
+  
+  "character.jojo_ripples.caesar": "Цезарь Антонио Цеппели",
+  "character.jojo_ripples.caesar.short": "Цезарь",
+  
+  
+  "character.jojo_ripples.lisa_lisa": "Лиза Лиза",
+  "character.jojo_ripples.lisa_lisa.short": "Лиза Лиза",
+  
+  
   "character.jojo_ripples.jotaro": "Джотаро Куджо",
   "character.jojo_ripples.jotaro.short": "Джотаро",
   
@@ -7,5 +35,29 @@
   "item.jojo_rotp_clothes.jotaro_p3_anime_chest": "Пиджак Джотаро",
   "item.jojo_rotp_clothes.jotaro_p3_anime_legs": "Брюки Джотаро",
   "item.jojo_rotp_clothes.jotaro_p3_anime_feet": "Туфли Джотаро",
-  "clothes.jojo_ripples.jotaro_p3_manga": "Stardust Crusaders (манга)"
+  "clothes.jojo_ripples.jotaro_p3_manga": "Stardust Crusaders (манга)",
+  
+  
+  "character.jojo_ripples.kakyoin": "Нориаки Какёин",
+  "character.jojo_ripples.kakyoin.short": "Какёин",
+  
+  
+  "character.jojo_ripples.polnareff": "Жан-Пьер Польнарефф",
+  "character.jojo_ripples.polnareff.short": "Польнарефф",
+  
+  
+  "character.jojo_ripples.avdol": "Мухаммед Абдул",
+  "character.jojo_ripples.avdol.short": "Абдул",
+  
+  
+  "character.jojo_ripples.josuke4": "Джоске Хигашиката",
+  "character.jojo_ripples.josuke4.short": "Джоске",
+  
+  
+  "character.jojo_ripples.kira4": "Йошикаге Кира",
+  "character.jojo_ripples.kira4.short": "Кира",
+  
+  
+  "character.jojo_ripples.giorno": "Джорно Джованна",
+  "character.jojo_ripples.giorno.short": "Джорно"
 }
