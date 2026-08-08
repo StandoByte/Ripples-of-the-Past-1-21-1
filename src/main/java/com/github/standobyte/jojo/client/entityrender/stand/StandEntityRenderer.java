@@ -126,20 +126,22 @@ public class StandEntityRenderer<
 				pose = AnimFramePose.reused.clear();
 				AnimMolangVariables molangVars = AnimMolangVariables.set(0, 0, 0);
 				
-				List<RotpAnimDefinition> animsPre = skin.getStandAlwaysAnimations();
-				if (animsPre != null) {
-					for (RotpAnimDefinition animPre : animsPre) {
-						float seconds = animPre.getAnimTime(ticks);
-						animPre.calcAnimPose(pose, seconds, 1, molangVars, null);
+				if (skin != null) {
+					List<RotpAnimDefinition> animsPre = skin.getStandAlwaysAnimations();
+					if (animsPre != null) {
+						for (RotpAnimDefinition animPre : animsPre) {
+							float seconds = animPre.getAnimTime(ticks);
+							animPre.calcAnimPose(pose, seconds, 1, molangVars, null);
+						}
 					}
-				}
-				
-				ActionAnimIdentifier animId = StandEntityRenderer.IDLE_ANIM;
-				AnimWithId animWithId = PreFrameEntityRenderCallback.getStandAnim(skin, animId, StandEntityRenderer.IDLE_ANIM);
-				RotpAnimDefinition anim = animWithId.anim;
-				if (anim != null) {
-					float seconds = anim.getAnimTime(ticks);
-					anim.calcAnimPose(pose, seconds, 1, molangVars, null);
+					
+					ActionAnimIdentifier animId = StandEntityRenderer.IDLE_ANIM;
+					AnimWithId animWithId = PreFrameEntityRenderCallback.getStandAnim(skin, animId, StandEntityRenderer.IDLE_ANIM);
+					RotpAnimDefinition anim = animWithId.anim;
+					if (anim != null) {
+						float seconds = anim.getAnimTime(ticks);
+						anim.calcAnimPose(pose, seconds, 1, molangVars, null);
+					}
 				}
 			}
 			case STAND_INFO -> {

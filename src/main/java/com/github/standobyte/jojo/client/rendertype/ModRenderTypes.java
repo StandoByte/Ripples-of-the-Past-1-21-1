@@ -18,6 +18,9 @@ public class ModRenderTypes extends RenderType {
 	public static final RenderStateShard.ShaderStateShard RENDERTYPE_ENTITY_DITHER_SHADER = new RenderStateShard.ShaderStateShard(
 			() -> ModShaders.getInstance().coreEntityDither);
 
+	public static final RenderStateShard.ShaderStateShard RENDERTYPE_ENTITY_BULLET_TRAIL = new RenderStateShard.ShaderStateShard(
+			() -> ModShaders.getInstance().coreEntityBulletTrail);
+
 	@Deprecated
 	private ModRenderTypes(String name, VertexFormat format, Mode mode, int bufferSize, boolean affectsCrumbling,
 			boolean sortOnUpload, Runnable setupState, Runnable clearState) {
@@ -37,11 +40,28 @@ public class ModRenderTypes extends RenderType {
 				return create(JojoMod.MOD_ID + ":entity_dither", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 1536, true, true, rendertype$compositestate);
 			});
 
+	public static final BiFunction<ResourceLocation, Boolean, RenderType> ENTITY_BULLET_TRAIL = Util.memoize(
+			(texture, outline) -> {
+				RenderType.CompositeState rendertype$compositestate = RenderType.CompositeState.builder()
+						.setShaderState(RENDERTYPE_ENTITY_BULLET_TRAIL)
+						.setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))
+						.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+						.setCullState(NO_CULL)
+						.setLightmapState(LIGHTMAP)
+						.setOverlayState(OVERLAY)
+						.createCompositeState(outline);
+				return create(JojoMod.MOD_ID + ":entity_bullet_trail", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 1536, true, true, rendertype$compositestate);
+			});
+
 	public static RenderType entityDither(ResourceLocation texture, boolean outline) {
 		return ENTITY_DITHER.apply(texture, outline);
 	}
 
 	public static RenderType entityDither(ResourceLocation texture) {
 		return entityDither(texture, true);
+	}
+
+	public static RenderType entityBulletTrail(ResourceLocation texture) {
+		return ENTITY_BULLET_TRAIL.apply(texture, false);
 	}
 }

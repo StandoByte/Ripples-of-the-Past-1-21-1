@@ -1,0 +1,6 @@
+{
+  "parent": "item/bow",
+  "textures": {
+    "layer0": "jojo_ripples:item/bow_pulling_stand_arrow_0"
+  }
+}

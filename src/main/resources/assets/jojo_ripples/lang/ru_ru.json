@@ -11,6 +11,17 @@
   "block.jojo_ripples.meteorite_core": "Ядро метеорита",
   "item.jojo_ripples.meteoric_scrap": "Метеоритный лом",
   "item.jojo_ripples.meteoric_ingot": "Метеоритный слиток",
+  "item.jojo_ripples.creative_tab.stand_discs": "Диски со Стендами",
+  "item.jojo_ripples.stand_disc": "Диск со Стендом",
+  "item.jojo_ripples.stand_disc.wip": "В разработке",
+  "item.jojo_ripples.stand_disc.old": "Старый мувсет (перенесён с версии на 1.16.5)",
+  "item.jojo_ripples.stand_disc.experimental": "Экспериментальный / Неигровой",
+  "item.jojo_ripples.stand_disc.addon_author": "Автор(ы) аддона: %s",
+  "item.jojo_ripples.stand_disc.data_pack": "Стенд из датапака",
+  "item.jojo_ripples.tommy_gun": "Томми-ган",
+  "item.jojo_ripples.tommy_gun.reference_quote": "\"Я отомщу за дядю Спидвагона! Отныне мы на войне.\"",
+  "item.jojo_ripples.tommy_gun.hint": "%s+%s, чтобы перезарядить (расходует кусочки железа и порох)",
+  "item.jojo_ripples.dono_tooltip": "Заказано подписчиком: %s",
   
   "jojo_ripples.stand_arrow.lore.ancient": "Эта стрела была найдена в археологических раскопках.",
   "jojo_ripples.stand_arrow.lore.ancient.name": "Эта стрела была найдена %s в археологических раскопках.",
@@ -336,6 +347,10 @@
   
   "jojo.message.action_condition.no_air": "Вы не можете вдохнуть",
   
+  "jojo_ripples.vl_subtitle.joseph_scream_shooting": "УОООООООООО!!",
+  "jojo_ripples.vl_subtitle.war_declaration": "Отныне мы на войне!",
+  "jojo_ripples.vl_subtitle.shoot": "Стреляю!",
+  
   
   "power.jojo_ripples.vampirism": "Вампиризм",
   "jojo_ripples.vampirism.skills": "Навыки",
@@ -343,13 +358,7 @@
   
   "jojo_ripples.class.stand": "Стенд: %s",
   "jojo_ripples.class.player_power": "Сила персонажа: %s",
-
-  "item.jojo_ripples.stand_disc": "Диск со Стендом",
-  "item.jojo_ripples.stand_disc.wip": "В разработке",
-  "item.jojo_ripples.stand_disc.old": "Старый мувсет (перенесён с версии на 1.16.5)",
-  "item.jojo_ripples.stand_disc.experimental": "Экспериментальный / Неигровой",
-  "item.jojo_ripples.stand_disc.addon_author": "Автор(ы) аддона: %s",
-  "item.jojo_ripples.stand_disc.data_pack": "Стенд из датапака",
+  
   "jojo_ripples.menu.stand.info": "Информация о Стенде",
   "jojo_ripples.menu.stand.skills": "Навыки",
   "jojo_ripples.menu.stand.toggles": "Переключатели",

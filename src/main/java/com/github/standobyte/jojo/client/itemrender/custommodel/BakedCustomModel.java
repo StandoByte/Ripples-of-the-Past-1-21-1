@@ -15,7 +15,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class BakedCustomModel implements BakedModel {
-	private BakedModel existingModel;
+	public BakedModel existingModel;
 	private ISTERItemCaptureEntity captureEntityOverrides = null;
 
 	public BakedCustomModel(BakedModel existingModel) {
@@ -26,28 +26,6 @@ public class BakedCustomModel implements BakedModel {
 		captureEntityOverrides = new ISTERItemCaptureEntity();
 		return this;
 	}
-
-	// я хуй его знает, как всегда нахуевертили, лишь бы что-нибудь да переписать, а мне ебись и вспоминай, как все это у них там работает
-//	public ItemISTERModelWrapper refreshOverrides(Map<ModelResourceLocation, BakedModel> registry) {
-//		ItemOverrides overridesList = existingModel.getOverrides();
-//		if (overridesList != null) {
-//			List<ItemOverride> overrides = ClientReflection.getOverrides(overridesList);
-//			if (!overrides.isEmpty()) {
-//				List<BakedModel> overrideModels = ClientReflection.getOverrideModels(overridesList);
-//				for (int i = 0; i < overrides.size(); i++) {
-//					ItemOverride override = overrides.get(i);
-//					ResourceLocation key = override.getModel();
-//					ModelResourceLocation modelKey = ModelResourceLocation.inventory(ResourceLocation.fromNamespaceAndPath(
-//							key.getNamespace(), key.getPath().replace("item/", "")));
-//					BakedModel replacementModel = registry.get(modelKey);
-//					if (replacementModel != null) {
-//						overrideModels.set(i, replacementModel);
-//					}
-//				}
-//			}
-//		}
-//		return this;
-//	}
 
 	@SuppressWarnings("deprecation")
 	@Override

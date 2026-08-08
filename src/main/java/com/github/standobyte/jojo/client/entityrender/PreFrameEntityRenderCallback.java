@@ -99,34 +99,39 @@ public class PreFrameEntityRenderCallback {
 		RotpAnimDefinition anim = null;
 		if (stand != null) {
 			StandSkin standSkin = StandSkinsLoader.getInstance().getSkin(stand);
-			boolean isGrabbing = LivingComponentGrab.getEntityGrabbedBy(stand) != null;
-			ActionAnimIdentifier idleAnim = isGrabbing ? StandEntityRenderer.GRAB_IDLE_ANIM : StandEntityRenderer.IDLE_ANIM;
-
-			if (animVariables.animId == null) {
-				float idleTime = stand.tickCount - stand.nonIdlePoseTimeStamp + partialTick;
-				// FIXME for a bit after grabbing, the grabbed entity is not yet synced to the client, causing it to use regular idle anim for a few frames
-				if (isGrabbing) {
-					animVariables.animId = idleAnim;
-					animVariables.actionPhase = ActionPhase.PERFORM;
-					animVariables.phaseTime = idleTime;
+			if (standSkin != null) {
+				boolean isGrabbing = LivingComponentGrab.getEntityGrabbedBy(stand) != null;
+				ActionAnimIdentifier idleAnim = isGrabbing ? StandEntityRenderer.GRAB_IDLE_ANIM : StandEntityRenderer.IDLE_ANIM;
+				
+				if (animVariables.animId == null) {
+					float idleTime = stand.tickCount - stand.nonIdlePoseTimeStamp + partialTick;
+					// FIXME for a bit after grabbing, the grabbed entity is not yet synced to the client, causing it to use regular idle anim for a few frames
+					if (isGrabbing) {
+						animVariables.animId = idleAnim;
+						animVariables.actionPhase = ActionPhase.PERFORM;
+						animVariables.phaseTime = idleTime;
+					}
+					else {
+						animVariables.animId = idleAnim;
+						animVariables.time = idleTime;
+					}
 				}
-				else {
-					animVariables.animId = idleAnim;
-					animVariables.time = idleTime;
+				if (newFrame && !animVariables.animId.isIdle) {
+					stand.nonIdlePoseTimeStamp = stand.tickCount;
+				}
+				
+				AnimWithId standSummonAnim = getCurSummonAnimAndAdjustFreezeTime(stand, standSkin, animVariables);
+				AnimWithId animPossiblyReplaced = standSummonAnim != null ? standSummonAnim : getStandAnim(standSkin, animVariables.animId, idleAnim);
+				anim = animPossiblyReplaced.anim;
+				animVariables.animId = animPossiblyReplaced.animId;
+				animsPre = standSkin.getStandAlwaysAnimations();
+				
+				if (!stand.clientStuff.summonAnimStopped && standSummonAnim == null) {
+					stand.clientStuff.summonAnimStopped = true;
 				}
 			}
-			if (newFrame && !animVariables.animId.isIdle) {
-				stand.nonIdlePoseTimeStamp = stand.tickCount;
-			}
-			
-			AnimWithId standSummonAnim = getCurSummonAnimAndAdjustFreezeTime(stand, standSkin, animVariables);
-			AnimWithId animPossiblyReplaced = standSummonAnim != null ? standSummonAnim : getStandAnim(standSkin, animVariables.animId, idleAnim);
-			anim = animPossiblyReplaced.anim;
-			animVariables.animId = animPossiblyReplaced.animId;
-			animsPre = standSkin.getStandAlwaysAnimations();
-			
-			if (!stand.clientStuff.summonAnimStopped && standSummonAnim == null) {
-				stand.clientStuff.summonAnimStopped = true;
+			else {
+				anim = null;
 			}
 		}
 		else {

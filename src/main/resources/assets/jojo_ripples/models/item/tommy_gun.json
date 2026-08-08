@@ -1,0 +1,33 @@
+{
+  "parent": "item/generated",
+  "textures": {
+      "layer0": "jojo_ripples:item/tommy_gun_sprite"
+  },
+  "display": {
+		"thirdperson_righthand": {
+			"rotation": [0, -15, 0],
+			"translation": [0, 5, 2.5]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [0, -15, 0],
+			"translation": [0, 5, 2.5]
+		},
+		"firstperson_righthand": {
+			"translation": [0, 6, 0]
+		},
+		"firstperson_lefthand": {
+			"translation": [0, 6, 0]
+		},
+		"head": {
+			"translation": [0, 7.75, 0]
+		}
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "jojo_ripples:swing": 1
+      },
+      "model": "jojo_ripples:item/tommy_gun_flipped"
+    }
+  ]
+}

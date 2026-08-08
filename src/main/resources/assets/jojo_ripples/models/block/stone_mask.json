@@ -1,0 +1,22 @@
+{
+  "textures": {
+    "particle": "jojo_ripples:block/stone_mask_face",
+    "face": "jojo_ripples:block/stone_mask_face",
+    "left": "jojo_ripples:block/stone_mask_left",
+    "right": "jojo_ripples:block/stone_mask_right",
+    "up": "jojo_ripples:block/stone_mask_up",
+    "down": "jojo_ripples:block/stone_mask_down"
+  },
+  "elements": [
+    { "from": [ 4, 0, 4 ],
+      "to": [ 12, 1, 12 ],
+      "faces": {
+        "up":    { "uv": [  0,  0, 16, 16 ], "texture": "#face" },
+        "north": { "uv": [  0, 14, 16, 16 ], "texture": "#up", "rotation": 180 },
+        "south": { "uv": [  0,  0, 16,  2 ], "texture": "#down" },
+        "west":  { "uv": [ 14,  0, 16, 16 ], "texture": "#left", "rotation": 270 },
+        "east":  { "uv": [  0,  0,  2, 16 ], "texture": "#right", "rotation": 90 }
+      }
+    }
+  ]
+}

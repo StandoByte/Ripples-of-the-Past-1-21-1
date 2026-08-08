@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/template_fire_floor",
+  "textures": {
+    "fire": "jojo_ripples:block/mr_fire_1"
+  }
+}

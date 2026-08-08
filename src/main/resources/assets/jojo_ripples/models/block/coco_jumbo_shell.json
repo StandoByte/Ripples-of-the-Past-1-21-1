@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+    "textures": {
+      "all": "jojo_ripples:block/coco_jumbo_shell"
+    }
+}

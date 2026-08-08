@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.adventure.npc.client.CharacterMobRenderer;
 import com.github.standobyte.jojo.adventure.npc.debug.NpcFlags;
 import com.github.standobyte.jojo.client.entityrender.entities.BlockShardRenderer;
+import com.github.standobyte.jojo.client.entityrender.entities.BulletRenderer;
 import com.github.standobyte.jojo.client.entityrender.entities.MannequinRenderer;
 import com.github.standobyte.jojo.client.entityrender.entities.SimpleEntityModel;
 import com.github.standobyte.jojo.client.entityrender.entities.SimpleEntityRenderer;
@@ -46,6 +47,7 @@ public class ModEntityTypeRenderers {
 		event.registerEntityRenderer(ModEntityTypes.HUMANOID_STAND.get(), StandEntityRenderer::new);
 		event.registerEntityRenderer(ModEntityTypes.MANNEQUIN.get(), MannequinRenderer::new);
 		event.registerEntityRenderer(ModEntityTypes.BLOCK_SHARD.get(), BlockShardRenderer::new);
+		event.registerEntityRenderer(ModEntityTypes.BULLET.get(), BulletRenderer::new);
 		event.registerEntityRenderer(ModEntityTypes.NUGGET_BEARING.get(), ctx -> new ThrownItemRenderer<>(ctx, 0.5f, false));
 		event.registerEntityRenderer(ModEntityTypes.CD_BLOOD_CUTTER.get(), ctx -> new SimpleEntityRenderer<>(ctx)
 				.initTexture(JojoMod.resLoc("textures/entity/blood_cutter.png"), true)
