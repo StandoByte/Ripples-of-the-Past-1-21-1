@@ -1,4 +1,32 @@
 {
+  "character.jojo_ripples.jonathan": "Jonathan Joestar",
+  "character.jojo_ripples.jonathan.short": "Jonathan",
+  
+  
+  "character.jojo_ripples.zeppeli": "Will Anthonio Zeppeli",
+  "character.jojo_ripples.zeppeli.short": "Zeppeli",
+  
+  
+  "character.jojo_ripples.speedwagon": "Robert E. O. Speedwagon",
+  "character.jojo_ripples.speedwagon.short": "Speedwagon",
+  
+  
+  "character.jojo_ripples.dio": "Dio Brando",
+  "character.jojo_ripples.dio.short": "Dio",
+  
+  
+  "character.jojo_ripples.joseph": "Joseph Joestar",
+  "character.jojo_ripples.joseph.short": "Joseph",
+  
+  
+  "character.jojo_ripples.caesar": "Caesar Anthonio Zeppeli",
+  "character.jojo_ripples.caesar.short": "Caesar",
+  
+  
+  "character.jojo_ripples.lisa_lisa": "Lisa Lisa",
+  "character.jojo_ripples.lisa_lisa.short": "Lisa Lisa",
+  
+  
   "character.jojo_ripples.jotaro": "Jotaro Kujo",
   "character.jojo_ripples.jotaro.short": "Jotaro",
   
@@ -11,10 +39,6 @@
   
   "jojo.vl_subtitle.yare_yare": "Good grief...",
   "jojo.vl_subtitle.yare_yare_daze": "Good grief...",
-  
-  
-  "character.jojo_ripples.dio": "Dio Brando",
-  "character.jojo_ripples.dio.short": "Dio",
   
   
   "character.jojo_ripples.kakyoin": "Noriaki Kakyoin",
@@ -31,6 +55,10 @@
   
   "character.jojo_ripples.josuke4": "Josuke Higashikata",
   "character.jojo_ripples.josuke4.short": "Josuke",
+  
+  
+  "character.jojo_ripples.kira4": "Yoshikage Kira",
+  "character.jojo_ripples.kira4.short": "Kira",
   
   
   "character.jojo_ripples.giorno": "Giorno Giovanna",
