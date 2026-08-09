@@ -132,8 +132,19 @@ public class RotpAnimDefinition {
 		 */
 		vanillaModel.body.resetPose();
 		EntityRenderState.resetPose(rigModel);
+		copyRotation(rigModel.leftArm, vanillaModel.leftArm);
+		copyRotation(rigModel.rightArm, vanillaModel.rightArm);
+		copyRotation(rigModel.leftLeg, vanillaModel.leftLeg);
+		copyRotation(rigModel.rightLeg, vanillaModel.rightLeg);
+		
 		animate(rigModel, pose);
 		OldPlayerModelJank._onAnimate(vanillaModel);
+	}
+	
+	static void copyRotation(ModelPart dest, ModelPart src) {
+		dest.xRot = src.xRot;
+		dest.yRot = src.yRot;
+		dest.zRot = src.zRot;
 	}
 	
 	public static void animate(Model model, AnimFramePose pose) {
