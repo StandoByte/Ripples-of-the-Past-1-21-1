@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.mechanics.jojopose.resource;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +14,7 @@ public class JojoPoseAnimSet2 {
 	public final @Nullable List<ResourceLocation> storyPart;
 
 	public JojoPoseAnimSet2(@Nullable ResourceLocation character, @Nullable List<ResourceLocation> storyPart) {
-		this.anims = new HashMap<>();
+		this.anims = new LinkedHashMap<>();
 		this.character = character;
 		this.storyPart = storyPart;
 	}
