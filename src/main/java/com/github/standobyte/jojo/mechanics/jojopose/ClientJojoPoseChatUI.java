@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.mechanics.jojopose;
 import java.util.List;
 
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
+import com.github.standobyte.jojo.client.entityrender.ModelUtil;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList.EntryWithButtons;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
@@ -176,13 +177,7 @@ public class ClientJojoPoseChatUI {
 			PlayerRenderer renderer = (PlayerRenderer) (Object) entityRenderDispatcher.getRenderer(player);
 			PlayerModel<?> model = renderer.getModel();
 
-			model.setAllVisible(true);
-			model.hat.visible = false;
-			model.jacket.visible = false;
-			model.leftPants.visible = false;
-			model.rightPants.visible = false;
-			model.leftSleeve.visible = false;
-			model.rightSleeve.visible = false;
+			ModelUtil.setAllVisibleSetupOuterLayer(model, player);
 			
         	HumanoidRenderState renderState = RenderModelWithPose.clearSetupPose(model, pose, player.tickCount + partialTick);
         	renderState.isBaby = player.isBaby();
