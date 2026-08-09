@@ -8,6 +8,8 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import org.joml.Vector3f;
+
 import com.github.standobyte.jojo.UglyCrutchesClient;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
@@ -274,22 +276,36 @@ public class HumanoidModelPartsWithBends {
 	
 	
 	static String[] LIMB_BENDS = new String[] { "left_arm_bend", "right_arm_bend", "left_leg_bend", "right_leg_bend" };
-	public static void adjustComplexBends(AnimFramePose pose) {
+	public static boolean adjustComplexBends(AnimFramePose pose) {
+		boolean ret = false;
+		
 		for (String limbBend : LIMB_BENDS) {
 			ModelPartFrame bonePose = pose.getIfPresent(limbBend);
 			if (bonePose != null) {
-				bonePose.rotationOffset.set(bonePose.rotationOffset.x, 0, 0);
+				Vector3f rotation = bonePose.rotationOffset;
+				if (rotation.y != 0 || rotation.z != 0) {
+					ret = true;
+					rotation.set(rotation.x, 0, 0);
+				}
 			}
 		}
+		
 		ModelPartFrame torsoBendPose = pose.getIfPresent("torso_bend");
 		if (torsoBendPose != null) {
-			float yRot = torsoBendPose.rotationOffset.y;
-			torsoBendPose.rotationOffset.set(torsoBendPose.rotationOffset.x, 0, 0);
-			ModelPartFrame parent = pose.getIfPresent("waist");
-			if (parent != null) {
-				parent.rotationOffset.add(0, yRot, 0);
+			Vector3f rotation = torsoBendPose.rotationOffset;
+			if (rotation.y != 0 || rotation.z != 0) {
+				ret = true;
+				if (rotation.y != 0) {
+					ModelPartFrame parent = pose.getIfPresent("waist");
+					if (parent != null) {
+						parent.rotationOffset.add(0, rotation.y, 0);
+					}
+				}
+				rotation.set(rotation.x, 0, 0);
 			}
 		}
+		
+		return ret;
 	}
 	
 }

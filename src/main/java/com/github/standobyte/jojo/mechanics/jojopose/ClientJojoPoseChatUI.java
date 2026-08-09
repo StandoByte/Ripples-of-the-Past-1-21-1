@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.mechanics.jojopose;
 
 import java.util.List;
 
+import com.github.standobyte.jojo.client.entityanim.humanoid_bend.HumanoidModelPartsWithBends;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityrender.ModelUtil;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList;
@@ -87,6 +88,8 @@ public class ClientJojoPoseChatUI {
 						ResourceLocation animSetId = jojoPoseDefinition.animSet;
 						String poseName = jojoPoseDefinition.animName;
 						AnimFramePose modelPose = jojoPoseDefinition.getPose();
+						modelPose = modelPose.deepCopy();
+						HumanoidModelPartsWithBends.adjustComplexBends(modelPose);
 						JojoPoseWidget button = new JojoPoseWidget(chatScreen, 0, 0, modelPose, animSetId, poseName);
 						if (jojoPoseDefinition.authors != null) {
 							button.setTooltip(Tooltip.create(jojoPoseDefinition.authors));

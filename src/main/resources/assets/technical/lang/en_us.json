@@ -38,5 +38,7 @@
   "jojo_ripples.list.entry": "\n  - %s",
   "jojo_ripples.list.entry.no_newline": "- %s",
   
-  "jojo_ripples.missing_stand_skin_name": "[%s]"
+  "jojo_ripples.missing_stand_skin_name": "[%s]",
+  
+  "jojo_ripples.player_anim_wrong_bend": "Player animation %s#%s has incorrect bends: parts ending with \"_bend\" can only have x rotation!"
 }

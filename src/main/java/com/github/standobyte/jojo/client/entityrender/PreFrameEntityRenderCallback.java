@@ -34,12 +34,14 @@ import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.subsystems.entity_grab.LivingComponentGrab;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.TickRateManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -48,6 +50,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
@@ -80,10 +83,11 @@ public class PreFrameEntityRenderCallback {
 	// TODO get rid of newFrame argument
 	@Nullable
 	public static AnimFramePose makeLivingPose(LivingEntity living, float partialTick, boolean newFrame) {
+		Minecraft mc = Minecraft.getInstance();
 		LivingComponentAction actionComponent = LivingComponentAction.getExistingComponent(living);
 		EntityActionInstance action = actionComponent != null ? actionComponent.getAction() : null;
 		@Nullable StandEntity stand = living instanceof StandEntity __ ? __ : null;
-		LivingEntityRenderer renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(living) instanceof LivingEntityRenderer __ ? __ : null;
+		LivingEntityRenderer renderer = mc.getEntityRenderDispatcher().getRenderer(living) instanceof LivingEntityRenderer __ ? __ : null;
 		if (renderer == null) return null;
 		EntityModel model = renderer.getModel();
 		
@@ -182,14 +186,17 @@ public class PreFrameEntityRenderCallback {
 			anim.calcAnimPose(pose, timeSeconds, 1, 
 					AnimMolangVariables.extract(living, partialTick), 
 					actionComponent != null ? actionComponent.clPrevPunchPose : null);
-			if (adjustComplexBends) {
-				HumanoidModelPartsWithBends.adjustComplexBends(pose);
+			if (adjustComplexBends && HumanoidModelPartsWithBends.adjustComplexBends(pose) && !FMLLoader.isProduction()) {
+				String animSetName = animVariables.animSet != null ? animVariables.animSet.toString() : "null";
+				String animName = animVariables.animId != null ? animVariables.animId.toString() : "null";
+				mc.gui.setOverlayMessage(Component.translatable("jojo_ripples.player_anim_wrong_bend", 
+						animSetName, animName).withStyle(ChatFormatting.RED), false);
 			}
 			
 			if (newFrame) {
 				BarrageSwings barrageSwings = EntityActionRenderState.getBarrageSwings(living);
 				if (barrageSwings != null) {
-					barrageSwings.frameStandBarrage(Minecraft.getInstance(), anim, timeSeconds, living, living.tickCount + partialTick);
+					barrageSwings.frameStandBarrage(mc, anim, timeSeconds, living, living.tickCount + partialTick);
 				}
 			}
 			
