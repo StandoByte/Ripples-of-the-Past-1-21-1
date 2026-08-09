@@ -10,7 +10,6 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.client.entityrender.LoadedModel;
 import com.github.standobyte.jojo.client.entityrender.entities.SimpleEntityModel;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
-import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
@@ -26,8 +25,6 @@ public class ResourceModelEntry {
 	public static SimpleEntityModel<?> createModel(LayerDefinition modelDefinition) {
 		ModelPart root = modelDefinition.bakeRoot();
 		SimpleEntityModel<?> model = new SimpleEntityModel<>(root);
-		Model_1_21_2plus _this = (Model_1_21_2plus) model;
-		_this.jojo_ripples$initRoot(root);
 		return model;
 	}
 	

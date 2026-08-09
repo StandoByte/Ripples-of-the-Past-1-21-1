@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.entityanim.humanoid_bend;
+package com.github.standobyte.jojo.client.entityanim.player;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,6 +11,8 @@ import javax.annotation.Nullable;
 import org.joml.Vector3f;
 
 import com.github.standobyte.jojo.UglyCrutchesClient;
+import com.github.standobyte.jojo.client.entityanim.humanoid_bend.BendUtil;
+import com.github.standobyte.jojo.client.entityanim.humanoid_bend.BendableLimb;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
 import com.github.standobyte.jojo.client.entityrender.HumanoidPlayerModel;
@@ -175,13 +177,6 @@ public class HumanoidModelPartsWithBends {
 	}
 	
 	
-	public static void beforePlayerAnim(HumanoidModel<?> playerModel) {
-		/* This vanilla part is not referenced in playerAnimator format, so we just reset it, 
-		 * in order to get rid of things like y rotation from the vanilla punch animation.
-		 */
-		playerModel.body.resetPose();
-	}
-
 	public void renderWithBends(HumanoidModel<?> model, Model rig, 
 			PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
 		Model_1_21_2plus rigModel = (Model_1_21_2plus) rig;

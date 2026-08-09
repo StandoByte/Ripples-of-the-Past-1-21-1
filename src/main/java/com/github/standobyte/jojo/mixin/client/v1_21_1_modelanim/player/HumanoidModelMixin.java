@@ -11,9 +11,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.client.entityanim.IHumanoidAnimModel;
-import com.github.standobyte.jojo.client.entityanim.PlayerAnimRig;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
-import com.github.standobyte.jojo.client.entityanim.humanoid_bend.HumanoidModelPartsWithBends;
+import com.github.standobyte.jojo.client.entityanim.player.HumanoidModelPartsWithBends;
+import com.github.standobyte.jojo.client.entityanim.player.PlayerAnimRigLoad;
+import com.github.standobyte.jojo.client.entityanim.player.PlayerAnimRigModel;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState;
 import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
@@ -23,7 +24,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -31,7 +31,7 @@ import net.minecraft.world.entity.HumanoidArm;
 
 @Mixin(HumanoidModel.class)
 public abstract class HumanoidModelMixin/* extends ModelMixinSuperclass*/ extends AgeableModelMixinSuperclass implements IHumanoidAnimModel {
-	@Nullable protected Model jojo_ripples$playerAnimRig;
+	@Nullable protected PlayerAnimRigModel jojo_ripples$playerAnimRig;
 	protected HumanoidModelPartsWithBends humanoidModelWithBends;
 	
 	@Inject(method = "<init>("
@@ -50,7 +50,7 @@ public abstract class HumanoidModelMixin/* extends ModelMixinSuperclass*/ extend
 	@Override
 	public void jojo_ripples$setupHumanoidPose(@Nullable AnimFramePose pose) {
 		if (pose != null) {
-			this.jojo_ripples$playerAnimRig = PlayerAnimRig.getModel();
+			this.jojo_ripples$playerAnimRig = PlayerAnimRigLoad.getModel();
 			if (jojo_ripples$playerAnimRig != null) {
 				RotpAnimDefinition.animateVanillaHumanoid(jojo_ripples$playerAnimRig, 
 						(HumanoidModel<?>) (Object) this, pose);

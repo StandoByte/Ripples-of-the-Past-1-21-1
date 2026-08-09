@@ -3,12 +3,12 @@ package com.github.standobyte.jojo.client.entityrender.stand;
 import java.util.List;
 import java.util.function.Consumer;
 
+import com.github.standobyte.jojo.client.entityanim.OnFrameApplyEntityAnim;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.AnimWithId;
 import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery.AnimMolangVariables;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
-import com.github.standobyte.jojo.client.entityrender.PreFrameEntityRenderCallback;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
 import com.github.standobyte.jojo.client.rendertype.ModRenderTypes;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
@@ -136,7 +136,7 @@ public class StandEntityRenderer<
 					}
 					
 					ActionAnimIdentifier animId = StandEntityRenderer.IDLE_ANIM;
-					AnimWithId animWithId = PreFrameEntityRenderCallback.getStandAnim(skin, animId, StandEntityRenderer.IDLE_ANIM);
+					AnimWithId animWithId = OnFrameApplyEntityAnim.getStandAnim(skin, animId, StandEntityRenderer.IDLE_ANIM);
 					RotpAnimDefinition anim = animWithId.anim;
 					if (anim != null) {
 						float seconds = anim.getAnimTime(ticks);

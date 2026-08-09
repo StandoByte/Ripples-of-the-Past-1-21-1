@@ -1,15 +1,13 @@
-package com.github.standobyte.jojo.client.entityanim;
+package com.github.standobyte.jojo.client.entityanim.player;
 
 import java.util.Optional;
 
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.entityrender.parsemodel.ParseModEntityModel.ModelFormat;
-import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.ResourceModelEntry;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
 import com.github.standobyte.jojo.core.JojoMod;
 
-import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -18,20 +16,20 @@ import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 
-public class PlayerAnimRig extends SimplePreparableReloadListener<Optional<LayerDefinition>> {
-	private static PlayerAnimRig loaderInstance;
+public class PlayerAnimRigLoad extends SimplePreparableReloadListener<Optional<LayerDefinition>> {
+	private static PlayerAnimRigLoad loaderInstance;
 	
 	@ApiStatus.Internal
 	public static void init(RegisterClientReloadListenersEvent event) {
 		if (loaderInstance == null) {
-			loaderInstance = new PlayerAnimRig();
+			loaderInstance = new PlayerAnimRigLoad();
 		}
 		event.registerReloadListener(loaderInstance);
 	}
 	
 	public static final ResourceLocation PLAYER_ANIM_MODEL_PATH = JojoMod.resLoc("geo_rotp/player_anim.geo.json");
-	private Model hierarchyModel;
-	public static Model getModel() {
+	private PlayerAnimRigModel hierarchyModel;
+	public static PlayerAnimRigModel getModel() {
 		return loaderInstance.hierarchyModel;
 	}
 	
@@ -60,7 +58,7 @@ public class PlayerAnimRig extends SimplePreparableReloadListener<Optional<Layer
 	
 	@Override
 	protected void apply(Optional<LayerDefinition> parsedModel, ResourceManager resourceManager, ProfilerFiller profiler) {
-		this.hierarchyModel = parsedModel.map(ResourceModelEntry::createModel).orElse(null);
+		this.hierarchyModel = parsedModel.map(modelDef -> new PlayerAnimRigModel(modelDef.bakeRoot())).orElse(null);
 	}
 
 }

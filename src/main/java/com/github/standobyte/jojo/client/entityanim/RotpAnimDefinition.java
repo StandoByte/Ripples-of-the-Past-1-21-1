@@ -15,12 +15,12 @@ import org.joml.Vector3f;
 import com.github.standobyte.jojo.client.entityanim.action.AnimActionPhase;
 import com.github.standobyte.jojo.client.entityanim.action.AnimInstructionTimelines;
 import com.github.standobyte.jojo.client.entityanim.action.AnimObjTimeline;
-import com.github.standobyte.jojo.client.entityanim.humanoid_bend.HumanoidModelPartsWithBends;
 import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery;
 import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery.AnimMolangVariables;
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.AnimationChannelQuery;
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.IAnimationChannel;
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.KeyframeQuery;
+import com.github.standobyte.jojo.client.entityanim.player.PlayerAnimRigModel;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
 import com.github.standobyte.jojo.client.entityrender.HiddenModelPartsUtil;
@@ -126,18 +126,21 @@ public class RotpAnimDefinition {
 		}
 	}
 	
-	public static void animateVanillaHumanoid(Model rigModel, HumanoidModel<?> vanillaModel, AnimFramePose frame) {
-		HumanoidModelPartsWithBends.beforePlayerAnim(vanillaModel);
+	public static void animateVanillaHumanoid(PlayerAnimRigModel rigModel, HumanoidModel<?> vanillaModel, AnimFramePose pose) {
+		/* This vanilla part is not referenced in playerAnimator format, so we just reset it, 
+		 * in order to get rid of things like y rotation from the vanilla punch animation.
+		 */
+		vanillaModel.body.resetPose();
 		EntityRenderState.resetPose(rigModel);
-		animate(rigModel, frame);
+		animate(rigModel, pose);
 		OldPlayerModelJank._onAnimate(vanillaModel);
 	}
 	
-	public static void animate(Model model, AnimFramePose frame) {
+	public static void animate(Model model, AnimFramePose pose) {
 		Model_1_21_2plus backportModelCast = (Model_1_21_2plus) model;
 		ModelWithExtraFeatures rotpModelCast = (ModelWithExtraFeatures) model;
 		
-		for (var modelPartEntry : frame.pose.entrySet()) {
+		for (var modelPartEntry : pose.pose.entrySet()) {
 			String modelPartName = modelPartEntry.getKey();
 			ModelPart modelPart = getModelPart(modelPartName, model, backportModelCast);
 			if (modelPart != null) {

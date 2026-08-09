@@ -1,20 +1,16 @@
-package com.github.standobyte.jojo.client.entityrender;
+package com.github.standobyte.jojo.client.entityanim;
 
 import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.entityanim.AnimVariantsList;
-import com.github.standobyte.jojo.client.entityanim.AnimationLoader;
-import com.github.standobyte.jojo.client.entityanim.AnimationSet;
-import com.github.standobyte.jojo.client.entityanim.LivingAnimState;
-import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.AnimWithId;
 import com.github.standobyte.jojo.client.entityanim.barrage.BarrageSwings;
-import com.github.standobyte.jojo.client.entityanim.humanoid_bend.HumanoidModelPartsWithBends;
 import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery.AnimMolangVariables;
+import com.github.standobyte.jojo.client.entityanim.player.HumanoidModelPartsWithBends;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimatedEntity;
+import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
@@ -54,7 +50,7 @@ import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
-public class PreFrameEntityRenderCallback {
+public class OnFrameApplyEntityAnim {
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void onFrameRender(RenderFrameEvent.Pre event) {
@@ -65,7 +61,7 @@ public class PreFrameEntityRenderCallback {
 			TickRateManager tickRateManager = level.tickRateManager();
 			for (Entity entity : level.entitiesForRendering()) {
 				float partialTick = ClientUtil.partialTick(entity, deltaTracker, tickRateManager);
-				AnimFramePose pose = PreFrameEntityRenderCallback.makeEntityPose(entity, partialTick);
+				AnimFramePose pose = OnFrameApplyEntityAnim.makeEntityPose(entity, partialTick);
 				((AnimatedEntity) entity).jojo_ripples$setModelPose(AnimatedEntity.PoseType.FINAL, pose);
 			}
 		}
@@ -74,7 +70,7 @@ public class PreFrameEntityRenderCallback {
 	@Nullable
 	public static AnimFramePose makeEntityPose(Entity entity, float partialTick) {
 		if (entity instanceof LivingEntity living) {
-			return PreFrameEntityRenderCallback.makeLivingPose(living, partialTick, true);
+			return OnFrameApplyEntityAnim.makeLivingPose(living, partialTick, true);
 		}
 		return null;
 	}

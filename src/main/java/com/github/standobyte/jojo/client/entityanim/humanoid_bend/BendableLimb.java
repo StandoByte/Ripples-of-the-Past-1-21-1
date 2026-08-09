@@ -27,7 +27,7 @@ public record BendableLimb(LimbHalf base, LimbHalf bend, Map<String, ModelPart> 
 	static List<ModelPart.Polygon> bendQuads = new ArrayList<>(6);
 	static List<ModelPart.Vertex> yLess = new ArrayList<>(4);
 	static List<ModelPart.Vertex> yMore = new ArrayList<>(4);
-	static BendableLimb create(ModelPart modelPart, 
+	public static BendableLimb create(ModelPart modelPart, 
 			float x, float y, float z, float yOffset, boolean bendIsAbove) {
 		List<ModelPart.Cube> baseHalfCubes = new ArrayList<>(modelPart.cubes.size());
 		List<ModelPart.Cube> bendHalfCubes = new ArrayList<>(modelPart.cubes.size());

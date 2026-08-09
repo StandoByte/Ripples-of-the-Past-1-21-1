@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.client.entityrender.entities;
 
 import com.github.standobyte.jojo.util.functions.MathUtil;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -11,6 +12,7 @@ public class SimpleEntityModel<T extends Entity> extends HierarchicalModel<T> {
 
 	public SimpleEntityModel(ModelPart root) {
 		this.root = root;
+		((Model_1_21_2plus) this).jojo_ripples$initRoot(root);
 	}
 
 	@Override
