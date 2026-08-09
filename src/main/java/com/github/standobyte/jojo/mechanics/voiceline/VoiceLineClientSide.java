@@ -4,12 +4,14 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.sound.util.EntityBoundEventlessSound;
 import com.github.standobyte.jojo.client.sound.util.SoundUtil;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.StoryCharacter;
 import com.github.standobyte.jojo.subsystems.StoryPart;
 import com.github.standobyte.jojo.util.functions.java.ListUtil;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -29,8 +31,7 @@ public class VoiceLineClientSide {
 				storyPart, standType).toList();
 		if (!voiceLines.isEmpty()) {
 			ClientVoiceLineDefinition voiceLine = pick(voiceLines);
-			Vec3 pos = entity.getEyePosition();
-			play(voiceLine, entity, canInterrupt, soundCategory, volume, pitch, pos.x, pos.y, pos.z);
+			play(voiceLine, entity, canInterrupt, soundCategory, volume, pitch);
 		}
 	}
 	
@@ -40,15 +41,12 @@ public class VoiceLineClientSide {
 	
 	public static void play(ClientVoiceLineDefinition voiceLine, 
 			Entity entity, boolean canInterrupt) {
-		Vec3 pos = entity.getEyePosition();
-		play(voiceLine, entity, canInterrupt,
-				SoundSource.VOICE, 1, 1, pos.x, pos.y, pos.z);
+		play(voiceLine, entity, canInterrupt, SoundSource.VOICE, 1, 1);
 	}
 	
 	public static void play(ClientVoiceLineDefinition voiceLine, 
 			Entity entity, boolean canInterrupt, 
-			SoundSource soundCategory, float volume, float pitch,
-			double x, double y, double z) {
+			SoundSource soundCategory, float volume, float pitch) {
 		List<ResourceLocation> sounds = voiceLine.sounds();
 		if (sounds.isEmpty()) return;
 		
@@ -65,8 +63,20 @@ public class VoiceLineClientSide {
 			}
 		}
 		
-		SoundInstance soundInstance = SoundUtil.justPutTheSoundInTheBag(soundLocation, voiceLine.subtitle(),
-				soundCategory, volume, pitch, SoundInstance.Attenuation.LINEAR, x, y, z);
+		Sound sound = SoundUtil.getSound(soundLocation);
+		SoundInstance soundInstance = new EntityBoundEventlessSound(
+				entity, sound, soundCategory, voiceLine.subtitle(),
+				volume, pitch, false, 0,
+				SoundInstance.Attenuation.LINEAR, false) {
+
+			@Override
+			protected void updatePosition() {
+				Vec3 pos = entity.getEyePosition();
+				x = pos.x;
+				y = pos.y;
+				z = pos.z;
+			}
+		};
 		mc.getSoundManager().play(soundInstance);
 		VoiceLineClientSoundTracker.setSound(entity, soundInstance);
 	}
