@@ -24,7 +24,6 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.HumanoidArm;
 
-// TODO (player animation) parent xrot bones for limbs
 // TODO (player animation) 1st person animation
 // TODO (clothes player animation) rotate joints
 
