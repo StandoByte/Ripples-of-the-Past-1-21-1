@@ -58,7 +58,7 @@ public class HumanoidModelPartsWithBends {
 		HumanoidPlayerModel<?> clothesModel = model instanceof HumanoidPlayerModel __ ? __ : null;
 		
 		List<AlternativeModelPart> head = new ArrayList<>();
-		this.vanillaCounterparts.put("head", head);
+		this.vanillaCounterparts.put("head_rot", head);
 
 		List<BendableLimb> torso = new ArrayList<>();
 		List<AlternativeModelPart> torso_lower = new ArrayList<>();
