@@ -179,7 +179,7 @@ public class HumanoidModelPartsWithBends {
 		/* This vanilla part is not referenced in playerAnimator format, so we just reset it, 
 		 * in order to get rid of things like y rotation from the vanilla punch animation.
 		 */
-		playerModel.body.loadPose(playerModel.body.getInitialPose());
+		playerModel.body.resetPose();
 	}
 
 	public void renderWithBends(HumanoidModel<?> model, Model rig, 
@@ -188,21 +188,19 @@ public class HumanoidModelPartsWithBends {
 		ModelPart root = rigModel.jojo_ripples$root();
 
 		for (var bendableEntry : bendables.entrySet()) {
-			rigModel.jojo_ripples$getAnyDescendantWithName(bendableEntry.getKey())
-			.ifPresent(animPart -> {
-				float bend = animPart.xRot;
-				List<BendableLimb> bendables = bendableEntry.getValue();
-				for (BendableLimb bendable : bendables) {
-					BendUtil.connectVertices(bendable.base(), bend, 
-							bendable.x(), 
-							bendable.y() + bendable.yOffset(), 
-							bendable.z(), 
-							false);
-					
-					BendUtil.connectVertices(bendable.bend(), bend, 
-							0, 0, 0, true);
-				}
-			});
+			List<BendableLimb> bendables = bendableEntry.getValue();
+			float bend = rigModel.jojo_ripples$getAnyDescendantWithName(bendableEntry.getKey()).map(animPart -> animPart.xRot).orElse(0f);
+			
+			for (BendableLimb bendable : bendables) {
+				BendUtil.connectVertices(bendable.base(), bend, 
+						bendable.x(), 
+						bendable.y() + bendable.yOffset(), 
+						bendable.z(), 
+						false);
+				
+				BendUtil.connectVertices(bendable.bend(), bend, 
+						0, 0, 0, true);
+			}
 		}
 		
 		renderModelPart(model, root, "root", 
