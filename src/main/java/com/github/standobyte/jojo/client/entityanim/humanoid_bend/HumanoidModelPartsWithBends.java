@@ -104,6 +104,7 @@ public class HumanoidModelPartsWithBends {
 		this.bendables.put("right_leg_bend", rightLeg);
 		
 		addPart(model.head, "head", head);
+		addPart(model.hat, "head", head);
 		
 		addBendPart(model.body, "torso", torso, torso_lower, torso_bend, null, 0, 6, 0, -6, true);
 		if (playerModel != null) {
