@@ -6,14 +6,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joml.Vector3f;
+
 import com.github.standobyte.v1_21_4_stuff.missingmethods._ModelPart$Polygon;
 import com.google.common.collect.Iterables;
 
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.util.Mth;
 
 public record BendableLimb(LimbHalf base, LimbHalf bend, Map<String, ModelPart> joint,
-		float x, float y, float z, float yOffset, boolean bendIsAbove) {
+		float x, float y, float z, boolean bendIsAbove) {
 
 	public static record LimbHalf(List<ModelPart.Cube> cubes, Map<String, ModelPart> children) {
 		public ModelPart makePart() {
@@ -180,10 +183,10 @@ public record BendableLimb(LimbHalf base, LimbHalf bend, Map<String, ModelPart> 
 				if (!BendUtil.isSamePivotAsParent(child)) {
 					float childY = child.y;
 					if (childY < y) {
-						yLessChildren.put(childEntry.getKey(), child);
+						offsetAndPut(yLessChildren, childEntry.getKey(), child, x, y + yOffset, z, bendIsAbove);
 					}
 					else if (childY > y) {
-						yMoreChildren.put(childEntry.getKey(), child);
+						offsetAndPut(yMoreChildren, childEntry.getKey(), child, x, y + yOffset, z, !bendIsAbove);
 					}
 					else {
 						joint.put(childEntry.getKey(), child);
@@ -193,7 +196,24 @@ public record BendableLimb(LimbHalf base, LimbHalf bend, Map<String, ModelPart> 
 		}
 		
 		return new BendableLimb(baseHalf, bendHalf, joint,
-				x, y, z, yOffset, bendIsAbove);
+				x, y + yOffset, z, bendIsAbove);
+	}
+	
+	static void offsetAndPut(Map<String, ModelPart> children, String childName, ModelPart child, 
+			float x, float y, float z, boolean isBendHalf) {
+		Vector3f offset = new Vector3f(0, 0, 0);
+		if (isBendHalf) {
+			offset.sub(x, y, z);
+		}
+		ModelPart deepCopy = new ModelPart(child.cubes, child.children);
+		PartPose initialPose = child.getInitialPose();
+		deepCopy.setInitialPose(PartPose.offsetAndRotation(
+				initialPose.x -/*???*/ offset.x, 
+				initialPose.y + offset.y, 
+				initialPose.z + offset.z, 
+				initialPose.xRot, initialPose.yRot, initialPose.zRot));
+		deepCopy.resetPose();
+		children.put(childName, deepCopy);
 	}
 
 	static List<ModelPart.Polygon> buffer = new ArrayList<>(13);

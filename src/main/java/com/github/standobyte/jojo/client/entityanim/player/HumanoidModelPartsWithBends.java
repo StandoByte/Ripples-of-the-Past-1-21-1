@@ -189,7 +189,7 @@ public class HumanoidModelPartsWithBends {
 			for (BendableLimb bendable : bendables) {
 				BendUtil.connectVertices(bendable.base(), bend, 
 						bendable.x(), 
-						bendable.y() + bendable.yOffset(), 
+						bendable.y(), 
 						bendable.z(), 
 						false);
 				
