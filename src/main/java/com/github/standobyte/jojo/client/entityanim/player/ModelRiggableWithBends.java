@@ -10,14 +10,11 @@ import javax.annotation.Nullable;
 
 import org.joml.Vector3f;
 
-import com.github.standobyte.jojo.UglyCrutchesClient;
 import com.github.standobyte.jojo.client.entityanim.humanoid_bend.BendUtil;
 import com.github.standobyte.jojo.client.entityanim.humanoid_bend.BendableLimb;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
 import com.github.standobyte.jojo.client.entityrender.HumanoidPlayerModel;
-import com.github.standobyte.jojo.client.entityrender.ModelWithExtraFeatures;
-import com.github.standobyte.jojo.client.entityrender.replace_player_model.CustomPlayerModel;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -26,39 +23,14 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.world.entity.HumanoidArm;
 
-// TODO (player animation) 1st person animation
-// TODO (clothes player animation) rotate joints
-
-// TODO (player animation) other layers
-/* held items
- * cape
- * elytra
- * custom head
- * parrot on shoulder
- * arrows and bee stingers
- */
-public class HumanoidModelPartsWithBends {
-	protected Map<String, List<AlternativeModelPart>> vanillaCounterparts = new HashMap<>();
+public class ModelRiggableWithBends extends ModelRiggable {
 	protected Map<String, List<BendableLimb>> bendables = new HashMap<>();
 	
-	public static HumanoidModelPartsWithBends createFromBase(HumanoidModel<?> model) {
-		HumanoidModelPartsWithBends obj = new HumanoidModelPartsWithBends();
-		obj.initHumanoid(model);
-		return obj;
-	}
-	
-	@Deprecated
-	void __reinitialize(HumanoidModel<?> model) {
-		vanillaCounterparts.clear();
-		bendables.clear();
-		initHumanoid(model);
-	}
-	
-	void initHumanoid(HumanoidModel<?> model) {
-		PlayerModel<?> playerModel = model instanceof PlayerModel __ ? __ : null;
-		HumanoidPlayerModel<?> clothesModel = model instanceof HumanoidPlayerModel __ ? __ : null;
+	@Override
+	public void initHumanoid(HumanoidModel<?> model) {
+		PlayerModel<?> asPlayerModel = model instanceof PlayerModel __ ? __ : null;
+		HumanoidPlayerModel<?> asClothesModel = model instanceof HumanoidPlayerModel __ ? __ : null;
 		
 		List<AlternativeModelPart> head = new ArrayList<>();
 		this.vanillaCounterparts.put("head_rot", head);
@@ -110,40 +82,35 @@ public class HumanoidModelPartsWithBends {
 		addPart(model.hat, "head", head);
 		
 		addBendPart(model.body, "torso", torso, torso_lower, torso_bend, null, 0, 6, 0, -6, true);
-		if (playerModel != null) {
-			addBendPart(playerModel.jacket, "torso", torso, torso_lower, torso_bend, null, 0, 6, 0, -6, true);
+		if (asPlayerModel != null) {
+			addBendPart(asPlayerModel.jacket, "torso", torso, torso_lower, torso_bend, null, 0, 6, 0, -6, true);
 		}
 		
 		addBendPart(model.leftArm, "left_arm", leftArm, left_arm, left_arm_bend, left_arm_joint, -1, 4, 0, 0, false);
-		if (playerModel != null) {
-			addBendPart(playerModel.leftSleeve, "left_arm", leftArm, left_arm, left_arm_bend, left_arm_joint, -1, 4, 0, 0, false);
+		if (asPlayerModel != null) {
+			addBendPart(asPlayerModel.leftSleeve, "left_arm", leftArm, left_arm, left_arm_bend, left_arm_joint, -1, 4, 0, 0, false);
 		}
-		else if (clothesModel != null) {
-			addBendPart(clothesModel.leftArmSlim, "left_arm", leftArm, left_arm, left_arm_bend, left_arm_joint, -1, 4, 0, 0, false);
+		else if (asClothesModel != null) {
+			addBendPart(asClothesModel.leftArmSlim, "left_arm", leftArm, left_arm, left_arm_bend, left_arm_joint, -1, 4, 0, 0, false);
 		}
 		
 		addBendPart(model.rightArm, "right_arm", rightArm, right_arm, right_arm_bend, right_arm_joint, 1, 4, 0, 0, false);
-		if (playerModel != null) {
-			addBendPart(playerModel.rightSleeve, "right_arm", rightArm, right_arm, right_arm_bend, right_arm_joint, 1, 4, 0, 0, false);
+		if (asPlayerModel != null) {
+			addBendPart(asPlayerModel.rightSleeve, "right_arm", rightArm, right_arm, right_arm_bend, right_arm_joint, 1, 4, 0, 0, false);
 		}
-		else if (clothesModel != null) {
-			addBendPart(clothesModel.rightArmSlim, "right_arm", rightArm, right_arm, right_arm_bend, right_arm_joint, 1, 4, 0, 0, false);
+		else if (asClothesModel != null) {
+			addBendPart(asClothesModel.rightArmSlim, "right_arm", rightArm, right_arm, right_arm_bend, right_arm_joint, 1, 4, 0, 0, false);
 		}
 		
 		addBendPart(model.leftLeg, "left_leg", leftLeg, left_leg, left_leg_bend, left_leg_joint, 0, 6, 0, 0, false);
-		if (playerModel != null) {
-			addBendPart(playerModel.leftPants, "left_leg", leftLeg, left_leg, left_leg_bend, left_leg_joint, 0, 6, 0, 0, false);
+		if (asPlayerModel != null) {
+			addBendPart(asPlayerModel.leftPants, "left_leg", leftLeg, left_leg, left_leg_bend, left_leg_joint, 0, 6, 0, 0, false);
 		}
 		
 		addBendPart(model.rightLeg, "right_leg", rightLeg, right_leg, right_leg_bend, right_leg_joint, 0, 6, 0, 0, false);
-		if (playerModel != null) {
-			addBendPart(playerModel.rightPants, "right_leg", rightLeg, right_leg, right_leg_bend, right_leg_joint, 0, 6, 0, 0, false);
+		if (asPlayerModel != null) {
+			addBendPart(asPlayerModel.rightPants, "right_leg", rightLeg, right_leg, right_leg_bend, right_leg_joint, 0, 6, 0, 0, false);
 		}
-	}
-	
-	protected static void addPart(ModelPart part, String name, List<AlternativeModelPart> dest) {
-		AlternativeModelPart altPart = new AlternativeModelPart(part, part, name, 0);
-		dest.add(altPart);
 	}
 	
 	protected static void addBendPart(ModelPart part, String name, 
@@ -170,87 +137,28 @@ public class HumanoidModelPartsWithBends {
 			ModelPart child = childEntry.getValue();
 			if (BendUtil.isSamePivotAsParent(child)) {
 				addBendPart(child, childEntry.getKey(), bendables, 
-						basePart.children, bendPart.children, jointPart != null ? jointPart.children : null, 
+						basePart.children(), bendPart.children(), jointPart != null ? jointPart.children() : null, 
 						x, y, z, yOffset, bendIsAbove);
 			}
 		}
 	}
 	
+	@Deprecated
+	@Override
+	protected void __reinitialize(HumanoidModel<?> model) {
+		bendables.clear();
+		super.__reinitialize(model);
+	}
 	
-	public void renderWithBends(HumanoidModel<?> model, Model rig, 
+	
+	public void renderWithPosedRig(HumanoidModel<?> model, 
+			Model rig, AnimFramePose pose, 
 			PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
-		Model_1_21_2plus rigModel = (Model_1_21_2plus) rig;
-		ModelPart root = rigModel.jojo_ripples$root();
-		setupBends(bendables, rigModel);
-		renderModelPart(model, root, "root", 
+		setupBends(bendables, (Model_1_21_2plus) rig);
+		super.renderWithPosedRig(model, 
+				rig, pose, 
 				poseStack, buffer, packedLight, packedOverlay, color);
 	}
-	
-	protected void renderModelPart(HumanoidModel<?> model, ModelPart rigModelPart, String animPartName, 
-			PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
-		poseStack.pushPose();
-		rigModelPart.translateAndRotate(poseStack);
-		UglyCrutchesClient.pushPlayerAnimPart(rigModelPart);
-		
-		List<AlternativeModelPart> vanillaToBend = this.vanillaCounterparts.get(animPartName);
-		if (vanillaToBend != null) {
-			for (AlternativeModelPart partEntry : vanillaToBend) {
-				partEntry.render(poseStack, buffer, packedLight, packedOverlay, color);
-			}
-		}
-
-		for (var childEntry : rigModelPart.children.entrySet()) {
-			renderModelPart(model, childEntry.getValue(), childEntry.getKey(), 
-					poseStack, buffer, packedLight, packedOverlay, color);
-		}
-		
-		UglyCrutchesClient.popPlayerAnimPart();
-		poseStack.popPose();
-	}
-	
-	protected static record AlternativeModelPart(ModelPart fromVanilla, ModelPart part, List<AlternativeModelPart> children/*, String name*/, float yOffset) {
-		protected AlternativeModelPart(ModelPart fromVanilla, ModelPart part, String name, float yOffset) { this(fromVanilla, part, new ArrayList<>(0)/*, name*/, yOffset); }
-		
-		protected void render(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
-			ModelPart vanillaModelPart = this.fromVanilla;
-			if (vanillaModelPart.visible) {
-				ModelPart modelPart = this.part;
-				if (!vanillaModelPart.skipDraw) {
-					for (ModelPart.Cube cube : modelPart.cubes) {
-						cube.compile(poseStack.last(), buffer, packedLight, packedOverlay, color);
-					}
-				}
-				for (AlternativeModelPart child : this.children) {
-					child.render(poseStack, buffer, packedLight, packedOverlay, color);
-				}
-				
-				if (!modelPart.children.isEmpty()) {
-					poseStack.pushPose();
-					
-					if (yOffset != 0) {
-						poseStack.translate(0, yOffset / 16, 0);
-					}
-					
-					for (var rotatedVanillaChildEntry : modelPart.children.entrySet()) {
-						String childName = rotatedVanillaChildEntry.getKey();
-						ModelPart child = rotatedVanillaChildEntry.getValue();
-						UglyCrutchesClient.adjustClothesInROTPAnim(childName, child);
-						child.render(poseStack, buffer, packedLight, packedOverlay, color);
-						child.resetPose();
-					}
-					poseStack.popPose();
-				}
-			}
-		}
-	}
-	
-	
-	public static void translateToAnimHand(
-			HumanoidModel<?> model, Model rig, 
-			HumanoidArm side, PoseStack poseStack, boolean slim) {
-		CustomPlayerModel.translateToItemHoldPos(side, poseStack, (ModelWithExtraFeatures) rig, slim ? -0.5f : 0);
-	}
-
 	
 	public static void setupBends(Map<String, List<BendableLimb>> bendables, Model_1_21_2plus rigModel) {
 		for (var bendableEntry : bendables.entrySet()) {
@@ -302,5 +210,4 @@ public class HumanoidModelPartsWithBends {
 		
 		return ret;
 	}
-	
 }

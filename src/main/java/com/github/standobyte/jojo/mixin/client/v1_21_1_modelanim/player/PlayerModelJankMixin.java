@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.standobyte.jojo.client.entityanim.player.HumanoidModelPartsWithBends;
+import com.github.standobyte.jojo.client.entityanim.player.ModelRiggable;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.model.HumanoidModel;
@@ -21,7 +21,7 @@ public abstract class PlayerModelJankMixin extends HumanoidModelMixin {
 	@Inject(method = "translateToHand", at = @At("HEAD"), cancellable = true)
 	public void jojo_ripples$becauseTheyDidntCallSuper_translateToBentHandBefore(HumanoidArm side, PoseStack poseStack, CallbackInfo ci) {
 		if (jojo_ripples$playerAnimRig != null) {
-			HumanoidModelPartsWithBends.translateToAnimHand(
+			ModelRiggable.translateToAnimHand(
 					(HumanoidModel<?>) (Object) this, jojo_ripples$playerAnimRig, 
 					side, poseStack, slim);
 			ci.cancel();

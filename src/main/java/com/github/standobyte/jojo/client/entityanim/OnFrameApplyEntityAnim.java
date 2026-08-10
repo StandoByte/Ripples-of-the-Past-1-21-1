@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.AnimWithId;
 import com.github.standobyte.jojo.client.entityanim.barrage.BarrageSwings;
 import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery.AnimMolangVariables;
-import com.github.standobyte.jojo.client.entityanim.player.HumanoidModelPartsWithBends;
+import com.github.standobyte.jojo.client.entityanim.player.ModelRiggableWithBends;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimatedEntity;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
@@ -182,7 +182,7 @@ public class OnFrameApplyEntityAnim {
 			anim.calcAnimPose(pose, timeSeconds, 1, 
 					AnimMolangVariables.extract(living, partialTick), 
 					actionComponent != null ? actionComponent.clPrevPunchPose : null);
-			if (adjustComplexBends && HumanoidModelPartsWithBends.adjustComplexBends(pose) && !FMLLoader.isProduction()) {
+			if (adjustComplexBends && ModelRiggableWithBends.adjustComplexBends(pose) && !FMLLoader.isProduction()) {
 				String animSetName = animVariables.animSet != null ? animVariables.animSet.toString() : "null";
 				String animName = animVariables.animId != null ? animVariables.animId.toString() : "null";
 				mc.gui.setOverlayMessage(Component.translatable("jojo_ripples.player_anim_wrong_bend", 
