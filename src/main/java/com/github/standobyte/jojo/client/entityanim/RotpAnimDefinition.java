@@ -20,7 +20,6 @@ import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery.AnimM
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.AnimationChannelQuery;
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.IAnimationChannel;
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.KeyframeQuery;
-import com.github.standobyte.jojo.client.entityanim.player.PlayerAnimRigModel;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
 import com.github.standobyte.jojo.client.entityrender.HiddenModelPartsUtil;
@@ -30,9 +29,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.jojo.util.objects_java.OptionalFloat;
-import com.github.standobyte.v1_21_4_stuff.OldPlayerModelJank;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
-import com.github.standobyte.v1_21_4_stuff.renderstate.EntityRenderState;
 import com.google.common.collect.Maps;
 
 import it.unimi.dsi.fastutil.floats.Float2ObjectMap;
@@ -40,7 +37,6 @@ import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.client.animation.AnimationChannel;
 import net.minecraft.client.animation.Keyframe;
-import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
@@ -124,27 +120,6 @@ public class RotpAnimDefinition {
 				modelPartPose.set(vec, tf.target());
 			}
 		}
-	}
-	
-	public static void animateVanillaHumanoid(PlayerAnimRigModel rigModel, HumanoidModel<?> vanillaModel, AnimFramePose pose) {
-		/* This vanilla part is not referenced in playerAnimator format, so we just reset it, 
-		 * in order to get rid of things like y rotation from the vanilla punch animation.
-		 */
-		vanillaModel.body.resetPose();
-		EntityRenderState.resetPose(rigModel);
-		copyRotation(rigModel.leftArm, vanillaModel.leftArm);
-		copyRotation(rigModel.rightArm, vanillaModel.rightArm);
-		copyRotation(rigModel.leftLeg, vanillaModel.leftLeg);
-		copyRotation(rigModel.rightLeg, vanillaModel.rightLeg);
-		
-		animate(rigModel, pose);
-		OldPlayerModelJank._onAnimate(vanillaModel);
-	}
-	
-	static void copyRotation(ModelPart dest, ModelPart src) {
-		dest.xRot = src.xRot;
-		dest.yRot = src.yRot;
-		dest.zRot = src.zRot;
 	}
 	
 	public static void animate(Model model, AnimFramePose pose) {

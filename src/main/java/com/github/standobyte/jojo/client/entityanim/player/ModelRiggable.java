@@ -6,12 +6,15 @@ import java.util.List;
 import java.util.Map;
 
 import com.github.standobyte.jojo.UglyCrutchesClient;
+import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
 import com.github.standobyte.jojo.client.entityrender.ModelWithExtraFeatures;
 import com.github.standobyte.jojo.client.entityrender.entities.HumanoidLikeModel;
 import com.github.standobyte.jojo.client.entityrender.replace_player_model.CustomPlayerModel;
+import com.github.standobyte.v1_21_4_stuff.OldPlayerModelJank;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
+import com.github.standobyte.v1_21_4_stuff.renderstate.EntityRenderState;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
@@ -118,7 +121,28 @@ public class ModelRiggable {
 		AlternativeModelPart altPart = new AlternativeModelPart(part, part, name, 0);
 		dest.add(altPart);
 	}
+
 	
+	public static void animateVanillaHumanoid(PlayerAnimRigModel rigModel, HumanoidModel<?> vanillaModel, AnimFramePose pose) {
+		/* This vanilla part is not referenced in playerAnimator format, so we just reset it, 
+		 * in order to get rid of things like y rotation from the vanilla punch animation.
+		 */
+		vanillaModel.body.resetPose();
+		EntityRenderState.resetPose(rigModel);
+		copyRotation(rigModel.leftArm, vanillaModel.leftArm);
+		copyRotation(rigModel.rightArm, vanillaModel.rightArm);
+		copyRotation(rigModel.leftLeg, vanillaModel.leftLeg);
+		copyRotation(rigModel.rightLeg, vanillaModel.rightLeg);
+		
+		RotpAnimDefinition.animate(rigModel, pose);
+		OldPlayerModelJank._onAnimate(vanillaModel);
+	}
+	
+	static void copyRotation(ModelPart dest, ModelPart src) {
+		dest.xRot = src.xRot;
+		dest.yRot = src.yRot;
+		dest.zRot = src.zRot;
+	}
 	
 	public void renderWithPosedRig(HumanoidModel<?> model, 
 			Model rig, AnimFramePose animPose, 
