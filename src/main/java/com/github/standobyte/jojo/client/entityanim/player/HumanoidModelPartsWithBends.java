@@ -181,23 +181,7 @@ public class HumanoidModelPartsWithBends {
 			PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
 		Model_1_21_2plus rigModel = (Model_1_21_2plus) rig;
 		ModelPart root = rigModel.jojo_ripples$root();
-
-		for (var bendableEntry : bendables.entrySet()) {
-			List<BendableLimb> bendables = bendableEntry.getValue();
-			float bend = rigModel.jojo_ripples$getAnyDescendantWithName(bendableEntry.getKey()).map(animPart -> animPart.xRot).orElse(0f);
-			
-			for (BendableLimb bendable : bendables) {
-				BendUtil.connectVertices(bendable.base(), bend, 
-						bendable.x(), 
-						bendable.y(), 
-						bendable.z(), 
-						false);
-				
-				BendUtil.connectVertices(bendable.bend(), bend, 
-						0, 0, 0, true);
-			}
-		}
-		
+		setupBends(bendables, rigModel);
 		renderModelPart(model, root, "root", 
 				poseStack, buffer, packedLight, packedOverlay, color);
 	}
@@ -224,8 +208,8 @@ public class HumanoidModelPartsWithBends {
 		poseStack.popPose();
 	}
 	
-	protected static record AlternativeModelPart(ModelPart fromVanilla, ModelPart part, List<AlternativeModelPart> children, String name, float yOffset) {
-		protected AlternativeModelPart(ModelPart fromVanilla, ModelPart part, String name, float yOffset) { this(fromVanilla, part, new ArrayList<>(0), name, yOffset); }
+	protected static record AlternativeModelPart(ModelPart fromVanilla, ModelPart part, List<AlternativeModelPart> children/*, String name*/, float yOffset) {
+		protected AlternativeModelPart(ModelPart fromVanilla, ModelPart part, String name, float yOffset) { this(fromVanilla, part, new ArrayList<>(0)/*, name*/, yOffset); }
 		
 		protected void render(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
 			ModelPart vanillaModelPart = this.fromVanilla;
@@ -266,7 +250,25 @@ public class HumanoidModelPartsWithBends {
 			HumanoidArm side, PoseStack poseStack, boolean slim) {
 		CustomPlayerModel.translateToItemHoldPos(side, poseStack, (ModelWithExtraFeatures) rig, slim ? -0.5f : 0);
 	}
+
 	
+	public static void setupBends(Map<String, List<BendableLimb>> bendables, Model_1_21_2plus rigModel) {
+		for (var bendableEntry : bendables.entrySet()) {
+			List<BendableLimb> partBendables = bendableEntry.getValue();
+			float bend = rigModel.jojo_ripples$getAnyDescendantWithName(bendableEntry.getKey()).map(animPart -> animPart.xRot).orElse(0f);
+			
+			for (BendableLimb bendable : partBendables) {
+				BendUtil.connectVertices(bendable.base(), bend, 
+						bendable.x(), 
+						bendable.y(), 
+						bendable.z(), 
+						false);
+				
+				BendUtil.connectVertices(bendable.bend(), bend, 
+						0, 0, 0, true);
+			}
+		}
+	}
 	
 	static String[] LIMB_BENDS = new String[] { "left_arm_bend", "right_arm_bend", "left_leg_bend", "right_leg_bend" };
 	public static boolean adjustComplexBends(AnimFramePose pose) {
