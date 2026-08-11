@@ -57,7 +57,7 @@ public class HumanoidLikeModel<T extends LivingEntity> extends HumanoidModel<T> 
 	}
 	
 	
-	public static void fixLayerModelPartsAfterCopyProperties(HumanoidModel<?> parentModel, HumanoidLikeModel<?> destModel) {
+	public static void fixLayerModelPartsAfterCopyProperties(HumanoidLikeModel<?> destModel) {
 		if (destModel.torso_lower != null) {
 			destModel.torso_lower.resetPose();
 			destModel.torso_lower.y += 12;
