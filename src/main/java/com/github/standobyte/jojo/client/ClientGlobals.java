@@ -18,8 +18,7 @@ public class ClientGlobals {
 	public static void tick(Minecraft mc) {
 		if (mc.player != null) {
 			StandPower stand = ClientPowerCache.getPower(PowerClass.STAND);
-			playerStand = stand != null ? stand.getSummonedStand() : null;
-			playerStandEntity = playerStand != null ? playerStand.getStandEntity() : null;
+			cacheSummonedStand(stand != null ? stand.getSummonedStand() : null);
 			canSeeStands = StandUtil.entityCanSeeStands(mc.player);
 			canHearStands = canSeeStands;
 		}
@@ -28,4 +27,10 @@ public class ClientGlobals {
 		}
 		standPrecision = playerStandEntity != null ? playerStandEntity.getPrecision() : 0;
 	}
+	
+	public static void cacheSummonedStand(SummonedStand stand) {
+		playerStand = stand;
+		playerStandEntity = playerStand != null ? playerStand.getStandEntity() : null;
+	}
+	
 }

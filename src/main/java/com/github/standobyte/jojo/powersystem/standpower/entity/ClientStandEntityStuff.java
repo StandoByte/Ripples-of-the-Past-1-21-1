@@ -19,7 +19,7 @@ public class ClientStandEntityStuff {
 	public AnimWithId specificSummonAnim = null;
 	public float freezeAtSummonPoseTime = 0;
 	
-    public Lerp.FloatValue modelAlpha = new Lerp.FloatValue(1);
+    public Lerp.FloatValue modelAlpha = new Lerp.FloatValue(0);
     
     public void tick() {
 		modelAlpha.set(1, true);
