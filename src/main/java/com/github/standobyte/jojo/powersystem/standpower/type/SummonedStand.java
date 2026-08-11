@@ -10,21 +10,27 @@ import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataExtend
 import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataHelper;
 import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataPacket;
 import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataPacketHandler;
+import com.github.standobyte.jojo.network.s2c.TrNonEntityStandSummonPacket;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityUnsummonAction;
 
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData.Builder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public interface SummonedStand {
 	void setUserAndPower(LivingEntity user, StandPower power);
-	default void syncTo(ServerPlayer trackingPlayer, LivingEntity user) {}
+	default void syncTo(ServerPlayer trackingPlayer, LivingEntity user) {
+		PacketDistributor.sendToPlayer(trackingPlayer, new TrNonEntityStandSummonPacket(user.getId(), true, this));
+	}
 	void tickStand(LivingEntity user, StandPower userStand);
 	@Nullable StandEntity getStandEntity();
 	default void setSelectedSkin(Optional<ResourceLocation> skin) {}
@@ -32,6 +38,9 @@ public interface SummonedStand {
 	/** @return true if the Stand should unsummon right away */
 	default boolean unsummonCommand() { return true; }
 	default boolean isUnsummoned() { return false; }
+	
+	default void nonEntityStandDataToBuf(RegistryFriendlyByteBuf buf) {}
+	default void nonEntityStandDataFromBuf(RegistryFriendlyByteBuf buf) {}
 	
 	public static class BlankSummonedStand implements SummonedStand {
 		protected LivingEntity user;
@@ -86,11 +95,22 @@ public interface SummonedStand {
 		protected StandPower power;
 		public SynchedDataHelper synchedData;
 		public int unsummonTimer;
+		public int tickCount;
 
 		@Override
 		public void defineSynchedData(Builder builder) {
 			IS_UNSUMMONING.define(builder);
 			UNSUMMON_LENGTH.define(builder);
+		}
+		
+		@Override
+		public void nonEntityStandDataToBuf(RegistryFriendlyByteBuf buf) {
+			buf.writeInt(tickCount);
+		}
+		
+		@Override
+		public void nonEntityStandDataFromBuf(RegistryFriendlyByteBuf buf) {
+			tickCount = buf.readInt();
 		}
 
 		@Override
@@ -122,6 +142,8 @@ public interface SummonedStand {
 			if (user != null && !user.level().isClientSide()) {
 				SynchedDataExtended.tickSyncDirtyData(synchedData.getDataSyncher(), user);
 			}
+			
+			++tickCount;
 		}
 
 		@Override
@@ -147,11 +169,15 @@ public interface SummonedStand {
 		}
 		
 		public float unsummonAlpha(float partialTick) {
-			int unsummonLength = UNSUMMON_LENGTH.get(synchedData);
-            float alpha = isBeingUnsummoned() ? StandEntityUnsummonAction.alpha(
-            		unsummonLength - unsummonTimer + partialTick, 
-            		unsummonLength) : 1;
-            return alpha;
+			if (isBeingUnsummoned()) {
+				int unsummonLength = UNSUMMON_LENGTH.get(synchedData);
+				float alpha = StandEntityUnsummonAction.alpha(unsummonLength - unsummonTimer + partialTick, unsummonLength);
+				return alpha;
+			}
+			if (tickCount < StandEntity.SUMMON_FADE_IN_TICKS) {
+				return Mth.clamp((tickCount + partialTick) / StandEntity.SUMMON_FADE_IN_TICKS, 0, 1);
+			}
+			return 1;
 		}
 		
 	}

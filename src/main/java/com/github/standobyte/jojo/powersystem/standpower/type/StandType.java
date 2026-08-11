@@ -207,7 +207,8 @@ public class StandType extends PowerType {
 			
 			standPower.setSummonedStand(summonedStand);
 			if (user != null && !user.level().isClientSide()) {
-				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrNonEntityStandSummonPacket(user.getId(), true));
+				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, 
+						new TrNonEntityStandSummonPacket(user.getId(), true, summonedStand));
 				if (playSummonSound) {
 					StandSkinSoundPacket soundPacket = StandSkinSoundPacket.play(
 							user.position(), ModSoundEvents.STAND_SUMMON, 
@@ -271,7 +272,8 @@ public class StandType extends PowerType {
 		if (standPower.isSummoned()) {
 			standPower.setSummonedStand(null);
 			if (user != null && !user.level().isClientSide()) {
-				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrNonEntityStandSummonPacket(user.getId(), false));
+				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, 
+						new TrNonEntityStandSummonPacket(user.getId(), false, null));
 			}
 		}
 	}
