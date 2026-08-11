@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -56,7 +57,9 @@ public class StandType extends PowerType {
 	protected final ResourceLocation standTypeId;
 	protected StandStats stats;
 	protected boolean isEnabled;
-	public boolean hasSummonMechanic = true;
+	@Deprecated(forRemoval = true) public boolean hasSummonMechanic = true;
+	// If this is set to null, the Stand type will have no summon/unsummon mechanic.
+	@Nullable public Supplier<SummonedStand> makeSummonedStandObj = BlankSummonedStand::new;
 	protected boolean playSummonSound = true;
 	protected boolean playUnsummonSound = true;
 	
@@ -238,11 +241,30 @@ public class StandType extends PowerType {
 	 * If this is overriden to return null, the Stand type will have no summon/unsummon mechanic.
 	 */
 	protected SummonedStand makeSummonedStand() {
-		return hasSummonMechanic ? new BlankSummonedStand() : null;
+		return makeSummonedStandObj != null ? makeSummonedStandObj.get() : null;
 	}
 	
 	public void unsummon(LivingEntity user, StandPower standPower) {
-		forceUnsummon(user, standPower);
+		if (!user.level().isClientSide()) {
+			SummonedStand standEntity = standPower.getSummonedStand();
+			if (standEntity != null) {
+				playUnsummonSound(user, standPower);
+				if (standEntity.unsummonCommand()) {
+					forceUnsummon(user, standPower);
+				}
+			}
+		}
+	}
+	
+	protected void playUnsummonSound(LivingEntity user, StandPower standPower) {
+		if (playUnsummonSound) {
+			StandSkinSoundPacket soundPacket = StandSkinSoundPacket.play(
+					user.position(), ModSoundEvents.STAND_UNSUMMON, 
+					standPower, user.getSoundSource(), 1, 1);
+			if (soundPacket != null) {
+				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, soundPacket);
+			}
+		}
 	}
 	
 	public void forceUnsummon(LivingEntity user, StandPower standPower) {
@@ -250,20 +272,13 @@ public class StandType extends PowerType {
 			standPower.setSummonedStand(null);
 			if (user != null && !user.level().isClientSide()) {
 				PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, new TrNonEntityStandSummonPacket(user.getId(), false));
-				if (playUnsummonSound) {
-					StandSkinSoundPacket soundPacket = StandSkinSoundPacket.play(
-							user.position(), ModSoundEvents.STAND_UNSUMMON, 
-							standPower, user.getSoundSource(), 1, 1);
-					if (soundPacket != null) {
-						PacketDistributor.sendToPlayersTrackingEntityAndSelf(user, soundPacket);
-					}
-				}
 			}
 		}
 	}
 	
 	public boolean showHUD(StandPower standPower) {
-		return standPower.isSummoned();
+		SummonedStand summonedStand = standPower.getSummonedStand();
+		return summonedStand != null && !(summonedStand instanceof SummonedStand.SyncableSummonedStand stand && stand.isBeingUnsummoned());
 	}
 	
 	

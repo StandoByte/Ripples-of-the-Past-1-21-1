@@ -35,6 +35,7 @@ import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -284,6 +285,10 @@ public class PowerHud {
 						StandEntity entity = ClientGlobals.playerStandEntity;
 						float partialTick = ClientUtil.partialTick(entity, deltaTracker, entity.level().tickRateManager());
 						alpha = ClientGlobals.playerStandEntity.clientStuff.getAlpha(entity, partialTick);
+					}
+					else if (ClientGlobals.playerStand instanceof SummonedStand.SyncableSummonedStand stand) {
+						float partialTick = ClientUtil.partialTick(mc.player, deltaTracker, mc.level.tickRateManager());
+						alpha = stand.unsummonAlpha(partialTick);
 					}
 					renderClientStandIcon(guiGraphics.pose(), getX(), getY(), ARGB.white(alpha));
 				}

@@ -621,13 +621,15 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		return user != null ? distanceToSqr(user) < 4 : false;
 	}
 	
-	public void onUnsummonUserInput() {
+	@Override
+	public boolean unsummonCommand() {
 		if (!this.isBeingRetracted()) {
 			this.retractAndUnsummon();
 		}
 		else if (this.isManuallyControlled()) {
 			this.stopRetraction();
 		}
+		return false;
 	}
 
 	public void stopRetraction() {

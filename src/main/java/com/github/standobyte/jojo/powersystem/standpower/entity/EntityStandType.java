@@ -51,6 +51,7 @@ public class EntityStandType extends StandType {
 		super(stats, moveset, id);
 		Objects.requireNonNull(standEntityType);
 		this.entityType = new DefaultedValue<>(standEntityType);
+		this.playUnsummonSound = false; // is played in StandEntityUnsummonAction
 	}
 
     public <T extends EntityStandType> T standDimensions(float width, float height) {
@@ -176,16 +177,6 @@ public class EntityStandType extends StandType {
 //			super.triggerAdvancement(standPower, stand);
 //		}
 //	}
-
-	@Override
-	public void unsummon(LivingEntity user, StandPower standPower) {
-		if (!user.level().isClientSide()) {
-			StandEntity standEntity = ((StandEntity) standPower.getSummonedStand());
-			if (standEntity != null) {
-				standEntity.onUnsummonUserInput();
-			}
-		}
-	}
 
 	@Override
 	public void forceUnsummon(LivingEntity user, StandPower standPower) {

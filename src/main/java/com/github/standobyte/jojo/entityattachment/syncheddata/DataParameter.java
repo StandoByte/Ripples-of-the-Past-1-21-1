@@ -27,9 +27,19 @@ public class DataParameter<T> {
 		builder.define(param, defaultValue);
 	}
 	
+	/** @deprecated Why does this exist?? Я че пьяный? */
+	@Deprecated
 	public T get(Supplier<SynchedDataHelper> getDataSyncher) {
 		SynchedDataHelper dataSyncher = getDataSyncher.get();
+		return get(dataSyncher);
+	}
+	
+	public T get(SynchedDataHelper dataSyncher) {
 		return dataSyncher != null ? dataSyncher.get(param) : defaultValue;
+	}
+	
+	public void set(SynchedDataHelper dataSyncher, T value) {
+		dataSyncher.set(param, value);
 	}
 	
 }
