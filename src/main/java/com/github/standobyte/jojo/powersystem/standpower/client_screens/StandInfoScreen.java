@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.StandSkinsScreen;
+import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
 import com.github.standobyte.jojo.client.ui.StandStatsRenderer;
 import com.github.standobyte.jojo.client.ui.StandStatsRenderer.CosmeticStandStats;
 import com.github.standobyte.jojo.client.ui.StandStatsRenderer.HexagonStandStat;
@@ -204,7 +205,10 @@ public class StandInfoScreen extends Screen implements IJojoMenuScreen {
 		
 		
 		// stand description
-		var description = minecraft.font.split(Component.translatable(standData.getPowerType().getId().toLanguageKey("stand", "desc")), 200);
+		String descTlKey = standData.getPowerType().getId().toLanguageKey("stand", "desc");
+		Component descTl = StandSkinComponent.translatable(power, descTlKey);
+		
+		var description = minecraft.font.split(descTl, 200);
 		int lineX = x + 10;
 		int lineHeight = 9;
 		int lineY = y + 220 - description.size() * lineHeight;
