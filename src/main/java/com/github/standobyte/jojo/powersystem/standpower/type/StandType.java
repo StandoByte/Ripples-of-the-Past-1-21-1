@@ -66,6 +66,7 @@ public class StandType extends PowerType {
 	public int discCategoryPriority = 100;
 	public boolean translucentDisc = false;
 	public int discStoryPartPriority = 100;
+	public String skinUIType;
 	
 	public StandType(StandStats stats, MovesetBuilder moveset, 
 			ResourceLocation id) {
@@ -360,8 +361,9 @@ public class StandType extends PowerType {
 	}
 	
 	
+	@Deprecated
 	public StandSkinsScreen.SkinView makeSkinUIElement(StandSkin skin, StandSkinsScreen screen, int x, int y, int standY, int row, int column, boolean isBottomRow) {
-		return new StandSkinsScreen.SkinView(this, skin, screen, x, y, standY, row, column, isBottomRow);
+		return null;
 	}
 	
 }

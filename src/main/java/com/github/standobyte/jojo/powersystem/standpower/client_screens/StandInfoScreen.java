@@ -60,7 +60,8 @@ public class StandInfoScreen extends Screen implements IJojoMenuScreen {
 		standData = ClientPowerCache.getPower(PowerClass.STAND);
 		if (standData.hasPower()) {
 			standSkin = StandSkinsLoader.getInstance().getSkin(standData);
-			standRender = standData.getPowerType().makeSkinUIElement(standSkin, null, 0, 0, 0, 0, 0, true);
+			standRender = StandSkinsScreen.makeSkinView(standData.getPowerType(), 
+					standSkin, null, 0, 0, 0, 0, 0, true);
 		}
 	}
 

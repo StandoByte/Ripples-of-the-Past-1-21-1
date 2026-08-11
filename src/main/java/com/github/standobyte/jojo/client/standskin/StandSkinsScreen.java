@@ -1,6 +1,8 @@
 package com.github.standobyte.jojo.client.standskin;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -144,7 +146,8 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 						else if (column == 1) yOffset = -4;
 						else if (column == 2) yOffset = -6;
 					}
-					return standType.makeSkinUIElement(skin, this, x, y + yOffset, y, row, column, row == rowsCount - 1);
+					return StandSkinsScreen.makeSkinView(standType,
+							skin, this, x, y + yOffset, y, row, column, row == rowsCount - 1);
 				})
 				.collect(Collectors.toList());
 		setScroll(0);
@@ -464,6 +467,8 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		public final int column;
 		public final boolean isBottomRow;
 		
+		protected boolean drawReflectionInStandInfo = true;
+		
 		public SkinView(StandType standType, StandSkin skin, StandSkinsScreen screen, int x, int y, int standY, int row, int column, boolean isBottomRow) {
 			this.standType = standType;
 			this.skin = skin;
@@ -495,35 +500,62 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		public void renderStand(GuiGraphics gui, int mouseX, int mouseY, float ticks, boolean isHovered, 
 				float posX, float posY, float scale, float scaleZoom, 
 				float yRot, float xRot, float xOffsetRatio, float yOffsetRatio) {
-			if (standType instanceof EntityStandType) {
-				renderStandModel(gui, posX, posY, scale, scaleZoom, 
-						yRot, xRot, xOffsetRatio, yOffsetRatio, 
-						(EntityStandType) standType, skin, ticks, 0xFFFFFFFF);
-			}
+			renderStandModel(gui, posX, posY, scale, scaleZoom, 
+					yRot, xRot, xOffsetRatio, yOffsetRatio, 
+					standType, skin, 
+					true, ticks, BlitFloat.NO_TINT, MenuType.STAND_SKINS);
 		}
 		
 		// XXX set it to one of the stand summon poses
 		public void renderInStandInfo(GuiGraphics gui, int mouseX, int mouseY, float ticks, 
 				float windowX, float windowY, float scale) {
-			if (standType instanceof EntityStandType) {
-				PoseStack poseStack = gui.pose();
-//				float angle = (float) -Math.PI / 12;
-				float angle = 0;
-				
-				windowY += StandInfoScreen.spHairTmpCrutch(standType);
-				
+			PoseStack poseStack = gui.pose();
+//			float angle = (float) -Math.PI / 12;
+			float angle = 0;
+			
+			windowY += StandInfoScreen.spHairTmpCrutch(standType);
+			
+			if (drawReflectionInStandInfo) {
 				poseStack.pushPose();
 				poseStack.translate(0, 0, -100);
 				renderStandModel(gui, windowX + 60, windowY + 150, scale, 1, 
 						(float) Math.PI + angle, 0, 0, 0, 
-						(EntityStandType) standType, skin, 
-						(renderer, renderState) -> renderer.extractSkinMenuRenderState(renderState, skin, standType.getId(), 0, 0xFFB0B0B0, MenuType.STAND_INFO));
-				
+						standType, skin, 
+						true, 0, 0xFFB0B0B0, MenuType.STAND_INFO);
+
 				poseStack.popPose();
 				renderStandModel(gui, windowX + 45, windowY + 150, scale, 1, 
 						angle, 0, 0, 0, 
-						(EntityStandType) standType, skin, 
-						(renderer, renderState) -> renderState.tint = 0xFFFFFFFF);
+						standType, skin, 
+						false, 0, 0xFFFFFFFF, MenuType.STAND_INFO);
+			}
+			else {
+				renderStandModel(gui, windowX + 45, windowY + 150, scale, 1, 
+						angle, 0, 0, 0, 
+						standType, skin, 
+						true, 0, 0xFFFFFFFF, MenuType.STAND_INFO);
+			}
+			
+		}
+
+
+		public void renderStandModel(GuiGraphics gui, float posX, float posY, 
+				float scale, float scaleZoom, float yRot, float xRot, float xOffsetRatio, float yOffsetRatio, 
+				StandType standType, StandSkin standSkin, 
+				boolean extractRenderState, float ticks, int color, MenuType screen) {
+			if (standType instanceof EntityStandType entityStandType) {
+				StandSkinsScreen.renderStandModel(gui, posX, posY, 
+						scale, scaleZoom, yRot, xRot, 
+						xOffsetRatio, yOffsetRatio, 
+						entityStandType, standSkin, 
+						(renderer, renderState) -> {
+							if (extractRenderState) {
+								renderer.extractSkinMenuRenderState(renderState, skin, standType.getId(), ticks, color, screen);
+							}
+							else {
+								renderState.tint = color;
+							}
+						});
 			}
 		}
 
@@ -536,6 +568,10 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 						213,   18,    16, 16, 512, 512, 
 						BlitFloat.NO_TINT);
 			}
+		}
+		
+		public static interface StandSkinsScreenInterface {
+			boolean isSkinSelected(StandSkin skin);
 		}
 	}
 	
@@ -629,6 +665,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		}
 	}
 
+	@Deprecated
 	public static <S extends StandEntityRenderState> void renderStandModel(GuiGraphics gui, float posX, float posY, 
 			float scale, float scaleZoom, float yRot, float xRot, float xOffsetRatio, float yOffsetRatio, 
 			EntityStandType standType, StandSkin standSkin, float ticks, int tint) {
@@ -674,5 +711,29 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		poseStack.popPose();
 		
 		Lighting.setupFor3DItems();
+	}
+	
+	
+	public static Map<String, SkinViewFactory> skinViewTypes = new HashMap<>();
+	
+	public static SkinView makeSkinView(StandType standType, StandSkin skin, StandSkinsScreen screen, int x, int y, int standY, int row, int column, boolean isBottomRow) {
+		SkinView deprecated = standType.makeSkinUIElement(skin, screen, x, y, standY, row, column, isBottomRow);
+		if (deprecated != null) {
+			return deprecated;
+		}
+		
+		if (standType.skinUIType != null) {
+			SkinViewFactory factory = skinViewTypes.get(standType.skinUIType);
+			if (factory != null) {
+				return factory.makeSkinUIElement(standType, skin, screen, x, y, standY, row, column, isBottomRow);
+			}
+		}
+		
+		return new SkinView(standType, skin, screen, column, column, column, column, column, isBottomRow);
+	}
+	
+	@FunctionalInterface
+	public static interface SkinViewFactory {
+		StandSkinsScreen.SkinView makeSkinUIElement(StandType standType, StandSkin skin, StandSkinsScreen screen, int x, int y, int standY, int row, int column, boolean isBottomRow);
 	}
 }
