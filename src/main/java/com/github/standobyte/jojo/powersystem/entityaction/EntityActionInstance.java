@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.entityanim.LivingAnimState;
+import com.github.standobyte.jojo.client.entityanim.LivingAnimState.AnimSource;
 import com.github.standobyte.jojo.customobjects.entity_projectile.DamagingEntity;
 import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataHelper;
 import com.github.standobyte.jojo.init.ModDamageTypes;
@@ -422,7 +423,7 @@ public class EntityActionInstance implements HeldInput {
 	public void extractAnim(LivingAnimState animVariables, LivingEntity performer, float partialTick) {
 		animVariables.animSet = getEntityAnimSet();
 		animVariables.animId = getEntityAnim();
-		animVariables.animFromJojoPosesLoader = false;
+		animVariables.animSource = AnimSource.DEFAULT_ANIM_LOADER;
 		animVariables.time = getAnimFullTicksPassed(partialTick);
 		animVariables.actionPhase = getPhase();
 		animVariables.phaseTime = getAnimPhaseTick(partialTick);

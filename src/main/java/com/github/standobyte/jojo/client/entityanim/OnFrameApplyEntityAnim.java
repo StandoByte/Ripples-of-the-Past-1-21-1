@@ -27,6 +27,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.subsystems.entity_grab.LivingComponentGrab;
 
@@ -134,9 +135,15 @@ public class OnFrameApplyEntityAnim {
 				anim = null;
 			}
 		}
-		else {
-			if (animVariables.animFromJojoPosesLoader) {
-				if (animVariables.animSet != null && animVariables.animId != null) {
+		else if (animVariables.animSet != null && animVariables.animId != null) {
+			switch (animVariables.animSource) {
+				case DEFAULT_ANIM_LOADER -> {
+					AnimationSet animSet = AnimationLoader.getInstance().getAnimSet(animVariables.animSet);
+					if (animSet != null) {
+						anim = animSet.getNamedAnim(animVariables.animId);
+					}
+				}
+				case JOJO_POSE_LOADER -> {
 					JojoPoseAnimSet2 animSet = ClientJojoPoseLoader.getInstance().getAnimSet(animVariables.animSet);
 					if (animSet != null) {
 						JojoPose pose = animSet.getPose(animVariables.animId.name);
@@ -145,12 +152,13 @@ public class OnFrameApplyEntityAnim {
 						}
 					}
 				}
-			}
-			else {
-				if (animVariables.animSet != null && animVariables.animId != null) {
-					AnimationSet animSet = AnimationLoader.getInstance().getAnimSet(animVariables.animSet);
-					if (animSet != null) {
-						anim = animSet.getNamedAnim(animVariables.animId);
+				case STAND_SKIN -> {
+					StandPower standData = StandPower.get(living);
+					if (standData != null) {
+						StandSkin standSkin = StandSkinsLoader.getInstance().getSkin(standData);
+						if (standSkin != null) {
+							anim = standSkin.getAnimation(animVariables.animSet, animVariables.animId);
+						}
 					}
 				}
 			}

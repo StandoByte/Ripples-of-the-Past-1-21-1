@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.mechanics.jojopose;
 import java.util.List;
 
 import com.github.standobyte.jojo.client.entityanim.LivingAnimState;
+import com.github.standobyte.jojo.client.entityanim.LivingAnimState.AnimSource;
 import com.github.standobyte.jojo.init.ModSpecialActions;
 import com.github.standobyte.jojo.mechanics.jojopose.resource.ClientJojoPoseLoader;
 import com.github.standobyte.jojo.mechanics.jojopose.resource.JojoPose;
@@ -60,7 +61,7 @@ public class JojoPoseActionType extends SpecialEntityActionType {
 		@Override
 		public void extractAnim(LivingAnimState animVariables, LivingEntity performer, float partialTick) {
 			super.extractAnim(animVariables, performer, partialTick);
-			animVariables.animFromJojoPosesLoader = true;
+			animVariables.animSource = AnimSource.JOJO_POSE_LOADER;
 		}
 
 		@Override
