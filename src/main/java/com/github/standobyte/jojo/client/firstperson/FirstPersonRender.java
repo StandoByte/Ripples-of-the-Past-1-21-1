@@ -7,30 +7,27 @@ import javax.annotation.Nullable;
 
 import org.joml.Matrix4f;
 
-import com.github.standobyte.jojo.client.entityanim.IHumanoidAnimModel;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimatedEntity;
-import com.github.standobyte.jojo.client.entityrender.ModelUtil;
 import com.github.standobyte.jojo.client.entityrender.stand.HumanoidPart;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
-import com.github.standobyte.jojo.mechanics.clothes.client.layer.HumanoidClothesLayer;
+import com.github.standobyte.jojo.mixininterface.LivingRendererLayers;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.subsystems.entity_possessionv2.LivingComponentPossession;
 import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.client.ClientEntityController;
 import com.github.standobyte.jojo.util.functions.UtilFunctions;
-import com.github.standobyte.v1_21_4_stuff.renderstate.EntityRenderState;
 import com.google.common.base.MoreObjects;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -56,10 +53,16 @@ import net.minecraft.world.item.MapItem;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
+import net.neoforged.neoforge.client.event.RenderLivingEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 
+@EventBusSubscriber(value = Dist.CLIENT)
 @SuppressWarnings({ "unchecked", "rawtypes" }) // Silence, Java generics.
 public class FirstPersonRender {
 	static FirstPersonRender instance;
@@ -71,6 +74,10 @@ public class FirstPersonRender {
 
 	protected FirstPersonRender() {
 		this.mc = Minecraft.getInstance();
+	}
+	
+	public static boolean shouldRenderInFirstPersonAnim(RenderLayer layer) {
+		return layer instanceof ItemInHandLayer || layer instanceof FirstPersonModelLayer;
 	}
 
 
@@ -189,66 +196,52 @@ public class FirstPersonRender {
 		return false;
 	}
 	
+	public static boolean isRenderingFirstPersonAnim = false;
 	public static boolean renderPlayer1stPersonAnim(Minecraft mc, @Nonnull LivingEntity cameraEntity, @Nonnull AnimFramePose pose, 
 			float partialTick, PoseStack poseStack, BufferSource bufferSource, int light) {
-		if (mc.getEntityRenderDispatcher().getRenderer(cameraEntity) instanceof LivingEntityRenderer renderer
-				&& renderer.getModel() instanceof HumanoidModel model) {
+		if (mc.getEntityRenderDispatcher().getRenderer(cameraEntity) instanceof LivingEntityRenderer renderer) {
+			Camera camera = mc.gameRenderer.getMainCamera();
+			Vec3 cameraPos = camera.getPosition();
+			double x = Mth.lerp((double)partialTick, cameraEntity.xOld, cameraEntity.getX());
+			double y = Mth.lerp((double)partialTick, cameraEntity.yOld, cameraEntity.getY());
+			double z = Mth.lerp((double)partialTick, cameraEntity.zOld, cameraEntity.getZ());
+			Vec3 entityOffset = renderer.getRenderOffset(cameraEntity, partialTick);
+			x = x + entityOffset.x - cameraPos.x;
+			y = y + entityOffset.y - cameraPos.y;				
+			z = z + entityOffset.z - cameraPos.z;
+			float yRot = Mth.lerp(partialTick, cameraEntity.yRotO, cameraEntity.getYRot());
+			float xRot = Mth.lerp(partialTick, cameraEntity.xRotO, cameraEntity.getXRot());
+			
 			poseStack.pushPose();
-			
-			if (cameraEntity instanceof LocalPlayer playerBob) {
-				float f2 = Mth.lerp(partialTick, playerBob.xBobO, playerBob.xBob);
-				float f3 = Mth.lerp(partialTick, playerBob.yBobO, playerBob.yBob);
-				poseStack.mulPose(Axis.XP.rotationDegrees((cameraEntity.getViewXRot(partialTick) - f2) * 0.1F));
-				poseStack.mulPose(Axis.YP.rotationDegrees((cameraEntity.getViewYRot(partialTick) - f3) * 0.1F));
-			}
-			
-			model.rightArmPose = HumanoidModel.ArmPose.EMPTY;
-			model.leftArmPose = HumanoidModel.ArmPose.EMPTY;
-			model.attackTime = 0.0F;
-			model.crouching = false;
-			model.swimAmount = 0.0F;
-			model.young = false;
-			model.setupAnim(cameraEntity, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
-			((IHumanoidAnimModel) model).jojo_ripples$setupHumanoidPose(pose);
-			ResourceLocation texture = renderer.getTextureLocation(cameraEntity);
-			
-			poseStack.mulPose(Axis.XP.rotationDegrees(180.0F));
-			poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
-			poseStack.translate(0, 0.125, 0);
-			
-			if (model instanceof PlayerModel playerModel) {
-				if (cameraEntity instanceof AbstractClientPlayer clientPlayer) {
-					ModelUtil.setAllVisibleSetupOuterLayer(playerModel, clientPlayer);
-				}
-				HumanoidClothesLayer.beforeEntityRender(cameraEntity, model);
-			}
+			poseStack.mulPose(Axis.XP.rotationDegrees(xRot));
+			poseStack.mulPose(Axis.YP.rotationDegrees(180 + yRot));
+			poseStack.translate(x, y, z);
 
-			model.head.visible = false;
-			model.hat.visible = false;
-			model.body.visible = false;
-			
-			if (!cameraEntity.isInvisible()) {
-				model.renderToBuffer(poseStack, bufferSource.getBuffer(RenderType.entityTranslucent(texture)), light, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
-			}
-			
-			List<RenderLayer> layers = ((LivingLayersAccess) renderer).jojo_ripples$allLayers();
-			for (RenderLayer renderlayer : layers) {
-				if (renderlayer instanceof FirstPersonModelLayer layer) {
-					layer.renderFirstPersonAnimated(pose, poseStack, bufferSource, light, cameraEntity, renderer);
-				}
-				else if (renderlayer instanceof ItemInHandLayer itemLayer) {
-					itemLayer.render(poseStack, bufferSource, light, cameraEntity, 0, 0, partialTick, 0, 0, 0);
-				}
-			}
-			
+			isRenderingFirstPersonAnim = true;
+			((LivingRendererLayers) renderer).jojoRipples$setOnlyRenderFirstPersonLayers();
+			renderer.render(cameraEntity, yRot, partialTick, poseStack, bufferSource, light);
+			isRenderingFirstPersonAnim = false;
+            
+            bufferSource.endBatch();
+
 			poseStack.popPose();
-			bufferSource.endBatch();
-			EntityRenderState.resetPose(model);
 			return true;
 		}
 		
 		return false;
 	}
+	
+	@SubscribeEvent
+	public static void disableModelPartsDuringAnim(RenderLivingEvent.Pre event) {
+		if (isRenderingFirstPersonAnim) {
+			var renderer = event.getRenderer();
+			if (renderer.getModel() instanceof HumanoidModel model) {
+				model.head.visible = false;
+				model.body.visible = false;
+			}
+		}
+	}
+
 
 	protected ItemStack mainHandItem = ItemStack.EMPTY;
 	protected ItemStack offHandItem = ItemStack.EMPTY;
@@ -559,7 +552,7 @@ public class FirstPersonRender {
 	
 	public static void renderLayers(LivingEntityRenderer renderer, LivingEntity entity, PoseStack poseStack, 
 			MultiBufferSource buffer, int light, HumanoidArm handSide) {
-		List<FirstPersonModelLayer> layers = ((LivingLayersAccess) renderer).jojo_ripples$firstPersonHandLayers();
+		List<FirstPersonModelLayer> layers = ((LivingRendererLayers) renderer).jojo_ripples$firstPersonHandLayers();
 		for (FirstPersonModelLayer layer : layers) {
 			layer.renderHandFirstPerson(handSide, poseStack, buffer, light, entity, renderer);
 		}
