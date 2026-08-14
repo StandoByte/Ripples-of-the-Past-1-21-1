@@ -78,9 +78,14 @@ public class TrNonEntityStandSummonPacket implements CustomPacketPayload {
 						standPower.getPowerType().summon(userLiving, standPower);
 						
 						if (payload.clientReadData != null) {
-							SummonedStand summonedStand = standPower.getSummonedStand();
-							if (summonedStand != null) {
-								summonedStand.nonEntityStandDataFromBuf(payload.clientReadData);
+							try {
+								SummonedStand summonedStand = standPower.getSummonedStand();
+								if (summonedStand != null) {
+									summonedStand.nonEntityStandDataFromBuf(payload.clientReadData);
+								}
+							}
+							finally {
+								payload.clientReadData.release();
 							}
 						}
 					}
