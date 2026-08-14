@@ -1,0 +1,20 @@
+{
+	"vl_tommy_gun_scream": {
+		"subtitle": "jojo_ripples.vl_subtitle.joseph_scream_shooting",
+		"sounds": [
+			"jojo_ripples:hamon_user/joseph_scream_shooting"
+		]
+	},
+	"vl_tommy_gun_shot_magazine": {
+		"subtitle": "jojo_ripples.vl_subtitle.joseph_war_declaration",
+		"sounds": [
+			"jojo_ripples:hamon_user/joseph_war_declaration"
+		]
+	},
+	"vl_tommy_gun_punch": {
+		"subtitle": "jojo_ripples.vl_subtitle.joseph_shoot",
+		"sounds": [
+			"jojo_ripples:hamon_user/joseph_shoot"
+		]
+	}
+}

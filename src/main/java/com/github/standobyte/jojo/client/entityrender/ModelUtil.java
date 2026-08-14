@@ -28,6 +28,7 @@ import com.github.standobyte.v1_21_4_stuff.missingmethods._PartPose;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.Model;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
@@ -40,6 +41,7 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.phys.Vec3;
 
 public class ModelUtil {
@@ -167,6 +169,7 @@ public class ModelUtil {
 				modelPartName, modelPartOffset) : null;
 	}
 	
+	public static final float LIVING_RENDER_Y_OFFSET_MAGIC = 1.501f;
 	// NOT-common code friendly method
 	@Nullable
 	// FIXME !!! grab punches rotate the stand weirdly
@@ -220,7 +223,7 @@ public class ModelUtil {
 				(float) -finalModelPartOffset.z, 
 				offset);
 
-		offset = offset.mul(1, -1, -1).add(0, 1.501f, 0);
+		offset = offset.mul(1, -1, -1).add(0, LIVING_RENDER_Y_OFFSET_MAGIC, 0);
 		return new Vec3(offset.x, offset.y, offset.z);
 	}
 	
@@ -246,6 +249,16 @@ public class ModelUtil {
 		return entity instanceof MannequinEntity mannequin && mannequin.isSlim()
 				|| entity instanceof AbstractClientPlayer player && player.getSkin().model() == PlayerSkin.Model.SLIM
 				|| entity instanceof PowerUserMobEntity npc && npc.clientStuff.getModelType(entity) == PlayerSkin.Model.SLIM;
+	}
+	
+	public static void setAllVisibleSetupOuterLayer(PlayerModel<?> playerModel, AbstractClientPlayer clientPlayer) {
+		playerModel.setAllVisible(true);
+		playerModel.hat.visible = clientPlayer.isModelPartShown(PlayerModelPart.HAT);
+		playerModel.jacket.visible = clientPlayer.isModelPartShown(PlayerModelPart.JACKET);
+		playerModel.leftPants.visible = clientPlayer.isModelPartShown(PlayerModelPart.LEFT_PANTS_LEG);
+		playerModel.rightPants.visible = clientPlayer.isModelPartShown(PlayerModelPart.RIGHT_PANTS_LEG);
+		playerModel.leftSleeve.visible = clientPlayer.isModelPartShown(PlayerModelPart.LEFT_SLEEVE);
+		playerModel.rightSleeve.visible = clientPlayer.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE);
 	}
 	
 }

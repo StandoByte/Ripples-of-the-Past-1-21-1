@@ -3,6 +3,8 @@ package com.github.standobyte.jojo.client.entityanim.pose;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import org.joml.Vector3f;
 
 import com.github.standobyte.v1_21_4_stuff.missingmethods.PartPoseScale;
@@ -23,6 +25,7 @@ public class AnimFramePose {
 				.computeIfAbsent(modelPartName, ___ -> new ModelPartFrame()));
 	}
 	
+	@Nullable
 	public ModelPartFrame getIfPresent(String modelPartName) {
 		return this.pose.get(modelPartName);
 	}

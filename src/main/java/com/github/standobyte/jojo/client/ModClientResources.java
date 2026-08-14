@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.github.standobyte.jojo.client.entityanim.AnimationLoader;
+import com.github.standobyte.jojo.client.entityanim.player.PlayerAnimRigLoad;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
 import com.github.standobyte.jojo.client.shader.ModShaders;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmEngine;
@@ -11,6 +12,7 @@ import com.github.standobyte.jojo.client.sound.util.SoundCache;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.client.layer.ClothesModelLoader;
+import com.github.standobyte.jojo.mechanics.jojopose.resource.ClientJojoPoseLoader;
 import com.github.standobyte.jojo.mechanics.voiceline.ClientVoiceLinesLoader;
 
 import net.neoforged.api.distmarker.Dist;
@@ -29,8 +31,10 @@ public class ModClientResources {
 		RotpGeckoModelLoader.init(event);
 		StandSkinsLoader.init(event);
 		AnimationLoader.init(event);
+		ClientJojoPoseLoader.init(event);
 		ClientVoiceLinesLoader.init(event);
 		ClothesModelLoader.init(event);
+		PlayerAnimRigLoad.init(event);
 		ModShaders.init(event);
 		BgmEngine.init(event);
 	}

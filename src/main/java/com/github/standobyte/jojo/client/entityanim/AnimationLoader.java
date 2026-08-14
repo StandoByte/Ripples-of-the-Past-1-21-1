@@ -13,6 +13,8 @@ import com.github.standobyte.jojo.client.entityanim.molang.KeyframesMolangEngine
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.functions.JSONUtil;
 import com.github.standobyte.jojo.util.functions.StringUtil;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.Zone;
+import com.github.standobyte.v1_21_4_stuff.missingmethods._ProfilerFiller;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -21,10 +23,6 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-
-import com.github.standobyte.v1_21_4_stuff.missingmethods.Zone;
-import com.github.standobyte.v1_21_4_stuff.missingmethods._ProfilerFiller;
-
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 
 public class AnimationLoader extends SimplePreparableReloadListener<Map<ResourceLocation, AnimationSet.Builder>> {
@@ -66,7 +64,7 @@ public class AnimationLoader extends SimplePreparableReloadListener<Map<Resource
 				ResourceLocation resourcePathFull = resourceEntry.getKey();
 				ResourceLocation animPath = resourcePathFull.withPath(
 						StringUtil.trimEnding(resourceEntry.getKey().getPath(), EXTENSION).substring(TOP_DIR.length() + 1));
-				AnimationSet.Builder anim = loadAnimations(resourceEntry.getValue(), resourcePathFull);
+				AnimationSet.Builder anim = loadAnimations(resourceEntry.getValue(), resourcePathFull, false, true);
 				if (!anim.isEmpty()) {
 					anims.put(animPath, anim);
 				}
@@ -76,8 +74,9 @@ public class AnimationLoader extends SimplePreparableReloadListener<Map<Resource
 		return anims;
 	}
 	
-	public static AnimationSet.Builder loadAnimations(List<Resource> resources, ResourceLocation resourcePath) {
-		AnimationSet.Builder animationSet = new AnimationSet.Builder();
+	public static AnimationSet.Builder loadAnimations(List<Resource> resources, 
+			ResourceLocation resourcePath, boolean preserveOrder, boolean groupByName) {
+		AnimationSet.Builder animationSet = new AnimationSet.Builder(preserveOrder, groupByName);
 		for (var animFile : resources) {
 			try (var reader = animFile.openAsReader()) {
 				JsonObject json = JSONUtil.parse(reader);
@@ -117,7 +116,9 @@ public class AnimationLoader extends SimplePreparableReloadListener<Map<Resource
 	@Override
 	protected void apply(Map<ResourceLocation, AnimationSet.Builder> skinsRead, ResourceManager resourceManager, ProfilerFiller profiler) {
 		this.anims.clear();
-		skinsRead.forEach((key, animBuilder) -> this.anims.put(key, animBuilder.build()));
+		skinsRead.forEach((key, animBuilder) -> {
+			this.anims.put(key, animBuilder.build());
+		});
 		JojoMod.getLogger().info("Loaded {} entity animation files", this.anims.size());
 	}
 	

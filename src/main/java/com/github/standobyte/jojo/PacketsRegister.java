@@ -16,6 +16,7 @@ import com.github.standobyte.jojo.entityattachment.custom_effect.sync.TrStandEff
 import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataPacket;
 import com.github.standobyte.jojo.mechanics.clothes.TrClothesItemsPacket;
 import com.github.standobyte.jojo.mechanics.clothes.sewing.ClSetSewingMachineItemPacket;
+import com.github.standobyte.jojo.mechanics.jojopose.ClJojoPoseActionPacket;
 import com.github.standobyte.jojo.mechanics.resolve.ClActivateResolvePacket;
 import com.github.standobyte.jojo.mechanics.resolve.TrResolvePacket;
 import com.github.standobyte.jojo.mechanics.voiceline.PlayVoiceLinePacket;
@@ -31,13 +32,13 @@ import com.github.standobyte.jojo.network.s2c.DeflectedBulletPacket;
 import com.github.standobyte.jojo.network.s2c.EntityDirectPosNoLerpPacket;
 import com.github.standobyte.jojo.network.s2c.EntitySyncMotionBypassingPacket;
 import com.github.standobyte.jojo.network.s2c.ItemBreakVisualsPacket;
+import com.github.standobyte.jojo.network.s2c.PowerDataUnlockedSkillsPacket;
 import com.github.standobyte.jojo.network.s2c.StandEntitySoundPacket;
 import com.github.standobyte.jojo.network.s2c.StandSkinSoundPacket;
 import com.github.standobyte.jojo.network.s2c.TrAbilityUsePacket;
 import com.github.standobyte.jojo.network.s2c.TrAimTargetPacket;
 import com.github.standobyte.jojo.network.s2c.TrNonEntityStandSummonPacket;
 import com.github.standobyte.jojo.network.s2c.TrPowerDataPacket;
-import com.github.standobyte.jojo.network.s2c.PowerDataUnlockedSkillsPacket;
 import com.github.standobyte.jojo.network.s2c.TrPowerStandInstancePacket;
 import com.github.standobyte.jojo.network.s2c.TrPowerTypePacket;
 import com.github.standobyte.jojo.network.s2c.TrResetDeathTimePacket;
@@ -66,6 +67,7 @@ import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.SetClientContr
 import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.client.mob.ClControlledMobCommandPacket;
 import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.client.mob.ClMobControlMovementPacket;
 import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.client.stand.ClStandManualMovementPacket;
+import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.client.stand.OnStandManualMovementPacket;
 import com.github.standobyte.jojo.subsystems.entity_useitem.ClStandClickPacket;
 import com.github.standobyte.jojo.subsystems.itemtracking.TrackedItemPacket;
 import com.github.standobyte.jojo.subsystems.movement_input_sync.ClPlayerMovementInputPacket;
@@ -104,6 +106,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClStandItemInputPacket.Handler(JojoMod.resLoc("clstanditem")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClSetSewingMachineItemPacket.Handler(JojoMod.resLoc("clsewingitem")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClExtendedContainerClickPacket.Handler(JojoMod.resLoc("clslotclick")));
+		registerPacket(registrar, PayloadRegistrar::playToServer, new ClJojoPoseActionPacket.Handler(JojoMod.resLoc("cljjpose")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClCommonServerConfigEditPacket.Handler(JojoMod.resLoc("clcfgedit")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClCommonServerConfigResetPacket.Handler(JojoMod.resLoc("clcfgreset")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClPlayerBroadcastConfigPacket.Handler(JojoMod.resLoc("clcfgsend")));
@@ -127,6 +130,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrStaminaPacket.Handler(JojoMod.resLoc("stamina")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrResolvePacket.Handler(JojoMod.resLoc("resolve")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new StandAwakeningDataPacket.Handler(JojoMod.resLoc("standawake")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new OnStandManualMovementPacket.Handler(JojoMod.resLoc("onstandmove")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrAimTargetPacket.Handler(JojoMod.resLoc("aim")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrStandSkinPacket.Handler(JojoMod.resLoc("standskin")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new StandSkinSoundPacket.Handler(JojoMod.resLoc("standsound")));

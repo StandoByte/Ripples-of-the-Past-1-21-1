@@ -3,8 +3,6 @@ package com.github.standobyte.jojo.client.entityrender;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.github.standobyte.jojo.client.entityanim.playerbend.IPlayerBendModel;
-import com.github.standobyte.jojo.client.entityanim.playerbend.IPlayerLimbBend;
 import com.github.standobyte.v1_21_4_stuff.Reminder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -34,9 +32,6 @@ public class HumanoidPlayerModel<T extends LivingEntity> extends HumanoidModel<T
 		super(addMissingBoneDefinitions(root));
 		this.rightArmSlim = root.getChild("right_arm_slim");
 		this.leftArmSlim = root.getChild("left_arm_slim");
-		IPlayerBendModel thisBends = (IPlayerBendModel) this;
-		((IPlayerLimbBend) (Object) rightArmSlim).jojo_ripples$setBendBone(thisBends.jojo_ripples$animRightArmBend(), false);
-		((IPlayerLimbBend) (Object) leftArmSlim).jojo_ripples$setBendBone(thisBends.jojo_ripples$animLeftArmBend(), false);
 	}
 
 	@Override

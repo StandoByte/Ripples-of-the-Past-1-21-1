@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.mechanics.standarrow.StandArrowShardLore;
 import com.github.standobyte.jojo.mechanics.standdisc.StandWrittenOnDisc;
 import com.github.standobyte.jojo.subsystems.itemtracking.OriginalItemPosComponent;
 import com.github.standobyte.v1_21_4_stuff.itemmodel.__ItemModelComponent;
+import com.mojang.serialization.Codec;
 
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentType;
@@ -66,6 +67,16 @@ public class ModItemDataComponents {
 			.persistent(StandArrowShardLore.CODEC)
 			.networkSynchronized(StandArrowShardLore.STREAM_CODEC)
 			.cacheEncoding());
+
+	public static final Supplier<DataComponentType<Integer>> GUN_AMMO = DATA_COMPONENT_TYPES.registerComponentType("gun_ammo", 
+			builder -> builder
+			.persistent(Codec.INT)
+			.networkSynchronized(ByteBufCodecs.VAR_INT));
+
+	public static final Supplier<DataComponentType<Integer>> ACTIVATION_TICKS = DATA_COMPONENT_TYPES.registerComponentType("activation_ticks", 
+			builder -> builder
+			.persistent(Codec.INT)
+			.networkSynchronized(ByteBufCodecs.VAR_INT));
 
 	public static final Supplier<DataComponentType<ResourceLocation>> ITEM_MODEL = DATA_COMPONENT_TYPES.registerComponentType("item_model", 
 			__ItemModelComponent.builder());

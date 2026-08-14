@@ -84,7 +84,7 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 	
 	protected void addMissingItemHoldPoints() {
 		if (left_arm != null) {
-			ModelPart armBend = left_arm.getChild("left_arm_bend");
+			ModelPart armBend = left_arm.children.get("left_arm_bend");
 			if (armBend != null && !armBend.hasChild("left_item")) {
 				ModelPart itemPoint = new ModelPart(new ArrayList<>(), new HashMap<>());
 				itemPoint.setInitialPose(PartPose.offset(0, 3.75f, -2.0f));
@@ -93,7 +93,7 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 			}
 		}
 		if (right_arm != null) {
-			ModelPart armBend = right_arm.getChild("right_arm_bend");
+			ModelPart armBend = right_arm.children.get("right_arm_bend");
 			if (armBend != null && !armBend.hasChild("right_item")) {
 				ModelPart itemPoint = new ModelPart(new ArrayList<>(), new HashMap<>());
 				itemPoint.setInitialPose(PartPose.offset(0, 3.75f, -2.0f));
@@ -162,7 +162,7 @@ public class StandEntityModel<T extends StandEntity, S extends StandEntityRender
 
 	@Override
 	public void translateToHand(HumanoidArm side, PoseStack poseStack) {
-		CustomPlayerModel.translateToItemHoldPos(side, poseStack, (ModelWithExtraFeatures) this);
+		CustomPlayerModel.translateToItemHoldPos(side, poseStack, (ModelWithExtraFeatures) this, 0);
 	}
 
 

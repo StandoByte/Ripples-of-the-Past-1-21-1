@@ -55,6 +55,14 @@ public class StandStats implements JsonConfigurable {
 	public double durability() { return durability.value; }
 	public double precision() { return precision.value; }
 	
+	/*
+	 * "A" - 14+
+	 * "B" - 11-14
+	 * "C" - 8-11
+	 * "D" - 5-8
+	 * "E" - 0-5
+	 * "∅" - 0
+	 */
 	public static class Builder {
 		private double power;
 		private double speed;

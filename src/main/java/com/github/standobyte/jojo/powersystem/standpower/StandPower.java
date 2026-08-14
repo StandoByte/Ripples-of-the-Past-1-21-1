@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.ClientGlobals;
+import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.entityattachment.PostNbtReadEntityData;
 import com.github.standobyte.jojo.init.ModEntityAttributes;
@@ -71,8 +73,15 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 				}
 			}
 		}
+		
 		if (summonedStand != null) {
 			summonedStand.tickStand(getUser(), this);
+			if (!user.level().isClientSide() && summonedStand.isUnsummoned()) {
+				StandType type = getPowerType();
+				if (type != null) {
+					type.forceUnsummon(user, this);
+				}
+			}
 		}
 	}
 	
@@ -146,6 +155,10 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		if (summonedStand != null) {
 			summonedStand.setUserAndPower(getUser(), this);
 			summonedStand.setSelectedSkin(standInstance.flatMap(StandInstance::getSelectedSkin));
+		}
+		
+		if (user.level().isClientSide() && user == ClientProxy.getClientPlayer()) {
+			ClientGlobals.cacheSummonedStand(summonedStand);
 		}
 	}
 	

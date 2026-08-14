@@ -7,19 +7,19 @@ import com.google.common.primitives.Floats;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public record ClStandManualMovementPacket(double x, double y, double z, float xRot, float yRot, boolean resetDeltaMovement) implements CustomPacketPayload {
+public record ClStandManualMovementPacket(double x, double y, double z, 
+		float xRot, float yRot, boolean hasInput, boolean sendInputPacketToTracking) implements CustomPacketPayload {
 	private static CustomPacketPayload.Type<ClStandManualMovementPacket> type;
 
-	public static class Handler implements PacketsRegister.PacketCodecHandler<ClStandManualMovementPacket> {
+	public static class Handler implements PacketsRegister.PacketOGHandler<ClStandManualMovementPacket> {
 
 		public Handler(ResourceLocation packetId) { 
 			type = new CustomPacketPayload.Type<>(packetId);
@@ -29,22 +29,24 @@ public record ClStandManualMovementPacket(double x, double y, double z, float xR
 		public Type<ClStandManualMovementPacket> type() {
 			return type;
 		}
-
+		
 		@Override
-		public StreamCodec<? super RegistryFriendlyByteBuf, ClStandManualMovementPacket> reader() {
-			return STREAM_CODEC;
+		public void encode(ClStandManualMovementPacket packet, RegistryFriendlyByteBuf buf) {
+			buf.writeDouble(packet.x);
+			buf.writeDouble(packet.y);
+			buf.writeDouble(packet.z);
+			buf.writeFloat(packet.xRot);
+			buf.writeFloat(packet.yRot);
+			buf.writeBoolean(packet.hasInput);
+			buf.writeBoolean(packet.sendInputPacketToTracking);
 		}
-
-
-		public static final StreamCodec<RegistryFriendlyByteBuf, ClStandManualMovementPacket> STREAM_CODEC = StreamCodec.composite(
-				ByteBufCodecs.DOUBLE, ClStandManualMovementPacket::x,
-				ByteBufCodecs.DOUBLE, ClStandManualMovementPacket::y,
-				ByteBufCodecs.DOUBLE, ClStandManualMovementPacket::z,
-				ByteBufCodecs.FLOAT, ClStandManualMovementPacket::xRot,
-				ByteBufCodecs.FLOAT, ClStandManualMovementPacket::yRot,
-				ByteBufCodecs.BOOL, ClStandManualMovementPacket::resetDeltaMovement,
-				ClStandManualMovementPacket::new);
-
+		
+		@Override
+		public ClStandManualMovementPacket decode(RegistryFriendlyByteBuf buf) {
+			return new ClStandManualMovementPacket(buf.readDouble(), buf.readDouble(), buf.readDouble(),
+					buf.readFloat(), buf.readFloat(), buf.readBoolean(), buf.readBoolean());
+		}
+		
 		@Override
 		public void handle(ClStandManualMovementPacket packet, IPayloadContext context) {
 			ServerPlayer player = (ServerPlayer) context.player();
@@ -110,8 +112,11 @@ public record ClStandManualMovementPacket(double x, double y, double z, float xR
 //			lastGoodX = stand.getX();
 //			lastGoodY = stand.getY();
 //			lastGoodZ = stand.getZ();
-			if (msg.resetDeltaMovement()) {
+			if (msg.hasInput()) {
 				stand.setDeltaMovement(Vec3.ZERO);
+			}
+			if (msg.sendInputPacketToTracking()) {
+				PacketDistributor.sendToPlayersTrackingEntity(stand, new OnStandManualMovementPacket(stand.getId()));
 			}
 		}
 

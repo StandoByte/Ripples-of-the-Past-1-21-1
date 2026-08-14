@@ -3,17 +3,16 @@ package com.github.standobyte.jojo.client.entityanim;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.OptionalInt;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.util.functions.StringUtil;
-import com.mojang.datafixers.util.Pair;
+import com.github.standobyte.jojo.util.functions.StringUtil.StringWithNumber;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -51,14 +50,29 @@ public class AnimationSet {
 	
 	
 	public static class Builder {
-		protected Map<String, Int2ObjectMap<RotpAnimDefinition>> namedAnimations = new HashMap<>();
+		protected boolean preserveOrder;
+		protected boolean groupByName;
+		protected Map<String, Int2ObjectMap<RotpAnimDefinition>> namedAnimations = new LinkedHashMap<>();
 		@Nullable protected List<RotpAnimDefinition> alwaysAnim;
 		
+		public Builder(boolean preserveOrder, boolean groupByName) {
+			this.preserveOrder = preserveOrder;
+			this.groupByName = groupByName;
+			this.namedAnimations = preserveOrder ? new LinkedHashMap<>() : new HashMap<>();
+		}
+		
 		public void putNamedAnim(String name, RotpAnimDefinition anim) {
-			Pair<String, OptionalInt> enumeratedName = StringUtil.splitIntAtTheEnd(name);
-			Int2ObjectMap<RotpAnimDefinition> anims = this.namedAnimations.computeIfAbsent(
-					enumeratedName.getFirst(), __ -> new Int2ObjectArrayMap<>());
-			anims.put(enumeratedName.getSecond().orElse(0), anim);
+			if (groupByName) {
+				StringWithNumber enumeratedName = StringUtil.StringWithNumber.splitIntAtTheEnd(name);
+				Int2ObjectMap<RotpAnimDefinition> anims = this.namedAnimations.computeIfAbsent(
+						enumeratedName.str(), __ -> new Int2ObjectArrayMap<>());
+				anims.put(enumeratedName.number().orElse(0), anim);
+			}
+			else {
+				Int2ObjectMap<RotpAnimDefinition> anims = this.namedAnimations.computeIfAbsent(
+						name, __ -> new Int2ObjectArrayMap<>());
+				anims.put(0, anim);
+			}
 		}
 		
 		public void addAlwaysAnim(RotpAnimDefinition anim) {
@@ -73,14 +87,16 @@ public class AnimationSet {
 		}
 		
 		public AnimationSet build() {
-			Map<String, AnimVariantsList> anims = this.namedAnimations.entrySet().stream()
-					.collect(Collectors.toMap(
-							Map.Entry::getKey, 
-							entry -> new AnimVariantsList(entry.getValue()
-								.int2ObjectEntrySet().stream()
-								.sorted(Comparator.comparingInt(Int2ObjectMap.Entry::getIntKey))
-								.map(Int2ObjectMap.Entry::getValue)
-								.toList())));
+			Map<String, AnimVariantsList> anims = preserveOrder ? 
+					LinkedHashMap.newLinkedHashMap(this.namedAnimations.size()) :
+					HashMap.newHashMap(this.namedAnimations.size());
+			this.namedAnimations.forEach((name, anim) -> {
+				anims.put(name, new AnimVariantsList(anim
+						.int2ObjectEntrySet().stream()
+						.sorted(Comparator.comparingInt(Int2ObjectMap.Entry::getIntKey))
+						.map(Int2ObjectMap.Entry::getValue)
+						.toList()));
+			});
 			AnimationSet animationSet = new AnimationSet(anims);
 			animationSet.alwaysAnim = this.alwaysAnim;
 			return animationSet;

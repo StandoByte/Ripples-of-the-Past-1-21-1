@@ -10,7 +10,12 @@ import com.github.standobyte.jojo.mechanics.clothes.ClothesItem;
 import com.github.standobyte.jojo.mechanics.clothes.EntityClothesInventory;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
+import com.github.standobyte.jojo.mechanics.clothes.itemdata.StoryCharacter;
+import com.github.standobyte.jojo.mechanics.jojopose.ClJojoPoseActionPacket;
+import com.github.standobyte.jojo.mechanics.jojopose.resource.ClientJojoPoseLoader;
+import com.github.standobyte.jojo.mechanics.jojopose.resource.JojoPose;
 
+import net.minecraft.core.Holder;
 import net.minecraft.core.Rotations;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -28,6 +33,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class MannequinEntity extends ArmorStand {
 	private static final Rotations ZERO_ROTATIONS = new Rotations(0, 0, 0);
@@ -69,9 +75,32 @@ public class MannequinEntity extends ArmorStand {
 		return clothes;
 	}
 
+	private int poseCycle;
 	@Override
 	public InteractionResult interactAt(Player player, Vec3 vec, InteractionHand hand) {
 		ItemStack heldItem = player.getItemInHand(hand);
+		
+		if (heldItem.is(ModItems.DEBUG_ITEM)) {
+			clothesLazyInit();
+			Holder<StoryCharacter> character = clothes.getCharacter();
+			if (character != null) {
+				boolean clientSide = level().isClientSide();
+				if (clientSide) {
+					var poses = ClientJojoPoseLoader.getInstance().getPosesForCharacter(
+							character, clothes.getStoryPart()).toList();
+					if (!poses.isEmpty()) {
+						JojoPose pose = poses.get((++poseCycle) % poses.size());
+						PacketDistributor.sendToServer(ClJojoPoseActionPacket.start(
+								this.getId(), pose.animSet, pose.animName));
+					}
+				}
+				
+				return InteractionResult.sidedSuccess(clientSide);
+			}
+			
+			return InteractionResult.FAIL;
+		}
+		
 		if (!this.isMarker() && heldItem.getItem() != Items.NAME_TAG && !player.isSpectator() && !player.level().isClientSide()) {
 			clothesLazyInit();
 			// Take off a hovered item from the mannequin

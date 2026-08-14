@@ -62,11 +62,7 @@ public class LivingEntityRenderState extends EntityRenderState {
         reusedState.yRot = Mth.wrapDegrees(f - reusedState.bodyRot);
         reusedState.xRot = getXRot(entity, partialTick);
         reusedState.customName = entity.getCustomName();
-        reusedState.isUpsideDown = isEntityUpsideDown(entity);
-        if (reusedState.isUpsideDown) {
-            reusedState.xRot *= -1.0F;
-            reusedState.yRot *= -1.0F;
-        }
+        setUpsideDown(reusedState, entity);
 
         if (!entity.isPassenger() && entity.isAlive()) {
             reusedState.walkAnimationPos = entity.walkAnimation.position(partialTick);
@@ -113,6 +109,42 @@ public class LivingEntityRenderState extends EntityRenderState {
         Minecraft minecraft = Minecraft.getInstance();
         reusedState.isInvisibleToPlayer = reusedState.isInvisible && entity.isInvisibleTo(minecraft.player);
         reusedState.appearsGlowing = minecraft.shouldEntityAppearGlowing(entity);
+    }
+    
+    @Override
+    public void clear(float ageInTicks) {
+    	super.clear(ageInTicks);
+        this.bodyRot = 0;
+        this.yRot = 0;
+        this.xRot = 0;
+        this.deathTime = 0;
+        this.walkAnimationPos = 0;
+        this.walkAnimationSpeed = 0;
+        this.scale = 1;
+        this.ageScale = 1;
+        this.isUpsideDown = false;
+        this.isFullyFrozen = false;
+        this.isBaby = false;
+        this.isInWater = false;
+        this.isAutoSpinAttack = false;
+        this.hasRedOverlay = false;
+        this.isInvisibleToPlayer = false;
+        this.appearsGlowing = false;
+        this.bedOrientation = null;
+        this.customName = null;
+        this.pose = Pose.STANDING;
+        this.headItem = ItemStack.EMPTY;
+        this.wornHeadAnimationPos = 0;
+        this.wornHeadType = null;
+        this.wornHeadProfile = null;
+    }
+    
+    public static void setUpsideDown(LivingEntityRenderState reusedState, LivingEntity entity) {
+        reusedState.isUpsideDown = isEntityUpsideDown(entity);
+        if (reusedState.isUpsideDown) {
+            reusedState.xRot *= -1.0F;
+            reusedState.yRot *= -1.0F;
+        }
     }
 
     public static float solveBodyRot(LivingEntity entity, float yHeadRot, float partialTick) {

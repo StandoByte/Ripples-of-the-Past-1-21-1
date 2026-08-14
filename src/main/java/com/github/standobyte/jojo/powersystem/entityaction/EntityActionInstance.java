@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.entityanim.LivingAnimState;
+import com.github.standobyte.jojo.client.entityanim.LivingAnimState.AnimSource;
 import com.github.standobyte.jojo.customobjects.entity_projectile.DamagingEntity;
 import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataHelper;
 import com.github.standobyte.jojo.init.ModDamageTypes;
@@ -30,6 +31,7 @@ import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -419,12 +421,17 @@ public class EntityActionInstance implements HeldInput {
 	}
 	
 	public void extractAnim(LivingAnimState animVariables, LivingEntity performer, float partialTick) {
-		animVariables.animSet = ability.getEntityAnimSet(performer);
+		animVariables.animSet = getEntityAnimSet();
 		animVariables.animId = getEntityAnim();
+		animVariables.animSource = AnimSource.DEFAULT_ANIM_LOADER;
 		animVariables.time = getAnimFullTicksPassed(partialTick);
 		animVariables.actionPhase = getPhase();
 		animVariables.phaseTime = getAnimPhaseTick(partialTick);
 		animVariables.phaseCompletion = getAnimPhaseRatio(partialTick);
+	}
+	
+	public ResourceLocation getEntityAnimSet() {
+		return ability.getEntityAnimSet(performer);
 	}
 
 	public ActionAnimIdentifier getEntityAnim() {

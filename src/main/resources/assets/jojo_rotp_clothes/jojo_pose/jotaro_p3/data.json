@@ -1,0 +1,33 @@
+{
+	"character": "jojo_ripples:jotaro",
+	"story_part": [ "jojo_ripples:p3" ],
+	"anim_specific": {
+		"volume13": {
+			"stand_summon_pose": {
+				"stand_id": "jojo_ripples:star_platinum",
+				"anim_name": "summon2"
+			}
+		},
+		"cap": {
+			"voice_line": [
+				{
+					"subtitle": "jojo.vl_subtitle.yare_yare",
+					"sounds": [
+						"jojo_ripples:stand_user/jotaro_yare_yare_1",
+						"jojo_ripples:stand_user/jotaro_yare_yare_2",
+						"jojo_ripples:stand_user/jotaro_yare_yare_3",
+						"jojo_ripples:stand_user/jotaro_yare_yare_4"
+					]
+				},
+				{
+					"subtitle": "jojo.vl_subtitle.yare_yare_daze",
+					"sounds": [
+						"jojo_ripples:stand_user/jotaro_yare_yare_daze_1",
+						"jojo_ripples:stand_user/jotaro_yare_yare_daze_2",
+						"jojo_ripples:stand_user/jotaro_yare_yare_daze_3"
+					]
+				}
+			]
+		}
+	}
+}

@@ -5,6 +5,8 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.client.ModEntityTypeRenderers;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinEntity;
+import com.github.standobyte.v1_21_4_stuff.renderstate.HumanoidRenderState;
+import com.github.standobyte.v1_21_4_stuff.renderstate.RenderStateCrutches;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 
@@ -75,7 +77,10 @@ public class MannequinRenderer extends LivingEntityRenderer<MannequinEntity, Man
 	@Override
 	public void render(MannequinEntity entity, float entityYaw, float partialTick, PoseStack matrixStack, MultiBufferSource bufferSource, int light) {
 		this.model = entity.isSlim() ? mannequinModelSlim : mannequinModel;
+		HumanoidRenderState reusedState = new HumanoidRenderState();
+		RenderStateCrutches.beforeLivingRender(entity, reusedState, this, entityRenderDispatcher, partialTick);
 		super.render(entity, entityYaw, partialTick, matrixStack, bufferSource, light);
+		RenderStateCrutches.afterLivingRender();
 	}
 
 	@Override

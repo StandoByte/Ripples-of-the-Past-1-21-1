@@ -3,12 +3,12 @@ package com.github.standobyte.jojo.client.entityrender.stand;
 import java.util.List;
 import java.util.function.Consumer;
 
+import com.github.standobyte.jojo.client.entityanim.OnFrameApplyEntityAnim;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.AnimWithId;
 import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery.AnimMolangVariables;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
-import com.github.standobyte.jojo.client.entityrender.PreFrameEntityRenderCallback;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
 import com.github.standobyte.jojo.client.rendertype.ModRenderTypes;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
@@ -84,7 +84,6 @@ public class StandEntityRenderer<
 		return (M) new StandEntityModel<>(definition.bakeRoot());
 	}
 
-	public static final ActionAnimIdentifier SUMMON_ANIM = ActionAnimIdentifier.getOrCreate("summon").setSummon();
 	public static final ActionAnimIdentifier IDLE_ANIM = ActionAnimIdentifier.getOrCreate("idle").setIdle();
 	public static final ActionAnimIdentifier GRAB_IDLE_ANIM = ActionAnimIdentifier.getOrCreate("grab").setIdle();
 //	@Override // 1.21.2+
@@ -128,20 +127,22 @@ public class StandEntityRenderer<
 				pose = AnimFramePose.reused.clear();
 				AnimMolangVariables molangVars = AnimMolangVariables.set(0, 0, 0);
 				
-				List<RotpAnimDefinition> animsPre = skin.getStandAlwaysAnimations();
-				if (animsPre != null) {
-					for (RotpAnimDefinition animPre : animsPre) {
-						float seconds = animPre.getAnimTime(ticks);
-						animPre.calcAnimPose(pose, seconds, 1, molangVars, null);
+				if (skin != null) {
+					List<RotpAnimDefinition> animsPre = skin.getStandAlwaysAnimations();
+					if (animsPre != null) {
+						for (RotpAnimDefinition animPre : animsPre) {
+							float seconds = animPre.getAnimTime(ticks);
+							animPre.calcAnimPose(pose, seconds, 1, molangVars, null);
+						}
 					}
-				}
-				
-				ActionAnimIdentifier animId = StandEntityRenderer.IDLE_ANIM;
-				AnimWithId animWithId = PreFrameEntityRenderCallback.getStandAnim(skin, animId, StandEntityRenderer.IDLE_ANIM);
-				RotpAnimDefinition anim = animWithId.anim;
-				if (anim != null) {
-					float seconds = anim.getAnimTime(ticks);
-					anim.calcAnimPose(pose, seconds, 1, molangVars, null);
+					
+					ActionAnimIdentifier animId = StandEntityRenderer.IDLE_ANIM;
+					AnimWithId animWithId = OnFrameApplyEntityAnim.getStandAnim(skin, animId, StandEntityRenderer.IDLE_ANIM);
+					RotpAnimDefinition anim = animWithId.anim;
+					if (anim != null) {
+						float seconds = anim.getAnimTime(ticks);
+						anim.calcAnimPose(pose, seconds, 1, molangVars, null);
+					}
 				}
 			}
 			case STAND_INFO -> {

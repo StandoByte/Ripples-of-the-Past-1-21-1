@@ -1,0 +1,21 @@
+{
+  "parent": "jojo_ripples:item/tommy_gun",
+  "display": {
+		"thirdperson_righthand": {
+			"rotation": [-135, 0, 0],
+			"translation": [0, 6, -9.5]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [-135, 0, 0],
+			"translation": [0, 6, -9.5]
+		},
+		"firstperson_righthand": {
+			"rotation": [-135, 0, 0],
+			"translation": [0, 10, -5]
+		},
+		"firstperson_lefthand": {
+			"rotation": [-135, 0, 0],
+			"translation": [0, 10, -5]
+		}
+  }
+}

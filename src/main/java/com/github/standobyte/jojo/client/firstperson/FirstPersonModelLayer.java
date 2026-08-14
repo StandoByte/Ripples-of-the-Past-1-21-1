@@ -16,9 +16,18 @@ import net.minecraft.world.entity.LivingEntity;
 
 // TODO (1.16.5) render the layers in 1st person when the player is invisible
 public interface FirstPersonModelLayer {
+	
+	/**
+	 * Render on top of the arm rendered by vanilla.
+	 * 
+	 * While an action animation is playing, this method is not used, 
+	 * instead the mod renders the camera player fully through the renderer.
+	 * But, in order for the layer to show up during an animation, 
+	 * it still has to implement this interface.
+	 */
 	void renderHandFirstPerson(HumanoidArm side, PoseStack poseStack, 
 			MultiBufferSource buffer, int light, LivingEntity entity, 
-			LivingEntityRenderer<?, ?> entityRenderer);
+			LivingEntityRenderer<?, ?> entityRenderer, float partialTick);
 
 	static void defaultRender(HumanoidArm side, PoseStack poseStack, 
 			MultiBufferSource buffer, int light, LivingEntity entity, 

@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.github.standobyte.jojo.client.entityrender.replace_player_model.ReplacePlayerModel;
+import com.github.standobyte.jojo.mixininterface.PlayerRendererInterface;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.model.EntityModel;
@@ -16,15 +17,20 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
 @SuppressWarnings({ "rawtypes" })
 @Mixin(PlayerRenderer.class)
-public abstract class ReplacePlayerModelMixin extends ReplaceLivingModelMixin {
+public abstract class ReplacePlayerModelMixin extends LivingEntityRenderer implements PlayerRendererInterface {
 	@Unique protected EntityModel prevModel;
 	
+	public ReplacePlayerModelMixin(Context context, EntityModel model, float shadowRadius) {
+		super(context, model, shadowRadius);
+	}
 	
 	@Unique protected void setReplacementModel(Entity entity) {
 		if (this.prevModel == null) {
@@ -44,7 +50,7 @@ public abstract class ReplacePlayerModelMixin extends ReplaceLivingModelMixin {
 	}
 	
 	@Override
-	protected boolean isUsingCustomModel() {
+	public boolean jojoRipples$isUsingCustomModel() {
 		return prevModel != null;
 	}
 

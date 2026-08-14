@@ -95,23 +95,36 @@ public class RotpGeckoModelLoader extends SimplePreparableReloadListener<Map<Res
 				for (var resourceEntry : resources.entrySet()) {
 					ResourceLocation resourcePathFull = resourceEntry.getKey();
 					ResourceLocation modelPath = resourcePathFull.withPath(
-							StringUtil.trimEnding(resourceEntry.getKey().getPath(), EXTENSION).substring(DIR.length() + 1));
-					JsonElement json = null;
-					try (var reader = resourceEntry.getValue().openAsReader()) {
-						json = JSONUtil.parse(reader);
+							StringUtil.trimEnding(resourcePathFull.getPath(), EXTENSION).substring(DIR.length() + 1));
+					try {
+						LayerDefinition model = fromResource(resourceEntry.getValue(), format.format, resourcePathFull);
+						if (model != null) {
+							models.put(modelPath, model);
+						}
 					}
-					catch (IOException e) {
+					catch (Exception e) {
 						JojoMod.getLogger().error("Failed to parse model {}/{}", subdir, modelPath, e);
-					}
-					if (json != null) {
-						LayerDefinition model = ParseModEntityModel.parse(json, format.format());
-						models.put(modelPath, model);
 					}
 				}
 			}
 		}
 		
 		return models;
+	}
+	
+	public static LayerDefinition fromResource(Resource resource, ModelFormat format, ResourceLocation modelName) throws IOException {
+		JsonElement json = null;
+		try (var reader = resource.openAsReader()) {
+			json = JSONUtil.parse(reader);
+		}
+		if (json != null) {
+			LayerDefinition model = ParseModEntityModel.parse(json, format);
+			return model;
+		}
+		else {
+			JojoMod.getLogger().error("Failed to parse JSON of model {}", modelName);
+		}
+		return null;
 	}
 	
 	@Override

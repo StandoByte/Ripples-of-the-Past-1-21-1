@@ -1,0 +1,6 @@
+{
+    "parent": "jojo_ripples:item/metal_ball_crossbow",
+    "textures": {
+        "layer0": "jojo_ripples:item/large_crossbow_pulling_1"
+    }
+}

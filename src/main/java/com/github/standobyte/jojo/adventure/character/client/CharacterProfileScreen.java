@@ -9,7 +9,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import com.github.standobyte.jojo.adventure.character.CharacterPersonData;
-import com.github.standobyte.jojo.client.firstperson.LivingLayersAccess;
+import com.github.standobyte.jojo.client.entityrender.ModelUtil;
 import com.github.standobyte.jojo.client.standskin.text.StandNameSetColor;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.IJojoMenuScreen;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.Tab;
@@ -20,6 +20,7 @@ import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.mechanics.clothes.client.layer.HumanoidClothesLayer;
+import com.github.standobyte.jojo.mixininterface.LivingRendererLayers;
 import com.github.standobyte.jojo.powersystem.PowerData;
 import com.github.standobyte.jojo.powersystem.PowerType;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
@@ -47,15 +48,12 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.RenderLivingEvent;
 import net.neoforged.neoforge.client.event.RenderPlayerEvent;
@@ -322,13 +320,7 @@ public class CharacterProfileScreen extends Screen implements IJojoMenuScreen {
 		if (playerRenderer != null) {
 			PlayerModel<AbstractClientPlayer> playermodel = (PlayerModel<AbstractClientPlayer>) model;
 			AbstractClientPlayer clientPlayer = (AbstractClientPlayer) entity;
-			playermodel.setAllVisible(true);
-			playermodel.hat.visible = clientPlayer.isModelPartShown(PlayerModelPart.HAT);
-			playermodel.jacket.visible = clientPlayer.isModelPartShown(PlayerModelPart.JACKET);
-			playermodel.leftPants.visible = clientPlayer.isModelPartShown(PlayerModelPart.LEFT_PANTS_LEG);
-			playermodel.rightPants.visible = clientPlayer.isModelPartShown(PlayerModelPart.RIGHT_PANTS_LEG);
-			playermodel.leftSleeve.visible = clientPlayer.isModelPartShown(PlayerModelPart.LEFT_SLEEVE);
-			playermodel.rightSleeve.visible = clientPlayer.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE);
+			ModelUtil.setAllVisibleSetupOuterLayer(playermodel, clientPlayer);
 			playermodel.crouching = clientPlayer.isCrouching();
 			playermodel.rightArmPose = HumanoidModel.ArmPose.EMPTY;
 			playermodel.leftArmPose = HumanoidModel.ArmPose.EMPTY;
@@ -376,7 +368,7 @@ public class CharacterProfileScreen extends Screen implements IJojoMenuScreen {
 			model.renderToBuffer(poseStack, vertexconsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
 		}
 
-		List<RenderLayer<E, M>> layers = ((LivingLayersAccess<E, M>) renderer).jojo_ripples$allLayers();
+		List<RenderLayer<E, M>> layers = ((LivingRendererLayers<E, M>) renderer).jojo_ripples$allLayers();
 		for (RenderLayer<E, M> renderlayer : layers) {
 			if (renderlayer instanceof HumanoidClothesLayer) {
 				renderlayer.render(poseStack, buffer, packedLight, entity, limbSwing, limbSwingAmount, partialTicks, ticks, headYaw, headPitch);

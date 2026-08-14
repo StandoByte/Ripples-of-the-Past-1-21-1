@@ -259,18 +259,15 @@ public class TimeStopEffect extends StandEffectInstance implements TimeStopInsta
 	}
 	
 	public static boolean getIsInsideTimeStop(Entity entity) {
-		return JojoModEntityVariables.INSIDE_TIME_STOP_ZONE.get(
-				() -> JojoModEntityVariables.getSynchedIfPresent(entity));
+		return JojoModEntityVariables.INSIDE_TIME_STOP_ZONE.get(JojoModEntityVariables.getSynchedIfPresent(entity));
 	}
 	
 	public static boolean getIsFrozenInTime(Entity entity) {
-		return JojoModEntityVariables.STOPPED_IN_TIME.get(
-				() -> JojoModEntityVariables.getSynchedIfPresent(entity));
+		return JojoModEntityVariables.STOPPED_IN_TIME.get(JojoModEntityVariables.getSynchedIfPresent(entity));
 	}
 	
 	public static boolean getCanSeeInTimeStopVar(Entity entity) {
-		return JojoModEntityVariables.CAN_SEE_IN_STOPPED_TIME.get(
-				() -> JojoModEntityVariables.getSynchedIfPresent(entity));
+		return JojoModEntityVariables.CAN_SEE_IN_STOPPED_TIME.get(JojoModEntityVariables.getSynchedIfPresent(entity));
 	}
 
 }

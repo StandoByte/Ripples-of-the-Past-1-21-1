@@ -101,6 +101,7 @@ import net.neoforged.neoforge.event.entity.living.LivingKnockBackEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class StandEntity extends LivingEntity implements SummonedStand, IEntityWithComplexSpawn, LivingReactToNewAction, EntityStandVisibility, EntityWithStandSkin {
+	public static final int SUMMON_FADE_IN_TICKS = 5;
 	protected ResourceLocation standId;
     protected EntityDimensions standDimensions;
 	protected static final EntityDataAccessor<Byte> STAND_FLAGS = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.BYTE);
@@ -189,6 +190,10 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		}
 		else {
 			clientStuff.tick();
+			if (tickCount < SUMMON_FADE_IN_TICKS) {
+				float alpha = (float) tickCount / SUMMON_FADE_IN_TICKS;
+				multiplyTranslucency(alpha);
+			}
 		}
 		
 		updateStandStatAttributes(this, user);
@@ -621,13 +626,15 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		return user != null ? distanceToSqr(user) < 4 : false;
 	}
 	
-	public void onUnsummonUserInput() {
+	@Override
+	public boolean unsummonCommand() {
 		if (!this.isBeingRetracted()) {
 			this.retractAndUnsummon();
 		}
 		else if (this.isManuallyControlled()) {
 			this.stopRetraction();
 		}
+		return false;
 	}
 
 	public void stopRetraction() {

@@ -83,8 +83,8 @@ public class ClientVoiceLinesLoader extends SimplePreparableReloadListener<Map<R
 
 	private static final String TOP_DIR = "voicelines";
 	private static final String FILE_EXT = ".json";
-	private static final String SOUNDS_FILE_NAME = "sounds" + FILE_EXT;
-	private static final String DATA_FILE_NAME = "data" + FILE_EXT;
+	private static final String SOUNDS_FILE_NAME = "sounds.json";
+	private static final String DATA_FILE_NAME = "data.json";
 	
 	@Override
 	protected Map<ResourceLocation, CharacterEntryPrep> prepare(ResourceManager resourceManager, ProfilerFiller profiler) {

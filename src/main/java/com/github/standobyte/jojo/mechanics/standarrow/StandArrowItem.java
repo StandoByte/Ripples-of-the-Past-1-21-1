@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.mechanics.standarrow;
 
-import static com.github.standobyte.jojo.init.ModItems.discsOrder;
+import static com.github.standobyte.jojo.init.ModItemsCreativeTab.discsOrder;
 
 import java.util.ArrayList;
 import java.util.HashMap;

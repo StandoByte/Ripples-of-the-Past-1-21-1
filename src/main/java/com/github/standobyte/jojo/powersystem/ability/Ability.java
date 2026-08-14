@@ -46,7 +46,7 @@ public class Ability {
 	public Ability(AbilityType<?> abilityType, AbilityId abilityId) {
 		this.abilityType = abilityType;
 		this.abilityId = abilityId;
-		this.spriteName = StringUtil.splitIntAtTheEnd(abilityId.nameInMoveset()).getFirst();
+		this.spriteName = StringUtil.StringWithNumber.splitIntAtTheEnd(abilityId.nameInMoveset()).str();
 		this.nameTlKey = tlKey(abilityId.nameInMoveset());
 		this.name = Component.translatable(nameTlKey);
 		String abilityName = abilityId.nameInMoveset();

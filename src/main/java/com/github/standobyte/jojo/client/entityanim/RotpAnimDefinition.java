@@ -20,7 +20,6 @@ import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery.AnimM
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.AnimationChannelQuery;
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.IAnimationChannel;
 import com.github.standobyte.jojo.client.entityanim.molang.animelement.KeyframeQuery;
-import com.github.standobyte.jojo.client.entityanim.playerbend.PlayerModelBends;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
 import com.github.standobyte.jojo.client.entityrender.HiddenModelPartsUtil;
@@ -30,7 +29,6 @@ import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.jojo.util.objects_java.OptionalFloat;
-import com.github.standobyte.v1_21_4_stuff.OldPlayerModelJank;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 import com.google.common.collect.Maps;
 
@@ -39,7 +37,6 @@ import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.client.animation.AnimationChannel;
 import net.minecraft.client.animation.Keyframe;
-import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
@@ -91,13 +88,13 @@ public class RotpAnimDefinition {
 				float timestamp = timestampEntry.getFloatValue();
 				AnimFramePose frame = new AnimFramePose();
 				calcAnimPose(frame, timestamp, 1, null, null);
-				poses.put(poseName, new SavedPose(frame, addToStandInfoScreen));
+				poses.put(poseName, new SavedPose(frame, timestamp, addToStandInfoScreen));
 			}
 		}
 	}
 	
 	protected static record _PoseNameInit(String name, boolean isCoolPose) {}
-	public static record SavedPose(AnimFramePose pose, boolean addToStandInfoScreen) {}
+	public static record SavedPose(AnimFramePose pose, float timeInSeconds, boolean addToStandInfoScreen) {}
 
 
 	public AnimFramePose calcAnimPose(float seconds, float animSpeed,
@@ -125,26 +122,17 @@ public class RotpAnimDefinition {
 		}
 	}
 	
-	public static void animate(Model model, AnimFramePose frame) {
-		HumanoidModel<?> humanoidModelCast = model instanceof HumanoidModel __ ? __ : null;
+	public static void animate(Model model, AnimFramePose pose) {
 		Model_1_21_2plus backportModelCast = (Model_1_21_2plus) model;
 		ModelWithExtraFeatures rotpModelCast = (ModelWithExtraFeatures) model;
 		
-		if (humanoidModelCast != null) {
-			PlayerModelBends.beforePlayerAnim(humanoidModelCast);
-		}
-		
-		for (var modelPartEntry : frame.pose.entrySet()) {
+		for (var modelPartEntry : pose.pose.entrySet()) {
 			String modelPartName = modelPartEntry.getKey();
-			ModelPart modelPart = getModelPart(modelPartName, model, humanoidModelCast, backportModelCast);
+			ModelPart modelPart = getModelPart(modelPartName, model, backportModelCast);
 			if (modelPart != null) {
 				HiddenModelPartsUtil.onAnimate(rotpModelCast, modelPart);
 				modelPartEntry.getValue().apply(modelPart);
 			}
-		}
-		
-		if (humanoidModelCast != null) {
-			OldPlayerModelJank._onAnimate(humanoidModelCast);
 		}
 	}
 
@@ -173,13 +161,7 @@ public class RotpAnimDefinition {
 	}
 	
 
-	public static ModelPart getModelPart(String animBoneName, Model model, @Nullable HumanoidModel<?> humanoidModelCast, @Nullable Model_1_21_2plus rotpModelCast) {
-		if (humanoidModelCast != null) {
-			ModelPart playerModelPart = PlayerModelBends.getModelPartForPlayerAnim(humanoidModelCast, animBoneName);
-			if (playerModelPart != null) {
-				return playerModelPart;
-			}
-		}
+	public static ModelPart getModelPart(String animBoneName, Model model, Model_1_21_2plus rotpModelCast) {
 		if (rotpModelCast != null) {
 			Optional<ModelPart> modelPart = rotpModelCast.jojo_ripples$getAnyDescendantWithName(animBoneName);
 			if (modelPart.isPresent()) return modelPart.get();

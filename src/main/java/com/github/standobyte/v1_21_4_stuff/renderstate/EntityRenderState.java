@@ -2,12 +2,11 @@ package com.github.standobyte.v1_21_4_stuff.renderstate;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.entityanim.playerbend.IPlayerBendModel;
 import com.github.standobyte.jojo.client.entityrender.HiddenModelPartsUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._PartPose;
 
-import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -99,6 +98,25 @@ public class EntityRenderState {
 
     	reusedState.partialTick = partialTick;
     }
+    
+    public void clear(float ageInTicks) {
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
+        this.ageInTicks = ageInTicks;
+        this.boundingBoxWidth = 0;
+        this.boundingBoxHeight = 0;
+        this.eyeHeight = 0;
+        this.distanceToCameraSq = 0;
+        this.isInvisible = false;
+        this.isDiscrete = false;
+        this.displayFireAnimation = false;
+        this.passengerOffset = null;
+        this.nameTag = null;
+        this.nameTagAttachment = null;
+        this.leashState = null;
+        this.partialTick = Mth.frac(ageInTicks);
+    }
 
 
     public static float getXRot(Entity entity, float partialTick) {
@@ -110,13 +128,10 @@ public class EntityRenderState {
     }
     
     
-    public static void resetPose(EntityModel<?> model) {
+    public static void resetPose(Model model) {
         for (ModelPart modelpart : ((Model_1_21_2plus) model).jojo_ripples$allParts()) {
             modelpart.resetPose();
             _PartPose.resetScale(modelpart);
-        }
-        if (model instanceof IPlayerBendModel playerBendModel) {
-        	playerBendModel.jojo_ripples_v1_21_1$onResetPose();
         }
         HiddenModelPartsUtil.reset(model);
     }

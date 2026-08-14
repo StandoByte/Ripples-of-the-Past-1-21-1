@@ -178,11 +178,7 @@ public class SoundUtil {
 	public static SoundInstance justPutTheSoundInTheBag(ResourceLocation soundLocation, @Nullable Component subtitle,
 			SoundSource soundCategory, float volume, float pitch, SoundInstance.Attenuation attenuation,
 			double x, double y, double z) {
-		Sound sound = SOUNDS_CACHE.computeIfAbsent(soundLocation, path -> new CustomPathSound(path, 
-				DEFAULT_FLOAT, DEFAULT_FLOAT, 
-				1, Sound.Type.FILE,
-				false, false, 16, 
-				Sound.SOUND_LISTER.idToFile(path)));
+		Sound sound = getSound(soundLocation);
 		
 		SoundInstance soundInstance = new EventlessSound(
 				sound, soundCategory, subtitle,
@@ -190,6 +186,15 @@ public class SoundUtil {
 				attenuation, x, y, z, false);
 		
 		return soundInstance;
+	}
+	
+	public static Sound getSound(ResourceLocation soundLocation) {
+		Sound sound = SOUNDS_CACHE.computeIfAbsent(soundLocation, path -> new CustomPathSound(path, 
+				DEFAULT_FLOAT, DEFAULT_FLOAT, 
+				1, Sound.Type.FILE,
+				false, false, 16, 
+				Sound.SOUND_LISTER.idToFile(path)));
+		return sound;
 	}
 	
 }

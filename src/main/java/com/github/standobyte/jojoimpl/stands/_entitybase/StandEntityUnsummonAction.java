@@ -17,6 +17,12 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class StandEntityUnsummonAction extends SpecialEntityActionType {
+	public static final int UNSUMMON_TICKS = 10;
+	
+	public static float alpha(float tick, float length) {
+		float ratio = 1 - tick / (length - 2);
+		return Mth.clamp(ratio, 0, 1);
+	}
 
 	public StandEntityUnsummonAction(ResourceLocation id) {
 		super(null, id);
@@ -37,7 +43,7 @@ public class StandEntityUnsummonAction extends SpecialEntityActionType {
 
 		protected StandUnsummonInstance(EntityActionType ability) {
 			super(ability);
-			phasesLength.put(ActionPhase.PERFORM, 10f);
+			phasesLength.put(ActionPhase.PERFORM, UNSUMMON_TICKS);
 		}
 		
 		@Override
@@ -49,8 +55,8 @@ public class StandEntityUnsummonAction extends SpecialEntityActionType {
 			if (performer.level().isClientSide()) {
 				float unsummonLength = getAnimPhaseLength();
 				if (unsummonLength > 2) {
-					float ratio = 1 - getAnimPhaseTick(0) / (unsummonLength - 2);
-					((StandEntity) performer).multiplyTranslucency(Mth.clamp(ratio, 0, 1));
+					float alpha = alpha(getAnimPhaseTick(0), unsummonLength);
+					((StandEntity) performer).multiplyTranslucency(alpha);
 				}
 			}
 		}

@@ -32,4 +32,8 @@ public class AnimVariantsList {
 		return anims.get(i % anims.size());
 	}
 	
+	public RotpAnimDefinition getSingle() {
+		return anims.get(0);
+	}
+	
 }

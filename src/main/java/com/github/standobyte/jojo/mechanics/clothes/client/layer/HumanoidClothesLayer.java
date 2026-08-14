@@ -1,6 +1,11 @@
 package com.github.standobyte.jojo.mechanics.clothes.client.layer;
 
+import javax.annotation.Nullable;
+
+import com.github.standobyte.jojo.UglyCrutchesClient;
 import com.github.standobyte.jojo.client.firstperson.FirstPersonModelLayer;
+import com.github.standobyte.jojo.client.firstperson.FirstPersonRender;
+import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
@@ -8,6 +13,7 @@ import com.github.standobyte.v1_21_4_stuff.renderstate.ExtractRSExtensionManuall
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -52,7 +58,9 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 		
 		M parentModel = getParentModel();
 		int overlay = LivingEntityRenderer.getOverlayCoords(livingEntity, 0);
-		render(parentModel, poseStack, bufferSource, packedLight, overlay);
+		render(parentModel, 
+				livingEntity, ClientUtil.partialTick(livingEntity), 
+				poseStack, bufferSource, packedLight, overlay);
 	}
 	
 	/**
@@ -60,6 +68,7 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T extends LivingEntity, M extends HumanoidModel<T>> void render(M parentModel, 
+			@Nullable LivingEntity entity, float partialTick, 
 			PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int overlay) {
 		HumanoidClothesRSExtension clothesRS = HumanoidClothesRSExtension.getCurRenderData();
 		if (clothesRS == null) return;
@@ -77,7 +86,17 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 			HumanoidClothesModel clothesModel = modelEntry.getModel();
 			parentModel.copyPropertiesTo((M) clothesModel);
 			clothesModel.setClothesPartsVisibility(clothesRS.slimModel, piece);
+			
+			if (FirstPersonRender.isRenderingFirstPersonAnim) {
+				FirstPersonRender.disableHumanoidHeadOn1stPersonAnim(clothesModel);
+			}
+			
+//			if (FirstPersonRender.isRenderingFirstPersonAnim && piece == ClothesSlotType.HEAD) {
+//				continue;
+//			}
+			
 			clothesModel.poseClothes(parentModel);
+			UglyCrutchesClient.adjustClothesWithVanillaAnim(clothesModel, entity, partialTick);
 			VertexConsumer ivertexbuilder = bufferSource.getBuffer(RenderType.entityCutoutNoCull(texturePath));
 			clothesModel.renderToBuffer(poseStack, ivertexbuilder, packedLight, overlay);
 		}
@@ -86,8 +105,12 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 	
 	@SubscribeEvent
 	public static void beforeEntityRender(RenderLivingEvent.Pre<?, ?> event) {
-		ExtractRSExtensionManually.extractClothes(event.getEntity());
-		if (event.getRenderer().getModel() instanceof PlayerModel playerModel) {
+		beforeEntityRender(event.getEntity(), event.getRenderer().getModel());
+	}
+	
+	public static void beforeEntityRender(LivingEntity entity, EntityModel<?> model) {
+		ExtractRSExtensionManually.extractClothes(entity);
+		if (model instanceof PlayerModel playerModel) {
 			disablePlayerOuterLayer(playerModel, HumanoidClothesRSExtension.getCurRenderData());
 		}
 	}
@@ -117,7 +140,7 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 	@SuppressWarnings("unchecked")
 	@Override
 	public void renderHandFirstPerson(HumanoidArm side, PoseStack poseStack, MultiBufferSource buffer, int light,
-			LivingEntity entity, LivingEntityRenderer<?, ?> entityRenderer) {
+			LivingEntity entity, LivingEntityRenderer<?, ?> entityRenderer, float partialTick) {
 		if (entity.isInvisible()) return;
 		
 		ExtractRSExtensionManually.extractClothes(entity);
@@ -140,6 +163,7 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 			parentModel.copyPropertiesTo((M) clothesModel);
 			clothesModel.setClothesPartsVisibility(clothes.slimModel, piece);
 			clothesModel.poseClothes(parentModel);
+			UglyCrutchesClient.adjustClothesWithVanillaAnim(clothesModel, entity, ClientUtil.partialTick(entity));
 			VertexConsumer vertexBuilder = buffer.getBuffer(RenderType.entityCutoutNoCull(texturePath));
 			
 			clothesModel.head.visible = false;

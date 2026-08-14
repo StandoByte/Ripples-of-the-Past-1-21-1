@@ -4,8 +4,9 @@ import java.util.function.Supplier;
 
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
-import com.github.standobyte.jojo.powersystem.entityaction.type.StandAbilityLikeActionType;
+import com.github.standobyte.jojo.mechanics.jojopose.JojoPoseActionType;
 import com.github.standobyte.jojo.powersystem.entityaction.type.SpecialEntityActionType;
+import com.github.standobyte.jojo.powersystem.entityaction.type.StandAbilityLikeActionType;
 import com.github.standobyte.jojo.subsystems.entity_useitem.VanillaItemClickAsAction;
 import com.github.standobyte.jojo.subsystems.entity_useitem.VanillaItemUseAsAction;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityUnsummonAction;
@@ -27,5 +28,9 @@ public class ModSpecialActions {
 	
 	public static final Supplier<SpecialEntityActionType> RMB_CLICK_ITEM = ACTIONS.register("rmb_click_item", 
 			key -> new VanillaItemClickAsAction(key));
+	
+	
+	public static final Supplier<SpecialEntityActionType> JOJO_POSE = ACTIONS.register("jojo_pose", 
+			JojoPoseActionType::new);
 	
 }

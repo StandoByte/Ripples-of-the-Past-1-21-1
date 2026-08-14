@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.client.firstperson.FirstPersonRender;
+import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.mechanics.clothes.client.layer.HumanoidClothesLayer;
 import com.github.standobyte.jojo.mechanics.clothes.client.layer.HumanoidClothesRSExtension;
 import com.github.standobyte.v1_21_4_stuff.renderstate.ExtractRSExtensionManually;
@@ -45,6 +46,7 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
 	private void jojo_ripples$afterRenderHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, 
 			AbstractClientPlayer player, ModelPart rendererArm, ModelPart rendererArmwear, CallbackInfo ci) {
 		HumanoidArm side = rendererArm == ((HumanoidModel<?>) model).leftArm ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
-		FirstPersonRender.renderLayers(this, player, poseStack, buffer, combinedLight, side);
+		float partialTick = ClientUtil.partialTick(player);
+		FirstPersonRender.renderLayers(this, player, poseStack, buffer, combinedLight, side, partialTick);
 	}
 }

@@ -1,0 +1,12 @@
+{
+    "parent": "block/cube",
+    "textures": {
+        "particle": "jojo_ripples:block/mr_president_exit",
+        "down": "jojo_ripples:block/mr_president_exit_r",
+        "up": "jojo_ripples:block/mr_president_exit",
+        "north": "jojo_ripples:block/mr_president_exit",
+        "east": "jojo_ripples:block/mr_president_exit",
+        "south": "jojo_ripples:block/mr_president_exit",
+        "west": "jojo_ripples:block/mr_president_exit"
+    }
+}

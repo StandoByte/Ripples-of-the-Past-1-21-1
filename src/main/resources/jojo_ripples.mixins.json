@@ -96,9 +96,8 @@
     "client.model.AnimatedEntityInterfaceMixin",
     "client.model.ModelAnimOptimization",
     "client.model.ModelExtraFeatures",
-    "client.model.PlayerAnimModelPartMixin",
+	"client.model.LivingRendererLayersMixin",
 	"client.model.ReplacePlayerModelMixin",
-	"client.model.ReplaceLivingModelMixin",
 	
 	"client.HumanoidArmorLayerMixin",
     
@@ -113,6 +112,8 @@
 	"client.firstperson.ItemInHandRendererMixin",
 	"client.firstperson.LivingEntityRendererMixin",
 	"client.firstperson.PlayerRendererMixin",
+	"client.firstperson.CameraMixin",
+	"client.firstperson.CameraAccessor",
 	
 	"container.client.ContainerScreenCrutches",
 	"container.client.ContainerScreenInvoker",
@@ -139,6 +140,8 @@
 	"client.CloseResources",
 	"client.keybindui.KeyEntryMixin",
 	"client.keybindui.AbstractSelectionListMixin",
+	"client.CreativeTabScreenMixin",
+	"client.jojoposeui.ChatScreenMixin",
 	
 	"stand.theworld.timestop.client.LevelRendererPartialTickMixin",
 	"stand.theworld.timestop.client.GameRendererPartialTickMixin",
