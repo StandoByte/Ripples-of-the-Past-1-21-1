@@ -260,10 +260,14 @@ public class FirstPersonRender {
 		if (isRenderingFirstPersonAnim) {
 			var renderer = event.getRenderer();
 			if (renderer.getModel() instanceof HumanoidModel model) {
-				model.head.visible = false;
-//				model.body.visible = false;
+				disableHumanoidHeadOn1stPersonAnim(model);
 			}
 		}
+	}
+	
+	public static void disableHumanoidHeadOn1stPersonAnim(HumanoidModel model) {
+		model.head.visible = false;
+//		model.body.visible = false;
 	}
 
 

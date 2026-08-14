@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.UglyCrutchesClient;
 import com.github.standobyte.jojo.client.firstperson.FirstPersonModelLayer;
+import com.github.standobyte.jojo.client.firstperson.FirstPersonRender;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
@@ -85,6 +86,15 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 			HumanoidClothesModel clothesModel = modelEntry.getModel();
 			parentModel.copyPropertiesTo((M) clothesModel);
 			clothesModel.setClothesPartsVisibility(clothesRS.slimModel, piece);
+			
+			if (FirstPersonRender.isRenderingFirstPersonAnim) {
+				FirstPersonRender.disableHumanoidHeadOn1stPersonAnim(clothesModel);
+			}
+			
+//			if (FirstPersonRender.isRenderingFirstPersonAnim && piece == ClothesSlotType.HEAD) {
+//				continue;
+//			}
+			
 			clothesModel.poseClothes(parentModel);
 			UglyCrutchesClient.adjustClothesWithVanillaAnim(clothesModel, entity, partialTick);
 			VertexConsumer ivertexbuilder = bufferSource.getBuffer(RenderType.entityCutoutNoCull(texturePath));
