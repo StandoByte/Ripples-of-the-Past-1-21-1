@@ -27,7 +27,7 @@ public interface FirstPersonModelLayer {
 	 */
 	void renderHandFirstPerson(HumanoidArm side, PoseStack poseStack, 
 			MultiBufferSource buffer, int light, LivingEntity entity, 
-			LivingEntityRenderer<?, ?> entityRenderer);
+			LivingEntityRenderer<?, ?> entityRenderer, float partialTick);
 
 	static void defaultRender(HumanoidArm side, PoseStack poseStack, 
 			MultiBufferSource buffer, int light, LivingEntity entity, 

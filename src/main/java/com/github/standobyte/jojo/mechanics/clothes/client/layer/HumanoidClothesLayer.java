@@ -140,7 +140,7 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 	@SuppressWarnings("unchecked")
 	@Override
 	public void renderHandFirstPerson(HumanoidArm side, PoseStack poseStack, MultiBufferSource buffer, int light,
-			LivingEntity entity, LivingEntityRenderer<?, ?> entityRenderer) {
+			LivingEntity entity, LivingEntityRenderer<?, ?> entityRenderer, float partialTick) {
 		if (entity.isInvisible()) return;
 		
 		ExtractRSExtensionManually.extractClothes(entity);

@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.client.entityrender.ModelUtil;
 import com.github.standobyte.jojo.client.entityrender.stand.HumanoidPart;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
+import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.mixin.client.firstperson.CameraAccessor;
 import com.github.standobyte.jojo.mixininterface.LivingRendererLayers;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -574,15 +575,16 @@ public class FirstPersonRender {
 				}
 			}
 			
-			renderLayers(renderer, entity, poseStack, buffer, light, handSide);
+			float partialTick = ClientUtil.partialTick(entity);
+			renderLayers(renderer, entity, poseStack, buffer, light, handSide, partialTick);
 		}
 	}
 	
 	public static void renderLayers(LivingEntityRenderer renderer, LivingEntity entity, PoseStack poseStack, 
-			MultiBufferSource buffer, int light, HumanoidArm handSide) {
+			MultiBufferSource buffer, int light, HumanoidArm handSide, float partialTick) {
 		List<FirstPersonModelLayer> layers = ((LivingRendererLayers) renderer).jojo_ripples$firstPersonHandLayers();
 		for (FirstPersonModelLayer layer : layers) {
-			layer.renderHandFirstPerson(handSide, poseStack, buffer, light, entity, renderer);
+			layer.renderHandFirstPerson(handSide, poseStack, buffer, light, entity, renderer, partialTick);
 		}
 	}
 
