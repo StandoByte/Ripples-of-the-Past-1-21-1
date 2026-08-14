@@ -7,15 +7,19 @@ import javax.annotation.Nullable;
 
 import org.joml.Matrix4f;
 
+import com.github.standobyte.jojo.client.entityanim.player.PlayerAnimRigLoad;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimatedEntity;
+import com.github.standobyte.jojo.client.entityrender.ModelUtil;
 import com.github.standobyte.jojo.client.entityrender.stand.HumanoidPart;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
+import com.github.standobyte.jojo.mixin.client.firstperson.CameraAccessor;
 import com.github.standobyte.jojo.mixininterface.LivingRendererLayers;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.subsystems.entity_possessionv2.LivingComponentPossession;
 import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.client.ClientEntityController;
+import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.jojo.util.functions.UtilFunctions;
 import com.google.common.base.MoreObjects;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -81,20 +85,43 @@ public class FirstPersonRender {
 	}
 
 
-	/**
-	 * @return true if the vanilla hand render should be canceled entirely
-	 */
-	public static boolean onFirstPersonRender(Minecraft mc, float partialTick, PoseStack poseStack, BufferSource bufferSource, int light) {
+	private static boolean renderNonPlayerCameraEntity;
+	private static AnimFramePose rotpAnimPose;
+	@Nullable
+	public static void onCameraSetupPosOffset(Camera camera) {
+		Minecraft mc = Minecraft.getInstance();
 		Entity povEntity = mc.cameraEntity;
 
 		ClientEntityController curController = ClientEntityController.getInstance();
 		Entity possessed = LivingComponentPossession.getEntityPossessedBy(mc.player);
 
-		boolean mechanicFromThisMod = 
+		// Stand entity manual control or puppet possession - mechanics which change the POV to another entity
+		renderNonPlayerCameraEntity = 
 				curController != null && curController.entity == povEntity
 				|| possessed != null && possessed == povEntity;
-		// Stand entity manual control or puppet possession - mechanics which change the POV to another entity
-		if (mechanicFromThisMod) {
+		
+		rotpAnimPose = ((AnimatedEntity) povEntity).jojo_ripples$getModelPose(AnimatedEntity.PoseType.FINAL);
+		
+		if (!renderNonPlayerCameraEntity && rotpAnimPose != null) {
+			// FIXME most likely this won't work correctly with scale attribute, fix ModelUtil.getModelPartPos
+			Vec3 headPos = ModelUtil.getModelPartPos(PlayerAnimRigLoad.getModel(), rotpAnimPose, "head", Vec3.ZERO);
+			if (headPos != null) {
+				CameraAccessor camera_ = (CameraAccessor) camera;
+				headPos = headPos.add(0, -ModelUtil.LIVING_RENDER_Y_OFFSET_MAGIC, 0);
+				float yRot = -camera.getYRot();
+				headPos = headPos.yRot(yRot * MathUtil.DEG_TO_RAD);
+				camera_.invokeSetPosition(camera.getPosition().add(headPos));
+			}
+		}
+	}
+
+	/**
+	 * @return true if the vanilla hand render should be canceled entirely
+	 */
+	public static boolean onFirstPersonRender(Minecraft mc, float partialTick, PoseStack poseStack, BufferSource bufferSource, int light) {
+		Entity povEntity = mc.cameraEntity;
+		
+		if (renderNonPlayerCameraEntity) {
 			EntityRenderer<?> renderer = mc.getEntityRenderDispatcher().getRenderer(povEntity);
 			switch (renderer) {
 				case StandEntityRenderer standRenderer -> {
@@ -186,11 +213,8 @@ public class FirstPersonRender {
 		}
 		
 		// The player is the POV entity, but it has a custom action animation
-		if (povEntity instanceof LivingEntity livingEntity) {
-			AnimFramePose rotpAnimPose = ((AnimatedEntity) povEntity).jojo_ripples$getModelPose(AnimatedEntity.PoseType.FINAL);
-			if (rotpAnimPose != null) {
-				return renderPlayer1stPersonAnim(mc, livingEntity, rotpAnimPose, partialTick, poseStack, bufferSource, light);
-			}
+		if (povEntity instanceof LivingEntity livingEntity && rotpAnimPose != null) {
+			return renderPlayer1stPersonAnim(mc, livingEntity, rotpAnimPose, partialTick, poseStack, bufferSource, light);
 		}
 		
 		return false;
@@ -237,7 +261,7 @@ public class FirstPersonRender {
 			var renderer = event.getRenderer();
 			if (renderer.getModel() instanceof HumanoidModel model) {
 				model.head.visible = false;
-				model.body.visible = false;
+//				model.body.visible = false;
 			}
 		}
 	}

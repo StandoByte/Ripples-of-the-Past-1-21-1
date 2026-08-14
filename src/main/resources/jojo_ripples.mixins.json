@@ -112,6 +112,8 @@
 	"client.firstperson.ItemInHandRendererMixin",
 	"client.firstperson.LivingEntityRendererMixin",
 	"client.firstperson.PlayerRendererMixin",
+	"client.firstperson.CameraMixin",
+	"client.firstperson.CameraAccessor",
 	
 	"container.client.ContainerScreenCrutches",
 	"container.client.ContainerScreenInvoker",

@@ -169,6 +169,7 @@ public class ModelUtil {
 				modelPartName, modelPartOffset) : null;
 	}
 	
+	public static final float LIVING_RENDER_Y_OFFSET_MAGIC = 1.501f;
 	// NOT-common code friendly method
 	@Nullable
 	// FIXME !!! grab punches rotate the stand weirdly
@@ -222,7 +223,7 @@ public class ModelUtil {
 				(float) -finalModelPartOffset.z, 
 				offset);
 
-		offset = offset.mul(1, -1, -1).add(0, 1.501f, 0);
+		offset = offset.mul(1, -1, -1).add(0, LIVING_RENDER_Y_OFFSET_MAGIC, 0);
 		return new Vec3(offset.x, offset.y, offset.z);
 	}
 	
