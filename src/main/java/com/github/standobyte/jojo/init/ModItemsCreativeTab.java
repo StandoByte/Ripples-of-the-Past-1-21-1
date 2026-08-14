@@ -84,16 +84,7 @@ public class ModItemsCreativeTab extends CreativeModeTab implements CustomRender
 		rowBreak(tabItems, true);
 		
 		// add Stand discs
-		Stream<StandType> stands = StandType.getAllEnabledStands()
-				.filter(stand -> !ModStands.EXCLUDE_FROM_CREATIVE_TAB.contains(stand));
-		stands
-		.map(StandInstance::new)
-		.sorted(discsOrder(parameters.holders()))
-		.map(StandDiscItem::withStand)
-		.forEach(item -> {
-			tabItems.add(item);
-			searchItems.add(item);
-		});
+		addStands(tabItems, searchItems, parameters.holders());
 
 		clothesRow = rowCount(tabItems);
 		rowBreak(tabItems, true);
@@ -145,6 +136,19 @@ public class ModItemsCreativeTab extends CreativeModeTab implements CustomRender
 				searchItems.add(stack);
 			}
 		}
+	}
+	
+	protected void addStands(Collection<ItemStack> tabItems, Collection<ItemStack> searchItems, HolderLookup.Provider holders) {
+		Stream<StandType> stands = StandType.getAllEnabledStands()
+				.filter(stand -> !ModStands.EXCLUDE_FROM_CREATIVE_TAB.contains(stand));
+		stands
+		.map(StandInstance::new)
+		.sorted(discsOrder(holders))
+		.map(StandDiscItem::withStand)
+		.forEach(item -> {
+			tabItems.add(item);
+			searchItems.add(item);
+		});
 	}
 	
 	public static int rowCount(Collection<ItemStack> tabItems) {
