@@ -26,7 +26,8 @@ import net.minecraft.world.entity.Entity;
 @SuppressWarnings({ "rawtypes" })
 @Mixin(PlayerRenderer.class)
 public abstract class ReplacePlayerModelMixin extends LivingEntityRenderer implements PlayerRendererInterface {
-	@Unique protected EntityModel prevModel;
+	@Unique private EntityModel prevModel;
+	@Unique private ResourceLocation replacementTexture;
 	
 	public ReplacePlayerModelMixin(Context context, EntityModel model, float shadowRadius) {
 		super(context, model, shadowRadius);
@@ -41,6 +42,8 @@ public abstract class ReplacePlayerModelMixin extends LivingEntityRenderer imple
 				this.model = replacementModel;
 			}
 		}
+		
+		this.replacementTexture = ReplacePlayerModel.getTexture(entity);
 	}
 	
 	@Override
@@ -49,6 +52,8 @@ public abstract class ReplacePlayerModelMixin extends LivingEntityRenderer imple
 			this.model = this.prevModel;
 			this.prevModel = null;
 		}
+		
+		this.replacementTexture = null;
 	}
 	
 	@Override
@@ -91,7 +96,6 @@ public abstract class ReplacePlayerModelMixin extends LivingEntityRenderer imple
 	
 	@Inject(method = "getTextureLocation", at = @At("HEAD"), cancellable = true)
 	public void replacePlayerTexture(AbstractClientPlayer entity, CallbackInfoReturnable<ResourceLocation> ci) {
-		ResourceLocation replacementTexture = ReplacePlayerModel.getTexture(entity);
 		if (replacementTexture != null) {
 			ci.setReturnValue(replacementTexture);
 		}
@@ -103,7 +107,6 @@ public abstract class ReplacePlayerModelMixin extends LivingEntityRenderer imple
 	public ResourceLocation replacePlayerTexture1stPersonRender(ResourceLocation vanillaTexture, 
 			PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer entity,
 			ModelPart rendererArm, ModelPart rendererArmwear) {
-		ResourceLocation replacementTexture = ReplacePlayerModel.getTexture(entity);
 		if (replacementTexture != null) {
 			return replacementTexture;
 		}
