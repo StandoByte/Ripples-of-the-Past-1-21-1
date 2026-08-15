@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.client.entityanim.IHumanoidAnimModel;
+import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.player.ModelRiggable;
 import com.github.standobyte.jojo.client.entityanim.player.ModelRiggableWithBends;
 import com.github.standobyte.jojo.client.entityanim.player.PlayerAnimRigLoad;
@@ -18,7 +19,9 @@ import com.github.standobyte.jojo.client.entityanim.player.PlayerAnimRigModel;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState;
 import com.github.standobyte.jojo.client.entityrender.RipplesPlayerRenderState.RipplesRenderStateExtensionMixin;
+import com.github.standobyte.v1_21_4_stuff.OldPlayerModelJank;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
+import com.github.standobyte.v1_21_4_stuff.renderstate.EntityRenderState;
 import com.github.standobyte.v1_21_4_stuff.renderstate.HumanoidRenderState;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -35,6 +38,7 @@ public abstract class HumanoidModelMixin/* extends ModelMixinSuperclass*/ extend
 	@Nullable protected AnimFramePose jojo_ripples$playerAnimPose;
 	protected ModelRiggable jojo_ripples$humanoidModelRiggable;
 	protected boolean jojo_ripples$bendsEnabled = true;
+	protected boolean jojo_ripples$playerRiggingEnabled = true;
 	
 	@Inject(method = "<init>("
 			+ "Lnet/minecraft/client/model/geom/ModelPart;"
@@ -47,6 +51,11 @@ public abstract class HumanoidModelMixin/* extends ModelMixinSuperclass*/ extend
 	public void jojo_rippes$initDisableBends() {
 		this.jojo_ripples$bendsEnabled = false;
 	}
+	
+	@Override
+	public void jojo_rippes$initDisableHumanoidRigging() {
+		this.jojo_ripples$playerRiggingEnabled = false;
+	}
 
 	@Override
 	public void jojo_ripples$setupHumanoidAnim(HumanoidRenderState renderState) {
@@ -58,15 +67,23 @@ public abstract class HumanoidModelMixin/* extends ModelMixinSuperclass*/ extend
 	public void jojo_ripples$setupHumanoidPose(@Nullable AnimFramePose pose) {
 		this.jojo_ripples$playerAnimPose = pose;
 		
-		if (pose != null) {
-			this.jojo_ripples$playerAnimRig = PlayerAnimRigLoad.getModel();
-			if (jojo_ripples$playerAnimRig != null) {
-				ModelRiggable.animateVanillaHumanoid(jojo_ripples$playerAnimRig, 
-						(HumanoidModel<?>) (Object) this, pose);
+		if (jojo_ripples$playerRiggingEnabled) {
+			if (pose != null) {
+				this.jojo_ripples$playerAnimRig = PlayerAnimRigLoad.getModel();
+				if (jojo_ripples$playerAnimRig != null) {
+					ModelRiggable.animateVanillaHumanoid(jojo_ripples$playerAnimRig, 
+							(HumanoidModel<?>) (Object) this, pose);
+				}
+			}
+			else {
+				this.jojo_ripples$playerAnimRig = null;
 			}
 		}
 		else {
-			this.jojo_ripples$playerAnimRig = null;
+			HumanoidModel<?> this_ = (HumanoidModel<?>) (Object) this;
+			EntityRenderState.resetPose(this);
+			RotpAnimDefinition.animate(this, pose);
+			OldPlayerModelJank._onAnimate(this_);
 		}
 	}
 	

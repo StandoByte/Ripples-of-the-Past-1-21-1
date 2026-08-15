@@ -7,10 +7,7 @@ import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.standobyte.jojo.client.entityanim.IHumanoidAnimModel;
-import com.github.standobyte.v1_21_4_stuff.renderstate.EntityRenderState;
-import com.github.standobyte.v1_21_4_stuff.renderstate.HumanoidRenderState;
-import com.github.standobyte.v1_21_4_stuff.renderstate.RenderStateCrutches;
+import com.github.standobyte.jojo.client.entityrender.RenderPlayerSpecial;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.model.EntityModel;
@@ -29,9 +26,7 @@ public class LivingEntityRendererMixin {
 	    				+ ")V"))
 	public void jojo_ripples$beforeVanillaAnimSetup(LivingEntity entity, float entityYaw, float partialTick, 
 			PoseStack poseStack, MultiBufferSource bufferSource, int light, CallbackInfo ci) {
-		if (model instanceof IHumanoidAnimModel && RenderStateCrutches.currentEntityRenderState instanceof HumanoidRenderState) {
-			EntityRenderState.resetPose(model);
-		}
+    	RenderPlayerSpecial.beforeVanillaModelAnim(model);
     }
 
     @Inject(method = "render", at = @At(
@@ -42,9 +37,7 @@ public class LivingEntityRendererMixin {
 				shift = Shift.AFTER))
 	public void jojo_ripples$afterVanillaAnimSetup(LivingEntity entity, float entityYaw, float partialTick, 
 			PoseStack poseStack, MultiBufferSource bufferSource, int light, CallbackInfo ci) {
-		if (model instanceof IHumanoidAnimModel humanoidModel && RenderStateCrutches.currentEntityRenderState instanceof HumanoidRenderState humanoidRS) {
-			humanoidModel.jojo_ripples$setupHumanoidAnim(humanoidRS);
-		}
+    	RenderPlayerSpecial.afterVanillaModelAnim(model);
 	}
 
 }

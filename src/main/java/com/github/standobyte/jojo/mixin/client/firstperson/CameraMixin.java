@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.standobyte.jojo.client.firstperson.FirstPersonRender;
+import com.github.standobyte.jojo.event.client.ModClientEventHooks;
 
 import net.minecraft.client.Camera;
 import net.minecraft.world.entity.Entity;
@@ -25,9 +25,7 @@ public abstract class CameraMixin {
 			+ "ZZF)V", 
 			at = @At("TAIL"))
 	public void setupCamera(BlockGetter level, Entity entity, boolean detached, boolean thirdPersonReverse, float partialTick, CallbackInfo ci) {
-		if (!detached) {
-			FirstPersonRender.onCameraSetupPosOffset((Camera) (Object) this);
-		}
+		ModClientEventHooks.afterCameraSetup((Camera) (Object) this, detached, thirdPersonReverse);
 	}
 
 }

@@ -26,13 +26,15 @@ import net.minecraft.world.entity.Entity;
 @SuppressWarnings({ "rawtypes" })
 @Mixin(PlayerRenderer.class)
 public abstract class ReplacePlayerModelMixin extends LivingEntityRenderer implements PlayerRendererInterface {
-	@Unique protected EntityModel prevModel;
+	@Unique private EntityModel prevModel;
+	@Unique private ResourceLocation replacementTexture;
 	
 	public ReplacePlayerModelMixin(Context context, EntityModel model, float shadowRadius) {
 		super(context, model, shadowRadius);
 	}
 	
-	@Unique protected void setReplacementModel(Entity entity) {
+	@Override
+	public void jojo_ripples$setReplacementModel(Entity entity) {
 		if (this.prevModel == null) {
 			PlayerModel replacementModel = ReplacePlayerModel.getModel(entity);
 			if (replacementModel != null) {
@@ -40,17 +42,22 @@ public abstract class ReplacePlayerModelMixin extends LivingEntityRenderer imple
 				this.model = replacementModel;
 			}
 		}
+		
+		this.replacementTexture = ReplacePlayerModel.getTexture(entity);
 	}
 	
-	@Unique protected void restoreModel() {
+	@Override
+	public void jojo_ripples$restoreModel() {
 		if (this.prevModel != null) {
 			this.model = this.prevModel;
 			this.prevModel = null;
 		}
+		
+		this.replacementTexture = null;
 	}
 	
 	@Override
-	public boolean jojoRipples$isUsingCustomModel() {
+	public boolean jojo_ripples$isUsingCustomModel() {
 		return prevModel != null;
 	}
 
@@ -58,38 +65,37 @@ public abstract class ReplacePlayerModelMixin extends LivingEntityRenderer imple
 	@Inject(method = "render", at = @At("HEAD"))
 	public void replaceModel(AbstractClientPlayer entity, float entityYaw, float partialTicks, 
 			PoseStack poseStack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
-		setReplacementModel(entity);
+		jojo_ripples$setReplacementModel(entity);
 	}
 
 	@Inject(method = "render", at = @At("TAIL"))
 	public void restoreModel(AbstractClientPlayer entity, float entityYaw, float partialTicks, 
 			PoseStack poseStack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
-		restoreModel();
+		jojo_ripples$restoreModel();
 	}
 
 
 	@Inject(method = "renderRightHand", at = @At("HEAD"))
 	public void replaceModel1stPersonR(PoseStack poseStack, MultiBufferSource buffer, 
 			int combinedLight, AbstractClientPlayer entity, CallbackInfo ci) {
-		setReplacementModel(entity);
+		jojo_ripples$setReplacementModel(entity);
 	}
 
 	@Inject(method = "renderLeftHand", at = @At("HEAD"))
 	public void replaceModel1stPersonL(PoseStack poseStack, MultiBufferSource buffer, 
 			int combinedLight, AbstractClientPlayer entity, CallbackInfo ci) {
-		setReplacementModel(entity);
+		jojo_ripples$setReplacementModel(entity);
 	}
 
 	@Inject(method = "renderHand", at = @At("TAIL"))
 	public void restoreModel1stPerson(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, 
 			AbstractClientPlayer entity, ModelPart rendererArm, ModelPart rendererArmwear, CallbackInfo ci) {
-		restoreModel();
+		jojo_ripples$restoreModel();
 	}
 	
 	
 	@Inject(method = "getTextureLocation", at = @At("HEAD"), cancellable = true)
 	public void replacePlayerTexture(AbstractClientPlayer entity, CallbackInfoReturnable<ResourceLocation> ci) {
-		ResourceLocation replacementTexture = ReplacePlayerModel.getTexture(entity);
 		if (replacementTexture != null) {
 			ci.setReturnValue(replacementTexture);
 		}
@@ -101,7 +107,6 @@ public abstract class ReplacePlayerModelMixin extends LivingEntityRenderer imple
 	public ResourceLocation replacePlayerTexture1stPersonRender(ResourceLocation vanillaTexture, 
 			PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer entity,
 			ModelPart rendererArm, ModelPart rendererArmwear) {
-		ResourceLocation replacementTexture = ReplacePlayerModel.getTexture(entity);
 		if (replacementTexture != null) {
 			return replacementTexture;
 		}

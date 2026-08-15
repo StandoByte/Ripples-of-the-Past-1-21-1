@@ -729,7 +729,7 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 			}
 		}
 		
-		return new SkinView(standType, skin, screen, column, column, column, column, column, isBottomRow);
+		return new SkinView(standType, skin, screen, x, y, standY, row, column, isBottomRow);
 	}
 	
 	@FunctionalInterface

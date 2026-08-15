@@ -11,11 +11,13 @@ import com.github.standobyte.jojo.client.entityanim.player.PlayerAnimRigLoad;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimatedEntity;
 import com.github.standobyte.jojo.client.entityrender.ModelUtil;
+import com.github.standobyte.jojo.client.entityrender.RenderPlayerSpecial;
 import com.github.standobyte.jojo.client.entityrender.stand.HumanoidPart;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
-import com.github.standobyte.jojo.mixin.client.firstperson.CameraAccessor;
+import com.github.standobyte.jojo.event.client.ModClientEventHooks;
+import com.github.standobyte.jojo.event.client.RipplesFirstPersonRenderEarlyEvent;
 import com.github.standobyte.jojo.mixininterface.LivingRendererLayers;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.subsystems.entity_possessionv2.LivingComponentPossession;
@@ -55,7 +57,6 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MapItem;
-import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.phys.Vec3;
@@ -65,7 +66,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.client.event.RenderLivingEvent;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 
 @EventBusSubscriber(value = Dist.CLIENT)
 @SuppressWarnings({ "unchecked", "rawtypes" }) // Silence, Java generics.
@@ -86,34 +86,42 @@ public class FirstPersonRender {
 	}
 
 
-	private static boolean renderNonPlayerCameraEntity;
-	private static AnimFramePose rotpAnimPose;
-	@Nullable
-	public static void onCameraSetupPosOffset(Camera camera) {
-		Minecraft mc = Minecraft.getInstance();
-		Entity povEntity = mc.cameraEntity;
-
-		ClientEntityController curController = ClientEntityController.getInstance();
-		Entity possessed = LivingComponentPossession.getEntityPossessedBy(mc.player);
-
-		// Stand entity manual control or puppet possession - mechanics which change the POV to another entity
-		renderNonPlayerCameraEntity = 
-				curController != null && curController.entity == povEntity
-				|| possessed != null && possessed == povEntity;
+	public static boolean renderNonPlayerCameraEntity;
+	public static AnimFramePose rotpAnimPose;
+	
+	public static Vec3 onCameraOffsetSetup(Camera camera, boolean thirdPerson) {
+		renderNonPlayerCameraEntity = false;
+		rotpAnimPose = null;
+		Vec3 cameraOffset = Vec3.ZERO;
 		
-		rotpAnimPose = ((AnimatedEntity) povEntity).jojo_ripples$getModelPose(AnimatedEntity.PoseType.FINAL);
-		
-		if (!renderNonPlayerCameraEntity && rotpAnimPose != null) {
-			// FIXME most likely this won't work correctly with scale attribute, fix ModelUtil.getModelPartPos
-			Vec3 headPos = ModelUtil.getModelPartPos(PlayerAnimRigLoad.getModel(), rotpAnimPose, "head", Vec3.ZERO);
-			if (headPos != null) {
-				CameraAccessor camera_ = (CameraAccessor) camera;
-				headPos = headPos.add(0, -ModelUtil.LIVING_RENDER_Y_OFFSET_MAGIC, 0);
-				float yRot = -camera.getYRot();
-				headPos = headPos.yRot(yRot * MathUtil.DEG_TO_RAD);
-				camera_.invokeSetPosition(camera.getPosition().add(headPos));
+		if (!thirdPerson) {
+			Minecraft mc = Minecraft.getInstance();
+			Entity povEntity = mc.cameraEntity;
+			
+			ClientEntityController curController = ClientEntityController.getInstance();
+			Entity possessed = LivingComponentPossession.getEntityPossessedBy(mc.player);
+			
+			// Stand entity manual control or puppet possession - mechanics which change the POV to another entity
+			renderNonPlayerCameraEntity = 
+					curController != null && curController.entity == povEntity
+					|| possessed != null && possessed == povEntity;
+			if (!renderNonPlayerCameraEntity) {
+				rotpAnimPose = ((AnimatedEntity) povEntity).jojo_ripples$getModelPose(AnimatedEntity.PoseType.FINAL);
+			}
+			
+			if (rotpAnimPose != null) {
+				// FIXME most likely this won't work correctly with scale attribute, fix ModelUtil.getModelPartPos
+				Vec3 headPos = ModelUtil.getModelPartPos(PlayerAnimRigLoad.getModel(), rotpAnimPose, "head", Vec3.ZERO);
+				if (headPos != null) {
+					headPos = headPos.add(0, -ModelUtil.LIVING_RENDER_Y_OFFSET_MAGIC, 0);
+					float yRot = -camera.getYRot();
+					headPos = headPos.yRot(yRot * MathUtil.DEG_TO_RAD);
+					cameraOffset = headPos;
+				}
 			}
 		}
+		
+		return cameraOffset;
 	}
 
 	/**
@@ -121,6 +129,18 @@ public class FirstPersonRender {
 	 */
 	public static boolean onFirstPersonRender(Minecraft mc, float partialTick, PoseStack poseStack, BufferSource bufferSource, int light) {
 		Entity povEntity = mc.cameraEntity;
+		RipplesFirstPersonRenderEarlyEvent event = ModClientEventHooks.preFirstPersonRender(povEntity, 
+				partialTick, poseStack, bufferSource, light);
+		if (event.isCanceled()) {
+			return true;
+		}
+		if (event.getCancelsROTPRendering()) {
+			return false;
+		}
+		
+		if (povEntity instanceof LivingEntity livingEntity && rotpAnimPose != null) {
+			return renderPlayer1stPersonAnim(mc, livingEntity, rotpAnimPose, partialTick, poseStack, bufferSource, light);
+		}
 		
 		if (renderNonPlayerCameraEntity) {
 			EntityRenderer<?> renderer = mc.getEntityRenderDispatcher().getRenderer(povEntity);
@@ -211,11 +231,6 @@ public class FirstPersonRender {
 				default -> {}
 			}
 			return true;
-		}
-		
-		// The player is the POV entity, but it has a custom action animation
-		if (povEntity instanceof LivingEntity livingEntity && rotpAnimPose != null) {
-			return renderPlayer1stPersonAnim(mc, livingEntity, rotpAnimPose, partialTick, poseStack, bufferSource, light);
 		}
 		
 		return false;
@@ -536,8 +551,8 @@ public class FirstPersonRender {
 		if (!isInvisible && entity instanceof AbstractClientPlayer player && ClientHooks.renderSpecificFirstPersonArm(poseStack, buffer, light, player, handSide)) return;
 
 		if (renderer.getModel() instanceof HumanoidModel humanoidModel) {
-			HumanoidModel.ArmPose mainArmPose = getArmPose(entity, InteractionHand.MAIN_HAND);
-			HumanoidModel.ArmPose offArmPose = getArmPose(entity, InteractionHand.OFF_HAND);
+			HumanoidModel.ArmPose mainArmPose = RenderPlayerSpecial.getArmPose(entity, InteractionHand.MAIN_HAND);
+			HumanoidModel.ArmPose offArmPose = RenderPlayerSpecial.getArmPose(entity, InteractionHand.OFF_HAND);
 			if (mainArmPose.isTwoHanded()) {
 				offArmPose = entity.getOffhandItem().isEmpty() ? HumanoidModel.ArmPose.EMPTY : HumanoidModel.ArmPose.ITEM;
 			}
@@ -585,36 +600,6 @@ public class FirstPersonRender {
 		List<FirstPersonModelLayer> layers = ((LivingRendererLayers) renderer).jojo_ripples$firstPersonHandLayers();
 		for (FirstPersonModelLayer layer : layers) {
 			layer.renderHandFirstPerson(handSide, poseStack, buffer, light, entity, renderer, partialTick);
-		}
-	}
-
-	public static HumanoidModel.ArmPose getArmPose(LivingEntity entity, InteractionHand hand) {
-		ItemStack stack = entity.getItemInHand(hand);
-		if (stack.isEmpty()) {
-			return HumanoidModel.ArmPose.EMPTY;
-		} else {
-			if (entity.getUsedItemHand() == hand && entity.getUseItemRemainingTicks() > 0) {
-				UseAnim useAnim = stack.getUseAnimation();
-				HumanoidModel.ArmPose armPose = switch (useAnim) {
-					case BLOCK -> HumanoidModel.ArmPose.BLOCK;
-					case BOW -> HumanoidModel.ArmPose.BOW_AND_ARROW;
-					case SPEAR -> HumanoidModel.ArmPose.THROW_SPEAR;
-					case CROSSBOW -> hand == entity.getUsedItemHand() ? HumanoidModel.ArmPose.CROSSBOW_CHARGE : null;
-					case SPYGLASS -> HumanoidModel.ArmPose.BLOCK;
-					case TOOT_HORN -> HumanoidModel.ArmPose.TOOT_HORN;
-					case BRUSH -> HumanoidModel.ArmPose.BRUSH;
-					default -> null;
-				};
-				if (armPose != null) {
-					return armPose;
-				}
-			} else if (!entity.swinging && stack.getItem() instanceof CrossbowItem && CrossbowItem.isCharged(stack)) {
-				return HumanoidModel.ArmPose.CROSSBOW_HOLD;
-			}
-			HumanoidModel.ArmPose forgeArmPose = IClientItemExtensions.of(stack).getArmPose(entity, hand, stack);
-			if (forgeArmPose != null) return forgeArmPose;
-
-			return HumanoidModel.ArmPose.ITEM;
 		}
 	}
 

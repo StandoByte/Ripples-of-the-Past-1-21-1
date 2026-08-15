@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.client.entityanim.barrage.BarrageSwings;
-import com.github.standobyte.v1_21_4_stuff.renderstate.RenderStateCrutches;
+import com.github.standobyte.jojo.client.entityrender.RenderPlayerSpecial;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -23,12 +23,7 @@ public class LivingEntityRendererMixin {
 					+ ")Lcom/mojang/blaze3d/vertex/VertexConsumer;"))
 	public void jojo_ripples$setupBarrageSwingsRender(LivingEntity entity, float entityYaw, float partialTicks, 
 			PoseStack poseStack, MultiBufferSource multiBufferSource, int packedLight, CallbackInfo ci) {
-		if (RenderStateCrutches.currentEntityRenderState != null) {
-			BarrageSwings barrageSwings = BarrageSwings.getBarrageSwings(RenderStateCrutches.currentEntityRenderState);
-			if (barrageSwings != null && barrageSwings.hasSmthToRender()) {
-				BarrageSwings.setupToRender(barrageSwings);
-			}
-		}
+		RenderPlayerSpecial.setupBarrageSwings();
 	}
 
 	@Inject(method = "render", at = @At(value = "INVOKE", 
