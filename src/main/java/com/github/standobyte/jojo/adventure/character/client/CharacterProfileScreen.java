@@ -312,7 +312,7 @@ public class CharacterProfileScreen extends Screen implements IJojoMenuScreen {
 		Lighting.setupFor3DItems();
 	}
 	
-	// i want to die
+	// i want to die a little bit less
 	public static <E extends LivingEntity, M extends EntityModel<E>> void renderEntity(LivingEntityRenderer<E, M> renderer,
 			E entity, float entityYaw, float ticks, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
 		PlayerRenderer playerRenderer = renderer instanceof PlayerRenderer __ ? __ : null;

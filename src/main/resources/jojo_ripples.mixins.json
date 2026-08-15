@@ -98,6 +98,7 @@
     "client.model.ModelExtraFeatures",
 	"client.model.LivingRendererLayersMixin",
 	"client.model.ReplacePlayerModelMixin",
+	"client.model.LivingRendererAccessor",
 	
 	"client.HumanoidArmorLayerMixin",
     

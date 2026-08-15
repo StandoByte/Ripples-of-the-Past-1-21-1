@@ -41,7 +41,7 @@ public abstract class LivingRendererLayersMixin<T extends LivingEntity, M extend
 	@Inject(method = "render", at = @At(value = "INVOKE", 
 			target = "Lnet/minecraft/world/entity/LivingEntity;isSpectator()Z"))
 	private void checkIfModelWasReplaced(CallbackInfo ci) {
-		useLayerFilter = this instanceof PlayerRendererInterface playerRenderer && playerRenderer.jojoRipples$isUsingCustomModel();
+		useLayerFilter = this instanceof PlayerRendererInterface playerRenderer && playerRenderer.jojo_ripples$isUsingCustomModel();
 	}
 
 	@WrapWithCondition(method = "render", at = @At(
@@ -64,6 +64,11 @@ public abstract class LivingRendererLayersMixin<T extends LivingEntity, M extend
 			float ageInTicks,
 			float netHeadYaw,
 			float headPitch) {
+		return jojo_ripples$shouldRenderLayer(layer, livingEntity);
+	}
+
+	@Override
+	public boolean jojo_ripples$shouldRenderLayer(RenderLayer layer, Entity livingEntity) {
 		if (onlyRenderFirstPersonLayers && !FirstPersonRender.shouldRenderInFirstPersonAnim(layer)) {
 			return false;
 		}

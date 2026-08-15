@@ -11,6 +11,7 @@ import com.github.standobyte.jojo.client.entityanim.player.PlayerAnimRigLoad;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimatedEntity;
 import com.github.standobyte.jojo.client.entityrender.ModelUtil;
+import com.github.standobyte.jojo.client.entityrender.RenderPlayerSpecial;
 import com.github.standobyte.jojo.client.entityrender.stand.HumanoidPart;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
@@ -55,7 +56,6 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MapItem;
-import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.phys.Vec3;
@@ -65,7 +65,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.client.event.RenderLivingEvent;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 
 @EventBusSubscriber(value = Dist.CLIENT)
 @SuppressWarnings({ "unchecked", "rawtypes" }) // Silence, Java generics.
@@ -536,8 +535,8 @@ public class FirstPersonRender {
 		if (!isInvisible && entity instanceof AbstractClientPlayer player && ClientHooks.renderSpecificFirstPersonArm(poseStack, buffer, light, player, handSide)) return;
 
 		if (renderer.getModel() instanceof HumanoidModel humanoidModel) {
-			HumanoidModel.ArmPose mainArmPose = getArmPose(entity, InteractionHand.MAIN_HAND);
-			HumanoidModel.ArmPose offArmPose = getArmPose(entity, InteractionHand.OFF_HAND);
+			HumanoidModel.ArmPose mainArmPose = RenderPlayerSpecial.getArmPose(entity, InteractionHand.MAIN_HAND);
+			HumanoidModel.ArmPose offArmPose = RenderPlayerSpecial.getArmPose(entity, InteractionHand.OFF_HAND);
 			if (mainArmPose.isTwoHanded()) {
 				offArmPose = entity.getOffhandItem().isEmpty() ? HumanoidModel.ArmPose.EMPTY : HumanoidModel.ArmPose.ITEM;
 			}
@@ -585,36 +584,6 @@ public class FirstPersonRender {
 		List<FirstPersonModelLayer> layers = ((LivingRendererLayers) renderer).jojo_ripples$firstPersonHandLayers();
 		for (FirstPersonModelLayer layer : layers) {
 			layer.renderHandFirstPerson(handSide, poseStack, buffer, light, entity, renderer, partialTick);
-		}
-	}
-
-	public static HumanoidModel.ArmPose getArmPose(LivingEntity entity, InteractionHand hand) {
-		ItemStack stack = entity.getItemInHand(hand);
-		if (stack.isEmpty()) {
-			return HumanoidModel.ArmPose.EMPTY;
-		} else {
-			if (entity.getUsedItemHand() == hand && entity.getUseItemRemainingTicks() > 0) {
-				UseAnim useAnim = stack.getUseAnimation();
-				HumanoidModel.ArmPose armPose = switch (useAnim) {
-					case BLOCK -> HumanoidModel.ArmPose.BLOCK;
-					case BOW -> HumanoidModel.ArmPose.BOW_AND_ARROW;
-					case SPEAR -> HumanoidModel.ArmPose.THROW_SPEAR;
-					case CROSSBOW -> hand == entity.getUsedItemHand() ? HumanoidModel.ArmPose.CROSSBOW_CHARGE : null;
-					case SPYGLASS -> HumanoidModel.ArmPose.BLOCK;
-					case TOOT_HORN -> HumanoidModel.ArmPose.TOOT_HORN;
-					case BRUSH -> HumanoidModel.ArmPose.BRUSH;
-					default -> null;
-				};
-				if (armPose != null) {
-					return armPose;
-				}
-			} else if (!entity.swinging && stack.getItem() instanceof CrossbowItem && CrossbowItem.isCharged(stack)) {
-				return HumanoidModel.ArmPose.CROSSBOW_HOLD;
-			}
-			HumanoidModel.ArmPose forgeArmPose = IClientItemExtensions.of(stack).getArmPose(entity, hand, stack);
-			if (forgeArmPose != null) return forgeArmPose;
-
-			return HumanoidModel.ArmPose.ITEM;
 		}
 	}
 

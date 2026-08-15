@@ -32,7 +32,8 @@ public abstract class ReplacePlayerModelMixin extends LivingEntityRenderer imple
 		super(context, model, shadowRadius);
 	}
 	
-	@Unique protected void setReplacementModel(Entity entity) {
+	@Override
+	public void jojo_ripples$setReplacementModel(Entity entity) {
 		if (this.prevModel == null) {
 			PlayerModel replacementModel = ReplacePlayerModel.getModel(entity);
 			if (replacementModel != null) {
@@ -42,7 +43,8 @@ public abstract class ReplacePlayerModelMixin extends LivingEntityRenderer imple
 		}
 	}
 	
-	@Unique protected void restoreModel() {
+	@Override
+	public void jojo_ripples$restoreModel() {
 		if (this.prevModel != null) {
 			this.model = this.prevModel;
 			this.prevModel = null;
@@ -50,7 +52,7 @@ public abstract class ReplacePlayerModelMixin extends LivingEntityRenderer imple
 	}
 	
 	@Override
-	public boolean jojoRipples$isUsingCustomModel() {
+	public boolean jojo_ripples$isUsingCustomModel() {
 		return prevModel != null;
 	}
 
@@ -58,32 +60,32 @@ public abstract class ReplacePlayerModelMixin extends LivingEntityRenderer imple
 	@Inject(method = "render", at = @At("HEAD"))
 	public void replaceModel(AbstractClientPlayer entity, float entityYaw, float partialTicks, 
 			PoseStack poseStack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
-		setReplacementModel(entity);
+		jojo_ripples$setReplacementModel(entity);
 	}
 
 	@Inject(method = "render", at = @At("TAIL"))
 	public void restoreModel(AbstractClientPlayer entity, float entityYaw, float partialTicks, 
 			PoseStack poseStack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
-		restoreModel();
+		jojo_ripples$restoreModel();
 	}
 
 
 	@Inject(method = "renderRightHand", at = @At("HEAD"))
 	public void replaceModel1stPersonR(PoseStack poseStack, MultiBufferSource buffer, 
 			int combinedLight, AbstractClientPlayer entity, CallbackInfo ci) {
-		setReplacementModel(entity);
+		jojo_ripples$setReplacementModel(entity);
 	}
 
 	@Inject(method = "renderLeftHand", at = @At("HEAD"))
 	public void replaceModel1stPersonL(PoseStack poseStack, MultiBufferSource buffer, 
 			int combinedLight, AbstractClientPlayer entity, CallbackInfo ci) {
-		setReplacementModel(entity);
+		jojo_ripples$setReplacementModel(entity);
 	}
 
 	@Inject(method = "renderHand", at = @At("TAIL"))
 	public void restoreModel1stPerson(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, 
 			AbstractClientPlayer entity, ModelPart rendererArm, ModelPart rendererArmwear, CallbackInfo ci) {
-		restoreModel();
+		jojo_ripples$restoreModel();
 	}
 	
 	
