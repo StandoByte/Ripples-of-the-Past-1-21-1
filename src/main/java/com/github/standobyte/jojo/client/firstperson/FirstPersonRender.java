@@ -85,33 +85,45 @@ public class FirstPersonRender {
 	}
 
 
-	private static boolean renderNonPlayerCameraEntity;
-	private static AnimFramePose rotpAnimPose;
+	public static boolean renderNonPlayerCameraEntity;
+	public static AnimFramePose rotpAnimPose;
+	public static Vec3 cameraOffset;
 	@Nullable
-	public static void onCameraSetupPosOffset(Camera camera) {
-		Minecraft mc = Minecraft.getInstance();
-		Entity povEntity = mc.cameraEntity;
-
-		ClientEntityController curController = ClientEntityController.getInstance();
-		Entity possessed = LivingComponentPossession.getEntityPossessedBy(mc.player);
-
-		// Stand entity manual control or puppet possession - mechanics which change the POV to another entity
-		renderNonPlayerCameraEntity = 
-				curController != null && curController.entity == povEntity
-				|| possessed != null && possessed == povEntity;
+	public static void onCameraSetupPosOffset(Camera camera, boolean thirdPerson, boolean thirdPersonReverse) {
+		renderNonPlayerCameraEntity = false;
+		rotpAnimPose = null;
+		cameraOffset = null;
 		
-		rotpAnimPose = ((AnimatedEntity) povEntity).jojo_ripples$getModelPose(AnimatedEntity.PoseType.FINAL);
-		
-		if (!renderNonPlayerCameraEntity && rotpAnimPose != null) {
-			// FIXME most likely this won't work correctly with scale attribute, fix ModelUtil.getModelPartPos
-			Vec3 headPos = ModelUtil.getModelPartPos(PlayerAnimRigLoad.getModel(), rotpAnimPose, "head", Vec3.ZERO);
-			if (headPos != null) {
-				CameraAccessor camera_ = (CameraAccessor) camera;
-				headPos = headPos.add(0, -ModelUtil.LIVING_RENDER_Y_OFFSET_MAGIC, 0);
-				float yRot = -camera.getYRot();
-				headPos = headPos.yRot(yRot * MathUtil.DEG_TO_RAD);
-				camera_.invokeSetPosition(camera.getPosition().add(headPos));
+		if (!thirdPerson) {
+			Minecraft mc = Minecraft.getInstance();
+			Entity povEntity = mc.cameraEntity;
+			
+			ClientEntityController curController = ClientEntityController.getInstance();
+			Entity possessed = LivingComponentPossession.getEntityPossessedBy(mc.player);
+			
+			// Stand entity manual control or puppet possession - mechanics which change the POV to another entity
+			renderNonPlayerCameraEntity = 
+					curController != null && curController.entity == povEntity
+					|| possessed != null && possessed == povEntity;
+			if (!renderNonPlayerCameraEntity) {
+				rotpAnimPose = ((AnimatedEntity) povEntity).jojo_ripples$getModelPose(AnimatedEntity.PoseType.FINAL);
 			}
+			
+			if (rotpAnimPose != null) {
+				// FIXME most likely this won't work correctly with scale attribute, fix ModelUtil.getModelPartPos
+				Vec3 headPos = ModelUtil.getModelPartPos(PlayerAnimRigLoad.getModel(), rotpAnimPose, "head", Vec3.ZERO);
+				if (headPos != null) {
+					headPos = headPos.add(0, -ModelUtil.LIVING_RENDER_Y_OFFSET_MAGIC, 0);
+					float yRot = -camera.getYRot();
+					headPos = headPos.yRot(yRot * MathUtil.DEG_TO_RAD);
+					cameraOffset = headPos;
+				}
+			}
+		}
+		
+		if (cameraOffset != null) {
+			CameraAccessor camera_ = (CameraAccessor) camera;
+			camera_.invokeSetPosition(camera.getPosition().add(cameraOffset));
 		}
 	}
 
@@ -120,6 +132,10 @@ public class FirstPersonRender {
 	 */
 	public static boolean onFirstPersonRender(Minecraft mc, float partialTick, PoseStack poseStack, BufferSource bufferSource, int light) {
 		Entity povEntity = mc.cameraEntity;
+		
+		if (povEntity instanceof LivingEntity livingEntity && rotpAnimPose != null) {
+			return renderPlayer1stPersonAnim(mc, livingEntity, rotpAnimPose, partialTick, poseStack, bufferSource, light);
+		}
 		
 		if (renderNonPlayerCameraEntity) {
 			EntityRenderer<?> renderer = mc.getEntityRenderDispatcher().getRenderer(povEntity);
@@ -210,11 +226,6 @@ public class FirstPersonRender {
 				default -> {}
 			}
 			return true;
-		}
-		
-		// The player is the POV entity, but it has a custom action animation
-		if (povEntity instanceof LivingEntity livingEntity && rotpAnimPose != null) {
-			return renderPlayer1stPersonAnim(mc, livingEntity, rotpAnimPose, partialTick, poseStack, bufferSource, light);
 		}
 		
 		return false;

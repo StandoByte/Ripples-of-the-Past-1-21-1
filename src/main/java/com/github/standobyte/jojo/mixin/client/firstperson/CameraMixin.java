@@ -25,9 +25,7 @@ public abstract class CameraMixin {
 			+ "ZZF)V", 
 			at = @At("TAIL"))
 	public void setupCamera(BlockGetter level, Entity entity, boolean detached, boolean thirdPersonReverse, float partialTick, CallbackInfo ci) {
-		if (!detached) {
-			FirstPersonRender.onCameraSetupPosOffset((Camera) (Object) this);
-		}
+		FirstPersonRender.onCameraSetupPosOffset((Camera) (Object) this, detached, thirdPersonReverse);
 	}
 
 }
