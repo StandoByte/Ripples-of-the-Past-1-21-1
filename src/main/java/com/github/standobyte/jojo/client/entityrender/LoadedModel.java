@@ -47,11 +47,11 @@ public class LoadedModel {
 	
 	
 	
-	public PlayerModel asPlayerModel() {
+	public PlayerModel asPlayerModel(boolean useHumanoidRigging) {
 		if (asPlayerModel != null) return asPlayerModel;
 
 		LayerDefinition playerModel = ModelUtil.copy(modelDefinition);
-		asPlayerModel = CustomPlayerModel.createModel(playerModel.bakeRoot(), false);
+		asPlayerModel = CustomPlayerModel.createModel(playerModel.bakeRoot(), false, useHumanoidRigging);
 		return asPlayerModel;
 	}
 }

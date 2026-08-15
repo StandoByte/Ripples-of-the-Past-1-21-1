@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 
 public interface IHumanoidAnimModel {
 	void jojo_rippes$initDisableBends();
+	void jojo_rippes$initDisableHumanoidRigging();
 	
 	boolean jojo_rippes$isPlayingAnimation();
 	void jojo_ripples$setupHumanoidAnim(HumanoidRenderState renderState);

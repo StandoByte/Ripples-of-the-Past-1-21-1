@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.client.entityrender.replace_player_model;
 import java.util.Collections;
 import java.util.HashMap;
 
+import com.github.standobyte.jojo.client.entityanim.IHumanoidAnimModel;
 import com.github.standobyte.jojo.client.entityrender.ModelPartWithName;
 import com.github.standobyte.jojo.client.entityrender.ModelWithExtraFeatures;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
@@ -51,7 +52,7 @@ public class CustomPlayerModel extends PlayerModel {
 	});
 
 	@SuppressWarnings("unchecked")
-	public static PlayerModel createModel(ModelPart customRoot, boolean slim) {
+	public static PlayerModel createModel(ModelPart customRoot, boolean slim, boolean useHumanoidRigging) {
 		CustomPlayerModel model = new CustomPlayerModel(DUMMY_ROOT, slim);
 		Model_1_21_2plus modelThatDoesntSuck = ((Model_1_21_2plus) model);
 		modelThatDoesntSuck.jojo_ripples$initRoot(customRoot);
@@ -81,6 +82,9 @@ public class CustomPlayerModel extends PlayerModel {
 	    model.parts = modelThatDoesntSuck.jojo_ripples$allParts().stream()
 	    		.filter(part -> !part.cubes.isEmpty()).toList();
 	    
+	    if (!useHumanoidRigging) {
+	    	((IHumanoidAnimModel) model).jojo_rippes$initDisableHumanoidRigging();
+	    }
 	    return model;
 	}
 	
