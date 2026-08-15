@@ -44,6 +44,7 @@ public class StandEntityUnsummonAction extends SpecialEntityActionType {
 		protected StandUnsummonInstance(EntityActionType ability) {
 			super(ability);
 			phasesLength.put(ActionPhase.PERFORM, UNSUMMON_TICKS);
+			phasesLength.put(ActionPhase.RECOVERY, 999999); // this way the action stays on the client side and keeps setting stand alpha to 0
 		}
 		
 		@Override
@@ -53,9 +54,15 @@ public class StandEntityUnsummonAction extends SpecialEntityActionType {
 		@Override
 		public void actionTick() {
 			if (performer.level().isClientSide()) {
-				float unsummonLength = getAnimPhaseLength();
-				if (unsummonLength > 2) {
-					float alpha = alpha(getAnimPhaseTick(0), unsummonLength);
+				float alpha = switch (phase) {
+					default -> 1;
+					case PERFORM -> {
+						float unsummonLength = getAnimPhaseLength();
+						yield unsummonLength > 2 ? alpha(getAnimPhaseTick(0), unsummonLength) : 1;
+					}
+					case RECOVERY -> 0;
+				};
+				if (alpha < 1) {
 					((StandEntity) performer).multiplyTranslucency(alpha);
 				}
 			}
