@@ -16,7 +16,8 @@ import com.github.standobyte.jojo.client.entityrender.stand.HumanoidPart;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderState;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
-import com.github.standobyte.jojo.mixin.client.firstperson.CameraAccessor;
+import com.github.standobyte.jojo.event.client.ModClientEventHooks;
+import com.github.standobyte.jojo.event.client.RipplesFirstPersonRenderEarlyEvent;
 import com.github.standobyte.jojo.mixininterface.LivingRendererLayers;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.subsystems.entity_possessionv2.LivingComponentPossession;
@@ -87,12 +88,11 @@ public class FirstPersonRender {
 
 	public static boolean renderNonPlayerCameraEntity;
 	public static AnimFramePose rotpAnimPose;
-	public static Vec3 cameraOffset;
-	@Nullable
-	public static void onCameraSetupPosOffset(Camera camera, boolean thirdPerson, boolean thirdPersonReverse) {
+	
+	public static Vec3 onCameraOffsetSetup(Camera camera, boolean thirdPerson) {
 		renderNonPlayerCameraEntity = false;
 		rotpAnimPose = null;
-		cameraOffset = null;
+		Vec3 cameraOffset = Vec3.ZERO;
 		
 		if (!thirdPerson) {
 			Minecraft mc = Minecraft.getInstance();
@@ -121,10 +121,7 @@ public class FirstPersonRender {
 			}
 		}
 		
-		if (cameraOffset != null) {
-			CameraAccessor camera_ = (CameraAccessor) camera;
-			camera_.invokeSetPosition(camera.getPosition().add(cameraOffset));
-		}
+		return cameraOffset;
 	}
 
 	/**
@@ -132,6 +129,14 @@ public class FirstPersonRender {
 	 */
 	public static boolean onFirstPersonRender(Minecraft mc, float partialTick, PoseStack poseStack, BufferSource bufferSource, int light) {
 		Entity povEntity = mc.cameraEntity;
+		RipplesFirstPersonRenderEarlyEvent event = ModClientEventHooks.preFirstPersonRender(povEntity, 
+				partialTick, poseStack, bufferSource, light);
+		if (event.isCanceled()) {
+			return true;
+		}
+		if (event.getCancelsROTPRendering()) {
+			return false;
+		}
 		
 		if (povEntity instanceof LivingEntity livingEntity && rotpAnimPose != null) {
 			return renderPlayer1stPersonAnim(mc, livingEntity, rotpAnimPose, partialTick, poseStack, bufferSource, light);
