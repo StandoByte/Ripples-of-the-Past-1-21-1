@@ -226,6 +226,16 @@ public class JSONUtil {
 	}
 
 
+	@Nullable
+	public static JsonArray asArray(@Nullable JsonElement element) {
+		if (element == null) return null;
+		if (element.isJsonArray()) return element.getAsJsonArray();
+		JsonArray singletonArray = new JsonArray(1);
+		singletonArray.add(element);
+		return singletonArray;
+	}
+
+
 	public static int parseColor(JsonElement jsonElement) {
 		if (jsonElement.isJsonPrimitive()) {
 			JsonPrimitive primitive = jsonElement.getAsJsonPrimitive();
