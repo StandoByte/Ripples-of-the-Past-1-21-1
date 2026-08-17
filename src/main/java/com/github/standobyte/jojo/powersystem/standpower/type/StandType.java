@@ -201,8 +201,8 @@ public class StandType extends PowerType {
 	}
 	
 	public boolean summon(LivingEntity user, StandPower standPower) {
-		if (!standPower.isSummoned() && standPower.canUsePower()) {
-			SummonedStand summonedStand = makeSummonedStand();
+		if (!standPower.isSummoned() && standPower.canUsePower() && hasSummonMechanic(standPower)) {
+			SummonedStand summonedStand = makeSummonedStand(standPower);
 			if (summonedStand == null) return false;
 			
 			standPower.setSummonedStand(summonedStand);
@@ -241,8 +241,12 @@ public class StandType extends PowerType {
 	/**
 	 * If this is overriden to return null, the Stand type will have no summon/unsummon mechanic.
 	 */
-	protected SummonedStand makeSummonedStand() {
+	protected SummonedStand makeSummonedStand(StandPower standPower) {
 		return makeSummonedStandObj != null ? makeSummonedStandObj.get() : null;
+	}
+	
+	public boolean hasSummonMechanic(StandPower standPower) {
+		return makeSummonedStandObj != null;
 	}
 	
 	public void unsummon(LivingEntity user, StandPower standPower) {
