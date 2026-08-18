@@ -19,11 +19,14 @@ import net.minecraft.client.particle.TerrainParticle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.client.extensions.common.IClientBlockExtensions;
 
 public abstract class CustomParticlesHelper {
 
@@ -208,6 +211,42 @@ public abstract class CustomParticlesHelper {
 				particleManager.add(new TerrainParticle(level, pos.x + x, pos.y + y, pos.z + z, 
 						x * 0.25, y * 0.25, z * 0.25, blockState).updateSprite(blockState, blockPos));
 			}
+		}
+	}
+	
+	public static void addBlockDestroyParticles(BlockState state, BlockPos blockPos, Vec3 particlesPos) {
+		Minecraft mc = Minecraft.getInstance();
+		if (!state.isAir() && !IClientBlockExtensions.of(state).addDestroyEffects(state, mc.level, blockPos, mc.particleEngine)) {
+			VoxelShape voxelShape = state.getShape(mc.level, blockPos);
+			voxelShape.forAllBoxes((double minX, double minY, double minZ, double maxX, double maxY, double maxZ) -> {
+				double d1 = Math.min(1.0, maxX - minX);
+				double d2 = Math.min(1.0, maxY - minY);
+				double d3 = Math.min(1.0, maxZ - minZ);
+				int i = Math.max(2, Mth.ceil(d1 / 0.25));
+				int j = Math.max(2, Mth.ceil(d2 / 0.25));
+				int k = Math.max(2, Mth.ceil(d3 / 0.25));
+
+				for (int l = 0; l < i; l++) {
+					for (int i1 = 0; i1 < j; i1++) {
+						for (int j1 = 0; j1 < k; j1++) {
+							double d4 = ((double)l + 0.5) / (double)i;
+							double d5 = ((double)i1 + 0.5) / (double)j;
+							double d6 = ((double)j1 + 0.5) / (double)k;
+							double d7 = d4 * d1 + minX;
+							double d8 = d5 * d2 + minY;
+							double d9 = d6 * d3 + minZ;
+							mc.particleEngine.add(new TerrainParticle(mc.level,
+									particlesPos.x + d7,
+									particlesPos.y + d8,
+									particlesPos.z + d9,
+									d4 - 0.5,
+									d5 - 0.5,
+									d6 - 0.5,
+									state, blockPos).updateSprite(state, blockPos));
+						}
+					}
+				}
+			});
 		}
 	}
 

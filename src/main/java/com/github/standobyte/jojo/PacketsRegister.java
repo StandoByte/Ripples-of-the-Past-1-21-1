@@ -32,6 +32,7 @@ import com.github.standobyte.jojo.network.s2c.DeflectedBulletPacket;
 import com.github.standobyte.jojo.network.s2c.EntityDirectPosNoLerpPacket;
 import com.github.standobyte.jojo.network.s2c.EntitySyncMotionBypassingPacket;
 import com.github.standobyte.jojo.network.s2c.ItemBreakVisualsPacket;
+import com.github.standobyte.jojo.network.s2c.ModdedProjectileBreakPacket;
 import com.github.standobyte.jojo.network.s2c.PowerDataUnlockedSkillsPacket;
 import com.github.standobyte.jojo.network.s2c.StandEntitySoundPacket;
 import com.github.standobyte.jojo.network.s2c.StandSkinSoundPacket;
@@ -155,6 +156,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new EntitySyncMotionBypassingPacket.Handler(JojoMod.resLoc("motfix")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new EntityDirectPosNoLerpPacket.Handler(JojoMod.resLoc("posfix")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrResetDeathTimePacket.Handler(JojoMod.resLoc("undeath")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new ModdedProjectileBreakPacket.Handler(JojoMod.resLoc("projbreak")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new DeflectedBulletPacket.Handler(JojoMod.resLoc("projdefl")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new BloodParticlesPacket.Handler(JojoMod.resLoc("blood")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new BrokenChunkBlocksPacket.Handler(JojoMod.resLoc("brokenblocks")));

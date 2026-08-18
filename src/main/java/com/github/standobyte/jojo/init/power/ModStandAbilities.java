@@ -7,6 +7,7 @@ import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandBearingShotAbility;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityBarrageAbility;
+import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityBlockTossAbility;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityGrabAbility;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityGrabReleaseAbility;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityGrabThrowAbility;
@@ -77,6 +78,9 @@ public final class ModStandAbilities {
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityGrabThrowAbility>> GRAB_THROW = ABILITY_TYPES.register(
 			"stand_grab_throw", key -> new AbilityType<>(key, StandEntityGrabThrowAbility::new));
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityBlockTossAbility>> BLOCK_TOSS = ABILITY_TYPES.register(
+			"stand_block_toss", key -> new AbilityType<>(key, StandEntityBlockTossAbility::new));
 
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<HeavyPunchUppercutAbility>> HEAVY_UPPERCUT = ABILITY_TYPES.register(

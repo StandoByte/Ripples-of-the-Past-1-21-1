@@ -3,6 +3,8 @@ package com.github.standobyte.jojo.customobjects.entity_projectile;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.network.s2c.DeflectedBulletPacket;
+import com.github.standobyte.jojo.network.s2c.ModdedProjectileBreakPacket;
+import com.github.standobyte.jojo.subsystems.target.ActionTarget;
 import com.github.standobyte.jojo.subsystems.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 
@@ -173,11 +175,22 @@ public abstract class ModdedProjectileEntity extends DamagingEntity {
 		return 0.8;
 	}
 
+	// should NOT have made it protected
 	protected void breakProjectile(TargetType targetType, HitResult hitTarget) {
 		if (!level().isClientSide()) {
 			discard();
 		}
 	}
+	
+	protected void sendClientBreakPacket(TargetType targetType, HitResult hitTarget) {
+		if (hitTarget != null) {
+			ActionTarget target = ActionTarget.fromVanilla(hitTarget);
+			PacketDistributor.sendToPlayersTrackingEntity(this, new ModdedProjectileBreakPacket(this.getId(), target));
+		}
+	}
+	
+	public void clientBreakProjectile(ActionTarget target) {}
+	
 
 	@Override
 	protected boolean canHitEntity(Entity entity) {

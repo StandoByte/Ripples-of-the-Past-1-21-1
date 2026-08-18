@@ -74,6 +74,7 @@ public class StandInitStarPlatinum {
 
 //				.addAbility("guard", ModStandAbilities.GUARD)
 //				.addAbility("leap", ModStandAbilities.STAND_LEAP)
+				.addAbility("block_toss", ModStandAbilities.BLOCK_TOSS)
 				.addAbility("bearing_shot", ModStandAbilities.BEARING_SHOT)
 
 //				.addAbility("enhanced_eyesight", ModStandAbilities.SP_EYESIGHT)
@@ -91,6 +92,7 @@ public class StandInitStarPlatinum {
 					.bind("heavy_charged", InputMethod.HOLD, InputKey.RMB)
 					.bind("grab", InputMethod.CLICK, InputKey.RMB.withModifier(InputKey.Modifier.CONTROL))
 					.bind("grab_throw", InputMethod.HOLD, InputKey.RMB)
+					.bind("block_toss", InputMethod.HOLD, InputKey.LMB)
 					.bind("bearing_shot", InputMethod.HOLD, InputKey.RMB)
 	
 					.makeHotbar(0, USE_SPECIAL, SWITCH_SPECIAL)
@@ -112,7 +114,7 @@ public class StandInitStarPlatinum {
 				.addSkill(StandUnlockableSkill.startingAbility("heavy_charged").prerequisiteSkill("heavy_punch"))
 
 				.addSkill(StandUnlockableSkill.startingAbility("grab"))
-				.addSkill(StandUnlockableSkill.startingAbility("block_toss").setNotYetImplemented())
+				.addSkill(StandUnlockableSkill.startingAbility("block_toss").setIncomplete())
 				.addSkill(StandUnlockableSkill.unlockableAbility("grab_throw", 100).prerequisiteSkill("grab").setIncomplete())
 				.addSkill(StandUnlockableSkill.unlockableAbility("grab_terrain", 150).setNotYetImplemented().withAbility("terrain_throw").prerequisiteSkill("grab"))
 				
