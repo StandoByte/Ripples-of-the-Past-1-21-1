@@ -11,10 +11,11 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent.RegisterStageEv
 @EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class CustomLevelRenderStages {
 	public static RenderLevelStageEvent.Stage BEFORE_SPECTATOR_SHADER;
+	public static RenderLevelStageEvent.Stage AFTER_HAND_RENDER;
 	
 	@SubscribeEvent
 	public static void whyMakeAnEventSubcriberForStagesWithNullRenderTypeToA(RegisterStageEvent whichDoesntActuallyRegister/*?*/) {
-		RegisterStageEvent event = whichDoesntActuallyRegister;
-		BEFORE_SPECTATOR_SHADER = event.register(JojoMod.resLoc("before_spectator_shader"), null);
+		BEFORE_SPECTATOR_SHADER = whichDoesntActuallyRegister.register(JojoMod.resLoc("before_spectator_shader"), null);
+		AFTER_HAND_RENDER = whichDoesntActuallyRegister.register(JojoMod.resLoc("after_hand_render"), null);
 	}
 }

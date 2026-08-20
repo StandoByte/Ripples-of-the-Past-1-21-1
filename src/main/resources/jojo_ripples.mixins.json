@@ -139,6 +139,7 @@
 	"client.modcompat.WoRStandRendering",
 	"client.SoundEngineMixin",
 	"client.CloseResources",
+	"client.GameRendererMixin",
 	"client.keybindui.KeyEntryMixin",
 	"client.keybindui.AbstractSelectionListMixin",
 	"client.CreativeTabScreenMixin",
