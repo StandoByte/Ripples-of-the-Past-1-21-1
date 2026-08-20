@@ -43,6 +43,7 @@ public abstract class StandEffectInstance extends EntityCustomEffect {
 
 	public StandEffectInstance(@Nonnull EntityCustomEffectType<?> effectType) {
 		super(effectType);
+		removeOnUserLogout = true;
 	}
 	
 	protected void initStandPower(StandPower userPower) {

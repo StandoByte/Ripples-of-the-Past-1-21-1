@@ -32,7 +32,7 @@ public abstract class EntityCustomEffect {
 	public Level level;
 
 	public boolean removeOnUserDeath = true;
-	public boolean removeOnUserLogout = true;
+	public boolean removeOnUserLogout = false;
 
 
 	public EntityCustomEffect(@Nonnull EntityCustomEffectType<?> effectType) {
