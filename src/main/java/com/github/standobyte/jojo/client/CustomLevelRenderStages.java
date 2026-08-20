@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.shader;
+package com.github.standobyte.jojo.client;
 
 import com.github.standobyte.jojo.core.JojoMod;
 
