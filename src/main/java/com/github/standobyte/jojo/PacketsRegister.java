@@ -175,6 +175,7 @@ public class PacketsRegister {
 		void handle(T payload, IPayloadContext context);
 	}
 	
+	// Dear addon devs, you do not have to copypaste a public interface, you can just implement this one for your packets.
 	public static interface PacketOGHandler<T extends CustomPacketPayload> extends PacketHandler<T> {
 		void encode(T packet, RegistryFriendlyByteBuf buf);
 		T decode(RegistryFriendlyByteBuf buf);

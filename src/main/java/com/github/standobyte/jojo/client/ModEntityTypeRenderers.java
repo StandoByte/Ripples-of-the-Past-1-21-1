@@ -122,6 +122,7 @@ public class ModEntityTypeRenderers {
 	
 	
 	
+	// Dear addon devs, if a method is public and static, you do not have to copypaste it, you can just call this one.
 	@SuppressWarnings("unchecked")
 	public static <T extends LivingEntity, M extends HumanoidModel<T>> Optional<LivingEntityRenderer<T, M>> castToHumanoid(EntityRenderer<?> renderer) {
 		if (renderer instanceof LivingEntityRenderer livingRenderer && livingRenderer.getModel() instanceof HumanoidModel /* && renderer.reusedState instanceof HumanoidRenderState*/) {
