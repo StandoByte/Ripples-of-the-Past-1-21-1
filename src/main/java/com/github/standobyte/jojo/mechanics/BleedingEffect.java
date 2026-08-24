@@ -134,7 +134,7 @@ public class BleedingEffect extends StatusEffectModified implements StatusEffect
 		}
 
 		AABB aabb = new AABB(splashPos.subtract(radius, radius, radius), splashPos.add(radius, radius, radius));
-		List<Vec3> particlePos = new ArrayList<>();
+		List<Vec3> particleTargets = new ArrayList<>();
 		List<LivingEntity> entitiesAround = level.getEntitiesOfClass(LivingEntity.class, aabb, 
 				EntitySelector.ENTITY_STILL_ALIVE.and(EntitySelector.NO_SPECTATORS)
 				.and(entity -> {
@@ -145,18 +145,23 @@ public class BleedingEffect extends StatusEffectModified implements StatusEffect
 		for (LivingEntity entity : entitiesAround) {
 			if (dropBloodOnEntity(ownerEntity, entity, bleedAmount)) {
 				Vec3 targetPos = entity.getEyePosition(1.0F);
-				particlePos.add(targetPos);
+				particleTargets.add(targetPos);
 
 				if (addBlinding) {
 					Vec3 vecFromTarget = splashPos.subtract(targetPos).normalize();
 					Vec3 targetLookVec = entity.getLookAngle();
 					float cos = (float) vecFromTarget.dot(targetLookVec);
+					
 					if (cos > BLINDING_ANGLE_COS) {
 						EntityCustomEffectsMap<EntityCustomEffect> effects = EntityCustomEffectsClass.getCustomEffects(entity, true);
 						if (effects != null) {
 							BlindingEffect bloodBlinding = new BlindingEffect();
 							bloodBlinding.initType(BlindingParticlesType.BLOOD);
-							bloodBlinding.ratio = (cos - BLINDING_ANGLE_COS) / (1 - BLINDING_ANGLE_COS);
+							
+							float distFactor = (float) Mth.clamp((radius - targetPos.distanceTo(splashPos)) / radius, 0, 1);
+							distFactor = Math.min(distFactor * 3 + 0.25f, 1);
+							bloodBlinding.ratio = (cos - BLINDING_ANGLE_COS) / (1 - BLINDING_ANGLE_COS) * distFactor;
+							
 							effects.addEffect(bloodBlinding);
 						}
 					}
@@ -191,9 +196,9 @@ public class BleedingEffect extends StatusEffectModified implements StatusEffect
 
 		ServerLevel serverLevel = (ServerLevel) level;
 		ChunkPos chunkPos = new ChunkPos(blockPos);
-		if (!particlePos.isEmpty()) {
+		if (!particleTargets.isEmpty()) {
 			int count = Math.min((int) (bleedAmount * 5), 50);
-			particlePos.forEach(posTo -> {
+			particleTargets.forEach(posTo -> {
 				PacketDistributor.sendToPlayersTrackingChunk(serverLevel, chunkPos, 
 						new BloodParticlesPacket(splashPos, posTo, 0.375f, count, ownerEntity != null ? ownerEntity.getId() : -1));
 			});
@@ -208,7 +213,7 @@ public class BleedingEffect extends StatusEffectModified implements StatusEffect
 			});
 		}
 
-		return !particlePos.isEmpty();
+		return !particleTargets.isEmpty();
 	}
 
 	private static boolean dropBloodOnEntity(@Nullable LivingEntity bleedingEntity, LivingEntity nearbyEntity, float bleedAmount) {
