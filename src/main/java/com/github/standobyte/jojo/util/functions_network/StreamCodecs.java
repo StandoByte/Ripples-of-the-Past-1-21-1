@@ -7,6 +7,8 @@ import com.github.standobyte.jojo.util.objects_java.OptionalFloat;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 public class StreamCodecs {
@@ -80,5 +82,17 @@ public class StreamCodecs {
 			}
 		};
 	}
+	
+	public static final StreamCodec<FriendlyByteBuf, BlockState> DEFAULT_BLOCK_BLOCKSTATE = new StreamCodec<FriendlyByteBuf, BlockState>() {
+		@Override
+		public BlockState decode(FriendlyByteBuf buf) {
+			return Block.stateById(buf.readInt());
+		}
+
+		@Override
+		public void encode(FriendlyByteBuf buf, BlockState value) {
+			buf.writeInt(Block.getId(value));
+		}
+	};
 	
 }
