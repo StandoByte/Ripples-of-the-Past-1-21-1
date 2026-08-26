@@ -11,9 +11,12 @@ import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataHelper
 import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataPacket;
 import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataPacketHandler;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
+import com.github.standobyte.jojo.util.functions.NBTUtil;
+import com.github.standobyte.jojo.util.objects.ToggleTags;
 
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData.Builder;
@@ -32,6 +35,7 @@ public class JojoModEntityVariables<T extends Entity> implements INBTSerializabl
 			JojoModEntityVariables.class, EntityDataSerializers.BOOLEAN, true);
 
 	protected final T entity;
+	public final ToggleTags tags;
 	public final SynchedDataHelper synchedData;
 	
 	private static final String SYNCHED_PACKET_HANDLER_TYPE = "vars";
@@ -54,6 +58,7 @@ public class JojoModEntityVariables<T extends Entity> implements INBTSerializabl
 	
 	public JojoModEntityVariables(T entity) {
 		this.entity = entity;
+		this.tags = new ToggleTags(entity);
 		this.synchedData = new SynchedDataHelper(SYNCHED_PACKET_HANDLER_TYPE, this, () -> entity.level().isClientSide());
 		addTicking(entity);
 		addSynchronization(entity);
@@ -65,10 +70,12 @@ public class JojoModEntityVariables<T extends Entity> implements INBTSerializabl
 
 	@Override
 	public void syncToTracking(ServerPlayer trackingPlayer) {
+		tags.sync(trackingPlayer);
 	}
 
 	@Override
 	public void syncToPlayer(ServerPlayer entityAsPlayer) {
+		tags.sync(entityAsPlayer);
 	}
 
 	@Override
@@ -89,16 +96,20 @@ public class JojoModEntityVariables<T extends Entity> implements INBTSerializabl
 	}
 	
 	protected void cloneData(JojoModEntityVariables<?> newData, boolean wasDeath) {
+		tags.cloneData(newData.tags, wasDeath);
 	}
 
 	@Override
 	public CompoundTag serializeNBT(Provider provider) {
 		CompoundTag nbt = new CompoundTag();
+		nbt.put("tags", tags.serializeNBT(provider));
 		return nbt;
 	}
 
 	@Override
 	public void deserializeNBT(Provider provider, CompoundTag nbt) {
+		NBTUtil.getElementOptional(nbt, "tags", ListTag.class).ifPresent(
+				tagsNBT -> tags.deserializeNBT(provider, tagsNBT));
 	}
 	
 	

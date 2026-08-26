@@ -31,6 +31,7 @@ import com.github.standobyte.jojo.network.s2c.DatapackStandsPacket;
 import com.github.standobyte.jojo.network.s2c.DeflectedBulletPacket;
 import com.github.standobyte.jojo.network.s2c.EntityDirectPosNoLerpPacket;
 import com.github.standobyte.jojo.network.s2c.EntitySyncMotionBypassingPacket;
+import com.github.standobyte.jojo.network.s2c.EntityToggleTagsPacket;
 import com.github.standobyte.jojo.network.s2c.ItemBreakVisualsPacket;
 import com.github.standobyte.jojo.network.s2c.ModdedProjectileBreakPacket;
 import com.github.standobyte.jojo.network.s2c.PowerDataUnlockedSkillsPacket;
@@ -112,6 +113,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClCommonServerConfigResetPacket.Handler(JojoMod.resLoc("clcfgreset")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClPlayerBroadcastConfigPacket.Handler(JojoMod.resLoc("clcfgsend")));
 
+        registerPacket(registrar, PayloadRegistrar::playToClient, new EntityToggleTagsPacket.Handler(JojoMod.resLoc("tag")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new DatapackStandsPacket.Handler(JojoMod.resLoc("datastands")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrAbilityUsePacket.Handler(JojoMod.resLoc("abilityuse")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrEntityActionInstancePacket.Handler(JojoMod.resLoc("action")));
