@@ -208,6 +208,11 @@
 				{
 					"name": "torso_bend",
 					"parent": "waist",
+					"pivot": [0, 18, 0]
+				},
+				{
+					"name": "torso_no_arms",
+					"parent": "torso_bend",
 					"pivot": [0, 18, 0],
 					"cubes": [
 						{
