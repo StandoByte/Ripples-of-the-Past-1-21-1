@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.entityattachment.ComponentUtil;
 import com.github.standobyte.jojo.entityattachment.SynchronizablePlayerData;
 import com.github.standobyte.jojo.entityattachment.TickingEntityData;
+import com.github.standobyte.jojo.entityattachment.ToggleTags;
 import com.github.standobyte.jojo.entityattachment.syncheddata.DataParameter;
 import com.github.standobyte.jojo.entityattachment.syncheddata.SyncedDataHolderExtended;
 import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataHelper;
@@ -12,7 +13,6 @@ import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataPacket
 import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataPacketHandler;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.util.functions.NBTUtil;
-import com.github.standobyte.jojo.util.objects.ToggleTags;
 
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;

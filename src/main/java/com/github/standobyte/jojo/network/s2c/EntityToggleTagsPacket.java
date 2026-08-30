@@ -4,8 +4,8 @@ import java.util.Collection;
 
 import com.github.standobyte.jojo.PacketsRegister;
 import com.github.standobyte.jojo.client.ClientProxy;
+import com.github.standobyte.jojo.entityattachment.ToggleTags;
 import com.github.standobyte.jojo.util.functions_network.NetworkUtil;
-import com.github.standobyte.jojo.util.objects.ToggleTags;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;

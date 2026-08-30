@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.util.objects;
+package com.github.standobyte.jojo.entityattachment;
 
 import java.util.Collections;
 import java.util.HashSet;
