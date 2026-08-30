@@ -71,6 +71,11 @@ public class ToggleTags implements INBTSerializable<ListTag> {
 		return JojoModEntityVariables.get(entity).tags;
 	}
 	
+	public static boolean hasTag(Entity entity, String tag) {
+		ToggleTags tags = getIfPresent(entity);
+		return tags != null && tags.hasTag(tag);
+	}
+	
 	@Nullable
 	public static ToggleTags getIfPresent(Entity entity) {
 		JojoModEntityVariables<?> vars = JojoModEntityVariables.getIfPresent(entity);
