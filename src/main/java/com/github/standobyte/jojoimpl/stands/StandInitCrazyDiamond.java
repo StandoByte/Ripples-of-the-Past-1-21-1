@@ -86,6 +86,7 @@ public class StandInitCrazyDiamond {
 					.bind("heavy_punch", InputMethod.CLICK, InputKey.RMB)
 					.bind("heavy_charged", InputMethod.HOLD, InputKey.RMB)
 					.bind("grab", InputMethod.CLICK, InputKey.RMB.withModifier(InputKey.Modifier.CONTROL))
+					.bind("block_toss", InputMethod.HOLD, InputKey.LMB)
 	
 					.bind("repair_item", InputMethod.HOLD, InputKey.C)
 					.bind("uncraft", InputMethod.HOLD, InputKey.I)
@@ -101,13 +102,13 @@ public class StandInitCrazyDiamond {
 
 
 				.makeControlScheme("keybinds")
+					.bind("bearing_shot", InputMethod.HOLD, InputKey.RMB)
 					.bind("punch", InputMethod.CLICK, InputKey.LMB)
 					.bind("barrage", InputMethod.HOLD, InputKey.LMB)
 					.bind("heavy_punch", InputMethod.CLICK, InputKey.RMB)
 					.bind("heavy_charged", InputMethod.HOLD, InputKey.RMB)
 					.bind("grab", InputMethod.CLICK, InputKey.RMB.withModifier(InputKey.Modifier.CONTROL))
 					.bind("block_toss", InputMethod.HOLD, InputKey.LMB)
-					.bind("bearing_shot", InputMethod.HOLD, InputKey.RMB)
 	
 					.bind("repair_item", InputMethod.HOLD, InputKey.C)
 					.bind("uncraft", InputMethod.HOLD, InputKey.I)
