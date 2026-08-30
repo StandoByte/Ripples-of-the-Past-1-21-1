@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.entityattachment.syncheddata.DataParameter;
 import com.github.standobyte.jojo.subsystems.target.ActionTarget;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDHealAbility;
 
@@ -33,5 +34,11 @@ public class ModEntityDataSerializers {
 	
 	public static final Supplier<EntityDataSerializer<Optional<ResolvableProfile>>> RESOLVABLE_PROFILE_OPTIONAL = SERIALIZERS.register("player_profile", 
 			() -> EntityDataSerializer.forValueType(ResolvableProfile.STREAM_CODEC.apply(ByteBufCodecs::optional)));
+
+	public static final Supplier<EntityDataSerializer<Object>> SIGNAL = SERIALIZERS.register("signal", 
+			() -> new EntityDataSerializer<Object>() {
+				@Override public StreamCodec<? super RegistryFriendlyByteBuf, Object> codec() { return StreamCodec.unit(DataParameter._SIGNAL_DUMMY); }
+				@Override public Object copy(Object value) { return value; }
+			});
 
 }
