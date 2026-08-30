@@ -59,7 +59,7 @@ public class JojoModEntityVariables<T extends Entity> implements INBTSerializabl
 	public JojoModEntityVariables(T entity) {
 		this.entity = entity;
 		this.tags = new ToggleTags(entity);
-		this.synchedData = new SynchedDataHelper(SYNCHED_PACKET_HANDLER_TYPE, this, () -> entity.level().isClientSide());
+		this.synchedData = new SynchedDataHelper(SYNCHED_PACKET_HANDLER_TYPE, this, () -> this.entity);
 		addTicking(entity);
 		addSynchronization(entity);
 		addSynchedData(entity, synchedData);

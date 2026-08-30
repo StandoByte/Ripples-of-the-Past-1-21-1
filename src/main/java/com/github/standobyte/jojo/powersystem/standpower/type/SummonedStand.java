@@ -130,7 +130,7 @@ public interface SummonedStand {
 		public void setUserAndPower(LivingEntity user, StandPower power) {
 			this.user = user;
 			this.power = power;
-			this.synchedData = new SynchedDataHelper(SYNCHED_PACKET_HANDLER_TYPE, this, () -> user.level().isClientSide());
+			this.synchedData = new SynchedDataHelper(SYNCHED_PACKET_HANDLER_TYPE, this, () -> this.user);
 		}
 
 		@Override

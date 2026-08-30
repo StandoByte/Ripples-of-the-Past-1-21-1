@@ -54,7 +54,7 @@ public class EntityActionInstance implements HeldInput {
 	@ApiStatus.Internal public Object2FloatMap<ActionPhase> phasesLength = new Object2FloatArrayMap<>();
 	@ApiStatus.Internal @Nullable public Object2FloatMap<ActionPhase> skippedWindupPhase = null;
 	
-	public SynchedDataHelper synchedData = new SynchedDataHelper("act", this, () -> this.level().isClientSide());
+	public SynchedDataHelper synchedData = new SynchedDataHelper("act", this, () -> this.performer);
 	
 	@ApiStatus.Internal @Nonnull public ActionPhase phase;
 	@ApiStatus.Internal public int curPhaseTick;

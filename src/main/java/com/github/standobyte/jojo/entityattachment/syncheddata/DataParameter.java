@@ -1,13 +1,24 @@
 package com.github.standobyte.jojo.entityattachment.syncheddata;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Supplier;
 
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffect;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectsClass;
+import com.github.standobyte.jojo.entityattachment.custom_effect.sync.TrStandEffectSynchedDataPacket;
 import com.github.standobyte.jojo.init.ModEntityDataSerializers;
+import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
+import com.github.standobyte.jojo.powersystem.entityaction.syncdata.TrActionSynchedDataPacket;
+import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.SyncedDataHolder;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.entity.Entity;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class DataParameter<T> {
 	public final EntityDataAccessor<T> param;
@@ -44,23 +55,53 @@ public class DataParameter<T> {
 		dataSyncher.set(param, value);
 	}
 	
+
+	/** Utilizes the synched data system (and the regular parameters from {@link #defineId(Class, EntityDataSerializer, Object)}), 
+	 *  but, instead of storing the data and only sending it to clients on the next tick if the value has changed, 
+	 *  sends the value to clients immediately, and does not store the sent value 
+	 *  (therefore not sending the last value to the newly tracking players).
+	 *  The value itself is to be handled in {@link SyncedDataHolderExtended#onSyncedDataUpdated(Object, Object, EntityDataAccessor)}.
+	 * 
+	 *  Example use case is for creating specific visuals/sounds on the client side whenever a specific event happens on the server side,
+	 *  so that there is no need to make a separate packet for it.
+	 */
+	public void sendSignal(SynchedDataHelper dataSyncher, T value) {
+		dataSyncher.hasSynchedDataCheck();
+		
+		SynchedDataExtended delegate = dataSyncher.getDataSyncher();
+		delegate.entity2.onSyncedDataUpdated(defaultValue, value, param);
+		
+		SynchedEntityData.DataValue<T> valueToSync = SynchedEntityData.DataValue.create(param, value);
+		List<SynchedEntityData.DataValue<?>> data = Collections.singletonList(valueToSync);
+		Entity entity = dataSyncher.entity;
+		CustomPacketPayload packet = switch (delegate.entity2) { // this shit SO ass
+			case EntityActionInstance action ->  new TrActionSynchedDataPacket(
+					entity.getId(), 
+					data);
+			case EntityCustomEffect effect -> new TrStandEffectSynchedDataPacket(
+					entity.getId(), 
+					effect.getId(), 
+					effect instanceof StandEffectInstance ? EntityCustomEffectsClass.STAND_EFFECT : EntityCustomEffectsClass.OTHER, 
+					data);
+			default -> new SynchedDataPacket(
+					entity.getId(), 
+					delegate.type, 
+					data);
+		};
+		PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, packet);
+	}
 	
-	/** Utilizes the synched data system for sending a packet from server to tracking clients every time a certain event happens. */
-	public static DataParameter<?> defineIdSignal(Class<? extends SyncedDataHolder> clazz) {
+	/** Same principle as above, for cases when we don't need to send any data for the signal, 
+	 *  only a packet telling the tracking clients that the event has occured.
+	 */
+	public static DataParameter<?> defineIdEmptySignal(Class<? extends SyncedDataHolder> clazz) {
 		return defineId(clazz, ModEntityDataSerializers.SIGNAL.get(), _SIGNAL_DUMMY);
 	}
+	public static final Object _SIGNAL_DUMMY = new Object();
 	
 	@SuppressWarnings("unchecked")
-	public void sendSignal(SynchedDataHelper dataSyncher) {
-		if (this.defaultValue != _SIGNAL_DUMMY) {
-			throw new RuntimeException("sendSignal called on a non-signal data parameter.");
-		}
-		dataSyncher.set((EntityDataAccessor<Object>) param, _SIGNAL_DUMMY, 
-				true /* By default the system doesn't send a packet to clients if the underlying value hasn't changed. 
-						We aren't storing any value in this case, we just want to send the packet every time this method is called. */);
+	public void sendEmptySignal(SynchedDataHelper dataSyncher) {
+		sendSignal(dataSyncher, (T) _SIGNAL_DUMMY);
 	}
-	
-	
-	public static final Object _SIGNAL_DUMMY = new Object();
 	
 }

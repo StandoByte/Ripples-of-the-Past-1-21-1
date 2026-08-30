@@ -71,7 +71,7 @@ public class CharacterPersonData implements SynchronizablePlayerData, TickingEnt
 	
 	public CharacterPersonData(LivingEntity entity) {
 		this.entity = entity;
-		this.synchedData = new SynchedDataHelper(SYNCHED_PACKET_HANDLER_TYPE, this, () -> entity.level().isClientSide());
+		this.synchedData = new SynchedDataHelper(SYNCHED_PACKET_HANDLER_TYPE, this, () -> this.entity);
 		addSynchronization(entity);
 		addTicking(entity);
 		addSynchedData(entity, synchedData);

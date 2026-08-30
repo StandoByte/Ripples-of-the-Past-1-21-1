@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.entityattachment.syncheddata;
 
-import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
@@ -8,12 +8,14 @@ import org.jetbrains.annotations.ApiStatus;
 
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.entity.Entity;
 
 public class SynchedDataHelper {
 	public final String type;
 	
 	protected Object entityLikeObject;
-	protected BooleanSupplier clientSideCheck;
+	protected Supplier<Entity> getEntity;
+	protected Entity entity;
 	
 	protected boolean clientSide;
 	protected String objClassName;
@@ -26,10 +28,10 @@ public class SynchedDataHelper {
 	 * @param entityLikeObject should implement {@link SyncedDataHolderExtended}
 	 * @param isClientSide
 	 */
-	public SynchedDataHelper(String packetHandlerType, Object entityLikeObject, BooleanSupplier isClientSide) {
+	public SynchedDataHelper(String packetHandlerType, Object entityLikeObject, Supplier<Entity> getEntity) {
 		this.type = packetHandlerType;
 		this.entityLikeObject = entityLikeObject;
-		this.clientSideCheck = isClientSide;
+		this.getEntity = getEntity;
 		this.objClassName = entityLikeObject.getClass().getName();
 	}
 	
@@ -37,7 +39,8 @@ public class SynchedDataHelper {
 	@ApiStatus.NonExtendable
 	public SynchedDataExtended getDataSyncher() {
 		if (synchedData == null && !didLazyInit) {
-			clientSide = clientSideCheck.getAsBoolean();
+			entity = getEntity.get();
+			clientSide = entity.level().isClientSide();
 			if (entityLikeObject instanceof SyncedDataHolderExtended withSynchedData) {
 				SynchedEntityData.Builder builder = new SynchedEntityData.Builder(withSynchedData);
 				withSynchedData.defineSynchedData(builder);
@@ -47,7 +50,7 @@ public class SynchedDataHelper {
 			
 			// we don't need this stuff anymore
 			entityLikeObject = null;
-			clientSideCheck = null;
+			getEntity = null;
 		}
 		return synchedData;
 	}
