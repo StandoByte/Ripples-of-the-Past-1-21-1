@@ -30,11 +30,8 @@ public class UserStandEffects extends EntityCustomEffectsMap<StandEffectInstance
 //		}
 //	}
 
-
-	@SuppressWarnings("unchecked")
 	public <T extends StandEffectInstance> Optional<T> getEffectTargeting(EntityCustomEffectType<T> effectType, LivingEntity target) {
-		Stream<StandEffectInstance> effects = getEffects().stream().filter(effect -> 
-				effect.effectType == effectType && 
+		Stream<T> effects = getEffectsOfType(effectType).filter(effect -> 
 				(target == null ? effect.getTargetUUID() == null : target.getUUID().equals(effect.getTargetUUID())));
 		Optional<T> effect = (Optional<T>) effects.findFirst();
 		return effect;
@@ -46,37 +43,11 @@ public class UserStandEffects extends EntityCustomEffectsMap<StandEffectInstance
 			return effect.get();
 		}
 		else {
-			T newEffect = effectType.create(getEntity().level());
+			T newEffect = effectType.create(entity.level());
 			addEffect(newEffect.withTarget(target));
 			return newEffect;
 		}
 	}
-
-	@SuppressWarnings("unchecked")
-	public <T extends StandEffectInstance> T getOrCreateEffect(EntityCustomEffectType<T> effectType) {
-		Optional<T> effect = (Optional<T>) getEffects().stream()
-				.filter(e -> e.effectType == effectType)
-				.findFirst();
-		if (effect.isPresent()) {
-			return effect.get();
-		}
-		else {
-			T newEffect = effectType.create(getEntity().level());
-			addEffect(newEffect);
-			return newEffect;
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public <T extends StandEffectInstance> Stream<T> getEffectsOfType(EntityCustomEffectType<T> type) {
-		return (Stream<T>) getEffects().stream()
-				.filter(effect -> effect.effectType == type);
-	}
-
-	public <T extends StandEffectInstance> Optional<T> getEffectOfType(EntityCustomEffectType<T> type) {
-		return getEffectsOfType(type).findFirst();
-	}
-
 
 	public static <T extends StandEffectInstance> Stream<T> getEffectsOfType(LivingEntity user, EntityCustomEffectType<T> type) {
 		StandPower power = StandPower.get(user);
@@ -110,13 +81,14 @@ public class UserStandEffects extends EntityCustomEffectsMap<StandEffectInstance
 				.map(Function.identity());
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <T extends StandEffectInstance> Stream<T> getEffectsTargetedBy(LivingEntity entity, EntityCustomEffectType<T> type) {
-		return (Stream<T>) StandEffectsTarget.getEffectsReadOnly(entity).filter(effect -> effect.effectType == type);
+	@Deprecated
+	public static <T extends StandEffectInstance> Stream<T> getEffectsTargetedBy(LivingEntity targetEntity, EntityCustomEffectType<T> type) {
+		return StandEffectsTarget.getEffectsTargetedBy(targetEntity, type);
 	}
 
+	@Deprecated
 	public static boolean isTargetedBy(LivingEntity entity, EntityCustomEffectType<? extends StandEffectInstance> type) {
-		return getEffectsTargetedBy(entity, type).findAny().isPresent();
+		return StandEffectsTarget.isTargetedBy(entity, type);
 	}
 
 
@@ -131,7 +103,7 @@ public class UserStandEffects extends EntityCustomEffectsMap<StandEffectInstance
 		while (it.hasNext()) {
 			StandEffectInstance effect = it.next().getValue();
 			if (effect.removeOnStandChanged) {
-				onEffectRemoved(effect);
+				onEffectRemoved(effect, true);
 				it.remove();
 			}
 		}
