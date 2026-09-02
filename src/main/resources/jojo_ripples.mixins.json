@@ -8,6 +8,7 @@
   "mixins": [
     "damage.DamageSourceMixin",
 	"damage.LivingEntityMixin",
+	"damage.SweepingKnockbackStandEntityPatch",
     "grab.LivingEntityMixin",
 
 	"entity_like_player.npc.LivingEntityAccessor",
