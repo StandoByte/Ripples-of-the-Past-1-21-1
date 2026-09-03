@@ -198,7 +198,7 @@ public class ClientJojoPoseLoader extends SimplePreparableReloadListener<Map<Res
 						animSet.anims.put(animName, pose);
 					}
 					catch (Exception e) {
-						JojoMod.LOGGER.error("Failed to load a JoJo pose {}#{}", animSetId, animName, e);
+						JojoMod.getLogger().error("Failed to load a JoJo pose {}#{}", animSetId, animName, e);
 					}
 				}
 			}
