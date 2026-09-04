@@ -137,7 +137,19 @@ public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements Tic
 
 
 	@Override
-	public void onPlayerClone(Player newPlayer, boolean wasDeath) {}
+	public void onPlayerClone(Player newPlayer, boolean wasDeath) {
+		EntityCustomEffectsMap<T> oldEffects = (EntityCustomEffectsMap<T>) this.effectsClass.get(newPlayer, false);
+		if (oldEffects != null) {
+			cloneEffects(oldEffects);
+		}
+	}
+	
+	@ApiStatus.Internal
+	public void cloneEffects(EntityCustomEffectsMap<T> oldEffects) {
+		this.effects.clear();
+		this.effects.putAll(oldEffects.effects);
+		this.effects.values().forEach(effect -> effect.withEntity(this.entity));
+	}
 
 	@Override
 	public void syncToPlayer(ServerPlayer entityAsPlayer) {

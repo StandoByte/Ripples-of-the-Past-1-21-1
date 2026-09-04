@@ -93,11 +93,6 @@ public class UserStandEffects extends EntityCustomEffectsMap<StandEffectInstance
 
 
 	@ApiStatus.Internal
-	public void setPowerData(StandPower standPower) {
-		effects.values().forEach(effect -> effect.withStand(standPower));
-	}
-
-	@ApiStatus.Internal
 	public void onStandChanged(LivingEntity user) {
 		var it = effects.int2ObjectEntrySet().iterator();
 		while (it.hasNext()) {
