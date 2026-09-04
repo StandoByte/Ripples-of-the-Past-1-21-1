@@ -208,6 +208,9 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 				this.entityData.set(DATA_BABY_ID, user.isBaby());
 			}
 			updateUserOffset(user);
+			
+			this.hurtTime = Math.max(this.hurtTime, user.hurtTime);
+			this.hurtDuration = user.hurtDuration;
 		}
 		this.xRotO = rotO.xRot;
 		this.yRotO = rotO.yRot;
