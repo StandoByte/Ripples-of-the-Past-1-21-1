@@ -45,6 +45,7 @@ public class StandEntityUnsummonAction extends SpecialEntityActionType {
 			super(ability);
 			phasesLength.put(ActionPhase.PERFORM, UNSUMMON_TICKS);
 			phasesLength.put(ActionPhase.RECOVERY, 999999); // this way the action stays on the client side and keeps setting stand alpha to 0
+			standRegensStamina = true;
 		}
 		
 		@Override

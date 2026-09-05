@@ -72,6 +72,7 @@ public class EntityActionInstance implements HeldInput {
 	@Nullable protected List<StandEffectInstance> punchModifiers;
 	
 	public float userWalkSpeed = 1;
+	public boolean standRegensStamina = false;
 	
 	public EntityActionInstance(EntityActionType ability) {
 		this.ability = ability;

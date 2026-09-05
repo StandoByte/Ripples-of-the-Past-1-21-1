@@ -309,7 +309,7 @@ public class StandType extends PowerType {
 			LivingEntity standEntity = standPower.getSummonedStandEntity();
 			if (standEntity != null) {
 				EntityActionInstance action = LivingComponentAction.getCurEntityAction(standEntity);
-				if (action != null /* TODO regen stamina during stand unsummon */) {
+				if (action != null && !action.standRegensStamina) {
 					return 0;
 				}
 			}
