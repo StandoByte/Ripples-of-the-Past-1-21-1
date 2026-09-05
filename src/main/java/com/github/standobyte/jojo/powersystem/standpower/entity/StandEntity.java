@@ -143,9 +143,33 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
         }
 		return this;
 	}
+	
+	public boolean onlyVisibleToStandUsers = true;
+	public boolean standCanHaveNoPhysics = true;
+	public boolean standHasNoGravity = true;
+	public boolean canOnlyHurtFromStands = true;
+	public boolean healthLinkedWithUser = true;
+	
+	/**
+	 * If we just try to initialize these fields in declaration, 
+	 * they won't be initialized at the time of {@link #defineSynchedData(SynchedEntityData.Builder)} yet 
+	 * (because that method is called in {@link #Entity(EntityType, Level)}),
+	 * causing {@link #defaultStandFlags()} to be incorrect,
+	 * since {@link StandFlag}.NO_PHYSICS flag relies on {@link #standCanHaveNoPhysics} value.
+	 * 
+	 * This is why this method exists and is called in defineSynchedData.
+	 */
+	protected void setStandProperties() {
+		this.onlyVisibleToStandUsers = true;
+		this.standCanHaveNoPhysics = true;
+		this.standHasNoGravity = true;
+		this.canOnlyHurtFromStands = true;
+		this.healthLinkedWithUser = true;
+	}
 
 	@Override
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
+		setStandProperties();
 		super.defineSynchedData(builder);
 		builder.define(USER_ID, -1);
 		builder.define(STAND_FLAGS, defaultStandFlags());
@@ -852,19 +876,6 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
     	return name != null ? name : super.getTypeName();
 	}
 
-	
-	public boolean onlyVisibleToStandUsers = true;
-	public boolean standCanHaveNoPhysics = true;
-	public boolean standHasNoGravity = true;
-	public boolean canOnlyHurtFromStands = true;
-	public boolean healthLinkedWithUser = true;
-	public void setIsPhysicalObject() {
-		onlyVisibleToStandUsers = false;
-		standCanHaveNoPhysics = false;
-		standHasNoGravity = false;
-		canOnlyHurtFromStands = false;
-		healthLinkedWithUser = false;
-	}
 	
 	@Override
 	public boolean isInvisible() {
