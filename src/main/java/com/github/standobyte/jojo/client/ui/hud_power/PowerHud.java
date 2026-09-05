@@ -655,7 +655,7 @@ public class PowerHud {
 				}
 			}
 			
-			return miniBarTransparency.shouldRender();
+			return barSize != null && miniBarTransparency.shouldRender();
 		}
 		
 		@Override
