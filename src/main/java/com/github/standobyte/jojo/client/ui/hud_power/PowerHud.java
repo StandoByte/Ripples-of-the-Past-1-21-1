@@ -605,6 +605,9 @@ public class PowerHud {
 		public static final ResourceLocation BAR_HORIZONTAL_MINI_FILL = JojoMod.resLoc("textures/hud/bars/bar_horizontal_mini_stamina.png");
 		public static final ResourceLocation BAR_VERTICAL_FILL = JojoMod.resLoc("textures/hud/bars/bar_vertical_stamina.png");
 		public static final ResourceLocation BAR_VERTICAL_MINI_FILL = JojoMod.resLoc("textures/hud/bars/bar_vertical_mini_stamina.png");
+		
+		public Bars.BarSize barSize;
+		public ElementTransparency miniBarTransparency = new ElementTransparency();
 
 		public Stamina(String name, int x0, int y0, int width, int height) {
 			super(name, x0, y0, width, height);
@@ -634,25 +637,53 @@ public class PowerHud {
 
 		@Override
 		public boolean shouldRender() {
+			barSize = null;
+			
 			if (hud.forContainerMenu.isTrue() || !JojoMod.config.getCommon().standStamina.getAsBoolean()) return false;
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 			if (standPower != null && !standPower.isUserCreative() && standPower.usesStamina()) {
 				AbilityControlScheme controlScheme = InputHandler.getInstance().getActiveControlScheme();
-				return controlScheme != null && controlScheme.hasAbility(ability -> ability.powerClass() == PowerClass.STAND);
+				if (controlScheme != null && controlScheme.hasAbility(ability -> ability.powerClass() == PowerClass.STAND)) {
+					barSize = Bars.BarSize.REGULAR;
+					miniBarTransparency.reset();
+				}
+				else {
+					barSize = Bars.BarSize.MINI;
+					if (standPower.getStamina() < standPower.getMaxStamina()) {
+						miniBarTransparency.reset();
+					}
+				}
 			}
 			
-			return false;
+			return miniBarTransparency.shouldRender();
 		}
 		
 		@Override
 		public void renderElement(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
-			float staminaRatio = standPower.getStaminaRatio(ClientUtil.partialTick(deltaTracker, false));
+			float partialTick = ClientUtil.partialTick(deltaTracker, false);
+			float staminaRatio = standPower.getStaminaRatio(partialTick);
 			int x = getX() + 8;
 			int y = getY();
-			float alpha = ResolveStageBuffs.ignoreStaminaDebuff(Minecraft.getInstance().player) ? 0.5f : 1;
-			Bars.renderHorizontalBar(guiGraphics.pose(), x, y, staminaRatio, BAR_HORIZONTAL_FILL, BlitFloat.NO_TINT, alpha);
-			ICON.render(guiGraphics.pose(), x - 12, y - 6, ARGB.white(alpha));
+			float alpha = Math.max(
+					(ResolveStageBuffs.ignoreStaminaDebuff(Minecraft.getInstance().player) ? 0.5f : 1)
+					* miniBarTransparency.getAlpha(partialTick), 
+					ElementTransparency.MIN_ALPHA);
+			PoseStack poseStack = guiGraphics.pose();
+			switch (barSize) {
+				case REGULAR -> {
+					Bars.renderHorizontalBar(poseStack, x, y, staminaRatio, BAR_HORIZONTAL_FILL, BlitFloat.NO_TINT, alpha);
+					ICON.render(poseStack, x - 12, y - 6, ARGB.white(alpha));
+				}
+				case MINI -> {
+					Bars.renderHorizontalBarMini(poseStack, x, y, staminaRatio, BAR_HORIZONTAL_MINI_FILL, BlitFloat.NO_TINT, alpha);
+					poseStack.pushPose();
+					poseStack.translate(x - 6, y - 3, 0);
+					poseStack.scale(0.5f, 0.5f, 1);
+					ICON.render(poseStack, 0, 0, ARGB.white(alpha));
+					poseStack.popPose();
+				}
+			}
 		}
 		
 		@Override
