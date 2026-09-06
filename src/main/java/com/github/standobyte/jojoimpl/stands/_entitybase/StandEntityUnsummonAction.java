@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType
 import com.github.standobyte.jojo.powersystem.entityaction.type.SpecialEntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -112,6 +113,12 @@ public class StandEntityUnsummonAction extends SpecialEntityActionType {
 		
 		@Override
 		public boolean canBeCancelledInto(EntityActionType cancellingAbility) {
+			return true;
+		}
+		
+		@Override
+		public boolean onStandUnsummonCommand(LivingEntity user, StandPower standPower, StandType standType) {
+			standType.forceUnsummon(user, standPower);
 			return true;
 		}
 		

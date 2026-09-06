@@ -192,6 +192,8 @@ public class StandType extends PowerType {
 	
 	
 	public void onUserSummonCommand(LivingEntity user, StandPower standPower) {
+		if (user.level().isClientSide()) return;
+		
 		if (!standPower.isSummoned() && onTrySummon(user, standPower)) {
 			summon(user, standPower);
 		}
