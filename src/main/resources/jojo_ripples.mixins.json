@@ -6,12 +6,13 @@
   "minVersion": "0.8.5",
   "plugin": "com.github.standobyte.jojo.core.RipplesMixinConfigPlugin",
   "mixins": [
+	"LivingEntityAccessor",
+	
     "damage.DamageSourceMixin",
 	"damage.LivingEntityMixin",
 	"damage.SweepingKnockbackStandEntityPatch",
     "grab.LivingEntityMixin",
 
-	"entity_like_player.npc.LivingEntityAccessor",
 	"entity_like_player.npc.InventoryAccessor",
 	"entity_like_player.npc.PlayerAccessor",
     
@@ -50,7 +51,6 @@
     "itemtracking.rigged.MobEntityLootingMixin",
     
 	"statuseffect.MobEffectLivingEntityMixin",
-	"statuseffect.LivingEntityMobEffectStuffAccessor",
 	
 	"container.ContainerMenuInvoker",
 	"container.LivingEntityHandSwapSyncFixCrutch",

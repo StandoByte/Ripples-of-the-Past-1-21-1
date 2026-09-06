@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.util.functions;
 
-import com.github.standobyte.jojo.mixin.statuseffect.LivingEntityMobEffectStuffAccessor;
+import com.github.standobyte.jojo.mixin.LivingEntityAccessor;
 
 import net.minecraft.core.Holder;
 import net.minecraft.world.effect.MobEffect;
@@ -44,7 +44,7 @@ public class StatusEffectUtil {
 			effectInstance = effectInstance.hiddenEffect;
 		}
 
-		((LivingEntityMobEffectStuffAccessor) entity).invokeOnEffectUpdated(mainEffectInstance, true, null);
+		((LivingEntityAccessor) entity).invokeOnEffectUpdated(mainEffectInstance, true, null);
 		return true;
 	}
 }

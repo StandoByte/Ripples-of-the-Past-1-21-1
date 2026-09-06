@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.mixin.entity_like_player.npc.LivingEntityAccessor;
+import com.github.standobyte.jojo.mixin.LivingEntityAccessor;
 import com.github.standobyte.jojo.subsystems.entity_opencontainer.OpenContainerAsNonPlayer;
 import com.mojang.authlib.GameProfile;
 
