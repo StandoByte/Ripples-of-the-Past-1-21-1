@@ -5,11 +5,16 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.network.s2c.TrSyncStandOffsetPacket;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.subsystems.entity_grab.LivingComponentGrab;
+import com.github.standobyte.jojo.subsystems.target.ActionTarget;
+import com.github.standobyte.jojo.subsystems.target.HitResultUtil;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -29,6 +34,9 @@ public class StandOffsetFromUser {
 	private Rotations prevRotations;
 	private float prevBodyRotDiff;
 	private int changedTimestamp;
+	private double clPrevResultingDist;
+	
+	public boolean fixTargetOvershoot = false;
 	
 	public static StandOffsetFromUser createDefault(StandEntity standEntity) {
 		StandOffsetFromUser offset = new StandOffsetFromUser(standEntity, new Vec3(0.75, standEntity.Y_OFFSET, -0.75), Rotations.BODY);
@@ -65,6 +73,8 @@ public class StandOffsetFromUser {
 			this.relativeOffset = offset;
 			this.rotations = rotations;
 			this.changedTimestamp = standEntity.tickCount;
+			
+			this.fixTargetOvershoot = offset != this.idleOffset;
 		}
 	}
 	
@@ -116,6 +126,25 @@ public class StandOffsetFromUser {
 					Mth.lerp(lerpAmount, prevAbsoluteOffset.x, absoluteOffset.x),
 					Mth.lerp(lerpAmount, prevAbsoluteOffset.y, absoluteOffset.y),
 					Mth.lerp(lerpAmount, prevAbsoluteOffset.z, absoluteOffset.z));
+		}
+		
+		double offsetLen = absoluteOffset.length();
+		if (fixTargetOvershoot) {
+			Level level = standEntity.level();
+			double targetCheckDist = offsetLen + standEntity.getBbWidth();
+			Vec3 offsetNormalized = absoluteOffset.scale(1 / offsetLen);
+			ActionTarget target = HitResultUtil.clip(userEntity.getEyePosition(), offsetNormalized, 
+					targetCheckDist, targetCheckDist, 
+					level, EntitySelector.NO_SPECTATORS.and(e -> e != standEntity && e != userEntity), standEntity, 0);
+			if (!target.isEmpty(level)) {
+				AABB targetBox = switch (target.getType()) {
+					case ENTITY -> target.getEntity().getBoundingBox();
+					case BLOCK -> new AABB(target.getBlockPos());
+					case EMPTY -> throw new IllegalStateException();
+				};
+				double distToTarget = MathUtil.getAABBDistance(userEntity.getBoundingBox(), targetBox);
+				absoluteOffset = offsetNormalized.scale(distToTarget);
+			}
 		}
 		
 		return absoluteOffset;
