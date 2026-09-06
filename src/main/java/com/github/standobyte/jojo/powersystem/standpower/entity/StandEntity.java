@@ -379,7 +379,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			if (!isCloseToUser()) {
 				Vec3 targetPos = offsetFromUser.getPosition(user);
 				Vec3 movementVec = targetPos.subtract(position());
-				setDeltaMovement(movementVec.normalize().scale(getAttributeValue(Attributes.MOVEMENT_SPEED)));
+				setDeltaMovement(movementVec.normalize().scale(getMovementSpeed()));
 			}
 			else {
 				setDeltaMovement(Vec3.ZERO);
@@ -795,6 +795,10 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	public double getAttackSpeed() {
 		double speed = getAttributeValue(Attributes.ATTACK_SPEED);
 		return speed * getStandEfficiency();
+	}
+	
+	public double getMovementSpeed() {
+		return getAttributeValue(Attributes.MOVEMENT_SPEED);
 	}
 
 	public double getAttackKnockback() {
