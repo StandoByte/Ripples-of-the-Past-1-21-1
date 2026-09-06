@@ -34,9 +34,9 @@ public class StandOffsetFromUser {
 	private Rotations prevRotations;
 	private float prevBodyRotDiff;
 	private int changedTimestamp;
-	private double clPrevResultingDist;
 	
 	public boolean fixTargetOvershoot = false;
+	private double clPrevOffsetDist = -1;
 	
 	public static StandOffsetFromUser createDefault(StandEntity standEntity) {
 		StandOffsetFromUser offset = new StandOffsetFromUser(standEntity, new Vec3(0.75, standEntity.Y_OFFSET, -0.75), Rotations.BODY);
@@ -75,6 +75,7 @@ public class StandOffsetFromUser {
 			this.changedTimestamp = standEntity.tickCount;
 			
 			this.fixTargetOvershoot = offset != this.idleOffset;
+			this.clPrevOffsetDist = -1;
 		}
 	}
 	
@@ -128,8 +129,10 @@ public class StandOffsetFromUser {
 					Mth.lerp(lerpAmount, prevAbsoluteOffset.z, absoluteOffset.z));
 		}
 		
-		double offsetLen = absoluteOffset.length();
 		if (fixTargetOvershoot) {
+			double offsetLen = absoluteOffset.length();
+			double offsetLenNew = offsetLen;
+			
 			Level level = standEntity.level();
 			double targetCheckDist = offsetLen + standEntity.getBbWidth();
 			Vec3 offsetNormalized = absoluteOffset.scale(1 / offsetLen);
@@ -143,7 +146,20 @@ public class StandOffsetFromUser {
 					case EMPTY -> throw new IllegalStateException();
 				};
 				double distToTarget = MathUtil.getAABBDistance(userEntity.getBoundingBox(), targetBox);
-				absoluteOffset = offsetNormalized.scale(distToTarget);
+				offsetLenNew = distToTarget;
+			}
+			
+			if (lerp) { // makes the stand moving back and forth in close spaces a bit less jagged, esp in 1st person
+				if (clPrevOffsetDist >= 0) {
+					offsetLenNew = Mth.clamp(offsetLenNew, 
+							clPrevOffsetDist - 0.25, 
+							clPrevOffsetDist + 0.25);
+				}
+				clPrevOffsetDist = offsetLenNew;
+			}
+			
+			if (offsetLenNew != offsetLen) {
+				absoluteOffset = offsetNormalized.scale(offsetLenNew);
 			}
 		}
 		
