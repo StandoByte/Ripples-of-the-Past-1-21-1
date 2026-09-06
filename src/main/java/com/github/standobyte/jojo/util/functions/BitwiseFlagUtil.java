@@ -108,4 +108,60 @@ public class BitwiseFlagUtil {
 	public static boolean get(long stored, Enum<?> enumConstant) {
 		return get(stored, enumConstant.ordinal());
 	}
+	
+	
+	// Network helper
+	
+	public static byte packUpTo8Flags(boolean... flags) {
+		byte num = 0;
+		for (int i = 0; i < flags.length; i++) {
+			num = set(num, i, flags[i]);
+		}
+		return num;
+	}
+	
+	public static boolean[] unpack(byte received, int count) {
+		boolean[] flags = new boolean[count];
+		for (int i = 0; i < count; i++) {
+			flags[i] = get(received, i);
+		}
+		return flags;
+	}
+	
+	
+	public static short packUpTo16Flags(boolean... flags) {
+		short num = 0;
+		for (int i = 0; i < flags.length; i++) {
+			num = set(num, i, flags[i]);
+		}
+		return num;
+	}
+	
+	public static boolean[] unpack(short received, int count) {
+		boolean[] flags = new boolean[count];
+		for (int i = 0; i < count; i++) {
+			flags[i] = get(received, i);
+		}
+		return flags;
+	}
+	
+	
+	public static int packUpTo32Flags(boolean... flags) {
+		int num = 0;
+		for (int i = 0; i < flags.length; i++) {
+			num = set(num, i, flags[i]);
+		}
+		return num;
+	}
+	
+	public static boolean[] unpack(int received, int count) {
+		boolean[] flags = new boolean[count];
+		for (int i = 0; i < count; i++) {
+			flags[i] = get(received, i);
+		}
+		return flags;
+	}
+	
+	// 33+ flags are unlikely, and might as well use BitSet in that case
+	
 }
