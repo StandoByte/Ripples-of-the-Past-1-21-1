@@ -4709,6 +4709,71 @@
 				"3.125": "phase = RECOVERY;"
 			}
 		},
+		"guard": {
+			"loop": "hold_on_last_frame",
+			"bones": {
+				"body": {
+					"rotation": {
+						"vector": [-10, 0, 0]
+					}
+				},
+				"torso_bend": {
+					"rotation": {
+						"vector": [20, 0, 0]
+					}
+				},
+				"head": {
+					"rotation": {
+						"vector": [-5, 0, 0]
+					}
+				},
+				"head_rot": {
+					"rotation": {
+						"vector": ["query.head_x_rotation", "query.head_y_rotation", 0]
+					}
+				},
+				"left_arm": {
+					"rotation": {
+						"vector": [-90, 0, 45]
+					}
+				},
+				"left_arm_bend": {
+					"rotation": {
+						"vector": [0, 0, 60]
+					}
+				},
+				"right_arm": {
+					"rotation": {
+						"vector": [-90, 0, -45]
+					}
+				},
+				"right_arm_bend": {
+					"rotation": {
+						"vector": [0, 0, -60]
+					}
+				},
+				"left_leg": {
+					"rotation": {
+						"vector": [0.74992, -16.88606, -12.30217]
+					}
+				},
+				"left_leg_bend": {
+					"rotation": {
+						"vector": [17, 0, 0]
+					}
+				},
+				"right_leg": {
+					"rotation": {
+						"vector": [10.84175, 24.21385, 17.86993]
+					}
+				},
+				"right_leg_bend": {
+					"rotation": {
+						"vector": [21.32615, 0, 0]
+					}
+				}
+			}
+		},
 		"repair_item": {
 			"loop": true,
 			"animation_length": 0.0417,
