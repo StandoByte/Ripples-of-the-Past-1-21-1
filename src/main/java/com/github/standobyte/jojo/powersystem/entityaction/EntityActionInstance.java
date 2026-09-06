@@ -193,6 +193,7 @@ public class EntityActionInstance implements HeldInput {
 	public boolean onStandUnsummonCommand(LivingEntity user, StandPower standPower, StandType standType) {
 		if ((phase == ActionPhase.BUTTON_CHARGE || phase == ActionPhase.WINDUP) && this.canBeCancelledInto(null)) {
 			forceStop();
+			syncPhaseChanges();
 		}
 		return true;
 	}
