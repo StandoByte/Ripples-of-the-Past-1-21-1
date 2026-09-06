@@ -10,6 +10,7 @@
 	
     "damage.DamageSourceMixin",
 	"damage.LivingEntityMixin",
+	"damage.ServerLevelDamageBroadcast",
 	"damage.SweepingKnockbackStandEntityPatch",
     "grab.LivingEntityMixin",
 
@@ -132,6 +133,7 @@
     "client.standshader.MinecraftMixin",
     "client.standshader.AddRenderStageLevelRendererMixin",
     "client.standshader.aura.ModelCubeMixin",
+	"client.damage.GameRendererDamageFlinch",
 	"client.text.icon.FontSetMixin",
 	"client.text.icon.FontStrintRenderOutputMixin",
 	"client.text.tooltip.GuiGraphicsMixin",

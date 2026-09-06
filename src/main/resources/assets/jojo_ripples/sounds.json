@@ -350,9 +350,9 @@
     "subtitle": "jojo_ripples.subtitle.stand_unsummon",
     "sounds": [ "jojo_ripples:stand_unsummon" ]
   },
-  "stand_damage_block": {
-    "subtitle": "jojo_ripples.subtitle.stand_damage_block",
-    "sounds": [ "jojo_ripples:attack_block_1", "jojo_ripples:attack_block_2" ]
+  "stand_damage_guard": {
+    "subtitle": "jojo_ripples.subtitle.stand_damage_guard",
+    "sounds": [ "jojo_ripples:damage_guard" ]
   },
   "stand_punch_light": {
     "subtitle": "jojo_ripples.subtitle.stand_attack_light",

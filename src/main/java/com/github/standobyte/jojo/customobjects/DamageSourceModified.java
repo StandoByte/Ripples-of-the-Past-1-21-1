@@ -9,23 +9,45 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.damagesource.DamageContainer;
 import net.neoforged.neoforge.event.entity.living.LivingKnockBackEvent;
+import net.neoforged.neoforge.event.level.ExplosionEvent;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID)
 public interface DamageSourceModified {
 	void jojo_ripples$modifyKnockback(float add, float multiply);
 	void jojo_ripples$verticalKnockback(float strength, float angleRatio);
+	void jojo_ripples$setDisableKBImpact(boolean flag);
+	void jojo_ripples$trackCausingExplosion(Explosion explosion);
+	
+	void jojo_ripples$setNoHurtSound(boolean flag);
+	void jojo_ripples$setNoFlinchModelAnim(boolean flag);
+	void jojo_ripples$setCameraTiltMultiplier(float multiplier);
 	
 	float jojo_ripples$knockbackMultiplier();
 	float jojo_ripples$addKnockback();
 	float jojo_ripples$verticalKnockbackStrength();
 	float jojo_ripples$verticalKnockbackAngleRatio();
+	boolean jojo_ripples$getDisabledKBImpact();
+	@Nullable Explosion jojo_ripples$getCausingExplosion();
 	
+	boolean jojo_ripples$getNoHurtSound();
+	boolean jojo_ripples$getNoFlinchModelAnim();
+	float jojo_ripples$getCameraTiltMultiplier();
+
+	
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	public static void trackCausingExplosion(ExplosionEvent.Detonate event) {
+		Explosion explosion = event.getExplosion();
+		if (explosion.damageSource != null) {
+			((DamageSourceModified) explosion.damageSource).jojo_ripples$trackCausingExplosion(explosion);
+		}
+	}
 	
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void _onKnockbackEvent(LivingKnockBackEvent event) {

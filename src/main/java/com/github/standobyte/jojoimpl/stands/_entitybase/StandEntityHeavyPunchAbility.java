@@ -242,12 +242,14 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 						}
 					}
 
-					Entity _knockedBack = knockedBack;
-					KnockbackCollisionImpact kbImpact = KnockbackCollisionImpact.getHandler(_knockedBack);
-					if (kbImpact != null) {
-						kbImpact
-						.onPunchSetKnockbackImpact(_knockedBack.getDeltaMovement(), stand)
-						.withImpactExplosion(explRadius, null, 0);
+					DamageSourceModified _dmgSource = (DamageSourceModified) dmgSource;
+					if (!_dmgSource.jojo_ripples$getDisabledKBImpact()) {
+						KnockbackCollisionImpact kbImpact = KnockbackCollisionImpact.getHandler(knockedBack);
+						if (kbImpact != null) {
+							kbImpact
+							.onPunchSetKnockbackImpact(knockedBack.getDeltaMovement(), stand)
+							.withImpactExplosion(explRadius, null, 0);
+						}
 					}
 				}
 			}

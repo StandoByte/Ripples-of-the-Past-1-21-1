@@ -16,6 +16,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.netcode.SyncType;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionInstancePacket;
 import com.github.standobyte.jojo.powersystem.entityaction.syncdata.SyncActionInstanceData;
 import com.github.standobyte.jojo.subsystems.target.ActionTargetAim;
+import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityGuardAbility;
 
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
@@ -141,7 +142,8 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 	
 	protected void tickAction() {
 		action._tickAction();
-		if (action.isOver()) {
+		if (action.isOver()
+				&& !StandEntityGuardAbility.onStandActionOver(entity, this)) {
 			setAction(null, null, SyncType.NO_SYNC);
 		}
 	}

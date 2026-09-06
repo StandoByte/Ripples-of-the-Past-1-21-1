@@ -59,7 +59,7 @@ public class StandInitCrazyDiamond {
 					punch.initIsFinisher("grab_heavy_punch");
 				})
 
-//				.addAbility("guard", ModStandAbilities.GUARD)
+				.addAbility("guard", ModStandAbilities.GUARD)
 //				.addAbility("leap", ModStandAbilities.STAND_LEAP)
 				.addAbility("block_toss", ModStandAbilities.BLOCK_TOSS)
 				.addAbility("bearing_shot", ModStandAbilities.BEARING_SHOT)
@@ -85,6 +85,7 @@ public class StandInitCrazyDiamond {
 					.bind("barrage", InputMethod.HOLD, InputKey.LMB)
 					.bind("heavy_punch", InputMethod.CLICK, InputKey.RMB)
 					.bind("heavy_charged", InputMethod.HOLD, InputKey.RMB)
+					.bind("guard", InputMethod.CLICK, InputKey.MMB)
 					.bind("grab", InputMethod.CLICK, InputKey.RMB.withModifier(InputKey.Modifier.CONTROL))
 					.bind("block_toss", InputMethod.HOLD, InputKey.LMB)
 	
@@ -107,6 +108,7 @@ public class StandInitCrazyDiamond {
 					.bind("barrage", InputMethod.HOLD, InputKey.LMB)
 					.bind("heavy_punch", InputMethod.CLICK, InputKey.RMB)
 					.bind("heavy_charged", InputMethod.HOLD, InputKey.RMB)
+					.bind("guard", InputMethod.CLICK, InputKey.MMB)
 					.bind("grab", InputMethod.CLICK, InputKey.RMB.withModifier(InputKey.Modifier.CONTROL))
 					.bind("block_toss", InputMethod.HOLD, InputKey.LMB)
 	
@@ -135,7 +137,7 @@ public class StandInitCrazyDiamond {
 				.addSkill(StandUnlockableSkill.startingAbility("grab").setIncomplete())
 				.addSkill(StandUnlockableSkill.startingAbility("block_toss").setIncomplete())
 				
-				.addSkill(StandUnlockableSkill.startingAbility("guard").setNotYetImplemented())
+				.addSkill(StandUnlockableSkill.startingAbility("guard").setIncomplete())
 				
 				.addSkill(StandUnlockableSkill.startingAbility("repair_item"))
 

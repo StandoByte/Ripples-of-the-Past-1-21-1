@@ -45,6 +45,7 @@ import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.jojo.util.functions.MathUtil.AABBDist;
 import com.github.standobyte.jojo.util.functions.UtilFunctions;
 import com.github.standobyte.jojo.util.objects_mc.PrevRotations;
+import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityGuardAbility;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityUnsummonAction;
 
 import net.minecraft.commands.arguments.EntityAnchorArgument;
@@ -70,6 +71,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
@@ -90,11 +92,13 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.damagesource.DamageContainer;
+import net.neoforged.neoforge.common.util.Lazy;
 import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
 import net.neoforged.neoforge.event.entity.living.LivingKnockBackEvent;
@@ -710,6 +714,10 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		return standAction;
 	}
 	
+	public void setAction(EntityActionInstance action) {
+		standAction.setAction(action, getUser(), SyncType.TRACKING_AND_SELF);
+	}
+	
 	@Override
 	public boolean onActionSet(@Nullable EntityActionInstance action) {
 		if (action != null) {
@@ -912,13 +920,62 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	
 	
 	@Override
-	public void push(Entity entity) {}
+	public void pushEntities() {
+		Level level = level();
+		if (level.isClientSide()) {
+			level.getEntities(EntityTypeTest.forClass(Player.class), getBoundingBox(), this::entityCanBePushed).forEach(this::doPush);
+		} else {
+			List<Entity> toBePushed = this.level().getEntities(this, getBoundingBox(), this::entityCanBePushed);
+			if (!toBePushed.isEmpty()) {
+				for (Entity target : toBePushed) {
+					push(target);
+				}
+			}
+		}
+	}
 	
+	private Lazy<Predicate<Entity>> vanillaPushableCheck = Lazy.of(() -> EntitySelector.pushableBy(this));
+	public boolean entityCanBePushed(Entity entity) {
+		return !entity.is(getUser())
+				&& !entity.is(LivingComponentGrab.getEntityGrabbedBy(this))
+				&& vanillaPushableCheck.get().test(entity);
+	}
+	
+	@Override
+	public void push(Entity entity) {
+		if (!this.isPassengerOfSameVehicle(entity)) {
+			if (!entity.noPhysics && !this.noPhysics) {
+				double xDiff = entity.getX() - this.getX();
+				double zDiff = entity.getZ() - this.getZ();
+				double d2 = Mth.absMax(xDiff, zDiff);
+				if (d2 >= 0.01F) {
+					d2 = Math.sqrt(d2);
+					xDiff /= d2;
+					zDiff /= d2;
+					double d3 = 1.0 / d2;
+					if (d3 > 1.0) d3 = 1.0;
+
+					xDiff *= d3;
+					zDiff *= d3;
+					xDiff *= 0.1F; // increased this coefficient a bit
+					zDiff *= 0.1F;
+					//if (!this.isVehicle() && this.isPushable()) { // nope
+					//	this.push(-xDiff, 0.0, -zDiff);
+					//}
+
+					if (!entity.isVehicle() && entity.isPushable()) {
+						entity.push(xDiff, 0.0, zDiff);
+					}
+				}
+			}
+		}
+	}
+
+	@Override
+	public void push(double x, double y, double z) {}
+
 	@Override
 	public boolean isPushable() { return false; }
-	
-	@Override
-	public void pushEntities() {}
 
 	@Override
 	public boolean isPickable() {
@@ -937,6 +994,14 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	}
 	
 	@Override
+	public boolean hurt(DamageSource dmgSource, float dmgAmount) {
+		if (StandEntityGuardAbility.onStandBeingAttackedByNonStandAttack(this, dmgSource, dmgAmount)) {
+			return false;
+		}
+		return super.hurt(dmgSource, dmgAmount);
+	}
+	
+	@Override
 	public boolean isInvulnerableTo(/*ServerLevel level, */DamageSource damageSource) {
 		LivingEntity user = getUser();
 		return user != null && (
@@ -948,41 +1013,15 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	
 	@Override
 	protected float getDamageAfterMagicAbsorb(DamageSource dmgSource, float dmgAmount) {
-		boolean isBlocking = isBlocking() && canBlockFromAngle(dmgSource.getSourcePosition());
 		dmgAmount = super.getDamageAfterMagicAbsorb(dmgSource, dmgAmount);
-		dmgAmount = standDamageResistance(dmgSource, dmgAmount, isBlocking);
+		dmgAmount = standDamageResistance(dmgSource, dmgAmount);
 		this.damageContainers.peek().setNewDamage(dmgAmount);
 		return dmgAmount;
 	}
 
-	protected float standDamageResistance(DamageSource dmgSource, float dmgAmount, boolean isBlocking) {
+	protected float standDamageResistance(DamageSource dmgSource, float dmgAmount) {
 		if (!dmgSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
-			float blockedRatio = 0;
-			// TODO stand guard
-			// TODO (stand guard) cancel user hurt sound when blocking an attack
-//			if (isBlocking && userPower != null) {
-//				blockedRatio = 1F;
-//				if (userPower.usesStamina()) {
-//					float staminaCost = StandStatFormulas.getBlockStaminaCost(dmgAmount);
-//					float stamina = userPower.getStamina();
-//					if (!userPower.consumeStamina(staminaCost)) {
-//						blockedRatio = stamina / staminaCost;
-//						standCrash();
-//					}
-//				}
-//			}
-//			Float multiplier = getCurrentTask().map(task -> task.getAction()
-//					.getDamageBlockMultiplier(userPower, this, task)).orElse(null);
-//			if (multiplier != null && multiplier != 0) {
-//				blockedRatio += (1 - blockedRatio) * multiplier;
-//			}
-//			if (blockedRatio >= 1) {
-//				wasDamageBlocked = true;
-//				if (dmgSource.getEntity() instanceof StandEntity) {
-//					((StandEntity) dmgSource.getEntity()).playPunchSound = false;
-//				}
-//			}
-			float standResistanceDamage = dmgAmount * (1 - getPhysicalResistance(blockedRatio, dmgAmount));
+			float standResistanceDamage = dmgAmount * (1 - getPhysicalResistance(dmgAmount));
 			LivingEntity user = getUser();
 			if (user != null) {
 				float hypotheticalUserDamage = DamageUtil.damageEntityWillTake(user, dmgSource, 
@@ -996,8 +1035,8 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		return dmgAmount;
 	}
 
-	protected float getPhysicalResistance(float blockedRatio, float damageDealt) {
-		return StandStatFormulas.getPhysicalResistance(getDurability(), getAttackDamage(), blockedRatio, damageDealt);
+	protected float getPhysicalResistance(float damageDealt) {
+		return StandStatFormulas.getPhysicalResistance(getDurability(), getAttackDamage());
 	}
 	
 	@Override
@@ -1014,7 +1053,15 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			if (user != null) {
 				DamageContainer currentlyTakingDamage = !damageContainers.empty() ? damageContainers.peek() : null;
 				if (currentlyTakingDamage != null && this.getHealth() - currentlyTakingDamage.getNewDamage() == newHealthValue) { // this means it is *very* likely being called in LivingEntity#actuallyHurt
-					user.hurt(new StandLinkDamageSource(level, this, currentlyTakingDamage.getSource()), currentlyTakingDamage.getNewDamage());
+					DamageSource actualDmgSource = currentlyTakingDamage.getSource();
+					DamageSource dmgSourceToUser = new StandLinkDamageSource(level, this, actualDmgSource);
+					DamageSourceModified _actualDmgSource = (DamageSourceModified) actualDmgSource;
+					DamageSourceModified _dmgSourceToUser = (DamageSourceModified) dmgSourceToUser;
+					if (_actualDmgSource.jojo_ripples$getNoHurtSound()) _dmgSourceToUser.jojo_ripples$setNoHurtSound(true);
+					if (_actualDmgSource.jojo_ripples$getNoFlinchModelAnim()) _dmgSourceToUser.jojo_ripples$setNoFlinchModelAnim(true);
+					_dmgSourceToUser.jojo_ripples$setCameraTiltMultiplier(_actualDmgSource.jojo_ripples$getCameraTiltMultiplier());
+					
+					user.hurt(dmgSourceToUser, currentlyTakingDamage.getNewDamage());
 				}
 				else {
 					user.setHealth(newHealthValue);
@@ -1033,10 +1080,10 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		xRatio = event.getRatioX();
 		zRatio = event.getRatioZ();
 		strength *= 1.0F - (float) getAttributeValue(Attributes.KNOCKBACK_RESISTANCE);
-		if (isBlocking() && canBlockFromAngle(position().add(new Vec3(xRatio, 0, zRatio)))) {
-			double durabilityStat = getDurability();
-			strength *= StandStatFormulas.getBlockingKnockbackMult(durabilityStat);
-		}
+//		if (_isBlocking() && _canBlockFromAngle(position().add(new Vec3(xRatio, 0, zRatio)))) {
+//			double durabilityStat = getDurability();
+//			strength *= StandStatFormulas.getBlockingKnockbackMult(durabilityStat);
+//		}
 
 		if (strength > 0) {
 			hasImpulse = true;
@@ -1069,19 +1116,6 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	
 	public boolean isStandBlocking() {
 		return false;
-	}
-
-	public boolean canBlockFromAngle(Vec3 dmgPosition) {
-		// XXX disable blocking in time stop
-//		if (!this.canUpdate()) {
-//			return false;
-//		}
-		if (dmgPosition == null) {
-			return false;
-		}
-		Vec3 viewVec = getViewVector(1.0F);
-		Vec3 diffVec = dmgPosition.subtract(position()).normalize();
-		return diffVec.dot(viewVec) > 0.5;
 	}
 
 

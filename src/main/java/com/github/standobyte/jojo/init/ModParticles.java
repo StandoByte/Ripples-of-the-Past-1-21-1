@@ -13,6 +13,7 @@ public class ModParticles {
 
 
 	public static final DeferredHolder<ParticleType<?>, SimpleParticleType> BLOOD = PARTICLES.register("blood", () -> new SimpleParticleType(false));
+	public static final DeferredHolder<ParticleType<?>, SimpleParticleType> DAMAGE_GUARD = PARTICLES.register("damage_guard", () -> new SimpleParticleType(false));
 
 	public static final DeferredHolder<ParticleType<?>, SimpleParticleType> HAMON_SPARK = PARTICLES.register("hamon_spark", () -> new SimpleParticleType(false));
 	public static final DeferredHolder<ParticleType<?>, SimpleParticleType> HAMON_SPARK_BLUE = PARTICLES.register("hamon_spark_blue", () -> new SimpleParticleType(false));
