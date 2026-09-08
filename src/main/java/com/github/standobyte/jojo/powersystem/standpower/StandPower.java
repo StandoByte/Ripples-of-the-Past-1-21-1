@@ -59,9 +59,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	public void tick() {
 		super.tick();
 		tickStamina();
-		if (hasPower()) {
-			userStandEffects.tick();
-		}
+		userStandEffects.tick();
 		if (!user.level().isClientSide()) {
 			if (healingDamageFromArrow && !StandArrowItem.healArrowDamage(user)) {
 				healingDamageFromArrow = false;
