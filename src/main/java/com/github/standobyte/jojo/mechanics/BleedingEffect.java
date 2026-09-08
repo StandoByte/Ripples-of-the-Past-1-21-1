@@ -10,8 +10,13 @@ import com.github.standobyte.jojo.JojoModLivingVariables;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.customobjects.StatusEffectApplicable;
 import com.github.standobyte.jojo.customobjects.StatusEffectModified;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffect;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectsClass;
+import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectsMap;
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModStatusEffects;
+import com.github.standobyte.jojo.mechanics.blinding.BlindingEffect;
+import com.github.standobyte.jojo.mechanics.blinding.BlindingEffect.BlindingParticlesType;
 import com.github.standobyte.jojo.network.s2c.BloodParticlesPacket;
 import com.github.standobyte.jojo.util.functions.AttributeUtil;
 import com.github.standobyte.jojo.util.functions.DamageUtil;
@@ -21,6 +26,7 @@ import com.github.standobyte.jojoimpl.stands.crazydiamond.DriedBloodDropsEffect;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntitySelector;
@@ -96,7 +102,7 @@ public class BleedingEffect extends StatusEffectModified implements StatusEffect
 						}
 						splashBlood(entity.level(), particlesPos, effectLvl + 1, 
 								HP_REDUCTION_PER_LVL * (effectLvl + 1), 
-								OptionalInt.of(effectLvl), entity);
+								OptionalInt.of(effectLvl), entity, false);
 					}
 				}
 			}
@@ -119,14 +125,16 @@ public class BleedingEffect extends StatusEffectModified implements StatusEffect
 		JojoModLivingVariables.get(entity).bleedingParticlesPos = pos;
 	}
 
+	public static final float BLINDING_ANGLE_COS = Mth.cos((float) Math.PI / 3);
 	public static boolean splashBlood(Level level, Vec3 splashPos, double radius, 
-			float bleedAmount, OptionalInt bleedingEffectLvl, @Nullable LivingEntity ownerEntity) {
+			float bleedAmount, OptionalInt bleedingEffectLvlForSplashWithNoTargets, @Nullable LivingEntity ownerEntity, 
+			boolean addBlinding) {
 		if (level.isClientSide()) {
 			return false;
 		}
 
 		AABB aabb = new AABB(splashPos.subtract(radius, radius, radius), splashPos.add(radius, radius, radius));
-		List<Vec3> particlePos = new ArrayList<>();
+		List<Vec3> particleTargets = new ArrayList<>();
 		List<LivingEntity> entitiesAround = level.getEntitiesOfClass(LivingEntity.class, aabb, 
 				EntitySelector.ENTITY_STILL_ALIVE.and(EntitySelector.NO_SPECTATORS)
 				.and(entity -> {
@@ -136,7 +144,28 @@ public class BleedingEffect extends StatusEffectModified implements StatusEffect
 				}));
 		for (LivingEntity entity : entitiesAround) {
 			if (dropBloodOnEntity(ownerEntity, entity, bleedAmount)) {
-				particlePos.add(entity.getEyePosition(1.0F));
+				Vec3 targetPos = entity.getEyePosition(1.0F);
+				particleTargets.add(targetPos);
+
+				if (addBlinding) {
+					Vec3 vecFromTarget = splashPos.subtract(targetPos).normalize();
+					Vec3 targetLookVec = entity.getLookAngle();
+					float cos = (float) vecFromTarget.dot(targetLookVec);
+					
+					if (cos > BLINDING_ANGLE_COS) {
+						EntityCustomEffectsMap<EntityCustomEffect> effects = EntityCustomEffectsClass.getCustomEffects(entity, true);
+						if (effects != null) {
+							BlindingEffect bloodBlinding = new BlindingEffect();
+							bloodBlinding.initType(BlindingParticlesType.BLOOD);
+							
+							float distFactor = (float) Mth.clamp((radius - targetPos.distanceTo(splashPos)) / radius, 0, 1);
+							distFactor = Math.min(distFactor * 3 + 0.25f, 1);
+							bloodBlinding.ratio = (cos - BLINDING_ANGLE_COS) / (1 - BLINDING_ANGLE_COS) * distFactor;
+							
+							effects.addEffect(bloodBlinding);
+						}
+					}
+				}
 			}
 		}
 
@@ -167,15 +196,15 @@ public class BleedingEffect extends StatusEffectModified implements StatusEffect
 
 		ServerLevel serverLevel = (ServerLevel) level;
 		ChunkPos chunkPos = new ChunkPos(blockPos);
-		if (!particlePos.isEmpty()) {
+		if (!particleTargets.isEmpty()) {
 			int count = Math.min((int) (bleedAmount * 5), 50);
-			particlePos.forEach(posTo -> {
+			particleTargets.forEach(posTo -> {
 				PacketDistributor.sendToPlayersTrackingChunk(serverLevel, chunkPos, 
 						new BloodParticlesPacket(splashPos, posTo, 0.375f, count, ownerEntity != null ? ownerEntity.getId() : -1));
 			});
 		}
 		else {
-			bleedingEffectLvl.ifPresent(effectLvl -> {
+			bleedingEffectLvlForSplashWithNoTargets.ifPresent(effectLvl -> {
 				float speed = (Math.min(effectLvl, 3) + 1) * 0.09375f;
 				int lvl = (effectLvl + 1);
 				int count = 10 * lvl * lvl * lvl;
@@ -184,7 +213,7 @@ public class BleedingEffect extends StatusEffectModified implements StatusEffect
 			});
 		}
 
-		return !particlePos.isEmpty();
+		return !particleTargets.isEmpty();
 	}
 
 	private static boolean dropBloodOnEntity(@Nullable LivingEntity bleedingEntity, LivingEntity nearbyEntity, float bleedAmount) {

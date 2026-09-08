@@ -31,6 +31,8 @@ public class Bars {
 	public static final ResourceLocation BAR_HORIZONTAL_MINI_FILL = JojoMod.resLoc("textures/hud/bars/bar_horizontal_mini_fill.png");
 	public static final ResourceLocation BAR_VERTICAL_FILL = JojoMod.resLoc("textures/hud/bars/bar_vertical_fill.png");
 	public static final ResourceLocation BAR_VERTICAL_MINI_FILL = JojoMod.resLoc("textures/hud/bars/bar_vertical_mini_fill.png");
+	
+	public enum BarSize { REGULAR, MINI }
 
 	
 	public static void renderHorizontalBar(PoseStack poseStack, float x, float y, 

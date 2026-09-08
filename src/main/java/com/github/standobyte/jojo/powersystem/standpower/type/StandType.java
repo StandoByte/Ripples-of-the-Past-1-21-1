@@ -192,6 +192,8 @@ public class StandType extends PowerType {
 	
 	
 	public void onUserSummonCommand(LivingEntity user, StandPower standPower) {
+		if (user.level().isClientSide()) return;
+		
 		if (!standPower.isSummoned() && onTrySummon(user, standPower)) {
 			summon(user, standPower);
 		}
@@ -201,8 +203,8 @@ public class StandType extends PowerType {
 	}
 	
 	public boolean summon(LivingEntity user, StandPower standPower) {
-		if (!standPower.isSummoned() && standPower.canUsePower()) {
-			SummonedStand summonedStand = makeSummonedStand();
+		if (!standPower.isSummoned() && standPower.canUsePower() && hasSummonMechanic(standPower)) {
+			SummonedStand summonedStand = makeSummonedStand(standPower);
 			if (summonedStand == null) return false;
 			
 			standPower.setSummonedStand(summonedStand);
@@ -241,8 +243,12 @@ public class StandType extends PowerType {
 	/**
 	 * If this is overriden to return null, the Stand type will have no summon/unsummon mechanic.
 	 */
-	protected SummonedStand makeSummonedStand() {
+	protected SummonedStand makeSummonedStand(StandPower standPower) {
 		return makeSummonedStandObj != null ? makeSummonedStandObj.get() : null;
+	}
+	
+	public boolean hasSummonMechanic(StandPower standPower) {
+		return makeSummonedStandObj != null;
 	}
 	
 	public void unsummon(LivingEntity user, StandPower standPower) {
@@ -305,7 +311,7 @@ public class StandType extends PowerType {
 			LivingEntity standEntity = standPower.getSummonedStandEntity();
 			if (standEntity != null) {
 				EntityActionInstance action = LivingComponentAction.getCurEntityAction(standEntity);
-				if (action != null /* TODO regen stamina during stand unsummon */) {
+				if (action != null && !action.standRegensStamina) {
 					return 0;
 				}
 			}

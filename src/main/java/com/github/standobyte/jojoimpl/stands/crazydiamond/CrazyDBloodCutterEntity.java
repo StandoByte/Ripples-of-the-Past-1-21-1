@@ -42,19 +42,17 @@ public class CrazyDBloodCutterEntity extends ModdedProjectileEntity {
 	}
 
 	protected void breakProjectile(TargetType targetType, HitResult hitTarget) {
-		if (targetType != TargetType.ENTITY || ((EntityHitResult) hitTarget).getEntity() instanceof LivingEntity) {
-			super.breakProjectile(targetType, hitTarget);
-			splashBlood();
-		}
-	}
-
-	private void splashBlood() {
-		if (isInWaterOrBubble()) return;
 		Level level = level();
 		if (!level.isClientSide()) {
-			BleedingEffect.splashBlood(level, getBoundingBox().getCenter(), 4, 6.4F, OptionalInt.empty(), getOwner());
-			level.playSound(null, getX(), getY(), getZ(), ModSoundEvents.WATER_SPLASH.get(), getSoundSource(), 1.0F, 1.0F);
+			if (targetType == TargetType.ENTITY && ((EntityHitResult) hitTarget).getEntity() instanceof LivingEntity targetEntity) {
+				DriedBloodDropsEffect.onPossibleBloodSplash(true, getOwner(), targetEntity, 6.4f);
+			}
+			else if (!isInWaterOrBubble()) {
+				BleedingEffect.splashBlood(level, getBoundingBox().getCenter(), 4, 6.4F, OptionalInt.of(1), getOwner(), true);
+				level.playSound(null, getX(), getY(), getZ(), ModSoundEvents.WATER_SPLASH.get(), getSoundSource(), 1.0F, 1.0F);
+			}
 		}
+		super.breakProjectile(targetType, hitTarget);
 	}
 
 	@Override

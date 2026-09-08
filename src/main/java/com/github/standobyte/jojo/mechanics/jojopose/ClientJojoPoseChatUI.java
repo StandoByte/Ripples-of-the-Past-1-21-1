@@ -185,7 +185,7 @@ public class ClientJojoPoseChatUI {
         	HumanoidRenderState renderState = RenderModelWithPose.clearSetupPose(model, pose, player.tickCount + partialTick);
         	renderState.isBaby = player.isBaby();
         	LivingEntityRenderState.setUpsideDown(renderState, player);
-        	ExtractRSExtensionManually.extractClothes(player);
+        	HumanoidClothesLayer.beforeEntityRender(player, model);
         	
         	RenderModelWithPose.apply(renderState, model);
         	

@@ -2,12 +2,18 @@ package com.github.standobyte.jojo.client.util.functions;
 
 import java.util.List;
 
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+
 import com.github.standobyte.jojo.client.ClientTickHandler;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojoimpl.stands.theworld.timestop.client.TimeStopClientState;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexSorting;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -17,11 +23,14 @@ import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.TickRateManager;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.Item;
+import net.neoforged.neoforge.client.ClientHooks;
 
 public class ClientUtil {
 	public static final int MAX_LIGHT = 0xF000F0;
@@ -127,6 +136,28 @@ public class ClientUtil {
 					color);
 			poseStack.popPose();
 		}
+	}
+	
+	public static void applyCameraTransform(PoseStack stack){
+		Minecraft minecraft = Minecraft.getInstance();
+		Camera camera = minecraft.gameRenderer.getMainCamera();
+		float partialTick = minecraft.getTimer().getGameTimeDeltaPartialTick(true);
+		double d0 = ClientHooks.getFieldOfView(minecraft.gameRenderer, camera, partialTick, minecraft.options.fov().get().doubleValue(), true);
+		Matrix4f matrix4f = minecraft.gameRenderer.getProjectionMatrix(d0);
+		matrix4f.mul(stack.last().pose());
+		float f2 = minecraft.options.screenEffectScale().get().floatValue();
+		float f3 = Mth.lerp(partialTick, minecraft.player.oSpinningEffectIntensity, minecraft.player.spinningEffectIntensity) * f2 * f2;
+		if (f3 > 0.0F) {
+			int i = minecraft.player.hasEffect(MobEffects.CONFUSION) ? 7 : 20;
+			float f4 = 5.0F / (f3 * f3 + 5.0F) - f3 * 0.04F;
+			f4 *= f4;
+			Vector3f vector3f = new Vector3f(0.0F, Mth.SQRT_OF_TWO / 2.0F, Mth.SQRT_OF_TWO / 2.0F);
+			float f5 = (partialTick) * (float)i * (float) (Math.PI / 180.0);
+			matrix4f.rotate(f5, vector3f);
+			matrix4f.scale(1.0F / f4, 1.0F, 1.0F);
+			matrix4f.rotate(-f5, vector3f);
+		}
+		RenderSystem.setProjectionMatrix(matrix4f, VertexSorting.DISTANCE_TO_ORIGIN);
 	}
 
 	public static void addItemReferenceQuote(List<Component> tooltip, Item item) {

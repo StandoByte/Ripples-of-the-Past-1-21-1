@@ -31,7 +31,9 @@ import com.github.standobyte.jojo.network.s2c.DatapackStandsPacket;
 import com.github.standobyte.jojo.network.s2c.DeflectedBulletPacket;
 import com.github.standobyte.jojo.network.s2c.EntityDirectPosNoLerpPacket;
 import com.github.standobyte.jojo.network.s2c.EntitySyncMotionBypassingPacket;
+import com.github.standobyte.jojo.network.s2c.EntityToggleTagsPacket;
 import com.github.standobyte.jojo.network.s2c.ItemBreakVisualsPacket;
+import com.github.standobyte.jojo.network.s2c.ModdedProjectileBreakPacket;
 import com.github.standobyte.jojo.network.s2c.PowerDataUnlockedSkillsPacket;
 import com.github.standobyte.jojo.network.s2c.StandEntitySoundPacket;
 import com.github.standobyte.jojo.network.s2c.StandSkinSoundPacket;
@@ -111,6 +113,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClCommonServerConfigResetPacket.Handler(JojoMod.resLoc("clcfgreset")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClPlayerBroadcastConfigPacket.Handler(JojoMod.resLoc("clcfgsend")));
 
+        registerPacket(registrar, PayloadRegistrar::playToClient, new EntityToggleTagsPacket.Handler(JojoMod.resLoc("tag")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new DatapackStandsPacket.Handler(JojoMod.resLoc("datastands")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrAbilityUsePacket.Handler(JojoMod.resLoc("abilityuse")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrEntityActionInstancePacket.Handler(JojoMod.resLoc("action")));
@@ -155,6 +158,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new EntitySyncMotionBypassingPacket.Handler(JojoMod.resLoc("motfix")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new EntityDirectPosNoLerpPacket.Handler(JojoMod.resLoc("posfix")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrResetDeathTimePacket.Handler(JojoMod.resLoc("undeath")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new ModdedProjectileBreakPacket.Handler(JojoMod.resLoc("projbreak")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new DeflectedBulletPacket.Handler(JojoMod.resLoc("projdefl")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new BloodParticlesPacket.Handler(JojoMod.resLoc("blood")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new BrokenChunkBlocksPacket.Handler(JojoMod.resLoc("brokenblocks")));
@@ -173,6 +177,7 @@ public class PacketsRegister {
 		void handle(T payload, IPayloadContext context);
 	}
 	
+	// Dear addon devs, you do not have to copypaste a public interface, you can just implement this one for your packets.
 	public static interface PacketOGHandler<T extends CustomPacketPayload> extends PacketHandler<T> {
 		void encode(T packet, RegistryFriendlyByteBuf buf);
 		T decode(RegistryFriendlyByteBuf buf);

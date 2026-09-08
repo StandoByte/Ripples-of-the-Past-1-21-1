@@ -61,6 +61,7 @@ public class StandInitCrazyDiamond {
 
 //				.addAbility("guard", ModStandAbilities.GUARD)
 //				.addAbility("leap", ModStandAbilities.STAND_LEAP)
+				.addAbility("block_toss", ModStandAbilities.BLOCK_TOSS)
 				.addAbility("bearing_shot", ModStandAbilities.BEARING_SHOT)
 
 				.addAbility("leave_object", ModStandAbilities.CD_LEAVE_OBJECT_ON_PUNCH)
@@ -85,6 +86,7 @@ public class StandInitCrazyDiamond {
 					.bind("heavy_punch", InputMethod.CLICK, InputKey.RMB)
 					.bind("heavy_charged", InputMethod.HOLD, InputKey.RMB)
 					.bind("grab", InputMethod.CLICK, InputKey.RMB.withModifier(InputKey.Modifier.CONTROL))
+					.bind("block_toss", InputMethod.HOLD, InputKey.LMB)
 	
 					.bind("repair_item", InputMethod.HOLD, InputKey.C)
 					.bind("uncraft", InputMethod.HOLD, InputKey.I)
@@ -100,12 +102,13 @@ public class StandInitCrazyDiamond {
 
 
 				.makeControlScheme("keybinds")
+					.bind("bearing_shot", InputMethod.HOLD, InputKey.RMB)
 					.bind("punch", InputMethod.CLICK, InputKey.LMB)
 					.bind("barrage", InputMethod.HOLD, InputKey.LMB)
 					.bind("heavy_punch", InputMethod.CLICK, InputKey.RMB)
 					.bind("heavy_charged", InputMethod.HOLD, InputKey.RMB)
 					.bind("grab", InputMethod.CLICK, InputKey.RMB.withModifier(InputKey.Modifier.CONTROL))
-					.bind("bearing_shot", InputMethod.HOLD, InputKey.RMB)
+					.bind("block_toss", InputMethod.HOLD, InputKey.LMB)
 	
 					.bind("repair_item", InputMethod.HOLD, InputKey.C)
 					.bind("uncraft", InputMethod.HOLD, InputKey.I)
@@ -130,7 +133,7 @@ public class StandInitCrazyDiamond {
 				.addSkill(StandUnlockableSkill.unlockableAbility("leave_object", 200).setNotYetImplemented().prerequisiteSkill("heal", "heavy_charged"))
 
 				.addSkill(StandUnlockableSkill.startingAbility("grab").setIncomplete())
-				.addSkill(StandUnlockableSkill.startingAbility("block_toss").setNotYetImplemented())
+				.addSkill(StandUnlockableSkill.startingAbility("block_toss").setIncomplete())
 				
 				.addSkill(StandUnlockableSkill.startingAbility("guard").setNotYetImplemented())
 				

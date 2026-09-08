@@ -59,9 +59,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	public void tick() {
 		super.tick();
 		tickStamina();
-		if (hasPower()) {
-			userStandEffects.tick();
-		}
+		userStandEffects.tick();
 		if (!user.level().isClientSide()) {
 			if (healingDamageFromArrow && !StandArrowItem.healArrowDamage(user)) {
 				healingDamageFromArrow = false;
@@ -321,18 +319,11 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	}
 	
 	@Override
-	public void onPlayerClone(Player newPlayer, boolean wasDeath) {
-		super.onPlayerClone(newPlayer, wasDeath);
-		this.userStandEffects.onPlayerClone(newPlayer, wasDeath);
-	}
-	
-	@Override
 	protected void onPlayerCloneData(StandPower newEntityData, boolean wasDeath) {
 		super.onPlayerCloneData(newEntityData, wasDeath);
 		newEntityData.standInstance = this.standInstance;
 		newEntityData.staminaLerp = this.staminaLerp;
-		newEntityData.userStandEffects = this.userStandEffects;
-		newEntityData.userStandEffects.setPowerData(newEntityData);
+		newEntityData.userStandEffects.cloneEffects(this.userStandEffects);
 		newEntityData.userStandAwakeningState = this.userStandAwakeningState;
 	}
 	

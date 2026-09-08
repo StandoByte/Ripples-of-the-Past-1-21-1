@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.init;
 import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.customobjects.entity_projectile.BlockShardEntity;
+import com.github.standobyte.jojo.customobjects.entity_projectile.ThrownBlockEntity;
 import com.github.standobyte.jojo.customobjects.entity_projectile.ThrownNuggetBearingEntity;
 import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinEntity;
 import com.github.standobyte.jojo.mechanics.standarrow.StandArrowEntity;
@@ -65,6 +66,11 @@ public final class ModEntityTypes {
 	public static final DeferredHolder<EntityType<?>, EntityType<BlockShardEntity>> BLOCK_SHARD = ENTITY_TYPES.register("block_shard", key ->
 			EntityType.Builder.<BlockShardEntity>of(BlockShardEntity::new, MobCategory.MISC)
 			.sized(0.5F, 0.5F)
+			.build(createIDFor(key)));
+
+	public static final DeferredHolder<EntityType<?>, EntityType<ThrownBlockEntity>> THROWN_BLOCK = ENTITY_TYPES.register("thrown_block", key ->
+			EntityType.Builder.<ThrownBlockEntity>of(ThrownBlockEntity::new, MobCategory.MISC)
+			.sized(1.0f, 1.0f)
 			.build(createIDFor(key)));
 
 //	public static final DeferredHolder<EntityType<?>, EntityType<KnifeEntity>> KNIFE;

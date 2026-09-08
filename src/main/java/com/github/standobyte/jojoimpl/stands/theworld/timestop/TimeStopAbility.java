@@ -2,6 +2,8 @@ package com.github.standobyte.jojoimpl.stands.theworld.timestop;
 
 import java.util.stream.Stream;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.client.ui.hud_power.WindupIndicator;
 import com.github.standobyte.jojo.init.ModSpecialActions;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
@@ -154,7 +156,7 @@ public class TimeStopAbility extends EntityActionAbility {
 	}
 	
 	
-	public static void addTimeStopEffect(LivingEntity user, Ability ability, int duration, boolean stopWhenOtherTSEnds) {
+	public static void addTimeStopEffect(LivingEntity user, @Nullable Ability ability, int duration, boolean stopWhenOtherTSEnds) {
 		Level level = user.level();
 		if (!level.isClientSide()) {
 			StandPower standPower = StandPower.get(user);
@@ -162,7 +164,10 @@ public class TimeStopAbility extends EntityActionAbility {
 				// should be empty, but just in case
 				Stream<TimeStopEffect> oldEffects = standPower.userStandEffects.getEffectsOfType(ModStandAbilities.EFFECT_TIME_STOP.get());
 				TimeStopEffect timeStop = ModStandAbilities.EFFECT_TIME_STOP.get().create(level);
-				timeStop.timeStopAbility = ability.getAbilityId();
+				if (ability != null) {
+					timeStop.timeStopAbility = ability.getAbilityId();
+				}
+				timeStop.duration = duration;
 				standPower.userStandEffects.addEffect(timeStop);
 				oldEffects.forEach(effect -> {
 					effect.remove();

@@ -128,25 +128,24 @@ public class VanillaKeybinds {
 		InputHandler inputHandler = InputHandler.getInstance();
 		boolean isFrozen = mc.player != null && TimeStopEffect.getIsFrozenInTime(mc.player);
 		
-		if (standArmsOnlyHUD.consumeClick()) {
-			inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.STAND ? PowerClass.STAND : null;
-		}
-		
 		if (playerPowerHUD.consumeClick()) {
 			inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.PLAYER_POWER ? PowerClass.PLAYER_POWER : null;
 		}
 		
-		if (!isFrozen && summonStand.consumeClick()) {
-			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
-			StandType standType = standPower.getPowerType();
-			if (standType != null) {
-				if (standType.hasSummonMechanic) {
-					PacketDistributor.sendToServer(ClNoParamsPacket.of(PacketType.SUMMON_STAND));
-				}
-				else {
-					inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.STAND ? PowerClass.STAND : null;
-				}
+		boolean toggleStandModeHud = standArmsOnlyHUD.consumeClick();
+		StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+		StandType standType = standPower != null ? standPower.getPowerType() : null;
+		boolean hasSummonMechanic = standType != null && standType.hasSummonMechanic(standPower);
+		if (hasSummonMechanic) {
+			if (!isFrozen && summonStand.consumeClick()) {
+				PacketDistributor.sendToServer(ClNoParamsPacket.of(PacketType.SUMMON_STAND));
 			}
+		}
+		else if (summonStand.consumeClick()) {
+			toggleStandModeHud = true;
+		}
+		if (toggleStandModeHud) {
+			inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.STAND ? PowerClass.STAND : null;
 		}
 		
 		if (JojoMod.config.getClient().toggleDisableHotbars.getAsBoolean() && disableHUDControls.consumeClick()) {

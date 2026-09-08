@@ -11,6 +11,7 @@ import com.github.standobyte.jojo.client.entityrender.entities.MannequinRenderer
 import com.github.standobyte.jojo.client.entityrender.entities.SimpleEntityModel;
 import com.github.standobyte.jojo.client.entityrender.entities.SimpleEntityRenderer;
 import com.github.standobyte.jojo.client.entityrender.entities.StandArrowRenderer;
+import com.github.standobyte.jojo.client.entityrender.entities.ThrownBlockRenderer;
 import com.github.standobyte.jojo.client.entityrender.entities.v1_21_2plus.MannequinModel_1_21_2plus;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -47,6 +48,7 @@ public class ModEntityTypeRenderers {
 		event.registerEntityRenderer(ModEntityTypes.HUMANOID_STAND.get(), StandEntityRenderer::new);
 		event.registerEntityRenderer(ModEntityTypes.MANNEQUIN.get(), MannequinRenderer::new);
 		event.registerEntityRenderer(ModEntityTypes.BLOCK_SHARD.get(), BlockShardRenderer::new);
+		event.registerEntityRenderer(ModEntityTypes.THROWN_BLOCK.get(), ThrownBlockRenderer::new);
 		event.registerEntityRenderer(ModEntityTypes.BULLET.get(), BulletRenderer::new);
 		event.registerEntityRenderer(ModEntityTypes.NUGGET_BEARING.get(), ctx -> new ThrownItemRenderer<>(ctx, 0.5f, false));
 		event.registerEntityRenderer(ModEntityTypes.CD_BLOOD_CUTTER.get(), ctx -> new SimpleEntityRenderer<>(ctx)
@@ -120,6 +122,7 @@ public class ModEntityTypeRenderers {
 	
 	
 	
+	// Dear addon devs, if a method is public and static, you do not have to copypaste it, you can just call this one.
 	@SuppressWarnings("unchecked")
 	public static <T extends LivingEntity, M extends HumanoidModel<T>> Optional<LivingEntityRenderer<T, M>> castToHumanoid(EntityRenderer<?> renderer) {
 		if (renderer instanceof LivingEntityRenderer livingRenderer && livingRenderer.getModel() instanceof HumanoidModel /* && renderer.reusedState instanceof HumanoidRenderState*/) {

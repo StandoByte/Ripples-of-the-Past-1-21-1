@@ -1,6 +1,6 @@
 package com.github.standobyte.jojoimpl.stands.theworld.timestop.client;
 
-import com.github.standobyte.jojo.client.shader.CustomLevelRenderStages;
+import com.github.standobyte.jojo.client.CustomLevelRenderStages;
 import com.github.standobyte.jojo.client.shader.core.ManualInitPostChain;
 import com.github.standobyte.jojo.client.shader.core.RotpShader;
 import com.github.standobyte.jojo.core.JojoMod;

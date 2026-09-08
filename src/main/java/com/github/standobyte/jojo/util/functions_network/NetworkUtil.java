@@ -165,6 +165,7 @@ public class NetworkUtil {
 		}
 	}
 	
+	// FriendlyByteBuf has had this method on this version all this time... </3
 	public static <T, B extends FriendlyByteBuf> void writeOptional(@Nullable Optional<T> value, B buf, StreamEncoder<? super B, T> writer) {
 		if (value.isPresent()) {
 			buf.writeBoolean(true);

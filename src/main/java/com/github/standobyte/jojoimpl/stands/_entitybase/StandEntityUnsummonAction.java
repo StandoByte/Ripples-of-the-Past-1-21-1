@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType
 import com.github.standobyte.jojo.powersystem.entityaction.type.SpecialEntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -34,6 +35,8 @@ public class StandEntityUnsummonAction extends SpecialEntityActionType {
 	}
 
 	public static class StandUnsummonInstance extends EntityActionInstance {
+		public boolean moveTowardsPlayer = true;
+		public boolean isForced = false;
 		protected boolean playedSound = false;
 
 		public StandUnsummonInstance() {
@@ -45,6 +48,11 @@ public class StandEntityUnsummonAction extends SpecialEntityActionType {
 			super(ability);
 			phasesLength.put(ActionPhase.PERFORM, UNSUMMON_TICKS);
 			phasesLength.put(ActionPhase.RECOVERY, 999999); // this way the action stays on the client side and keeps setting stand alpha to 0
+			standRegensStamina = true;
+		}
+		
+		public void initDuration(int ticks) {
+			phasesLength.put(ActionPhase.PERFORM, ticks);
 		}
 		
 		@Override
@@ -81,21 +89,23 @@ public class StandEntityUnsummonAction extends SpecialEntityActionType {
 					}
 				}
 				
-				Vec3 offsetVec = standEntity.offsetFromUser.relativeOffset;
-				if (offsetVec != null) {
-					double offsetDist = offsetVec.lengthSqr();
-					if (offsetDist > MIN_OFFSET * MIN_OFFSET) {
-						offsetDist = Math.sqrt(offsetDist);
-						standEntity.offsetFromUser.relativeOffset = offsetVec.scale(
-								Math.max((offsetDist - OFFSET_REDUCE_PER_TICK), MIN_OFFSET) / offsetDist);
+				if (moveTowardsPlayer) {
+					Vec3 offsetVec = standEntity.offsetFromUser.relativeOffset;
+					if (offsetVec != null) {
+						double offsetDist = offsetVec.lengthSqr();
+						if (offsetDist > MIN_OFFSET * MIN_OFFSET) {
+							offsetDist = Math.sqrt(offsetDist);
+							standEntity.offsetFromUser.relativeOffset = offsetVec.scale(
+									Math.max((offsetDist - OFFSET_REDUCE_PER_TICK), MIN_OFFSET) / offsetDist);
+						}
 					}
 				}
 				super._incPhaseTick();
 			}
 		}
 		
-		public static boolean canTickUnsummon(StandEntity standEntity) {
-			return standEntity.isCloseToUser() || standEntity.isFollowingUser();
+		protected boolean canTickUnsummon(StandEntity standEntity) {
+			return !moveTowardsPlayer || standEntity.isCloseToUser() || standEntity.isFollowingUser();
 		}
 
 		@Override
@@ -111,6 +121,14 @@ public class StandEntityUnsummonAction extends SpecialEntityActionType {
 		
 		@Override
 		public boolean canBeCancelledInto(EntityActionType cancellingAbility) {
+			return !this.isForced;
+		}
+		
+		@Override
+		public boolean onStandUnsummonCommand(LivingEntity user, StandPower standPower, StandType standType) {
+			if (!this.isForced) {
+				standType.forceUnsummon(user, standPower);
+			}
 			return true;
 		}
 		

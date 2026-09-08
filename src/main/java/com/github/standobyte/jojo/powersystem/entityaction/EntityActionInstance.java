@@ -17,10 +17,12 @@ import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.powersystem.ability.AbilityUsageGroup;
 import com.github.standobyte.jojo.powersystem.entityaction.netcode.TrEntityActionPhaseTimePacket;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.effect.StandEffectInstance;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.subsystems.target.ActionTarget;
 import com.github.standobyte.jojo.subsystems.target.AimingEntity;
 import com.github.standobyte.jojo.util.functions.DamageUtil;
@@ -54,7 +56,7 @@ public class EntityActionInstance implements HeldInput {
 	@ApiStatus.Internal public Object2FloatMap<ActionPhase> phasesLength = new Object2FloatArrayMap<>();
 	@ApiStatus.Internal @Nullable public Object2FloatMap<ActionPhase> skippedWindupPhase = null;
 	
-	public SynchedDataHelper synchedData = new SynchedDataHelper("act", this, () -> this.level().isClientSide());
+	public SynchedDataHelper synchedData = new SynchedDataHelper("act", this, () -> this.performer);
 	
 	@ApiStatus.Internal @Nonnull public ActionPhase phase;
 	@ApiStatus.Internal public int curPhaseTick;
@@ -72,6 +74,7 @@ public class EntityActionInstance implements HeldInput {
 	@Nullable protected List<StandEffectInstance> punchModifiers;
 	
 	public float userWalkSpeed = 1;
+	public boolean standRegensStamina = false;
 	
 	public EntityActionInstance(EntityActionType ability) {
 		this.ability = ability;
@@ -185,6 +188,14 @@ public class EntityActionInstance implements HeldInput {
 		return punchModifiers;
 	}
 
+
+	/** @return true if the base logic of unsummoning the Stand should be cancelled. */
+	public boolean onStandUnsummonCommand(LivingEntity user, StandPower standPower, StandType standType) {
+		if ((phase == ActionPhase.BUTTON_CHARGE || phase == ActionPhase.WINDUP) && this.canBeCancelledInto(null)) {
+			forceStop();
+		}
+		return true;
+	}
 
 	// Some helper methods to write less boilerplate in Stand abilities
 	

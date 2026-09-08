@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.CustomLevelRenderStages;
 import com.github.standobyte.jojo.client.shader.core.RotpShader;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.google.gson.JsonSyntaxException;

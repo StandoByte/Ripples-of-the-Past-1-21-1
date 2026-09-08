@@ -562,6 +562,7 @@
   "jojo_ripples.skill.block_toss.desc": "Throw the block held by your Stand as a makeshift ranged weapon.",
   "jojo_ripples.skill.block_toss.controls": "Hold \uEAFE while Stand is holding a block",
   "jojo_ripples.ability.block_toss": "Block Toss",
+  "entity.jojo_ripples.thrown_block": "Thrown Block",
   
   "jojo_ripples.skill.grab_throw": "Throw",
   "jojo_ripples.skill.grab_throw.desc": "Put all of your Stand's strength into throwing the grabbed enemy far away.",

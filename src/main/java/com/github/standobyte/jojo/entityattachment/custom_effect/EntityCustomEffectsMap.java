@@ -1,6 +1,8 @@
 package com.github.standobyte.jojo.entityattachment.custom_effect;
 
 import java.util.Collection;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.jetbrains.annotations.ApiStatus;
 
@@ -42,12 +44,7 @@ public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements Tic
 		}
 	}
 	
-	protected Entity getEntity() {
-		return entity;
-	}
-	
 	public void addEffect(T instance) {
-		Entity entity = getEntity();
 		putEffectInstance(instance);
 		instance.onStart();
 		
@@ -59,8 +56,30 @@ public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements Tic
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public <T2 extends T> Stream<T2> getEffectsOfType(EntityCustomEffectType<T2> type) {
+		return (Stream<T2>) getEffects().stream().filter(e -> e.effectType == type);
+	}
+
+	public <T2 extends T> Optional<T2> getEffectOfType(EntityCustomEffectType<T2> type) {
+		return getEffectsOfType(type).findFirst();
+	}
+	
+	public <T2 extends T> T2 getOrCreateEffect(EntityCustomEffectType<T2> effectType) {
+		Optional<T2> effect = getEffectOfType(effectType);
+		if (effect.isPresent()) {
+			return effect.get();
+		}
+		else {
+			T2 newEffect = effectType.create(entity.level());
+			addEffect(newEffect);
+			return newEffect;
+		}
+	}
+
+
 	protected void putEffectInstance(T instance) {
-		instance.withEntity(getEntity());
+		instance.withEntity(entity);
 		effects.put(instance.getId(), instance);
 	}
 	
@@ -70,7 +89,7 @@ public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements Tic
 
 	public void removeEffect(T instance) {
 		if (instance != null) {
-			onEffectRemoved(instance);
+			onEffectRemoved(instance, true);
 			effects.remove(instance.getId());
 		}
 	}
@@ -86,7 +105,6 @@ public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements Tic
 			return;
 		}
 
-		Entity entity = getEntity();
 		Level level = entity.level();
 		var it = effects.int2ObjectEntrySet().iterator();
 		while (it.hasNext()) {
@@ -98,7 +116,7 @@ public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements Tic
 				}
 			}
 			if (effect.isStopped()) {
-				onEffectRemoved(effect);
+				onEffectRemoved(effect, true);
 				it.remove();
 			}
 		}
@@ -110,9 +128,8 @@ public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements Tic
 	}
 
 	@ApiStatus.Internal
-	protected void onEffectRemoved(T instance) {
+	protected void onEffectRemoved(T instance, boolean removeFromAuxiliaryMap) {
 		instance.onStop();
-		Entity entity = getEntity();
 		if (!entity.level().isClientSide()) {
 			PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, TrEntityCustomEffectsPacket.remove(effectsClass, instance));
 		}
@@ -120,7 +137,19 @@ public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements Tic
 
 
 	@Override
-	public void onPlayerClone(Player newPlayer, boolean wasDeath) {}
+	public void onPlayerClone(Player newPlayer, boolean wasDeath) {
+		EntityCustomEffectsMap<T> oldEffects = (EntityCustomEffectsMap<T>) this.effectsClass.get(newPlayer, false);
+		if (oldEffects != null) {
+			cloneEffects(oldEffects);
+		}
+	}
+	
+	@ApiStatus.Internal
+	public void cloneEffects(EntityCustomEffectsMap<T> oldEffects) {
+		this.effects.clear();
+		this.effects.putAll(oldEffects.effects);
+		this.effects.values().forEach(effect -> effect.withEntity(this.entity));
+	}
 
 	@Override
 	public void syncToPlayer(ServerPlayer entityAsPlayer) {
@@ -168,7 +197,6 @@ public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements Tic
 	@Override
 	public void deserializeNBT(HolderLookup.Provider registries, CompoundTag nbt) {
 		if (nbt.contains("Effects", Tag.TAG_LIST)) {
-			Entity entity = getEntity();
 			Level level = entity.level();
 			nbt.getList("Effects", Tag.TAG_COMPOUND).forEach(effectNBT -> {
 				T effect = (T) EntityCustomEffect.fromNBT((CompoundTag) effectNBT, registries, level);
@@ -193,7 +221,7 @@ public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements Tic
 		while (it.hasNext()) {
 			T effect = it.next().getValue();
 			if (effect.removeOnUserDeath) {
-				onEffectRemoved(effect);
+				onEffectRemoved(effect, true);
 				it.remove();
 			}
 		}
@@ -202,8 +230,9 @@ public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements Tic
 	@ApiStatus.Internal
 	public void onStandUserRemoved(LivingEntity user) {
 		for (T effect : effects.values()) {
-			onEffectRemoved(effect);
+			onEffectRemoved(effect, false);
 		}
+		effects.clear();
 	}
 
 	@ApiStatus.Internal
@@ -215,7 +244,7 @@ public class EntityCustomEffectsMap<T extends EntityCustomEffect> implements Tic
 		while (it.hasNext()) {
 			T effect = it.next().getValue();
 			if (effect.removeOnUserLogout) {
-				onEffectRemoved(effect);
+				onEffectRemoved(effect, true);
 				it.remove();
 			}
 		}

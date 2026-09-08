@@ -22,7 +22,7 @@ public abstract class EntityCustomEffect {
 	public static final AtomicInteger EFFECTS_COUNTER = new AtomicInteger();
 	@Nonnull public final EntityCustomEffectType<?> effectType;
 
-	public SynchedDataHelper synchedData = new SynchedDataHelper("eff", this, () -> this.level.isClientSide());
+	public SynchedDataHelper synchedData = new SynchedDataHelper("eff", this, () -> this.entity);
 
 	private int id = EFFECTS_COUNTER.incrementAndGet();
 	public int tickCount = 0;
@@ -32,7 +32,7 @@ public abstract class EntityCustomEffect {
 	public Level level;
 
 	public boolean removeOnUserDeath = true;
-	public boolean removeOnUserLogout = true;
+	public boolean removeOnUserLogout = false;
 
 
 	public EntityCustomEffect(@Nonnull EntityCustomEffectType<?> effectType) {
