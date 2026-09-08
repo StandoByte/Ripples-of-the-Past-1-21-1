@@ -81,7 +81,7 @@ public class ClientStandToggle implements Renderable {
 				setting, 
 				newVal -> {
 					setting.set(newVal);
-					ConfigGuiHelper.onSettingChange(JojoMod.config, configToSave, setting);
+					ConfigGuiHelper.applyChange(JojoMod.config, configToSave, setting);
 				}, null) {
 			
 			@Override
@@ -94,7 +94,7 @@ public class ClientStandToggle implements Renderable {
 				hudVisibilitySetting, 
 				newVal -> {
 					hudVisibilitySetting.set(newVal);
-					ConfigGuiHelper.onSettingChange(JojoMod.config, ModConfigType.CLIENT, hudVisibilitySetting);
+					ConfigGuiHelper.applyChange(JojoMod.config, ModConfigType.CLIENT, hudVisibilitySetting);
 				}, null);
 	}
 
@@ -158,7 +158,7 @@ public class ClientStandToggle implements Renderable {
 	
 	public void toggle() {
 		setting.set(!setting.get());
-		ConfigGuiHelper.onSettingChange(JojoMod.config, configToSave, setting);
+		ConfigGuiHelper.applyChange(JojoMod.config, configToSave, setting);
 	}
 	
 	public boolean getResultingValue() {

@@ -108,7 +108,7 @@ public class ConfigGuiHelper {
 		
 		Button.OnPress onPress = b -> {
 			changeValueOnClick.accept(option);
-			onSettingChange(config, type, option);
+			applyChange(config, type, option);
 		};
 		
 		int buttonWidth = Math.min((screen.width - 80) / 2, 150);
@@ -132,7 +132,12 @@ public class ConfigGuiHelper {
 		}
 	}
 	
+	@Deprecated(forRemoval = true)
 	public static <T> void onSettingChange(ModConfigInterface<?, ?, ?> modConfig, ModConfigType configType, ConfigOption<T> configOption) {
+		applyChange(modConfig, configType, configOption);
+	}
+	
+	public static <T> void applyChange(ModConfigInterface<?, ?, ?> modConfig, ModConfigType configType, ConfigOption<T> configOption) {
 		switch (configType) {
 			case CLIENT -> {
 				modConfig.saveClient();
