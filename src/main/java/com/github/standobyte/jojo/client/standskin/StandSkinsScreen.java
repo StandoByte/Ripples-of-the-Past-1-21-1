@@ -201,8 +201,10 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 		}
 		else {
 			StandSkin curSkin = StandSkinsLoader.getCurSkin();
-			skinName = curSkin.getName().copy().withColor(curSkin.getColors().text_white_bg());
-			skinName = Component.translatable("jojo_ripples.current_skin", skinName);
+			if (curSkin != null) {
+				skinName = curSkin.getName().copy().withColor(curSkin.getColors().text_white_bg());
+				skinName = Component.translatable("jojo_ripples.current_skin", skinName);
+			}
 		}
 		if (skinName != null) {
 			var split = minecraft.font.split(skinName, width - 10);
