@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.powersystem.standpower.datapack;
+package com.github.standobyte.jojo.config.stand;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -17,13 +17,14 @@ import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
 
 public class StandTypeClass<T extends StandType> {
-	protected final Class<T> standTypeJavaClass;
+	@ApiStatus.Internal
+	public final Class<T> _standTypeJavaClass;
 	protected final String alias;
 	protected final StandTypeFactory<T> constructor;
 
 	@ApiStatus.Internal
 	protected StandTypeClass(Class<T> standTypeJavaClass, String alias, StandTypeFactory<T> constructor) {
-		this.standTypeJavaClass = standTypeJavaClass;
+		this._standTypeJavaClass = standTypeJavaClass;
 		this.alias = alias;
 		this.constructor = constructor;
 	}
@@ -38,25 +39,26 @@ public class StandTypeClass<T extends StandType> {
 	protected static final Map<String, StandTypeClass<?>> BY_NAME = new HashMap<>();
 	protected static final Map<Class<?>, StandTypeClass<?>> BY_CLASS = new HashMap<>();
 	
-	protected static final StandTypeClass<StandType> DEFAULT_CLASS = registerStandClass(StandType.class, "", StandType::new);
+	@ApiStatus.Internal
+	public static final StandTypeClass<StandType> _DEFAULT_CLASS = registerStandClass(StandType.class, "", StandType::new);
 	
 	public static void addClassToJson(JsonObject json, Class<? extends StandType> standTypeJavaClass) {
 		if (standTypeJavaClass != StandType.class) {
-			StandTypeClass<?> standClass = byClass(standTypeJavaClass);
+			StandTypeClass<?> standClass = _byClass(standTypeJavaClass);
 			json.addProperty("standClassUnconfigurable", standClass.alias);
 		}
 	}
 	
 	@ApiStatus.Internal
-	static String getStandClassAlias(JsonObject json) {
+	public static String _getStandClassAlias(JsonObject json) {
 		JsonElement jsonElement = json.get("standClassUnconfigurable");
 		return jsonElement != null ? jsonElement.getAsString() : null;
 	}
 
 	@ApiStatus.Internal
-	static <T extends StandType> StandTypeClass<?> byName(String name) {
+	public static <T extends StandType> StandTypeClass<?> _byName(String name) {
 		if (name == null) {
-			return DEFAULT_CLASS;
+			return _DEFAULT_CLASS;
 		}
 		StandTypeClass<?> standClass = BY_NAME.get(name);
 		if (standClass == null) {
@@ -75,9 +77,9 @@ public class StandTypeClass<T extends StandType> {
 	}
 
 	@ApiStatus.Internal
-	static <T extends StandType> StandTypeClass<?> byClass(Class<T> standTypeClass) {
+	public static <T extends StandType> StandTypeClass<?> _byClass(Class<T> standTypeClass) {
 		if (standTypeClass == null || standTypeClass == StandType.class) {
-			return DEFAULT_CLASS;
+			return _DEFAULT_CLASS;
 		}
 		StandTypeClass<?> standClass = BY_CLASS.get(standTypeClass);
 		if (standClass == null) {
