@@ -19,7 +19,7 @@ public class ClientFileConfig<C1, C2> {
 		this.broadcast = ConfigObjSerialization.create(broadcast);
 		
 		String filePrefix = modId.equals(JojoMod.MOD_ID) ? "" : (modId + "_");
-		this.file = new File(mainDirectory, "config/jojo_rotp/" + filePrefix + "client_settings.json");
+		this.file = new File(mainDirectory, ConfigObjSerialization.DIRECTORY + filePrefix + "client_settings.json");
 	}
 	
 	public void sendToServer() {

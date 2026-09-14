@@ -16,6 +16,7 @@ import com.google.gson.JsonObject;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 
 public class ConfigObjSerialization<C> {
+	public static final String DIRECTORY = "config/jojo_rotp/";
 	public final C configObj;
 	public final Map<String, ConfigOption<?>> configOptions;
 	

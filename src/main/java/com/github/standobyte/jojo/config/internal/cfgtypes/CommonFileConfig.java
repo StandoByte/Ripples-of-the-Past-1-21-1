@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.util.function.Consumer;
 
+import com.github.standobyte.jojo.config.internal.ConfigObjSerialization;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.functions.FileSystemUtil;
 import com.github.standobyte.jojo.util.functions.JSONUtil;
@@ -23,7 +24,7 @@ public class CommonFileConfig<C3> extends CommonConfig<C3> {
 		super(config);
 		
 		String filePrefix = modId.equals(JojoMod.MOD_ID) ? "" : (modId + "_");
-		this.file = new File(mainDirectory, "config/jojo_rotp/" + filePrefix + "settings.json");
+		this.file = new File(mainDirectory, ConfigObjSerialization.DIRECTORY + filePrefix + "settings.json");
 	}
 	
 	public void loadFromFileSystem() {
