@@ -16,16 +16,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public abstract class PowerType implements JsonConfigurable {
-	protected final DefaultedValue<MovesetBuilder> movesetConfigured;
-	protected Moveset baseMoveset;
+	protected final MovesetBuilder movesetOriginal;
+	protected final DefaultedValue<Moveset> movesetConfigured;
 	
 	public PowerType(ResourceLocation id, MovesetBuilder defaultMoveset) {
-		this.movesetConfigured = new DefaultedValue<>(defaultMoveset);
-		initBaseMoveset(id);
-	}
-	
-	protected void initBaseMoveset(ResourceLocation powerTypeId) {
-		this.baseMoveset = this.movesetConfigured.value.build(getPowerClass(), powerTypeId);
+		this.movesetOriginal = defaultMoveset;
+		this.movesetConfigured = new DefaultedValue<>(movesetOriginal.build(getPowerClass(), id));
 	}
 	
 	
@@ -60,14 +56,14 @@ public abstract class PowerType implements JsonConfigurable {
 		
 		JsonObject movesetEditsJson = config.getAsJsonObject("moveset");
 		if (movesetEditsJson != null) {
-			MovesetBuilder configured = getDefaultMoveset().deepCopy();
-			Moveset.applyJsonConfig(configured, movesetEditsJson);
-			movesetConfigured.value = configured;
+			MovesetBuilder configuredBuilder = getDefaultMoveset().deepCopy();
+			Moveset.applyJsonConfig(configuredBuilder, movesetEditsJson);
+			Moveset configuredMoveset = configuredBuilder.build(getPowerClass(), getId());
+			movesetConfigured.value = configuredMoveset;
 		}
 		else {
 			movesetConfigured.reset();
 		}
-		initBaseMoveset(getId());
 	}
 	
 	@Override
@@ -78,16 +74,16 @@ public abstract class PowerType implements JsonConfigurable {
 	
 	@ApiStatus.Internal
 	public MovesetBuilder getDefaultMoveset() {
-		return this.movesetConfigured.defaultValue;
+		return this.movesetOriginal;
 	}
 	
-	public Moveset getBaseMoveset() {
-		return baseMoveset;
+	public DefaultedValue<Moveset> getMoveset() {
+		return movesetConfigured;
 	}
 	
 	
 	public Map<String, ? extends UnlockableSkill> getUnlockableSkills() {
-		return this.movesetConfigured.value.unlockableSkills;
+		return this.movesetOriginal.unlockableSkills;
 	}
 	
 }
