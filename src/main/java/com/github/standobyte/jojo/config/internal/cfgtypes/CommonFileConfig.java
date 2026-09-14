@@ -8,10 +8,12 @@ import java.util.function.Consumer;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.functions.FileSystemUtil;
 import com.github.standobyte.jojo.util.functions.JSONUtil;
+import com.github.standobyte.v1_21_4_stuff.missingmethods.Strictness;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class CommonFileConfig<C3> extends CommonConfig<C3> {
@@ -26,10 +28,10 @@ public class CommonFileConfig<C3> extends CommonConfig<C3> {
 	
 	public void loadFromFileSystem() {
 		if (exists()) {
-			CommonFileConfig.deserialize(file, reader -> {
-				JsonObject json = JSONUtil.parse(reader);
+			JsonObject json = CommonFileConfig.deserialize(file).getAsJsonObject();
+			if (json != null) {
 				configState.fromJson(json);
-			});
+			}
 		}
 	}
 	
@@ -44,18 +46,18 @@ public class CommonFileConfig<C3> extends CommonConfig<C3> {
 	
 	
 	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-	public static boolean deserialize(File file, Consumer<BufferedReader> deserialize) {
+	
+	public static JsonElement deserialize(File file) {
 		if (!file.exists()) {
-			return false;
+			return null;
 		}
 
 		try (BufferedReader reader = Files.newReader(file, Charsets.UTF_8)) {
-			deserialize.accept(reader);
-			return true;
+			return JSONUtil.fromJson(JSONUtil.GSON, reader, JsonElement.class, Strictness.LENIENT);
 		}
 		catch (Exception exception) {
 			JojoMod.getLogger().error("Failed to load mod client settings", (Throwable) exception);
-			return false;
+			return null;
 		}
 	}
 	

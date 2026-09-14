@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
 import com.github.standobyte.jojo.config.internal.ConfigObjSerialization;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.util.functions.JSONUtil;
 import com.google.gson.JsonObject;
 
 public class ClientFileConfig<C1, C2> {
@@ -36,18 +35,16 @@ public class ClientFileConfig<C1, C2> {
 	
 	public void loadFromFileSystem() {
 		if (exists()) {
-			CommonFileConfig.deserialize(file, reader -> {
-				JsonObject json = JSONUtil.parse(reader);
-				if (localOnly != null) {
-					localOnly.fromJson(json);
-				}
-				
-				if (broadcast != null) {
-					JsonObject broadcastJson = json.getAsJsonObject("broadcasted");
-					if (broadcastJson == null) broadcastJson = new JsonObject();
-					broadcast.fromJson(broadcastJson);
-				}
-			});
+			JsonObject json = CommonFileConfig.deserialize(file).getAsJsonObject();
+			if (localOnly != null) {
+				localOnly.fromJson(json);
+			}
+			
+			if (broadcast != null) {
+				JsonObject broadcastJson = json.getAsJsonObject("broadcasted");
+				if (broadcastJson == null) broadcastJson = new JsonObject();
+				broadcast.fromJson(broadcastJson);
+			}
 		}
 	}
 	
