@@ -12,6 +12,7 @@ import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList
 import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList.Renderable2;
 import com.github.standobyte.jojo.client.ui.utils.Alignment;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
+import com.github.standobyte.jojo.client.ui.utils.TextUtil;
 import com.github.standobyte.jojo.config.BoolOrPlayerPref;
 import com.github.standobyte.jojo.config.ModConfigInterface;
 import com.github.standobyte.jojo.config.core.ConfigOption;
@@ -26,7 +27,6 @@ import it.unimi.dsi.fastutil.objects.Object2CharMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.CommonComponents;
@@ -228,26 +228,36 @@ public class ConfigGuiHelper {
 	
 	
 	public void addCategoryTitle(Component title) {
-		list.addEntry(new EntryWithButtons().addRenderable(new Title(title, list), -15, 12));
+		list.addEntry(new EntryWithButtons().addRenderable(new TextLine(title, 
+				Alignment.CENTER, TextLine.GRAY), 
+				-15 + list.getWidth() / 2, 12));
 		curEntry = null;
 	}
 
-	public static class Title extends Renderable2 {
-		public AbstractWidget parentList;
-		public Component title;
+	public static class TextLine extends Renderable2 {
+		public static final int GRAY = 0xFFC0C0C0;
+		public static final int WHITE = 0xFFFFFF;
+		public Component line;
+		public Alignment alignment;
+		public int color;
 		
-		public Title(Component title, AbstractWidget parentList) {
+		public TextLine(Component line, Alignment alignment, int color) {
 			super(0, 0);
-			this.parentList = parentList;
-			this.title = title;
+			this.line = line;
+			this.alignment = alignment;
+			this.color = color;
 		}
 
 		@Override
 		public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 			Minecraft mc = Minecraft.getInstance();
 			Font font = mc.font;
-			int width = parentList.getWidth();
-			guiGraphics.drawCenteredString(font, title, x + width / 2, y, 0xC0C0C0);
+			
+			switch (alignment) {
+				case LEFT -> guiGraphics.drawString(font, line, x, y, color);
+				case RIGHT -> TextUtil.drawRightAlignedString(guiGraphics, font, line, x, y, color, true);
+				case CENTER -> guiGraphics.drawCenteredString(font, line, x, y, color);
+			}
 		}
 
 	}
