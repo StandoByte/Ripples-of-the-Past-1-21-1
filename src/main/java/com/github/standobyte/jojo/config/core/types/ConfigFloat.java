@@ -8,11 +8,23 @@ import net.minecraft.network.codec.ByteBufCodecs;
 
 public class ConfigFloat extends ConfigOption<Float> {
 	protected DefaultedValue.Float value;
+	protected float minValue = -Float.MAX_VALUE;
+	protected float maxValue = Float.MAX_VALUE;
 
 	public ConfigFloat(float defaultValue) {
 		super(PrimitiveCodec.FLOAT, ByteBufCodecs.FLOAT);
 		this.value = new DefaultedValue.Float(defaultValue);
 	}
+	
+	public ConfigFloat initRange(float minValue, float maxValue) {
+		this.minValue = minValue;
+		this.maxValue = maxValue;
+		return this;
+	}
+
+	public ConfigFloat initMinValue(float minValue) { return initRange(minValue, this.maxValue); }
+	public ConfigFloat initMaxValue(float maxValue) { return initRange(this.minValue, maxValue); }
+	public ConfigFloat initNonNegative() { return initRange(0, this.maxValue); }
 
 	@Override
 	public Float get() {

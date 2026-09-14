@@ -5,14 +5,28 @@ import com.github.standobyte.jojo.util.objects_java.DefaultedValue;
 import com.mojang.serialization.codecs.PrimitiveCodec;
 
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.util.Mth;
 
 public class ConfigInt extends ConfigOption<Integer> {
 	protected DefaultedValue.Int value;
+	protected int minValue = Integer.MIN_VALUE;
+	protected int maxValue = Integer.MAX_VALUE;
 
 	public ConfigInt(int defaultValue) {
 		super(PrimitiveCodec.INT, ByteBufCodecs.INT);
 		this.value = new DefaultedValue.Int(defaultValue);
 	}
+	
+	public ConfigInt initRange(int minValue, int maxValue) {
+		this.minValue = minValue;
+		this.maxValue = maxValue;
+		return this;
+	}
+
+	public ConfigInt initMinValue(int minValue) { return initRange(minValue, this.maxValue); }
+	public ConfigInt initMaxValue(int maxValue) { return initRange(this.minValue, maxValue); }
+	public ConfigInt initNonNegative() { return initRange(0, this.maxValue); }
+	
 
 	@Override
 	public Integer get() {
@@ -25,7 +39,7 @@ public class ConfigInt extends ConfigOption<Integer> {
 
 	@Override
 	public void set(Integer value) {
-		this.value.value = value;
+		this.value.value = Mth.clamp(value, minValue, maxValue);
 	}
 	
 	@Override
