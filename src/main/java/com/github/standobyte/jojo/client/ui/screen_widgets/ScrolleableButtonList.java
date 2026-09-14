@@ -44,6 +44,11 @@ public class ScrolleableButtonList extends ContainerObjectSelectionList<Scrollea
 	public int getMaxPosition() {
 		return super.getMaxPosition();
 	}
+	
+	@Override
+	public int getRowTop(int index) {
+		return super.getRowTop(index);
+	}
 
 	@Override
 	protected void renderListBackground(GuiGraphics guiGraphics) {
@@ -58,6 +63,20 @@ public class ScrolleableButtonList extends ContainerObjectSelectionList<Scrollea
 			super.renderListSeparators(guiGraphics);
 		}
 	}
+	
+	
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+		if (isMouseOver(mouseX, mouseY)) {
+			ScrolleableButtonList.EntryWithButtons entry = getEntryAtPosition(mouseX, mouseY);
+			if (entry != null && entry.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) {
+				return true;
+			}
+		}
+		
+		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+	}
+
 
 	public static class EntryWithButtons extends ContainerObjectSelectionList.Entry<EntryWithButtons> {
 		protected List<AbstractWidget> children = new ArrayList<>();
