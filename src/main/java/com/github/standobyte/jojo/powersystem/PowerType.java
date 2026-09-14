@@ -24,6 +24,11 @@ public abstract class PowerType implements JsonConfigurable {
 		initBaseMoveset(id);
 	}
 	
+	protected void initBaseMoveset(ResourceLocation powerTypeId) {
+		this.baseMoveset = this.movesetConfigured.value.build(getPowerClass(), powerTypeId);
+	}
+	
+	
 	@Nonnull public abstract PowerData newDataInstance();
 	
 	public abstract ResourceLocation getId();
@@ -76,17 +81,8 @@ public abstract class PowerType implements JsonConfigurable {
 		return this.movesetConfigured.defaultValue;
 	}
 	
-	protected void initBaseMoveset(ResourceLocation powerTypeId) {
-		this.baseMoveset = this.movesetConfigured.value.build(getPowerClass(), powerTypeId);
-	}
-	
 	public Moveset getBaseMoveset() {
 		return baseMoveset;
-	}
-	
-	public Moveset makeMoveset(Power<?> userPower) {
-		Moveset moveset = this.movesetConfigured.value.build(getPowerClass(), getId());
-		return moveset;
 	}
 	
 	

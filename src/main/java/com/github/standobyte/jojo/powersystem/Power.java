@@ -64,7 +64,7 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	public abstract PowerType getPowerType();
 	
 	protected void onSetPowerType(@Nullable PowerData oldPowerData, @Nullable PowerType newPowerType) {
-		moveset = initMoveset(newPowerType);
+		moveset = cacheMoveset(newPowerType);
 
 		if (!user.level().isClientSide()) {
 			if (oldPowerData != null) {
@@ -113,13 +113,13 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	@Nonnull
 	public Moveset getMoveset() {
 		if (moveset == null) {
-			moveset = initMoveset(getPowerType());
+			moveset = cacheMoveset(getPowerType());
 		}
 		return moveset;
 	}
 	
-	protected Moveset initMoveset(@Nullable PowerType powerType) {
-		return powerType != null ? powerType.makeMoveset(this) : Moveset.empty();
+	protected Moveset cacheMoveset(@Nullable PowerType powerType) {
+		return powerType != null ? powerType.getBaseMoveset() : Moveset.empty();
 	}
 	
 	@Nullable
@@ -171,7 +171,7 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 
 	
 	public void afterConfigApply() {
-		initMoveset(getPowerType());
+		cacheMoveset(getPowerType());
 	}
 
 	@Override
