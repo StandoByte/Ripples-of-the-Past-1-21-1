@@ -117,7 +117,6 @@ public class ModConfig<C1, C2, C3> implements ModConfigInterface<C1, C2, C3> {
 		
 		File mainDir = getMainDirectory(currentEnvironment);
 		this.commonConfig = new CommonFileConfig<>(common.get(), mainDir, modId);
-		this.commonConfig.loadFromFileSystem();
 		this.broadcastFactory = clientBroadcast;
 		switch (currentEnvironment) {
 			case CLIENT -> {
@@ -125,7 +124,6 @@ public class ModConfig<C1, C2, C3> implements ModConfigInterface<C1, C2, C3> {
 						client.get(), 
 						clientBroadcast.get(), 
 						mainDir, modId);
-				this.clientConfig.loadFromFileSystem();
 				this.commonFactory = common;
 			}
 			case DEDICATED_SERVER -> {}
