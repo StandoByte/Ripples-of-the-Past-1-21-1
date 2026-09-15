@@ -92,7 +92,7 @@ public class DataDrivenStandsLoader {
 			Map<ResourceLocation, JsonObject> map = new TreeMap<>();
 			
 			Map<ResourceLocation, Resource> resources = resourceManager.listResources(DIRECTORY, rl -> rl.getPath().endsWith(FILE_EXT));
-			Map<ResourceLocation, StitchedStandDataFiles<Resource>> grouped = StitchedStandDataFiles.groupResources(resources, DIRECTORY, "stand");
+			Map<ResourceLocation, StitchedStandDataFiles<Resource>> grouped = StitchedStandDataFiles.groupResources(resources, DIRECTORY);
 			
 			for (var entry : grouped.entrySet()) {
 				ResourceLocation standId = entry.getKey();
@@ -127,7 +127,10 @@ public class DataDrivenStandsLoader {
 
 	}
 	
-	// Apply the datapack (configure existing Stands, create new ones)
+	// Apply the datapack (~configure existing Stands~, create new ones)
+	/* UPD: configs for existing Stands will instead be done through the `config` directory configs
+	 * and only with those (to avoid headache, and why would anyone use both a config and a datapack for it anyway)
+	 */
 	
 	private static void applyData(Map<ResourceLocation, StandType> datapackStands, Collection<Map.Entry<ResourceLocation, JsonObject>> loadedConfigsData) {
 		// If the stand still exists in the datapack, it will be re-enabled.
@@ -135,17 +138,11 @@ public class DataDrivenStandsLoader {
 		datapackStands.values().forEach(stand -> stand.setEnabled(false));
 		
 		Registry<StandType> hardcodedStands = JojoRegistries.DEFAULT_STANDS_REG;
-		hardcodedStands.entrySet().forEach(entry -> entry.getValue().restoreDefaults());
 		
 		for (var dataEntry : loadedConfigsData) {
 			ResourceLocation standId = dataEntry.getKey();
 			JsonObject json = dataEntry.getValue();
-			if (hardcodedStands.containsKey(standId)) {
-				// Configure one of the registered Stands.
-				StandType stand = hardcodedStands.get(standId);
-				stand.applyConfig(json);
-			}
-			else {
+			if (!hardcodedStands.containsKey(standId)) {
 				// Create a data-driven Stand.
 				StandTypeClass<?> standTypeClass = null;
 				ResourceLocation baseStandId = Optional.ofNullable(json.get("baseStand")).map(JsonElement::getAsString).map(ResourceLocation::parse).orElse(null);

@@ -3,10 +3,13 @@ package com.github.standobyte.jojo.config.stand;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
@@ -24,13 +27,15 @@ import net.minecraft.server.packs.resources.Resource;
 
 @ApiStatus.Internal
 public class StitchedStandDataFiles<F> {
+	public static final String MAIN_FILE_NAME = "stand";
+	
 	protected F mainInfo;
 	protected Map<List<String>, F> members = new HashMap<>();
 	
 	protected JsonObject resultingJson;
 	
 	public static <F> Map<ResourceLocation, StitchedStandDataFiles<F>> groupResources(
-			Map<ResourceLocation, F> allResources, String topDirectory, String mainFileName) {
+			Map<ResourceLocation, F> allResources, @Nullable String topDirectory) {
 		if (topDirectory != null && !topDirectory.isEmpty()) topDirectory += "/";
 		
 		Map<ResourceLocation, StitchedStandDataFiles<F>> allGrouped = new HashMap<>();
@@ -52,7 +57,7 @@ public class StitchedStandDataFiles<F> {
 			StitchedStandDataFiles<F> stitchedResources = allGrouped.computeIfAbsent(standId, __ -> new StitchedStandDataFiles<>());
 			
 			if (path.length == 2) {
-				if (mainFileName.equals(path[1])) {
+				if (path[1].equals(MAIN_FILE_NAME)) {
 					stitchedResources.mainInfo = resource;
 				}
 				else {
@@ -112,6 +117,9 @@ public class StitchedStandDataFiles<F> {
 			}
 			case File fileName -> {
 				yield CommonFileConfig.deserialize(fileName);
+			}
+			case Path filePath -> {
+				yield CommonFileConfig.deserialize(filePath.toFile());
 			}
 			default -> throw new UnsupportedOperationException();
 		};
