@@ -16,6 +16,7 @@ public abstract class ConfigOption<T> implements Supplier<T> {
 	public abstract void set(T value);
 	public abstract boolean isDefault();
 	public abstract void reset();
+	public abstract ConfigOption<T> deepCopy();
 
 
 	@ApiStatus.Internal

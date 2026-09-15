@@ -64,6 +64,11 @@ public class ClientConfigKeyBinding extends ConfigOption<KeyWithModifier> {
 		}
 	}
 	
+	@Override
+	public ClientConfigKeyBinding deepCopy() {
+		throw new UnsupportedOperationException();
+	}
+	
 	
 	static List<ClientConfigKeyBinding> __initWhenKeybindIsCreated = new ArrayList<>();
 	

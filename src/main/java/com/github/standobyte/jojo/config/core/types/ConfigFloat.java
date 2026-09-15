@@ -49,5 +49,14 @@ public class ConfigFloat extends ConfigOption<Float> {
 	public void reset() {
 		this.value.reset();
 	}
+	
+	@Override
+	public ConfigFloat deepCopy() {
+		ConfigFloat copy = new ConfigFloat(value.defaultValue);
+		copy.value.value = this.value.value;
+		copy.minValue = this.minValue;
+		copy.maxValue = this.maxValue;
+		return copy;
+	}
 
 }

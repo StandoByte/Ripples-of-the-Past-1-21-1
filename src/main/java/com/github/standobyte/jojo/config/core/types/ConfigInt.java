@@ -51,5 +51,14 @@ public class ConfigInt extends ConfigOption<Integer> {
 	public void reset() {
 		this.value.reset();
 	}
+	
+	@Override
+	public ConfigInt deepCopy() {
+		ConfigInt copy = new ConfigInt(value.defaultValue);
+		copy.value.value = this.value.value;
+		copy.minValue = this.minValue;
+		copy.maxValue = this.maxValue;
+		return copy;
+	}
 
 }

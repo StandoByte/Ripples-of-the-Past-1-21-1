@@ -35,5 +35,12 @@ public class ConfigEnum<T extends Enum<T>> extends ConfigOption<T> {
 	public void reset() {
 		this.value.reset();
 	}
+	
+	@Override
+	public ConfigEnum<T> deepCopy() {
+		ConfigEnum<T> copy = new ConfigEnum<>(enumClass, value.defaultValue);
+		copy.value.value = this.value.value;
+		return copy;
+	}
 
 }

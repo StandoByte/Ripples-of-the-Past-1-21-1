@@ -37,5 +37,12 @@ public class ConfigBool extends ConfigOption<Boolean> {
 	public void reset() {
 		this.value.reset();
 	}
+	
+	@Override
+	public ConfigBool deepCopy() {
+		ConfigBool copy = new ConfigBool(value.defaultValue);
+		copy.value.value = this.value.value;
+		return copy;
+	}
 
 }

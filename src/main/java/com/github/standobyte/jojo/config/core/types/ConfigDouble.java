@@ -54,5 +54,14 @@ public class ConfigDouble extends ConfigOption<Double> {
 	public void reset() {
 		this.value.reset();
 	}
+	
+	@Override
+	public ConfigDouble deepCopy() {
+		ConfigDouble copy = new ConfigDouble(value.defaultValue);
+		copy.value.value = this.value.value;
+		copy.minValue = this.minValue;
+		copy.maxValue = this.maxValue;
+		return copy;
+	}
 
 }
