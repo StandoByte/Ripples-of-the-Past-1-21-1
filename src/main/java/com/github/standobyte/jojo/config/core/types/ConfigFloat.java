@@ -1,13 +1,16 @@
 package com.github.standobyte.jojo.config.core.types;
 
 import com.github.standobyte.jojo.config.core.ConfigOption;
+import com.github.standobyte.jojo.config.core.ModConfig.CommonConfigState;
 import com.github.standobyte.jojo.util.objects_java.DefaultedValue;
 import com.mojang.serialization.codecs.PrimitiveCodec;
 
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.util.Mth;
 
 public class ConfigFloat extends ConfigOption<Float> {
 	protected DefaultedValue.Float value;
+	protected DefaultedValue.Float remoteValue;
 	protected float minValue = -Float.MAX_VALUE;
 	protected float maxValue = Float.MAX_VALUE;
 
@@ -27,36 +30,50 @@ public class ConfigFloat extends ConfigOption<Float> {
 	public ConfigFloat initNonNegative() { return initRange(0, this.maxValue); }
 
 	@Override
-	public Float get() {
-		return value.value;
+	public Float get(CommonConfigState cfgState) {
+		return getValueToUse(cfgState).value;
 	}
 	
 	public float getAsFloat() {
-		return value.value;
+		return getValueToUse(cfgState).value;
 	}
 
 	@Override
-	public void set(Float value) {
-		this.value.value = value;
+	public void set(Float value, CommonConfigState cfgState) {
+		getValueToUse(cfgState).value = Mth.clamp(value, minValue, maxValue);
 	}
 	
 	@Override
-	public boolean isDefault() {
-		return this.value.defaultValue == this.value.value;
+	public boolean isDefault(CommonConfigState cfgState) {
+		return getValueToUse(cfgState).value == getDefaultValue();
+	}
+	
+	public float getDefaultValue() {
+		return this.value.defaultValue;
 	}
 
 	@Override
-	public void reset() {
-		this.value.reset();
+	public void reset(CommonConfigState cfgState) {
+		getValueToUse(cfgState).reset();
 	}
 	
 	@Override
-	public ConfigFloat deepCopy() {
-		ConfigFloat copy = new ConfigFloat(value.defaultValue);
-		copy.value.value = this.value.value;
-		copy.minValue = this.minValue;
-		copy.maxValue = this.maxValue;
-		return copy;
+	public void setRemoteConfig() {
+		super.setRemoteConfig();
+		remoteValue = new DefaultedValue.Float(getDefaultValue());
+	}
+	
+	@Override
+	public void unsetRemoteConfig() {
+		super.unsetRemoteConfig();
+		remoteValue = null;
+	}
+	
+	protected DefaultedValue.Float getValueToUse(CommonConfigState cfgState) {
+		return switch (cfgState) {
+			case LOCAL -> value;
+			case REMOTE -> remoteValue;
+		};
 	}
 
 }

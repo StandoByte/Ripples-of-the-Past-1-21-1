@@ -22,7 +22,7 @@ import com.github.standobyte.jojo.config.core.ModConfig;
 import com.github.standobyte.jojo.config.internal.ConfigEventHandler;
 import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
 import com.github.standobyte.jojo.config.internal.cfgtypes.ClientFileConfig;
-import com.github.standobyte.jojo.config.internal.cfgtypes.CommonFileConfig;
+import com.github.standobyte.jojo.config.internal.cfgtypes.CommonConfig;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mixin.client.screen.ScreenAccessor;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
@@ -189,7 +189,7 @@ public class ClientModSettingsScreen extends Screen {
 							}
 						}
 						case COMMON -> {
-							CommonFileConfig<?> commonConfig = this.curConfig.commonConfig;
+							CommonConfig<?> commonConfig = this.curConfig.commonConfig;
 							commonConfig.configState.reset();
 							if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
 								ConfigNetworkFunctions.clSendCommonConfigResetToServer(curModId);

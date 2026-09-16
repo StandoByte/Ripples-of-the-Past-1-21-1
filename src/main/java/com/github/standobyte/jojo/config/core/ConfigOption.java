@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.config.core.ModConfig.CommonConfigState;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
@@ -13,10 +14,37 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
 public abstract class ConfigOption<T> implements Supplier<T> {
-	public abstract void set(T value);
-	public abstract boolean isDefault();
-	public abstract void reset();
-	public abstract ConfigOption<T> deepCopy();
+	protected CommonConfigState cfgState = CommonConfigState.LOCAL;
+	
+	@Override
+	public T get() {
+		return get(this.cfgState);
+	}
+	
+	public void set(T value) {
+		set(value, this.cfgState);
+	}
+	
+	public boolean isDefault() {
+		return isDefault(this.cfgState);
+	}
+	
+	public void reset() {
+		reset(this.cfgState);
+	}
+	
+	public void setRemoteConfig() {
+		this.cfgState = CommonConfigState.REMOTE;
+	}
+	
+	public void unsetRemoteConfig() {
+		this.cfgState = CommonConfigState.LOCAL;
+	}
+	
+	protected abstract T get(CommonConfigState cfgState);
+	protected abstract void set(T value, CommonConfigState cfgState);
+	protected abstract boolean isDefault(CommonConfigState cfgState);
+	protected abstract void reset(CommonConfigState cfgState);
 
 
 	@ApiStatus.Internal

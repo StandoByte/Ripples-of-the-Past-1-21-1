@@ -70,7 +70,7 @@ public class ConfigEventHandler {
 				
 				if (!ConfigNetworkFunctions.clientIsIntegratedServer()) {
 					config.createBroadcastPlayersCfgHolder();
-					config.createRemoteCommonCfgHolder();
+					config.createCommonRemote();
 				}
 			});
 		}
@@ -79,7 +79,7 @@ public class ConfigEventHandler {
 		public static void onClientPlayerLoggedOut(ClientPlayerNetworkEvent.LoggingOut event) {
 			ALL_CONFIGS.values().forEach(config -> {
 				config.serverBroadcast = null;
-				config.commonConfigRemote = null;
+				config.removeCommonRemote();
 			});
 		}
 		

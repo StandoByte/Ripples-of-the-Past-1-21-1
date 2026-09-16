@@ -7,6 +7,7 @@ import com.github.standobyte.jojo.config.client.ClientModSettingsScreen.ConfigTa
 import com.github.standobyte.jojo.config.client.ConfigGuiHelper;
 import com.github.standobyte.jojo.config.client.RegisterRotpConfigScreenTabEvent;
 import com.github.standobyte.jojo.config.core.ModConfigType;
+import com.github.standobyte.jojo.config.core.ModConfig.CommonConfigState;
 import com.github.standobyte.jojo.config.core.types.ConfigBool;
 import com.github.standobyte.jojo.config.core.types.ConfigEnum;
 import com.github.standobyte.jojo.config.core.types.ConfigFloat;
@@ -38,8 +39,8 @@ public class RotpConfig {
 
 		public final ConfigBool resolveShaders = new ConfigBool(true) {
 			@Override
-			public void set(Boolean value) {
-				super.set(value);
+			public void set(Boolean value, CommonConfigState cfgState) {
+				super.set(value, cfgState);
 				ClientResolveVisuals.onColorShiftSettingUpdated(value);
 			}
 		};

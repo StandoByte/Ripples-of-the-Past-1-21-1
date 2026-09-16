@@ -105,8 +105,7 @@ public class ConfigNetworkFunctions {
 	public static void clAcceptCommonConfigState(RemoteCommonConfigPacket payload) {
 		String configModId = payload.modId;
 		ModConfig<?, ?, ?> config = getConfig(configModId);
-		CommonConfig<?> remoteCommonConfig = config.commonConfigRemote;
-		remoteCommonConfig.configState.fromBuf(payload.read);
+		config.commonRemoteFromBuf(payload.read);
 	}
 	
 	

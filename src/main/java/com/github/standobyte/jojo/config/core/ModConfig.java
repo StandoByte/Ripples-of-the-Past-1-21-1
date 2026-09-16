@@ -13,10 +13,10 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.config.ModConfigInterface;
 import com.github.standobyte.jojo.config.internal.cfgtypes.ClientFileConfig;
-import com.github.standobyte.jojo.config.internal.cfgtypes.CommonConfig;
 import com.github.standobyte.jojo.config.internal.cfgtypes.CommonFileConfig;
 import com.github.standobyte.jojo.config.internal.cfgtypes.PlayerBroadcastConfig;
 
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 
@@ -25,9 +25,9 @@ public class ModConfig<C1, C2, C3> implements ModConfigInterface<C1, C2, C3> {
 	public final Dist currentEnvironment;
 	public final String modId;
 	public ClientFileConfig<C1, C2> clientConfig;
-	public Map<UUID, PlayerBroadcastConfig<C2>> serverBroadcast = new HashMap<>();
+	@Nullable public Map<UUID, PlayerBroadcastConfig<C2>> serverBroadcast = new HashMap<>();
 	public CommonFileConfig<C3> commonConfig;
-	@Nullable public CommonConfig<C3> commonConfigRemote;
+	protected CommonConfigState commonConfigState = CommonConfigState.LOCAL;
 
 	@Override
 	public C1 getClient() {
@@ -45,7 +45,7 @@ public class ModConfig<C1, C2, C3> implements ModConfigInterface<C1, C2, C3> {
 
 	@Override
 	public C3 getCommon() {
-		return getCommonCfgState().configState.configObj;
+		return commonConfig.configState.configObj;
 	}
 
 	@Override
@@ -69,13 +69,6 @@ public class ModConfig<C1, C2, C3> implements ModConfigInterface<C1, C2, C3> {
 	}
 	
 	
-	public CommonConfig<C3> getCommonCfgState() {
-		if (currentEnvironment == Dist.CLIENT && commonConfigRemote != null) {
-			return commonConfigRemote;
-		}
-		return commonConfig;
-	}
-	
 	public PlayerBroadcastConfig<C2> getBroadcastPlayerState(UUID playerId) {
 		if (serverBroadcast == null) return null;
 		return serverBroadcast.computeIfAbsent(playerId, 
@@ -88,17 +81,35 @@ public class ModConfig<C1, C2, C3> implements ModConfigInterface<C1, C2, C3> {
 		}
 	}
 	
-	public void createRemoteCommonCfgHolder() {
+	
+	public enum CommonConfigState {
+		LOCAL, // Our client / dedicated server 
+		REMOTE // A remote server we're currently connected to
+	}
+	
+	public void createCommonRemote() {
 		if (this.hasCommon) {
-			this.commonConfigRemote = new CommonConfig<>(commonFactory.get());
+			commonConfigState = CommonConfigState.REMOTE;
+			commonConfig.configState.configOptions.values().forEach(ConfigOption::setRemoteConfig);
 		}
 	}
+	
+	public void commonRemoteFromBuf(RegistryFriendlyByteBuf buf) {
+		commonConfig.configState.fromBuf(buf);
+	}
+	
+	public void removeCommonRemote() {
+		if (this.hasCommon) {
+			commonConfigState = CommonConfigState.LOCAL;
+			commonConfig.configState.configOptions.values().forEach(ConfigOption::unsetRemoteConfig);
+		}
+	}
+	
 	
 	public boolean hasClient;
 	public boolean hasClientBroadcast;
 	public boolean hasCommon;
 	public Supplier<C2> broadcastFactory;
-	public Supplier<C3> commonFactory;
 	
 	
 	public ModConfig(Dist currentEnvironment, 
@@ -124,7 +135,6 @@ public class ModConfig<C1, C2, C3> implements ModConfigInterface<C1, C2, C3> {
 						client.get(), 
 						clientBroadcast.get(), 
 						mainDir, modId);
-				this.commonFactory = common;
 			}
 			case DEDICATED_SERVER -> {}
 		}
