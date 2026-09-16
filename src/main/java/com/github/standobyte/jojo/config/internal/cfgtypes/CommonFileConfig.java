@@ -5,6 +5,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.util.function.Consumer;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.config.internal.ConfigObjSerialization;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.functions.FileSystemUtil;
@@ -29,7 +31,7 @@ public class CommonFileConfig<C3> extends CommonConfig<C3> {
 	
 	public void loadFromFileSystem() {
 		if (exists()) {
-			JsonObject json = CommonFileConfig.deserialize(file).getAsJsonObject();
+			JsonObject json = CommonFileConfig.deserializeObj(file);
 			if (json != null) {
 				configState.fromJson(json);
 			}
@@ -48,6 +50,7 @@ public class CommonFileConfig<C3> extends CommonConfig<C3> {
 	
 	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	
+	@Nullable
 	public static JsonElement deserialize(File file) {
 		if (!file.exists()) {
 			return null;
@@ -60,6 +63,12 @@ public class CommonFileConfig<C3> extends CommonConfig<C3> {
 			JojoMod.getLogger().error("Failed to load mod client settings", (Throwable) exception);
 			return null;
 		}
+	}
+	
+	@Nullable
+	public static JsonObject deserializeObj(File file) {
+		JsonElement json = deserialize(file);
+		return json != null ? json.getAsJsonObject() : null;
 	}
 	
 	public static boolean serialize(File file, Consumer<BufferedWriter> serialize) {

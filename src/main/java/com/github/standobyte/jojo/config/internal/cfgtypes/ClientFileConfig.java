@@ -35,15 +35,17 @@ public class ClientFileConfig<C1, C2> {
 	
 	public void loadFromFileSystem() {
 		if (exists()) {
-			JsonObject json = CommonFileConfig.deserialize(file).getAsJsonObject();
-			if (localOnly != null) {
-				localOnly.fromJson(json);
-			}
-			
-			if (broadcast != null) {
-				JsonObject broadcastJson = json.getAsJsonObject("broadcasted");
-				if (broadcastJson == null) broadcastJson = new JsonObject();
-				broadcast.fromJson(broadcastJson);
+			JsonObject json = CommonFileConfig.deserializeObj(file);
+			if (json != null) {
+				if (localOnly != null) {
+					localOnly.fromJson(json);
+				}
+				
+				if (broadcast != null) {
+					JsonObject broadcastJson = json.getAsJsonObject("broadcasted");
+					if (broadcastJson == null) broadcastJson = new JsonObject();
+					broadcast.fromJson(broadcastJson);
+				}
 			}
 		}
 	}
