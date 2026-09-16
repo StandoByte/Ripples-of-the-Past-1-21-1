@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.config.core.types;
 
+import java.util.function.DoubleSupplier;
+
 import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.core.ModConfig.CommonConfigState;
 import com.github.standobyte.jojo.util.objects_java.DefaultedValue;
@@ -8,7 +10,7 @@ import com.mojang.serialization.codecs.PrimitiveCodec;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.util.Mth;
 
-public class ConfigDouble extends ConfigOption<Double> {
+public class ConfigDouble extends ConfigOption<Double> implements DoubleSupplier {
 	protected DefaultedValue.Double value;
 	protected DefaultedValue.Double remoteValue;
 	protected double minValue = -Double.MAX_VALUE;
@@ -34,6 +36,7 @@ public class ConfigDouble extends ConfigOption<Double> {
 		return getValueToUse(cfgState).value;
 	}
 
+	@Override
 	public double getAsDouble() {
 		return getValueToUse(cfgState).value;
 	}

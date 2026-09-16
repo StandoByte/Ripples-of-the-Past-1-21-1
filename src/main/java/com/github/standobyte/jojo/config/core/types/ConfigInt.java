@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.config.core.types;
 
+import java.util.function.IntSupplier;
+
 import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.core.ModConfig.CommonConfigState;
 import com.github.standobyte.jojo.util.objects_java.DefaultedValue;
@@ -8,7 +10,7 @@ import com.mojang.serialization.codecs.PrimitiveCodec;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.util.Mth;
 
-public class ConfigInt extends ConfigOption<Integer> {
+public class ConfigInt extends ConfigOption<Integer> implements IntSupplier {
 	protected DefaultedValue.Int value;
 	protected DefaultedValue.Int remoteValue;
 	protected int minValue = Integer.MIN_VALUE;
@@ -34,6 +36,7 @@ public class ConfigInt extends ConfigOption<Integer> {
 		return getValueToUse(cfgState).value;
 	}
 	
+	@Override
 	public int getAsInt() {
 		return getValueToUse(cfgState).value;
 	}

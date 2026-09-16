@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.config.core.types;
 
+import java.util.function.BooleanSupplier;
+
 import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.core.ModConfig.CommonConfigState;
 import com.github.standobyte.jojo.util.objects_java.DefaultedValue;
@@ -7,7 +9,7 @@ import com.mojang.serialization.codecs.PrimitiveCodec;
 
 import net.minecraft.network.codec.ByteBufCodecs;
 
-public class ConfigBool extends ConfigOption<Boolean> {
+public class ConfigBool extends ConfigOption<Boolean> implements BooleanSupplier {
 	protected DefaultedValue.Bool value;
 	protected DefaultedValue.Bool remoteValue;
 
@@ -21,6 +23,7 @@ public class ConfigBool extends ConfigOption<Boolean> {
 		return getValueToUse(cfgState).value;
 	}
 	
+	@Override
 	public boolean getAsBoolean() {
 		return getValueToUse(cfgState).value;
 	}
