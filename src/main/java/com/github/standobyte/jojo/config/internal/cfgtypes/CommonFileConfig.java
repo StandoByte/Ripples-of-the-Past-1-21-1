@@ -28,7 +28,8 @@ public class CommonFileConfig<C3> extends CommonConfig<C3> {
 		String filePrefix = modId.equals(JojoMod.MOD_ID) ? "" : (modId + "_");
 		this.file = new File(mainDirectory, ConfigObjSerialization.DIRECTORY + filePrefix + "settings.json");
 	}
-	
+
+	@Override
 	public void loadFromFileSystem() {
 		if (exists()) {
 			JsonObject json = CommonFileConfig.deserializeObj(file);
@@ -37,7 +38,8 @@ public class CommonFileConfig<C3> extends CommonConfig<C3> {
 			}
 		}
 	}
-	
+
+	@Override
 	public void saveToFileSystem() {
 		if (exists()) {
 			CommonFileConfig.serialize(file, writer -> {

@@ -21,7 +21,7 @@ import com.github.standobyte.jojo.config.RotpConfig;
 import com.github.standobyte.jojo.config.core.ModConfig;
 import com.github.standobyte.jojo.config.internal.ConfigEventHandler;
 import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
-import com.github.standobyte.jojo.config.internal.cfgtypes.ClientFileConfig;
+import com.github.standobyte.jojo.config.internal.cfgtypes.ClientConfig;
 import com.github.standobyte.jojo.config.internal.cfgtypes.CommonConfig;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mixin.client.screen.ScreenAccessor;
@@ -181,7 +181,7 @@ public class ClientModSettingsScreen extends Screen {
 				button -> {
 					switch (this.configType) {
 						case CLIENT -> {
-							ClientFileConfig<?, ?> clientConfig = this.curConfig.clientConfig;
+							ClientConfig<?, ?> clientConfig = this.curConfig.clientConfig;
 							clientConfig.reset();
 							clientConfig.saveToFileSystem();
 							if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {

@@ -5,9 +5,8 @@ import java.util.UUID;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.core.ModConfig;
-import com.github.standobyte.jojo.config.internal.cfgtypes.ClientFileConfig;
+import com.github.standobyte.jojo.config.internal.cfgtypes.ClientConfig;
 import com.github.standobyte.jojo.config.internal.cfgtypes.CommonConfig;
-import com.github.standobyte.jojo.config.internal.cfgtypes.CommonFileConfig;
 import com.github.standobyte.jojo.config.internal.cfgtypes.PlayerBroadcastConfig;
 import com.github.standobyte.jojo.config.internal.packets.ClCommonServerConfigEditPacket;
 import com.github.standobyte.jojo.config.internal.packets.ClCommonServerConfigResetPacket;
@@ -66,7 +65,7 @@ public class ConfigNetworkFunctions {
 	public static void srvSendConfigsToLoggedInPlayer(ServerPlayer loggingIn, String configModId, ModConfig<?, ?, ?> config) {
 		if (!playerIsIntegratedServerHost(loggingIn)) {
 			if (config.hasCommon) {
-				CommonFileConfig<?> commonConfig = config.commonConfig;
+				CommonConfig<?> commonConfig = config.commonConfig;
 				if (commonConfig.exists() && !commonConfig.configState.isDefault()) {
 					RemoteCommonConfigPacket commonPacket = new RemoteCommonConfigPacket(
 							configModId, commonConfig.configState::toBuf);
@@ -110,7 +109,7 @@ public class ConfigNetworkFunctions {
 	
 	
 	
-	public static void clSendPlayerBroadcastConfigToServer(boolean sendNonDefault, String configModId, ClientFileConfig<?, ?> clientConfig) {
+	public static void clSendPlayerBroadcastConfigToServer(boolean sendNonDefault, String configModId, ClientConfig<?, ?> clientConfig) {
 		if (clientConfig.broadcast != null && (sendNonDefault || !clientConfig.broadcast.isDefault())) {
 			ClPlayerBroadcastConfigPacket broadcastPacket = new ClPlayerBroadcastConfigPacket(
 					configModId, clientConfig.broadcast::toBuf);
@@ -174,7 +173,7 @@ public class ConfigNetworkFunctions {
 			String configModId = payload.modId;
 			String fieldName = payload.fieldName;
 			ModConfig<?, ?, ?> config = getConfig(configModId);
-			CommonFileConfig<?> commonConfig = config.commonConfig;
+			CommonConfig<?> commonConfig = config.commonConfig;
 			ConfigOption<?> field = commonConfig.configState.configOptions.get(fieldName);
 			field.fromBuf(payload.read);
 			
@@ -215,7 +214,7 @@ public class ConfigNetworkFunctions {
 		if (playerHasPermissions(sender)) {
 			String configModId = payload.modId;
 			ModConfig<?, ?, ?> config = getConfig(configModId);	
-			CommonFileConfig<?> commonConfig = config.commonConfig;
+			CommonConfig<?> commonConfig = config.commonConfig;
 			commonConfig.configState.reset();
 			
 			if (server.getGameRules().getBoolean(GameRules.RULE_SENDCOMMANDFEEDBACK)) {

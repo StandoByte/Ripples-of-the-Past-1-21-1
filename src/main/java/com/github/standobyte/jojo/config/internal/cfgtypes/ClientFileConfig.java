@@ -2,26 +2,21 @@ package com.github.standobyte.jojo.config.internal.cfgtypes;
 
 import java.io.File;
 
-import javax.annotation.Nullable;
-
 import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
 import com.github.standobyte.jojo.config.internal.ConfigObjSerialization;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.google.gson.JsonObject;
 
-public class ClientFileConfig<C1, C2> {
-	@Nullable public final ConfigObjSerialization<C1> localOnly;
-	@Nullable public final ConfigObjSerialization<C2> broadcast;
+public class ClientFileConfig<C1, C2> extends ClientConfig<C1, C2> {
 	protected File file;
 
 	public ClientFileConfig(C1 localOnly, C2 broadcast, File mainDirectory, String modId) {
-		this.localOnly = ConfigObjSerialization.create(localOnly);
-		this.broadcast = ConfigObjSerialization.create(broadcast);
-		
+		super(localOnly, broadcast);
 		String filePrefix = modId.equals(JojoMod.MOD_ID) ? "" : (modId + "_");
 		this.file = new File(mainDirectory, ConfigObjSerialization.DIRECTORY + filePrefix + "client_settings.json");
 	}
-	
+
+	@Override
 	public void sendToServer() {
 		if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
 			ConfigNetworkFunctions.clSendPlayerBroadcastConfigToServer(true, 
@@ -29,10 +24,7 @@ public class ClientFileConfig<C1, C2> {
 		}
 	}
 	
-	public boolean exists() {
-		return localOnly != null || broadcast != null;
-	}
-	
+	@Override
 	public void loadFromFileSystem() {
 		if (exists()) {
 			JsonObject json = CommonFileConfig.deserializeObj(file);
@@ -49,7 +41,8 @@ public class ClientFileConfig<C1, C2> {
 			}
 		}
 	}
-	
+
+	@Override
 	public void saveToFileSystem() {
 		if (exists()) {
 			CommonFileConfig.serialize(file, writer -> {
@@ -59,15 +52,6 @@ public class ClientFileConfig<C1, C2> {
 				}
 				CommonFileConfig.GSON.toJson(json, writer);
 			});
-		}
-	}
-	
-	public void reset() {
-		if (localOnly != null) {
-			localOnly.reset();
-		}
-		if (broadcast != null) {
-			broadcast.reset();
 		}
 	}
 	

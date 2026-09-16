@@ -12,7 +12,9 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.config.ModConfigInterface;
+import com.github.standobyte.jojo.config.internal.cfgtypes.ClientConfig;
 import com.github.standobyte.jojo.config.internal.cfgtypes.ClientFileConfig;
+import com.github.standobyte.jojo.config.internal.cfgtypes.CommonConfig;
 import com.github.standobyte.jojo.config.internal.cfgtypes.CommonFileConfig;
 import com.github.standobyte.jojo.config.internal.cfgtypes.PlayerBroadcastConfig;
 
@@ -24,9 +26,9 @@ import net.neoforged.api.distmarker.Dist;
 public class ModConfig<C1, C2, C3> implements ModConfigInterface<C1, C2, C3> {
 	public final Dist currentEnvironment;
 	public final String modId;
-	public ClientFileConfig<C1, C2> clientConfig;
+	public ClientConfig<C1, C2> clientConfig;
 	@Nullable public Map<UUID, PlayerBroadcastConfig<C2>> serverBroadcast = new HashMap<>();
-	public CommonFileConfig<C3> commonConfig;
+	public CommonConfig<C3> commonConfig;
 	protected CommonConfigState commonConfigState = CommonConfigState.LOCAL;
 
 	@Override
