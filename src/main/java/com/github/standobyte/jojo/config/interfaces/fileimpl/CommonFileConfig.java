@@ -55,12 +55,12 @@ public class CommonFileConfig<C3> implements CommonConfig<C3> {
 	
 	@Override
 	public void setRemoteState() {
-		configState.configOptions.values().forEach(ConfigOption::setRemoteConfig);
+		configState.configOptions.values().forEach(ConfigOption::setRemoteState);
 	}
 	
 	@Override
 	public void unsetRemoteState() {
-		configState.configOptions.values().forEach(ConfigOption::unsetRemoteConfig);
+		configState.configOptions.values().forEach(ConfigOption::unsetRemoteState);
 	}
 
 	@Override

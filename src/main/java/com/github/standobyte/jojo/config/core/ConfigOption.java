@@ -33,11 +33,11 @@ public abstract class ConfigOption<T> implements Supplier<T> {
 		reset(this.cfgState);
 	}
 	
-	public void setRemoteConfig() {
+	public void setRemoteState() {
 		this.cfgState = CommonConfigState.REMOTE;
 	}
 	
-	public void unsetRemoteConfig() {
+	public void unsetRemoteState() {
 		this.cfgState = CommonConfigState.LOCAL;
 	}
 	

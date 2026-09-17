@@ -48,14 +48,14 @@ public class ConfigBool extends ConfigOption<Boolean> implements BooleanSupplier
 	}
 	
 	@Override
-	public void setRemoteConfig() {
-		super.setRemoteConfig();
+	public void setRemoteState() {
+		super.setRemoteState();
 		remoteValue = new DefaultedValue.Bool(getDefaultValue());
 	}
 	
 	@Override
-	public void unsetRemoteConfig() {
-		super.unsetRemoteConfig();
+	public void unsetRemoteState() {
+		super.unsetRemoteState();
 		remoteValue = null;
 	}
 	

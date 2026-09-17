@@ -60,14 +60,14 @@ public class ConfigFloat extends ConfigOption<Float> implements FloatSupplier {
 	}
 	
 	@Override
-	public void setRemoteConfig() {
-		super.setRemoteConfig();
+	public void setRemoteState() {
+		super.setRemoteState();
 		remoteValue = new DefaultedValue.Float(getDefaultValue());
 	}
 	
 	@Override
-	public void unsetRemoteConfig() {
-		super.unsetRemoteConfig();
+	public void unsetRemoteState() {
+		super.unsetRemoteState();
 		remoteValue = null;
 	}
 	

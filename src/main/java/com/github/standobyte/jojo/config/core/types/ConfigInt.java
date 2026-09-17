@@ -61,14 +61,14 @@ public class ConfigInt extends ConfigOption<Integer> implements IntSupplier {
 	}
 	
 	@Override
-	public void setRemoteConfig() {
-		super.setRemoteConfig();
+	public void setRemoteState() {
+		super.setRemoteState();
 		remoteValue = new DefaultedValue.Int(getDefaultValue());
 	}
 	
 	@Override
-	public void unsetRemoteConfig() {
-		super.unsetRemoteConfig();
+	public void unsetRemoteState() {
+		super.unsetRemoteState();
 		remoteValue = null;
 	}
 	

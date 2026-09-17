@@ -66,12 +66,12 @@ public class ClientConfigKeyBinding extends ConfigOption<KeyWithModifier> {
 	}
 	
 	@Override
-	public void setRemoteConfig() {
+	public void setRemoteState() {
 		throw new UnsupportedOperationException("ClientConfigKeyBinding is not meant to be used in a COMMON config, only in a CLIENT one!");
 	}
 	
 	@Override
-	public void unsetRemoteConfig() {
+	public void unsetRemoteState() {
 		throw new UnsupportedOperationException("ClientConfigKeyBinding is not meant to be used in a COMMON config, only in a CLIENT one!");
 	}
 	

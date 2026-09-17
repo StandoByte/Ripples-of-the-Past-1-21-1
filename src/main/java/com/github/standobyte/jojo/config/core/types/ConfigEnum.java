@@ -43,14 +43,14 @@ public class ConfigEnum<T extends Enum<T>> extends ConfigOption<T> {
 	}
 	
 	@Override
-	public void setRemoteConfig() {
-		super.setRemoteConfig();
+	public void setRemoteState() {
+		super.setRemoteState();
 		remoteValue = new DefaultedValue<T>(getDefaultValue());
 	}
 	
 	@Override
-	public void unsetRemoteConfig() {
-		super.unsetRemoteConfig();
+	public void unsetRemoteState() {
+		super.unsetRemoteState();
 		remoteValue = null;
 	}
 	
