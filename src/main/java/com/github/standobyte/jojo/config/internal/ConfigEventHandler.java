@@ -64,13 +64,12 @@ public class ConfigEventHandler {
 				ModConfig<?, ?, ?> config = configEntry.getValue();
 				
 				if (config.hasClientBroadcast) {
-					ConfigNetworkFunctions.clSendPlayerBroadcastConfigToServer(false, 
-							configEntry.getKey(), config.clientConfig);
+					config.sendClientBroadcast(false);
 				}
 				
 				if (!ConfigNetworkFunctions.clientIsIntegratedServer()) {
 					config.createBroadcastPlayersCfgHolder();
-					config.createCommonRemote();
+					config.setCommonRemoteState();
 				}
 			});
 		}
@@ -79,7 +78,7 @@ public class ConfigEventHandler {
 		public static void onClientPlayerLoggedOut(ClientPlayerNetworkEvent.LoggingOut event) {
 			ALL_CONFIGS.values().forEach(config -> {
 				config.serverBroadcast = null;
-				config.removeCommonRemote();
+				config.unsetCommonRemoteState();
 			});
 		}
 		

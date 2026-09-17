@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.config.internal.cfgtypes;
+package com.github.standobyte.jojo.config.interfaces.fileimpl;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -7,7 +7,9 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.config.internal.ConfigObjSerialization;
+import com.github.standobyte.jojo.config.core.ConfigOption;
+import com.github.standobyte.jojo.config.interfaces.CommonConfig;
+import com.github.standobyte.jojo.config.internal.ObjectConfigHelper;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.functions.FileSystemUtil;
 import com.github.standobyte.jojo.util.functions.JSONUtil;
@@ -19,14 +21,46 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-public class CommonFileConfig<C3> extends CommonConfig<C3> {
-	protected File file;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 
-	public CommonFileConfig(C3 config, File mainDirectory, String modId) {
-		super(config);
-		
-		String filePrefix = modId.equals(JojoMod.MOD_ID) ? "" : (modId + "_");
-		this.file = new File(mainDirectory, ConfigObjSerialization.DIRECTORY + filePrefix + "settings.json");
+public class CommonFileConfig<C3> implements CommonConfig<C3> {
+	@Nullable private final ObjectConfigHelper<C3> configState;
+	private File file;
+
+	public CommonFileConfig(ObjectConfigHelper<C3> config, File mainDirectory, String modId) {
+		this.configState = config;
+		String filePrefix = makeFilePrefix(modId);
+		this.file = new File(mainDirectory, ObjectConfigHelper.DIRECTORY + filePrefix + "settings.json");
+	}
+
+	@Override
+	public C3 getObj() {
+		return configState.configObj;
+	}
+	
+	@Override
+	public boolean exists() {
+		return configState != null;
+	}
+	
+	@Override
+	public boolean isDefault() {
+		return configState.isDefault();
+	}
+
+	@Override
+	public void reset() {
+		configState.reset();
+	}
+	
+	@Override
+	public void setRemoteState() {
+		configState.configOptions.values().forEach(ConfigOption::setRemoteConfig);
+	}
+	
+	@Override
+	public void unsetRemoteState() {
+		configState.configOptions.values().forEach(ConfigOption::unsetRemoteConfig);
 	}
 
 	@Override
@@ -47,6 +81,26 @@ public class CommonFileConfig<C3> extends CommonConfig<C3> {
 				CommonFileConfig.GSON.toJson(json, writer);
 			});
 		}
+	}
+
+	@Override
+	public String getConfigOptionName(ConfigOption<?> configOption) {
+		return configOption.getFieldName();
+	}
+
+	@Override
+	public ConfigOption<?> getConfigOptionByName(String fieldName) {
+		return configState.configOptions.get(fieldName);
+	}
+	
+	@Override
+	public void toBuf(RegistryFriendlyByteBuf buf) {
+		configState.toBuf(buf);
+	}
+	
+	@Override
+	public void fromBuf(RegistryFriendlyByteBuf buf) {
+		configState.fromBuf(buf);
 	}
 	
 	
@@ -82,6 +136,11 @@ public class CommonFileConfig<C3> extends CommonConfig<C3> {
 			JojoMod.getLogger().error("Failed to save mod client settings", (Throwable) exception);
 			return false;
 		}
+	}
+	
+	
+	public static String makeFilePrefix(String modId) {
+		return modId.equals(JojoMod.MOD_ID) ? "" : (modId + "_");
 	}
 	
 }

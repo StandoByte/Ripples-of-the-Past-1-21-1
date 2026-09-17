@@ -15,14 +15,20 @@ import com.google.gson.JsonObject;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 
-public class ConfigObjSerialization<C> {
-	public static final String DIRECTORY = "config/jojo_rotp/";
+public class ObjectConfigHelper<C> {
 	public final C configObj;
+	public static final String DIRECTORY = "config/jojo_rotp/";
 	public final Map<String, ConfigOption<?>> configOptions;
 	
-	protected ConfigObjSerialization(C configObj, Map<String, ConfigOption<?>> configOptions) {
+	protected ObjectConfigHelper(C configObj, Map<String, ConfigOption<?>> configOptions) {
 		this.configObj = configObj;
 		this.configOptions = configOptions;
+		
+		for (var configOptionEntry : configOptions.entrySet()) {
+			String fieldName = configOptionEntry.getKey();
+			ConfigOption<?> configOption = configOptionEntry.getValue();
+			configOption.init(fieldName);
+		}
 	}
 	
 	public void toBuf(RegistryFriendlyByteBuf buf) {
@@ -89,7 +95,7 @@ public class ConfigObjSerialization<C> {
 	static Map<Class<?>, Field[]> FIELDS_CACHE = new IdentityHashMap<>();
 	
 	@Nullable
-	public static <C> ConfigObjSerialization<C> create(@Nullable C configObj) {
+	public static <C> ObjectConfigHelper<C> create(@Nullable C configObj) {
 		if (configObj == null) return null;
 		
 		Class<?> cfgClass = configObj.getClass();
@@ -118,10 +124,9 @@ public class ConfigObjSerialization<C> {
 			for (Field field : fields) {
 				ConfigOption<?> option = (ConfigOption<?>) field.get(configObj);
 				String fieldName = field.getName();
-				option.init(fieldName);
 				configOptions.put(fieldName, option);
 			}
-			return new ConfigObjSerialization<>(configObj, configOptions);
+			return new ObjectConfigHelper<>(configObj, configOptions);
 		}
 		catch (IllegalArgumentException | IllegalAccessException e) {
 			JojoMod.getLogger().error("Error creating config object: {}", e);

@@ -19,10 +19,10 @@ import com.github.standobyte.jojo.client.ui.screen_widgets.utils.ButtonDecoratio
 import com.github.standobyte.jojo.config.ModConfigInterface;
 import com.github.standobyte.jojo.config.RotpConfig;
 import com.github.standobyte.jojo.config.core.ModConfig;
+import com.github.standobyte.jojo.config.interfaces.ClientConfig;
+import com.github.standobyte.jojo.config.interfaces.CommonConfig;
 import com.github.standobyte.jojo.config.internal.ConfigEventHandler;
 import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
-import com.github.standobyte.jojo.config.internal.cfgtypes.ClientConfig;
-import com.github.standobyte.jojo.config.internal.cfgtypes.CommonConfig;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mixin.client.screen.ScreenAccessor;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
@@ -185,12 +185,12 @@ public class ClientModSettingsScreen extends Screen {
 							clientConfig.reset();
 							clientConfig.saveToFileSystem();
 							if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
-								config.sendClientBroadcast();
+								config.sendClientBroadcast(true);
 							}
 						}
 						case COMMON -> {
 							CommonConfig<?> commonConfig = this.curConfig.commonConfig;
-							commonConfig.configState.reset();
+							commonConfig.reset();
 							if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
 								ConfigNetworkFunctions.clSendCommonConfigResetToServer(curModId);
 							}

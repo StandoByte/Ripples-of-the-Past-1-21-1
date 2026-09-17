@@ -24,7 +24,7 @@ public class RegisterRotpConfigEvent extends Event implements IModBusEvent {
 			@Nullable Supplier<C1> client, 
 			@Nullable Supplier<C2> clientBroadcast, 
 			@Nullable Supplier<C3> common) {
-		ModConfig<C1, C2, C3> config = new ModConfig<>(environment, client, clientBroadcast, common, modId);
+		ModConfig<C1, C2, C3> config = ModConfig.modFileConfig(environment, client, clientBroadcast, common, modId);
 		configs.put(modId, config);
 		return config;
 	}

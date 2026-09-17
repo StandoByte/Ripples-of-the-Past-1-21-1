@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.jojo.config.internal.cfgtypes.CommonFileConfig;
+import com.github.standobyte.jojo.config.interfaces.fileimpl.CommonFileConfig;
 import com.github.standobyte.jojo.config.stand.datapack.DataDrivenStandsLoader;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.util.functions.JSONUtil;

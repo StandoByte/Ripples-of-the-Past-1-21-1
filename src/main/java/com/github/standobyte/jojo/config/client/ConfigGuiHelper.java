@@ -132,11 +132,6 @@ public class ConfigGuiHelper {
 		}
 	}
 	
-	@Deprecated(forRemoval = true)
-	public static <T> void onSettingChange(ModConfigInterface<?, ?, ?> modConfig, ModConfigType configType, ConfigOption<T> configOption) {
-		applyChange(modConfig, configType, configOption);
-	}
-	
 	public static <T> void applyChange(ModConfigInterface<?, ?, ?> modConfig, ModConfigType configType, ConfigOption<T> configOption) {
 		switch (configType) {
 			case CLIENT -> {
@@ -144,12 +139,13 @@ public class ConfigGuiHelper {
 			}
 			case CLIENT_BROADCAST -> {
 				modConfig.saveClient();
-				modConfig.sendClientBroadcast();
+				if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
+					modConfig.sendClientBroadcast(true);
+				}
 			}
 			case COMMON -> {
 				if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
-					ConfigNetworkFunctions.clSendCommonSettingEditToServer(
-							modConfig.modId(), configOption.getFieldName(), configOption);
+					modConfig.sendCommonConfigEditToServer(configOption);
 				}
 				else {
 					modConfig.saveCommon();
