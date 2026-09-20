@@ -1,9 +1,9 @@
-#version 110
+#version 150
 
 uniform sampler2D DiffuseSampler;
 
-varying vec2 texCoord;
-
+in vec2 texCoord;
+out vec4 fragColor;
 uniform float SectorCenter;
 uniform float SectorHalfSize;
 uniform vec2 InSize;
@@ -44,9 +44,9 @@ vec3 RGBtoHSV(vec3 rgb) {
 }
 
 void main() {
-    vec4 rgb = texture2D(DiffuseSampler, texCoord);
+    vec4 rgb = texture(DiffuseSampler, texCoord);
     vec3 hsv = RGBtoHSV(rgb.rgb);
-    
+
     float distance = abs(hsv.x - SectorCenter);
     if (distance > 0.5) {
         distance = 1.0 - distance;
@@ -54,6 +54,6 @@ void main() {
     if (distance < SectorHalfSize) {
         hsv.y *= distance / SectorHalfSize;
     }
-    
-    gl_FragColor = vec4(HSVtoRGB(hsv), rgb.a);
+
+    fragColor = vec4(HSVtoRGB(hsv), rgb.a);
 }
