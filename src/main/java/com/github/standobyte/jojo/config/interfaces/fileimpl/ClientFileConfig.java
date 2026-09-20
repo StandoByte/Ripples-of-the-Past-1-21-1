@@ -4,6 +4,7 @@ import java.io.File;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.config.core.ConfigId;
 import com.github.standobyte.jojo.config.interfaces.ClientConfig;
 import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
 import com.github.standobyte.jojo.config.internal.ObjectConfigHelper;
@@ -33,11 +34,6 @@ public class ClientFileConfig<C1, C2> implements ClientConfig<C1, C2> {
 	}
 	
 	@Override
-	public boolean exists() {
-		return localOnly != null || broadcast != null;
-	}
-	
-	@Override
 	public boolean isDefault() {
 		return (localOnly == null || localOnly.isDefault())
 				&& (broadcast == null || broadcast.isDefault());
@@ -54,41 +50,37 @@ public class ClientFileConfig<C1, C2> implements ClientConfig<C1, C2> {
 	}
 
 	@Override
-	public void sendBroadcastToServer(String configModId, boolean sendNonDefault) {
+	public void sendBroadcastToServer(ConfigId configId, boolean sendNonDefault) {
 		if (broadcast != null && (sendNonDefault || !broadcast.isDefault())) {
-			ConfigNetworkFunctions.clSendPlayerBroadcastConfigToServer(configModId, broadcast::toBuf);
+			ConfigNetworkFunctions.clSendPlayerBroadcastConfigToServer(configId, broadcast::toBuf);
 		}
 	}
 	
 	@Override
 	public void loadFromFileSystem() {
-		if (exists()) {
-			JsonObject json = CommonFileConfig.deserializeObj(file);
-			if (json != null) {
-				if (localOnly != null) {
-					localOnly.fromJson(json);
-				}
-				
-				if (broadcast != null) {
-					JsonObject broadcastJson = json.getAsJsonObject("broadcasted");
-					if (broadcastJson == null) broadcastJson = new JsonObject();
-					broadcast.fromJson(broadcastJson);
-				}
+		JsonObject json = CommonFileConfig.deserializeObj(file);
+		if (json != null) {
+			if (localOnly != null) {
+				localOnly.fromJson(json);
+			}
+			
+			if (broadcast != null) {
+				JsonObject broadcastJson = json.getAsJsonObject("broadcasted");
+				if (broadcastJson == null) broadcastJson = new JsonObject();
+				broadcast.fromJson(broadcastJson);
 			}
 		}
 	}
 
 	@Override
 	public void saveToFileSystem() {
-		if (exists()) {
-			CommonFileConfig.serialize(file, writer -> {
-				JsonObject json = localOnly != null ? localOnly.toJson() : new JsonObject();
-				if (broadcast != null) {
-					json.add("broadcasted", broadcast.toJson());
-				}
-				CommonFileConfig.GSON.toJson(json, writer);
-			});
-		}
+		CommonFileConfig.serialize(file, writer -> {
+			JsonObject json = localOnly != null ? localOnly.toJson() : new JsonObject();
+			if (broadcast != null) {
+				json.add("broadcasted", broadcast.toJson());
+			}
+			CommonFileConfig.GSON.toJson(json, writer);
+		});
 	}
 	
 }

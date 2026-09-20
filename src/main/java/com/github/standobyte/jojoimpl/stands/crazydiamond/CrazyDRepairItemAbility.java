@@ -1,11 +1,14 @@
 package com.github.standobyte.jojoimpl.stands.crazydiamond;
 
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.input.AbilityInputState;
 import com.github.standobyte.jojo.client.input.InputHandler;
+import com.github.standobyte.jojo.config.core.types.ConfigBool;
+import com.github.standobyte.jojo.config.stand.AbilityConfigField;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
@@ -46,11 +49,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 public class CrazyDRepairItemAbility extends StandEntityAbility {
+	@AbilityConfigField public ConfigBool removeEnchantments;
 
 	public CrazyDRepairItemAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId, ItemRepair::new);
 		usageGroup = AbilityUsageGroup.INVENTORY;
 		setButtonHoldPhase(ActionPhase.PERFORM);
+		
+		removeEnchantments = new ConfigBool(true);
 	}
 
 	@Override
@@ -71,7 +77,7 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 					if (hovered != null) {
 						ItemStack item = hovered.getItem();
 						// TODO (item repair) disable it when hovering over an item in a creative tab
-						active = canBeRepaired(item);
+						active = canBeRepaired(item, removeEnchantments);
 					}
 				}
 				if (!active) {
@@ -97,9 +103,11 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 	public static class ItemRepair extends EntityActionInstance {
 		private Optional<ContainerSlotInput> inputInvSlot = Optional.empty();
 		private ItemStack repairedStack = ItemStack.EMPTY;
+		private BooleanSupplier removeEnchantments;
 
 		public ItemRepair(EntityActionType ability) {
 			super(ability);
+			this.removeEnchantments = ((CrazyDRepairItemAbility) ability).removeEnchantments;
 		}
 
 		@Override
@@ -118,12 +126,13 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 		public void actionTick() {
 			Level level = level();
 			if (!level.isClientSide()) {
-				if (!canBeRepaired(repairedStack)) {
+				if (!canBeRepaired(repairedStack, removeEnchantments)) {
 					setPhase(ActionPhase.RECOVERY, 0);
 					syncPhaseChanges();
 				}
 				else if (performer instanceof StandEntity stand) {
-					ItemRepairResult result = repairTick(powerUser.getEntityLiving(level), stand, repairedStack, curPhaseTick);
+					ItemRepairResult result = repairTick(powerUser.getEntityLiving(level), stand, 
+							repairedStack, curPhaseTick, removeEnchantments);
 					if (result.uncraftLearnPoints > 0) {
 						StandPower userPower = stand.getUserPower();
 						if (userPower != null) {
@@ -147,12 +156,12 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 	}
 
 
-	public static boolean canBeRepaired(ItemStack itemStack) {
+	public static boolean canBeRepaired(ItemStack itemStack, BooleanSupplier removeEnchantments) {
 		if (itemStack == null || itemStack.isEmpty()) {
 			return false;
 		}
 
-		if (itemStack.isDamaged() || itemStack.isEnchanted()
+		if (itemStack.isDamaged() || (removeEnchantments.getAsBoolean() && itemStack.isEnchanted())
 				|| itemStack.getItem() == Items.CHIPPED_ANVIL || itemStack.getItem() == Items.DAMAGED_ANVIL
 				|| itemStack.getItem() == Items.COBBLESTONE) {
 			return true;
@@ -176,7 +185,8 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 		public float uncraftLearnPoints;
 	}
 
-	public static ItemRepairResult repairTick(LivingEntity user, StandEntity standEntity, ItemStack itemStack, int taskTicks) {
+	public static ItemRepairResult repairTick(LivingEntity user, StandEntity standEntity, 
+			ItemStack itemStack, int taskTicks, BooleanSupplier removeEnchantments) {
 		ItemRepairResult result = ItemRepairResult.instance;
 		result.isRepairing = false;
 		
@@ -245,16 +255,18 @@ public class CrazyDRepairItemAbility extends StandEntityAbility {
 		}
 		boolean transformTick = isItemTransformationTick(taskTicks, standEntity);
 		
-		int xp = getFullExperienceAmount(itemStack);
-		if (xp > 0) {
-			if (damage > 0) {
-				damage += xp * 5;
+		if (removeEnchantments.getAsBoolean()) {
+			int xp = getFullExperienceAmount(itemStack);
+			if (xp > 0) {
+				if (damage > 0) {
+					damage += xp * 5;
+				}
+				dropExperience(user, xp);
 			}
-			dropExperience(user, xp);
-		}
-		DataComponentType<ItemEnchantments> enchComponentType = EnchantmentHelper.getComponentType(itemStack);
-		if (itemStack.has(enchComponentType)) {
-			itemStack.set(enchComponentType, ItemEnchantments.EMPTY);
+			DataComponentType<ItemEnchantments> enchComponentType = EnchantmentHelper.getComponentType(itemStack);
+			if (itemStack.has(enchComponentType)) {
+				itemStack.set(enchComponentType, ItemEnchantments.EMPTY);
+			}
 		}
 
 		if (newStack != null) {

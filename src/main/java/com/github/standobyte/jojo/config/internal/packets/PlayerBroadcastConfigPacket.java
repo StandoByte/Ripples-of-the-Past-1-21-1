@@ -5,6 +5,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import com.github.standobyte.jojo.PacketsRegister;
+import com.github.standobyte.jojo.config.core.ConfigId;
 import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
 import com.github.standobyte.jojo.util.functions_network.NetworkUtil;
 
@@ -16,23 +17,23 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class PlayerBroadcastConfigPacket implements CustomPacketPayload {
 	public UUID playerId;
-	public String modId;
+	public ConfigId configId;
 	public Optional<Consumer<RegistryFriendlyByteBuf>> write;
 	public Optional<RegistryFriendlyByteBuf> read;
 	
-	public PlayerBroadcastConfigPacket(UUID playerId, String modId, Consumer<RegistryFriendlyByteBuf> write) {
+	public PlayerBroadcastConfigPacket(UUID playerId, ConfigId configId, Consumer<RegistryFriendlyByteBuf> write) {
 		this.playerId = playerId;
-		this.modId = modId;
+		this.configId = configId;
 		this.write = Optional.ofNullable(write);
 	}
 	
-	public static PlayerBroadcastConfigPacket reset(UUID playerId, String modId) {
-		return new PlayerBroadcastConfigPacket(playerId, modId, (Consumer<RegistryFriendlyByteBuf>) null);
+	public static PlayerBroadcastConfigPacket reset(UUID playerId, ConfigId configId) {
+		return new PlayerBroadcastConfigPacket(playerId, configId, (Consumer<RegistryFriendlyByteBuf>) null);
 	}
 	
-	protected PlayerBroadcastConfigPacket(UUID playerId, String modId, Optional<RegistryFriendlyByteBuf> read) {
+	protected PlayerBroadcastConfigPacket(UUID playerId, ConfigId configId, Optional<RegistryFriendlyByteBuf> read) {
 		this.playerId = playerId;
-		this.modId = modId;
+		this.configId = configId;
 		this.read = read;
 	}
 	
@@ -53,17 +54,17 @@ public class PlayerBroadcastConfigPacket implements CustomPacketPayload {
 		@Override
 		public void encode(PlayerBroadcastConfigPacket packet, RegistryFriendlyByteBuf buf) {
 			buf.writeUUID(packet.playerId);
-			buf.writeUtf(packet.modId);
+			ConfigId.STREAM_CODEC.encode(buf, packet.configId);
 			NetworkUtil.writeOptional(packet.write, buf, (buffer, writer) -> writer.accept(buffer));
 		}
 
 		@Override
 		public PlayerBroadcastConfigPacket decode(RegistryFriendlyByteBuf buf) {
 			UUID playerId = buf.readUUID();
-			String modId = buf.readUtf();
+			ConfigId configId = ConfigId.STREAM_CODEC.decode(buf);
 			Optional<RegistryFriendlyByteBuf> read = NetworkUtil.readOptional(buf, 
 					buffer -> NetworkUtil.extraPacketData(buffer, buffer.registryAccess()));
-			return new PlayerBroadcastConfigPacket(playerId, modId, read);
+			return new PlayerBroadcastConfigPacket(playerId, configId, read);
 		}
 
 		@Override

@@ -1,9 +1,14 @@
 package com.github.standobyte.jojo.config.internal;
 
+import static com.github.standobyte.jojo.config.internal.ConfigEventHandler.getConfig;
+
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import org.spongepowered.include.com.google.common.base.Objects;
+
 import com.github.standobyte.jojo.client.ClientProxy;
+import com.github.standobyte.jojo.config.core.ConfigId;
 import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.core.ModConfig;
 import com.github.standobyte.jojo.config.interfaces.CommonConfig;
@@ -13,6 +18,7 @@ import com.github.standobyte.jojo.config.internal.packets.ClCommonServerConfigRe
 import com.github.standobyte.jojo.config.internal.packets.ClPlayerBroadcastConfigPacket;
 import com.github.standobyte.jojo.config.internal.packets.PlayerBroadcastConfigPacket;
 import com.github.standobyte.jojo.config.internal.packets.RemoteCommonConfigPacket;
+import com.github.standobyte.jojo.core.JojoMod;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
@@ -63,24 +69,24 @@ public class ConfigNetworkFunctions {
 	
 	
 	
-	public static void srvSendConfigsToLoggedInPlayer(ServerPlayer loggingIn, String configModId, ModConfig<?, ?, ?> config) {
+	public static void srvSendConfigsToLoggedInPlayer(ServerPlayer loggingIn, ConfigId configId, ModConfig<?, ?, ?> config) {
 		if (!playerIsIntegratedServerHost(loggingIn)) {
-			if (config.hasCommon) {
+			if (config.hasCommon()) {
 				CommonConfig<?> commonConfig = config.commonConfig;
-				if (commonConfig.exists() && !commonConfig.isDefault()) {
+				if (!commonConfig.isDefault()) {
 					RemoteCommonConfigPacket commonPacket = new RemoteCommonConfigPacket(
-							configModId, commonConfig::toBuf);
+							configId, commonConfig::toBuf);
 					PacketDistributor.sendToPlayer(loggingIn, commonPacket);
 				}
 			}
 
-			if (config.hasClientBroadcast) {
+			if (config.hasClientBroadcast()) {
 				for (ServerPlayer player : loggingIn.server.getPlayerList().getPlayers()) {
 					UUID playerId = player.getUUID();
 					ServerPlayerBroadcastConfig<?> broadcastConfig = config.getBroadcastPlayerState(playerId);
 					if (!broadcastConfig.isDefault()) {
 						PlayerBroadcastConfigPacket playerBroadcastPacket = new PlayerBroadcastConfigPacket(
-								playerId, configModId, broadcastConfig::toBuf);
+								playerId, configId, broadcastConfig::toBuf);
 						if (player != loggingIn) {
 							PacketDistributor.sendToPlayer(loggingIn, playerBroadcastPacket);
 						}
@@ -90,43 +96,41 @@ public class ConfigNetworkFunctions {
 		}
 	}
 	
-	public static void srvSendCommonConfigStateToAllPlayers(MinecraftServer server, String configModId, CommonConfig<?> commonConfig) {
-		if (commonConfig.exists()) {
-			RemoteCommonConfigPacket commonPacket = new RemoteCommonConfigPacket(
-					configModId, commonConfig::toBuf);
-			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-				if (!playerIsIntegratedServerHost(player)) {
-					PacketDistributor.sendToPlayer(player, commonPacket);
-				}
+	public static void srvSendCommonConfigStateToAllPlayers(MinecraftServer server, ConfigId configId, CommonConfig<?> commonConfig) {
+		RemoteCommonConfigPacket commonPacket = new RemoteCommonConfigPacket(
+				configId, commonConfig::toBuf);
+		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+			if (!playerIsIntegratedServerHost(player)) {
+				PacketDistributor.sendToPlayer(player, commonPacket);
 			}
 		}
 	}
 	
 	public static void clAcceptCommonConfigState(RemoteCommonConfigPacket payload) {
-		String configModId = payload.modId;
-		ModConfig<?, ?, ?> config = getConfig(configModId);
+		ConfigId configId = payload.configId;
+		ModConfig<?, ?, ?> config = getConfig(configId);
 		config.commonRemoteFromBuf(payload.read);
 	}
 	
 	
 	
-	public static void clSendPlayerBroadcastConfigToServer(String configModId, Consumer<RegistryFriendlyByteBuf> write) {
+	public static void clSendPlayerBroadcastConfigToServer(ConfigId configId, Consumer<RegistryFriendlyByteBuf> write) {
 		if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
 			ClPlayerBroadcastConfigPacket broadcastPacket = new ClPlayerBroadcastConfigPacket(
-					configModId, write);
+					configId, write);
 			PacketDistributor.sendToServer(broadcastPacket);
 		}
 	}
 	
 	public static void srvAcceptPlayerBroadcastConfig(ServerPlayer player, ClPlayerBroadcastConfigPacket payload) {
 		UUID playerId = player.getUUID();
-		String configModId = payload.modId;
-		ModConfig<?, ?, ?> config = getConfig(configModId);
+		ConfigId configId = payload.configId;
+		ModConfig<?, ?, ?> config = getConfig(configId);
 		ServerPlayerBroadcastConfig<?> broadcast = config.getBroadcastPlayerState(playerId);
 		broadcast.fromBuf(payload.read);
 
 		PlayerBroadcastConfigPacket playerBroadcastPacket = new PlayerBroadcastConfigPacket(
-				playerId, configModId, broadcast::toBuf);
+				playerId, configId, broadcast::toBuf);
 		for (ServerPlayer otherPlayer : player.server.getPlayerList().getPlayers()) {
 			if (otherPlayer != player && !playerIsIntegratedServerHost(otherPlayer)) {
 				PacketDistributor.sendToPlayer(otherPlayer, playerBroadcastPacket);
@@ -134,9 +138,9 @@ public class ConfigNetworkFunctions {
 		}
 	}
 	
-	public static void srvResetPlayerBroadcastConfigForAllPlayers(MinecraftServer server, ServerPlayer player, String modId) {
+	public static void srvResetPlayerBroadcastConfigForAllPlayers(MinecraftServer server, ServerPlayer player, ConfigId configId) {
 		PlayerBroadcastConfigPacket playerBroadcastPacket = PlayerBroadcastConfigPacket.reset(
-				player.getUUID(), modId);
+				player.getUUID(), configId);
 		for (ServerPlayer otherPlayer : server.getPlayerList().getPlayers()) {
 			if (otherPlayer != player && !playerIsIntegratedServerHost(otherPlayer)) {
 				PacketDistributor.sendToPlayer(otherPlayer, playerBroadcastPacket);
@@ -146,8 +150,8 @@ public class ConfigNetworkFunctions {
 	
 	public static void clAcceptAnotherPlayerBroadcastConfig(PlayerBroadcastConfigPacket payload) {
 		UUID playerId = payload.playerId;
-		String configModId = payload.modId;
-		ModConfig<?, ?, ?> config = getConfig(configModId);
+		ConfigId configId = payload.configId;
+		ModConfig<?, ?, ?> config = getConfig(configId);
 		ServerPlayerBroadcastConfig<?> broadcast = config.getBroadcastPlayerState(playerId);
 		boolean reset = payload.read.isEmpty();
 		if (reset) {
@@ -161,11 +165,11 @@ public class ConfigNetworkFunctions {
 	
 	
 	public static void clSendCommonSettingEditToServer(CommonConfig<?> commonConfig, 
-			String configModId, ConfigOption<?> field) {
+			ConfigId configId, ConfigOption<?> field) {
 		if (clientHasPermissions()) {
 			String fieldName = commonConfig.getConfigOptionName(field);
 			ClCommonServerConfigEditPacket packet = new ClCommonServerConfigEditPacket(
-					configModId, fieldName, field::toBuf);
+					configId, fieldName, field::toBuf);
 			PacketDistributor.sendToServer(packet);
 		}
 	}
@@ -173,41 +177,49 @@ public class ConfigNetworkFunctions {
 	public static void srvAcceptCommonSettingEdit(ServerPlayer sender, ClCommonServerConfigEditPacket payload) {
 		MinecraftServer server = sender.level().getServer();
 		if (playerHasPermissions(sender)) {
-			String configModId = payload.modId;
+			ConfigId configId = payload.configId;
 			String fieldName = payload.fieldName;
-			ModConfig<?, ?, ?> config = getConfig(configModId);
+			ModConfig<?, ?, ?> config = getConfig(configId);
+			if (!config.hasCommon()) return;
+			
 			CommonConfig<?> commonConfig = config.commonConfig;
 			ConfigOption<?> field = commonConfig.getConfigOptionByName(fieldName);
-			field.fromBuf(payload.read);
-			
-			if (server.getGameRules().getBoolean(GameRules.RULE_SENDCOMMANDFEEDBACK)) {
-				CommandSourceStack srcStack = sender.createCommandSourceStack();
-				srcStack.sendSuccess(() -> Component.translatable("jojo_ripples.config_common.set", 
-						Component.translatable(configModId + ".config.title"), 
-						fieldName, 
-						field.get().toString()), true);
+			if (field == null) {
+				JojoMod.getLogger().error("Field {} not found in {} config {}", fieldName, configId.configClass(), configId.modOrStandId());
+				return;
 			}
 			
-			commonConfig.saveToFileSystem();
-			
-			RemoteCommonConfigPacket commonPacket = new RemoteCommonConfigPacket(
-					configModId, commonConfig::toBuf);
-			for (ServerPlayer player : sender.server.getPlayerList().getPlayers()) {
-				if (!playerIsIntegratedServerHost(player)) {
-					PacketDistributor.sendToPlayer(player, commonPacket);
+			Object prevValue = field.get();
+			field.fromBuf(payload.read);
+			Object newValue = field.get();
+			if (!Objects.equal(prevValue, newValue)) {
+				if (server.getGameRules().getBoolean(GameRules.RULE_SENDCOMMANDFEEDBACK)) {
+					CommandSourceStack srcStack = sender.createCommandSourceStack();
+					srcStack.sendSuccess(() -> Component.translatable("jojo_ripples.config_common.set", 
+							configId.getConfigTitle(), 
+							fieldName, 
+							field.get().toString()), true);
+				}
+				
+				config.saveCommon(field);
+				
+				RemoteCommonConfigPacket commonPacket = new RemoteCommonConfigPacket(
+						configId, commonConfig::toBuf);
+				for (ServerPlayer player : sender.server.getPlayerList().getPlayers()) {
+					if (!playerIsIntegratedServerHost(player)) {
+						PacketDistributor.sendToPlayer(player, commonPacket);
+					}
 				}
 			}
-			
 		}
 		else {
 			sender.connection.disconnect(Component.literal("Unauthorized attempt of ROTP config editing"));
 		}
 	}
 	
-	public static void clSendCommonConfigResetToServer(String configModId) {
+	public static void clSendCommonConfigResetToServer(ConfigId configId) {
 		if (clientHasPermissions()) {
-			ClCommonServerConfigResetPacket packet = new ClCommonServerConfigResetPacket(
-					configModId);
+			ClCommonServerConfigResetPacket packet = new ClCommonServerConfigResetPacket(configId);
 			PacketDistributor.sendToServer(packet);
 		}
 	}
@@ -215,35 +227,32 @@ public class ConfigNetworkFunctions {
 	public static void srvAcceptCommonSettingsReset(ServerPlayer sender, ClCommonServerConfigResetPacket payload) {
 		MinecraftServer server = sender.level().getServer();
 		if (playerHasPermissions(sender)) {
-			String configModId = payload.modId;
-			ModConfig<?, ?, ?> config = getConfig(configModId);	
+			ConfigId configId = payload.configId;
+			ModConfig<?, ?, ?> config = getConfig(configId);
+			if (!config.hasCommon()) return;
+			
 			CommonConfig<?> commonConfig = config.commonConfig;
 			commonConfig.reset();
 			
 			if (server.getGameRules().getBoolean(GameRules.RULE_SENDCOMMANDFEEDBACK)) {
 				CommandSourceStack srcStack = sender.createCommandSourceStack();
 				srcStack.sendSuccess(() -> Component.translatable("jojo_ripples.config_common.reset", 
-						Component.translatable(configModId + ".config.title")), true);
+						configId.getConfigTitle()), true);
 			}
 			
 			commonConfig.saveToFileSystem();
 			
 			RemoteCommonConfigPacket commonPacket = new RemoteCommonConfigPacket(
-					configModId, commonConfig::toBuf);
+					configId, commonConfig::toBuf);
 			for (ServerPlayer player : sender.server.getPlayerList().getPlayers()) {
 				if (!playerIsIntegratedServerHost(player)) {
 					PacketDistributor.sendToPlayer(player, commonPacket);
 				}
 			}
-			
 		}
 		else {
 			sender.connection.disconnect(Component.literal("Unauthorized attempt of ROTP config editing"));
 		}
-	}
-	
-	public static ModConfig<?, ?, ?> getConfig(String configModId) {
-		return ConfigEventHandler.ALL_CONFIGS.get(configModId);
 	}
 	
 }

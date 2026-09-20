@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.config.interfaces;
 
+import com.github.standobyte.jojo.config.core.ConfigId;
 import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
 
@@ -8,7 +9,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 public interface CommonConfig<C3> {
 	C3 getObj();
 
-	boolean exists();
 	boolean isDefault();
 	void reset();
 	
@@ -17,13 +17,14 @@ public interface CommonConfig<C3> {
 	
 	void loadFromFileSystem();
 	void saveToFileSystem();
+	void saveToFileSystem(ConfigOption<?> singleEditedOption);
 	
 	void toBuf(RegistryFriendlyByteBuf buf);
 	void fromBuf(RegistryFriendlyByteBuf buf);
 	
-	default void sendEditToServer(String modId, ConfigOption<?> configOption) {
+	default void sendEditToServer(ConfigId configId, ConfigOption<?> configOption) {
 		ConfigNetworkFunctions.clSendCommonSettingEditToServer(this, 
-				modId, configOption);
+				configId, configOption);
 	}
 	ConfigOption<?> getConfigOptionByName(String name);
 	String getConfigOptionName(ConfigOption<?> configOption);

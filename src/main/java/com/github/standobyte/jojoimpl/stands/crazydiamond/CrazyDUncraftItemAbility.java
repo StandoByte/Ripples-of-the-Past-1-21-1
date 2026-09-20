@@ -116,7 +116,8 @@ public class CrazyDUncraftItemAbility extends StandEntityAbility {
 
 		@Override
 		public void onActionSet(@Nullable EntityActionInstance prevAction) {
-			if (inputInvSlot != null && inputInvSlot.isPresent() && powerUser.getEntity(level()) instanceof Player player) {
+			LivingEntity standUser = powerUser.getEntityLiving(level());
+			if (inputInvSlot != null && inputInvSlot.isPresent() && standUser instanceof Player player) {
 				repairedStack = inputInvSlot.get().getItem(player);
 			}
 		}
@@ -133,7 +134,8 @@ public class CrazyDUncraftItemAbility extends StandEntityAbility {
 					LivingEntity user = getPowerUser();
 					int tick = curPhaseTick;
 					boolean isEnchantedBook = repairedStack.has(DataComponents.STORED_ENCHANTMENTS);
-					ItemRepairResult repairProgress = CrazyDRepairItemAbility.repairTick(user, stand, repairedStack, tick);
+					ItemRepairResult repairProgress = CrazyDRepairItemAbility.repairTick(user, stand, 
+							repairedStack, tick, () -> true /* the item is about to get turned into original ingredients anyway */);
 					if (isEnchantedBook || (!repairProgress.isRepairing && CrazyDRepairItemAbility.isItemTransformationTick(tick, stand))) {
 						convertTo(repairedStack, level, null, performer.getRandom(), true).ifPresent(itemsAndCount -> {
 							boolean gaveIngredients = false;

@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.powersystem.ability;
 
+import java.util.Map;
+
 import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
@@ -10,12 +12,13 @@ import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
 import com.github.standobyte.jojo.client.ui.hud_power.WindupIndicator;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
+import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerData;
 import com.github.standobyte.jojo.powersystem.ability.condition.AbilityUsageContext;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
-import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
+import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.ability.cooldown.AbilityCooldownTracker;
 import com.github.standobyte.jojo.powersystem.ability.finisher.AbilityStandFinisherData;
@@ -42,6 +45,8 @@ public class Ability {
 	public boolean isSubAbility = false;
 	
 	@Nullable public AbilityStandFinisherData isStandFinisherOf = null;
+	
+	@ApiStatus.Internal public Map<String, ConfigOption<?>> __configOptionsCache;
 
 	public Ability(AbilityType<?> abilityType, AbilityId abilityId) {
 		this.abilityType = abilityType;

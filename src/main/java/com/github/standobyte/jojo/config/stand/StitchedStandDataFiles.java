@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
@@ -51,28 +52,29 @@ public class StitchedStandDataFiles<F> {
 			
 			F resource = entry.getValue();
 			String[] path = fileFullPath.split("/");
-			path[path.length - 1] = StringUtil.substrBack(path[path.length - 1], DataDrivenStandsLoader.FILE_EXT.length());
+			StringUtil.trimFileExtension(path, DataDrivenStandsLoader.FILE_EXT);
 			
-			ResourceLocation standId = ResourceLocation.fromNamespaceAndPath(resourceKey.getNamespace(), path[0]);
+			String groupName = path[0];
+			String[] memberPath = new String[path.length - 1];
+			System.arraycopy(path, 1, memberPath, 0, memberPath.length);
+			
+			ResourceLocation standId = ResourceLocation.fromNamespaceAndPath(resourceKey.getNamespace(), groupName);
 			StitchedStandDataFiles<F> stitchedResources = allGrouped.computeIfAbsent(standId, __ -> new StitchedStandDataFiles<>());
-			
-			if (path.length == 2) {
-				if (path[1].equals(MAIN_FILE_NAME)) {
-					stitchedResources.mainInfo = resource;
-				}
-				else {
-					stitchedResources.members.put(Arrays.asList(path[1]), resource);
-				}
-			}
-			else {
-				String[] memberPath = new String[path.length - 1];
-				System.arraycopy(path, 1, memberPath, 0, memberPath.length);
-				stitchedResources.members.put(Arrays.asList(memberPath), resource);
-			}
+			stitchedResources.add(resource, memberPath);
 		}
 		return allGrouped;
 	}
 	
+	public void add(F resource, String[] filePath) {
+		if (filePath.length == 1 && filePath[0].equals(MAIN_FILE_NAME)) {
+			this.mainInfo = resource;
+		}
+		else {
+			this.members.put(Arrays.asList(filePath), resource);
+		}
+	}
+	
+	@Nonnull
 	public JsonObject stitchJson(ResourceLocation standId) throws IOException {
 		if (mainInfo != null) {
 			resultingJson = readFile(mainInfo).getAsJsonObject();

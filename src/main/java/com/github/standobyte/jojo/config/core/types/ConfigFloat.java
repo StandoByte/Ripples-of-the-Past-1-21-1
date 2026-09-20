@@ -2,18 +2,20 @@ package com.github.standobyte.jojo.config.core.types;
 
 import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.core.ModConfig.CommonConfigState;
+import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.util.objects_java.DefaultedValue;
 import com.github.standobyte.jojo.util.objects_java.OptionalFloat.FloatSupplier;
 import com.mojang.serialization.codecs.PrimitiveCodec;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.util.Mth;
 
 public class ConfigFloat extends ConfigOption<Float> implements FloatSupplier {
 	protected DefaultedValue.Float value;
 	protected DefaultedValue.Float remoteValue;
-	protected float minValue = -Float.MAX_VALUE;
-	protected float maxValue = Float.MAX_VALUE;
+	public float minValue = -Float.MAX_VALUE;
+	public float maxValue = Float.MAX_VALUE;
 
 	public ConfigFloat(float defaultValue) {
 		super(PrimitiveCodec.FLOAT, ByteBufCodecs.FLOAT);
@@ -42,7 +44,7 @@ public class ConfigFloat extends ConfigOption<Float> implements FloatSupplier {
 
 	@Override
 	public void set(Float value, CommonConfigState cfgState) {
-		getValueToUse(cfgState).value = Mth.clamp(value, minValue, maxValue);
+		getValueToUse(cfgState).value = sanitize(value);
 	}
 	
 	@Override
@@ -57,6 +59,22 @@ public class ConfigFloat extends ConfigOption<Float> implements FloatSupplier {
 	@Override
 	public void reset(CommonConfigState cfgState) {
 		getValueToUse(cfgState).reset();
+	}
+	
+	@Override
+	public ConditionCheck isValueValid(Float value, Component optionName) {
+		if (value < minValue) {
+			return valueTooLow(optionName, minValue);
+		}
+		if (value > maxValue) {
+			return valueTooHigh(optionName, maxValue);
+		}
+		return super.isValueValid(value, optionName);
+	}
+	
+	@Override
+	public Float sanitize(Float value) {
+		return Mth.clamp(value, minValue, maxValue);
 	}
 	
 	@Override

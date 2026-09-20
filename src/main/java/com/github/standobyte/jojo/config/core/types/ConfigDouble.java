@@ -4,17 +4,19 @@ import java.util.function.DoubleSupplier;
 
 import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.core.ModConfig.CommonConfigState;
+import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.util.objects_java.DefaultedValue;
 import com.mojang.serialization.codecs.PrimitiveCodec;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.util.Mth;
 
 public class ConfigDouble extends ConfigOption<Double> implements DoubleSupplier {
 	protected DefaultedValue.Double value;
 	protected DefaultedValue.Double remoteValue;
-	protected double minValue = -Double.MAX_VALUE;
-	protected double maxValue = Double.MAX_VALUE;
+	public double minValue = -Double.MAX_VALUE;
+	public double maxValue = Double.MAX_VALUE;
 
 	public ConfigDouble(double defaultValue) {
 		super(PrimitiveCodec.DOUBLE, ByteBufCodecs.DOUBLE);
@@ -43,7 +45,7 @@ public class ConfigDouble extends ConfigOption<Double> implements DoubleSupplier
 
 	@Override
 	public void set(Double value, CommonConfigState cfgState) {
-		getValueToUse(cfgState).value = Mth.clamp(value, minValue, maxValue);
+		getValueToUse(cfgState).value = sanitize(value);
 	}
 
 	@Override
@@ -58,6 +60,22 @@ public class ConfigDouble extends ConfigOption<Double> implements DoubleSupplier
 	@Override
 	public void reset(CommonConfigState cfgState) {
 		getValueToUse(cfgState).reset();
+	}
+	
+	@Override
+	public ConditionCheck isValueValid(Double value, Component optionName) {
+		if (value < minValue) {
+			return valueTooLow(optionName, minValue);
+		}
+		if (value > maxValue) {
+			return valueTooHigh(optionName, maxValue);
+		}
+		return super.isValueValid(value, optionName);
+	}
+	
+	@Override
+	public Double sanitize(Double value) {
+		return Mth.clamp(value, minValue, maxValue);
 	}
 	
 	@Override

@@ -5,6 +5,8 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 
 import com.github.standobyte.jojo.config.core.types.ConfigDouble;
+import com.github.standobyte.jojo.config.core.types.ConfigDoubleEffRange;
+import com.github.standobyte.jojo.config.core.types.ConfigDoubleMaxRange;
 import com.github.standobyte.jojo.config.util.JsonConfigurable;
 import com.github.standobyte.jojo.init.ModEntityAttributes;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
@@ -24,25 +26,28 @@ public class StandStats implements JsonConfigurable {
 	
 	public final ConfigDouble power;
 	public final ConfigDouble speed;
-	public final ConfigDouble rangeEffective;
-	public final ConfigDouble rangeMax;
+	public final ConfigDoubleEffRange rangeEffective;
+	public final ConfigDoubleMaxRange rangeMax;
 	public final ConfigDouble durability;
 	public final ConfigDouble precision;
 	
 	public StandStats(double power, double speed, double rangeEffective, double rangeMax, double durability, double precision) {
 		this.power = new ConfigDouble(power).initNonNegative().initMaxValue(MAX_POSSIBLE_POWER);
 		this.speed = new ConfigDouble(speed).initNonNegative().initMaxValue(MAX_POSSIBLE_SPEED);
-		this.rangeEffective = new ConfigDouble(rangeEffective).initNonNegative().initMaxValue(MAX_POSSIBLE_RANGE);
-		this.rangeMax = new ConfigDouble(rangeMax).initNonNegative().initMaxValue(MAX_POSSIBLE_RANGE);
+		this.rangeEffective = (ConfigDoubleEffRange) new ConfigDoubleEffRange(rangeEffective).initNonNegative().initMaxValue(MAX_POSSIBLE_RANGE);
+		this.rangeMax = (ConfigDoubleMaxRange) new ConfigDoubleMaxRange(rangeMax).initNonNegative().initMaxValue(MAX_POSSIBLE_RANGE);
 		this.durability = new ConfigDouble(durability).initNonNegative().initMaxValue(MAX_POSSIBLE_DURABILITY);
 		this.precision = new ConfigDouble(precision).initNonNegative().initMaxValue(MAX_POSSIBLE_PRECISION);
+		
+		this.rangeEffective.linkMaxRangeField(this.rangeMax);
+		this.rangeMax.linkEffRangeField(this.rangeEffective);
 	}
 
 	public double getValue(StatWithValue field) {
 		return getField(field).getAsDouble();
 	}
 
-	protected ConfigDouble getField(StatWithValue field) {
+	public ConfigDouble getField(StatWithValue field) {
 		return switch (field) {
 			case POWER -> power;
 			case SPEED -> speed;
@@ -129,7 +134,7 @@ public class StandStats implements JsonConfigurable {
 		DURABILITY("durability"),
 		PRECISION("precision");
 		
-		private final String nameInJson;
+		public final String nameInJson;
 		
 		private StatWithValue(String nameInJson) {
 			this.nameInJson = nameInJson;

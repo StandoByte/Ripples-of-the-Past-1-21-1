@@ -24,7 +24,7 @@ import com.google.gson.JsonObject;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 
 public class CommonFileConfig<C3> implements CommonConfig<C3> {
-	@Nullable private final ObjectConfigHelper<C3> configState;
+	private final ObjectConfigHelper<C3> configState;
 	private File file;
 
 	public CommonFileConfig(ObjectConfigHelper<C3> config, File mainDirectory, String modId) {
@@ -36,11 +36,6 @@ public class CommonFileConfig<C3> implements CommonConfig<C3> {
 	@Override
 	public C3 getObj() {
 		return configState.configObj;
-	}
-	
-	@Override
-	public boolean exists() {
-		return configState != null;
 	}
 	
 	@Override
@@ -65,22 +60,23 @@ public class CommonFileConfig<C3> implements CommonConfig<C3> {
 
 	@Override
 	public void loadFromFileSystem() {
-		if (exists()) {
-			JsonObject json = CommonFileConfig.deserializeObj(file);
-			if (json != null) {
-				configState.fromJson(json);
-			}
+		JsonObject json = CommonFileConfig.deserializeObj(file);
+		if (json != null) {
+			configState.fromJson(json);
 		}
 	}
 
 	@Override
 	public void saveToFileSystem() {
-		if (exists()) {
-			CommonFileConfig.serialize(file, writer -> {
-				JsonObject json = configState.toJson();
-				CommonFileConfig.GSON.toJson(json, writer);
-			});
-		}
+		CommonFileConfig.serialize(file, writer -> {
+			JsonObject json = configState.toJson();
+			CommonFileConfig.GSON.toJson(json, writer);
+		});
+	}
+
+	@Override
+	public void saveToFileSystem(ConfigOption<?> singleEditedOption) {
+		saveToFileSystem();
 	}
 
 	@Override

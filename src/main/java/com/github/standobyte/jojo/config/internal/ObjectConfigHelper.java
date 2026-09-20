@@ -5,6 +5,7 @@ import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
@@ -20,7 +21,7 @@ public class ObjectConfigHelper<C> {
 	public static final String DIRECTORY = "config/jojo_rotp/";
 	public final Map<String, ConfigOption<?>> configOptions;
 	
-	protected ObjectConfigHelper(C configObj, Map<String, ConfigOption<?>> configOptions) {
+	public ObjectConfigHelper(C configObj, Map<String, ConfigOption<?>> configOptions) {
 		this.configObj = configObj;
 		this.configOptions = configOptions;
 		
@@ -54,9 +55,17 @@ public class ObjectConfigHelper<C> {
 	}
 	
 	public JsonObject toJson() {
+		return settingsToJson(configOptions);
+	}
+	
+	public static JsonObject settingsToJson(Map<String, ConfigOption<?>> settings) {
+		return settingsToJson(settings, Function.identity());
+	}
+	
+	public static <K> JsonObject settingsToJson(Map<K, ConfigOption<?>> settings, Function<K, String> getFieldName) {
 		JsonObject json = new JsonObject();
-		for (var optionEntry : configOptions.entrySet()) {
-			String fieldName = optionEntry.getKey();
+		for (var optionEntry : settings.entrySet()) {
+			String fieldName = getFieldName.apply(optionEntry.getKey());
 			ConfigOption<?> field = optionEntry.getValue();
 			json.add(fieldName, field.toJson(fieldName));
 		}

@@ -115,6 +115,11 @@ public class JojoMod {
 						RotpConfig.Common::new);
 			}
 		}
+		
+		event.generateStandConfig(ModStands.STAR_PLATINUM);
+		event.generateStandConfig(ModStands.CRAZY_DIAMOND);
+		event.generateStandConfig(ModStands.THE_WORLD);
+		event.generateStandConfig(ModStands.HIEROPHANT_GREEN);
 	}
 
 }

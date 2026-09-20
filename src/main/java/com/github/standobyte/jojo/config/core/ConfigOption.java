@@ -6,11 +6,13 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.config.core.ModConfig.CommonConfigState;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 
 public abstract class ConfigOption<T> implements Supplier<T> {
@@ -32,6 +34,24 @@ public abstract class ConfigOption<T> implements Supplier<T> {
 	public void reset() {
 		reset(this.cfgState);
 	}
+	
+	
+	public static ConditionCheck valueTooLow(Component optionName, Object minValue) {
+		return ConditionCheck.createNegative(Component.translatable("jojo_ripples.config.value_too_low", optionName, minValue));
+	}
+	
+	public static ConditionCheck valueTooHigh(Component optionName, Object maxValue) {
+		return ConditionCheck.createNegative(Component.translatable("jojo_ripples.config.value_too_high", optionName, maxValue));
+	}
+	
+	public ConditionCheck isValueValid(T value, Component optionName) {
+		return ConditionCheck.POSITIVE;
+	}
+	
+	public T sanitize(T value) {
+		return value;
+	}
+	
 	
 	public void setRemoteState() {
 		this.cfgState = CommonConfigState.REMOTE;
@@ -58,8 +78,8 @@ public abstract class ConfigOption<T> implements Supplier<T> {
 	}
 
 	protected String fieldName;
-	protected Codec<T> jsonCodec;
-	protected StreamCodec<? super RegistryFriendlyByteBuf, T> networkCodec;
+	public final Codec<T> jsonCodec;
+	public final StreamCodec<? super RegistryFriendlyByteBuf, T> networkCodec;
 
 	public ConfigOption(Codec<T> jsonCodec, StreamCodec<? super RegistryFriendlyByteBuf, T> networkCodec) {
 		this.jsonCodec = jsonCodec;
