@@ -69,7 +69,6 @@ import net.neoforged.neoforge.common.damagesource.DamageContainer;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 
-@EventBusSubscriber(modid = JojoMod.MOD_ID)
 public class StandEntityGuardAbility extends StandEntityAbility {
 
 	public StandEntityGuardAbility(AbilityType<?> abilityType, AbilityId abilityId) {
@@ -336,176 +335,181 @@ public class StandEntityGuardAbility extends StandEntityAbility {
 		return false;
 	}
 	
-	@SubscribeEvent(priority = EventPriority.LOW)
-	public static void onStartedStandTakesDamage(LivingDamageEvent.Pre event) {
-		LivingEntity target = event.getEntity();
-		if (target instanceof StandEntity standEntity) {
-			EntityActionInstance standAction = standEntity.getCurStandAction();
-			if (standAction instanceof GuardAction guardAction) {
-				DamageContainer dmg = event.getContainer();
-				DamageSource dmgSource = dmg.getSource();
-				DamageSourceModified _dmgSource = (DamageSourceModified) dmgSource;
-				
-				@Nullable Explosion explosion = _dmgSource.jojo_ripples$getCausingExplosion();
-				@Nullable Entity directEntity = dmgSource.getDirectEntity();
-				if (isBlockableDamage(dmgSource, explosion, directEntity)) {
-					Vec3 dmgPos = damagePos(dmgSource, explosion, directEntity);
-					if (canBlockFromAngle(standEntity, dmgPos)) {
-						float origDmgAmount = dmg.getOriginalDamage();
-
-						BlockResult res = guardReduceDamage(AttackedEntity.STAND, standEntity, origDmgAmount);
-						if (res.damageCoeff < 1) {
-							float dmgAmount = dmg.getNewDamage();
-							float newDmg = dmgAmount * res.damageCoeff;
-							event.setNewDamage(newDmg);
-							onReducedDamage(dmgSource, res.damageCoeff, res.outOfStamina, 
-									newDmg, standEntity.getUser());
-							GuardAction.BLOCKED_DAMAGE.sendSignal(guardAction.synchedData, origDmgAmount);
+	
+	@EventBusSubscriber(modid = JojoMod.MOD_ID)
+	public static class EventHandler {
+		
+		@SubscribeEvent(priority = EventPriority.LOW)
+		public static void onStartedStandTakesDamage(LivingDamageEvent.Pre event) {
+			LivingEntity target = event.getEntity();
+			if (target instanceof StandEntity standEntity) {
+				EntityActionInstance standAction = standEntity.getCurStandAction();
+				if (standAction instanceof GuardAction guardAction) {
+					DamageContainer dmg = event.getContainer();
+					DamageSource dmgSource = dmg.getSource();
+					DamageSourceModified _dmgSource = (DamageSourceModified) dmgSource;
+					
+					@Nullable Explosion explosion = _dmgSource.jojo_ripples$getCausingExplosion();
+					@Nullable Entity directEntity = dmgSource.getDirectEntity();
+					if (isBlockableDamage(dmgSource, explosion, directEntity)) {
+						Vec3 dmgPos = damagePos(dmgSource, explosion, directEntity);
+						if (canBlockFromAngle(standEntity, dmgPos)) {
+							float origDmgAmount = dmg.getOriginalDamage();
+							
+							BlockResult res = guardReduceDamage(AttackedEntity.STAND, standEntity, origDmgAmount);
+							if (res.damageCoeff < 1) {
+								float dmgAmount = dmg.getNewDamage();
+								float newDmg = dmgAmount * res.damageCoeff;
+								event.setNewDamage(newDmg);
+								onReducedDamage(dmgSource, res.damageCoeff, res.outOfStamina, 
+										newDmg, standEntity.getUser());
+								GuardAction.BLOCKED_DAMAGE.sendSignal(guardAction.synchedData, origDmgAmount);
+							}
 						}
 					}
 				}
 			}
 		}
-	}
-	
-	@SubscribeEvent(priority = EventPriority.NORMAL)
-	public static void beforePlayerTakesDamage(LivingIncomingDamageEvent event) {
-		LivingEntity standUserTarget = event.getEntity();
-		StandEntity standEntity = StandUtil.getSummonedStand(standUserTarget);
-		if (standEntity != null) {
-			// да повторение кода и чо ты мне сделаешь я в другмо городе
-			EntityActionInstance standAction = standEntity.getCurStandAction();
-			if (standAction instanceof GuardAction guardAction) {
-				DamageContainer dmg = event.getContainer();
-				DamageSource dmgSource = dmg.getSource();
-				DamageSourceModified _dmgSource = (DamageSourceModified) dmgSource;
-				
-				@Nullable Explosion explosion = _dmgSource.jojo_ripples$getCausingExplosion();
-				@Nullable Entity directEntity = dmgSource.getDirectEntity();
-				if (isBlockableDamage(dmgSource, explosion, directEntity)) {
-					Vec3 dmgPos = damagePos(dmgSource, explosion, directEntity);
-					Vec3 userPos = getCenterPos(standUserTarget);
-					boolean standIsBetweenDmgAndUser = standEntity.getBoundingBox().clip(dmgPos, userPos).isPresent();
-					if (canBlockFromAngle(standEntity, dmgPos) && standIsBetweenDmgAndUser) {
-						float origDmgAmount = dmg.getOriginalDamage();
-						
-						if (!standEntity.isInvulnerableTo(dmgSource)) {
-							standEntity.hurt(dmgSource, origDmgAmount);
-							event.setCanceled(true);
-							return;
-						}
-						
-						if (!dmgSource.is(DamageTypeTags.BYPASSES_COOLDOWN)) {
-							@Nullable UUID attackerId = directEntity != null ? directEntity.getUUID() : null;
-							if ((float) standUserTarget.invulnerableTime > 10.0F || 
-									attackerId != null && guardAction.blockedEntitiesTimers.containsKey(attackerId)) {
+		
+		@SubscribeEvent(priority = EventPriority.NORMAL)
+		public static void beforePlayerTakesDamage(LivingIncomingDamageEvent event) {
+			LivingEntity standUserTarget = event.getEntity();
+			StandEntity standEntity = StandUtil.getSummonedStand(standUserTarget);
+			if (standEntity != null) {
+				// да повторение кода и чо ты мне сделаешь я в другмо городе
+				EntityActionInstance standAction = standEntity.getCurStandAction();
+				if (standAction instanceof GuardAction guardAction) {
+					DamageContainer dmg = event.getContainer();
+					DamageSource dmgSource = dmg.getSource();
+					DamageSourceModified _dmgSource = (DamageSourceModified) dmgSource;
+					
+					@Nullable Explosion explosion = _dmgSource.jojo_ripples$getCausingExplosion();
+					@Nullable Entity directEntity = dmgSource.getDirectEntity();
+					if (isBlockableDamage(dmgSource, explosion, directEntity)) {
+						Vec3 dmgPos = damagePos(dmgSource, explosion, directEntity);
+						Vec3 userPos = getCenterPos(standUserTarget);
+						boolean standIsBetweenDmgAndUser = standEntity.getBoundingBox().clip(dmgPos, userPos).isPresent();
+						if (canBlockFromAngle(standEntity, dmgPos) && standIsBetweenDmgAndUser) {
+							float origDmgAmount = dmg.getOriginalDamage();
+							
+							if (!standEntity.isInvulnerableTo(dmgSource)) {
+								standEntity.hurt(dmgSource, origDmgAmount);
 								event.setCanceled(true);
 								return;
 							}
-							else {
-								guardAction.blockedEntitiesTimers.put(attackerId, new MutableInt(10));
+							
+							if (!dmgSource.is(DamageTypeTags.BYPASSES_COOLDOWN)) {
+								@Nullable UUID attackerId = directEntity != null ? directEntity.getUUID() : null;
+								if ((float) standUserTarget.invulnerableTime > 10.0F || 
+										attackerId != null && guardAction.blockedEntitiesTimers.containsKey(attackerId)) {
+									event.setCanceled(true);
+									return;
+								}
+								else {
+									guardAction.blockedEntitiesTimers.put(attackerId, new MutableInt(10));
+								}
 							}
-						}
-
-						BlockResult res = guardReduceDamage(AttackedEntity.USER, standEntity, origDmgAmount);
-						if (res.damageCoeff < 1) {
-							if (res.damageCoeff == 0) {
-								event.setCanceled(true);
-								
-								// makes the entity bounce off (originally made this for slimes, then felt like trying to do this for any attacker)
-					            if (directEntity != null) {
-					            	Vec3 slimeMoveVec = directEntity.getDeltaMovement();
-					            	// cos of XZ projections of attacker speed and stand look vector - makes sure it will bounce *away* from the stand
-					            	if (
-					            			new Vec3(slimeMoveVec.x, 0, slimeMoveVec.z).normalize().dot(
-					            			standEntity.calculateViewVector(0, standEntity.getYRot())) < 0) {
-					            		directEntity.setDeltaMovement(-slimeMoveVec.x, slimeMoveVec.y, -slimeMoveVec.z);
-					            		JojoModUtil.forceSyncMotion(directEntity);
-					            	}
-					            }
+							
+							BlockResult res = guardReduceDamage(AttackedEntity.USER, standEntity, origDmgAmount);
+							if (res.damageCoeff < 1) {
+								if (res.damageCoeff == 0) {
+									event.setCanceled(true);
+									
+									// makes the entity bounce off (originally made this for slimes, then felt like trying to do this for any attacker)
+									if (directEntity != null) {
+										Vec3 slimeMoveVec = directEntity.getDeltaMovement();
+										// cos of XZ projections of attacker speed and stand look vector - makes sure it will bounce *away* from the stand
+										if (
+												new Vec3(slimeMoveVec.x, 0, slimeMoveVec.z).normalize().dot(
+														standEntity.calculateViewVector(0, standEntity.getYRot())) < 0) {
+											directEntity.setDeltaMovement(-slimeMoveVec.x, slimeMoveVec.y, -slimeMoveVec.z);
+											JojoModUtil.forceSyncMotion(directEntity);
+										}
+									}
+								}
+								else {
+									float dmgAmount = dmg.getNewDamage();
+									float newDmg = dmgAmount * res.damageCoeff;
+									event.setAmount(newDmg);
+									onReducedDamage(dmgSource, res.damageCoeff, res.outOfStamina, 
+											newDmg, standUserTarget);
+								}
+								GuardAction.BLOCKED_DAMAGE.sendSignal(guardAction.synchedData, origDmgAmount);
 							}
-							else {
-								float dmgAmount = dmg.getNewDamage();
-								float newDmg = dmgAmount * res.damageCoeff;
-								event.setAmount(newDmg);
-								onReducedDamage(dmgSource, res.damageCoeff, res.outOfStamina, 
-										newDmg, standUserTarget);
-							}
-							GuardAction.BLOCKED_DAMAGE.sendSignal(guardAction.synchedData, origDmgAmount);
 						}
 					}
 				}
 			}
 		}
-	}
-
-	protected static class BlockResult {
-		float damageCoeff = 1;
-		boolean outOfStamina = false;
 		
-		static BlockResult instance = new BlockResult();
-	}
-	public static enum AttackedEntity { STAND, USER }
-	
-	protected static BlockResult guardReduceDamage(AttackedEntity attackedEntity, StandEntity standEntity, float origDmgAmount) {
-		float blockedRatio = (float) standEntity.staminaCondition;
-		boolean outOfStamina = false;
-
-		StandPower userPower = standEntity.getUserPower();
-		if (userPower != null && userPower.usesStamina()) {
-			float staminaCost = StandStatFormulas.getGuardStaminaCost(origDmgAmount);
-			float stamina = userPower.getStamina();
-
-			if (!userPower.consumeStamina(staminaCost)) {
-				blockedRatio *= stamina / staminaCost;
-				outOfStamina = true;
-				
-				guardBreak(standEntity);
-				
-				var forceUnsummon = new StandEntityUnsummonAction.StandUnsummonInstance();
-				forceUnsummon.isForced = true;
-				forceUnsummon.moveTowardsPlayer = false;
-				forceUnsummon.initDuration(5);
-				standEntity.setAction(forceUnsummon);
-			}
+		protected static class BlockResult {
+			float damageCoeff = 1;
+			boolean outOfStamina = false;
+			
+			static BlockResult instance = new BlockResult();
 		}
-
-		float dmgCoeff;
-		switch (attackedEntity) {
-			case STAND -> {
-				dmgCoeff = 1 - 0.8f * blockedRatio;
-				double furtherReductionCap = standEntity.getDurability() / 2;
-				if (origDmgAmount < furtherReductionCap) {
-					dmgCoeff *= origDmgAmount / furtherReductionCap;
+		public static enum AttackedEntity { STAND, USER }
+		
+		protected static BlockResult guardReduceDamage(AttackedEntity attackedEntity, StandEntity standEntity, float origDmgAmount) {
+			float blockedRatio = (float) standEntity.staminaCondition;
+			boolean outOfStamina = false;
+			
+			StandPower userPower = standEntity.getUserPower();
+			if (userPower != null && userPower.usesStamina()) {
+				float staminaCost = StandStatFormulas.getGuardStaminaCost(origDmgAmount);
+				float stamina = userPower.getStamina();
+				
+				if (!userPower.consumeStamina(staminaCost)) {
+					blockedRatio *= stamina / staminaCost;
+					outOfStamina = true;
+					
+					guardBreak(standEntity);
+					
+					var forceUnsummon = new StandEntityUnsummonAction.StandUnsummonInstance();
+					forceUnsummon.isForced = true;
+					forceUnsummon.moveTowardsPlayer = false;
+					forceUnsummon.initDuration(5);
+					standEntity.setAction(forceUnsummon);
 				}
 			}
-			case USER -> {
-				dmgCoeff = 1 - blockedRatio;
-			}
-			default -> throw new AssertionError();
-		};
+			
+			float dmgCoeff;
+			switch (attackedEntity) {
+				case STAND -> {
+					dmgCoeff = 1 - 0.8f * blockedRatio;
+					double furtherReductionCap = standEntity.getDurability() / 2;
+					if (origDmgAmount < furtherReductionCap) {
+						dmgCoeff *= origDmgAmount / furtherReductionCap;
+					}
+				}
+				case USER -> {
+					dmgCoeff = 1 - blockedRatio;
+				}
+				default -> throw new AssertionError();
+			};
+			
+			BlockResult res = BlockResult.instance;
+			res.damageCoeff = dmgCoeff;
+			res.outOfStamina = outOfStamina;
+			return res;
+		}
 		
-		BlockResult res = BlockResult.instance;
-		res.damageCoeff = dmgCoeff;
-		res.outOfStamina = outOfStamina;
-		return res;
-	}
-	
-	protected static void onReducedDamage(DamageSource dmgSource, float damageCoeff, boolean outOfStamina,
-			float resultingDamage, LivingEntity targetStandUser) {
-		DamageSourceModified _dmgSource = (DamageSourceModified) dmgSource;
-		_dmgSource.jojo_ripples$modifyKnockback(_dmgSource.jojo_ripples$addKnockback(), 
-				_dmgSource.jojo_ripples$knockbackMultiplier() * damageCoeff);
-		
-		if (!outOfStamina) {
-			_dmgSource.jojo_ripples$setDisableKBImpact(true);
-			_dmgSource.jojo_ripples$setNoHurtSound(true);
-			_dmgSource.jojo_ripples$setNoFlinchModelAnim(true);
-			float cameraTiltMultiplier = damageCoeff;
-			if (targetStandUser != null) {
-				cameraTiltMultiplier = Math.max(cameraTiltMultiplier, resultingDamage / targetStandUser.getMaxHealth() * 0.5f);
+		protected static void onReducedDamage(DamageSource dmgSource, float damageCoeff, boolean outOfStamina,
+				float resultingDamage, LivingEntity targetStandUser) {
+			DamageSourceModified _dmgSource = (DamageSourceModified) dmgSource;
+			_dmgSource.jojo_ripples$modifyKnockback(_dmgSource.jojo_ripples$addKnockback(), 
+					_dmgSource.jojo_ripples$knockbackMultiplier() * damageCoeff);
+			
+			if (!outOfStamina) {
+				_dmgSource.jojo_ripples$setDisableKBImpact(true);
+				_dmgSource.jojo_ripples$setNoHurtSound(true);
+				_dmgSource.jojo_ripples$setNoFlinchModelAnim(true);
+				float cameraTiltMultiplier = damageCoeff;
+				if (targetStandUser != null) {
+					cameraTiltMultiplier = Math.max(cameraTiltMultiplier, resultingDamage / targetStandUser.getMaxHealth() * 0.5f);
+				}
+				_dmgSource.jojo_ripples$setCameraTiltMultiplier(cameraTiltMultiplier);
 			}
-			_dmgSource.jojo_ripples$setCameraTiltMultiplier(cameraTiltMultiplier);
 		}
 	}
 	
@@ -514,8 +518,8 @@ public class StandEntityGuardAbility extends StandEntityAbility {
 		StandPower standPower = standEntity.getUserPower();
 		if (standPower != null) {
 			standPower.userStandEffects
-					.getEffectsOfType(ModStandAbilities.GUARD_TOGGLE.get())
-					.forEach(EntityCustomEffect::remove);
+			.getEffectsOfType(ModStandAbilities.GUARD_TOGGLE.get())
+			.forEach(EntityCustomEffect::remove);
 		}
 	}
 	
@@ -526,7 +530,7 @@ public class StandEntityGuardAbility extends StandEntityAbility {
 	public static Vec3 damagePos(DamageSource dmgSource, @Nullable Explosion explosion, @Nullable Entity directEntity) {
 		return explosion != null ? explosion.center() : getCenterPos(directEntity);
 	}
-
+	
 	public static boolean canBlockFromAngle(Entity blockingEntity, Vec3 dmgPosition) {
 		if (dmgPosition == null) {
 			return false;
