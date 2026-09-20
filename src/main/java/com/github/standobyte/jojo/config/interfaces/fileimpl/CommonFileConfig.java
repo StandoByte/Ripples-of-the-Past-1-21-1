@@ -22,6 +22,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.server.MinecraftServer;
 
 public class CommonFileConfig<C3> implements CommonConfig<C3> {
 	private final ObjectConfigHelper<C3> configState;
@@ -47,6 +48,9 @@ public class CommonFileConfig<C3> implements CommonConfig<C3> {
 	public void reset() {
 		configState.reset();
 	}
+	
+	@Override
+	public void onServerSideApply(MinecraftServer server) {}
 	
 	@Override
 	public void setRemoteState() {

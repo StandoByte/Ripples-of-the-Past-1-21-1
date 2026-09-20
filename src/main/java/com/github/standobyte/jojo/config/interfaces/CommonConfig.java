@@ -5,12 +5,15 @@ import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.server.MinecraftServer;
 
 public interface CommonConfig<C3> {
 	C3 getObj();
 
 	boolean isDefault();
 	void reset();
+	
+	void onServerSideApply(MinecraftServer server);
 	
 	void setRemoteState();
 	void unsetRemoteState();

@@ -24,6 +24,7 @@ import com.github.standobyte.jojo.config.stand.datapack.DataDrivenStandsLoader;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.Moveset;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats.StatWithValue;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
@@ -34,6 +35,10 @@ import com.google.gson.JsonObject;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
 
 public class StandCommonConfig implements CommonConfig<StandType> {
@@ -119,6 +124,21 @@ public class StandCommonConfig implements CommonConfig<StandType> {
 	@Override
 	public void reset() {
 		configState.reset();
+	}
+	
+	
+	@Override
+	public void onServerSideApply(MinecraftServer server) {
+		for (ServerLevel level : server.getAllLevels()) {
+			for (Entity entity : level.getAllEntities()) {
+				if (entity instanceof LivingEntity living) {
+					StandPower standPower = StandPower.get(living);
+					if (standPower != null) {
+						StandStats.updateStandStatAttributes(standPower, living, standId);
+					}
+				}
+			}
+		}
 	}
 
 

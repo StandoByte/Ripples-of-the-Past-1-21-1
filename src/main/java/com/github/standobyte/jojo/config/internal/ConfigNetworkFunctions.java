@@ -5,8 +5,6 @@ import static com.github.standobyte.jojo.config.internal.ConfigEventHandler.getC
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import org.spongepowered.include.com.google.common.base.Objects;
-
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.config.core.ConfigId;
 import com.github.standobyte.jojo.config.core.ConfigOption;
@@ -189,26 +187,23 @@ public class ConfigNetworkFunctions {
 				return;
 			}
 			
-			Object prevValue = field.get();
 			field.fromBuf(payload.read);
-			Object newValue = field.get();
-			if (!Objects.equal(prevValue, newValue)) {
-				if (server.getGameRules().getBoolean(GameRules.RULE_SENDCOMMANDFEEDBACK)) {
-					CommandSourceStack srcStack = sender.createCommandSourceStack();
-					srcStack.sendSuccess(() -> Component.translatable("jojo_ripples.config_common.set", 
-							configId.getConfigTitle(), 
-							fieldName, 
-							field.get().toString()), true);
-				}
-				
-				config.saveCommon(field);
-				
-				RemoteCommonConfigPacket commonPacket = new RemoteCommonConfigPacket(
-						configId, commonConfig::toBuf);
-				for (ServerPlayer player : sender.server.getPlayerList().getPlayers()) {
-					if (!playerIsIntegratedServerHost(player)) {
-						PacketDistributor.sendToPlayer(player, commonPacket);
-					}
+			config.commonConfig.onServerSideApply(server);
+			if (server.getGameRules().getBoolean(GameRules.RULE_SENDCOMMANDFEEDBACK)) {
+				CommandSourceStack srcStack = sender.createCommandSourceStack();
+				srcStack.sendSuccess(() -> Component.translatable("jojo_ripples.config_common.set", 
+						configId.getConfigTitle(), 
+						fieldName, 
+						field.get().toString()), true);
+			}
+			
+			config.saveCommon(field);
+			
+			RemoteCommonConfigPacket commonPacket = new RemoteCommonConfigPacket(
+					configId, commonConfig::toBuf);
+			for (ServerPlayer player : sender.server.getPlayerList().getPlayers()) {
+				if (!playerIsIntegratedServerHost(player)) {
+					PacketDistributor.sendToPlayer(player, commonPacket);
 				}
 			}
 		}
@@ -233,6 +228,7 @@ public class ConfigNetworkFunctions {
 			
 			CommonConfig<?> commonConfig = config.commonConfig;
 			commonConfig.reset();
+			commonConfig.onServerSideApply(server);
 			
 			if (server.getGameRules().getBoolean(GameRules.RULE_SENDCOMMANDFEEDBACK)) {
 				CommandSourceStack srcStack = sender.createCommandSourceStack();

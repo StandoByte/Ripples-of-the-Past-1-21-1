@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.powersystem.standpower;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.config.core.types.ConfigDouble;
 import com.github.standobyte.jojo.config.core.types.ConfigDoubleEffRange;
@@ -14,6 +15,7 @@ import com.github.standobyte.jojo.util.functions.AttributeUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 
@@ -197,16 +199,30 @@ public class StandStats implements JsonConfigurable {
 	}
 	
 	
-	public static void updateStandStatAttributes(@Nonnull StandPower standPower, @Nonnull LivingEntity user) {
+	public static void updateStandStatAttributes(@Nonnull StandPower standPower, @Nonnull LivingEntity user, @Nullable ResourceLocation onlyForStandId) {
 		if (user.level().isClientSide()) return;
-		StandStats stats = standPower.getStandInstance().map(StandInstance::getStandType).map(StandType::getStandStats).orElse(null);
+		
 		AttributeMap attributes = user.getAttributes();
-		AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_STRENGTH, stats != null ? stats.power() : 0);
-		AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_SPEED, stats != null ? stats.speed() : 0);
-		AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_EFFECTIVE_RANGE, stats != null ? stats.rangeEffective() : 0);
-		AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_MAX_RANGE, stats != null ? stats.rangeMax() : 0);
-		AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_DURABILITY, stats != null ? stats.durability() : 0);
-		AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_PRECISION, stats != null ? stats.precision() : 0);
+		Optional<StandType> entityStandType = standPower.getStandInstance().map(StandInstance::getStandType);
+		if (entityStandType.isPresent()) {
+			if (entityStandType.filter(stand -> onlyForStandId == null || onlyForStandId.equals(stand.getId())).isPresent()) {
+				StandStats stats = standPower.getStandInstance().map(StandInstance::getStandType).map(StandType::getStandStats).orElse(null);
+				AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_STRENGTH, stats.power());
+				AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_SPEED, stats.speed());
+				AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_EFFECTIVE_RANGE, stats.rangeEffective());
+				AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_MAX_RANGE, stats.rangeMax());
+				AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_DURABILITY, stats.durability());
+				AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_PRECISION, stats.precision());
+			}
+		}
+		else {
+			AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_STRENGTH, 0);
+			AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_SPEED, 0);
+			AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_EFFECTIVE_RANGE, 0);
+			AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_MAX_RANGE, 0);
+			AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_DURABILITY, 0);
+			AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_PRECISION, 0);
+		}
 	}
 	
 }

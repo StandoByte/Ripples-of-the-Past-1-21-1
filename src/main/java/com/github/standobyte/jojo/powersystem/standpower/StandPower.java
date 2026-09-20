@@ -103,7 +103,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		
 		LivingEntity user = getUser();
 		if (user != null) {
-			StandStats.updateStandStatAttributes(this, user);
+			StandStats.updateStandStatAttributes(this, user, null);
 		}
 		
 		if (user != null && !user.level().isClientSide()) {
@@ -287,7 +287,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	@Override
 	public void afterConfigApply() {
 		super.afterConfigApply();
-		StandStats.updateStandStatAttributes(this, user);
+		StandStats.updateStandStatAttributes(this, user, null);
 	}
 
 	@Override
@@ -360,7 +360,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	 */
 	@Override
 	public void afterNbtRead() {
-		StandStats.updateStandStatAttributes(this, user);
+		StandStats.updateStandStatAttributes(this, user, null);
 	}
 	
 	
