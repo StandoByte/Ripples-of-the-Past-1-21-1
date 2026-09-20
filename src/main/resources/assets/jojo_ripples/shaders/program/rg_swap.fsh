@@ -1,15 +1,15 @@
-#version 110
+#version 150
 
 uniform sampler2D DiffuseSampler;
 
-varying vec2 texCoord;
-
+in vec2 texCoord;
+out vec4 fragColor;
 uniform vec2 InSize;
 
 void main() {
-    vec4 rgb = texture2D(DiffuseSampler, texCoord);
+    vec4 rgb = texture(DiffuseSampler, texCoord);
     float rTmp = rgb.r;
     rgb.r = rgb.g;
     rgb.g = rTmp;
-    gl_FragColor = rgb;
+    fragColor = rgb;
 }
