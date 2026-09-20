@@ -163,7 +163,7 @@ public class ClientModSettingsScreen extends Screen {
 		renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 		guiGraphics.drawCenteredString(font, title, width / 2, 15, 0xFFFFFF);
 		if (resetButton != null) {
-			resetButton.active = configType != ConfigTabType.COMMON || ConfigGuiHelper.clientCanEditCommonConfig();
+			resetButton.active = configType == ConfigTabType.CLIENT || ConfigGuiHelper.clientCanEditCommonConfig();
 		}
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
 	}
