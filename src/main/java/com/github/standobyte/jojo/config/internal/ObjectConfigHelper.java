@@ -19,17 +19,11 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 public class ObjectConfigHelper<C> {
 	public final C configObj;
 	public static final String DIRECTORY = "config/jojo_rotp/";
-	public final Map<String, ConfigOption<?>> configOptions;
+	public final ConfigState configOptions;
 	
-	public ObjectConfigHelper(C configObj, Map<String, ConfigOption<?>> configOptions) {
+	public ObjectConfigHelper(C configObj, ConfigState configOptions) {
 		this.configObj = configObj;
 		this.configOptions = configOptions;
-		
-		for (var configOptionEntry : configOptions.entrySet()) {
-			String fieldName = configOptionEntry.getKey();
-			ConfigOption<?> configOption = configOptionEntry.getValue();
-			configOption.init(fieldName);
-		}
 	}
 	
 	public void toBuf(RegistryFriendlyByteBuf buf) {
@@ -55,7 +49,7 @@ public class ObjectConfigHelper<C> {
 	}
 	
 	public JsonObject toJson() {
-		return settingsToJson(configOptions);
+		return settingsToJson(configOptions.configOptions());
 	}
 	
 	public static JsonObject settingsToJson(Map<String, ConfigOption<?>> settings) {
@@ -73,7 +67,7 @@ public class ObjectConfigHelper<C> {
 	}
 	
 	public void fromJson(JsonObject json) {
-		for (var optionEntry : configOptions.entrySet()) {
+		for (var optionEntry : configOptions.configOptions().entrySet()) {
 			String fieldName = optionEntry.getKey();
 			ConfigOption<?> field = optionEntry.getValue();
 			JsonElement fieldJson = json.get(fieldName);
@@ -135,7 +129,8 @@ public class ObjectConfigHelper<C> {
 				String fieldName = field.getName();
 				configOptions.put(fieldName, option);
 			}
-			return new ObjectConfigHelper<>(configObj, configOptions);
+			ConfigState configOptionsMap = ConfigState.create(configOptions);
+			return new ObjectConfigHelper<>(configObj, configOptionsMap);
 		}
 		catch (IllegalArgumentException | IllegalAccessException e) {
 			JojoMod.getLogger().error("Error creating config object: {}", e);

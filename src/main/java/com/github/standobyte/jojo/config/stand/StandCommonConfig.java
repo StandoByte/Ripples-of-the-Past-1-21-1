@@ -19,6 +19,7 @@ import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.core.ModConfig;
 import com.github.standobyte.jojo.config.interfaces.CommonConfig;
 import com.github.standobyte.jojo.config.interfaces.fileimpl.CommonFileConfig;
+import com.github.standobyte.jojo.config.internal.ConfigState;
 import com.github.standobyte.jojo.config.internal.ObjectConfigHelper;
 import com.github.standobyte.jojo.config.stand.datapack.DataDrivenStandsLoader;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -64,7 +65,6 @@ public class StandCommonConfig implements CommonConfig<StandType> {
 			String fieldName = statConfigEntry.getKey().nameInJson;
 			ConfigOption<?> configOption = statConfigEntry.getValue();
 			allOptionsByName.put(fieldName, configOption);
-			configOption.init(fieldName);
 		}
 		
 		for (var configurableAbility : abilityConfigs.entrySet()) {
@@ -74,11 +74,11 @@ public class StandCommonConfig implements CommonConfig<StandType> {
 				ConfigOption<?> configOption = abilityConfigEntry.getValue();
 				fieldName = abilityName + ABILITY_CFG_SEPARATOR + fieldName;
 				allOptionsByName.put(fieldName, configOption);
-				configOption.init(fieldName);
 			}
 		}
-		
-		this.configState = new ObjectConfigHelper<>(standType, allOptionsByName);
+
+		ConfigState configOptionsMap = ConfigState.create(allOptionsByName);
+		this.configState = new ObjectConfigHelper<>(standType, configOptionsMap);
 
 		File mainDirectory = ModConfig.getMainDirectory(environment);
 		File standsDirectory = new File(mainDirectory, ObjectConfigHelper.DIRECTORY + "stands/");
