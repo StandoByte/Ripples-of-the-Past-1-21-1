@@ -125,5 +125,17 @@ public class EntityComponentController implements TickingEntityData {
 	public boolean suppressControlledEntity() {
 		return true;
 	}
+	
+	
+	public static LivingEntity getControlledEntityOrThis(LivingEntity entity) {
+		EntityComponentController component = entity.getData(ModDataAttachmentTypes.CONTROLLER.get());
+		if (component != null) {
+			Entity controlTarget = component.getControlTarget();
+			if (controlTarget instanceof LivingEntity controlTargetLiving) {
+				return controlTargetLiving;
+			}
+		}
+		return entity;
+	}
 
 }

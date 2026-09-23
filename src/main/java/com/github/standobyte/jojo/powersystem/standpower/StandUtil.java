@@ -9,9 +9,11 @@ import com.github.standobyte.jojo.modcompat.JojoModsInteraction;
 import com.github.standobyte.jojo.network.s2c.StandSkinSoundPacket;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.subsystems.entity_grab.LivingComponentGrab;
 import com.github.standobyte.jojo.util.functions.AttributeUtil;
+import com.github.standobyte.jojo.util.functions.MathUtil;
 
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.Packet;
@@ -164,6 +166,17 @@ public class StandUtil {
         		}
         	}
         }
+	}
+
+	
+	public static ConditionCheck distanceCondition(StandEntity stand, LivingEntity user, double distance) {
+		if (stand == null || user == null) return ConditionCheck.NEGATIVE;
+		
+		if (!stand.isFollowingUser() && MathUtil.getAABBDistance(stand.getBoundingBox(), user.getBoundingBox()) > distance) {
+			return ConditionCheck.createNegative("stand_user_too_far");
+		}
+		
+		return ConditionCheck.POSITIVE;
 	}
 
 }
