@@ -19,9 +19,9 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 public class ObjectConfigHelper<C> {
 	public final C configObj;
 	public static final String DIRECTORY = "config/jojo_rotp/";
-	public final ConfigState configOptions;
+	public final ConfigOptionsMap configOptions;
 	
-	public ObjectConfigHelper(C configObj, ConfigState configOptions) {
+	public ObjectConfigHelper(C configObj, ConfigOptionsMap configOptions) {
 		this.configObj = configObj;
 		this.configOptions = configOptions;
 	}
@@ -129,7 +129,7 @@ public class ObjectConfigHelper<C> {
 				String fieldName = field.getName();
 				configOptions.put(fieldName, option);
 			}
-			ConfigState configOptionsMap = ConfigState.create(configOptions);
+			ConfigOptionsMap configOptionsMap = ConfigOptionsMap.create(configOptions);
 			return new ObjectConfigHelper<>(configObj, configOptionsMap);
 		}
 		catch (IllegalArgumentException | IllegalAccessException e) {

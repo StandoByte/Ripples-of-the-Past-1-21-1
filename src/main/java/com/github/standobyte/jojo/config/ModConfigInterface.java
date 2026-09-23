@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.config;
 
+import java.util.Map;
+
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.config.core.ConfigId;
@@ -15,8 +17,8 @@ public interface ModConfigInterface<C1, C2, C3> {
 	void saveClient();
 	void sendClientBroadcast(boolean sendNonDefault);
 	void saveCommon();
-	void saveCommon(ConfigOption<?> singleEditedOption);
-	void sendCommonConfigEditToServer(ConfigOption<?> configOption);
+	void saveCommon(Map<String, ConfigOption<?>> editedConfigOptions);
+	void sendCommonConfigEditsToServer(Map<String, ConfigOption<?>> editedConfigOptions);
 	
 	ConfigId configId();
 }

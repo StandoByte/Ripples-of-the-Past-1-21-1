@@ -19,7 +19,7 @@ import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.core.ModConfig;
 import com.github.standobyte.jojo.config.interfaces.CommonConfig;
 import com.github.standobyte.jojo.config.interfaces.fileimpl.CommonFileConfig;
-import com.github.standobyte.jojo.config.internal.ConfigState;
+import com.github.standobyte.jojo.config.internal.ConfigOptionsMap;
 import com.github.standobyte.jojo.config.internal.ObjectConfigHelper;
 import com.github.standobyte.jojo.config.stand.datapack.DataDrivenStandsLoader;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -77,7 +77,7 @@ public class StandCommonConfig implements CommonConfig<StandType> {
 			}
 		}
 
-		ConfigState configOptionsMap = ConfigState.create(allOptionsByName);
+		ConfigOptionsMap configOptionsMap = ConfigOptionsMap.create(allOptionsByName);
 		this.configState = new ObjectConfigHelper<>(standType, configOptionsMap);
 
 		File mainDirectory = ModConfig.getMainDirectory(environment);
@@ -239,28 +239,35 @@ public class StandCommonConfig implements CommonConfig<StandType> {
 	}
 
 	@Override
-	public void saveToFileSystem(ConfigOption<?> singleEditedOption) {
-		ElementType elementType;
-		String param;
+	public void saveToFileSystem(Map<String, ConfigOption<?>> editedConfigOptions) {
+		Map<Path, JsonElement> filesToSave = new HashMap<>();
 		
-		String fieldName = singleEditedOption.getFieldName();
-		String[] split = fieldName.split(ABILITY_CFG_SEPARATOR);
-		if (split.length == 2) {
-			elementType = ElementType.ABILITY_CONFIG;
-			param = split[0];
+		for (String fieldName : editedConfigOptions.keySet()) {
+			ElementType elementType;
+			String param;
+			
+			String[] split = fieldName.split(ABILITY_CFG_SEPARATOR);
+			if (split.length == 2) {
+				elementType = ElementType.ABILITY_CONFIG;
+				param = split[0];
+			}
+			else {
+				elementType = ElementType.STATS;
+				param = null;
+			}
+			
+			Path elementPath = elementType.makePath(param);
+			filesToSave.computeIfAbsent(elementPath, p -> makeSavedState(elementType, param).getValue());
 		}
-		else {
-			elementType = ElementType.STATS;
-			param = null;
-		}
 		
-		Map.Entry<Path, JsonElement> elementPathState = makeSavedState(elementType, param);
-		Path elementPath = elementPathState.getKey();
-		JsonElement elementState = elementPathState.getValue();
-		
-		JsonElement lastSavedElementState = lastSavedState.get(elementPath);
-		if (lastSavedElementState == null || !lastSavedElementState.equals(elementState)) {
-			saveFile(elementPath, elementState);
+		for (Map.Entry<Path, JsonElement> fileToSave : filesToSave.entrySet()) {
+			Path elementPath = fileToSave.getKey();
+			JsonElement elementState = fileToSave.getValue();
+			
+			JsonElement lastSavedElementState = lastSavedState.get(elementPath);
+			if (lastSavedElementState == null || !lastSavedElementState.equals(elementState)) {
+				saveFile(elementPath, elementState);
+			}
 		}
 	}
 	
@@ -276,10 +283,7 @@ public class StandCommonConfig implements CommonConfig<StandType> {
 	}
 	
 	protected Map.Entry<Path, JsonElement> makeSavedState(ElementType elementType, @Nullable String param) {
-		Path path = elementType.path;
-		if (param != null) {
-			path = path.resolve(param);
-		}
+		Path path = elementType.makePath(param);
 		
 		JsonElement element = switch (elementType) {
 			case STATS -> {
@@ -310,6 +314,10 @@ public class StandCommonConfig implements CommonConfig<StandType> {
 		
 		private ElementType(String path, String... path2) {
 			this.path = Path.of(path, path2);
+		}
+		
+		public Path makePath(@Nullable String param) {
+			return param != null ? path.resolve(param) : path;
 		}
 		
 		public final Path path;
@@ -347,14 +355,10 @@ public class StandCommonConfig implements CommonConfig<StandType> {
 	}
 
 
+	
 	@Override
-	public ConfigOption<?> getConfigOptionByName(String name) {
-		return configState.configOptions.get(name);
-	}
-
-	@Override
-	public String getConfigOptionName(ConfigOption<?> configOption) {
-		return configOption.getFieldName();
+	public Map<String, ConfigOption<?>> getAllConfigOptions() {
+		return configState.configOptions.configOptions();
 	}
 
 }

@@ -241,7 +241,6 @@ public class ConfigGuiHelper {
 		
 		Button.OnPress onPress = b -> {
 			changeValueOnClick.accept(option);
-			applyChange(config, type, option);
 		};
 		
 		int buttonWidth = Math.min((screen.width - 80) / 2, 150);
@@ -265,28 +264,6 @@ public class ConfigGuiHelper {
 		}
 	}
 	
-	
-	public static <T> void applyChange(ModConfigInterface<?, ?, ?> modConfig, ModConfigType configType, ConfigOption<T> configOption) {
-		switch (configType) {
-			case CLIENT -> {
-				modConfig.saveClient();
-			}
-			case CLIENT_BROADCAST -> {
-				modConfig.saveClient();
-				if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
-					modConfig.sendClientBroadcast(true);
-				}
-			}
-			case COMMON -> {
-				if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
-					modConfig.sendCommonConfigEditToServer(configOption);
-				}
-				else {
-					modConfig.saveCommon(configOption);
-				}
-			}
-		}
-	}
 	
 	public static Component prependIcon(Component text, ResourceLocation iconPath) {
 		return prependIcon(text, new GuiIcon(iconPath, 16, 16));

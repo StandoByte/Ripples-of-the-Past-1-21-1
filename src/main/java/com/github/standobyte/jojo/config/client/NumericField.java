@@ -116,7 +116,6 @@ public class NumericField extends EditBox {
 							this._prevRecordedConfigValue = newValue;
 							configOption.set(newValue);
 							// FIXME the decimals will probably get screwed by floating point error anyway because the value is still sent to the server as a double number... fuck...
-							ConfigGuiHelper.applyChange(modConfig, configType, configOption);
 						}
 						color = EditBox.DEFAULT_TEXT_COLOR;
 					}

@@ -99,13 +99,13 @@ public class ModConfig<C1, C2, C3> implements ModConfigInterface<C1, C2, C3> {
 	}
 
 	@Override
-	public void saveCommon(ConfigOption<?> singleEditedOption) {
-		if (hasCommon()) commonConfig.saveToFileSystem(singleEditedOption);
+	public void saveCommon(Map<String, ConfigOption<?>> editedConfigOptions) {
+		if (hasCommon()) commonConfig.saveToFileSystem(editedConfigOptions);
 	}
 	
 	@Override
-	public void sendCommonConfigEditToServer(ConfigOption<?> configOption) {
-		if (hasCommon()) commonConfig.sendEditToServer(configId, configOption);
+	public void sendCommonConfigEditsToServer(Map<String, ConfigOption<?>> editedConfigOptions) {
+		if (hasCommon()) commonConfig.sendEditsToServer(configId, editedConfigOptions);
 	}
 	
 	@Override

@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.config.interfaces.fileimpl;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
@@ -79,18 +80,13 @@ public class CommonFileConfig<C3> implements CommonConfig<C3> {
 	}
 
 	@Override
-	public void saveToFileSystem(ConfigOption<?> singleEditedOption) {
+	public void saveToFileSystem(Map<String, ConfigOption<?>> editedConfigOptions) {
 		saveToFileSystem();
 	}
-
+	
 	@Override
-	public String getConfigOptionName(ConfigOption<?> configOption) {
-		return configOption.getFieldName();
-	}
-
-	@Override
-	public ConfigOption<?> getConfigOptionByName(String fieldName) {
-		return configState.configOptions.get(fieldName);
+	public Map<String, ConfigOption<?>> getAllConfigOptions() {
+		return configState.configOptions.configOptions();
 	}
 	
 	@Override

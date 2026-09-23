@@ -1,10 +1,13 @@
 package com.github.standobyte.jojo.config.interfaces.fileimpl;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.config.core.ConfigId;
+import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.interfaces.ClientConfig;
 import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
 import com.github.standobyte.jojo.config.internal.ObjectConfigHelper;
@@ -14,6 +17,7 @@ public class ClientFileConfig<C1, C2> implements ClientConfig<C1, C2> {
 	@Nullable private final ObjectConfigHelper<C1> localOnly;
 	@Nullable private final ObjectConfigHelper<C2> broadcast;
 	private File file;
+	private final Map<String, ConfigOption<?>> allConfigOptions;
 
 	public ClientFileConfig(ObjectConfigHelper<C1> localOnly, ObjectConfigHelper<C2> broadcast, 
 			File mainDirectory, String modId) {
@@ -21,6 +25,9 @@ public class ClientFileConfig<C1, C2> implements ClientConfig<C1, C2> {
 		this.broadcast = broadcast;
 		String filePrefix = CommonFileConfig.makeFilePrefix(modId);
 		this.file = new File(mainDirectory, ObjectConfigHelper.DIRECTORY + filePrefix + "client_settings.json");
+		this.allConfigOptions = new HashMap<>();
+		if (localOnly != null) allConfigOptions.putAll(localOnly.configOptions.configOptions());
+		if (broadcast != null) allConfigOptions.putAll(broadcast.configOptions.configOptions());
 	}
 
 	@Override
@@ -81,6 +88,11 @@ public class ClientFileConfig<C1, C2> implements ClientConfig<C1, C2> {
 			}
 			CommonFileConfig.GSON.toJson(json, writer);
 		});
+	}
+
+	@Override
+	public Map<String, ConfigOption<?>> getAllConfigOptions() {
+		return allConfigOptions;
 	}
 	
 }

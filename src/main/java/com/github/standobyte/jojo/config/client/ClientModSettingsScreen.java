@@ -17,11 +17,14 @@ import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList
 import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList.EntryWithButtons;
 import com.github.standobyte.jojo.client.ui.screen_widgets.utils.ButtonDecoration;
 import com.github.standobyte.jojo.config.RotpConfig;
+import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.core.ModConfig;
 import com.github.standobyte.jojo.config.interfaces.ClientConfig;
 import com.github.standobyte.jojo.config.interfaces.CommonConfig;
+import com.github.standobyte.jojo.config.interfaces.ObjConfig;
 import com.github.standobyte.jojo.config.internal.ConfigEventHandler;
 import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
+import com.github.standobyte.jojo.config.internal.ConfigOptionsState;
 import com.github.standobyte.jojo.config.internal.ConfigsMap;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mixin.client.screen.ScreenAccessor;
@@ -58,12 +61,21 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 public class ClientModSettingsScreen extends Screen {
 	public final Screen lastScreen;
 	
-	public ConfigsMap.AllModConfigs curModConfigs;
-	public String curModId;
-	public ConfigTabType configType;
-	public StandType curStand;
+	protected String curModId;
+	protected ConfigTabType configType;
+	protected StandType curStand;
+	protected ConfigsMap.AllModConfigs curModConfigs;
 	
+	protected ModConfig<?, ?, ?> curModConfig;
+	protected ObjConfig configBeingEdited;
+	protected ConfigOptionsState lastAppliedState;
+	
+	protected Button doneButton;
+	protected Button applyButton;
+	protected Button cancelButton;
 	protected Button resetButton;
+	
+	protected boolean hasUnsavedChanges;
 	
 	public enum ConfigTabType {
 		CLIENT,
@@ -142,7 +154,14 @@ public class ClientModSettingsScreen extends Screen {
 
 	@Override
 	public void onClose() {
+		revertUnsavedChanges();
 		this.minecraft.setScreen(this.lastScreen);
+	}
+	
+	protected void revertUnsavedChanges() {
+		if (lastAppliedState != null && configBeingEdited != null) {
+			lastAppliedState.apply(configBeingEdited);
+		}
 	}
 
 	@Override
@@ -162,47 +181,108 @@ public class ClientModSettingsScreen extends Screen {
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 		guiGraphics.drawCenteredString(font, title, width / 2, 15, 0xFFFFFF);
-		if (resetButton != null) {
+		
+		hasUnsavedChanges = configBeingEdited != null && lastAppliedState != null && lastAppliedState.hasChanged(configBeingEdited);
+		
+		applyButton.visible = hasUnsavedChanges;
+		cancelButton.visible = hasUnsavedChanges;
+		doneButton.visible = !hasUnsavedChanges;
+		resetButton.visible = !hasUnsavedChanges;
+		
+		if (resetButton.visible) {
 			resetButton.active = configType == ConfigTabType.CLIENT || ConfigGuiHelper.clientCanEditCommonConfig();
+			if (resetButton.active && configBeingEdited != null) {
+				resetButton.active &= !configBeingEdited.isDefault();
+			}
 		}
+		
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 
 	protected void addPermanentButtons() {
 		// Client/Gameplay tab buttons
-		int buttonWidth = Math.min((width / 4 - 10), 100);
+		int upperButtonWidth = Math.min((width / 4 - 10), 100);
 		
 		Button clientButton = new ConfigTypeButton(new Button.Builder(
 				Component.translatable("jojo_ripples.config_category.client"), 
 				button -> switchTab(ConfigTabType.CLIENT))
-				.bounds((this.width - buttonWidth * 3) / 2 - 5, 
+				.bounds((this.width - upperButtonWidth * 3) / 2 - 5, 
 						4, 
-						buttonWidth, 20), 
+						upperButtonWidth, 20), 
 				this, ConfigTabType.CLIENT);
 
 		Button commonButton = new ConfigTypeButton(new Button.Builder(
 				Component.translatable("jojo_ripples.config_category.common"), 
 				button -> switchTab(ConfigTabType.COMMON))
-				.bounds((this.width - buttonWidth) / 2, 
+				.bounds((this.width - upperButtonWidth) / 2, 
 						4, 
-						buttonWidth, 20), 
+						upperButtonWidth, 20), 
 				this, ConfigTabType.COMMON);
 
 		Button standsButton = new ConfigTypeButton(new Button.Builder(
 				Component.translatable("jojo_ripples.config_category.stands"), 
 				button -> switchTab(ConfigTabType.STANDS))
-				.bounds((this.width + buttonWidth) / 2 + 5, 
+				.bounds((this.width + upperButtonWidth) / 2 + 5, 
 						4, 
-						buttonWidth, 20), 
+						upperButtonWidth, 20), 
 				this, ConfigTabType.STANDS);
 
 		addRenderableWidget(clientButton);
 		addRenderableWidget(commonButton);
 		addRenderableWidget(standsButton);
 
-		// back button
-		addRenderableWidget(new Button.Builder(
-				CommonComponents.GUI_DONE, button -> minecraft.setScreen(lastScreen))
+		
+		int lowerButtonWidth = Math.min((width - 80) / 2, 150);
+		
+		// apply all changes
+		applyButton = addRenderableWidget(new Button.Builder(
+				Component.translatable("jojo_ripples.config.apply"), 
+				button -> {
+					if (curModConfig != null && lastAppliedState != null && configBeingEdited != null) {
+						Map<String, ConfigOption<?>> editedOptions = lastAppliedState.filterToOnlyChanged(configBeingEdited);
+						switch (configType) {
+							case CLIENT -> {
+								curModConfig.saveClient();
+								if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
+									curModConfig.sendClientBroadcast(true);
+								}
+							}
+							case COMMON, STANDS -> {
+								if (curModConfig.hasCommon()) {
+									if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
+										curModConfig.sendCommonConfigEditsToServer(editedOptions);
+									}
+									else {
+										curModConfig.saveCommon(editedOptions);
+									}
+								}
+							}
+						}
+						lastAppliedState = ConfigOptionsState.create(configBeingEdited);
+					}
+				})
+				.bounds(width / 2 - 5 - lowerButtonWidth, 
+						this.height - 26, 
+						lowerButtonWidth, 20)
+				.build(/*Button::new*/));
+
+		// revert all unsaved changes
+		cancelButton = addRenderableWidget(new Button.Builder(
+				CommonComponents.GUI_CANCEL, 
+				button -> {
+					if (lastAppliedState != null && configBeingEdited != null) {
+						lastAppliedState.apply(configBeingEdited);
+					}
+				})
+				.bounds(width / 2 + 5, 
+						this.height - 26, 
+						lowerButtonWidth, 20)
+				.build(/*Button::new*/));
+
+		// back button (no unsaved changes)
+		doneButton = addRenderableWidget(new Button.Builder(
+				CommonComponents.GUI_DONE, 
+				button -> minecraft.setScreen(lastScreen))
 				.bounds(this.width / 2 - 50, 
 						this.height - 26, 
 						100, 20)
@@ -212,36 +292,35 @@ public class ClientModSettingsScreen extends Screen {
 		resetButton = addRenderableWidget(new Button.Builder(
 				Component.translatable("jojo_ripples.config.reset"), 
 				button -> {
-					switch (this.configType) {
-						case CLIENT -> {
-							ModConfig<?, ?, ?> modConfig = this.curModConfigs.modConfig;
-							if (modConfig.hasClient()) {
-								ClientConfig<?, ?> clientConfig = modConfig.clientConfig;
-								clientConfig.reset();
-								clientConfig.saveToFileSystem();
-								if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
-									modConfig.sendClientBroadcast(true);
+					if (curModConfig != null && configBeingEdited != null) {
+						switch (this.configType) {
+							case CLIENT -> {
+								if (curModConfig.hasClient()) {
+									ClientConfig<?, ?> clientConfig = curModConfig.clientConfig;
+									clientConfig.reset();
+									
+									clientConfig.saveToFileSystem();
+									if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
+										curModConfig.sendClientBroadcast(true);
+									}
 								}
 							}
-						}
-						case COMMON, STANDS -> {
-							ModConfig<?, ?, ?> modOrStandConfig = switch (this.configType) {
-								case COMMON -> this.curModConfigs.modConfig;
-								case STANDS -> this.curStand != null ? this.curModConfigs.standConfigs.get(this.curStand.getId()) : null;
-								default -> throw new RuntimeException("shitcode");
-							};
-							if (modOrStandConfig != null && modOrStandConfig.hasCommon()) {
-								CommonConfig<?> commonConfig = modOrStandConfig.commonConfig;
-								commonConfig.reset();
-								if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
-									ConfigNetworkFunctions.clSendCommonConfigResetToServer(modOrStandConfig.configId());
-								}
-								else {
-									modOrStandConfig.saveCommon();
+							case COMMON, STANDS -> {
+								if (curModConfig.hasCommon()) {
+									CommonConfig<?> commonConfig = curModConfig.commonConfig;
+									commonConfig.reset();
+									
+									if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
+										ConfigNetworkFunctions.clSendCommonConfigResetToServer(curModConfig.configId());
+									}
+									else {
+										curModConfig.saveCommon();
+									}
 								}
 							}
 						}
 					}
+					lastAppliedState = ConfigOptionsState.create(configBeingEdited);
 				})
 				.bounds(this.width - 66, 
 						this.height - 26, 
@@ -280,14 +359,45 @@ public class ClientModSettingsScreen extends Screen {
 	protected Collection<Object> configButtons = new ArrayList<>();
 	
 	protected void updateConfigButtons(String curModId, ConfigTabType configType, StandType standType) {
+		revertUnsavedChanges();
 		clearConfigButtons();
-		this.curModConfigs = getAllConfigsFromMod(curModId);
+		curModConfigs = getAllConfigsFromMod(curModId);
+		
+		curModConfig = null;
+		configBeingEdited = null;
 		if (curModId != null && configType != null) {
-			var layout = CONFIG_GUI_LAYOUTS.get(curModId);
+			if (curModConfigs != null) {
+				switch (configType) {
+					case CLIENT -> {
+						curModConfig = curModConfigs.modConfig;
+						if (curModConfigs.modConfig != null) {
+							configBeingEdited = curModConfigs.modConfig.clientConfig;
+						}
+					}
+					case COMMON -> {
+						curModConfig = curModConfigs.modConfig;
+						if (curModConfigs.modConfig != null) {
+							configBeingEdited = curModConfigs.modConfig.commonConfig;
+						}
+					}
+					case STANDS -> {
+						if (curModConfigs.standConfigs != null && standType != null) {
+							ModConfig<?, ?, ?> standConfig = curModConfigs.standConfigs.get(standType.getId());
+							curModConfig = standConfig;
+							if (standConfig != null) {
+								configBeingEdited = standConfig.commonConfig;
+							}
+						}
+					}
+				};
+			}
+			
+			RegisterRotpConfigScreenTabEvent.RotpConfigGuiLayout layout = CONFIG_GUI_LAYOUTS.get(curModId);
 			if (layout != null) {
 				layout.populateUI(this, configType, standType);
 			}
 		}
+		lastAppliedState = configBeingEdited != null ? ConfigOptionsState.create(configBeingEdited) : null;
 	}
 	
 	protected void clearConfigButtons() {

@@ -1,12 +1,15 @@
 package com.github.standobyte.jojo.config.internal.packets;
 
-import java.util.function.Consumer;
+import java.util.Collection;
+import java.util.Map;
 
 import com.github.standobyte.jojo.PacketsRegister;
 import com.github.standobyte.jojo.config.core.ConfigId;
+import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
 import com.github.standobyte.jojo.util.functions_network.NetworkUtil;
 
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
@@ -15,21 +18,18 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class ClCommonServerConfigEditPacket implements CustomPacketPayload {
 	public ConfigId configId;
-	public String fieldName;
-	public Consumer<RegistryFriendlyByteBuf> write;
+	public Map<String, ConfigOption<?>> writeFields;
 	public RegistryFriendlyByteBuf read;
 	
-	public ClCommonServerConfigEditPacket(ConfigId configId, String fieldName, 
-			Consumer<RegistryFriendlyByteBuf> writeField) {
+	public ClCommonServerConfigEditPacket(ConfigId configId, 
+			Map<String, ConfigOption<?>> editedConfigOptions) {
 		this.configId = configId;
-		this.fieldName = fieldName;
-		this.write = writeField;
+		this.writeFields = editedConfigOptions;
 	}
 	
-	protected ClCommonServerConfigEditPacket(ConfigId configId, String fieldName, 
+	protected ClCommonServerConfigEditPacket(ConfigId configId, 
 			RegistryFriendlyByteBuf read) {
 		this.configId = configId;
-		this.fieldName = fieldName;
 		this.read = read;
 	}
 	
@@ -50,23 +50,31 @@ public class ClCommonServerConfigEditPacket implements CustomPacketPayload {
 		@Override
 		public void encode(ClCommonServerConfigEditPacket packet, RegistryFriendlyByteBuf buf) {
 			ConfigId.STREAM_CODEC.encode(buf, packet.configId);
-			buf.writeUtf(packet.fieldName);
-			packet.write.accept(buf);
+			
+			NetworkUtil.writeCollection(buf, packet.writeFields.keySet(), FriendlyByteBuf::writeUtf);
+			for (ConfigOption<?> field : packet.writeFields.values()) {
+				field.toBuf(buf);
+			}
 		}
 
 		@Override
 		public ClCommonServerConfigEditPacket decode(RegistryFriendlyByteBuf buf) {
 			ConfigId configId = ConfigId.STREAM_CODEC.decode(buf);
-			String fieldName = buf.readUtf();
 			RegistryFriendlyByteBuf read = NetworkUtil.extraPacketData(buf, buf.registryAccess());
-			return new ClCommonServerConfigEditPacket(configId, fieldName, read);
+			return new ClCommonServerConfigEditPacket(configId, read);
 		}
 
 		@Override
 		public void handle(ClCommonServerConfigEditPacket payload, IPayloadContext context) {
 			ServerPlayer player = (ServerPlayer) context.player();
-			ConfigNetworkFunctions.srvAcceptCommonSettingEdit(player, payload);
-			if (payload.read != null) payload.read.release();
+			
+			if (payload.read != null) {
+				RegistryFriendlyByteBuf buf = payload.read;
+				Collection<String> fieldNames = NetworkUtil.readCollection(buf, FriendlyByteBuf::readUtf);
+				
+				ConfigNetworkFunctions.srvAcceptCommonSettingEdit(player, payload.configId, buf, fieldNames);
+				payload.read.release();
+			}
 		}
 		
 	}

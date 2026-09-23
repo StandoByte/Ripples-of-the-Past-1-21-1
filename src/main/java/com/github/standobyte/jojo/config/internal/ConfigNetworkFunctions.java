@@ -2,6 +2,9 @@ package com.github.standobyte.jojo.config.internal;
 
 import static com.github.standobyte.jojo.config.internal.ConfigEventHandler.getConfig;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -163,41 +166,43 @@ public class ConfigNetworkFunctions {
 	
 	
 	public static void clSendCommonSettingEditToServer(CommonConfig<?> commonConfig, 
-			ConfigId configId, ConfigOption<?> field) {
+			ConfigId configId, Map<String, ConfigOption<?>> editedConfigOptions) {
 		if (clientHasPermissions()) {
-			String fieldName = commonConfig.getConfigOptionName(field);
 			ClCommonServerConfigEditPacket packet = new ClCommonServerConfigEditPacket(
-					configId, fieldName, field::toBuf);
+					configId, editedConfigOptions);
 			PacketDistributor.sendToServer(packet);
 		}
 	}
 	
-	public static void srvAcceptCommonSettingEdit(ServerPlayer sender, ClCommonServerConfigEditPacket payload) {
+	public static void srvAcceptCommonSettingEdit(ServerPlayer sender, ConfigId configId, RegistryFriendlyByteBuf buf, Collection<String> fieldNames) {
 		MinecraftServer server = sender.level().getServer();
 		if (playerHasPermissions(sender)) {
-			ConfigId configId = payload.configId;
-			String fieldName = payload.fieldName;
 			ModConfig<?, ?, ?> config = getConfig(configId);
 			if (!config.hasCommon()) return;
 			
 			CommonConfig<?> commonConfig = config.commonConfig;
-			ConfigOption<?> field = commonConfig.getConfigOptionByName(fieldName);
-			if (field == null) {
-				JojoMod.getLogger().error("Field {} not found in {} config {}", fieldName, configId.configClass(), configId.modOrStandId());
-				return;
+			Map<String, ConfigOption<?>> editedConfigOptions = new HashMap<>();
+			
+			for (String fieldName : fieldNames) {
+				ConfigOption<?> field = commonConfig.getConfigOptionByName(fieldName);
+				if (field == null) {
+					JojoMod.getLogger().error("Field {} not found in {} config {}", fieldName, configId.configClass(), configId.modOrStandId());
+					continue;
+				}
+				
+				field.fromBuf(buf);
+				editedConfigOptions.put(fieldName, field);
+				if (server.getGameRules().getBoolean(GameRules.RULE_SENDCOMMANDFEEDBACK)) {
+					CommandSourceStack srcStack = sender.createCommandSourceStack();
+					srcStack.sendSuccess(() -> Component.translatable("jojo_ripples.config_common.set", 
+							configId.getConfigTitle(), 
+							fieldName, 
+							field.get().toString()), true);
+				}
 			}
 			
-			field.fromBuf(payload.read);
 			config.commonConfig.onServerSideApply(server);
-			if (server.getGameRules().getBoolean(GameRules.RULE_SENDCOMMANDFEEDBACK)) {
-				CommandSourceStack srcStack = sender.createCommandSourceStack();
-				srcStack.sendSuccess(() -> Component.translatable("jojo_ripples.config_common.set", 
-						configId.getConfigTitle(), 
-						fieldName, 
-						field.get().toString()), true);
-			}
-			
-			config.saveCommon(field);
+			config.saveCommon(editedConfigOptions);
 			
 			RemoteCommonConfigPacket commonPacket = new RemoteCommonConfigPacket(
 					configId, commonConfig::toBuf);

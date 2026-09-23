@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.config.interfaces;
 
+import java.util.Map;
+
 import com.github.standobyte.jojo.config.core.ConfigId;
 import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
@@ -7,9 +9,9 @@ import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
 
-public interface CommonConfig<C3> {
+public interface CommonConfig<C3> extends ObjConfig {
 	C3 getObj();
-
+	
 	boolean isDefault();
 	void reset();
 	
@@ -20,16 +22,23 @@ public interface CommonConfig<C3> {
 	
 	void loadFromFileSystem();
 	void saveToFileSystem();
-	void saveToFileSystem(ConfigOption<?> singleEditedOption);
+	void saveToFileSystem(Map<String, ConfigOption<?>> editedConfigOptions);
 	
 	void toBuf(RegistryFriendlyByteBuf buf);
 	void fromBuf(RegistryFriendlyByteBuf buf);
 	
-	default void sendEditToServer(ConfigId configId, ConfigOption<?> configOption) {
+	default void sendEditsToServer(ConfigId configId, Map<String, ConfigOption<?>> editedConfigOptions) {
 		ConfigNetworkFunctions.clSendCommonSettingEditToServer(this, 
-				configId, configOption);
+				configId, editedConfigOptions);
 	}
-	ConfigOption<?> getConfigOptionByName(String name);
-	String getConfigOptionName(ConfigOption<?> configOption);
+
+
+	default ConfigOption<?> getConfigOptionByName(String name) {
+		return getAllConfigOptions().get(name);
+	}
+	
+	default String getConfigOptionName(ConfigOption<?> configOption) {
+		return configOption.getFieldName();
+	}
 	// kind of like a BiMap<String, ConfigOption<?>>
 }

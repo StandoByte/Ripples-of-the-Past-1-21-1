@@ -6,11 +6,11 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.config.core.ConfigOption;
 
-public class ConfigState {
+public class ConfigOptionsMap {
 	private final Map<String, ConfigOption<?>> configOptions;
 
-	public static ConfigState create(Map<String, ConfigOption<?>> configOptions) {
-		ConfigState configState = new ConfigState(configOptions);
+	public static ConfigOptionsMap create(Map<String, ConfigOption<?>> configOptions) {
+		ConfigOptionsMap configState = new ConfigOptionsMap(configOptions);
 
 		for (var configOptionEntry : configOptions.entrySet()) {
 			String fieldName = configOptionEntry.getKey();
@@ -21,7 +21,7 @@ public class ConfigState {
 		return configState;
 	}
 
-	private ConfigState(Map<String, ConfigOption<?>> configOptions) {
+	private ConfigOptionsMap(Map<String, ConfigOption<?>> configOptions) {
 		this.configOptions = configOptions;
 	}
 	

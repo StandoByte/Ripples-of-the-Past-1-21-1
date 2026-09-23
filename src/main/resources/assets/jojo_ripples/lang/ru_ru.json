@@ -119,6 +119,7 @@
   "jojo_ripples.config_common.set": "[%s] Установлено значение настройки конфига %s: %s",
   "jojo_ripples.config_common.reset": "[%s] Сброшены настройки конфига",
   "jojo_ripples.config.reset": "Сбросить",
+  "jojo_ripples.config.apply": "Применить",
   "jojo_ripples.config.value_too_low": "%s не может быть меньше %s",
   "jojo_ripples.config.value_too_high": "%s не может быть больше %s",
   

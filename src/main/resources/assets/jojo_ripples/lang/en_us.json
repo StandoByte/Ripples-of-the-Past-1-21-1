@@ -195,6 +195,7 @@
   "jojo_ripples.config_common.set": "[%s] Config option %s is now set to: %s",
   "jojo_ripples.config_common.reset": "[%s] Reset config options",
   "jojo_ripples.config.reset": "Reset",
+  "jojo_ripples.config.apply": "Apply Changes",
   "jojo_ripples.config.value_too_low": "%s can't be less than %s",
   "jojo_ripples.config.value_too_high": "%s can't be more than %s",
   
