@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.powersystem.standpower.type;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -79,13 +80,20 @@ public class StandTypePersistentData extends PowerData {
 	
 	public void setExp(float exp, StandPower userPower, boolean clientSideNewSkillNotification) {
 		if (clientSideNewSkillNotification && userPower.hasPower()) {
-			Collection<? extends UnlockableSkill> couldUnlock = getAllSkills().values().stream()
-					.filter(skill -> skill.canUnlockFromMenu(userPower, this).positive()).collect(Collectors.toSet());
+			List<? extends UnlockableSkill> availableSkills = getAllSkills().values().stream()
+					.filter(skill -> !isSkillUnlocked(skill.skillName))
+					.toList();
+			
+			Set<String> couldUnlock = availableSkills.stream()
+					.filter(skill -> skill.canUnlockFromMenu(userPower, this).positive())
+					.map(skill -> skill.skillName)
+					.collect(Collectors.toSet());
 			
 			this.exp = exp;
 			
-			Collection<? extends UnlockableSkill> newSkillsToUnlock = getAllSkills().values().stream()
-					.filter(skill -> skill.canUnlockFromMenu(userPower, this).positive() && !couldUnlock.contains(skill)).toList();
+			Collection<? extends UnlockableSkill> newSkillsToUnlock = availableSkills.stream()
+					.filter(skill -> skill.canUnlockFromMenu(userPower, this).positive() && !couldUnlock.contains(skill.skillName))
+					.toList();
 			if (!newSkillsToUnlock.isEmpty()) {
 				StandInstance stand = userPower.getStandInstance().get();
 				BottomLeftNotifications.add(Component.translatable("jojo_ripples.notification.stand_skill"));
