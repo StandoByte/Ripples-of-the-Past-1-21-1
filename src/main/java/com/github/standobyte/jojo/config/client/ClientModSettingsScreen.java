@@ -219,10 +219,8 @@ public class ClientModSettingsScreen extends Screen {
 		resetButton.visible = !hasUnsavedChanges;
 		
 		if (resetButton.visible) {
-			resetButton.active = configType == ConfigTabType.CLIENT || ConfigGuiHelper.clientCanEditCommonConfig();
-			if (resetButton.active && configBeingEdited != null) {
-				resetButton.active &= !configBeingEdited.isDefault();
-			}
+			resetButton.active = (configType == ConfigTabType.CLIENT || ConfigGuiHelper.clientCanEditCommonConfig())
+					&& configBeingEdited != null && !configBeingEdited.isDefault();
 		}
 		
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
@@ -325,8 +323,8 @@ public class ClientModSettingsScreen extends Screen {
 								}
 							}
 						}
+						lastAppliedState = ConfigOptionsState.create(configBeingEdited);
 					}
-					lastAppliedState = ConfigOptionsState.create(configBeingEdited);
 				})
 				.bounds(this.width - 66, 
 						this.height - 26, 
