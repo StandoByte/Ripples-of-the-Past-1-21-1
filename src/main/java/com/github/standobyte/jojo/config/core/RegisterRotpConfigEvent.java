@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.config.core;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -17,7 +17,7 @@ import net.neoforged.fml.event.IModBusEvent;
 
 public class RegisterRotpConfigEvent extends Event implements IModBusEvent {
 	public final Dist environment;
-	public final Map<ConfigId, ModConfig<?, ?, ?>> configs = new HashMap<>();
+	public final Map<ConfigId, ModConfig<?, ?, ?>> configs = new LinkedHashMap<>();
 	
 	public RegisterRotpConfigEvent(Dist environment) {
 		this.environment = environment;

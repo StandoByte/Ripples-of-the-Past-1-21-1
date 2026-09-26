@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.config.internal;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -63,7 +64,7 @@ public class ConfigsMap {
 	
 	public static class AllModConfigs {
 		public ModConfig<?, ?, ?> modConfig;
-		public final Map<ResourceLocation, ModConfig<?, ?, ?>> standConfigs = new TreeMap<>();
+		public final Map<ResourceLocation, ModConfig<?, ?, ?>> standConfigs = new LinkedHashMap<>();
 	}
 	
 }
