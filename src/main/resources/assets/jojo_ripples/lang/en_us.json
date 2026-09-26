@@ -601,7 +601,7 @@
   "stand.jojo_ripples.star_platinum.desc.no_ts_spoilers": "A power-type Stand with exceptionally high physical strength, speed and precision.",
   
   "jojo_ripples.skill.uppercut": "Finisher Uppercut",
-  "jojo_ripples.skill.uppercut.desc": "A faster heavy attack variation that breaks guard and knocks the enemy upwards.",
+  "jojo_ripples.skill.uppercut.desc": "A faster heavy attack variation that knocks the enemy upwards.",
   "jojo_ripples.skill.uppercut.controls": "\uEAFE with 1 finisher bar",
   "jojo_ripples.ability.uppercut": "Uppercut",
 
