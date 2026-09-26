@@ -36,6 +36,11 @@ public class IconGlyphInfo implements GlyphInfo {
 	public float getAdvance() {
 		return width + offset;
 	}
+
+	@Override
+	public float getBoldOffset() {
+		return 0;
+	}
 	
 	public boolean exists() {
 		if (spriteFileCheck == null) {

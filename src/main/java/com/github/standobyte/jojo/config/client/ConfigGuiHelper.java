@@ -18,6 +18,7 @@ import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList
 import com.github.standobyte.jojo.client.ui.utils.Alignment;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.TextUtil;
+import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
 import com.github.standobyte.jojo.config.BoolOrPlayerPref;
 import com.github.standobyte.jojo.config.ModConfigInterface;
 import com.github.standobyte.jojo.config.client.NumericField.ScrollingDecimal;
@@ -41,13 +42,14 @@ import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
 import it.unimi.dsi.fastutil.objects.Object2CharArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2CharMap;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.settings.KeyModifier;
 
@@ -225,7 +227,7 @@ public class ConfigGuiHelper {
 	public <T> void addOptionButton(ConfigOption<T> option, 
 			ModConfigType type, @Nullable String icon, 
 			Consumer<ConfigOption<T>> changeValueOnClick, 
-			BiFunction<Component, T, Component> getValueMessage) {
+			BiFunction<Component, T, MutableComponent> getValueMessage) {
 		if (curEntry == null) {
 			curEntry = new EntryWithButtons();
 			list.addEntry(curEntry);
@@ -251,8 +253,8 @@ public class ConfigGuiHelper {
 		};
 		
 		ConfigButton button = new ConfigButton(-1, -1, buttonWidth, 20, 
-				nameWithSprite, 
-				onPress, Tooltip.create(tooltip), 
+				name, nameWithSprite, 
+				onPress, tooltip, 
 				type, option, getValueMessage);
 		if (curEntry.children().size() == 0) {
 			button.setAlignment(Alignment.RIGHT);
@@ -281,31 +283,36 @@ public class ConfigGuiHelper {
 	public static class ConfigButton extends ScrollingStringButton {
 		protected ModConfigType configType;
 		protected ConfigOption<?> configOption;
-		protected Component optionName;
-		protected BiFunction<Component, ?, Component> getValueMessage;
+		protected Component optionNameNoSprite;
+		protected Component optionNameWithSprite;
+		protected BiFunction<Component, ?, MutableComponent> getValueMessage;
 		protected Object prevValue;
+		protected MultiLineScreenTooltip tooltip;
 
 		public ConfigButton(int pX, int pY, int pWidth, int pHeight, 
-				Component optionName, OnPress pOnPress, Tooltip pOnTooltip,
-				ModConfigType type, ConfigOption<?> configOption, BiFunction<Component, ?, Component> getValueMessage) {
-			super(pX, pY, pWidth, pHeight, makeMessage(getValueMessage, optionName, configOption.get()), pOnPress, pOnTooltip);
+				Component optionNameNoSprite, Component optionNameWithSprite, 
+				OnPress pOnPress, Component tooltipBody,
+				ModConfigType type, ConfigOption<?> configOption, BiFunction<Component, ?, MutableComponent> getValueMessage) {
+			super(pX, pY, pWidth, pHeight, CommonComponents.EMPTY, pOnPress, null);
 			this.configType = type;
 			this.configOption = configOption;
-			this.optionName = optionName;
+			this.optionNameNoSprite = optionNameNoSprite;
+			this.optionNameWithSprite = optionNameWithSprite;
 			this.getValueMessage = getValueMessage;
+			
+			this.tooltip = new MultiLineScreenTooltip(CommonComponents.EMPTY, tooltipBody);
+			updateMessage(configOption.get());
+			setTooltip(tooltip);
 		}
 		
-		protected static <T> Component makeMessage(BiFunction<Component, T, Component> getValueMessage, Component optionName, Object optionValue) {
+		protected static <T> MutableComponent makeMessage(BiFunction<Component, T, MutableComponent> getValueMessage, Component optionName, Object optionValue) {
 			return getValueMessage.apply(optionName, (T) optionValue);
 		}
 		
-		protected <T> Component makeMessage() {
-			return makeMessage(this.getValueMessage, this.optionName, this.configOption);
-		}
-		
 		protected void updateMessage(Object newValue) {
-			Component message = makeMessage(getValueMessage, optionName, newValue);
+			Component message = makeMessage(getValueMessage, optionNameWithSprite, newValue);
 			this.setMessage(message);
+			this.tooltip.setTitle(message.copy().withStyle(ChatFormatting.BOLD));
 		}
 
 		@Override

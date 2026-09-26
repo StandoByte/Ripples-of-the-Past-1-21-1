@@ -32,6 +32,7 @@ public class IconBakedGlyph extends BakedGlyph {
 		this.down = down;
 	}
 
+	@Override
 	public void render(boolean italic, float x, float y, Matrix4f matrix, VertexConsumer buffer, 
 			float red, float green, float blue, float alpha, int packedLight) {
 		if (!IconSymbols.canRecolor) {
