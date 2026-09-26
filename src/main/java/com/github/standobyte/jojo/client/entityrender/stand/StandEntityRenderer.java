@@ -99,16 +99,17 @@ public class StandEntityRenderer<
 		EntityActionRenderState.extract(renderState.action, entity, partialTick);
 		
 		renderState.tint = -1;
-		renderState.alpha = entity.clientStuff.getAlpha(entity, partialTick);
+		renderState.doScalingFromStandSkin = true;
 		
 		Minecraft mc = Minecraft.getInstance();
 		renderState.mayObstructView = mc.options.getCameraType().isFirstPerson() && entity.isFollowingUser();
-		renderState.doScalingFromStandSkin = true;
 		if (renderState.mayObstructView) {
 			Entity cameraEntity = mc.getCameraEntity();
 			if (cameraEntity == null) cameraEntity = mc.player;
 			renderState.mayObstructView &= cameraEntity != null && entity.getUser() == cameraEntity;
 		}
+		
+		renderState.alpha = renderState.mayObstructView ? 1 : entity.clientStuff.getAlpha(entity, partialTick, !renderState.mayObstructView);
 	}
 	
 	public StandSkin getStandSkin(T entity) {

@@ -25,8 +25,12 @@ public class ClientStandEntityStuff {
 		modelAlpha.set(1, true);
     }
     
-    public float getAlpha(StandEntity standEntity, float partialTick) {
-    	return (float) standEntity.rangeEfficiency * modelAlpha.lerp(partialTick);
+    public float getAlpha(StandEntity standEntity, float partialTick, boolean withSummonUnsummonAlpha) {
+    	float alpha = (float) standEntity.rangeEfficiency;
+    	if (withSummonUnsummonAlpha) {
+    		alpha *= modelAlpha.lerp(partialTick);
+    	}
+    	return alpha;
     }
     
 }

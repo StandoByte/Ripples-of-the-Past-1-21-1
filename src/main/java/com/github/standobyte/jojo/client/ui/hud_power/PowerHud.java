@@ -284,7 +284,7 @@ public class PowerHud {
 					if (ClientGlobals.playerStandEntity != null) {
 						StandEntity entity = ClientGlobals.playerStandEntity;
 						float partialTick = ClientUtil.partialTick(entity, deltaTracker, entity.level().tickRateManager());
-						alpha = ClientGlobals.playerStandEntity.clientStuff.getAlpha(entity, partialTick);
+						alpha = ClientGlobals.playerStandEntity.clientStuff.getAlpha(entity, partialTick, true);
 					}
 					else if (ClientGlobals.playerStand instanceof SummonedStand.SyncableSummonedStand stand) {
 						float partialTick = ClientUtil.partialTick(mc.player, deltaTracker, mc.level.tickRateManager());
