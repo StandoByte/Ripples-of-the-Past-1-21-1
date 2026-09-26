@@ -126,6 +126,7 @@ public class ClientModSettingsScreen extends Screen {
 	
 	public boolean switchStand(StandType standType) {
 		if (this.configType == ConfigTabType.STANDS && this.curStand != standType) {
+			applyUnsavedChanges();
 			this.curStand = standType;
 			// TODO in this case don't recreate the list of stand buttons to the right
 			updateConfigButtons(curModId, configType, standType);
@@ -146,6 +147,7 @@ public class ClientModSettingsScreen extends Screen {
 	protected void setConfigTab(String curModId, ConfigTabType configType) {
 		if (curModId != null && configType != null
 				&& (!curModId.equals(this.curModId) || configType != this.configType)) {
+			applyUnsavedChanges();
 			this.curModId = curModId;
 			this.configType = configType;
 			updateConfigButtons(curModId, configType, curStand);
@@ -154,13 +156,40 @@ public class ClientModSettingsScreen extends Screen {
 
 	@Override
 	public void onClose() {
-		revertUnsavedChanges();
+		applyUnsavedChanges();
 		this.minecraft.setScreen(this.lastScreen);
 	}
 	
 	protected void revertUnsavedChanges() {
 		if (lastAppliedState != null && configBeingEdited != null) {
 			lastAppliedState.apply(configBeingEdited);
+		}
+	}
+	
+	protected void applyUnsavedChanges() {
+		if (lastAppliedState != null && configBeingEdited != null) {
+			if (curModConfig != null && lastAppliedState != null && configBeingEdited != null) {
+				Map<String, ConfigOption<?>> editedOptions = lastAppliedState.filterToOnlyChanged(configBeingEdited);
+				switch (configType) {
+					case CLIENT -> {
+						curModConfig.saveClient();
+						if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
+							curModConfig.sendClientBroadcast(true);
+						}
+					}
+					case COMMON, STANDS -> {
+						if (curModConfig.hasCommon()) {
+							if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
+								curModConfig.sendCommonConfigEditsToServer(editedOptions);
+							}
+							else {
+								curModConfig.saveCommon(editedOptions);
+							}
+						}
+					}
+				}
+				lastAppliedState = ConfigOptionsState.create(configBeingEdited);
+			}
 		}
 	}
 
@@ -238,28 +267,7 @@ public class ClientModSettingsScreen extends Screen {
 		applyButton = addRenderableWidget(new Button.Builder(
 				Component.translatable("jojo_ripples.config.apply"), 
 				button -> {
-					if (curModConfig != null && lastAppliedState != null && configBeingEdited != null) {
-						Map<String, ConfigOption<?>> editedOptions = lastAppliedState.filterToOnlyChanged(configBeingEdited);
-						switch (configType) {
-							case CLIENT -> {
-								curModConfig.saveClient();
-								if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
-									curModConfig.sendClientBroadcast(true);
-								}
-							}
-							case COMMON, STANDS -> {
-								if (curModConfig.hasCommon()) {
-									if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
-										curModConfig.sendCommonConfigEditsToServer(editedOptions);
-									}
-									else {
-										curModConfig.saveCommon(editedOptions);
-									}
-								}
-							}
-						}
-						lastAppliedState = ConfigOptionsState.create(configBeingEdited);
-					}
+					applyUnsavedChanges();
 				})
 				.bounds(width / 2 - 5 - lowerButtonWidth, 
 						this.height - 26, 
@@ -270,9 +278,7 @@ public class ClientModSettingsScreen extends Screen {
 		cancelButton = addRenderableWidget(new Button.Builder(
 				CommonComponents.GUI_CANCEL, 
 				button -> {
-					if (lastAppliedState != null && configBeingEdited != null) {
-						lastAppliedState.apply(configBeingEdited);
-					}
+					revertUnsavedChanges();
 				})
 				.bounds(width / 2 + 5, 
 						this.height - 26, 
@@ -359,7 +365,6 @@ public class ClientModSettingsScreen extends Screen {
 	protected Collection<Object> configButtons = new ArrayList<>();
 	
 	protected void updateConfigButtons(String curModId, ConfigTabType configType, StandType standType) {
-		revertUnsavedChanges();
 		clearConfigButtons();
 		curModConfigs = getAllConfigsFromMod(curModId);
 		
