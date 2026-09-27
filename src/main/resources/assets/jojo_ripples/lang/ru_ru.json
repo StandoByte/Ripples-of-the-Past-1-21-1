@@ -421,7 +421,7 @@
   "jojo_ripples.stand_exp.skills_left": "Осталось навыков: %s",
   "jojo_ripples.stand_exp.skills_left.hidden": "Осталось навыков: %s (%s скрытых)",
   "jojo_ripples.stand_exp.max": "МАКС",
-  "jojo_ripples.stand_exp.desc": "Вы получаете опыт Стенда, используя ваш Стенд в бою, либо же использую его особые способности. За опыт Стенда вы можете приобрести новые навыки по вашему выбору.",
+  "jojo_ripples.stand_exp.desc": "Вы получаете опыт Стенда, используя ваш Стенд в бою, либо же используя его особые способности. За опыт Стенда вы можете приобрести новые навыки по вашему выбору.",
   "jojo_ripples.stand_skills.learn": "Получить навык",
   "jojo_ripples.stand_skills.learn_all": "Получить все",
   "jojo_ripples.stand_skills.reset": "Сбросить",
