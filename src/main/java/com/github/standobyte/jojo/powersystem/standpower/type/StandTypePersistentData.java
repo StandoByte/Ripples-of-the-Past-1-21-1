@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
 import com.github.standobyte.jojo.client.ui.hud_misc.BottomLeftNotifications;
+import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerData;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
@@ -48,17 +49,21 @@ public class StandTypePersistentData extends PowerData {
 	//}
 	
 	@Override
-	public boolean _setSkillUnlocked(UnlockableSkill skill, boolean unlocked, boolean inGameplay) {
-		boolean changed = super._setSkillUnlocked(skill, unlocked, inGameplay);
-		if (changed && inGameplay) {
-			if (unlocked) {
-				this.exp -= ((StandUnlockableSkill) skill).expToUnlock;
-			}
-			else {
+	protected void srvOnSkillUnlocked(UnlockableSkill skill, Power<?> userPower) {
+		this.exp -= ((StandUnlockableSkill) skill).expToUnlock;
+		syncExp(userPower.getUser());
+	}
+
+	@Override
+	protected void srvBeforeSkillsReset(Power<?> userPower) {
+		for (var skillEntry : getAllSkills().entrySet()) {
+			UnlockableSkill skill = skillEntry.getValue();
+			if (!skill.isStarting && isSkillUnlocked(skill.skillName)) {
 				this.exp += ((StandUnlockableSkill) skill).expToUnlock;
 			}
 		}
-		return changed;
+
+		syncExp(userPower.getUser());
 	}
 	
 	
