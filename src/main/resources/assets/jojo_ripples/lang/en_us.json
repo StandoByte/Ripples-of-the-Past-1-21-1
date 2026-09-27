@@ -492,6 +492,8 @@
   "jojo.message.action_condition.stand_user_too_far": "You and your Stand are too far away from each other",
   
   "jojo_ripples.stand_exp": "Stand EXP",
+  "jojo_ripples.stand_exp.bar": "Stand EXP: %s (Gained %s/%s)",
+  "jojo_ripples.stand_exp.bar.full": "Stand EXP (MAX)",
   "jojo_ripples.stand_exp.total": "Total EXP: %s/%s",
   "jojo_ripples.stand_exp.skills_left": "Skills left: %s",
   "jojo_ripples.stand_exp.skills_left.hidden": "Skills left: %s (%s hidden)",

@@ -102,6 +102,8 @@ public abstract class HudElement implements GuiEventListener {
 	public abstract boolean shouldRender();
 	public abstract void renderElement(GuiGraphics guiGraphics, DeltaTracker deltaTracker);
 	
+	public void preRender(GuiGraphics guiGraphics, DeltaTracker deltaTracker, double mouseX, double mouseY) {}
+	
 	public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker, double mouseX, double mouseY) {
 		updateRectangle();
 		isHovered = guiGraphics.containsPointInScissor((int) mouseX, (int) mouseY)
