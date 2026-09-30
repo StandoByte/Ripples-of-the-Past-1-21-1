@@ -178,6 +178,7 @@ public class ThrownBlockEntity extends ModdedProjectileEntity implements EntityM
     	if (!level().isClientSide()) {
     		sendClientBreakPacket(targetType, hitTarget);
     	}
+    	super.breakProjectile(targetType, hitTarget);
     }
     
     @Override
