@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.mechanics;
 
 import com.github.standobyte.jojo.JojoModLivingVariables;
+import com.github.standobyte.jojo.adventure.npc.CharacterEntityUtil;
 import com.github.standobyte.jojo.adventure.npc.PowerUserMobEntity;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
@@ -24,7 +25,10 @@ public class JojoDefinitions {
 		if (entity.getType().is(EntityTypeTags.UNDEAD)) {
 			return true;
 		}
-		if (entity instanceof Player player) {
+		// FIXME zombie power type
+		
+		Player player = CharacterEntityUtil.getPlayerCastOrWrapped(entity);
+		if (player != null) {
 			return isPlayerJojoVampiric(player);
 		}
 		return false;

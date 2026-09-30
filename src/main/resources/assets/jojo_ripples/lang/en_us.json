@@ -168,6 +168,8 @@
   "jojo_ripples.subtitle.shot": "Something shot",
   "jojo_ripples.subtitle.clothes_sewed": "Clothes sewed",
   
+  "death.attack.rotp_sun_burn": "%s has dissipated under the sun",
+  "death.attack.rotp_sun_burn.player": "%s has dissipated under the sun whilst fighting %s",
   "death.attack.rotp_suffocation": "%s was suffocated by %s",
   "death.attack.rotp_suffocation.player": "%s suffocated while fighting %s",
   "death.attack.rotp_suffocation.item": "%s was suffocated by %s using %s",
@@ -429,6 +431,8 @@
   
   "power.jojo_ripples.vampirism": "Vampirism",
   "jojo_ripples.vampirism.skills": "Skills",
+  "jojo_ripples.clock.daytime": "%s until sunset",
+  "jojo_ripples.clock.nighttime": "%s until sunrise",
   
   
   "jojo_ripples.class.stand": "Stand: %s",
@@ -509,6 +513,8 @@
   "stand.unknown": "Unknown Stand: %s",
   "effect.jojo_ripples.resolve": "Resolve",
   "effect.jojo_ripples.bleeding": "Bleeding",
+  "effect.jojo_ripples.hamon_spread": "Hamon Spread",
+  "effect.jojo_ripples.sun_burn": "Sun Burn",
   "effect.jojo_ripples.stand_virus": "Meteorite Virus",
 
   "jojo.message.action_condition.stand_too_slow": "Your Stand is too slow to do this",

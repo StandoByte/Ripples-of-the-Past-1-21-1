@@ -93,6 +93,8 @@
   "jojo_ripples.subtitle.attack_evasion": "Уклонение от атаки",
   "jojo_ripples.subtitle.clothes_sewed": "Одежда сшита",
   
+  "death.attack.rotp_sun_burn": "%s рассеялся под лучами солнца",
+  "death.attack.rotp_sun_burn.player": "%s рассеялся под лучами солнца, пока боролся с %s",
   "death.attack.rotp_suffocation": "%s был задушен %s",
   "death.attack.rotp_suffocation.player": "%s задохнулся, пока боролся с %s",
   "death.attack.rotp_suffocation.item": "%s был задушен %s с помощью %s",
@@ -354,6 +356,8 @@
   
   "power.jojo_ripples.vampirism": "Вампиризм",
   "jojo_ripples.vampirism.skills": "Навыки",
+  "jojo_ripples.clock.daytime": "%s до заката",
+  "jojo_ripples.clock.nighttime": "%s до рассвета",
   
   
   "jojo_ripples.class.stand": "Стенд: %s",
@@ -434,6 +438,8 @@
   "stand.unknown": "Неизвестный Стенд: %s",
   "effect.jojo_ripples.resolve": "Решимость",
   "effect.jojo_ripples.bleeding": "Кровотечение",
+  "effect.jojo_ripples.hamon_spread": "Распространение Хамона",
+  "effect.jojo_ripples.sun_burn": "Солнечный ожог",
   "effect.jojo_ripples.stand_virus": "Вирус из метеорита",
 
   "jojo.message.action_condition.stand_too_slow": "Ваш Стенд слишком медленный",
