@@ -463,8 +463,8 @@
   "jojo_ripples.stand_stat.range": "Range",
   "jojo_ripples.stand_stat.range.shortened": "RAN - ",
   "jojo_ripples.stand_stat.range.desc": "Combines effective range - the maximum range at which the Stand doesn't lose its strength, and the maximum range, beyond which the Stand cannot move at all.",
-  "jojo_ripples.stand_stat.durability": "Durability",
-  "jojo_ripples.stand_stat.durability.shortened": "DUR - ",
+  "jojo_ripples.stand_stat.durability": "Stamina",
+  "jojo_ripples.stand_stat.durability.shortened": "STA - ",
   "jojo_ripples.stand_stat.durability.desc": "Affects the stamina total and the Stand's damage resistance from other Stand attacks.",
   "jojo_ripples.stand_stat.precision": "Precision",
   "jojo_ripples.stand_stat.precision.shortened": "PRC - ",
@@ -482,7 +482,7 @@
   "attribute.name.jojo_ripples.stand_speed": "Stand Speed",
   "attribute.name.jojo_ripples.stand_effective_range": "Effective Stand Range",
   "attribute.name.jojo_ripples.stand_max_range": "Max Stand Range",
-  "attribute.name.jojo_ripples.stand_durability": "Stand Durability",
+  "attribute.name.jojo_ripples.stand_durability": "Stand Stamina",
   "attribute.name.jojo_ripples.stand_precision": "Stand Precision",
   
   "stand_hand_slot.main": "%s's main hand slot",
@@ -578,7 +578,7 @@
   "jojo_ripples.ability.grab_throw": "Throw",
 
   "jojo_ripples.skill.guard": "Guard",
-  "jojo_ripples.skill.guard.desc": "Use your Stand's durability to guard against attacks from the front.",
+  "jojo_ripples.skill.guard.desc": "Use your Stand's stamina to guard against attacks from the front.",
   "jojo_ripples.skill.guard.controls": "\uEAFF (toggle)",
   "jojo_ripples.ability.guard": "Guard",
 

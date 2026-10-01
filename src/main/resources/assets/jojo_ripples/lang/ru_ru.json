@@ -388,8 +388,8 @@
   "jojo_ripples.stand_stat.range": "Дальность",
   "jojo_ripples.stand_stat.range.shortened": "ДАЛ - ",
   "jojo_ripples.stand_stat.range.desc": "Совмещает эффективную дальность, за пределами которой Стенд становится менее эффективным; и максимальную дальность, за пределы которой Стенд не может перемещаться вовсе.",
-  "jojo_ripples.stand_stat.durability": "Выносливость",
-  "jojo_ripples.stand_stat.durability.shortened": "ВЫН - ",
+  "jojo_ripples.stand_stat.durability": "Стойкость",
+  "jojo_ripples.stand_stat.durability.shortened": "СТК - ",
   "jojo_ripples.stand_stat.durability.desc": "Влияет на шкалу стойкости Стенда и на его сопротивление урону от атак других Стендов.",
   "jojo_ripples.stand_stat.precision": "Меткость",
   "jojo_ripples.stand_stat.precision.shortened": "МЕТК - ",
@@ -407,7 +407,7 @@
   "attribute.name.jojo_ripples.stand_speed": "Скорость Стенда",
   "attribute.name.jojo_ripples.stand_effective_range": "Эффективная дальность Стенда",
   "attribute.name.jojo_ripples.stand_max_range": "Максимальная дальность Стенда",
-  "attribute.name.jojo_ripples.stand_durability": "Выносливость Стенда",
+  "attribute.name.jojo_ripples.stand_durability": "Стойкость Стенда",
   "attribute.name.jojo_ripples.stand_precision": "Точность Стенда",
   
   "stand_hand_slot.main": "Ведущая рука %s",
@@ -503,7 +503,7 @@
   "jojo_ripples.ability.grab_throw": "Бросок",
 
   "jojo_ripples.skill.guard": "Блокирование",
-  "jojo_ripples.skill.guard.desc": "Используйте выносливость вашего Стенда, чтобы защититься от атак спереди от вас.",
+  "jojo_ripples.skill.guard.desc": "Используйте стойкость вашего Стенда, чтобы защититься от атак спереди от вас.",
   "jojo_ripples.skill.guard.controls": "\uEAFF (переключение)",
   "jojo_ripples.ability.guard": "Блокирование",
 
