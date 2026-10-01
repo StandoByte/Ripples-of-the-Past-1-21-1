@@ -288,9 +288,10 @@ public abstract class MarkerRenderer {
 
 
 	protected static class MarkerInstance {
-		protected Vec3 pos;
-		protected boolean outlined;
-		protected final Optional<? extends StandEffectInstance> standEffect;
+		public Vec3 pos;
+		public boolean outlined;
+		public float timer = -1;
+		public final Optional<? extends StandEffectInstance> standEffect;
 
 		public MarkerInstance(Vec3 pos) {
 			this(pos, false);
