@@ -108,6 +108,7 @@ public class AvailableAbilities {
 	@Deprecated @Nullable public AbilityConditionCheck getAbilityResolved(Ability baseAbility) { return _inMoveset.get(baseAbility.name()); }
 	@Deprecated @Nullable public AbilityConditionCheck getAbilityResolved(String baseAbilityName) { return _inMoveset.get(baseAbilityName); }
 	@Nullable public AbilityConditionCheck getContextVariationContainer(Ability baseAbility) { return _inMoveset.get(baseAbility.name()); }
+	@Nullable public AbilityConditionCheck getContextVariationContainer(AbilityId baseAbilityId) { return _inMoveset.get(baseAbilityId.nameInMoveset()); }
 	@Nullable public AbilityConditionCheck getContextVariationContainer(String baseAbilityName) { return _inMoveset.get(baseAbilityName); }
 	@Nullable public Ability getContextVariation(String baseAbilityName) { 
 		AbilityConditionCheck container = _inMoveset.get(baseAbilityName);

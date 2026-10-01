@@ -40,6 +40,7 @@ import com.github.standobyte.jojo.network.c2s.ClAbilityInputPacket;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
+import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
@@ -338,20 +339,22 @@ public class InputHandler {
 			}
 
 			if (heldAbility != null) {
-				Ability heldBaseAbility = heldAbility.baseAbility;
+				AbilityId baseAbilityId = heldAbility.baseAbility.abilityId;
+				Ability abilityToInput = heldAbility.getAbilityToInput();
 				ambiguousKeyPress.onHold = (float ticksToResolveHeld) -> {
-					AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(heldBaseAbility.abilityId.powerClass());
-					AbilityConditionCheck abilityResolved = curAbilities.getContextVariationContainer(heldBaseAbility);
-					doClickInput(InputEventType.PRESS_HOLD, keyId, heldBaseAbility, abilityResolved, ticksToResolveHeld);
+					AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(baseAbilityId.powerClass());
+					AbilityConditionCheck abilityResolved = curAbilities.getContextVariationContainer(baseAbilityId);
+					doClickInput(InputEventType.PRESS_HOLD, keyId, abilityToInput, abilityResolved, ticksToResolveHeld);
 				};
 			}
 			
 			if (clickAbility != null) {
-				Ability clickBaseAbility = clickAbility.baseAbility;
+				AbilityId baseAbilityId = clickAbility.baseAbility.abilityId;
+				Ability abilityToInput = clickAbility.getAbilityToInput();
 				ambiguousKeyPress.onClick = (float ticksToResolveClick) -> {
-					AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(clickBaseAbility.abilityId.powerClass());
-					AbilityConditionCheck abilityResolved = curAbilities.getContextVariationContainer(clickBaseAbility);
-					doClickInput(InputEventType.PRESS_CLICK, keyId, clickBaseAbility, abilityResolved, ticksToResolveClick);
+					AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(baseAbilityId.powerClass());
+					AbilityConditionCheck abilityResolved = curAbilities.getContextVariationContainer(baseAbilityId);
+					doClickInput(InputEventType.PRESS_CLICK, keyId, abilityToInput, abilityResolved, ticksToResolveClick);
 				};
 			}
 		}
@@ -366,8 +369,8 @@ public class InputHandler {
 					null;
 			if (inputMethod != null) {
 				switch (inputMethod) {
-					case HOLD -> doClickInput(InputEventType.PRESS_HOLD, keyId, heldAbility.baseAbility, heldAbility.curActiveAbility, 0);
-					case CLICK -> doClickInput(InputEventType.PRESS_CLICK, keyId, clickAbility.baseAbility, abilities.clickAbility.curActiveAbility, 0);
+					case HOLD -> doClickInput(InputEventType.PRESS_HOLD, keyId, heldAbility.getAbilityToInput(), heldAbility.curActiveAbility, 0);
+					case CLICK -> doClickInput(InputEventType.PRESS_CLICK, keyId, clickAbility.getAbilityToInput(), clickAbility.curActiveAbility, 0);
 				}
 			}
 		}
@@ -616,6 +619,17 @@ public class InputHandler {
 		public void reset() {
 			this.baseAbility = null;
 			this.curActiveAbility = null;
+		}
+		
+		public Ability getAbilityToInput() {
+			if (curActiveAbility != null) {
+				boolean useReplacement = AbilityInputState.withValue(curActiveAbility.clientInputState)
+						.getFlag(AbilityInputState.CLIENT_SIDE_SUB_ABILITY_REPLACEMENT);
+				if (useReplacement && curActiveAbility.ability != null) {
+					return curActiveAbility.ability;
+				}
+			}
+			return baseAbility;
 		}
 	}
 	
