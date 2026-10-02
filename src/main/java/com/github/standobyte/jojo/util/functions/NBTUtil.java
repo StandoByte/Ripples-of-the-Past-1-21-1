@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.util.functions;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -88,6 +89,19 @@ public class NBTUtil {
 			return values[ordinal];
 		}
 		return null;
+	}
+	
+	public static void putOptionalInt(CompoundTag nbt, String key, OptionalInt val) {
+		if (val.isPresent()) {
+			nbt.putInt(key, val.getAsInt());
+		}
+	}
+	
+	public static OptionalInt getOptionalInt(CompoundTag nbt, String key) {
+		if (nbt.contains(key, Tag.TAG_INT)) {
+			return OptionalInt.of(nbt.getInt(key));
+		}
+		return OptionalInt.empty();
 	}
 	
 	public static <V> ListTag toList(Iterable<V> collection, Encoder<V> elementCodec) {

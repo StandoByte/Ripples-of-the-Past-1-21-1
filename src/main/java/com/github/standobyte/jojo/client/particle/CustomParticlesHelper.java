@@ -12,17 +12,21 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.ParticleStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.BreakingItemParticle;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.particle.TerrainParticle;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -248,6 +252,21 @@ public abstract class CustomParticlesHelper {
 				}
 			});
 		}
+	}
+	
+	public static void addItemParticleNoGravity(ItemStack item, 
+			double x, double y, double z, 
+			double xSpeed, double ySpeed, double zSpeed, int lifetime) {
+		Minecraft mc = Minecraft.getInstance();
+		ParticleEngine particleEngine = mc.particleEngine;
+		BreakingItemParticle particle = (BreakingItemParticle) particleEngine.createParticle(
+				new ItemParticleOption(ParticleTypes.ITEM, item), x, y, z, xSpeed, ySpeed, zSpeed);
+		particle.xd = xSpeed;
+		particle.yd = ySpeed;
+		particle.zd = zSpeed;
+		particle.setLifetime(lifetime);
+		particle.gravity = 0;
+		
 	}
 
 //	public static void createParticlesEmitter(Entity entity, ParticleOptions type, int ticks) {
