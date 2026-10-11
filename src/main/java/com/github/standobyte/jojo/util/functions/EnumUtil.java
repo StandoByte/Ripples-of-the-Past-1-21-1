@@ -14,4 +14,14 @@ public class EnumUtil {
 		}
 		return map;
 	}
+	
+	public static <T extends Enum<T>> T getNextWrapped(T constant) {
+		T[] values = (T[]) constant.getClass().getEnumConstants();
+		return values[(constant.ordinal() + 1) % values.length];
+	}
+	
+	public static <T extends Enum<T>> T getPrevWrapped(T constant) {
+		T[] values = (T[]) constant.getClass().getEnumConstants();
+		return values[(constant.ordinal() - 1 + values.length) % values.length];
+	}
 }
