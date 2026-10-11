@@ -37,12 +37,12 @@ public class SpawnArrowsInSusBlocks {
 		RandomSource random = OOPMoment.RANDOM;
 
 		if (!playerVars.foundAnArrow || playerVars.findMoreArrowsTimer > 0) {
-			boolean firstArrowEver = serverVars.foundFirstArrows <= 0;
-			if (firstArrowEver || (serverVars.foundFirstArrows < 5 && playerVars.findMoreArrowsTimer > 0)) {
+			int foundFirstArrows = serverVars.getInt("foundFirstArrows", 0);
+			boolean firstArrowEver = foundFirstArrows <= 0;
+			if (firstArrowEver || (foundFirstArrows < 5 && playerVars.findMoreArrowsTimer > 0)) {
 				if (random.nextInt(4) == 0) {
 					arrowToPut = ModItems.STAND_ARROW;
-					serverVars.foundFirstArrows++;
-					serverVars.setDirty();
+					serverVars.setInt("foundFirstArrows", foundFirstArrows + 1);
 					
 					if (playerVars.findMoreArrowsTimer == -1) {
 						playerVars.findMoreArrowsTimer = 5 * 60 * 20;
@@ -53,9 +53,9 @@ public class SpawnArrowsInSusBlocks {
 			else {
 				if (!StandUtil.isEntityStandUser(player) && random.nextInt(200) == 0) {
 					boolean kingCrimsonVillain = false;
-					if (!serverVars.foundBeetleArrow && (random.nextInt(100) == 0 || kingCrimsonVillain)) {
+					if (!serverVars.getBoolean("foundBeetleArrow", false) && (random.nextInt(100) == 0 || kingCrimsonVillain)) {
 						arrowToPut = ModItems.STAND_ARROW_BEETLE;
-						serverVars.foundBeetleArrow = true;
+						serverVars.setBoolean("foundBeetleArrow", true);
 					}
 					else {
 						arrowToPut = ModItems.STAND_ARROW;

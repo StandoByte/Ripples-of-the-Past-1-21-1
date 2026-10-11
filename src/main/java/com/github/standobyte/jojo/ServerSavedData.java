@@ -4,6 +4,10 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.subsystems.itemtracking.ItemTracking;
 import com.github.standobyte.jojo.util.functions.NBTUtil;
 
+import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -17,15 +21,53 @@ import net.minecraft.world.level.storage.DimensionDataStorage;
  */
 public class ServerSavedData extends SavedData {
     public ItemTracking itemsTracker = new ItemTracking(this);
-    public int foundFirstArrows = 0;
-    public boolean foundBeetleArrow = false;
+    private Object2IntMap<String> intCounters = new Object2IntOpenHashMap<>();
+    private Object2BooleanMap<String> bools = new Object2BooleanOpenHashMap<>();
+    
+    
+    public void setInt(String key, int value) {
+    	int oldValue = intCounters.put(key, value);
+    	if (oldValue != value) {
+    		setDirty();
+    	}
+    }
+    
+    public int getInt(String key, int defaultValue) {
+    	return intCounters.getOrDefault(key, defaultValue);
+    }
+    
+    
+    public void setBoolean(String key, boolean value) {
+    	if (bools.put(key, value) != value) {
+    		setDirty();
+    	}
+    }
+    
+    public boolean getBoolean(String key, boolean defaultValue) {
+    	return bools.getOrDefault(key, defaultValue);
+    }
+    
 
 	@Override
-	public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-		CompoundTag nbt = new CompoundTag();
+	public CompoundTag save(CompoundTag nbt, HolderLookup.Provider registries) {
 		nbt.put("ItemTrackers", itemsTracker.serializeNBT(registries));
-		nbt.putInt("foundFirstArrows", foundFirstArrows);
-		nbt.putBoolean("foundBeetleArrow", foundBeetleArrow);
+		
+		if (!intCounters.isEmpty()) {
+			CompoundTag intsNbt = new CompoundTag();
+			for (var entry : intCounters.object2IntEntrySet()) {
+				intsNbt.putInt(entry.getKey(), entry.getIntValue());
+			}
+			nbt.put("ints", intsNbt);
+		}
+		
+		if (!bools.isEmpty()) {
+			CompoundTag boolsNbt = new CompoundTag();
+			for (var entry : bools.object2BooleanEntrySet()) {
+				boolsNbt.putBoolean(entry.getKey(), entry.getBooleanValue());
+			}
+			nbt.put("bools", boolsNbt);
+		}
+		
 		return nbt;
 	}
 	
@@ -33,8 +75,18 @@ public class ServerSavedData extends SavedData {
     	ServerSavedData data = new ServerSavedData();
     	NBTUtil.getElementOptional(nbt, "ItemTrackers", ListTag.class).ifPresent(
     			trackersNbt -> data.itemsTracker.deserializeNBT(registries, trackersNbt));
-    	data.foundFirstArrows = nbt.getInt("foundFirstArrows");
-    	data.foundBeetleArrow = nbt.getBoolean("foundBeetleArrow");
+    	
+    	NBTUtil.getCompoundOptional(nbt, "ints").ifPresent(intsNbt -> {
+    		for (String key : intsNbt.getAllKeys()) {
+    			data.intCounters.put(key, intsNbt.getInt(key));
+    		}
+    	});
+    	
+    	NBTUtil.getCompoundOptional(nbt, "bools").ifPresent(boolsNbt -> {
+    		for (String key : boolsNbt.getAllKeys()) {
+    			data.bools.put(key, boolsNbt.getBoolean(key));
+    		}
+    	});
         return data;
     }
     
