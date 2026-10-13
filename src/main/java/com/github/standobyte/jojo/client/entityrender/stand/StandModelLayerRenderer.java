@@ -13,7 +13,6 @@ import net.minecraft.resources.ResourceLocation;
 
 // TODO stand renderer layers (layers suck)
 /*
- * glow layer
  * fire on Magician's Red and Silver Chariot's rapier (?)
  */
 public class StandModelLayerRenderer<T extends StandEntity, S extends StandEntityRenderState, M extends StandEntityModel<T, S>> extends RenderLayer<T, M> {
@@ -99,6 +98,10 @@ public class StandModelLayerRenderer<T extends StandEntity, S extends StandEntit
 	}
 
 	public void render(PoseStack poseStack, MultiBufferSource buffer, S renderState) {
+		render(poseStack, buffer, renderState, getParentModel());
+	}
+
+	public void render(PoseStack poseStack, MultiBufferSource buffer, S renderState, M parentModel) {
 //		if (renderType != null && shouldRender(entity, entity.getStandSkin())) {
 //			M layerModel = getLayerModel(entity);
 //			M parentModel = entityRenderer.getModel(entity);

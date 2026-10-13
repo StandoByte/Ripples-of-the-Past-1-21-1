@@ -60,6 +60,7 @@ public class StandEntityRenderer<
 			return defaultModel != null ? createStandModel(defaultModel) : null;
 		});
 		this.addLayer(new ItemInHandLayer<>(this, context.getItemInHandRenderer()));
+		this.addLayer(new StandGlowLayer<>(this));
 	}
 	
 	public final S createRenderState(T entity, float partialTick) {
@@ -265,6 +266,7 @@ public class StandEntityRenderer<
 				if (layerRenderer instanceof StandModelLayerRenderer) {
 					@SuppressWarnings("unchecked")
 					StandModelLayerRenderer<T, S, M> standLayer = (StandModelLayerRenderer<T, S, M>) layerRenderer;
+					standLayer.render(poseStack, bufferSource, renderState, model);
 //					if (standLayer.shouldRender(null, nonDefaultSkin)) {
 //						M layerModel = standLayer.getLayerModel(nonDefaultSkin);
 //						RenderType layerRenderType = layerModel.renderType(standLayer.getLayerTexture(nonDefaultSkin));

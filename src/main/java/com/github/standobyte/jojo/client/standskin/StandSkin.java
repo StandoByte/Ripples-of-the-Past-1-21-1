@@ -60,6 +60,7 @@ public class StandSkin {
 	public final boolean isDefault;
 	public final Optional<ResourceLocation> nonDefaultId;
 	protected final ResourcePathChecker standTexture;
+	protected final ResourcePathChecker standGlowTexture;
 	@Nullable protected final StandSkinColor color;
 	protected final Optional<ResourceLocation> storyPart;
 	
@@ -97,6 +98,9 @@ public class StandSkin {
 		this.standTexture = remapAssetPath(ResourceLocation.fromNamespaceAndPath(
 				standId.getNamespace(), 
 				"textures/entity/" + standId.getPath() + ".png"));
+		this.standGlowTexture = remapAssetPath(ResourceLocation.fromNamespaceAndPath(
+				standId.getNamespace(),
+				"textures/entity/glow/" + standId.getPath() + ".png"));
 		this.isDefault = skinId.equals(standId);
 		this.nonDefaultId = isDefault ? Optional.empty() : Optional.of(skinId);
 		this.color = color;
@@ -255,7 +259,18 @@ public class StandSkin {
 			return this.standTexture.or(defaultTex);
 		}
 	}
-	
+
+	@Nullable
+	public ResourceLocation getStandGlowTexture() {
+		if (this.standGlowTexture.resourceExists()) {
+			return this.standGlowTexture.path;
+		}
+		if (this != defaultSkin && defaultSkin != null) {
+			return defaultSkin.getStandGlowTexture();
+		}
+		return null;
+	}
+
 	public <M extends Model> M getModel(ResourceLocation modelPath, Function<LayerDefinition, M> newModelFactory) {
 		LoadedModel model = getModel(modelPath);
 		return model != null ? model.getMainModel(newModelFactory) : null;
