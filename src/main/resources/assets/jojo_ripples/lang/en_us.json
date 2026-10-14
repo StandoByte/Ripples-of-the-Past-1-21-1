@@ -213,6 +213,10 @@
   
   "jojo_ripples.config.title": "ROTP",
   
+  "jojo_ripples.config.standDamageMultiplier": "Stand damage multiplier",
+  "jojo_ripples.config.standDamageMultiplier.tooltip": "Damage multiplier applied to all Stands.",
+  "jojo_ripples.config.standExpGainMultiplier": "Stand exp gain multiplier",
+  "jojo_ripples.config.standExpGainMultiplier.tooltip": "Multiplier of Stand exp gained by killing enemies with a Stand or using Stand abilities.",
   "jojo_ripples.config.standsBreakBlocks": "Stands break blocks",
   "jojo_ripples.config.standsBreakBlocks.tooltip": "Server-wide setting of Stands destroying blocks. If set to \"Player preference\", each player can set it for themself individually.",
   "jojo_ripples.config.dropStandAsDisc": "Drop Stand as Disc",

@@ -137,6 +137,10 @@
   
   "jojo_ripples.config.title": "ROTP",
   
+  "jojo_ripples.config.standDamageMultiplier": "Множитель урона от Стендов",
+  "jojo_ripples.config.standDamageMultiplier.tooltip": "Множитель урона, который применяется ко всем Стендам.",
+  "jojo_ripples.config.standExpGainMultiplier": "Множитель получаемого опыта Стенда",
+  "jojo_ripples.config.standExpGainMultiplier.tooltip": "Множитель опыта Стенда, получаемого при убийстве врагов или использовании способностей Стенда.",
   "jojo_ripples.config.standsBreakBlocks": "Уничтожение блоков Стендами",
   "jojo_ripples.config.standsBreakBlocks.tooltip": "Настройка, устанавливающая, могут ли Стенды ломать блоки. Если установлено \"По выбору игрока\", каждый игрок сможет поменять значение для себя.",
   "jojo_ripples.config.dropStandAsDisc": "Выпадение Стенда в Диске",
