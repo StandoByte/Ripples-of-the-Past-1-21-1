@@ -15,6 +15,7 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.resolve.ClientResolveVisuals;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
@@ -81,7 +82,7 @@ public class RotpConfig {
 	}
 
 	public final static class ClientBroadcast {
-		//public final ConfigEnum<HumanoidArm> standSide = HumanoidArm.LEFT;
+		public final ConfigEnum<HumanoidArm> standSide = new ConfigEnum<>(HumanoidArm.class, HumanoidArm.LEFT);
 		public final ConfigBool standBreaksBlocks = new ConfigBool(true);
 		public final ConfigBool standPicksUpItems = new ConfigBool(true);
 		public final ConfigBool standMovesBeyondEffRange = new ConfigBool(true);
@@ -175,10 +176,11 @@ public class RotpConfig {
 						helper.addBooleanOptionButton(client.abilitySelectionWheel, ModConfigType.CLIENT, "ability_selection_wheel");
 						
 						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.stand"));
-						helper.addBooleanOptionButton(config.getClient().standAimMarker, ModConfigType.CLIENT, "stand_aim_marker");
-						helper.addBooleanOptionButton(config.getClient().standMotionTilt, ModConfigType.CLIENT, null);
-						helper.addBooleanOptionButton(config.getClient().standAura, ModConfigType.CLIENT, null);
-						helper.addBooleanOptionButton(config.getClient().resolveShaders, ModConfigType.CLIENT, null);
+						helper.addEnumOptionButton(clientBroadcast.standSide, ModConfigType.CLIENT_BROADCAST, null);
+						helper.addBooleanOptionButton(client.standAimMarker, ModConfigType.CLIENT, "stand_aim_marker");
+						helper.addBooleanOptionButton(client.standMotionTilt, ModConfigType.CLIENT, null);
+						helper.addBooleanOptionButton(client.standAura, ModConfigType.CLIENT, null);
+						helper.addBooleanOptionButton(client.resolveShaders, ModConfigType.CLIENT, null);
 						
 						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.hamon"));
 						

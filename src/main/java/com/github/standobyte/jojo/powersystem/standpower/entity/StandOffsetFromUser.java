@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.powersystem.standpower.entity;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.network.s2c.TrSyncStandOffsetPacket;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.subsystems.entity_grab.LivingComponentGrab;
@@ -13,6 +14,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -36,6 +38,7 @@ public class StandOffsetFromUser {
 	private int changedTimestamp;
 	
 	public boolean fixTargetOvershoot = false;
+	public boolean withSideFromUserConfig = true;
 	private double clPrevOffsetDist = -1;
 	
 	public static StandOffsetFromUser createDefault(StandEntity standEntity) {
@@ -56,6 +59,17 @@ public class StandOffsetFromUser {
 		return this;
 	}
 	
+	public static double leftMultiplierFromClientConfig(LivingEntity standUser) {
+		boolean isDefaultSide = true;
+		if (standUser instanceof Player player) {
+			var broadcastConfig = JojoMod.config.getPlayerBroadcast(player);
+			if (broadcastConfig != null) {
+				isDefaultSide = broadcastConfig.standSide.isDefault();
+			}
+		}
+		return isDefaultSide ? 1 : -1;
+	}
+	
 	public void setOffset(Vec3 offset, Rotations rotations) {
 		if (this.relativeOffset == null || this.rotations == null || 
 				offset.x != this.relativeOffset.x || offset.y != this.relativeOffset.y || offset.z != this.relativeOffset.z || 
@@ -74,7 +88,9 @@ public class StandOffsetFromUser {
 			this.rotations = rotations;
 			this.changedTimestamp = standEntity.tickCount;
 			
-			this.fixTargetOvershoot = offset != this.idleOffset;
+			boolean isResettingToIdle = offset == this.idleOffset;
+			this.fixTargetOvershoot = !isResettingToIdle;
+			this.withSideFromUserConfig = isResettingToIdle;
 			this.clPrevOffsetDist = -1;
 		}
 	}
@@ -118,6 +134,14 @@ public class StandOffsetFromUser {
 		
 		if (lerp && prevAbsoluteOffset == null) {
 			prevAbsoluteOffset = getAbsoluteOffset(userEntity, false);
+		}
+		
+		Vec3 relativeOffset = this.relativeOffset;
+		if (withSideFromUserConfig) {
+			double leftMult = leftMultiplierFromClientConfig(userEntity);
+			if (leftMult != 1) {
+				relativeOffset = relativeOffset.multiply(leftMult, 1, 1);
+			}
 		}
 		Vec3 absoluteOffset = relativeToAbsolute(relativeOffset, rotations, userEntity);
 		
