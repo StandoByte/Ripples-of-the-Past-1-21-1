@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.AnimWithI
 import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery.AnimMolangVariables;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
+import com.github.standobyte.jojo.client.entityrender.entitylayers.RenderLayer2;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
 import com.github.standobyte.jojo.client.rendertype.ModRenderTypes;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
@@ -297,7 +298,7 @@ public class StandEntityRenderer<
 		extractRenderState.accept(renderState);
 		preRender(renderState);
 
-		M model = modelFrom(renderState);
+		this.model = modelFrom(renderState);
 
 		poseStack.pushPose();
 		
@@ -322,20 +323,10 @@ public class StandEntityRenderer<
 			model.renderToBuffer(poseStack, vertexBuilder, packedLight, packedOverlay, renderState.tint);
 
 			for (RenderLayer<T, M> layerRenderer : this.layers) {
-				if (layerRenderer instanceof StandModelLayerRenderer) {
+				if (layerRenderer instanceof RenderLayer2) {
 					@SuppressWarnings("unchecked")
-					StandModelLayerRenderer<T, S, M> standLayer = (StandModelLayerRenderer<T, S, M>) layerRenderer;
-					standLayer.render(poseStack, bufferSource, renderState, model);
-//					if (standLayer.shouldRender(null, nonDefaultSkin)) {
-//						M layerModel = standLayer.getLayerModel(nonDefaultSkin);
-//						RenderType layerRenderType = layerModel.renderType(standLayer.getLayerTexture(nonDefaultSkin));
-//						VertexConsumer layerVertexBuilder = bufferSource.getBuffer(layerRenderType);
-//						layerModel.attackTime = 0;
-//						layerModel.riding = false;
-//						layerModel.young = false;
-//						layerModel.setupAnim(renderState);
-//						layerModel.renderToBuffer(poseStack, layerVertexBuilder, packedLight, packedOverlay, renderState.tint);
-//					}
+					RenderLayer2<T, S, M> standLayer = (RenderLayer2<T, S, M>) layerRenderer;
+					standLayer.render(poseStack, bufferSource, packedLight, renderState, 0, 0);
 				}
 			}
 		}
@@ -347,11 +338,24 @@ public class StandEntityRenderer<
 
     protected boolean useDitheringRenderType = false;
     @Override
-    protected RenderType getRenderType(T livingEntity, boolean bodyVisible, boolean translucent, boolean glowing) {
+    public RenderType getRenderType(T livingEntity, 
+    		boolean isBodyVisible, boolean forceTransparent, boolean glowing) {
     	ResourceLocation texture = this.getTextureLocation(livingEntity);
-    	if (translucent) {
+    	return getRenderType(texture, isBodyVisible, forceTransparent, glowing);
+    }
+    
+    public RenderType getRenderType(ResourceLocation texture, S renderState) {
+    	boolean isBodyVisible = /*isBodyVisible(renderState)*/!renderState.isInvisible;
+    	boolean forceTransparent = !isBodyVisible && !renderState.isInvisibleToPlayer;
+    	boolean appearsGlowing = renderState.appearsGlowing;
+    	return getRenderType(texture, isBodyVisible, forceTransparent, appearsGlowing);
+    }
+    
+    public RenderType getRenderType(ResourceLocation texture, 
+    		boolean isBodyVisible, boolean forceTransparent, boolean glowing) {
+    	if (forceTransparent) {
     		return RenderType.itemEntityTranslucentCull(texture);
-    	} else if (bodyVisible) {
+    	} else if (isBodyVisible) {
     		return useDitheringRenderType ? ModRenderTypes.entityDither(texture) : this.model.renderType(texture);
     	} else {
     		return glowing ? RenderType.outline(texture) : null;
