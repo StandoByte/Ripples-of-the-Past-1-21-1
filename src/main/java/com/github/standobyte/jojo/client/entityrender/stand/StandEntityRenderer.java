@@ -233,59 +233,6 @@ public class StandEntityRenderer<
 	}
 	
 	
-	public void renderForStandSkinUI(PoseStack poseStack, MultiBufferSource bufferSource, Consumer<S> extractRenderState) {
-		S renderState = outOfLevelRenderState;
-		extractRenderState.accept(renderState);
-		preRender(renderState);
-
-		M model = modelFrom(renderState);
-
-		poseStack.pushPose();
-		
-		poseStack.translate(0, 1.5f, 0);
-		poseStack.scale(1, -1, 1);
-		poseStack.mulPose(Axis.YP.rotationDegrees(180));
-		poseStack.scale(-1, 1, 1);
-		
-//		Optional<ResourceLocation> nonDefaultSkin = standSkin.getNonDefaultLocation();
-		model.attackTime = 0;
-		model.riding = false;
-		model.young = false;
-
-		model.setupAnim(renderState);
-
-		ResourceLocation texture = getTextureLocation(renderState);
-		RenderType renderType = model.renderType(texture);
-		int packedLight = ClientUtil.MAX_LIGHT;
-		if (renderType != null) {
-			VertexConsumer vertexBuilder = bufferSource.getBuffer(renderType);
-			int packedOverlay = OverlayTexture.NO_OVERLAY;
-			model.renderToBuffer(poseStack, vertexBuilder, packedLight, packedOverlay, renderState.tint);
-
-			for (RenderLayer<T, M> layerRenderer : this.layers) {
-				if (layerRenderer instanceof StandModelLayerRenderer) {
-					@SuppressWarnings("unchecked")
-					StandModelLayerRenderer<T, S, M> standLayer = (StandModelLayerRenderer<T, S, M>) layerRenderer;
-					standLayer.render(poseStack, bufferSource, renderState, model);
-//					if (standLayer.shouldRender(null, nonDefaultSkin)) {
-//						M layerModel = standLayer.getLayerModel(nonDefaultSkin);
-//						RenderType layerRenderType = layerModel.renderType(standLayer.getLayerTexture(nonDefaultSkin));
-//						VertexConsumer layerVertexBuilder = bufferSource.getBuffer(layerRenderType);
-//						layerModel.attackTime = 0;
-//						layerModel.riding = false;
-//						layerModel.young = false;
-//						layerModel.setupAnim(renderState);
-//						layerModel.renderToBuffer(poseStack, layerVertexBuilder, packedLight, packedOverlay, renderState.tint);
-//					}
-				}
-			}
-		}
-
-		poseStack.popPose();
-		
-		postRender();
-	}
-	
 	// 1.21.2+
 //	public void renderWithRenderState(Consumer<S> renderState, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
 //		renderState.accept(outOfLevelRenderState);
@@ -344,6 +291,59 @@ public class StandEntityRenderer<
     public void doRender(T entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
 		super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, light);
     }
+	
+	public void renderForStandSkinUI(PoseStack poseStack, MultiBufferSource bufferSource, Consumer<S> extractRenderState) {
+		S renderState = outOfLevelRenderState;
+		extractRenderState.accept(renderState);
+		preRender(renderState);
+
+		M model = modelFrom(renderState);
+
+		poseStack.pushPose();
+		
+		poseStack.translate(0, 1.5f, 0);
+		poseStack.scale(1, -1, 1);
+		poseStack.mulPose(Axis.YP.rotationDegrees(180));
+		poseStack.scale(-1, 1, 1);
+		
+//		Optional<ResourceLocation> nonDefaultSkin = standSkin.getNonDefaultLocation();
+		model.attackTime = 0;
+		model.riding = false;
+		model.young = false;
+
+		model.setupAnim(renderState);
+
+		ResourceLocation texture = getTextureLocation(renderState);
+		RenderType renderType = model.renderType(texture);
+		int packedLight = ClientUtil.MAX_LIGHT;
+		if (renderType != null) {
+			VertexConsumer vertexBuilder = bufferSource.getBuffer(renderType);
+			int packedOverlay = OverlayTexture.NO_OVERLAY;
+			model.renderToBuffer(poseStack, vertexBuilder, packedLight, packedOverlay, renderState.tint);
+
+			for (RenderLayer<T, M> layerRenderer : this.layers) {
+				if (layerRenderer instanceof StandModelLayerRenderer) {
+					@SuppressWarnings("unchecked")
+					StandModelLayerRenderer<T, S, M> standLayer = (StandModelLayerRenderer<T, S, M>) layerRenderer;
+					standLayer.render(poseStack, bufferSource, renderState, model);
+//					if (standLayer.shouldRender(null, nonDefaultSkin)) {
+//						M layerModel = standLayer.getLayerModel(nonDefaultSkin);
+//						RenderType layerRenderType = layerModel.renderType(standLayer.getLayerTexture(nonDefaultSkin));
+//						VertexConsumer layerVertexBuilder = bufferSource.getBuffer(layerRenderType);
+//						layerModel.attackTime = 0;
+//						layerModel.riding = false;
+//						layerModel.young = false;
+//						layerModel.setupAnim(renderState);
+//						layerModel.renderToBuffer(poseStack, layerVertexBuilder, packedLight, packedOverlay, renderState.tint);
+//					}
+				}
+			}
+		}
+
+		poseStack.popPose();
+		
+		postRender();
+	}
 
     protected boolean useDitheringRenderType = false;
     @Override
