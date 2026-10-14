@@ -93,6 +93,8 @@
   "jojo_ripples.subtitle.attack_evasion": "Уклонение от атаки",
   "jojo_ripples.subtitle.clothes_sewed": "Одежда сшита",
   
+  "death.attack.rotp_sun_burn": "%s рассеялся под лучами солнца",
+  "death.attack.rotp_sun_burn.player": "%s рассеялся под лучами солнца, пока боролся с %s",
   "death.attack.rotp_suffocation": "%s был задушен %s",
   "death.attack.rotp_suffocation.player": "%s задохнулся, пока боролся с %s",
   "death.attack.rotp_suffocation.item": "%s был задушен %s с помощью %s",
@@ -354,6 +356,8 @@
   
   "power.jojo_ripples.vampirism": "Вампиризм",
   "jojo_ripples.vampirism.skills": "Навыки",
+  "jojo_ripples.clock.daytime": "%s до заката",
+  "jojo_ripples.clock.nighttime": "%s до рассвета",
   
   
   "jojo_ripples.class.stand": "Стенд: %s",
@@ -384,11 +388,11 @@
   "jojo_ripples.stand_stat.range": "Дальность",
   "jojo_ripples.stand_stat.range.shortened": "ДАЛ - ",
   "jojo_ripples.stand_stat.range.desc": "Совмещает эффективную дальность, за пределами которой Стенд становится менее эффективным; и максимальную дальность, за пределы которой Стенд не может перемещаться вовсе.",
-  "jojo_ripples.stand_stat.durability": "Выносливость",
-  "jojo_ripples.stand_stat.durability.shortened": "ВЫН - ",
+  "jojo_ripples.stand_stat.durability": "Стойкость",
+  "jojo_ripples.stand_stat.durability.shortened": "СТК - ",
   "jojo_ripples.stand_stat.durability.desc": "Влияет на шкалу стойкости Стенда и на его сопротивление урону от атак других Стендов.",
-  "jojo_ripples.stand_stat.precision": "Меткость",
-  "jojo_ripples.stand_stat.precision.shortened": "МЕТК - ",
+  "jojo_ripples.stand_stat.precision": "Точность",
+  "jojo_ripples.stand_stat.precision.shortened": "ТЧН - ",
   "jojo_ripples.stand_stat.precision.desc": "Улучшает наведение на цель ударов Стенда и меткость его снарядов.",
   "jojo_ripples.stand_stat.dev_potential": "Способность развиваться",
   "jojo_ripples.stand_stat.dev_potential.shortened": "РАЗВ - ",
@@ -403,7 +407,7 @@
   "attribute.name.jojo_ripples.stand_speed": "Скорость Стенда",
   "attribute.name.jojo_ripples.stand_effective_range": "Эффективная дальность Стенда",
   "attribute.name.jojo_ripples.stand_max_range": "Максимальная дальность Стенда",
-  "attribute.name.jojo_ripples.stand_durability": "Выносливость Стенда",
+  "attribute.name.jojo_ripples.stand_durability": "Стойкость Стенда",
   "attribute.name.jojo_ripples.stand_precision": "Точность Стенда",
   
   "stand_hand_slot.main": "Ведущая рука %s",
@@ -417,11 +421,13 @@
   "jojo.message.action_condition.stand_user_too_far": "Вы и ваш Стенд слишком далеко друг от друга",
   
   "jojo_ripples.stand_exp": "Опыт Стенда",
+  "jojo_ripples.stand_exp.bar": "Опыт Стенда: %s (получено %s/%s)",
+  "jojo_ripples.stand_exp.bar.full": "Опыт Стенда (МАКС)",
   "jojo_ripples.stand_exp.total": "Получено опыта: %s/%s",
   "jojo_ripples.stand_exp.skills_left": "Осталось навыков: %s",
   "jojo_ripples.stand_exp.skills_left.hidden": "Осталось навыков: %s (%s скрытых)",
   "jojo_ripples.stand_exp.max": "МАКС",
-  "jojo_ripples.stand_exp.desc": "Вы получаете опыт Стенда, используя ваш Стенд в бою, либо же использую его особые способности. За опыт Стенда вы можете приобрести новые навыки по вашему выбору.",
+  "jojo_ripples.stand_exp.desc": "Вы получаете опыт Стенда, используя ваш Стенд в бою, либо же используя его особые способности. За опыт Стенда вы можете приобрести новые навыки по вашему выбору.",
   "jojo_ripples.stand_skills.learn": "Получить навык",
   "jojo_ripples.stand_skills.learn_all": "Получить все",
   "jojo_ripples.stand_skills.reset": "Сбросить",
@@ -432,6 +438,8 @@
   "stand.unknown": "Неизвестный Стенд: %s",
   "effect.jojo_ripples.resolve": "Решимость",
   "effect.jojo_ripples.bleeding": "Кровотечение",
+  "effect.jojo_ripples.hamon_spread": "Распространение Хамона",
+  "effect.jojo_ripples.sun_burn": "Солнечный ожог",
   "effect.jojo_ripples.stand_virus": "Вирус из метеорита",
 
   "jojo.message.action_condition.stand_too_slow": "Ваш Стенд слишком медленный",
@@ -490,12 +498,12 @@
   "entity.jojo_ripples.thrown_block": "Блок",
   
   "jojo_ripples.skill.grab_throw": "Бросок",
-  "jojo_ripples.skill.grab_throw.desc": "Вложите всю силу вашего Стенда в бросок, который далекот откинет захваченного врага.",
+  "jojo_ripples.skill.grab_throw.desc": "Вложите всю силу вашего Стенда в бросок, который далеко откинет захваченного врага.",
   "jojo_ripples.skill.grab_throw.controls": "Удерживайте \uEAFE, когда Стендом захвачена сущность",
   "jojo_ripples.ability.grab_throw": "Бросок",
 
   "jojo_ripples.skill.guard": "Блокирование",
-  "jojo_ripples.skill.guard.desc": "Используйте выносливость вашего Стенда, чтобы защититься от атак спереди от вас.",
+  "jojo_ripples.skill.guard.desc": "Используйте стойкость вашего Стенда, чтобы защититься от атак спереди от вас.",
   "jojo_ripples.skill.guard.controls": "\uEAFF (переключение)",
   "jojo_ripples.ability.guard": "Блокирование",
 
@@ -526,7 +534,7 @@
   "stand.jojo_ripples.star_platinum.desc.no_ts_spoilers": "Стенд силового типа с исключительно высокой силой, скоростью и точностью.",
   
   "jojo_ripples.skill.uppercut": "Добивающий апперкот",
-  "jojo_ripples.skill.uppercut.desc": "Более быстрый тяжёлый удар, который пробивает защиту и подбрасывает цель вверх.",
+  "jojo_ripples.skill.uppercut.desc": "Более быстрый тяжёлый удар, который подбрасывает цель вверх.",
   "jojo_ripples.skill.uppercut.controls": "\uEAFE с 1 шкалой добивающего удара",
   "jojo_ripples.ability.uppercut": "Апперкот",
 

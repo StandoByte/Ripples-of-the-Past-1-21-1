@@ -22,7 +22,7 @@ public class ClLearnSkillPacket implements CustomPacketPayload {
 	}
 	
 	public static ClLearnSkillPacket learnAll(PowerClass<?> powerClass, ResourceLocation powerType) {
-		return new ClLearnSkillPacket(powerClass, powerType, PacketType.LEARN_ALL, null);
+		return new ClLearnSkillPacket(powerClass, powerType, PacketType.CREATIVE_LEARN_ALL, null);
 	}
 	
 	public static ClLearnSkillPacket resetAll(PowerClass<?> powerClass, ResourceLocation powerType) {
@@ -38,7 +38,7 @@ public class ClLearnSkillPacket implements CustomPacketPayload {
 	
 	public static enum PacketType {
 		LEARN,
-		LEARN_ALL,
+		CREATIVE_LEARN_ALL,
 		RESET,
 		RESET_ALL
 	}
@@ -63,7 +63,7 @@ public class ClLearnSkillPacket implements CustomPacketPayload {
 			ResourceLocation.STREAM_CODEC.encode(buf, packet.powerType);
 			buf.writeEnum(packet.packetType);
 			switch (packet.packetType) {
-				case LEARN_ALL, RESET_ALL -> {}
+				case CREATIVE_LEARN_ALL, RESET_ALL -> {}
 				default -> buf.writeUtf(packet.skillName);
 			}
 		}
@@ -74,7 +74,7 @@ public class ClLearnSkillPacket implements CustomPacketPayload {
 			ResourceLocation powerType = ResourceLocation.STREAM_CODEC.decode(buf);
 			PacketType packetType = buf.readEnum(PacketType.class);
 			return switch (packetType) {
-				case LEARN_ALL, RESET_ALL -> {
+				case CREATIVE_LEARN_ALL, RESET_ALL -> {
 					yield new ClLearnSkillPacket(powerClass, powerType, packetType, null);
 				}
 				default -> {
@@ -96,13 +96,13 @@ public class ClLearnSkillPacket implements CustomPacketPayload {
 						case LEARN -> {
 							powerData.unlockSkill(power, payload.skillName);
 						}
-						case LEARN_ALL -> {
+						case CREATIVE_LEARN_ALL -> {
 							// unlock all skills and sync
 							for (var skillEntry : powerData.getAllSkills().entrySet()) {
 								UnlockableSkill skill = skillEntry.getValue();
 								if (!skill.isStarting) {
 									String skillName = skillEntry.getKey();
-									powerData._setSkillUnlocked(skillName, true, false);
+									powerData._setSkillUnlocked(skillName, true);
 								}
 							}
 							powerData.syncUnlockedSkills(player);

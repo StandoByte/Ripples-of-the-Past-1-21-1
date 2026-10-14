@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeck
 import com.github.standobyte.jojo.client.shader.ModShaders;
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmEngine;
 import com.github.standobyte.jojo.client.sound.util.SoundCache;
+import com.github.standobyte.jojo.client.splash.SplashLoader;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.client.layer.ClothesModelLoader;
@@ -37,6 +38,7 @@ public class ModClientResources {
 		PlayerAnimRigLoad.init(event);
 		ModShaders.init(event);
 		BgmEngine.init(event);
+		SplashLoader.init(event);
 	}
 	
 	@SubscribeEvent

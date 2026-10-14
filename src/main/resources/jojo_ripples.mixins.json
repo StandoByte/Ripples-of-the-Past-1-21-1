@@ -78,6 +78,7 @@
 	
 	"AfterEntityAddedToServerLevelMixin",
 	"EntityMixinSuperclass",
+	"RegistryDataLoaderLoaderMixin",
 	
 	"debughelper.CodecErrorMessageMixin"
   ],

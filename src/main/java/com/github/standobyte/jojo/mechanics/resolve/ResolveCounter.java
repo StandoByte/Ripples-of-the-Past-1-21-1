@@ -200,8 +200,12 @@ public class ResolveCounter implements SynchronizablePlayerData, TickingEntityDa
 			if (entity.level().isClientSide()) {
 				if (!entity.isInvisible() && entity.tickCount % 3 == 0 && 
 						(getResolveValue() >= getMaxResolveUnlocked() || activatedEffectOnMaxStage)) {
-					entity.level().addParticle(ModParticles.KATAKANA_DO.get(), 
-							entity.getRandomX(2.5), entity.getY(entity.getRandom().nextDouble() * 1.5), entity.getRandomZ(2.5), 0, 0, 0);
+					StandPower stand = StandPower.get(entity);
+					boolean spawnParticles = stand != null && stand.hasPower() && stand.isSummoned();
+					if (spawnParticles) {
+						entity.level().addParticle(ModParticles.KATAKANA_DO.get(), 
+								entity.getRandomX(2.5), entity.getY(entity.getRandom().nextDouble() * 1.5), entity.getRandomZ(2.5), 0, 0, 0);
+					}
 				}
 			}
 		}

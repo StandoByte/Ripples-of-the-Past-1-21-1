@@ -11,6 +11,14 @@
   "character.jojo_ripples.speedwagon.short": "Speedwagon",
   
   
+  "character.jojo_ripples.dire": "Dire",
+  "character.jojo_ripples.dire.short": "Dire",
+  
+  
+  "character.jojo_ripples.straizo": "Straizo",
+  "character.jojo_ripples.straizo.short": "Straizo",
+  
+  
   "character.jojo_ripples.dio": "Dio Brando",
   "character.jojo_ripples.dio.short": "Dio",
   
@@ -25,6 +33,22 @@
   
   "character.jojo_ripples.lisa_lisa": "Lisa Lisa",
   "character.jojo_ripples.lisa_lisa.short": "Lisa Lisa",
+  
+  
+  "character.jojo_ripples.kars": "Kars",
+  "character.jojo_ripples.kars.short": "Kars",
+  
+  
+  "character.jojo_ripples.esidisi": "Esidisi",
+  "character.jojo_ripples.esidisi.short": "Esidisi",
+  
+  
+  "character.jojo_ripples.wamuu": "Wamuu",
+  "character.jojo_ripples.wamuu.short": "Wamuu",
+  
+  
+  "character.jojo_ripples.santana": "Santana",
+  "character.jojo_ripples.santana.short": "Santana",
   
   
   "character.jojo_ripples.jotaro": "Jotaro Kujo",
@@ -57,10 +81,130 @@
   "character.jojo_ripples.josuke4.short": "Josuke",
   
   
+  "character.jojo_ripples.koichi": "Koichi Hirose",
+  "character.jojo_ripples.koichi.short": "Koichi",
+  
+  
+  "character.jojo_ripples.okuyasu": "Okuyasu Nijimura",
+  "character.jojo_ripples.okuyasu.short": "Okuyasu",
+  
+  
+  "character.jojo_ripples.rohan": "Rohan Kishibe",
+  "character.jojo_ripples.rohan.short": "Rohan",
+  
+  
   "character.jojo_ripples.kira4": "Yoshikage Kira",
   "character.jojo_ripples.kira4.short": "Kira",
   
   
+  "character.jojo_ripples.keicho": "Keicho Nijimura",
+  "character.jojo_ripples.keicho.short": "Keicho",
+  
+  
+  "character.jojo_ripples.shigechi": "Shigekiyo Yangu",
+  "character.jojo_ripples.shigechi.short": "Shigechi",
+  
+  
+  "character.jojo_ripples.yuya": "Yuya Fungami",
+  "character.jojo_ripples.yuya.short": "Yuya",
+  
+  
   "character.jojo_ripples.giorno": "Giorno Giovanna",
-  "character.jojo_ripples.giorno.short": "Giorno"
+  "character.jojo_ripples.giorno.short": "Giorno",
+  
+  
+  "character.jojo_ripples.bucciarati": "Bruno Bucciarati",
+  "character.jojo_ripples.bucciarati.short": "Bucciarati",
+  
+  
+  "character.jojo_ripples.abbacchio": "Leone Abbacchio",
+  "character.jojo_ripples.abbacchio.short": "Abbacchio",
+  
+  
+  "character.jojo_ripples.mista": "Guido Mista",
+  "character.jojo_ripples.mista.short": "Mista",
+  
+  
+  "character.jojo_ripples.narancia": "Narancia Ghirga",
+  "character.jojo_ripples.narancia.short": "Narancia",
+  
+  
+  "character.jojo_ripples.fugo": "Pannacotta Fugo",
+  "character.jojo_ripples.fugo.short": "Fugo",
+  
+  
+  "character.jojo_ripples.trish": "Trish Una",
+  "character.jojo_ripples.trish.short": "Trish",
+  
+  
+  "character.jojo_ripples.diavolo": "Diavolo",
+  "character.jojo_ripples.diavolo.short": "Diavolo",
+  
+  
+  "character.jojo_ripples.doppio": "Vinegar Doppio",
+  "character.jojo_ripples.doppio.short": "Doppio",
+  
+  
+  "character.jojo_ripples.jolyne": "Jolyne Cujoh",
+  "character.jojo_ripples.jolyne.short": "Jolyne",
+  
+  
+  "character.jojo_ripples.ermes": "Ermes Costello",
+  "character.jojo_ripples.ermes.short": "Ermes",
+  
+  
+  "character.jojo_ripples.foo_fighters": "Foo Fighters",
+  "character.jojo_ripples.foo_fighters.short": "F.F.",
+  
+  
+  "character.jojo_ripples.weather": "Weather Report",
+  "character.jojo_ripples.weather.short": "Weather",
+  
+  
+  "character.jojo_ripples.anasui": "Narciso Anasui",
+  "character.jojo_ripples.anasui.short": "Anasui",
+  
+  
+  "character.jojo_ripples.pucci": "Enrico Pucci",
+  "character.jojo_ripples.pucci.short": "Pucci",
+  
+  
+  "character.jojo_ripples.johnny": "Johnny Joestar",
+  "character.jojo_ripples.johnny.short": "Johnny",
+  
+  
+  "character.jojo_ripples.gyro": "Gyro Zeppeli",
+  "character.jojo_ripples.gyro.short": "Gyro",
+  
+  
+  "character.jojo_ripples.diego": "Diego Brando",
+  "character.jojo_ripples.diego.short": "Diego",
+  
+  
+  "character.jojo_ripples.hot_pants": "Hot Pants",
+  "character.jojo_ripples.hot_pants.short": "Hot Pants",
+  
+  
+  "character.jojo_ripples.valentine": "Funny Valentine",
+  "character.jojo_ripples.valentine.short": "Valentine",
+  
+  
+  "character.jojo_ripples.dr_ferdinand": "Dr. Ferdinand",
+  "character.jojo_ripples.dr_ferdinand.short": "Ferdinand",
+  
+  
+  "character.jojo_ripples.wekapipo": "Wekapipo",
+  "character.jojo_ripples.wekapipo.short": "Wekapipo",
+  
+  
+  "character.jojo_ripples.josuke8": "Josuke Higashikata",
+  "character.jojo_ripples.josuke8.short": "Josuke",
+  
+  
+  "character.jojo_ripples.josefumi": "Josefumi Kujo",
+  "character.jojo_ripples.josefumi.short": "Josuke",
+  
+  
+  "character.jojo_ripples.kira8": "Yoshikage Kira",
+  "character.jojo_ripples.kira8.short": "Kira"
 }

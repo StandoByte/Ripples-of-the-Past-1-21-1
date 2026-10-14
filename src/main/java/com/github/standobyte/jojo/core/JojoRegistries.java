@@ -11,6 +11,7 @@ import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.entityaction.type.SpecialEntityActionType;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPowerType;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
+import com.github.standobyte.jojo.subsystems.MergingDatapackRegistry;
 import com.github.standobyte.jojo.subsystems.StoryPart;
 import com.github.standobyte.jojo.util.reflection.CommonReflection;
 
@@ -95,6 +96,8 @@ public final class JojoRegistries {
 	
 	static Consumer<RegistryBuilder<StoryCharacter>> storyCharactersCommon = builder -> {
 		builder.onAdd((Registry<StoryCharacter> registry, int id, ResourceKey<StoryCharacter> key, StoryCharacter value) -> value.initName(key));
+		// if the mod adds a character entry with a stand id, a datapack/addon can add append other stand ids
+		MergingDatapackRegistry.makeMerging(builder, StoryCharacter::merge);
 	};
 	
 	static Consumer<RegistryBuilder<ClothesSet>> clothesSetsCommon = builder -> {

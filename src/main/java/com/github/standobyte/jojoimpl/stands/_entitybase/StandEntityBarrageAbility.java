@@ -108,7 +108,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 			Level level = performer.level();
 			if (performer instanceof StandEntity stand) {
 				if (level.isClientSide()) {
-					if (!stand.isArmsOnlyMode()) {
+					if (!stand.isArmsOnlyMode() && ClientGlobals.canHearStands) {
 						ClientsideSoundsHelper.playNonVanillaClassSound(new EntityStoppableSoundInstance(ClientsideSoundsHelper.withStandSkin(
 								ModSoundEvents.STAND_BARRAGE_CRY.get(), stand), 
 								stand.getSoundSource(), 1, 1, stand, level.random.nextLong(), 

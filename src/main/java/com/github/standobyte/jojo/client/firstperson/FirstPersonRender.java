@@ -283,6 +283,7 @@ public class FirstPersonRender {
 	
 	public static void disableHumanoidHeadOn1stPersonAnim(HumanoidModel model) {
 		model.head.visible = false;
+		model.hat.visible = false;
 //		model.body.visible = false;
 	}
 

@@ -14,6 +14,7 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition;
 import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.TimelineKeys;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
+import com.github.standobyte.jojo.client.entityrender.EntityModelState;
 import com.github.standobyte.jojo.client.entityrender.stand.HumanoidPart;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -98,14 +99,17 @@ public class BarrageSwings {
 		return !barrageSwings.isEmpty();
 	}
 	
+	private static final EntityModelState modelState = new EntityModelState();
 	public void renderLayerBarrage(EntityModel<?> model, 
 			PoseStack poseStack, VertexConsumer buffer, 
 			int packedLight, int packedOverlay, int color) {
+		modelState.save(model);
 		for (BarrageSwing swing : barrageSwings) {
 			swing.poseAndRender(model, poseStack, buffer, 
 					packedLight, packedOverlay, color);
 		}
-		restoreVisibility(model);
+		modelState.apply(model);
+		modelState.clear();
 	}
 
 
@@ -190,18 +194,6 @@ public class BarrageSwings {
 					case LEFT -> humanoidModel.leftArm;
 					case RIGHT -> humanoidModel.rightArm;
 				}).visible = true;
-			}
-			default -> {}
-		}
-	}
-	
-	public static void restoreVisibility(EntityModel<?> model) {
-		switch (model) {
-			case StandEntityModel<?, ?> standModel -> {
-				standModel.setAllVisible(true);
-			}
-			case HumanoidModel<?> humanoidModel -> {
-				humanoidModel.setAllVisible(true);
 			}
 			default -> {}
 		}

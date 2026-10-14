@@ -47,6 +47,7 @@ import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.ability.cooldown.AbilityCooldownTracker;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.ChatFormatting;
@@ -715,19 +716,30 @@ public class PowerHudControlsElement extends HudElement {
 				ratio = Mth.clamp(value / maxValue, 0, 1);
 			}
 			
-			BlitFloat.blitRadial(guiGraphics.pose(), mc, WINDUP_EMPTY.file, 
-					x, y, WINDUP_EMPTY.width, WINDUP_EMPTY.height, 10, 
-					ratio * (float) Math.PI * 2, 1 - ratio, color);
-			
-			BlitFloat.blitRadial(guiGraphics.pose(), mc, WINDUP_FULL.file, 
-					x, y, WINDUP_FULL.width, WINDUP_FULL.height, 10, 
-					0, ratio, color);
+			renderRadialIndicator(guiGraphics.pose(), x, y, 10, ratio, color);
 		}
 	}
 	
 	public static final GuiIcon WINDUP_EMPTY = new GuiIcon(JojoMod.resLoc("textures/gui/windup_empty.png"), 13, 13);
 	public static final GuiIcon WINDUP_FULL = new GuiIcon(JojoMod.resLoc("textures/gui/windup_full.png"), 13, 13);
 
+	public static void renderRadialIndicator(PoseStack poseStack, 
+			float x, float y, float blitOffset, float ratio, int color) {
+		renderRadialIndicator(poseStack, WINDUP_EMPTY, WINDUP_FULL, x, y, blitOffset, ratio, color);
+	}
+
+	public static void renderRadialIndicator(PoseStack poseStack, GuiIcon emptySprite, GuiIcon fullSprite, 
+			float x, float y, float blitOffset, float ratio, int color) {
+		Minecraft mc = Minecraft.getInstance();
+		
+		BlitFloat.blitRadial(poseStack, mc, emptySprite.file, 
+				x, y, emptySprite.width, emptySprite.height, blitOffset, 
+				ratio * (float) Math.PI * 2, 1 - ratio, color);
+		
+		BlitFloat.blitRadial(poseStack, mc, fullSprite.file, 
+				x, y, fullSprite.width, fullSprite.height, blitOffset, 
+				0, ratio, color);
+	}
 
 
 

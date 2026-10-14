@@ -56,6 +56,8 @@ public class ModEntityAttributes {
 			if (!event.has(entityType, STAND_MAX_RANGE)) event.add(entityType, STAND_MAX_RANGE);
 			if (!event.has(entityType, STAND_DURABILITY)) event.add(entityType, STAND_DURABILITY);
 			if (!event.has(entityType, STAND_PRECISION)) event.add(entityType, STAND_PRECISION);
+			
+			if (!event.has(entityType, SUN_BURN_DAMAGE)) event.add(entityType, SUN_BURN_DAMAGE);
 		}
 	}
 }

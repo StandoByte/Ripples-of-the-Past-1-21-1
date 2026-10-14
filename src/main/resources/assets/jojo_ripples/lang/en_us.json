@@ -168,6 +168,8 @@
   "jojo_ripples.subtitle.shot": "Something shot",
   "jojo_ripples.subtitle.clothes_sewed": "Clothes sewed",
   
+  "death.attack.rotp_sun_burn": "%s has dissipated under the sun",
+  "death.attack.rotp_sun_burn.player": "%s has dissipated under the sun whilst fighting %s",
   "death.attack.rotp_suffocation": "%s was suffocated by %s",
   "death.attack.rotp_suffocation.player": "%s suffocated while fighting %s",
   "death.attack.rotp_suffocation.item": "%s was suffocated by %s using %s",
@@ -429,6 +431,8 @@
   
   "power.jojo_ripples.vampirism": "Vampirism",
   "jojo_ripples.vampirism.skills": "Skills",
+  "jojo_ripples.clock.daytime": "%s until sunset",
+  "jojo_ripples.clock.nighttime": "%s until sunrise",
   
   
   "jojo_ripples.class.stand": "Stand: %s",
@@ -459,8 +463,8 @@
   "jojo_ripples.stand_stat.range": "Range",
   "jojo_ripples.stand_stat.range.shortened": "RAN - ",
   "jojo_ripples.stand_stat.range.desc": "Combines effective range - the maximum range at which the Stand doesn't lose its strength, and the maximum range, beyond which the Stand cannot move at all.",
-  "jojo_ripples.stand_stat.durability": "Durability",
-  "jojo_ripples.stand_stat.durability.shortened": "DUR - ",
+  "jojo_ripples.stand_stat.durability": "Stamina",
+  "jojo_ripples.stand_stat.durability.shortened": "STA - ",
   "jojo_ripples.stand_stat.durability.desc": "Affects the stamina total and the Stand's damage resistance from other Stand attacks.",
   "jojo_ripples.stand_stat.precision": "Precision",
   "jojo_ripples.stand_stat.precision.shortened": "PRC - ",
@@ -478,7 +482,7 @@
   "attribute.name.jojo_ripples.stand_speed": "Stand Speed",
   "attribute.name.jojo_ripples.stand_effective_range": "Effective Stand Range",
   "attribute.name.jojo_ripples.stand_max_range": "Max Stand Range",
-  "attribute.name.jojo_ripples.stand_durability": "Stand Durability",
+  "attribute.name.jojo_ripples.stand_durability": "Stand Stamina",
   "attribute.name.jojo_ripples.stand_precision": "Stand Precision",
   
   "stand_hand_slot.main": "%s's main hand slot",
@@ -492,6 +496,8 @@
   "jojo.message.action_condition.stand_user_too_far": "You and your Stand are too far away from each other",
   
   "jojo_ripples.stand_exp": "Stand EXP",
+  "jojo_ripples.stand_exp.bar": "Stand EXP: %s (Gained %s/%s)",
+  "jojo_ripples.stand_exp.bar.full": "Stand EXP (MAX)",
   "jojo_ripples.stand_exp.total": "Total EXP: %s/%s",
   "jojo_ripples.stand_exp.skills_left": "Skills left: %s",
   "jojo_ripples.stand_exp.skills_left.hidden": "Skills left: %s (%s hidden)",
@@ -507,6 +513,8 @@
   "stand.unknown": "Unknown Stand: %s",
   "effect.jojo_ripples.resolve": "Resolve",
   "effect.jojo_ripples.bleeding": "Bleeding",
+  "effect.jojo_ripples.hamon_spread": "Hamon Spread",
+  "effect.jojo_ripples.sun_burn": "Sun Burn",
   "effect.jojo_ripples.stand_virus": "Meteorite Virus",
 
   "jojo.message.action_condition.stand_too_slow": "Your Stand is too slow to do this",
@@ -570,7 +578,7 @@
   "jojo_ripples.ability.grab_throw": "Throw",
 
   "jojo_ripples.skill.guard": "Guard",
-  "jojo_ripples.skill.guard.desc": "Use your Stand's durability to guard against attacks from the front.",
+  "jojo_ripples.skill.guard.desc": "Use your Stand's stamina to guard against attacks from the front.",
   "jojo_ripples.skill.guard.controls": "\uEAFF (toggle)",
   "jojo_ripples.ability.guard": "Guard",
 
@@ -601,7 +609,7 @@
   "stand.jojo_ripples.star_platinum.desc.no_ts_spoilers": "A power-type Stand with exceptionally high physical strength, speed and precision.",
   
   "jojo_ripples.skill.uppercut": "Finisher Uppercut",
-  "jojo_ripples.skill.uppercut.desc": "A faster heavy attack variation that breaks guard and knocks the enemy upwards.",
+  "jojo_ripples.skill.uppercut.desc": "A faster heavy attack variation that knocks the enemy upwards.",
   "jojo_ripples.skill.uppercut.controls": "\uEAFE with 1 finisher bar",
   "jojo_ripples.ability.uppercut": "Uppercut",
 

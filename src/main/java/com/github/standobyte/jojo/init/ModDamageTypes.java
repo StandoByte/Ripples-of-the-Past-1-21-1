@@ -85,6 +85,17 @@ public class ModDamageTypes {
 			DamageTypeTags.WITHER_IMMUNE_TO,
 			Tags.DamageTypes.IS_ENVIRONMENT);
 
+	public static final ResourceKey<DamageType> VAMPIRE_SUN_BURN = DAMAGE_TYPES.withTags(JojoMod.resLoc("vampire_sun_burn"),
+			DamageTypeTags.BYPASSES_ARMOR,
+			DamageTypeTags.BYPASSES_WOLF_ARMOR,
+			DamageTypeTags.BYPASSES_SHIELD,
+			DamageTypeTags.BYPASSES_COOLDOWN,
+			DamageTypeTags.BYPASSES_EFFECTS,
+			DamageTypeTags.NO_IMPACT,
+			DamageTypeTags.NO_KNOCKBACK,
+			DamageTypeTags.WITHER_IMMUNE_TO,
+			Tags.DamageTypes.IS_ENVIRONMENT);
+
 	public static final ResourceKey<DamageType> SUFFOCATION = DAMAGE_TYPES.withTags(JojoMod.resLoc("suffocation"),
 			DamageTypeTags.BYPASSES_ARMOR,
 			DamageTypeTags.BYPASSES_WOLF_ARMOR,

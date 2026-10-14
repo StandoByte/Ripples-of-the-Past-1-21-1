@@ -227,7 +227,7 @@ public class OnFrameApplyEntityAnim {
 	@Nullable
 	private static AnimWithId getCurSummonAnimAndAdjustFreezeTime(StandEntity stand, StandSkin standSkin, LivingAnimState animVariables) {
 		if (!stand.clientStuff.summonAnimStopped) {
-			if (!animVariables.animId.isIdle) {
+			if (animVariables.animId != StandEntityRenderer.IDLE_ANIM) {
 				stand.clientStuff.summonAnimStopped = true;
 			}
 			else {

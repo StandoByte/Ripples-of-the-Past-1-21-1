@@ -250,9 +250,13 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			skillControls.drawSmallScrollBar(guiGraphics);
 		}
 		
-		int maxExp = expSummary.total - expSummary.spent;
-		int exp = Math.min(levelingData.getExp(), maxExp);
-		Component expLine = exp < maxExp ? Component.literal(String.valueOf(exp)) : Component.translatable("jojo_ripples.stand_exp.max");
+		int maxPossibleExp = expSummary.total - expSummary.spent;
+		int canSpendExp = Math.min(levelingData.getExp(), maxPossibleExp);
+		boolean isAtMaxExp = canSpendExp >= maxPossibleExp;
+		int expAcquired = canSpendExp + expSummary.spent;
+		int expTotalForStand = expSummary.total;
+		
+		Component expLine = !isAtMaxExp ? Component.literal(String.valueOf(canSpendExp)) : Component.translatable("jojo_ripples.stand_exp.max");
 		expLine = Component.literal(String.valueOf(IconSymbols.STAND_EXP)).append(expLine);
 		guiGraphics.drawString(font, expLine, x + 41 - font.width(expLine) / 2, y + 33, STAND_EXP_NUMBER_COLOR, false);
 		
@@ -287,7 +291,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			List<FormattedCharSequence> standExpTooltip = new ArrayList<>();
 			standExpTooltip.add(Component.translatable("jojo_ripples.stand_exp")
 					.withStyle(ChatFormatting.BLACK).getVisualOrderText());
-			standExpTooltip.add(Component.translatable("jojo_ripples.stand_exp.total", expSummary.spent + exp, expSummary.total)
+			standExpTooltip.add(Component.translatable("jojo_ripples.stand_exp.total", expAcquired, expTotalForStand)
 					.withStyle(ChatFormatting.BLACK).getVisualOrderText());
 			if (expSummary.remainingHiddenSkills > 0) {
 				standExpTooltip.add(Component.translatable("jojo_ripples.stand_exp.skills_left.hidden", expSummary.remainingSkills, expSummary.remainingHiddenSkills)

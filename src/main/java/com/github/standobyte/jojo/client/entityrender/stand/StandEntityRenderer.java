@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.client.entityanim.RotpAnimDefinition.AnimWithI
 import com.github.standobyte.jojo.client.entityanim.molang.AnimMolangQuery.AnimMolangVariables;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityrender.EntityActionRenderState;
+import com.github.standobyte.jojo.client.entityrender.entitylayers.RenderLayer2;
 import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeckoModelLoader;
 import com.github.standobyte.jojo.client.rendertype.ModRenderTypes;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
@@ -61,6 +62,7 @@ public class StandEntityRenderer<
 			return defaultModel != null ? createStandModel(defaultModel) : null;
 		});
 		this.addLayer(new ItemInHandLayer<>(this, context.getItemInHandRenderer()));
+		this.addLayer(new StandGlowLayer<>(this));
 	}
 	
 	public final S createRenderState(T entity, float partialTick) {
@@ -233,58 +235,6 @@ public class StandEntityRenderer<
 	}
 	
 	
-	public void renderForStandSkinUI(PoseStack poseStack, MultiBufferSource bufferSource, Consumer<S> extractRenderState) {
-		S renderState = outOfLevelRenderState;
-		extractRenderState.accept(renderState);
-		preRender(renderState);
-
-		M model = modelFrom(renderState);
-
-		poseStack.pushPose();
-		
-		poseStack.translate(0, 1.5f, 0);
-		poseStack.scale(1, -1, 1);
-		poseStack.mulPose(Axis.YP.rotationDegrees(180));
-		poseStack.scale(-1, 1, 1);
-		
-//		Optional<ResourceLocation> nonDefaultSkin = standSkin.getNonDefaultLocation();
-		model.attackTime = 0;
-		model.riding = false;
-		model.young = false;
-
-		model.setupAnim(renderState);
-
-		ResourceLocation texture = getTextureLocation(renderState);
-		RenderType renderType = model.renderType(texture);
-		int packedLight = ClientUtil.MAX_LIGHT;
-		if (renderType != null) {
-			VertexConsumer vertexBuilder = bufferSource.getBuffer(renderType);
-			int packedOverlay = OverlayTexture.NO_OVERLAY;
-			model.renderToBuffer(poseStack, vertexBuilder, packedLight, packedOverlay, renderState.tint);
-
-			for (RenderLayer<T, M> layerRenderer : this.layers) {
-				if (layerRenderer instanceof StandModelLayerRenderer) {
-					@SuppressWarnings("unchecked")
-					StandModelLayerRenderer<T, S, M> standLayer = (StandModelLayerRenderer<T, S, M>) layerRenderer;
-//					if (standLayer.shouldRender(null, nonDefaultSkin)) {
-//						M layerModel = standLayer.getLayerModel(nonDefaultSkin);
-//						RenderType layerRenderType = layerModel.renderType(standLayer.getLayerTexture(nonDefaultSkin));
-//						VertexConsumer layerVertexBuilder = bufferSource.getBuffer(layerRenderType);
-//						layerModel.attackTime = 0;
-//						layerModel.riding = false;
-//						layerModel.young = false;
-//						layerModel.setupAnim(renderState);
-//						layerModel.renderToBuffer(poseStack, layerVertexBuilder, packedLight, packedOverlay, renderState.tint);
-//					}
-				}
-			}
-		}
-
-		poseStack.popPose();
-		
-		postRender();
-	}
-	
 	// 1.21.2+
 //	public void renderWithRenderState(Consumer<S> renderState, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
 //		renderState.accept(outOfLevelRenderState);
@@ -343,14 +293,70 @@ public class StandEntityRenderer<
     public void doRender(T entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
 		super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, light);
     }
+	
+	public void renderForStandSkinUI(PoseStack poseStack, MultiBufferSource bufferSource, Consumer<S> extractRenderState) {
+		S renderState = outOfLevelRenderState;
+		extractRenderState.accept(renderState);
+		preRender(renderState);
+
+		this.model = modelFrom(renderState);
+
+		poseStack.pushPose();
+		
+		poseStack.translate(0, 1.5f, 0);
+		poseStack.scale(1, -1, 1);
+		poseStack.mulPose(Axis.YP.rotationDegrees(180));
+		poseStack.scale(-1, 1, 1);
+		
+//		Optional<ResourceLocation> nonDefaultSkin = standSkin.getNonDefaultLocation();
+		model.attackTime = 0;
+		model.riding = false;
+		model.young = false;
+
+		model.setupAnim(renderState);
+
+		ResourceLocation texture = getTextureLocation(renderState);
+		RenderType renderType = model.renderType(texture);
+		int packedLight = ClientUtil.MAX_LIGHT;
+		if (renderType != null) {
+			VertexConsumer vertexBuilder = bufferSource.getBuffer(renderType);
+			int packedOverlay = OverlayTexture.NO_OVERLAY;
+			model.renderToBuffer(poseStack, vertexBuilder, packedLight, packedOverlay, renderState.tint);
+
+			for (RenderLayer<T, M> layerRenderer : this.layers) {
+				if (layerRenderer instanceof RenderLayer2) {
+					@SuppressWarnings("unchecked")
+					RenderLayer2<T, S, M> standLayer = (RenderLayer2<T, S, M>) layerRenderer;
+					standLayer.render(poseStack, bufferSource, packedLight, renderState, 0, 0);
+				}
+			}
+		}
+
+		poseStack.popPose();
+		
+		postRender();
+	}
 
     protected boolean useSeeThroughRenderType = false;
     @Override
-    protected RenderType getRenderType(T livingEntity, boolean bodyVisible, boolean translucent, boolean glowing) {
+    public RenderType getRenderType(T livingEntity, 
+    		boolean isBodyVisible, boolean forceTransparent, boolean glowing) {
     	ResourceLocation texture = this.getTextureLocation(livingEntity);
-    	if (translucent) {
+    	return getRenderType(texture, isBodyVisible, forceTransparent, glowing);
+    }
+    
+    public RenderType getRenderType(ResourceLocation texture, S renderState) {
+    	boolean isBodyVisible = /*isBodyVisible(renderState)*/!renderState.isInvisible;
+    	boolean forceTransparent = !isBodyVisible && !renderState.isInvisibleToPlayer;
+    	boolean appearsGlowing = renderState.appearsGlowing;
+    	return getRenderType(texture, isBodyVisible, forceTransparent, appearsGlowing);
+    }
+    
+    public RenderType getRenderType(ResourceLocation texture, 
+    		boolean isBodyVisible, boolean forceTransparent, boolean glowing) {
+    	if (forceTransparent) {
     		return RenderType.itemEntityTranslucentCull(texture);
-    	} else if (bodyVisible) {
+    	} else if (isBodyVisible) {
     		if (useSeeThroughRenderType) {
     			boolean irisShaderEnabled = OtherModInterfaces.iris.isShaderPackInUse();
     			if (!irisShaderEnabled) {
