@@ -211,7 +211,8 @@ public class ClientModSettingsScreen extends Screen {
 		renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 		guiGraphics.drawCenteredString(font, title, width / 2, 15, 0xFFFFFF);
 		
-		hasUnsavedChanges = configBeingEdited != null && lastAppliedState != null && lastAppliedState.hasChanged(configBeingEdited);
+		boolean canEdit = configType == ConfigTabType.CLIENT || ConfigGuiHelper.clientCanEditCommonConfig();
+		hasUnsavedChanges = canEdit && configBeingEdited != null && lastAppliedState != null && lastAppliedState.hasChanged(configBeingEdited);
 		
 		applyButton.visible = hasUnsavedChanges;
 		cancelButton.visible = hasUnsavedChanges;
@@ -219,8 +220,7 @@ public class ClientModSettingsScreen extends Screen {
 		resetButton.visible = !hasUnsavedChanges;
 		
 		if (resetButton.visible) {
-			resetButton.active = (configType == ConfigTabType.CLIENT || ConfigGuiHelper.clientCanEditCommonConfig())
-					&& configBeingEdited != null && !configBeingEdited.isDefault();
+			resetButton.active = canEdit && configBeingEdited != null && !configBeingEdited.isDefault();
 		}
 		
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
