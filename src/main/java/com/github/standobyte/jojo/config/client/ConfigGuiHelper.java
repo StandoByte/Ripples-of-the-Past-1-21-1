@@ -74,10 +74,17 @@ public class ConfigGuiHelper {
 				}, 
 				(Component name, BoolOrPlayerPref value) -> value.optionStatus(name));
 	}
-	
+
+	@Deprecated
 	public <T extends Enum<T>> void addEnumOptionButton(ConfigEnum<T> cfgOption, 
 			ModConfigType type, @Nullable String icon, 
 			Class<T> enumClass) {
+		addEnumOptionButton(cfgOption, type, icon);
+	}
+	
+	public <T extends Enum<T>> void addEnumOptionButton(ConfigEnum<T> cfgOption, 
+			ModConfigType type, @Nullable String icon) {
+		Class<T> enumClass = cfgOption.enumClass;
 		addOptionButton(cfgOption, type, icon, 
 				option -> {
 					T[] values = enumClass.getEnumConstants();
