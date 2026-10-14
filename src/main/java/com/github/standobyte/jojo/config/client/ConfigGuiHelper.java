@@ -1,37 +1,57 @@
 package com.github.standobyte.jojo.config.client;
 
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.standskin.StandSkin;
+import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
 import com.github.standobyte.jojo.client.textsymbols.sprite.IconGlyphInfo;
 import com.github.standobyte.jojo.client.textsymbols.sprite.IconGlyphsCache;
+import com.github.standobyte.jojo.client.ui.screen_widgets.ButtonWithImage;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList.EntryWithButtons;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList.Renderable2;
 import com.github.standobyte.jojo.client.ui.utils.Alignment;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
+import com.github.standobyte.jojo.client.ui.utils.TextUtil;
+import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
 import com.github.standobyte.jojo.config.BoolOrPlayerPref;
 import com.github.standobyte.jojo.config.ModConfigInterface;
+import com.github.standobyte.jojo.config.client.NumericField.ScrollingDecimal;
+import com.github.standobyte.jojo.config.client.stand.StandNameForScrolleableList;
+import com.github.standobyte.jojo.config.client.stand.StandStatsHexagonForScrolleableList;
 import com.github.standobyte.jojo.config.core.ConfigOption;
+import com.github.standobyte.jojo.config.core.ModConfig;
 import com.github.standobyte.jojo.config.core.ModConfigType;
 import com.github.standobyte.jojo.config.core.types.ConfigBool;
+import com.github.standobyte.jojo.config.core.types.ConfigDouble;
 import com.github.standobyte.jojo.config.core.types.ConfigEnum;
+import com.github.standobyte.jojo.config.internal.ConfigEventHandler;
 import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
+import com.github.standobyte.jojo.config.stand.StandCommonConfig;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.core.JojoRegistries;
+import com.github.standobyte.jojo.powersystem.ability.Ability;
+import com.github.standobyte.jojo.powersystem.standpower.StandStats;
+import com.github.standobyte.jojo.powersystem.standpower.StandStats.StatWithValue;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
 import it.unimi.dsi.fastutil.objects.Object2CharArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2CharMap;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.client.settings.KeyModifier;
 
 /**
  * Some static methods to add config buttons with less boilerplate
@@ -43,16 +63,131 @@ public class ConfigGuiHelper {
 	public ScrolleableButtonList list;
 	public EntryWithButtons curEntry;
 	
-	public ConfigGuiHelper(ClientModSettingsScreen screen, String modId, ModConfigInterface<?, ?, ?> config) {
-		list = new ScrolleableButtonList(screen.getMinecraft(), 
+	public ConfigGuiHelper(ClientModSettingsScreen screen, String modId) {
+		this.screen = screen;
+		this.modId = modId;
+	}
+
+	
+	public ScrolleableButtonList addModSettingsList(ModConfigInterface<?, ?, ?> config) {
+		this.config = config;
+		this.list = new ScrolleableButtonList(screen.getMinecraft(), 
 				30, 33, 
 				screen.width - 30, screen.height - 66, 
 				25);
 		screen.addConfigWidget(list);
-		this.screen = screen;
-		this.modId = modId;
-		this.config = config;
+		return list;
 	}
+	
+	public static ModConfig<?, ?, ?> getStandConfig(@Nullable StandType standType) {
+		return standType != null ? ConfigEventHandler.ALL_CONFIGS.getStandConfig(standType.getId()) : null;
+	}
+	
+	public void generateStandConfigUI(String modId, @Nullable StandType standType, @Nullable ModConfig<?, ?, ?> standConfig) {
+		this.config = standConfig;
+		addStandsList(modId);
+		if (standType != null) {
+			StandCommonConfig standCommonConfig = null;
+			if (standConfig != null && standConfig.commonConfig instanceof StandCommonConfig _standConfig) {
+				standCommonConfig = _standConfig;
+			}
+			if (standCommonConfig != null) {
+				addStandSettingsList(standType);
+				addStandAbilityConfigSettings(standCommonConfig);
+			}
+		}
+	}
+	
+	public void addStandsList(String modId) {
+		Minecraft mc = Minecraft.getInstance();
+		
+		ScrolleableButtonList standsList = new ScrolleableButtonList(mc, screen.width - 50, 33, 50, screen.height - 66, 18);
+		StandSkinsLoader standSkins = StandSkinsLoader.getInstance();
+		for (var standEntry : ConfigEventHandler.ALL_CONFIGS.getAllConfigsFromMod(modId).standConfigs.entrySet()) {
+			ResourceLocation standId = standEntry.getKey();
+			StandSkin standSkin = standSkins.getDefaultSkin(standId);
+			StandType standType = JojoRegistries.DEFAULT_STANDS_REG.get(standId);
+			if (standType != null) {
+				ButtonWithImage button = new ClientModSettingsScreen.StandSelectionButton(screen, standType, standSkin);
+				standsList.addEntry(new EntryWithButtons().add(button, 20, 0));
+			}
+		}
+		screen.addConfigWidget(standsList);
+	}
+	
+	public static final ScrollingDecimal STAT_SCROLLING = (boolean scrollUp) -> {
+		KeyModifier curModifier = 
+				KeyModifier.CONTROL.isActive(null) ? KeyModifier.CONTROL : 
+				KeyModifier.SHIFT.isActive(null) ? KeyModifier.SHIFT : 
+				KeyModifier.NONE;
+		return switch (curModifier) {
+			case CONTROL -> scrollUp ? "0.1" : "-0.1";
+			case SHIFT -> scrollUp ? "3.0" : "-3.0";
+			default -> scrollUp ? "1" : "-1";
+		};
+	};
+	
+	public ScrolleableButtonList addStandSettingsList(StandType standType) {
+		Minecraft mc = Minecraft.getInstance();
+		
+		list = new ScrolleableButtonList(screen.getMinecraft(), 
+				30, 33, 
+				screen.width - 80, screen.height - 66, 
+				25);
+		StandStats stats = standType.getStandStats();
+		
+		EntryWithButtons standTitleAndStuff = new EntryWithButtons();
+		standTitleAndStuff.addRenderable(new ConfigGuiHelper.TextLine(
+				Component.translatable("jojo_ripples.stand_config.stand_stats"), 
+				Alignment.CENTER, ConfigGuiHelper.TextLine.GRAY), list.getWidth() / 2 + 10, 0);
+		StandNameForScrolleableList standName = StandNameForScrolleableList.fromDefaultSkin(
+				standType, Alignment.LEFT);
+		standTitleAndStuff.addRenderable(standName, 
+				Math.max(list.getWidth() / 2 - mc.font.width(standName.line) - 100, 2), 0);
+		list.addEntry(standTitleAndStuff);
+		list.addAlwaysRenderedObject(new StandStatsHexagonForScrolleableList(standType, stats), 
+				Math.min(-1 + list.getWidth() / 2, list.getWidth() - 154), 7);
+		
+		for (StatWithValue stat : StatWithValue.values()) {
+			Component statName = Component.translatable("jojo_ripples.stand_config.stand_stats." + stat.nameInJson);
+			ConfigDouble statField = stats.getField(stat);
+			NumericField statNumField = new NumericField(67, 20, statName);
+			statNumField.tieToNumericConfigOption(config, ModConfigType.COMMON, statField, stat.nameInJson, statName);
+			statNumField.addScrolling(STAT_SCROLLING);
+			list.addEntry(new EntryWithButtons()
+					.add(statNumField, list.getWidth() / 2 - 73, 0)
+					.addRenderable(new ConfigGuiHelper.TextLine(statName, Alignment.RIGHT, ConfigGuiHelper.TextLine.WHITE), 
+							-78 + list.getWidth() / 2, 6));
+		}
+		screen.addConfigWidget(list);
+		return list;
+	}
+	
+	public void addStandAbilityConfigSettings(StandCommonConfig standConfig) {
+		for (var abilityEntry : standConfig.abilityConfigs.entrySet()) {
+			String abilityName = abilityEntry.getKey();
+
+			list.addEntry(new EntryWithButtons().addRenderable(new TextLine(
+					StandSkinComponent.translatable(standConfig.standId, Optional.empty(), Ability.tlKey(abilityName)),
+					Alignment.CENTER, TextLine.GRAY), 
+					list.getWidth() / 2 + 10, 12));
+			curEntry = null;
+			
+			for (var abilityConfigEntry : abilityEntry.getValue().entrySet()) {
+				ConfigOption<?> field = abilityConfigEntry.getValue();
+				switch (field) {
+					case ConfigBool fieldBool -> {
+						addBooleanOptionButton(fieldBool, ModConfigType.COMMON, null);
+					}
+					case ConfigEnum<?> fieldEnum -> {
+						addEnumOptionButton(fieldEnum, ModConfigType.COMMON, null);
+					}
+					default -> {}
+				}
+			}
+		}
+	}
+	
 	
 	public void addBooleanOptionButton(ConfigBool cfgOption, 
 			ModConfigType type, @Nullable String icon) {
@@ -75,13 +210,6 @@ public class ConfigGuiHelper {
 				(Component name, BoolOrPlayerPref value) -> value.optionStatus(name));
 	}
 
-	@Deprecated
-	public <T extends Enum<T>> void addEnumOptionButton(ConfigEnum<T> cfgOption, 
-			ModConfigType type, @Nullable String icon, 
-			Class<T> enumClass) {
-		addEnumOptionButton(cfgOption, type, icon);
-	}
-	
 	public <T extends Enum<T>> void addEnumOptionButton(ConfigEnum<T> cfgOption, 
 			ModConfigType type, @Nullable String icon) {
 		Class<T> enumClass = cfgOption.enumClass;
@@ -99,7 +227,7 @@ public class ConfigGuiHelper {
 	public <T> void addOptionButton(ConfigOption<T> option, 
 			ModConfigType type, @Nullable String icon, 
 			Consumer<ConfigOption<T>> changeValueOnClick, 
-			BiFunction<Component, T, Component> getValueMessage) {
+			BiFunction<Component, T, MutableComponent> getValueMessage) {
 		if (curEntry == null) {
 			curEntry = new EntryWithButtons();
 			list.addEntry(curEntry);
@@ -115,7 +243,6 @@ public class ConfigGuiHelper {
 		
 		Button.OnPress onPress = b -> {
 			changeValueOnClick.accept(option);
-			onSettingChange(config, type, option);
 		};
 		
 		int buttonWidth = Math.min((screen.width - 80) / 2, 150);
@@ -126,8 +253,8 @@ public class ConfigGuiHelper {
 		};
 		
 		ConfigButton button = new ConfigButton(-1, -1, buttonWidth, 20, 
-				nameWithSprite, 
-				onPress, Tooltip.create(tooltip), 
+				name, nameWithSprite, 
+				onPress, tooltip, 
 				type, option, getValueMessage);
 		if (curEntry.children().size() == 0) {
 			button.setAlignment(Alignment.RIGHT);
@@ -139,26 +266,6 @@ public class ConfigGuiHelper {
 		}
 	}
 	
-	public static <T> void onSettingChange(ModConfigInterface<?, ?, ?> modConfig, ModConfigType configType, ConfigOption<T> configOption) {
-		switch (configType) {
-			case CLIENT -> {
-				modConfig.saveClient();
-			}
-			case CLIENT_BROADCAST -> {
-				modConfig.saveClient();
-				modConfig.sendClientBroadcast();
-			}
-			case COMMON -> {
-				if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
-					ConfigNetworkFunctions.clSendCommonSettingEditToServer(
-							modConfig.modId(), configOption.getFieldName(), configOption);
-				}
-				else {
-					modConfig.saveCommon();
-				}
-			}
-		}
-	}
 	
 	public static Component prependIcon(Component text, ResourceLocation iconPath) {
 		return prependIcon(text, new GuiIcon(iconPath, 16, 16));
@@ -176,31 +283,36 @@ public class ConfigGuiHelper {
 	public static class ConfigButton extends ScrollingStringButton {
 		protected ModConfigType configType;
 		protected ConfigOption<?> configOption;
-		protected Component optionName;
-		protected BiFunction<Component, ?, Component> getValueMessage;
+		protected Component optionNameNoSprite;
+		protected Component optionNameWithSprite;
+		protected BiFunction<Component, ?, MutableComponent> getValueMessage;
 		protected Object prevValue;
+		protected MultiLineScreenTooltip tooltip;
 
 		public ConfigButton(int pX, int pY, int pWidth, int pHeight, 
-				Component optionName, OnPress pOnPress, Tooltip pOnTooltip,
-				ModConfigType type, ConfigOption<?> configOption, BiFunction<Component, ?, Component> getValueMessage) {
-			super(pX, pY, pWidth, pHeight, makeMessage(getValueMessage, optionName, configOption.get()), pOnPress, pOnTooltip);
+				Component optionNameNoSprite, Component optionNameWithSprite, 
+				OnPress pOnPress, Component tooltipBody,
+				ModConfigType type, ConfigOption<?> configOption, BiFunction<Component, ?, MutableComponent> getValueMessage) {
+			super(pX, pY, pWidth, pHeight, CommonComponents.EMPTY, pOnPress, null);
 			this.configType = type;
 			this.configOption = configOption;
-			this.optionName = optionName;
+			this.optionNameNoSprite = optionNameNoSprite;
+			this.optionNameWithSprite = optionNameWithSprite;
 			this.getValueMessage = getValueMessage;
+			
+			this.tooltip = new MultiLineScreenTooltip(CommonComponents.EMPTY, tooltipBody);
+			updateMessage(configOption.get());
+			setTooltip(tooltip);
 		}
 		
-		protected static <T> Component makeMessage(BiFunction<Component, T, Component> getValueMessage, Component optionName, Object optionValue) {
+		protected static <T> MutableComponent makeMessage(BiFunction<Component, T, MutableComponent> getValueMessage, Component optionName, Object optionValue) {
 			return getValueMessage.apply(optionName, (T) optionValue);
 		}
 		
-		protected <T> Component makeMessage() {
-			return makeMessage(this.getValueMessage, this.optionName, this.configOption);
-		}
-		
 		protected void updateMessage(Object newValue) {
-			Component message = makeMessage(getValueMessage, optionName, newValue);
+			Component message = makeMessage(getValueMessage, optionNameWithSprite, newValue);
 			this.setMessage(message);
+			this.tooltip.setTitle(message.copy().withStyle(ChatFormatting.BOLD));
 		}
 
 		@Override
@@ -230,26 +342,36 @@ public class ConfigGuiHelper {
 	
 	
 	public void addCategoryTitle(Component title) {
-		list.addEntry(new EntryWithButtons().addRenderable(new Title(title, list), -15, 12));
+		list.addEntry(new EntryWithButtons().addRenderable(new TextLine(title, 
+				Alignment.CENTER, TextLine.GRAY), 
+				-15 + list.getWidth() / 2, 12));
 		curEntry = null;
 	}
 
-	public static class Title extends Renderable2 {
-		public AbstractWidget parentList;
-		public Component title;
+	public static class TextLine extends Renderable2 {
+		public static final int GRAY = 0xFFC0C0C0;
+		public static final int WHITE = 0xFFFFFF;
+		public Component line;
+		public Alignment alignment;
+		public int color;
 		
-		public Title(Component title, AbstractWidget parentList) {
+		public TextLine(Component line, Alignment alignment, int color) {
 			super(0, 0);
-			this.parentList = parentList;
-			this.title = title;
+			this.line = line;
+			this.alignment = alignment;
+			this.color = color;
 		}
 
 		@Override
 		public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 			Minecraft mc = Minecraft.getInstance();
 			Font font = mc.font;
-			int width = parentList.getWidth();
-			guiGraphics.drawCenteredString(font, title, x + width / 2, y, 0xC0C0C0);
+			
+			switch (alignment) {
+				case LEFT -> guiGraphics.drawString(font, line, x, y, color);
+				case RIGHT -> TextUtil.drawRightAlignedString(guiGraphics, font, line, x, y, color, true);
+				case CENTER -> guiGraphics.drawCenteredString(font, line, x, y, color);
+			}
 		}
 
 	}

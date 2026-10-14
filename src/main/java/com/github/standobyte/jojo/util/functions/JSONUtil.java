@@ -81,6 +81,12 @@ public class JSONUtil {
 	}
 	
 	
+	@Nullable
+	public static JsonObject asObject(@Nullable JsonElement json) {
+		return json instanceof JsonObject __ ? __ : null;
+	}
+	
+	
 	public static void mergeWithObjMember(JsonObject json, String objMemberKey, JsonElement overwriting) {
 		if (overwriting.isJsonObject()) {
 			JsonObject member = json.getAsJsonObject(objMemberKey);

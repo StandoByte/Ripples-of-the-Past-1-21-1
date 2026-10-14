@@ -52,13 +52,16 @@ public class ClientResolveVisuals {
 	}
 	
 	public static void onColorShiftSettingUpdated(boolean value) {
-		ColorShiftShader colorShiftShader = ModShaders.getInstance().colorShift;
-		if (colorShiftShader != null) {
-			if (!value) {
-				colorShiftShader.parameters = null;
-			}
-			else if (prevTickResolveEffect) {
-				colorShiftShader.parameters = ColorShiftEffect.Parameters.createRandom(OOPMoment.RANDOM);
+		ModShaders shaders = ModShaders.getInstance();
+		if (shaders != null) {
+			ColorShiftShader colorShiftShader = shaders.colorShift;
+			if (colorShiftShader != null) {
+				if (!value) {
+					colorShiftShader.parameters = null;
+				}
+				else if (prevTickResolveEffect) {
+					colorShiftShader.parameters = ColorShiftEffect.Parameters.createRandom(OOPMoment.RANDOM);
+				}
 			}
 		}
 	}

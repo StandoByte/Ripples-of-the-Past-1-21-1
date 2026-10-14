@@ -1,13 +1,12 @@
 package com.github.standobyte.jojo.config.internal;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import com.github.standobyte.jojo.client.ui.screen_widgets.utils.ButtonDecoration;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.config.client.ClientModSettingsScreen;
 import com.github.standobyte.jojo.config.client.RegisterRotpConfigScreenTabEvent;
+import com.github.standobyte.jojo.config.core.ConfigId;
 import com.github.standobyte.jojo.config.core.ModConfig;
 import com.github.standobyte.jojo.config.core.RegisterRotpConfigEvent;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -27,7 +26,7 @@ import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 
 public class ConfigEventHandler {
-	public static final Map<String, ModConfig<?, ?, ?>> ALL_CONFIGS = new LinkedHashMap<>();
+	public static ConfigsMap ALL_CONFIGS;
 	
 	
 	@EventBusSubscriber(modid = JojoMod.MOD_ID)
@@ -36,10 +35,9 @@ public class ConfigEventHandler {
 		@SubscribeEvent
 		public static void onServerPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
 			ServerPlayer player = (ServerPlayer) event.getEntity();
-			ALL_CONFIGS.entrySet().forEach(configEntry -> {
-				ModConfig<?, ?, ?> config = configEntry.getValue();
+			ALL_CONFIGS.allConfigs().forEach(config -> {
 				ConfigNetworkFunctions.srvSendConfigsToLoggedInPlayer(player, 
-						configEntry.getKey(), config);
+						config.configId(), config);
 			});
 		}
 		
@@ -48,52 +46,47 @@ public class ConfigEventHandler {
 			ServerPlayer player = (ServerPlayer) event.getEntity();
 			MinecraftServer server = player.serverLevel().getServer();
 			UUID playerId = player.getUUID();
-			ALL_CONFIGS.entrySet().forEach(configEntry -> {
-				ModConfig<?, ?, ?> config = configEntry.getValue();
-				if (config.serverBroadcast != null) {
-					config.serverBroadcast.remove(playerId);
+			ALL_CONFIGS.allConfigs().forEach(config -> {
+				if (config.removeBroadcastPlayerState(playerId)) {
 					ConfigNetworkFunctions.srvResetPlayerBroadcastConfigForAllPlayers(
-							server, player, configEntry.getKey());
+							server, player, config.configId());
 				}
 			});
 		}
 		
 		@SubscribeEvent
 		public static void onClientPlayerLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
-			ALL_CONFIGS.entrySet().forEach(configEntry -> {
-				ModConfig<?, ?, ?> config = configEntry.getValue();
-				
-				if (config.hasClientBroadcast) {
-					ConfigNetworkFunctions.clSendPlayerBroadcastConfigToServer(false, 
-							configEntry.getKey(), config.clientConfig);
+			ALL_CONFIGS.allConfigs().forEach(config -> {
+				if (config.hasClientBroadcast()) {
+					config.sendClientBroadcast(false);
 				}
 				
 				if (!ConfigNetworkFunctions.clientIsIntegratedServer()) {
 					config.createBroadcastPlayersCfgHolder();
-					config.createRemoteCommonCfgHolder();
+					config.setCommonRemoteState();
 				}
 			});
 		}
 		
 		@SubscribeEvent
 		public static void onClientPlayerLoggedOut(ClientPlayerNetworkEvent.LoggingOut event) {
-			ALL_CONFIGS.values().forEach(config -> {
-				config.serverBroadcast = null;
-				config.commonConfigRemote = null;
+			ALL_CONFIGS.allConfigs().forEach(config -> {
+				config.destroyBroadcastPlayersCfgHolder();
+				config.unsetCommonRemoteState();
 			});
 		}
 		
 		@SubscribeEvent
 		public static void onServerStart(ServerStartingEvent event) {
-			ALL_CONFIGS.values().forEach(config -> {
+			ALL_CONFIGS.allConfigs().forEach(config -> {
 				config.createBroadcastPlayersCfgHolder();
 			});
 		}
 		
 		@SubscribeEvent
 		public static void onServerStop(ServerStoppingEvent event) {
-			ALL_CONFIGS.values().forEach(config -> {
-				config.serverBroadcast = null;
+			ALL_CONFIGS.allConfigs().forEach(config -> {
+				config.destroyBroadcastPlayersCfgHolder();
 			});
 		}
 	}
@@ -105,12 +98,15 @@ public class ConfigEventHandler {
 		
 		@SubscribeEvent
 		public static void serverSetup(FMLDedicatedServerSetupEvent event) {
-			RegisterRotpConfigEvent serverConfigsEvent = new RegisterRotpConfigEvent(Dist.DEDICATED_SERVER);
+			final Dist dist = Dist.DEDICATED_SERVER;
+			ALL_CONFIGS = new ConfigsMap(dist);
+			RegisterRotpConfigEvent serverConfigsEvent = new RegisterRotpConfigEvent(dist);
 			ModLoader.postEvent(serverConfigsEvent);
-			ALL_CONFIGS.putAll(serverConfigsEvent.configs);
-			ALL_CONFIGS.entrySet().forEach(cfgEntry -> {
-				ModConfig<?, ?, ?> config = cfgEntry.getValue();
-				config.commonConfig.loadFromFileSystem();
+			for (ModConfig<?, ?, ?> config : serverConfigsEvent.configs.values()) {
+				ALL_CONFIGS.add(config);
+			}
+			ALL_CONFIGS.allConfigs().forEach(config -> {
+				if (config.hasCommon()) config.commonConfig.loadFromFileSystem();
 			});
 		}
 	}
@@ -120,13 +116,16 @@ public class ConfigEventHandler {
 
 		@SubscribeEvent
 		public static void veryEarlyClientSetup(RegisterClientReloadListenersEvent event) {
-			RegisterRotpConfigEvent clientConfigsEvent = new RegisterRotpConfigEvent(Dist.CLIENT);
+			final Dist dist = Dist.CLIENT;
+			ALL_CONFIGS = new ConfigsMap(dist);
+			RegisterRotpConfigEvent clientConfigsEvent = new RegisterRotpConfigEvent(dist);
 			ModLoader.postEvent(clientConfigsEvent);
-			ALL_CONFIGS.putAll(clientConfigsEvent.configs);
-			ALL_CONFIGS.entrySet().forEach(cfgEntry -> {
-				ModConfig<?, ?, ?> config = cfgEntry.getValue();
-				config.commonConfig.loadFromFileSystem();
-				config.clientConfig.loadFromFileSystem();
+			for (ModConfig<?, ?, ?> config : clientConfigsEvent.configs.values()) {
+				ALL_CONFIGS.add(config);
+			}
+			ALL_CONFIGS.allConfigs().forEach(config -> {
+				if (config.hasCommon()) config.commonConfig.loadFromFileSystem();
+				if (config.hasClient()) config.clientConfig.loadFromFileSystem();
 			});
 		}
 
@@ -141,5 +140,9 @@ public class ConfigEventHandler {
 						.map(icon -> ButtonDecoration.icon(new GuiIcon(icon, 16, 16)), ButtonDecoration::item));
 			}
 		}
+	}
+	
+	public static ModConfig<?, ?, ?> getConfig(ConfigId configId) {
+		return ConfigEventHandler.ALL_CONFIGS.get(configId);
 	}
 }

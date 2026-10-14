@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.config;
 import javax.annotation.Nullable;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 public enum BoolOrPlayerPref {
 	TRUE("options.on", Boolean.TRUE),
@@ -19,7 +20,7 @@ public enum BoolOrPlayerPref {
 		this.asBoolean = asBoolean;
 	}
 	
-	public Component optionStatus(Component optionName) {
+	public MutableComponent optionStatus(Component optionName) {
 		return Component.translatable(tlKey, optionName);
 	}
 	

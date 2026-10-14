@@ -121,6 +121,12 @@
   "jojo_ripples.config_common.set": "[%s] Установлено значение настройки конфига %s: %s",
   "jojo_ripples.config_common.reset": "[%s] Сброшены настройки конфига",
   "jojo_ripples.config.reset": "Сбросить",
+  "jojo_ripples.config.apply": "Применить",
+  "jojo_ripples.config.value_too_low": "%s не может быть меньше %s",
+  "jojo_ripples.config.value_too_high": "%s не может быть больше %s",
+  
+  "jojo_ripples.stand_config.stand_stats": "Характеристики Стенда",
+  
   "jojo_ripples.config.common_preset": "Шаблон:",
   "jojo_ripples.config.common_preset.default": "Приключение",
   "jojo_ripples.config.common_preset.default.edited": "Приключение (польз.)",
@@ -397,6 +403,13 @@
   "jojo_ripples.stand_stat.dev_potential": "Способность развиваться",
   "jojo_ripples.stand_stat.dev_potential.shortened": "РАЗВ - ",
   "jojo_ripples.stand_stat.dev_potential.desc": "Отображает, наколько много различных применений способности своего Стенда этот персонаж ещё может обнаружить. По мере того, как обладатель изучает навыки Стенда, этот параметр уменьшается.",
+    
+  "jojo_ripples.stand_config.stand_stats.power": "Сила",
+  "jojo_ripples.stand_config.stand_stats.speed": "Скорость",
+  "jojo_ripples.stand_config.stand_stats.rangeEffective": "Эфф. дальность",
+  "jojo_ripples.stand_config.stand_stats.rangeMax": "Макс. дальность",
+  "jojo_ripples.stand_config.stand_stats.durability": "Выносливость",
+  "jojo_ripples.stand_config.stand_stats.precision": "Меткость",
   
   "jojo_ripples.stand_stat.stand_name": "Имя Стенда: %s",
   "jojo_ripples.stand_stat.stand_user": "Обладатель: %s",
@@ -620,6 +633,8 @@
   "    перевести-jojo_ripples.skill.repair_item.desc": "Revert a broken item to its original undamaged state. Any enchantments on the item are also reverted.",
   "jojo_ripples.skill.repair_item.controls": "C на повреждённом предмете в инвентаре",
   "jojo_ripples.ability.repair_item": "Починить предмет",
+  "jojo_ripples.config.repair_item#removeEnchantments": "Убирать зачарования",
+  "jojo_ripples.config.repair_item#removeEnchantments.tooltip": "По умолчанию, способность починки предмета Crazy Diamond убирает все зачарования.",
   
   "jojo_ripples.skill.heal": "Лечение",
   "    перевести-jojo_ripples.skill.heal.desc": "Fix the damage and injuries of a damaged entity.",

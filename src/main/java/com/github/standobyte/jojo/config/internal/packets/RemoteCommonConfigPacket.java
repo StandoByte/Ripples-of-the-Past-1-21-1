@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.config.internal.packets;
 import java.util.function.Consumer;
 
 import com.github.standobyte.jojo.PacketsRegister;
+import com.github.standobyte.jojo.config.core.ConfigId;
 import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
 import com.github.standobyte.jojo.util.functions_network.NetworkUtil;
 
@@ -12,17 +13,17 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class RemoteCommonConfigPacket implements CustomPacketPayload {
-	public String modId;
+	public ConfigId configId;
 	public Consumer<RegistryFriendlyByteBuf> write;
 	public RegistryFriendlyByteBuf read;
 	
-	public RemoteCommonConfigPacket(String modId, Consumer<RegistryFriendlyByteBuf> write) {
-		this.modId = modId;
+	public RemoteCommonConfigPacket(ConfigId configId, Consumer<RegistryFriendlyByteBuf> write) {
+		this.configId = configId;
 		this.write = write;
 	}
 	
-	protected RemoteCommonConfigPacket(String modId, RegistryFriendlyByteBuf read) {
-		this.modId = modId;
+	protected RemoteCommonConfigPacket(ConfigId configId, RegistryFriendlyByteBuf read) {
+		this.configId = configId;
 		this.read = read;
 	}
 	
@@ -42,15 +43,15 @@ public class RemoteCommonConfigPacket implements CustomPacketPayload {
 
 		@Override
 		public void encode(RemoteCommonConfigPacket packet, RegistryFriendlyByteBuf buf) {
-			buf.writeUtf(packet.modId);
+			ConfigId.STREAM_CODEC.encode(buf, packet.configId);
 			packet.write.accept(buf);
 		}
 
 		@Override
 		public RemoteCommonConfigPacket decode(RegistryFriendlyByteBuf buf) {
-			String modId = buf.readUtf();
+			ConfigId configId = ConfigId.STREAM_CODEC.decode(buf);
 			RegistryFriendlyByteBuf read = NetworkUtil.extraPacketData(buf, buf.registryAccess());
-			return new RemoteCommonConfigPacket(modId, read);
+			return new RemoteCommonConfigPacket(configId, read);
 		}
 
 		@Override

@@ -2,6 +2,8 @@ package com.github.standobyte.jojo.powersystem.standpower;
 
 import java.util.Optional;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerData;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
@@ -32,7 +34,7 @@ public class StandUnlockableSkill extends UnlockableSkill {
 		return ConditionCheck.POSITIVE;
 	}
 	
-	public int getDevPotentialCosmeticPoints(StandPower userPower, StandTypePersistentData data, boolean isUnlocked) {
+	public int getDevPotentialCosmeticPoints(@Nullable StandPower userPower, @Nullable StandTypePersistentData data, boolean isUnlocked) {
 		if (isUnlocked) return 0;
 		if (expToUnlock > 0) return expToUnlock;
 		if (hidden) return 250;

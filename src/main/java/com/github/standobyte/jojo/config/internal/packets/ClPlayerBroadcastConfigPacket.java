@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.config.internal.packets;
 import java.util.function.Consumer;
 
 import com.github.standobyte.jojo.PacketsRegister;
+import com.github.standobyte.jojo.config.core.ConfigId;
 import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
 import com.github.standobyte.jojo.util.functions_network.NetworkUtil;
 
@@ -13,17 +14,17 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class ClPlayerBroadcastConfigPacket implements CustomPacketPayload {
-	public String modId;
+	public ConfigId configId;
 	public Consumer<RegistryFriendlyByteBuf> write;
 	public RegistryFriendlyByteBuf read;
 	
-	public ClPlayerBroadcastConfigPacket(String modId, Consumer<RegistryFriendlyByteBuf> write) {
-		this.modId = modId;
+	public ClPlayerBroadcastConfigPacket(ConfigId configId, Consumer<RegistryFriendlyByteBuf> write) {
+		this.configId = configId;
 		this.write = write;
 	}
 	
-	protected ClPlayerBroadcastConfigPacket(String modId, RegistryFriendlyByteBuf read) {
-		this.modId = modId;
+	protected ClPlayerBroadcastConfigPacket(ConfigId configId, RegistryFriendlyByteBuf read) {
+		this.configId = configId;
 		this.read = read;
 	}
 	
@@ -43,15 +44,15 @@ public class ClPlayerBroadcastConfigPacket implements CustomPacketPayload {
 
 		@Override
 		public void encode(ClPlayerBroadcastConfigPacket packet, RegistryFriendlyByteBuf buf) {
-			buf.writeUtf(packet.modId);
+			ConfigId.STREAM_CODEC.encode(buf, packet.configId);
 			packet.write.accept(buf);
 		}
 
 		@Override
 		public ClPlayerBroadcastConfigPacket decode(RegistryFriendlyByteBuf buf) {
-			String modId = buf.readUtf();
+			ConfigId configId = ConfigId.STREAM_CODEC.decode(buf);
 			RegistryFriendlyByteBuf read = NetworkUtil.extraPacketData(buf, buf.registryAccess());
-			return new ClPlayerBroadcastConfigPacket(modId, read);
+			return new ClPlayerBroadcastConfigPacket(configId, read);
 		}
 
 		@Override

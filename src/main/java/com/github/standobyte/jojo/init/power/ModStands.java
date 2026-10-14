@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.init.power;
 
+import com.github.standobyte.jojo.config.core.RegisterRotpConfigEvent;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.init.SimpleTagKey;
@@ -39,5 +40,13 @@ public class ModStands {
 		PLAYER_CAN_GET_FROM_ARROW.add(CRAZY_DIAMOND);
 		//PLAYER_CAN_GET_FROM_ARROW.add(THE_WORLD);
 		//PLAYER_CAN_GET_FROM_ARROW.add(HIEROPHANT_GREEN);
+	}
+	
+	
+	public static void addStandConfigs(RegisterRotpConfigEvent event) {
+		event.generateStandConfig(ModStands.CRAZY_DIAMOND);
+		event.generateStandConfig(ModStands.STAR_PLATINUM);
+		event.generateStandConfig(ModStands.THE_WORLD);
+		event.generateStandConfig(ModStands.HIEROPHANT_GREEN);
 	}
 }

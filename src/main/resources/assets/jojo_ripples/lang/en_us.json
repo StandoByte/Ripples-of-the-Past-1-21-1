@@ -197,6 +197,12 @@
   "jojo_ripples.config_common.set": "[%s] Config option %s is now set to: %s",
   "jojo_ripples.config_common.reset": "[%s] Reset config options",
   "jojo_ripples.config.reset": "Reset",
+  "jojo_ripples.config.apply": "Apply Changes",
+  "jojo_ripples.config.value_too_low": "%s can't be less than %s",
+  "jojo_ripples.config.value_too_high": "%s can't be more than %s",
+  
+  "jojo_ripples.stand_config.stand_stats": "Stand Stats",
+  
   "jojo_ripples.config.common_preset": "Preset:",
   "jojo_ripples.config.common_preset.default": "Adventure",
   "jojo_ripples.config.common_preset.default.edited": "Adventure (custom)",
@@ -473,6 +479,13 @@
   "jojo_ripples.stand_stat.dev_potential.shortened": "DEV - ",
   "jojo_ripples.stand_stat.dev_potential.desc": "Shows how much more applications of the Stand's abilities this character is yet to discover. As the user learns more Stand skills, this stat decreases.",
   
+  "jojo_ripples.stand_config.stand_stats.power": "Power",
+  "jojo_ripples.stand_config.stand_stats.speed": "Speed",
+  "jojo_ripples.stand_config.stand_stats.rangeEffective": "Eff. Range",
+  "jojo_ripples.stand_config.stand_stats.rangeMax": "Max Range",
+  "jojo_ripples.stand_config.stand_stats.durability": "Durability",
+  "jojo_ripples.stand_config.stand_stats.precision": "Precision",
+  
   "jojo_ripples.stand_stat.stand_name": "Stand Name: %s",
   "jojo_ripples.stand_stat.stand_user": "Stand User: %s",
   "jojo_ripples.stand_stat.button.show": "Show Stand Stats",
@@ -695,6 +708,8 @@
   "jojo_ripples.skill.repair_item.desc": "Revert a broken item to its original undamaged state. Any enchantments on the item are also reverted.",
   "jojo_ripples.skill.repair_item.controls": "C on a damaged item in the inventory",
   "jojo_ripples.ability.repair_item": "Repair Item",
+  "jojo_ripples.config.repair_item#removeEnchantments": "Remove enchantments",
+  "jojo_ripples.config.repair_item#removeEnchantments.tooltip": "By default, the ability removes all enchantments from the item being restored.",
   
   "jojo_ripples.skill.heal": "Heal",
   "jojo_ripples.skill.heal.desc": "Fix the damage and injuries of a damaged entity.",
