@@ -17,7 +17,6 @@ import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList
 import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList.Renderable2;
 import com.github.standobyte.jojo.client.ui.utils.Alignment;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
-import com.github.standobyte.jojo.client.ui.utils.TextUtil;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
 import com.github.standobyte.jojo.config.BoolOrPlayerPref;
 import com.github.standobyte.jojo.config.ModConfigInterface;
@@ -47,6 +46,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -235,11 +237,7 @@ public class ConfigGuiHelper {
 		
 		Component name = Component.translatable(getPrefix(modId, type) +  "." + option.getFieldName());
 		Component tooltip = Component.translatable(getPrefix(modId, type) + "." + option.getFieldName() + ".tooltip");
-		Component nameWithSprite = name;
-		if (icon != null) {
-			ResourceLocation iconPath = toIconPath(icon);
-			nameWithSprite = prependIcon(name, iconPath);
-		}
+		Component nameWithSprite = icon != null ? prependIcon(name, toIconPath(icon)) : name;
 		
 		Button.OnPress onPress = b -> {
 			changeValueOnClick.accept(option);
@@ -264,6 +262,40 @@ public class ConfigGuiHelper {
 		if (curEntry.children().size() >= 2) {
 			curEntry = null;
 		}
+	}
+	
+	
+	public <T extends Number> void addNumericField(ConfigOption<T> option,
+			ModConfigType type, @Nullable String icon) {
+		curEntry = new EntryWithButtons();
+		list.addEntry(curEntry);
+		
+		Component name = Component.translatable(getPrefix(modId, type) +  "." + option.getFieldName());
+		Component tooltipBody = Component.translatable(getPrefix(modId, type) + "." + option.getFieldName() + ".tooltip");
+		Component nameWithSprite = icon != null ? prependIcon(name, toIconPath(icon)) : name;
+		
+		NumericField field = new NumericField(70, 20, nameWithSprite);
+		field.tieToNumericConfigOption(config, ModConfigType.COMMON, option, option.getFieldName(), name);
+
+		int buttonsWidth = Math.min((screen.width - 80) / 2, 150);
+		int leftButtonsX0 = screen.width / 2 - 35 - buttonsWidth;
+		int rightButtonsX0 = screen.width / 2 - 25;
+		int offsetFromRightButtonToRightEdge = screen.width - rightButtonsX0 + buttonsWidth;
+		
+		MultiLineScreenTooltip tooltip = new MultiLineScreenTooltip(CommonComponents.EMPTY, tooltipBody);
+		ConfigGuiHelper.TextLine nameRenderable = new ConfigGuiHelper.TextLine(nameWithSprite, Alignment.LEFT, ConfigGuiHelper.TextLine.WHITE) {
+			
+			@Override
+			protected void renderTooltip(Screen curScreen) {
+				Component message = Component.translatable("options.generic_value", nameWithSprite, field.getValue());
+				tooltip.setTitle(message.copy().withStyle(ChatFormatting.BOLD));
+				curScreen.setTooltipForNextRenderPass(tooltip, DefaultTooltipPositioner.INSTANCE, true);
+			}
+		};
+		curEntry.addRenderable(nameRenderable, leftButtonsX0, 6);
+		curEntry.add(field, offsetFromRightButtonToRightEdge - field.getWidth() - 50, 0);
+		
+		curEntry = null;
 	}
 	
 	
@@ -366,13 +398,24 @@ public class ConfigGuiHelper {
 		public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 			Minecraft mc = Minecraft.getInstance();
 			Font font = mc.font;
+			int width = font.width(line);
+			int x0 = switch (alignment) {
+				case LEFT -> x;
+				case RIGHT -> x - width;
+				case CENTER -> x - width / 2;
+			};
 			
-			switch (alignment) {
-				case LEFT -> guiGraphics.drawString(font, line, x, y, color);
-				case RIGHT -> TextUtil.drawRightAlignedString(guiGraphics, font, line, x, y, color, true);
-				case CENTER -> guiGraphics.drawCenteredString(font, line, x, y, color);
+			guiGraphics.drawString(font, line, x0, y, color);
+			
+			if (mouseX >= x0 && mouseX <= x0 + width && mouseY >= y && mouseY <= y + font.lineHeight) {
+				Screen screen = Minecraft.getInstance().screen;
+				if (screen != null) {
+					renderTooltip(screen);
+				}
 			}
 		}
+		
+		protected void renderTooltip(Screen curScreen) {}
 
 	}
 	
