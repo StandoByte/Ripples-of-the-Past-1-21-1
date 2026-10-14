@@ -100,7 +100,7 @@ public class StandSkin {
 				"textures/entity/" + standId.getPath() + ".png"));
 		this.standGlowTexture = remapAssetPath(ResourceLocation.fromNamespaceAndPath(
 				standId.getNamespace(),
-				"textures/entity/glow/" + standId.getPath() + ".png"));
+				"textures/entity/" + standId.getPath() + "_glow.png"));
 		this.isDefault = skinId.equals(standId);
 		this.nonDefaultId = isDefault ? Optional.empty() : Optional.of(skinId);
 		this.color = color;
