@@ -35,10 +35,13 @@ public class ConfigEventHandler {
 		@SubscribeEvent
 		public static void onServerPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
 			ServerPlayer player = (ServerPlayer) event.getEntity();
-			ALL_CONFIGS.allConfigs().forEach(config -> {
-				ConfigNetworkFunctions.srvSendConfigsToLoggedInPlayer(player, 
-						config.configId(), config);
-			});
+			if (!ConfigNetworkFunctions.playerIsIntegratedServerHost(player)) {
+				ConfigNetworkFunctions.sendServerHostUUID(player);
+				ALL_CONFIGS.allConfigs().forEach(config -> {
+					ConfigNetworkFunctions.srvSendConfigsToLoggedInPlayer(player, 
+							config.configId(), config);
+				});
+			}
 		}
 		
 		@SubscribeEvent
@@ -74,6 +77,7 @@ public class ConfigEventHandler {
 				config.destroyBroadcastPlayersCfgHolder();
 				config.unsetCommonRemoteState();
 			});
+			ConfigNetworkFunctions.clClearServerHostUUID();
 		}
 		
 		@SubscribeEvent
