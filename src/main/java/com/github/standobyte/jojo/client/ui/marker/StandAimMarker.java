@@ -40,7 +40,7 @@ public class StandAimMarker extends MarkerRenderer {
 				Entity entity = target.getEntity();
 				list.add(new MarkerInstance(entity.getPosition(partialTick).add(0, entity.getBbHeight() / 2, 0)));
 			}
-			default -> {}
+			case EMPTY -> {}
 		}
 	}
 

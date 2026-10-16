@@ -63,8 +63,8 @@ public class ClLearnSkillPacket implements CustomPacketPayload {
 			ResourceLocation.STREAM_CODEC.encode(buf, packet.powerType);
 			buf.writeEnum(packet.packetType);
 			switch (packet.packetType) {
+				case LEARN, RESET -> buf.writeUtf(packet.skillName);
 				case CREATIVE_LEARN_ALL, RESET_ALL -> {}
-				default -> buf.writeUtf(packet.skillName);
 			}
 		}
 
@@ -74,12 +74,12 @@ public class ClLearnSkillPacket implements CustomPacketPayload {
 			ResourceLocation powerType = ResourceLocation.STREAM_CODEC.decode(buf);
 			PacketType packetType = buf.readEnum(PacketType.class);
 			return switch (packetType) {
-				case CREATIVE_LEARN_ALL, RESET_ALL -> {
-					yield new ClLearnSkillPacket(powerClass, powerType, packetType, null);
-				}
-				default -> {
+				case LEARN, RESET -> {
 					String skillName = buf.readUtf();
 					yield new ClLearnSkillPacket(powerClass, powerType, packetType, skillName);
+				}
+				case CREATIVE_LEARN_ALL, RESET_ALL -> {
+					yield new ClLearnSkillPacket(powerClass, powerType, packetType, null);
 				}
 			};
 		}
@@ -107,9 +107,9 @@ public class ClLearnSkillPacket implements CustomPacketPayload {
 							}
 							powerData.syncUnlockedSkills(player);
 						}
-//						case RESET -> {
+						case RESET -> {
 //							// remove skill
-//						}
+						}
 						case RESET_ALL -> {
 							powerData.resetUnlockedSkills(power);
 						}

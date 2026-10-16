@@ -104,7 +104,7 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 						entity.getId(), action));
 				case TRACKING_AND_SELF -> PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new TrEntityActionInstancePacket(
 						entity.getId(), action));
-				default -> {}
+				case NO_SYNC -> {}
 			}
 		}
 		

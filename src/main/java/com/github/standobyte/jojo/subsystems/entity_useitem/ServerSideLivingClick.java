@@ -188,7 +188,7 @@ public class ServerSideLivingClick {
 	
 				yield interactionResult; 
 			}
-			default -> InteractionResult.PASS;
+			case MISS -> InteractionResult.PASS;
 		};
 	}
 

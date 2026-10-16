@@ -101,7 +101,7 @@ public record AbilityId(@Nullable PowerClass<?> powerClass, ResourceLocation pow
 				case DEFAULT_ABILITY_TYPE_INSTANCE -> {
 					buffer.writeUtf(abilityId.nameInMoveset());
 				}
-				default -> {}
+				case NULL_ABILITY -> {}
 			}
 		}
 

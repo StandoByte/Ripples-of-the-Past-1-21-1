@@ -165,7 +165,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 					switch (target.getType()) {
 						case ENTITY -> hitEntity(target, level, stand);
 						case BLOCK -> hitBlock(target, level, stand);
-						default -> {}
+						case EMPTY -> {}
 					}
 					punchedTarget = target;
 				}

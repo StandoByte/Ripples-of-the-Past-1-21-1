@@ -147,7 +147,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 					switch (target.getType()) {
 						case ENTITY -> hitEntity(target, level, stand);
 						case BLOCK -> hitBlock(target, level, stand);
-						default -> {}
+						case EMPTY -> {}
 					}
 
 					punchedTarget = target;
@@ -273,7 +273,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 				BlockState blockState = level.getBlockState(blockPos);
 				yield blockState.getDestroySpeed(level, blockPos) != 0;
 			}
-			default -> false;
+			case EMPTY -> false;
 		};
 	}
 	
