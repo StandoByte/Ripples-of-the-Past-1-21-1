@@ -46,7 +46,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.network.chat.CommonComponents;
@@ -151,16 +150,25 @@ public class ConfigGuiHelper {
 				Math.min(-1 + list.getWidth() / 2, list.getWidth() - 154), 7);
 		
 		for (StatWithValue stat : StatWithValue.values()) {
-			Component statName = Component.translatable("jojo_ripples.stand_config.stand_stats." + stat.nameInJson);
+			Component statName = stat.name;
 			ConfigDouble statField = stats.getField(stat);
 			NumericField statNumField = new NumericField(67, 20, statName);
 			statNumField.tieToNumericConfigOption(config, ModConfigType.COMMON, statField, stat.nameInJson, statName);
 			statNumField.addScrolling(STAT_SCROLLING);
+
+			MultiLineScreenTooltip tooltip = new MultiLineScreenTooltip(CommonComponents.EMPTY, stat.description);
 			list.addEntry(new EntryWithButtons()
 					.add(statNumField, list.getWidth() / 2 - 73, 0)
-					.addRenderable(new ConfigGuiHelper.TextLine(statName, Alignment.RIGHT, ConfigGuiHelper.TextLine.WHITE), 
-							-78 + list.getWidth() / 2, 6));
+					.addRenderable(new ConfigGuiHelper.TextLine(statName, Alignment.RIGHT, ConfigGuiHelper.TextLine.WHITE) {
+						@Override
+						protected void renderTooltip(Screen curScreen) {
+							Component message = Component.translatable("options.generic_value", statName, statNumField.getValue());
+							tooltip.setTitle(message.copy().withStyle(ChatFormatting.BOLD));
+							curScreen.setTooltipForNextRenderPass(tooltip, DefaultTooltipPositioner.INSTANCE, true);
+						}
+					}, -78 + list.getWidth() / 2, 6));
 		}
+		
 		screen.addConfigWidget(list);
 		return list;
 	}

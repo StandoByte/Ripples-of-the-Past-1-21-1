@@ -15,6 +15,7 @@ import com.github.standobyte.jojo.util.functions.AttributeUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
@@ -129,17 +130,21 @@ public class StandStats implements JsonConfigurable {
 	}
 	
 	public enum StatWithValue {
-		POWER("power"),
-		SPEED("speed"),
-		RANGE_EFFECTIVE("rangeEffective"),
-		RANGE_MAX("rangeMax"),
-		DURABILITY("durability"),
-		PRECISION("precision");
+		POWER("power", 						"jojo_ripples.stand_config.stand_stat.strength", 		"jojo_ripples.stand_stat.strength.desc"),
+		SPEED("speed", 						"jojo_ripples.stand_config.stand_stat.speed", 			"jojo_ripples.stand_stat.speed.desc"),
+		RANGE_EFFECTIVE("rangeEffective", 	"jojo_ripples.stand_config.stand_stat.range_effective", "jojo_ripples.stand_config.stand_stat.range_effective.desc"),
+		RANGE_MAX("rangeMax", 				"jojo_ripples.stand_config.stand_stat.range_max", 		"jojo_ripples.stand_config.stand_stat.range_max.desc"),
+		DURABILITY("durability", 			"jojo_ripples.stand_config.stand_stat.durability", 		"jojo_ripples.stand_stat.durability.desc"),
+		PRECISION("precision", 				"jojo_ripples.stand_config.stand_stat.precision", 		"jojo_ripples.stand_stat.precision.desc");
 		
 		public final String nameInJson;
+		public final Component name;
+		public final Component description;
 		
-		private StatWithValue(String nameInJson) {
+		private StatWithValue(String nameInJson, String tlKeyName, String tlKeyDesc) {
 			this.nameInJson = nameInJson;
+			this.name = Component.translatable(tlKeyName);
+			this.description = Component.translatable(tlKeyDesc);
 		}
 	}
 	
