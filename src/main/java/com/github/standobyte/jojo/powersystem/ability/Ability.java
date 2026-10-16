@@ -224,7 +224,7 @@ public class Ability {
 	}
 	
 	public void renderAbilityIcon(Power<?> context, GuiGraphics guiGraphics, TextureAtlasSprite sprite, float x, float y, int color) {
-		BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), sprite, x, y, 16, 16, 0, color);
+		BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), sprite, x, y, 16, 16, 5, color);
 	}
 	
 	// 
