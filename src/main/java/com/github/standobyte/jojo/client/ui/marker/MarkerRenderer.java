@@ -45,13 +45,14 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
 public abstract class MarkerRenderer {
 	@Nullable protected GuiIcon icon;
 	@Nullable protected String iconAbilityName;
 	protected TextureAtlasSprite _abilityIconSprite;
-	private final List<MarkerInstance> positions = new ArrayList<>();
+	public final List<MarkerInstance> positions = new ArrayList<>();
 	// somewhere between 1.21.2 and 1.21.4, the markers stop rendering through blocks except in fabulous mode
 	protected boolean renderThroughBlocks = true;
 	protected final Minecraft mc;
@@ -86,8 +87,8 @@ public abstract class MarkerRenderer {
 	
 
 	protected void render(PoseStack poseStack, Camera camera, float partialTick, StandSkin standSkin) {
+		positions.clear();
 		if (shouldRender()) {
-			positions.clear();
 			updatePositions(positions, partialTick);
 			if (!positions.isEmpty()) {
 				poseStack.pushPose();
@@ -214,8 +215,11 @@ public abstract class MarkerRenderer {
 	}
 
 	protected void renderIconOnBorder(PoseStack poseStack, MarkerInstance marker, float partialTick) {}
+	
+	public void tick() {}
 
 	protected abstract boolean shouldRender();
+	// TODO marker subclasses - query entities every tick instead of every frame
 	protected abstract void updatePositions(List<MarkerInstance> list, float partialTick);
 
 	protected static void fillWithStandEffectTargets(List<MarkerInstance> list, float partialTick, 
@@ -263,6 +267,14 @@ public abstract class MarkerRenderer {
 		private static Collection<MarkerRenderer> RENDERERS = new ArrayList<>();
 
 		@SubscribeEvent(priority = EventPriority.LOW)
+		public static void tickMarkers(ClientTickEvent.Pre event) {
+			Minecraft mc = Minecraft.getInstance();
+			if (mc.level != null) {
+				RENDERERS.forEach(marker -> marker.tick());
+			}
+		}
+
+		@SubscribeEvent(priority = EventPriority.LOW)
 		public static void renderMarkers(RenderLevelStageEvent event) {
 			if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_LEVEL) {
 				Minecraft mc = Minecraft.getInstance();
@@ -287,7 +299,7 @@ public abstract class MarkerRenderer {
 
 
 
-	protected static class MarkerInstance {
+	public static class MarkerInstance {
 		public Vec3 pos;
 		public boolean outlined;
 		public float timer = -1;
