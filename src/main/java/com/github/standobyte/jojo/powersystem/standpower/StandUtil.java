@@ -69,6 +69,11 @@ public class StandUtil {
     	return obj;
     }
     
+    public static LivingEntity getStandIfManuallyControlled(LivingEntity standUser) {
+    	StandEntity standEntity = getSummonedStand(standUser);
+    	return standEntity != null && standEntity.isManuallyControlled() ? standEntity : standUser;
+    }
+    
     public static boolean isEntityStandUser(LivingEntity entity) {
     	StandPower standData = StandPower.get(entity);
     	return standData != null && standData.hasPower() || JojoModsInteraction.entityHasStandFromAnotherMod(entity);
