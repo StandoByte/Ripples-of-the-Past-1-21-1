@@ -129,7 +129,8 @@ public abstract class MarkerRenderer {
 		double distance = diff.length();
 		if (distance > 256) return;
 
-		float scale = Math.min((float) Math.pow(2, (16 - Math.min(distance, 32)) / 16) * (float) distance / 256, 1);
+		float scale = Math.min(1, 
+				(float) Math.pow(2, 1 - Math.min(distance, 8) / 4) * (float) distance / 200);
 
 		poseStack.translate(diff.x, diff.y, diff.z);
 		poseStack.scale(-scale, -scale, 1);
