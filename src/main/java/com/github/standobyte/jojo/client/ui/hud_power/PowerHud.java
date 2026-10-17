@@ -160,6 +160,7 @@ public class PowerHud {
 		}
 		
 		
+		/** DEFAULT - no container menu screen is currently opened; TRUE - container screen foreground; FALSE - container screen background */
 		public TriState forContainerMenu = TriState.DEFAULT;
 		private int mouseX;
 		private int mouseY;
@@ -1028,7 +1029,7 @@ public class PowerHud {
 
 		@Override
 		public boolean shouldRender() {
-			return xpBarStuff != null;
+			return xpBarStuff != null && !hud.forContainerMenu.isTrue();
 		}
 
 		@Override
