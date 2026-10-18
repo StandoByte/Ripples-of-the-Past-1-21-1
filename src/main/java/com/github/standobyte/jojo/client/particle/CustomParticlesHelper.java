@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.particle.type.custom.BloodFromEntityParticle;
 import com.github.standobyte.jojo.client.particle.type.custom.EntityPosParticle;
 import com.github.standobyte.jojo.init.ModParticles;
+import com.github.standobyte.jojo.mixininterface.ParticleExtension;
 import com.github.standobyte.jojo.util.reflection.ClientReflection;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.client.CrazyDRestorationHandItemParticle;
 
@@ -77,14 +78,14 @@ public abstract class CustomParticlesHelper {
 //				new MenacingParticleEmitter(mc.level, entity, particle, mc.player));
 //	}
 
-	public static boolean createCDRestorationParticle(LivingEntity entity, InteractionHand hand) {
+	public static Object createCDRestorationParticle(LivingEntity entity, InteractionHand hand) {
 		if (!ClientGlobals.canSeeStands) return false;
 
 		EntityPosParticle particle = CrazyDRestorationHandItemParticle.createCustomParticle((ClientLevel) entity.level(), entity, hand);
 		return addParticle(particle, particle.getPos(), false, false);
 	}
 
-	public static boolean createBloodParticle(ParticleOptions type, @Nullable Entity entity, 
+	public static Object createBloodParticle(ParticleOptions type, @Nullable Entity entity, 
 			double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
 		BloodFromEntityParticle particle = BloodFromEntityParticle.createCustomParticle(
 				type, Minecraft.getInstance().level, entity, x, y, z, xSpeed, ySpeed, zSpeed);
@@ -259,7 +260,7 @@ public abstract class CustomParticlesHelper {
 		}
 	}
 	
-	public static void addItemParticleNoGravity(ItemStack item, 
+	public static Object addItemParticleNoGravity(ItemStack item, 
 			double x, double y, double z, 
 			double xSpeed, double ySpeed, double zSpeed, int lifetime) {
 		Minecraft mc = Minecraft.getInstance();
@@ -271,6 +272,7 @@ public abstract class CustomParticlesHelper {
 		particle.zd = zSpeed;
 		particle.setLifetime(lifetime);
 		particle.gravity = 0;
+		return particle;
 		
 	}
 
@@ -278,16 +280,16 @@ public abstract class CustomParticlesHelper {
 //		Minecraft.getInstance().particleEngine.createTrackingEmitter(entity, type, ticks);
 //	}
 //
-	public static boolean addParticle(Particle particle, Vec3 particlePos, boolean overrideLimiter, boolean alwaysVisible) {
+	public static Object addParticle(Particle particle, Vec3 particlePos, boolean overrideLimiter, boolean alwaysVisible) {
 		Minecraft mc = Minecraft.getInstance();
 		Camera activerenderinfo = mc.gameRenderer.getMainCamera();
 		if (activerenderinfo.isInitialized() && mc.particleEngine != null && activerenderinfo.getPosition().distanceToSqr(particlePos) < 1024.0D) {
 			if (alwaysVisible || calculateParticleLevel(mc, mc.level, alwaysVisible) != ParticleStatus.MINIMAL) {
 				mc.particleEngine.add(particle);
-				return true;
+				return particle;
 			} 
 		}
-		return false;
+		return null;
 	}
 
 	private static ParticleStatus calculateParticleLevel(Minecraft mc, ClientLevel level, boolean overrideLimiter) {
@@ -306,4 +308,13 @@ public abstract class CustomParticlesHelper {
 	public static int particlesSetting() {
 		return Minecraft.getInstance().options.particles().get().getId();
 	}
+	
+	/**
+	 * @param particle Object type to be common code compatible, but is supposed to be {@link Particle}
+	 * @param entity
+	 */
+	public static void tieToEntity(Object particle, Entity entity) {
+		((ParticleExtension) particle).jojo_ripples$tieToEntity(entity);
+	}
+	
 }
