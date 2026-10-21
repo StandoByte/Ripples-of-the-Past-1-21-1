@@ -137,7 +137,7 @@ public class StandEntityGrabAbility extends StandEntityAbility {
 								}
 							}
 						}
-						default -> {}
+						case EMPTY -> {}
 					}
 					StandPower standPower = StandPower.get(getPowerUser());
 					standPower.consumeStamina(10);

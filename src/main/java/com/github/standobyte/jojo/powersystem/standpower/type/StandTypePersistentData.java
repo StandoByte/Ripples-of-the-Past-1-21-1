@@ -7,8 +7,12 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
 import com.github.standobyte.jojo.client.ui.hud_misc.BottomLeftNotifications;
+import com.github.standobyte.jojo.config.RotpConfig;
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerData;
@@ -70,8 +74,10 @@ public class StandTypePersistentData extends PowerData {
 	public int getExp() {
 		return (int) exp;
 	}
-	
+
+	/** Also applies {@link RotpConfig.Common#standExpGainMultiplier} value */
 	public int addExp(float exp, LivingEntity standUser) {
+		exp *= JojoMod.config.getCommon().standExpGainMultiplier.getAsFloat();
 		int prevInt = (int) this.exp;
 		this.exp += exp;
 		int newInt = (int) this.exp;
@@ -125,24 +131,29 @@ public class StandTypePersistentData extends PowerData {
 		static StandExpSummary instance = new StandExpSummary();
 		public int spent, total, devPotential, remainingSkills, remainingHiddenSkills;
 		StandExpSummary clear() { spent = 0; total = 0; devPotential = 0; remainingSkills = 0; remainingHiddenSkills = 0; return this; }
+		
+		public static StandExpSummary expSummary(Iterable<StandUnlockableSkill> skills, @Nullable StandPower userPower, @Nullable StandTypePersistentData userData) {
+			StandExpSummary obj = StandExpSummary.instance.clear();
+			for (StandUnlockableSkill skill : skills) {
+				boolean isUnlocked = userData != null ? userData.isSkillUnlocked(skill.skillName) : false;
+				if (skill.expToUnlock > 0) {
+					obj.total += skill.expToUnlock;
+					if (isUnlocked) {
+						obj.spent += skill.expToUnlock;
+					}
+				}
+				if (!isUnlocked) {
+					obj.remainingSkills++;
+				}
+				obj.devPotential += skill.getDevPotentialCosmeticPoints(userPower, userData, isUnlocked);
+			}
+			return obj;
+		}
 	}
 	public StandExpSummary expSummary(StandPower userPower) {
-		StandExpSummary obj = StandExpSummary.instance.clear();
-		for (var skillEntry : getAllSkills().entrySet()) {
-			StandUnlockableSkill skill = (StandUnlockableSkill) skillEntry.getValue();
-			boolean isUnlocked = isSkillUnlocked(skill.skillName);
-			if (skill.expToUnlock > 0) {
-				obj.total += skill.expToUnlock;
-				if (isUnlocked) {
-					obj.spent += skill.expToUnlock;
-				}
-			}
-			if (!isUnlocked) {
-				obj.remainingSkills++;
-			}
-			obj.devPotential += skill.getDevPotentialCosmeticPoints(userPower, this, isUnlocked);
-		}
-		return obj;
+		return StandExpSummary.expSummary(
+				(Iterable<StandUnlockableSkill>) getAllSkills().values(), 
+				userPower, this);
 	}
 	
 

@@ -121,6 +121,12 @@
   "jojo_ripples.config_common.set": "[%s] Установлено значение настройки конфига %s: %s",
   "jojo_ripples.config_common.reset": "[%s] Сброшены настройки конфига",
   "jojo_ripples.config.reset": "Сбросить",
+  "jojo_ripples.config.apply": "Применить",
+  "jojo_ripples.config.value_too_low": "%s не может быть меньше %s",
+  "jojo_ripples.config.value_too_high": "%s не может быть больше %s",
+  
+  "jojo_ripples.stand_config.stand_stats": "Характеристики Стенда",
+  
   "jojo_ripples.config.common_preset": "Шаблон:",
   "jojo_ripples.config.common_preset.default": "Приключение",
   "jojo_ripples.config.common_preset.default.edited": "Приключение (польз.)",
@@ -131,6 +137,10 @@
   
   "jojo_ripples.config.title": "ROTP",
   
+  "jojo_ripples.config.standDamageMultiplier": "Множитель урона от Стендов",
+  "jojo_ripples.config.standDamageMultiplier.tooltip": "Множитель урона, который применяется ко всем Стендам.",
+  "jojo_ripples.config.standExpGainMultiplier": "Множитель получаемого опыта Стенда",
+  "jojo_ripples.config.standExpGainMultiplier.tooltip": "Множитель опыта Стенда, получаемого при убийстве врагов или использовании способностей Стенда.",
   "jojo_ripples.config.standsBreakBlocks": "Уничтожение блоков Стендами",
   "jojo_ripples.config.standsBreakBlocks.tooltip": "Настройка, устанавливающая, могут ли Стенды ломать блоки. Если установлено \"По выбору игрока\", каждый игрок сможет поменять значение для себя.",
   "jojo_ripples.config.dropStandAsDisc": "Выпадение Стенда в Диске",
@@ -380,18 +390,26 @@
   "jojo_ripples.current_skin": "Выбранный скин: %s",
   
   "jojo_ripples.stand_stat.strength": "Разрушительная мощь",
+  "jojo_ripples.stand_config.stand_stat.strength": "Сила",
   "jojo_ripples.stand_stat.strength.shortened": "СИЛ - ",
   "jojo_ripples.stand_stat.strength.desc": "Влияет на физический урон от атак Стенда, и в меньшей степени на его сопротивление урону от атак других Стендов.",
   "jojo_ripples.stand_stat.speed": "Скорость",
+  "jojo_ripples.stand_config.stand_stat.speed": "Скорость",
   "jojo_ripples.stand_stat.speed.shortened": "СКОР - ",
   "jojo_ripples.stand_stat.speed.desc": "Влияет на скорость атаки и перемещения Стенда, его скорость стрельбы снарядами, а так же на эффективность шквала ударов.",
   "jojo_ripples.stand_stat.range": "Дальность",
+  "jojo_ripples.stand_config.stand_stat.range_effective": "Эфф. дальность",
+  "jojo_ripples.stand_config.stand_stat.range_max": "Макс. дальность",
   "jojo_ripples.stand_stat.range.shortened": "ДАЛ - ",
   "jojo_ripples.stand_stat.range.desc": "Совмещает эффективную дальность, за пределами которой Стенд становится менее эффективным; и максимальную дальность, за пределы которой Стенд не может перемещаться вовсе.",
+  "jojo_ripples.stand_config.stand_stat.range_effective.desc": "Дальность, за пределами которой Стенд становится менее эффективным.",
+  "jojo_ripples.stand_config.stand_stat.range_max.desc": "Дальность, за пределы которой Стенд не может перемещаться вовсе.",
   "jojo_ripples.stand_stat.durability": "Стойкость",
+  "jojo_ripples.stand_config.stand_stat.durability": "Стойкость",
   "jojo_ripples.stand_stat.durability.shortened": "СТК - ",
   "jojo_ripples.stand_stat.durability.desc": "Влияет на шкалу стойкости Стенда и на его сопротивление урону от атак других Стендов.",
   "jojo_ripples.stand_stat.precision": "Точность",
+  "jojo_ripples.stand_config.stand_stat.precision": "Точность",
   "jojo_ripples.stand_stat.precision.shortened": "ТЧН - ",
   "jojo_ripples.stand_stat.precision.desc": "Улучшает наведение на цель ударов Стенда и меткость его снарядов.",
   "jojo_ripples.stand_stat.dev_potential": "Способность развиваться",
@@ -450,7 +468,7 @@
   "jojo_ripples.subtitle.stand_attack_strong": "Сильный удар",
   "jojo_ripples.subtitle.stand_attack_barrage": "Удар",
   "jojo_ripples.subtitle.stand_punch_swing": "Замах",
-  "jojo_ripples.subtitle.stand_damage_block": "Урон заблокирован",
+  "jojo_ripples.subtitle.stand_damage_guard": "Урон заблокирован",
   "jojo_ripples.subtitle.ora": "ОРА",
   "jojo_ripples.subtitle.ora_rush": "ОРА ОРА ОРА",
   "jojo_ripples.subtitle.muda": "МУДА",
@@ -620,6 +638,8 @@
   "    перевести-jojo_ripples.skill.repair_item.desc": "Revert a broken item to its original undamaged state. Any enchantments on the item are also reverted.",
   "jojo_ripples.skill.repair_item.controls": "C на повреждённом предмете в инвентаре",
   "jojo_ripples.ability.repair_item": "Починить предмет",
+  "jojo_ripples.config.repair_item#removeEnchantments": "Убирать зачарования",
+  "jojo_ripples.config.repair_item#removeEnchantments.tooltip": "По умолчанию, способность починки предмета Crazy Diamond убирает все зачарования.",
   
   "jojo_ripples.skill.heal": "Лечение",
   "    перевести-jojo_ripples.skill.heal.desc": "Fix the damage and injuries of a damaged entity.",
@@ -627,6 +647,9 @@
   "jojo_ripples.ability.heal": "Лечение",
   "jojo.message.action_condition.cd_heal_self": "Вы не можете исцелить самого себя",
   "jojo.message.action_condition.heal_target": "Эту сущность нельзя исцелить",
+  
+  "jojo_ripples.ability.fix_broken_entity": "Починить разрушенный предмет",
+  "entity.jojo_ripples.cd_broken_entity": "Разрушенный предмет",
   
   "jojo_ripples.skill.revert_state": "Вернуть исходное состояние",
   "    перевести-jojo_ripples.skill.revert_state.desc": "Revert the state of some entities and placed blocks. Examples include defusing TNTs and turning glass into sand.",
@@ -654,9 +677,11 @@
   "jojo_ripples.ability.create_wall": "Создать стену",
   
   "jojo_ripples.skill.fuse_with_rock": "Слить цель с блоками",
-  "jojo_ripples.skill.fuse_with_rock.desc": "После добивающего удара, если от отдачи цель проломила собой полные блоки, и у цели мало здоровья, вы можете слить цель с блоками и превратить её в безобразную структуру, напоминающую лицо. Она может быть сломана подходящим инструментон.",
+  "jojo_ripples.skill.fuse_with_rock.desc": "Если от отдачи от добивающего удара цель проломила собой каменные блоки, Crazy Diamond попытается слить её с этими блоками. Если цель умрёт, она превратится в безобразную каменную структуру, напоминающую лицо, которая может быть сломана киркой.\n§7§oЭта способность работает только при включённом уничтожении блоков Стендами.",
   "jojo_ripples.skill.fuse_with_rock.controls": "Добивающий удар + Восстановить местность",
   "jojo_ripples.ability.fuse_with_rock": "Слить цель с камнем",
+  "jojo.message.action_condition.angelo_no_block_broken": "Отдача от удара не сломала блоков",
+  "jojo.message.action_condition.angelo_no_stone_broken": "Отдача от удара не сломала достаточно камня",
   
   "jojo_ripples.skill.block_bullet": "Снаряд из блока",
   "    перевести-jojo_ripples.skill.block_bullet.desc": "Crazy Diamond restructures a block held in your hand into a sharp projectile and shoots it at a high speed.",
@@ -671,6 +696,13 @@
   
   "jojo.message.action_condition.full_health": "Вы не ранены",
   "jojo.message.action_condition.item_hard_material": "Вам нужно держать блок из твёрдого материала",
+  
+  "entity.jojo_ripples.cd_block_bullet": "Снаряд из блока",
+  "entity.jojo_ripples.cd_blood_cutter": "Резак из крови",
+  "entity.jojo_ripples.cd_angelo_rock": "Камень",
+  "effect.jojo_ripples.mishealed_face": "\"Восстановленное\" лицо",
+  "effect.jojo_ripples.mishealed_arms": "\"Восстановленные\" руки",
+  "effect.jojo_ripples.mishealed_legs": "\"Восстановленные\" ноги",
   
   
   "jojo_ripples.subtitle.life_created": "Жизнь создана",

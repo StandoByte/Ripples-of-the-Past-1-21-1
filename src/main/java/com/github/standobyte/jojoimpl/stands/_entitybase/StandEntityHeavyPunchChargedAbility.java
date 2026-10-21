@@ -139,7 +139,7 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 					switch (target.getType()) {
 						case ENTITY -> hitEntity(target, level, stand, dmgSource, dmgAmount, explRadius);
 						case BLOCK -> hitBlock(target, level, stand, dmgSource, dmgAmount, explRadius);
-						default -> {}
+						case EMPTY -> {}
 					}
 					
 					punchedTarget = target;

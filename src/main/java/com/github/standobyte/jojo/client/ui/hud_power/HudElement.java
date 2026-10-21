@@ -48,12 +48,12 @@ public abstract class HudElement implements GuiEventListener {
 		switch (snappingHorizontal) {
 			case LEFT -> this.xOffsetL = xOffset;
 			case RIGHT -> this.xOffsetR = xOffset;
-			default -> {}
+			case CENTER -> {}
 		}
 		switch (snappingVertical) {
 			case UP -> this.yOffsetU = yOffset;
 			case DOWN -> this.yOffsetD = yOffset;
-			default -> {}
+			case CENTER -> {}
 		}
 		updateRectangle(width, height);
 		

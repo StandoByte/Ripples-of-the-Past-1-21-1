@@ -94,7 +94,7 @@ public class StandExpCommand {
 		Collection<StandPower> stands = getStands(targets);
 		for (StandPower stand : stands) {
 			StandTypePersistentData standData = stand.getCurTypeData();
-			standData.addExp(exp, stand.getUser());
+			standData.setExp(standData.getExp() + exp, stand);
 		}
 
 		return ADD_MSG.trySend(source, true, targets, stands.size(), exp);

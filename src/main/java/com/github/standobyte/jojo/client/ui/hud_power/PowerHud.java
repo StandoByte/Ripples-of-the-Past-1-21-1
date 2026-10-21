@@ -160,6 +160,7 @@ public class PowerHud {
 		}
 		
 		
+		/** DEFAULT - no container menu screen is currently opened; TRUE - container screen foreground; FALSE - container screen background */
 		public TriState forContainerMenu = TriState.DEFAULT;
 		private int mouseX;
 		private int mouseY;
@@ -321,7 +322,7 @@ public class PowerHud {
 					if (ClientGlobals.playerStandEntity != null) {
 						StandEntity entity = ClientGlobals.playerStandEntity;
 						float partialTick = ClientUtil.partialTick(entity, deltaTracker, entity.level().tickRateManager());
-						alpha = ClientGlobals.playerStandEntity.clientStuff.getAlpha(entity, partialTick);
+						alpha = ClientGlobals.playerStandEntity.clientStuff.getAlpha(entity, partialTick, true);
 					}
 					else if (ClientGlobals.playerStand instanceof SummonedStand.SyncableSummonedStand stand) {
 						float partialTick = ClientUtil.partialTick(mc.player, deltaTracker, mc.level.tickRateManager());
@@ -1028,7 +1029,7 @@ public class PowerHud {
 
 		@Override
 		public boolean shouldRender() {
-			return xpBarStuff != null;
+			return xpBarStuff != null && !hud.forContainerMenu.isTrue();
 		}
 
 		@Override

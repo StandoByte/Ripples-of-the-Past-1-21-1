@@ -124,6 +124,8 @@ public class JojoMod {
 						RotpConfig.Common::new);
 			}
 		}
+		
+		ModStands.addStandConfigs(event);
 	}
 
 }

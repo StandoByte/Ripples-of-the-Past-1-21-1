@@ -48,38 +48,38 @@ public final class ModItems {
 	public static final DeferredItem<Item> STAND_DISC = ITEMS.registerItem("stand_disc", StandDiscItem::new, new Item.Properties().stacksTo(1));
 
 	public static final DeferredItem<Item> STAND_ARROW = ITEMS.registerItem("stand_arrow", props -> new StandArrowItem(props), 
-			new Item.Properties().stacksTo(1).rarity(Rarity.RARE).durability(5));
+			new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON).durability(5));
 	public static final DeferredItem<Item> STAND_ARROW_BEETLE = ITEMS.registerItem("stand_arrow_beetle", props -> new StandArrowItem(props), 
 			new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
 	public static final DeferredItem<Item> STAND_ARROW_METEORITE = ITEMS.registerItem("stand_arrow_meteorite", props -> new StandArrowItem(props), 
-			new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON).durability(25));
+			new Item.Properties().stacksTo(1).rarity(Rarity.RARE).durability(25));
 
 	public static final DeferredItem<Item> STAND_ARROW_SHARD = ITEMS.register("stand_arrow_shard", () -> new StandArrowShardItem(new Item.Properties().rarity(Rarity.UNCOMMON)));
 	public static final DeferredItem<BlockItem> METEORIC_IRON = ITEMS.register("meteoric_iron", props -> new BlockItem(ModBlocks.METEORIC_IRON.get(), new Item.Properties()));
-	public static final DeferredItem<BlockItem> METEORITE_CORE = ITEMS.register("meteorite_core", props -> new BlockItem(ModBlocks.METEORITE_CORE.get(), new Item.Properties().rarity(Rarity.UNCOMMON)));
-	public static final DeferredItem<Item> METEORIC_SCRAP = ITEMS.register("meteoric_scrap", () -> new Item(new Item.Properties().rarity(Rarity.UNCOMMON)));
-	public static final DeferredItem<Item> METEORIC_INGOT = ITEMS.register("meteoric_ingot", () -> new Item(new Item.Properties().rarity(Rarity.UNCOMMON)));
+	public static final DeferredItem<BlockItem> METEORITE_CORE = ITEMS.register("meteorite_core", props -> new BlockItem(ModBlocks.METEORITE_CORE.get(), new Item.Properties().rarity(Rarity.RARE)));
+	public static final DeferredItem<Item> METEORIC_SCRAP = ITEMS.register("meteoric_scrap", () -> new Item(new Item.Properties().rarity(Rarity.RARE)));
+	public static final DeferredItem<Item> METEORIC_INGOT = ITEMS.register("meteoric_ingot", () -> new Item(new Item.Properties().rarity(Rarity.RARE)));
 
 	public static final DeferredItem<Item> STONE_MASK = ITEMS.registerItem("stone_mask", 
-			props -> new BlockItem(ModBlocks.STONE_MASK.get(), props), new Item.Properties().stacksTo(1));
+			props -> new BlockItem(ModBlocks.STONE_MASK.get(), props), new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
 	public static final DeferredItem<Item> STONE_MASK_PROTOTYPE = ITEMS.registerItem("stone_mask_prototype", 
-			props -> new BlockItem(ModBlocks.STONE_MASK_PROTOTYPE.get(), props), new Item.Properties().stacksTo(1));
+			props -> new BlockItem(ModBlocks.STONE_MASK_PROTOTYPE.get(), props), new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
 	public static final DeferredItem<Item> STONE_MASK_AJA_SOCKET = ITEMS.registerItem("stone_mask_aja_socket", 
-			props -> new BlockItem(ModBlocks.STONE_MASK_AJA_SOCKET.get(), props), new Item.Properties().stacksTo(1));
+			props -> new BlockItem(ModBlocks.STONE_MASK_AJA_SOCKET.get(), props), new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
 	public static final DeferredItem<Item> STONE_MASK_AJA = ITEMS.registerItem("stone_mask_aja", 
-			props -> new BlockItem(ModBlocks.STONE_MASK_AJA.get(), props), new Item.Properties().stacksTo(1));
+			props -> new BlockItem(ModBlocks.STONE_MASK_AJA.get(), props), new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
 	public static final DeferredItem<Item> STONE_MASK_SUPER_AJA = ITEMS.registerItem("stone_mask_super_aja", 
-			props -> new BlockItem(ModBlocks.STONE_MASK_SUPER_AJA.get(), props), new Item.Properties().stacksTo(1));
+			props -> new BlockItem(ModBlocks.STONE_MASK_SUPER_AJA.get(), props), new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
 	public static final Map<DyeColor, DeferredItem<Item>> WOODEN_COFFIN = register16colorsItem("wooden_coffin", 
 			dye -> {
 				Item.Properties builder = new Item.Properties().stacksTo(1);
 				return new BlockItem(ModBlocks.WOODEN_COFFIN.get(dye).get(), builder);
 			});
 	public static final DeferredItem<Item> AJA_STONE = ITEMS.registerItem("aja_stone", Item::new, new Item.Properties().stacksTo(16));
-	public static final DeferredItem<Item> SUPER_AJA_STONE = ITEMS.registerItem("super_aja_stone", Item::new, new Item.Properties().stacksTo(1));
+	public static final DeferredItem<Item> SUPER_AJA_STONE = ITEMS.registerItem("super_aja_stone", Item::new, new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
 	public static final DeferredItem<Item> KNIFE = ITEMS.registerItem("knife", Item::new, new Item.Properties().stacksTo(16));
-	public static final DeferredItem<Item> LUCK_SWORD = ITEMS.registerItem("luck_sword", Item::new, new Item.Properties().stacksTo(1));
-	public static final DeferredItem<Item> LUCK_PLUCK_SWORD = ITEMS.registerItem("luck_pluck_sword", Item::new, new Item.Properties().stacksTo(1));
+	public static final DeferredItem<Item> LUCK_SWORD = ITEMS.registerItem("luck_sword", Item::new, new Item.Properties().stacksTo(1).rarity(Rarity.RARE));
+	public static final DeferredItem<Item> LUCK_PLUCK_SWORD = ITEMS.registerItem("luck_pluck_sword", Item::new, new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
 	public static final DeferredItem<Item> GLOVES = ITEMS.registerItem("gloves", Item::new, new Item.Properties().stacksTo(1));
 	public static final DeferredItem<Item> OIL = ITEMS.registerItem("oil", Item::new, new Item.Properties().stacksTo(1));
 	public static final DeferredItem<Item> FIREBOMB = ITEMS.registerItem("firebomb", Item::new, new Item.Properties().stacksTo(1));

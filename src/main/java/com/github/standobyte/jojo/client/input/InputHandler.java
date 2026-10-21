@@ -491,7 +491,7 @@ public class InputHandler {
 						}
 						timer.setAmbiguousInputMethod(null);
 					}
-					default -> {}
+					case CLICK -> {}
 				}
 			}
 		}

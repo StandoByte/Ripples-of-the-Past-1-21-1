@@ -68,7 +68,7 @@ public class HitResultSync {
 						buffer.writeFloat((float)(location.y - blockPos.getY()));
 						buffer.writeFloat((float)(location.z - blockPos.getZ()));
 					}
-					default -> {
+					case BLOCK -> {
 						buf.writeBlockHitResult((BlockHitResult) value.hitResult);
 					}
 				}
@@ -98,7 +98,7 @@ public class HitResultSync {
 						BlockHitResult miss = BlockHitResult.miss(location, direction, blockPos);
 						yield new HitResultSync(miss);
 					}
-					default -> {
+					case BLOCK -> {
 						BlockHitResult target = buf.readBlockHitResult();
 						yield new HitResultSync(target);
 					}

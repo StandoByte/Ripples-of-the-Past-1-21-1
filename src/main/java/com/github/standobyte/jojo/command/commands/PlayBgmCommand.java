@@ -221,7 +221,7 @@ public class PlayBgmCommand {
 					case PLAY, PRELOAD -> {
 						buf.writeResourceLocation(packet.trackId);
 					}
-					default -> {}
+					case FINISH, ABRUPT_STOP -> {}
 				}
 			}
 			
@@ -233,7 +233,7 @@ public class PlayBgmCommand {
 						ResourceLocation trackId = buf.readResourceLocation();
 						yield new PlayBgmCommandPacket(packetType, trackId);
 					}
-					default -> new PlayBgmCommandPacket(packetType, null);
+					case FINISH, ABRUPT_STOP -> new PlayBgmCommandPacket(packetType, null);
 				};
 			}
 

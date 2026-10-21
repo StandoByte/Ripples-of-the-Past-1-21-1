@@ -3,40 +3,54 @@ package com.github.standobyte.jojo.powersystem.standpower;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.config.core.types.ConfigDouble;
+import com.github.standobyte.jojo.config.core.types.ConfigDoubleEffRange;
+import com.github.standobyte.jojo.config.core.types.ConfigDoubleMaxRange;
 import com.github.standobyte.jojo.config.util.JsonConfigurable;
 import com.github.standobyte.jojo.init.ModEntityAttributes;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.functions.AttributeUtil;
-import com.github.standobyte.jojo.util.objects_java.DefaultedValue;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 
 public class StandStats implements JsonConfigurable {
-	private final DefaultedValue.Double power;
-	private final DefaultedValue.Double speed;
-	private final DefaultedValue.Double rangeEffective;
-	private final DefaultedValue.Double rangeMax;
-	private final DefaultedValue.Double durability;
-	private final DefaultedValue.Double precision;
+	public static double MAX_POSSIBLE_POWER = /* 1024 */ ModEntityAttributes.StaticInit.STAND_STRENGTH.getMaxValue();
+	public static double MAX_POSSIBLE_SPEED = /* 1024 */ ModEntityAttributes.StaticInit.STAND_SPEED.getMaxValue();
+	public static double MAX_POSSIBLE_RANGE = /* Double.MAX_VALUE */ ModEntityAttributes.StaticInit.STAND_MAX_RANGE.getMaxValue();
+	public static double MAX_POSSIBLE_DURABILITY = /* 1024 */ ModEntityAttributes.StaticInit.STAND_DURABILITY.getMaxValue();
+	public static double MAX_POSSIBLE_PRECISION = /* 160 */ ModEntityAttributes.StaticInit.STAND_PRECISION.getMaxValue();
+	
+	public final ConfigDouble power;
+	public final ConfigDouble speed;
+	public final ConfigDoubleEffRange rangeEffective;
+	public final ConfigDoubleMaxRange rangeMax;
+	public final ConfigDouble durability;
+	public final ConfigDouble precision;
 	
 	public StandStats(double power, double speed, double rangeEffective, double rangeMax, double durability, double precision) {
-		this.power = new DefaultedValue.Double(power);
-		this.speed = new DefaultedValue.Double(speed);
-		this.rangeEffective = new DefaultedValue.Double(rangeEffective);
-		this.rangeMax = new DefaultedValue.Double(rangeMax);
-		this.durability = new DefaultedValue.Double(durability);
-		this.precision = new DefaultedValue.Double(precision);
+		this.power = new ConfigDouble(power).initNonNegative().initMaxValue(MAX_POSSIBLE_POWER);
+		this.speed = new ConfigDouble(speed).initNonNegative().initMaxValue(MAX_POSSIBLE_SPEED);
+		this.rangeEffective = (ConfigDoubleEffRange) new ConfigDoubleEffRange(rangeEffective).initNonNegative().initMaxValue(MAX_POSSIBLE_RANGE);
+		this.rangeMax = (ConfigDoubleMaxRange) new ConfigDoubleMaxRange(rangeMax).initNonNegative().initMaxValue(MAX_POSSIBLE_RANGE);
+		this.durability = new ConfigDouble(durability).initNonNegative().initMaxValue(MAX_POSSIBLE_DURABILITY);
+		this.precision = new ConfigDouble(precision).initNonNegative().initMaxValue(MAX_POSSIBLE_PRECISION);
+		
+		this.rangeEffective.linkMaxRangeField(this.rangeMax);
+		this.rangeMax.linkEffRangeField(this.rangeEffective);
 	}
 
 	public double getValue(StatWithValue field) {
-		return getField(field).value;
+		return getField(field).getAsDouble();
 	}
 
-	protected DefaultedValue.Double getField(StatWithValue field) {
+	public ConfigDouble getField(StatWithValue field) {
 		return switch (field) {
 			case POWER -> power;
 			case SPEED -> speed;
@@ -48,12 +62,12 @@ public class StandStats implements JsonConfigurable {
 		};
 	}
 	
-	public double power() { return power.value; }
-	public double speed() { return speed.value; }
-	public double rangeEffective() { return rangeEffective.value; }
-	public double rangeMax() { return rangeMax.value; }
-	public double durability() { return durability.value; }
-	public double precision() { return precision.value; }
+	public double power() { return power.getAsDouble(); }
+	public double speed() { return speed.getAsDouble(); }
+	public double rangeEffective() { return rangeEffective.getAsDouble(); }
+	public double rangeMax() { return rangeMax.getAsDouble(); }
+	public double durability() { return durability.getAsDouble(); }
+	public double precision() { return precision.getAsDouble(); }
 	
 	/*
 	 * "A" - 14+
@@ -116,17 +130,21 @@ public class StandStats implements JsonConfigurable {
 	}
 	
 	public enum StatWithValue {
-		POWER("power"),
-		SPEED("speed"),
-		RANGE_EFFECTIVE("rangeEffective"),
-		RANGE_MAX("rangeMax"),
-		DURABILITY("durability"),
-		PRECISION("precision");
+		POWER("power", 						"jojo_ripples.stand_config.stand_stat.strength", 		"jojo_ripples.stand_stat.strength.desc"),
+		SPEED("speed", 						"jojo_ripples.stand_config.stand_stat.speed", 			"jojo_ripples.stand_stat.speed.desc"),
+		RANGE_EFFECTIVE("rangeEffective", 	"jojo_ripples.stand_config.stand_stat.range_effective", "jojo_ripples.stand_config.stand_stat.range_effective.desc"),
+		RANGE_MAX("rangeMax", 				"jojo_ripples.stand_config.stand_stat.range_max", 		"jojo_ripples.stand_config.stand_stat.range_max.desc"),
+		DURABILITY("durability", 			"jojo_ripples.stand_config.stand_stat.durability", 		"jojo_ripples.stand_stat.durability.desc"),
+		PRECISION("precision", 				"jojo_ripples.stand_config.stand_stat.precision", 		"jojo_ripples.stand_stat.precision.desc");
 		
-		private final String nameInJson;
+		public final String nameInJson;
+		public final Component name;
+		public final Component description;
 		
-		private StatWithValue(String nameInJson) {
+		private StatWithValue(String nameInJson, String tlKeyName, String tlKeyDesc) {
 			this.nameInJson = nameInJson;
+			this.name = Component.translatable(tlKeyName);
+			this.description = Component.translatable(tlKeyDesc);
 		}
 	}
 	
@@ -142,11 +160,11 @@ public class StandStats implements JsonConfigurable {
 	
 	public StandStats.Builder defaultToBuilder() {
 		return new StandStats.Builder()
-				.power(power.defaultValue)
-				.speed(speed.defaultValue)
-				.range(rangeEffective.defaultValue, rangeMax.defaultValue)
-				.durability(durability.defaultValue)
-				.precision(precision.defaultValue);
+				.power(power.getDefaultValue())
+				.speed(speed.getDefaultValue())
+				.range(rangeEffective.getDefaultValue(), rangeMax.getDefaultValue())
+				.durability(durability.getDefaultValue())
+				.precision(precision.getDefaultValue());
 	}
 	
 	public static StandStats fromJson(JsonObject json) {
@@ -163,7 +181,7 @@ public class StandStats implements JsonConfigurable {
 	public JsonElement makeConfigTemplate() {
 		JsonObject json = new JsonObject();
 		for (StatWithValue field : StatWithValue.values()) {
-			json.addProperty(field.nameInJson, getField(field).defaultValue);
+			json.addProperty(field.nameInJson, getField(field).getDefaultValue());
 		}
 		return json;
 	}
@@ -173,7 +191,7 @@ public class StandStats implements JsonConfigurable {
 		JsonObject config = json.getAsJsonObject();
 		for (StatWithValue field : StatWithValue.values()) {
 			Optional.ofNullable(config.getAsJsonPrimitive(field.nameInJson)).ifPresent(jsonValue -> {
-				getField(field).value = jsonValue.getAsDouble();
+				getField(field).set(jsonValue.getAsDouble());
 			});
 		}
 	}
@@ -186,16 +204,30 @@ public class StandStats implements JsonConfigurable {
 	}
 	
 	
-	public static void updateStandStatAttributes(@Nonnull StandPower standPower, @Nonnull LivingEntity user) {
+	public static void updateStandStatAttributes(@Nonnull StandPower standPower, @Nonnull LivingEntity user, @Nullable ResourceLocation onlyForStandId) {
 		if (user.level().isClientSide()) return;
-		StandStats stats = standPower.getStandInstance().map(StandInstance::getStandType).map(StandType::getStandStats).orElse(null);
+		
 		AttributeMap attributes = user.getAttributes();
-		AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_STRENGTH, stats != null ? stats.power() : 0);
-		AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_SPEED, stats != null ? stats.speed() : 0);
-		AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_EFFECTIVE_RANGE, stats != null ? stats.rangeEffective() : 0);
-		AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_MAX_RANGE, stats != null ? stats.rangeMax() : 0);
-		AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_DURABILITY, stats != null ? stats.durability() : 0);
-		AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_PRECISION, stats != null ? stats.precision() : 0);
+		Optional<StandType> entityStandType = standPower.getStandInstance().map(StandInstance::getStandType);
+		if (entityStandType.isPresent()) {
+			if (entityStandType.filter(stand -> onlyForStandId == null || onlyForStandId.equals(stand.getId())).isPresent()) {
+				StandStats stats = standPower.getStandInstance().map(StandInstance::getStandType).map(StandType::getStandStats).orElse(null);
+				AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_STRENGTH, stats.power());
+				AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_SPEED, stats.speed());
+				AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_EFFECTIVE_RANGE, stats.rangeEffective());
+				AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_MAX_RANGE, stats.rangeMax());
+				AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_DURABILITY, stats.durability());
+				AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_PRECISION, stats.precision());
+			}
+		}
+		else {
+			AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_STRENGTH, 0);
+			AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_SPEED, 0);
+			AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_EFFECTIVE_RANGE, 0);
+			AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_MAX_RANGE, 0);
+			AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_DURABILITY, 0);
+			AttributeUtil.setBaseValue(attributes, ModEntityAttributes.STAND_PRECISION, 0);
+		}
 	}
 	
 }

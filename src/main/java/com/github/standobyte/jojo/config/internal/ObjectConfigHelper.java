@@ -5,6 +5,7 @@ import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
@@ -15,11 +16,12 @@ import com.google.gson.JsonObject;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 
-public class ConfigObjSerialization<C> {
+public class ObjectConfigHelper<C> {
 	public final C configObj;
-	public final Map<String, ConfigOption<?>> configOptions;
+	public static final String DIRECTORY = "config/jojo_rotp/";
+	public final ConfigOptionsMap configOptions;
 	
-	protected ConfigObjSerialization(C configObj, Map<String, ConfigOption<?>> configOptions) {
+	public ObjectConfigHelper(C configObj, ConfigOptionsMap configOptions) {
 		this.configObj = configObj;
 		this.configOptions = configOptions;
 	}
@@ -47,9 +49,17 @@ public class ConfigObjSerialization<C> {
 	}
 	
 	public JsonObject toJson() {
+		return settingsToJson(configOptions.configOptions());
+	}
+	
+	public static JsonObject settingsToJson(Map<String, ConfigOption<?>> settings) {
+		return settingsToJson(settings, Function.identity());
+	}
+	
+	public static <K> JsonObject settingsToJson(Map<K, ConfigOption<?>> settings, Function<K, String> getFieldName) {
 		JsonObject json = new JsonObject();
-		for (var optionEntry : configOptions.entrySet()) {
-			String fieldName = optionEntry.getKey();
+		for (var optionEntry : settings.entrySet()) {
+			String fieldName = getFieldName.apply(optionEntry.getKey());
 			ConfigOption<?> field = optionEntry.getValue();
 			json.add(fieldName, field.toJson(fieldName));
 		}
@@ -57,7 +67,7 @@ public class ConfigObjSerialization<C> {
 	}
 	
 	public void fromJson(JsonObject json) {
-		for (var optionEntry : configOptions.entrySet()) {
+		for (var optionEntry : configOptions.configOptions().entrySet()) {
 			String fieldName = optionEntry.getKey();
 			ConfigOption<?> field = optionEntry.getValue();
 			JsonElement fieldJson = json.get(fieldName);
@@ -88,7 +98,7 @@ public class ConfigObjSerialization<C> {
 	static Map<Class<?>, Field[]> FIELDS_CACHE = new IdentityHashMap<>();
 	
 	@Nullable
-	public static <C> ConfigObjSerialization<C> create(@Nullable C configObj) {
+	public static <C> ObjectConfigHelper<C> create(@Nullable C configObj) {
 		if (configObj == null) return null;
 		
 		Class<?> cfgClass = configObj.getClass();
@@ -117,10 +127,10 @@ public class ConfigObjSerialization<C> {
 			for (Field field : fields) {
 				ConfigOption<?> option = (ConfigOption<?>) field.get(configObj);
 				String fieldName = field.getName();
-				option.init(fieldName);
 				configOptions.put(fieldName, option);
 			}
-			return new ConfigObjSerialization<>(configObj, configOptions);
+			ConfigOptionsMap configOptionsMap = ConfigOptionsMap.create(configOptions);
+			return new ObjectConfigHelper<>(configObj, configOptionsMap);
 		}
 		catch (IllegalArgumentException | IllegalAccessException e) {
 			JojoMod.getLogger().error("Error creating config object: {}", e);

@@ -435,7 +435,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			case BLOCK -> {
 				yield Vec3.atCenterOf(target.getBlockPos());
 			}
-			default -> null;
+			case EMPTY -> null;
 		};
 	}
 	

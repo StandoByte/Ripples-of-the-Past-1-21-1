@@ -12,14 +12,17 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
 public class EntityResolver {
+	protected static final int EMPTY_NETWORK_ID = 0; // Entity.ENTITY_COUNTER starts with 1, since they use AtomicInteger#incrementAndGet() when assigning entity ids
 	protected Entity entity;
 	protected LivingEntity entityLiving;
 	protected UUID entityUUID;
-	protected int entityNetworkId;
-
+	protected int entityNetworkId = EMPTY_NETWORK_ID;
+	
+	public EntityResolver() {}
+	
 	public void setEntity(@Nullable Entity owner) {
 		this.entityUUID = owner != null ? owner.getUUID() : null;
-		this.entityNetworkId = owner != null ? owner.getId() : 0;
+		_assignNetworkId(owner != null ? owner.getId() : EMPTY_NETWORK_ID);
 		_setNewEntity(owner);
 	}
 
@@ -44,20 +47,24 @@ public class EntityResolver {
 		if (entity == null) {
 			if (entityUUID != null && level instanceof ServerLevel) {
 				_setNewEntity(((ServerLevel) level).getEntity(entityUUID));
-			} else if (entityNetworkId != 0) {
+			} else if (entityNetworkId != EMPTY_NETWORK_ID) {
 				_setNewEntity(level.getEntity(entityNetworkId));
 			}
 		}
 	}
 
 	public boolean hasEntityId() {
-		return entityNetworkId > 0;
+		return entityNetworkId != EMPTY_NETWORK_ID;
 	}
 
 	protected void _setNewEntity(Entity entity) {
 		this.entity = entity;
 		this.entityLiving = entity instanceof LivingEntity ? (LivingEntity) entity : null;
-		this.entityNetworkId = entity != null ? entity.getId() : 0;
+		_assignNetworkId(entity != null ? entity.getId() : EMPTY_NETWORK_ID);
+	}
+	
+	protected void _assignNetworkId(int id) {
+		this.entityNetworkId = id;
 	}
 
 
@@ -77,7 +84,7 @@ public class EntityResolver {
 	}
 
 	public void readNetwork(FriendlyByteBuf buf) {
-		entityNetworkId = buf.readInt();
+		_assignNetworkId(buf.readInt());
 	}
 
 	public int getNetworkId() {

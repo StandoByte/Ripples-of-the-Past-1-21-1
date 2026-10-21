@@ -101,7 +101,7 @@ public record AbilityId(@Nullable PowerClass<?> powerClass, ResourceLocation pow
 				case DEFAULT_ABILITY_TYPE_INSTANCE -> {
 					buffer.writeUtf(abilityId.nameInMoveset());
 				}
-				default -> {}
+				case NULL_ABILITY -> {}
 			}
 		}
 
@@ -158,7 +158,7 @@ public record AbilityId(@Nullable PowerClass<?> powerClass, ResourceLocation pow
 					PowerType powerType = powerClass.getPowerType(powerTypeId);
 					if (powerType == null) throw new IllegalStateException("Failed to sync ability " + abilityName + " (moveset " + powerTypeId + " not found)");
 					
-					Moveset moveset = powerType.getBaseMoveset();
+					Moveset moveset = powerType.getMoveset().value;
 					ability = moveset.getAbility(abilityName);
 					if (ability == null) throw new IllegalStateException("Failed to sync ability " + abilityName + " (ability not found in the moveset " + powerTypeId + ")");
 					

@@ -16,11 +16,17 @@ credits='''
     StandoByte - game design, programming
     Yujin - 3D model animations, structure design and building, 2D sprites
     August_dr - 3D models and animations
-    Motvik - JoJo character clothes models
-    Code contributions: HK47bot, Weever, dikiytechies
+    Contributions:
+        Code - HK47bot, Weever, dikiytechies
+        JoJo character clothes models - Motvik
+        2D sprites - MlgMCMarioPlayer, KWiNTA, TheDoGGyS
+        Beta testing & feedback - YarickTT, dikiytechies, hatidotch, KWiNTA, FriendlyCoop, Mephisto, afanguy, Silver.
+    Boosty supporters: Spider Lord, ArchLunatic, Tucker Gneiting, 999hhh20, Wooden man, Danvrubashke, Pr1tcha, Robert E.O. Scorpivan
+    ...And everyone else who shows their support and interest in the mod.
+        
 '''
 description='''
-    A mod based on the JoJo's Bizarre Adventure series.
+    A mod based on the JoJo's Bizarre Adventure series, heavily focused on player freedom, immersion, and creative use of the JoJo abilities.
 '''
 
 [[mixins]]

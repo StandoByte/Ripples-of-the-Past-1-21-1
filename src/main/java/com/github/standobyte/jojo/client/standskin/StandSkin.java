@@ -26,12 +26,14 @@ import com.github.standobyte.jojo.client.shader.core.ManualInitPostChain.PostCha
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo;
 import com.github.standobyte.jojo.client.standskin.sound.CustomPathSound;
 import com.github.standobyte.jojo.client.standskin.text.CustomLangTranslatableContents;
+import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.subsystems.StoryPart;
 import com.github.standobyte.jojo.util.objects_mc.WeightsList;
 import com.mojang.blaze3d.pipeline.RenderTarget;
@@ -235,6 +237,10 @@ public class StandSkin {
 			return storyPart;
 		}
 		return null;
+	}
+	
+	public MutableComponent getStandName() {
+		return StandSkinComponent.translatable(standTypeId, getNonDefaultId(), StandType.makeTlKey(standTypeId));
 	}
 	
 	public ResourceLocation getTexture(ResourceLocation path) {

@@ -231,7 +231,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			switch (skill.implemented) {
 				case NYI -> guiGraphics.fill(spriteX - 1, spriteY - 1, spriteX + 37, spriteY + 17, 0x80FF0000);
 				case WIP -> guiGraphics.fill(spriteX - 1, spriteY - 1, spriteX + 37, spriteY + 17, 0x80FFFF00);
-				default -> {}
+				case IMPLEMENTED -> {}
 			}
 			spriteY += 20;
 		}
@@ -282,7 +282,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 						.withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC).getVisualOrderText());
 				case NYI -> skillNameTooltip.add(Component.translatable("rotp_tag_nyi")
 						.withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC).getVisualOrderText());
-				default -> {}
+				case IMPLEMENTED -> {}
 			}
 			setTooltipForNextRenderPass(skillNameTooltip);
 		}

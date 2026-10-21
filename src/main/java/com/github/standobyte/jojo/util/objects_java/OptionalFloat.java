@@ -50,7 +50,7 @@ public class OptionalFloat {
 	}
 	
 	public float orElseGet(FloatSupplier supplier) {
-		return isPresent ? value : supplier.get();
+		return isPresent ? value : supplier.getAsFloat();
 	}
 
 	public OptionalFloat map(FloatUnaryOperator operator) {
@@ -93,7 +93,7 @@ public class OptionalFloat {
 
 	@FunctionalInterface
 	public static interface FloatSupplier {
-		float get();
+		float getAsFloat();
 	}
 	
 	@FunctionalInterface

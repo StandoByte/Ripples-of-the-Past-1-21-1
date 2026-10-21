@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityType;
 import com.github.standobyte.jojo.powersystem.ability.config.ConfigAbilityFactory;
 import com.github.standobyte.jojo.powersystem.ability.controls.ControlSchemeTemplate;
+import com.github.standobyte.jojo.util.objects_java.DefaultedValue;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -35,9 +36,9 @@ public class Moveset {
 	}
 	
 	
-	protected static final Moveset EMPTY = new Moveset(ImmutableMap.of(), null, null);
+	protected static final DefaultedValue<Moveset> EMPTY = new DefaultedValue<>(new Moveset(ImmutableMap.of(), null, null));
 	
-	public static Moveset empty() {
+	public static DefaultedValue<Moveset> empty() {
 		return EMPTY;
 	}
 	

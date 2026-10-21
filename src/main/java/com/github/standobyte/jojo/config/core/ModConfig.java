@@ -12,124 +12,187 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.config.ModConfigInterface;
-import com.github.standobyte.jojo.config.internal.cfgtypes.ClientFileConfig;
-import com.github.standobyte.jojo.config.internal.cfgtypes.CommonConfig;
-import com.github.standobyte.jojo.config.internal.cfgtypes.CommonFileConfig;
-import com.github.standobyte.jojo.config.internal.cfgtypes.PlayerBroadcastConfig;
+import com.github.standobyte.jojo.config.interfaces.ClientConfig;
+import com.github.standobyte.jojo.config.interfaces.CommonConfig;
+import com.github.standobyte.jojo.config.interfaces.ServerPlayerBroadcastConfig;
+import com.github.standobyte.jojo.config.interfaces.fileimpl.ClientFileConfig;
+import com.github.standobyte.jojo.config.interfaces.fileimpl.CommonFileConfig;
+import com.github.standobyte.jojo.config.interfaces.fileimpl.ServerPlayerBroadcastObjectConfig;
+import com.github.standobyte.jojo.config.internal.ObjectConfigHelper;
 
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 
 @ApiStatus.Internal
 public class ModConfig<C1, C2, C3> implements ModConfigInterface<C1, C2, C3> {
 	public final Dist currentEnvironment;
-	public final String modId;
-	public ClientFileConfig<C1, C2> clientConfig;
-	public Map<UUID, PlayerBroadcastConfig<C2>> serverBroadcast = new HashMap<>();
-	public CommonFileConfig<C3> commonConfig;
-	@Nullable public CommonConfig<C3> commonConfigRemote;
+	public final ConfigId configId;
+	@Nullable public ClientConfig<C1, C2> clientConfig;
+	@Nullable public CommonConfig<C3> commonConfig;
+	@Nullable public Supplier<ServerPlayerBroadcastConfig<C2>> broadcastFactory;
+	
+	protected CommonConfigState commonConfigState = CommonConfigState.LOCAL;
+	@Nullable protected Map<UUID, ServerPlayerBroadcastConfig<C2>> serverBroadcast = new HashMap<>();
+	
+	public ModConfig(Dist currentEnvironment, ConfigId configId, 
+			@Nullable ClientConfig<C1, C2> clientConfig,
+			@Nullable CommonConfig<C3> commonConfig,
+			@Nullable Supplier<ServerPlayerBroadcastConfig<C2>> broadcastFactory) {
+		this.currentEnvironment = currentEnvironment;
+		this.configId = configId;
+		this.clientConfig = clientConfig;
+		this.commonConfig = commonConfig;
+		this.broadcastFactory = broadcastFactory;
+	}
+	
+	public boolean hasClient() {
+		return clientConfig != null;
+	}
+	
+	public boolean hasCommon() {
+		return commonConfig != null;
+	}
+	
+	public boolean hasClientBroadcast() {
+		return broadcastFactory != null;
+	}
 
 	@Override
 	public C1 getClient() {
-		return clientConfig.localOnly.configObj;
+		if (!hasClient()) return null;
+		
+		return clientConfig.getLocalOnlyObj();
 	}
 
 	@Override
 	public C2 getPlayerBroadcast(@Nullable Player player) {
+		if (!hasClientBroadcast()) return null;
+		
 		if (player == null || player.isLocalPlayer()) {
-			return clientConfig.broadcast.configObj;
+			return clientConfig.getBroadcastObj();
 		}
-		PlayerBroadcastConfig<C2> broadcast = getBroadcastPlayerState(player.getUUID());
-		return broadcast != null ? broadcast.broadcast.configObj : null;
+		ServerPlayerBroadcastConfig<C2> broadcast = getBroadcastPlayerState(player.getUUID());
+		return broadcast != null ? broadcast.getObj() : null;
 	}
 
 	@Override
 	public C3 getCommon() {
-		return getCommonCfgState().configState.configObj;
+		if (!hasCommon()) return null;
+		
+		return commonConfig.getObj();
 	}
 
 	@Override
 	public void saveClient() {
-		clientConfig.saveToFileSystem();
+		if (hasClient()) clientConfig.saveToFileSystem();
 	}
 
 	@Override
-	public void sendClientBroadcast() {
-		clientConfig.sendToServer();
+	public void sendClientBroadcast(boolean sendNonDefault) {
+		if (hasClientBroadcast()) clientConfig.sendBroadcastToServer(configId, sendNonDefault);
 	}
 
 	@Override
 	public void saveCommon() {
-		commonConfig.saveToFileSystem();
+		if (hasCommon()) commonConfig.saveToFileSystem();
+	}
+
+	@Override
+	public void saveCommon(Map<String, ConfigOption<?>> editedConfigOptions) {
+		if (hasCommon()) commonConfig.saveToFileSystem(editedConfigOptions);
 	}
 	
 	@Override
-	public String modId() {
-		return modId;
+	public void sendCommonConfigEditsToServer(Map<String, ConfigOption<?>> editedConfigOptions) {
+		if (hasCommon()) commonConfig.sendEditsToServer(configId, editedConfigOptions);
 	}
 	
-	
-	public CommonConfig<C3> getCommonCfgState() {
-		if (currentEnvironment == Dist.CLIENT && commonConfigRemote != null) {
-			return commonConfigRemote;
-		}
-		return commonConfig;
+	@Override
+	public ConfigId configId() {
+		return configId;
 	}
 	
-	public PlayerBroadcastConfig<C2> getBroadcastPlayerState(UUID playerId) {
-		if (serverBroadcast == null) return null;
-		return serverBroadcast.computeIfAbsent(playerId, 
-				__ -> new PlayerBroadcastConfig<>(broadcastFactory.get()));
-	}
 	
 	public void createBroadcastPlayersCfgHolder() {
-		if (this.hasClientBroadcast) {
+		if (this.hasClientBroadcast()) {
 			this.serverBroadcast = new HashMap<>();
 		}
 	}
 	
-	public void createRemoteCommonCfgHolder() {
-		if (this.hasCommon) {
-			this.commonConfigRemote = new CommonConfig<>(commonFactory.get());
+	public ServerPlayerBroadcastConfig<C2> getBroadcastPlayerState(UUID playerId) {
+		if (serverBroadcast == null) return null;
+		return serverBroadcast.computeIfAbsent(playerId, __ -> broadcastFactory.get());
+	}
+	
+	public boolean removeBroadcastPlayerState(UUID playerId) {
+		return serverBroadcast != null && serverBroadcast.remove(playerId) != null;
+	}
+	
+	public void destroyBroadcastPlayersCfgHolder() {
+		this.serverBroadcast = null;
+	}
+	
+	
+	public enum CommonConfigState {
+		LOCAL, // Our client / dedicated server 
+		REMOTE // A remote server we're currently connected to
+	}
+	
+	public void setCommonRemoteState() {
+		if (this.hasCommon()) {
+			commonConfigState = CommonConfigState.REMOTE;
+			commonConfig.setRemoteState();
 		}
 	}
 	
-	public boolean hasClient;
-	public boolean hasClientBroadcast;
-	public boolean hasCommon;
-	public Supplier<C2> broadcastFactory;
-	public Supplier<C3> commonFactory;
+	public void commonRemoteFromBuf(RegistryFriendlyByteBuf buf) {
+		if (this.hasCommon()) {
+			commonConfig.fromBuf(buf);
+		}
+	}
+	
+	public void unsetCommonRemoteState() {
+		if (this.hasCommon()) {
+			commonConfigState = CommonConfigState.LOCAL;
+			commonConfig.unsetRemoteState();
+		}
+	}
 	
 	
-	public ModConfig(Dist currentEnvironment, 
+	public static <C1, C2, C3> ModConfig<C1, C2, C3> modFileConfig(Dist currentEnvironment, 
 			@Nullable Supplier<C1> client, 
 			@Nullable Supplier<C2> clientBroadcast,
 			@Nullable Supplier<C3> common,
 			String modId) {
-		this.currentEnvironment = currentEnvironment;
-		this.modId = modId;
-		this.hasClient = client != null;
-		this.hasClientBroadcast = clientBroadcast != null;
-		this.hasCommon = common != null;
-		if (client == null) client = () -> null;
-		if (clientBroadcast == null) clientBroadcast = () -> null;
-		if (common == null) common = () -> null;
-		
+		ConfigId configId = new ConfigId(ConfigId.ConfigClass.MOD, modId);
 		File mainDir = getMainDirectory(currentEnvironment);
-		this.commonConfig = new CommonFileConfig<>(common.get(), mainDir, modId);
-		this.commonConfig.loadFromFileSystem();
-		this.broadcastFactory = clientBroadcast;
-		switch (currentEnvironment) {
-			case CLIENT -> {
-				this.clientConfig = new ClientFileConfig<>(
-						client.get(), 
-						clientBroadcast.get(), 
-						mainDir, modId);
-				this.clientConfig.loadFromFileSystem();
-				this.commonFactory = common;
-			}
-			case DEDICATED_SERVER -> {}
+		ClientConfig<C1, C2> clientConfig = null;
+		CommonConfig<C3> commonConfig = null;
+		Supplier<ServerPlayerBroadcastConfig<C2>> broadcastFactory = null;
+		
+		if (currentEnvironment == Dist.CLIENT && (client != null || clientBroadcast != null)) {
+			clientConfig = new ClientFileConfig<>(
+					client != null ? ObjectConfigHelper.create(client.get()) : null, 
+					clientBroadcast != null ? ObjectConfigHelper.create(clientBroadcast.get()) : null, 
+					mainDir, modId);
 		}
+		
+		if (common != null) {
+			commonConfig = new CommonFileConfig<>(
+					ObjectConfigHelper.create(common.get()), 
+					mainDir, modId);
+		}
+		
+		if (clientBroadcast != null) {
+			broadcastFactory = () -> new ServerPlayerBroadcastObjectConfig<>(
+					ObjectConfigHelper.create(clientBroadcast.get()));
+		}
+		
+		return new ModConfig<>(currentEnvironment, configId, 
+				clientConfig, 
+				commonConfig, 
+				broadcastFactory);
 	}
 	
 	

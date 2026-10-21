@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import com.github.standobyte.jojo.client.input.SerializeKeybind;
 import com.github.standobyte.jojo.client.input.SerializeKeybind.KeyWithModifier;
 import com.github.standobyte.jojo.config.core.ConfigOption;
+import com.github.standobyte.jojo.config.core.ModConfig.CommonConfigState;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.mojang.blaze3d.platform.InputConstants.Key;
 
@@ -31,12 +32,12 @@ public class ClientConfigKeyBinding extends ConfigOption<KeyWithModifier> {
 	}
 
 	@Override
-	public KeyWithModifier get() {
+	public KeyWithModifier get(CommonConfigState cfgState) {
 		return new KeyWithModifier(keybind.getKey(), keybind.getKeyModifier());
 	}
 
 	@Override
-	public void set(KeyWithModifier value) {
+	public void set(KeyWithModifier value, CommonConfigState cfgState) {
 		set(value.key(), value.modifier());
 	}
 	
@@ -50,18 +51,28 @@ public class ClientConfigKeyBinding extends ConfigOption<KeyWithModifier> {
 	}
 
 	@Override
-	public boolean isDefault() {
+	public boolean isDefault(CommonConfigState cfgState) {
 		return keybind.isDefault();
 	}
 
 	@Override
-	public void reset() {
+	public void reset(CommonConfigState cfgState) {
 		if (keybind != null) {
 			keybind.setKeyModifierAndCode(keybind.getDefaultKeyModifier(), keybind.getDefaultKey());
 		}
 		else {
 			loadedValue = null;
 		}
+	}
+	
+	@Override
+	public void setRemoteState() {
+		throw new UnsupportedOperationException("ClientConfigKeyBinding is not meant to be used in a COMMON config, only in a CLIENT one!");
+	}
+	
+	@Override
+	public void unsetRemoteState() {
+		throw new UnsupportedOperationException("ClientConfigKeyBinding is not meant to be used in a COMMON config, only in a CLIENT one!");
 	}
 	
 	

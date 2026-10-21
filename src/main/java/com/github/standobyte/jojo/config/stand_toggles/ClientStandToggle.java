@@ -16,10 +16,10 @@ import com.github.standobyte.jojo.client.ui.utils.ElementTransparency;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
 import com.github.standobyte.jojo.config.BoolOrPlayerPref;
-import com.github.standobyte.jojo.config.client.ConfigGuiHelper;
 import com.github.standobyte.jojo.config.client.ScrollingStringButton;
 import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.core.ModConfigType;
+import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -81,7 +81,11 @@ public class ClientStandToggle implements Renderable {
 				setting, 
 				newVal -> {
 					setting.set(newVal);
-					ConfigGuiHelper.onSettingChange(JojoMod.config, configToSave, setting);
+					
+					JojoMod.config.saveClient();
+					if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
+						JojoMod.config.sendClientBroadcast(true);
+					}
 				}, null) {
 			
 			@Override
@@ -94,7 +98,8 @@ public class ClientStandToggle implements Renderable {
 				hudVisibilitySetting, 
 				newVal -> {
 					hudVisibilitySetting.set(newVal);
-					ConfigGuiHelper.onSettingChange(JojoMod.config, ModConfigType.CLIENT, hudVisibilitySetting);
+					
+					JojoMod.config.saveClient();
 				}, null);
 	}
 
@@ -158,7 +163,11 @@ public class ClientStandToggle implements Renderable {
 	
 	public void toggle() {
 		setting.set(!setting.get());
-		ConfigGuiHelper.onSettingChange(JojoMod.config, configToSave, setting);
+		
+		JojoMod.config.saveClient();
+		if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
+			JojoMod.config.sendClientBroadcast(true);
+		}
 	}
 	
 	public boolean getResultingValue() {

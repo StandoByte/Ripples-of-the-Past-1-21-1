@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.config.internal.packets.ClCommonServerConfigRe
 import com.github.standobyte.jojo.config.internal.packets.ClPlayerBroadcastConfigPacket;
 import com.github.standobyte.jojo.config.internal.packets.PlayerBroadcastConfigPacket;
 import com.github.standobyte.jojo.config.internal.packets.RemoteCommonConfigPacket;
+import com.github.standobyte.jojo.config.internal.packets.RemoteHostUUIDConfigPacket;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.customobjects.explosion.CustomExplosionPacket;
 import com.github.standobyte.jojo.entityattachment.custom_effect.TrEntityCustomEffectsPacket;
@@ -168,6 +169,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new PlayBgmCommand.PlayBgmCommandPacket.Handler(JojoMod.resLoc("bgm")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new ItemBreakVisualsPacket.Handler(JojoMod.resLoc("itemparticle")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new RemoteCommonConfigPacket.Handler(JojoMod.resLoc("cfgcommon")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new RemoteHostUUIDConfigPacket.Handler(JojoMod.resLoc("lanhost")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new PlayerBroadcastConfigPacket.Handler(JojoMod.resLoc("cfgplayer")));
 	}
 

@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.powersystem.standpower.datapack;
+package com.github.standobyte.jojo.config.stand.datapack;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -13,6 +13,8 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.config.stand.StandTypeClass;
+import com.github.standobyte.jojo.config.stand.StitchedStandDataFiles;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.network.s2c.DatapackStandsPacket;
@@ -90,11 +92,11 @@ public class DataDrivenStandsLoader {
 			Map<ResourceLocation, JsonObject> map = new TreeMap<>();
 			
 			Map<ResourceLocation, Resource> resources = resourceManager.listResources(DIRECTORY, rl -> rl.getPath().endsWith(FILE_EXT));
-			Map<ResourceLocation, StitchedStandDataFiles> grouped = StitchedStandDataFiles.groupResources(resources);
+			Map<ResourceLocation, StitchedStandDataFiles<Resource>> grouped = StitchedStandDataFiles.groupResources(resources, DIRECTORY);
 			
 			for (var entry : grouped.entrySet()) {
 				ResourceLocation standId = entry.getKey();
-				StitchedStandDataFiles resource = entry.getValue();
+				StitchedStandDataFiles<Resource> resource = entry.getValue();
 				try {
 					JsonObject fullJson = resource.stitchJson(standId);
 					if (fullJson != null) {
@@ -125,7 +127,10 @@ public class DataDrivenStandsLoader {
 
 	}
 	
-	// Apply the datapack (configure existing Stands, create new ones)
+	// Apply the datapack (~configure existing Stands~, create new ones)
+	/* UPD: configs for existing Stands will instead be done through the `config` directory configs
+	 * and only with those (to avoid headache, and why would anyone use both a config and a datapack for it anyway)
+	 */
 	
 	private static void applyData(Map<ResourceLocation, StandType> datapackStands, Collection<Map.Entry<ResourceLocation, JsonObject>> loadedConfigsData) {
 		// If the stand still exists in the datapack, it will be re-enabled.
@@ -133,17 +138,11 @@ public class DataDrivenStandsLoader {
 		datapackStands.values().forEach(stand -> stand.setEnabled(false));
 		
 		Registry<StandType> hardcodedStands = JojoRegistries.DEFAULT_STANDS_REG;
-		hardcodedStands.entrySet().forEach(entry -> entry.getValue().restoreDefaults());
 		
 		for (var dataEntry : loadedConfigsData) {
 			ResourceLocation standId = dataEntry.getKey();
 			JsonObject json = dataEntry.getValue();
-			if (hardcodedStands.containsKey(standId)) {
-				// Configure one of the registered Stands.
-				StandType stand = hardcodedStands.get(standId);
-				stand.applyConfig(json);
-			}
-			else {
+			if (!hardcodedStands.containsKey(standId)) {
 				// Create a data-driven Stand.
 				StandTypeClass<?> standTypeClass = null;
 				ResourceLocation baseStandId = Optional.ofNullable(json.get("baseStand")).map(JsonElement::getAsString).map(ResourceLocation::parse).orElse(null);
@@ -153,7 +152,7 @@ public class DataDrivenStandsLoader {
 					StandType baseStand = hardcodedStands.get(baseStandId);
 					if (baseStand != null) {
 						try {
-							standTypeClass = StandTypeClass.byClass(baseStand.getClass());
+							standTypeClass = StandTypeClass._byClass(baseStand.getClass());
 						} catch (Exception e) {
 							JojoMod.getLogger().error("Failed to create Stand {} from data pack (Stand {} can't be used as a base)", standId, baseStandId);
 							continue;
@@ -167,10 +166,10 @@ public class DataDrivenStandsLoader {
 					}
 				}
 				
-				String standClassAlias = StandTypeClass.getStandClassAlias(json);
+				String standClassAlias = StandTypeClass._getStandClassAlias(json);
 				try {
 					if (standTypeClass == null) {
-						standTypeClass = standClassAlias != null ? StandTypeClass.byName(standClassAlias) : StandTypeClass.DEFAULT_CLASS;
+						standTypeClass = standClassAlias != null ? StandTypeClass._byName(standClassAlias) : StandTypeClass._DEFAULT_CLASS;
 					}
 				} catch (Exception e) {
 					JojoMod.getLogger().error("Failed to create Stand {} from data pack (Stand class {} does not exist or can't be instantiated)", standId, standClassAlias);
@@ -180,7 +179,7 @@ public class DataDrivenStandsLoader {
 				// Create the new Stand using all the JSON data.
 				if (standTypeClass != null) {
 					StandType oldDatapackStand = datapackStands.get(standId);
-					if (oldDatapackStand != null && oldDatapackStand.getClass() == standTypeClass.standTypeJavaClass) {
+					if (oldDatapackStand != null && oldDatapackStand.getClass() == standTypeClass._standTypeJavaClass) {
 						oldDatapackStand.setEnabled(true);
 						oldDatapackStand.restoreDefaults();
 						oldDatapackStand.applyConfig(json);
