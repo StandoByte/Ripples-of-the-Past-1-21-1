@@ -531,7 +531,7 @@
   "jojo_ripples.ability.manual_control": "Ручное управление",
 
   "jojo_ripples.skill.item_use": "Использование предметов",
-  "jojo_ripples.skill.item_use.desc": "Ваш Стенд может использовать блоки и предметы, находящиеся у него в руках.\n§7§oУдерживание Shift отключает использование предметов и позволяет вместо него использовать \uEAFE атаки Стенда.",
+  "jojo_ripples.skill.item_use.desc": "Ваш Стенд может использовать блоки и находящиеся у него в руках предметы.\n§7§oУдерживание Shift отключает использование предметов и позволяет вместо него использовать \uEAFE атаки Стенда.",
   "jojo_ripples.skill.item_use.controls": "\uEAFE, когда Стенд держит предмет в руке (без удерживания Shift)",
   "jojo_ripples.ability.item_use": "Использовать предмет",
 
@@ -647,6 +647,10 @@
   "jojo_ripples.ability.heal": "Лечение",
   "jojo.message.action_condition.cd_heal_self": "Вы не можете исцелить самого себя",
   "jojo.message.action_condition.heal_target": "Эту сущность нельзя исцелить",
+  
+  "jojo_ripples.skill.fix_broken_entity": "Починить разрушенный предмет",
+  "    перевести-jojo_ripples.skill.fix_broken_entity.desc": "Fix an item entity that was recently destroyed. Examples include Ghast and Ender Dragon fireballs or shattered Eyes of Ender.",
+  "jojo_ripples.skill.fix_broken_entity.controls": "Лечение на недавно разрушенную сущность предмета",
   
   "jojo_ripples.ability.fix_broken_entity": "Починить разрушенный предмет",
   "entity.jojo_ripples.cd_broken_entity": "Разрушенный предмет",

@@ -606,7 +606,7 @@
   "jojo_ripples.ability.manual_control": "Manual control",
 
   "jojo_ripples.skill.item_use": "Use Item",
-  "jojo_ripples.skill.item_use.desc": "Your Stand can right-click blocks and items in its hands.\n§7§oHolding Shift disables item usage and lets you use regular \uEAFE Stand attacks instead.",
+  "jojo_ripples.skill.item_use.desc": "Your Stand can right-click blocks and use items it's holding.\n§7§oHolding Shift disables item usage and lets you use regular \uEAFE Stand attacks instead.",
   "jojo_ripples.skill.item_use.controls": "\uEAFE while Stand is holding an item (while not holding Shift)",
   "jojo_ripples.ability.item_use": "Use Item",
 
@@ -722,6 +722,10 @@
   "jojo_ripples.ability.heal": "Heal",
   "jojo.message.action_condition.cd_heal_self": "You can't heal yourself",
   "jojo.message.action_condition.heal_target": "This entity can't be healed",
+  
+  "jojo_ripples.skill.fix_broken_entity": "Fix destroyed item",
+  "jojo_ripples.skill.fix_broken_entity.desc": "Fix an item entity that was recently destroyed. Examples include Ghast and Ender Dragon fireballs or shattered Eyes of Ender.",
+  "jojo_ripples.skill.fix_broken_entity.controls": "Heal on a recently destroyed item entity",
   
   "jojo_ripples.skill.revert_state": "Revert state",
   "jojo_ripples.skill.revert_state.desc": "Revert the state of some entities and placed blocks. Examples include defusing TNTs and turning glass into sand.",
