@@ -50,6 +50,7 @@ import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
@@ -170,6 +171,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			onClose();
 			return;
 		}
+		LivingEntity standUser = standPower.getUser();
 		StandInstance standInstance = standPower.getStandInstance().get();
 		
 		deselectSkillButton.visible = selectedSkill != null;
@@ -251,12 +253,16 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		}
 		
 		int maxPossibleExp = expSummary.total - expSummary.spent;
+		boolean hasInfiniteExp = StandTypePersistentData.hasInfiniteExp(standUser);
 		int canSpendExp = Math.min(levelingData.getExp(), maxPossibleExp);
 		boolean isAtMaxExp = canSpendExp >= maxPossibleExp;
 		int expAcquired = canSpendExp + expSummary.spent;
 		int expTotalForStand = expSummary.total;
 		
-		Component expLine = !isAtMaxExp ? Component.literal(String.valueOf(canSpendExp)) : Component.translatable("jojo_ripples.stand_exp.max");
+		Component expLine = 
+				hasInfiniteExp 	? Component.literal("∞") :
+				!isAtMaxExp 	? Component.literal(String.valueOf(canSpendExp)) : 
+				Component.translatable("jojo_ripples.stand_exp.max");
 		expLine = Component.literal(String.valueOf(IconSymbols.STAND_EXP)).append(expLine);
 		guiGraphics.drawString(font, expLine, x + 41 - font.width(expLine) / 2, y + 33, STAND_EXP_NUMBER_COLOR, false);
 		

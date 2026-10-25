@@ -31,6 +31,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class StandTypePersistentData extends PowerData {
@@ -54,15 +55,17 @@ public class StandTypePersistentData extends PowerData {
 	
 	@Override
 	protected void srvOnSkillUnlocked(UnlockableSkill skill, Power<?> userPower) {
-		this.exp -= ((StandUnlockableSkill) skill).expToUnlock;
-		syncExp(userPower.getUser());
+		if (!hasInfiniteExp(userPower.getUser())) {
+			this.exp -= ((StandUnlockableSkill) skill).expToUnlock;
+			syncExp(userPower.getUser());
+		}
 	}
 
 	@Override
 	protected void srvBeforeSkillsReset(Power<?> userPower) {
 		for (var skillEntry : getAllSkills().entrySet()) {
 			UnlockableSkill skill = skillEntry.getValue();
-			if (!skill.isStarting && isSkillUnlocked(skill.skillName)) {
+			if (!hasInfiniteExp(userPower.getUser()) && !skill.isStarting && isSkillUnlocked(skill.skillName)) {
 				this.exp += ((StandUnlockableSkill) skill).expToUnlock;
 			}
 		}
@@ -73,6 +76,10 @@ public class StandTypePersistentData extends PowerData {
 	
 	public int getExp() {
 		return (int) exp;
+	}
+	
+	public static boolean hasInfiniteExp(LivingEntity user) {
+		return user instanceof Player player && player.isCreative();
 	}
 
 	/** Also applies {@link RotpConfig.Common#standExpGainMultiplier} value */
