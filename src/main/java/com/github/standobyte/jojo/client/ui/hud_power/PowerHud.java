@@ -190,7 +190,6 @@ public class PowerHud {
 		
 		public void preRender(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 			Minecraft mc = Minecraft.getInstance();
-			if (mc.options.hideGui || !canHaveHudOpen()) return;
 			
 			int mouseX = -1;
 			int mouseY = -1;
@@ -216,6 +215,7 @@ public class PowerHud {
 		@Override
 		public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 			Minecraft mc = Minecraft.getInstance();
+			if (mc.options.hideGui || !canHaveHudOpen()) return;
 			renderAbilitiesHUD(guiGraphics, deltaTracker);
 			WindupAtCrosshair.renderCrosshair(guiGraphics, deltaTracker, mc);
 		}
