@@ -34,6 +34,9 @@ public class ModStatusEffects {
 	public static final DeferredRegister<MobEffect> STATUS_EFFECTS = DeferredRegister.create(Registries.MOB_EFFECT, JojoMod.MOD_ID);
 
 
+	/* For addon devs - if you want your custom potion effect to also be synched to other players, 
+	 * you don't have to copypaste THE ENTIRE system, just add your effect holder to this set (like in the `afterRegister` method below)
+	 */
 	public static final Set<Holder<? extends MobEffect>> TRACKED_EFFECTS = new HashSet<>();
 
 	public static final DeferredHolder<MobEffect, ResolveModeEffect> RESOLVE = STATUS_EFFECTS.register("resolve", 
