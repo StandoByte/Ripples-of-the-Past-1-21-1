@@ -19,6 +19,7 @@ import com.github.standobyte.jojo.client.entityrender.stand.HumanoidPart;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityModel;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopEffect;
 import com.github.standobyte.v1_21_4_stuff.renderstate.LivingEntityRenderState;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -49,6 +50,11 @@ public class BarrageSwings {
 			float curAnimTimeSecs, LivingEntity entity, float ticks) {
 		if (this.lastTicks == ticks) return;
 		this.lastTicks = ticks;
+		
+		if (TimeStopEffect.getIsFrozenInTime(entity)) {
+			barrageSwings.clear();
+			return;
+		}
 		
 		if (entity instanceof StandEntity stand) {
 			barrageSwingsPerSecond = StandStatFormulas.getBarrageHitsPerSecond(stand.getAttackSpeed());
