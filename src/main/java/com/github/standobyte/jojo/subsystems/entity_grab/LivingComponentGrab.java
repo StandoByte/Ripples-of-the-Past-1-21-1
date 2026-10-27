@@ -14,6 +14,8 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.jojo.util.functions.UtilFunctions;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
@@ -21,8 +23,12 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.RenderLivingEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -158,59 +164,73 @@ public class LivingComponentGrab implements TickingEntityData {
 	@ApiStatus.Internal
 	public void setGrabbedPos() {
 		if (grabbingEntity != null) {
-			HumanoidArm grabbingArm = HumanoidArm.LEFT;
-			double neckY = -thisEntity.getBbHeight() * 0.8 - 0.125;
-			Vec3 grabOffset = new Vec3(0, neckY, 0);
-			
-			boolean useModelArmPos = grabbingEntity.level().isClientSide();
-			float yRot = grabbingEntity.yBodyRot;
-			yRot = -yRot * MathUtil.DEG_TO_RAD;
-			if (useModelArmPos) {
-				Vec3 animOffset = ModelUtil.getModelPartPos(
-						grabbingEntity, 
-						grabbingArm == HumanoidArm.LEFT ? "left_item" : "right_item", armChokeOffset);
-				if (animOffset != null) {
-					animOffset = animOffset.yRot(yRot);
-					grabOffset = grabOffset.add(animOffset);
-					// TODO (grab) sync the offset to the server?
-				}
-				else {
-					useModelArmPos = false;
-				}
-			}
-			
-			if (!useModelArmPos) {
-				grabOffset = grabOffset.add(new Vec3(grabbingArm == HumanoidArm.LEFT ? 0.2 : -0.2, 1.5, 0.875)
-						/* lifting the target up and down a bit from x rotation would be cool, 
-						 * but we'd have to also adjust the grab animations for this and it's a PITA, 
-						 * so unfortunately this goes into the "commented out" hell
-						 */
-						// .xRot(-grabbingEntity.getXRot() * MathUtil.DEG_TO_RAD)
-						.yRot(yRot));
-			}
+			Vec3 grabOffset = getGrabOffset(grabbingEntity);
 			
 			Vec3 grabbedPos = grabbingEntity.position().add(grabOffset);
-			thisEntity.setPos(grabbedPos.x, grabbedPos.y, grabbedPos.z);
-			thisEntity.setDeltaMovement(Vec3.ZERO);
-			for (Entity passenger : thisEntity.getPassengers()) {
-				thisEntity.positionRider(passenger);
-			}
+			applyPos(thisEntity, grabbedPos);
 			
 			if (!thisEntity.level().isClientSide()) {
 				applyRotationDiff();
 			}
 		}
 	}
+	
+	// TODO add a way to override grab offset for external grab methods (Hermit Purple, Sticky Fingers, etc.)
+	protected Vec3 getGrabOffset(LivingEntity grabbingEntity) {
+		HumanoidArm grabbingArm = HumanoidArm.LEFT;
+		double neckY = -thisEntity.getBbHeight() * 0.8 - 0.125;
+		Vec3 grabOffset = new Vec3(0, neckY, 0);
+		
+		boolean useModelArmPos = grabbingEntity.level().isClientSide();
+		float yRot = grabbingEntity.yBodyRot;
+		yRot = -yRot * MathUtil.DEG_TO_RAD;
+		if (useModelArmPos) {
+			Vec3 animOffset = ModelUtil.getModelPartPos(
+					grabbingEntity, 
+					grabbingArm == HumanoidArm.LEFT ? "left_item" : "right_item", armChokeOffset);
+			if (animOffset != null) {
+				animOffset = animOffset.yRot(yRot);
+				grabOffset = grabOffset.add(animOffset);
+				// TODO (grab) sync the offset to the server?
+			}
+			else {
+				useModelArmPos = false;
+			}
+		}
+		
+		if (!useModelArmPos) {
+			grabOffset = grabOffset.add(new Vec3(grabbingArm == HumanoidArm.LEFT ? 0.2 : -0.2, 1.5, 0.875)
+					/* lifting the target up and down a bit from x rotation would be cool, 
+					 * but we'd have to also adjust the grab animations for this and it's a PITA, 
+					 * so unfortunately this goes into the "commented out" hell
+					 */
+					// .xRot(-grabbingEntity.getXRot() * MathUtil.DEG_TO_RAD)
+					.yRot(yRot));
+		}
+		return grabOffset;
+	}
 
 	@ApiStatus.Internal
 	public void applyRotationDiff() {
 		if (grabbingEntity != null) {
-			thisEntity.setXRot(this.xRotWhenGrabbed);
-			float yRot = grabbingEntity.getYRot() + this.yRotDiffWhenGrabbed;
-			thisEntity.setYRot(yRot);
-			thisEntity.setYHeadRot(yRot + this.yHeadRotDiffWhenGrabbed);
-			thisEntity.setYBodyRot(yRot + this.yBodyRotDiffWhenGrabbed);
+			applyRotationDiff(thisEntity);
 		}
+	}
+	
+	protected void applyPos(LivingEntity grabbedEntity, Vec3 grabbedPos) {
+		grabbedEntity.setPos(grabbedPos.x, grabbedPos.y, grabbedPos.z);
+		grabbedEntity.setDeltaMovement(Vec3.ZERO);
+		for (Entity passenger : thisEntity.getPassengers()) {
+			grabbedEntity.positionRider(passenger);
+		}
+	}
+	
+	protected void applyRotationDiff(LivingEntity grabbedEntity) {
+		grabbedEntity.setXRot(this.xRotWhenGrabbed);
+		float yRot = grabbingEntity.getYRot() + this.yRotDiffWhenGrabbed;
+		grabbedEntity.setYRot(yRot);
+		grabbedEntity.setYHeadRot(yRot + this.yHeadRotDiffWhenGrabbed);
+		grabbedEntity.setYBodyRot(yRot + this.yBodyRotDiffWhenGrabbed);
 	}
 	
 	
@@ -222,6 +242,47 @@ public class LivingComponentGrab implements TickingEntityData {
 			LivingComponentGrab grabComponent = entity.getData(attachmentType);
 			if (grabComponent != null) {
 				grabComponent.setGrabbedPos();
+			}
+		}
+	}
+	
+
+	@EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
+	public static class ClientEvents {
+
+		@SubscribeEvent
+		public static void onFrameRender(RenderFrameEvent.Pre event) {
+			Minecraft mc = Minecraft.getInstance();
+			if (mc.player != null) {
+				limitEntityRotation(mc.player);
+			}
+		}
+
+		@SubscribeEvent
+		public static void onLivingRender(RenderLivingEvent.Pre<?, ?> event) {
+			LivingEntity entity = event.getEntity();
+			limitEntityRotation(entity);
+		}
+
+		@SubscribeEvent
+		public static void onRenderFrame(RenderLevelStageEvent event) {
+			RenderLevelStageEvent.Stage stage = event.getStage();
+			if (stage == RenderLevelStageEvent.Stage.AFTER_ENTITIES) {
+				ClientLevel level = Minecraft.getInstance().level;
+				var attachmentType = ModDataAttachmentTypes.LIVING_GRAB.get();
+				for (Entity entity : level.entitiesForRendering()) {
+					LivingComponentGrab grabComponent = entity.getData(attachmentType);
+					if (grabComponent != null) {
+						grabComponent.setGrabbedPos();
+					}
+				}
+			}
+		}
+		
+		protected static void limitEntityRotation(LivingEntity entity) {
+			LivingComponentGrab grabComponent = entity.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
+			if (grabComponent != null) {
+				grabComponent.applyRotationDiff();
 			}
 		}
 	}
