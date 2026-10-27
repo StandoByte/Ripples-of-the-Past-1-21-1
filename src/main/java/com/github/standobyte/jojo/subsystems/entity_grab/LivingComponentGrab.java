@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.entityrender.ModelUtil;
+import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.entityattachment.TickingEntityData;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
@@ -16,6 +17,7 @@ import com.github.standobyte.jojo.util.functions.UtilFunctions;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
@@ -160,28 +162,25 @@ public class LivingComponentGrab implements TickingEntityData {
 		this.yBodyRotDiffWhenGrabbed = thisEntity.yBodyRot - yRot;
 	}
 	
-	protected static Vec3 armChokeOffset = new Vec3(0, -0.125, 0);
-	@ApiStatus.Internal
-	public void setGrabbedPos() {
+	
+	protected void setGrabbedPos(float partialTick) {
 		if (grabbingEntity != null) {
-			Vec3 grabOffset = getGrabOffset(grabbingEntity);
+			Vec3 grabOffset = getGrabOffset(grabbingEntity, partialTick);
 			
 			Vec3 grabbedPos = grabbingEntity.position().add(grabOffset);
 			applyPos(thisEntity, grabbedPos);
-			
-			if (!thisEntity.level().isClientSide()) {
-				applyRotationDiff();
-			}
 		}
 	}
 	
+	protected static Vec3 armChokeOffset = new Vec3(0, -0.125, 0);
 	// TODO add a way to override grab offset for external grab methods (Hermit Purple, Sticky Fingers, etc.)
-	protected Vec3 getGrabOffset(LivingEntity grabbingEntity) {
+	protected Vec3 getGrabOffset(LivingEntity grabbingEntity, float partialTick) {
 		HumanoidArm grabbingArm = HumanoidArm.LEFT;
 		double neckY = -thisEntity.getBbHeight() * 0.8 - 0.125;
 		Vec3 grabOffset = new Vec3(0, neckY, 0);
 		
 		boolean useModelArmPos = grabbingEntity.level().isClientSide();
+		//float yRot = partialTick == 1 ? grabbingEntity.yBodyRot : Mth.lerp(partialTick, grabbingEntity.yBodyRotO, grabbingEntity.yBodyRot);
 		float yRot = grabbingEntity.yBodyRot;
 		yRot = -yRot * MathUtil.DEG_TO_RAD;
 		if (useModelArmPos) {
@@ -209,13 +208,6 @@ public class LivingComponentGrab implements TickingEntityData {
 		}
 		return grabOffset;
 	}
-
-	@ApiStatus.Internal
-	public void applyRotationDiff() {
-		if (grabbingEntity != null) {
-			applyRotationDiff(thisEntity);
-		}
-	}
 	
 	protected void applyPos(LivingEntity grabbedEntity, Vec3 grabbedPos) {
 		grabbedEntity.setPos(grabbedPos.x, grabbedPos.y, grabbedPos.z);
@@ -224,13 +216,36 @@ public class LivingComponentGrab implements TickingEntityData {
 			grabbedEntity.positionRider(passenger);
 		}
 	}
+
+
+	protected void applyRotationDiff(float partialTick) {
+		if (grabbingEntity != null) {
+			applyRotationDiff(thisEntity, partialTick);
+		}
+	}
 	
-	protected void applyRotationDiff(LivingEntity grabbedEntity) {
+	protected void applyRotationDiff(LivingEntity grabbedEntity, float partialTick) {
 		grabbedEntity.setXRot(this.xRotWhenGrabbed);
-		float yRot = grabbingEntity.getYRot() + this.yRotDiffWhenGrabbed;
+
+		float _grabbingYRot0 = grabbingEntity.yBodyRotO;
+		float _grabbingYRot1 = grabbingEntity.yBodyRot;
+		float grabbingYRot;
+		if (partialTick == 1) {
+			grabbingYRot = _grabbingYRot1;
+		}
+		else {
+			while (_grabbingYRot0 - _grabbingYRot1 < 180) _grabbingYRot1 -= 360;
+			while (_grabbingYRot0 - _grabbingYRot1 > 180) _grabbingYRot1 += 360;
+			grabbingYRot = Mth.lerp(partialTick, _grabbingYRot0, _grabbingYRot1);
+		}
+		
+		float yRot = Mth.wrapDegrees(grabbingYRot + this.yRotDiffWhenGrabbed);
 		grabbedEntity.setYRot(yRot);
-		grabbedEntity.setYHeadRot(yRot + this.yHeadRotDiffWhenGrabbed);
-		grabbedEntity.setYBodyRot(yRot + this.yBodyRotDiffWhenGrabbed);
+		grabbedEntity.setYHeadRot(Mth.wrapDegrees(yRot + this.yHeadRotDiffWhenGrabbed));
+		grabbedEntity.setYBodyRot(Mth.wrapDegrees(yRot + this.yBodyRotDiffWhenGrabbed));
+		grabbedEntity.yRotO = yRot;
+		grabbedEntity.yHeadRotO = grabbedEntity.yHeadRot;
+		grabbedEntity.yBodyRotO = grabbedEntity.yBodyRot;
 	}
 	
 	
@@ -241,7 +256,10 @@ public class LivingComponentGrab implements TickingEntityData {
 		for (Entity entity : UtilFunctions.getEntities(level)) {
 			LivingComponentGrab grabComponent = entity.getData(attachmentType);
 			if (grabComponent != null) {
-				grabComponent.setGrabbedPos();
+				grabComponent.setGrabbedPos(1);
+				if (!level.isClientSide()) {
+					grabComponent.applyRotationDiff(1);
+				}
 			}
 		}
 	}
@@ -254,35 +272,40 @@ public class LivingComponentGrab implements TickingEntityData {
 		public static void onFrameRender(RenderFrameEvent.Pre event) {
 			Minecraft mc = Minecraft.getInstance();
 			if (mc.player != null) {
-				limitEntityRotation(mc.player);
+				LivingComponentGrab grabComponent = mc.player.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
+				if (grabComponent != null && grabComponent.grabbingEntity != null) {
+					float partialTick = ClientUtil.partialTick(grabComponent.grabbingEntity, 
+							event.getPartialTick(), mc.level.tickRateManager());
+					grabComponent.applyRotationDiff(partialTick);
+				}
 			}
 		}
 
 		@SubscribeEvent
 		public static void onLivingRender(RenderLivingEvent.Pre<?, ?> event) {
 			LivingEntity entity = event.getEntity();
-			limitEntityRotation(entity);
+			LivingComponentGrab grabComponent = entity.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
+			if (grabComponent != null && grabComponent.grabbingEntity != null) {
+				float partialTick = event.getPartialTick();
+				grabComponent.applyRotationDiff(partialTick);
+			}
 		}
 
 		@SubscribeEvent
 		public static void onRenderFrame(RenderLevelStageEvent event) {
 			RenderLevelStageEvent.Stage stage = event.getStage();
 			if (stage == RenderLevelStageEvent.Stage.AFTER_ENTITIES) {
-				ClientLevel level = Minecraft.getInstance().level;
+				Minecraft mc = Minecraft.getInstance();
+				ClientLevel level = mc.level;
 				var attachmentType = ModDataAttachmentTypes.LIVING_GRAB.get();
 				for (Entity entity : level.entitiesForRendering()) {
 					LivingComponentGrab grabComponent = entity.getData(attachmentType);
-					if (grabComponent != null) {
-						grabComponent.setGrabbedPos();
+					if (grabComponent != null && grabComponent.grabbingEntity != null) {
+						float partialTick = ClientUtil.partialTick(grabComponent.grabbingEntity, 
+								event.getPartialTick(), level.tickRateManager());
+						grabComponent.setGrabbedPos(partialTick);
 					}
 				}
-			}
-		}
-		
-		protected static void limitEntityRotation(LivingEntity entity) {
-			LivingComponentGrab grabComponent = entity.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
-			if (grabComponent != null) {
-				grabComponent.applyRotationDiff();
 			}
 		}
 	}
