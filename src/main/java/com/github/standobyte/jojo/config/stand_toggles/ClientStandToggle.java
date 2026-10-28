@@ -134,7 +134,7 @@ public class ClientStandToggle implements Renderable {
 		visibilityToggle.render(guiGraphics, mouseX, mouseY, partialTick);
 		
 		if (toggle.isHovered() || visibilityToggle.isHovered()) {
-			TooltipParams.set(TooltipParams.paperStyle());
+			TooltipParams.set(TooltipParams.paperStyle(1));
 		}
 	}
 
