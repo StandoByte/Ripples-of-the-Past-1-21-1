@@ -17,6 +17,7 @@ import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList
 import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList.Renderable2;
 import com.github.standobyte.jojo.client.ui.utils.Alignment;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
+import com.github.standobyte.jojo.client.ui.utils.OnButtonClick;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
 import com.github.standobyte.jojo.config.BoolOrPlayerPref;
 import com.github.standobyte.jojo.config.ModConfigInterface;
@@ -38,6 +39,7 @@ import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats.StatWithValue;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
+import com.mojang.blaze3d.platform.InputConstants;
 
 import it.unimi.dsi.fastutil.objects.Object2CharArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2CharMap;
@@ -45,7 +47,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.network.chat.CommonComponents;
@@ -247,8 +248,11 @@ public class ConfigGuiHelper {
 		Component tooltip = Component.translatable(getPrefix(modId, type) + "." + option.getFieldName() + ".tooltip");
 		Component nameWithSprite = icon != null ? prependIcon(name, toIconPath(icon)) : name;
 		
-		Button.OnPress onPress = b -> {
-			changeValueOnClick.accept(option);
+		OnButtonClick onPress = (b, mouseButton) -> {
+			switch (mouseButton) {
+				case InputConstants.MOUSE_BUTTON_LEFT -> changeValueOnClick.accept(option);
+				case InputConstants.MOUSE_BUTTON_RIGHT -> option.reset();
+			}
 		};
 		
 		int buttonWidth = Math.min((screen.width - 80) / 2, 150);
@@ -321,6 +325,7 @@ public class ConfigGuiHelper {
 	}
 	
 	public static class ConfigButton extends ScrollingStringButton {
+		protected OnButtonClick onPress2;
 		protected ModConfigType configType;
 		protected ConfigOption<?> configOption;
 		protected Component optionNameNoSprite;
@@ -331,9 +336,10 @@ public class ConfigGuiHelper {
 
 		public ConfigButton(int pX, int pY, int pWidth, int pHeight, 
 				Component optionNameNoSprite, Component optionNameWithSprite, 
-				OnPress pOnPress, Component tooltipBody,
+				OnButtonClick pOnPress, Component tooltipBody,
 				ModConfigType type, ConfigOption<?> configOption, BiFunction<Component, ?, MutableComponent> getValueMessage) {
 			super(pX, pY, pWidth, pHeight, CommonComponents.EMPTY, pOnPress, null);
+			this.onPress2 = pOnPress;
 			this.configType = type;
 			this.configOption = configOption;
 			this.optionNameNoSprite = optionNameNoSprite;
@@ -344,6 +350,18 @@ public class ConfigGuiHelper {
 			updateMessage(configOption.get());
 			setTooltip(tooltip);
 		}
+
+
+		@Override
+	    protected boolean isValidClickButton(int button) {
+			return true;
+	    }
+		
+		@Override
+		public void onClick(double mouseX, double mouseY, int button) {
+			onPress2.onPress(this, button);
+		}
+		
 		
 		protected static <T> MutableComponent makeMessage(BiFunction<Component, T, MutableComponent> getValueMessage, Component optionName, Object optionValue) {
 			return getValueMessage.apply(optionName, (T) optionValue);

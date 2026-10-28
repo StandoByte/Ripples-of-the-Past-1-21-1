@@ -16,6 +16,7 @@ import com.github.standobyte.jojo.config.core.types.ConfigInt;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.util.functions.JSONUtil;
 import com.google.gson.JsonPrimitive;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.datafixers.util.Either;
 
 import net.minecraft.client.Minecraft;
@@ -151,6 +152,27 @@ public class NumericField extends EditBox {
 			default -> false;
 		};
 	}
+	
+	
+	@Override
+	protected boolean isValidClickButton(int button) {
+		return true;
+	}
+
+    @Override
+    public void onClick(double mouseX, double mouseY, int mouseButton) {
+    	switch (mouseButton) {
+    		case InputConstants.MOUSE_BUTTON_LEFT -> {
+    			super.onClick(mouseX, mouseY, mouseButton);
+    		}
+    		case InputConstants.MOUSE_BUTTON_RIGHT -> {
+    			if (configOption != null) {
+    				configOption.reset();
+    			}
+    			setFocused(false);
+    		}
+    	}
+    }
 
 
 	@FunctionalInterface
