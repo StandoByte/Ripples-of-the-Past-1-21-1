@@ -27,6 +27,7 @@ import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.TextUtil;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
+import com.github.standobyte.jojo.config.BoolOrPlayerPref;
 import com.github.standobyte.jojo.config.stand_toggles.ClientStandToggle;
 import com.github.standobyte.jojo.config.stand_toggles.ClientStandToggles;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -62,7 +63,6 @@ import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -923,7 +923,7 @@ public class PowerHud {
 			}
 			
 			if (hoveredToggle != null) {
-				Component text = CommonComponents.optionStatus(
+				Component text = BoolOrPlayerPref.optionStatus(
 						hoveredToggle.text, hoveredToggle.getResultingValue())
 						.withStyle(ChatFormatting.BLACK);
 				tooltip.set(Tooltip.create(text));

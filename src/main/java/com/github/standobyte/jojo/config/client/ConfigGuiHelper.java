@@ -206,7 +206,7 @@ public class ConfigGuiHelper {
 				option -> {
 					option.set(!option.get());
 				},
-				(Component name, Boolean value) -> CommonComponents.optionStatus(name, value));
+				(Component name, Boolean value) -> BoolOrPlayerPref.optionStatus(name, value));
 	}
 	
 	public void addBooleanOrPlayerPreferenceOptionButton(ConfigEnum<BoolOrPlayerPref> cfgOption, 
