@@ -128,7 +128,7 @@
   "jojo_ripples.key.ability_hotbar": "Switch special ability",
   "jojo_ripples.key.ability_hotbar.desc": "A default key for changing the selected special ability.\n\nWhile holding this key, either press 1-9, scroll with mouse wheel, or hover over it in the ability wheel.\n(The wheel can be disabled with the button to the left, or in the ROTP client settings).",
   "jojo_ripples.key.disable_hotbars": "Disable ROTP controls",
-  "jojo_ripples.key.disable_hotbars.desc": "When a power HUD is active, it rebinds some keys, like \uEAFD and \uEAFE, to use ROTP abilities.\n\nHolding this key lets you disable this behavior, for example when you need \uEAFE to use an item.",
+  "jojo_ripples.key.disable_hotbars.desc": "When a power HUD is active, it rebinds some keys, like \uEAFD and \uEAFE, to use ROTP abilities.\n\nUsing this key lets you disable this behavior, for example when you need \uEAFE to use an item.",
   "jojo_ripples.key.jojo_menu": "JoJo menu",
   "jojo_ripples.key.jojo_menu.desc": "A menu for ROTP mechanics, with things unlockable skills, further controls customization, Stand skins, etc.",
   

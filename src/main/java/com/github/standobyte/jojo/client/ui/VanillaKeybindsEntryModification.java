@@ -160,11 +160,8 @@ public class VanillaKeybindsEntryModification {
 						+ 10 /* getListOutlinePadding() */;
 				int x = scrollbarPosition - 65 - holdToggleButton.getWidth();
 				int y = top - 2;
-				this.holdToggleButton.setPosition(x, y);
-				this.holdToggleButton.render(guiGraphics, mouseX, mouseY, partialTick);
-				if (x < 0) {
-					holdToggleButton.setTooltip(message != null ? Tooltip.create(message) : null);
-				}
+				holdToggleButton.setPosition(x, y);
+				holdToggleButton.render(guiGraphics, mouseX, mouseY, partialTick);
 			}
 		}
 
