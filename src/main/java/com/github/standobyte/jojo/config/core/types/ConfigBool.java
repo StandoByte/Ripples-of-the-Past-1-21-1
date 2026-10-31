@@ -2,11 +2,14 @@ package com.github.standobyte.jojo.config.core.types;
 
 import java.util.function.BooleanSupplier;
 
+import com.github.standobyte.jojo.config.BoolOrPlayerPref;
 import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.core.ModConfig.CommonConfigState;
 import com.github.standobyte.jojo.util.objects_java.DefaultedValue;
 import com.mojang.serialization.codecs.PrimitiveCodec;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.codec.ByteBufCodecs;
 
 public class ConfigBool extends ConfigOption<Boolean> implements BooleanSupplier {
@@ -64,6 +67,11 @@ public class ConfigBool extends ConfigOption<Boolean> implements BooleanSupplier
 			case LOCAL -> value;
 			case REMOTE -> remoteValue;
 		};
+	}
+	
+	
+	public MutableComponent makeButtonMessage(Component optionName, Boolean value) {
+		return BoolOrPlayerPref.optionStatus(optionName, value);
 	}
 
 }

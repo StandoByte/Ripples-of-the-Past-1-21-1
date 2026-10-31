@@ -206,7 +206,7 @@ public class ConfigGuiHelper {
 				option -> {
 					option.set(!option.get());
 				},
-				(Component name, Boolean value) -> BoolOrPlayerPref.optionStatus(name, value));
+				cfgOption::makeButtonMessage);
 	}
 	
 	public void addBooleanOrPlayerPreferenceOptionButton(ConfigEnum<BoolOrPlayerPref> cfgOption, 
@@ -244,8 +244,8 @@ public class ConfigGuiHelper {
 			list.addEntry(curEntry);
 		}
 		
-		Component name = Component.translatable(getPrefix(modId, type) +  "." + option.getFieldName());
-		Component tooltip = Component.translatable(getPrefix(modId, type) + "." + option.getFieldName() + ".tooltip");
+		Component name = makeName(option, modId, type);
+		Component tooltipBody = makeTooltipBody(option, modId, type);
 		Component nameWithSprite = icon != null ? prependIcon(name, toIconPath(icon)) : name;
 		
 		OnButtonClick onPress = (b, mouseButton) -> {
@@ -264,8 +264,8 @@ public class ConfigGuiHelper {
 		
 		ConfigButton button = new ConfigButton(-1, -1, buttonWidth, 20, 
 				name, nameWithSprite, 
-				onPress, tooltip, 
-				type, option, getValueMessage);
+				onPress, tooltipBody, 
+				type, option, (BiFunction<Component, Object, MutableComponent>) getValueMessage);
 		if (curEntry.children().size() == 0) {
 			button.setAlignment(Alignment.RIGHT);
 		}
@@ -274,6 +274,14 @@ public class ConfigGuiHelper {
 		if (curEntry.children().size() >= 2) {
 			curEntry = null;
 		}
+	}
+	
+	public static Component makeName(ConfigOption<?> option, String modId, ModConfigType type) {
+		return Component.translatable(getPrefix(modId, type) +  "." + option.getFieldName());
+	}
+	
+	public static Component makeTooltipBody(ConfigOption<?> option, String modId, ModConfigType type) {
+		return Component.translatable(getPrefix(modId, type) + "." + option.getFieldName() + ".tooltip");
 	}
 	
 	
@@ -311,11 +319,11 @@ public class ConfigGuiHelper {
 	}
 	
 	
-	public static Component prependIcon(Component text, ResourceLocation iconPath) {
+	public static MutableComponent prependIcon(Component text, ResourceLocation iconPath) {
 		return prependIcon(text, new GuiIcon(iconPath, 16, 16));
 	}
 	
-	public static Component prependIcon(Component text, GuiIcon icon) {
+	public static MutableComponent prependIcon(Component text, GuiIcon icon) {
 		IconGlyphInfo spriteGlyph = new IconGlyphInfo(icon, 16, 16, 0, -4, 4);
 		//stand aim marker: new GuiIcon(iconPath, 17, 17), 17, 17, 0, -5, 5)
 		
@@ -330,14 +338,14 @@ public class ConfigGuiHelper {
 		protected ConfigOption<?> configOption;
 		protected Component optionNameNoSprite;
 		protected Component optionNameWithSprite;
-		protected BiFunction<Component, ?, MutableComponent> getValueMessage;
+		protected BiFunction<Component, Object, MutableComponent> getValueMessage;
 		protected Object prevValue;
 		protected MultiLineScreenTooltip tooltip;
 
 		public ConfigButton(int pX, int pY, int pWidth, int pHeight, 
 				Component optionNameNoSprite, Component optionNameWithSprite, 
 				OnButtonClick pOnPress, Component tooltipBody,
-				ModConfigType type, ConfigOption<?> configOption, BiFunction<Component, ?, MutableComponent> getValueMessage) {
+				ModConfigType type, ConfigOption<?> configOption, BiFunction<Component, Object, MutableComponent> getValueMessage) {
 			super(pX, pY, pWidth, pHeight, CommonComponents.EMPTY, pOnPress, null);
 			this.onPress2 = pOnPress;
 			this.configType = type;
@@ -363,12 +371,8 @@ public class ConfigGuiHelper {
 		}
 		
 		
-		protected static <T> MutableComponent makeMessage(BiFunction<Component, T, MutableComponent> getValueMessage, Component optionName, Object optionValue) {
-			return getValueMessage.apply(optionName, (T) optionValue);
-		}
-		
 		protected void updateMessage(Object newValue) {
-			Component message = makeMessage(getValueMessage, optionNameWithSprite, newValue);
+			Component message = getValueMessage.apply(optionNameWithSprite, newValue);
 			this.setMessage(message);
 			this.tooltip.setTitle(message.copy().withStyle(ChatFormatting.BOLD));
 		}

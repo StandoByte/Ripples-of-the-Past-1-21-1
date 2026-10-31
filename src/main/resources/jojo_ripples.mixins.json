@@ -144,8 +144,9 @@
 	"client.SoundEngineMixin",
 	"client.CloseResources",
 	"client.GameRendererMixin",
+	"client.AbstractSelectionListAccessor",
 	"client.keybindui.KeyEntryMixin",
-	"client.keybindui.AbstractSelectionListMixin",
+	"client.keybindui.KeyBindsListMixin",
 	"client.CreativeTabScreenMixin",
 	"client.jojoposeui.ChatScreenMixin",
 	
