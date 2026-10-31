@@ -24,8 +24,15 @@ public class ModStands {
 	public static InputUseVanillaMapping SWITCH_SPECIAL = new InputUseVanillaMapping("jojo_ripples.key.ability_hotbar");
 	
 	
-	public static final SimpleTagKey<StandType> PLAYER_CAN_GET_FROM_ARROW = SimpleTagKey.create(StandType.class, JojoMod.resLoc("player_can_get_from_arrow"));
-	public static final SimpleTagKey<StandType> EXCLUDE_FROM_CREATIVE_TAB = SimpleTagKey.create(StandType.class, JojoMod.resLoc("exclude_from_creative_tab"));
+	public static final SimpleTagKey<StandType> PLAYER_CAN_GET_FROM_ARROW = SimpleTagKey.create(StandType.class, JojoMod.resLoc("arrow"));
+	public static final SimpleTagKey<StandType> DONT_ADD_DISC_TO_MAIN_CREATIVE_TAB = SimpleTagKey.create(StandType.class, JojoMod.resLoc("creative_disc"));
+	@Deprecated
+	public static final SimpleTagKey<StandType> EXCLUDE_FROM_CREATIVE_TAB = DONT_ADD_DISC_TO_MAIN_CREATIVE_TAB;
+	public static final SimpleTagKey<StandType> NO_AUTOCOMPLETE_IN_CONSOLE_COMMANDS = SimpleTagKey.create(StandType.class, JojoMod.resLoc("commands"));
+
+	public static final SimpleTagKey<StandType> GIVE_ON_FAILED_VIRUS_TRIAL = SimpleTagKey.create(StandType.class, JojoMod.resLoc("virus_fail"));
+	public static final SimpleTagKey<StandType> METEORITE_INHABITANT_MOBS = SimpleTagKey.create(StandType.class, JojoMod.resLoc("meteorite"));
+	
 	
 	// Adding all the abilities and skills takes quite a few lines, so I decided to put each into a separate file.
 	// Makes it a bit easier to compare them between each other too.
