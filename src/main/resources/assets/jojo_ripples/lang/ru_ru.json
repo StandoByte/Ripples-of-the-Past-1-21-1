@@ -147,7 +147,7 @@
   "jojo_ripples.config.standStamina": "Стойкость Стенда",
   "jojo_ripples.config.standStamina.tooltip": "Включает/отключает механику полоски стойкости Стенда.",
   
-  "jojo_ripples.options.client.hud": "Интерфейс",
+  "jojo_ripples.options.client.controls": "Управление",
   "jojo_ripples.options.client.stand": "Стенд",
   "jojo_ripples.options.client.hamon": "Хамон",
   "jojo_ripples.options.client.vampirism": "Вампиризм",

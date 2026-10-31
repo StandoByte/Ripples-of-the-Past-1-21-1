@@ -178,7 +178,7 @@ public class RotpConfig {
 						RotpConfig.Client client = JojoMod.config.getClient();
 						RotpConfig.ClientBroadcast clientBroadcast = JojoMod.config.getPlayerBroadcast(null);
 						
-						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.hud"));
+						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.controls"));
 						helper.addBooleanOptionButton(client.abilitySelectionWheel, ModConfigType.CLIENT, "ability_selection_wheel");
 						
 						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.stand"));
