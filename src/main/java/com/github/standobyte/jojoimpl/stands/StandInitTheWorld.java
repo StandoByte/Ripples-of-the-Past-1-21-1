@@ -47,6 +47,7 @@ public class StandInitTheWorld {
 				.addSkill(new StandUnlockableSkill("item_use").setIsStartingSkill())
 
 				, id)
-			.discTooltipExperimental();
+			.discTooltipExperimental()
+			.init(stand -> stand.discStoryPartPriority = 10);
 	}
 }
