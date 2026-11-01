@@ -114,13 +114,13 @@ public class StandEntityManualControlToggle extends Ability {
 				poseStack.popPose();
 			}
 			else {
-				guiGraphics.enableScissor((int) x + 11, (int) y, (int) x + 16, (int) y + 16);
+				//guiGraphics.enableScissor((int) x + 11, (int) y, (int) x + 16, (int) y + 16);
 				poseStack.pushPose();
 				poseStack.scale(0.5f, 0.5f, 1);
 				poseStack.translate(x, y, 0);
 				ClientUtil.renderEntityFace(poseStack, x + 16, y, context.getUser(), ARGB32.multiply(color, 0x60FFFFFF), false);
 				poseStack.popPose();
-				guiGraphics.disableScissor();
+				//guiGraphics.disableScissor();
 				PowerHud.renderStandIcon(standPower, poseStack, x - 2, y, color);
 			}
 			guiGraphics.disableScissor();
