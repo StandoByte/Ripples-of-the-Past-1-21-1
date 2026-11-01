@@ -24,6 +24,7 @@ import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.init.power.ModStands;
+import com.github.standobyte.jojo.init.power.ModStandsMinor;
 import com.github.standobyte.jojo.modcompat.interfaces.OtherModInterfaces;
 import com.mojang.logging.LogUtils;
 
@@ -67,6 +68,8 @@ public class JojoMod {
 		ModEntityCustomEffects.CUSTOM_EFFECTS.register(modEventBus);
 		ModPlayerPowers.PLAYER_POWERS.register(modEventBus);
 		ModStands.DEFAULT_STANDS.register(modEventBus);
+		ModStandsMinor.ENCOUNTER_STANDS.register(modEventBus);
+		ModStandsMinor.METEORITE_STANDS.register(modEventBus);
 		ModSpecialActions.ACTIONS.register(modEventBus);
 	}
 	

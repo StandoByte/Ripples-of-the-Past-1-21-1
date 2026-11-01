@@ -91,6 +91,11 @@ public class ScrolleableButtonList extends ContainerObjectSelectionList<Scrollea
     }
 	
 	@Override
+	protected boolean isValidMouseClick(int button) {
+		return true;
+	}
+	
+	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
 		if (isMouseOver(mouseX, mouseY)) {
 			ScrolleableButtonList.EntryWithButtons entry = getEntryAtPosition(mouseX, mouseY);

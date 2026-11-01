@@ -27,7 +27,8 @@ public class StandUnlockableSkill extends UnlockableSkill {
 			return prerequisiteCheck;
 		}
 		
-		if (((StandTypePersistentData) data).getExp() < this.expToUnlock) {
+		if (!StandTypePersistentData.hasInfiniteExp(userPower.getUser())
+				&& ((StandTypePersistentData) data).getExp() < this.expToUnlock) {
 			return NOT_ENOUGH_EXP;
 		}
 		

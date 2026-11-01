@@ -53,9 +53,9 @@
   "jojo_ripples.key.use_special_ability": "Использовать особую способность",
   "jojo_ripples.key.use_special_ability.desc": "Клавиша использования выбранной особой способности.",
   "jojo_ripples.key.ability_hotbar": "Сменить особую способность",
-  "jojo_ripples.key.ability_hotbar.desc": "Клавиша смены выбранной особой способности.\n\nУдерживая эту клавишу, вы можете выбрать одну из доступных вам способностей с помощью клавиш 1-9, колеса мыши, или наведясь на неё в колесе способностей на экране (его можно отключить по кнопке слева или в настройках мода).",
+  "jojo_ripples.key.ability_hotbar.desc": "Клавиша смены выбранной особой способности.\n\nУдерживая эту клавишу, вы можете выбрать одну из доступных вам способностей с помощью клавиш 1-9, колеса мыши, или наведясь на неё в колесе способностей на экране.\n(Колесо можно отключить по кнопке слева или в настройках мода).",
   "jojo_ripples.key.disable_hotbars": "Отключить управление из мода",
-  "jojo_ripples.key.disable_hotbars.desc": "Пока вы в режиме управления одной из сил, кнопки мыши будут заняты атаками из мода.\n\nУдерживая эту клавишу, вы можете временно отключить это, чтобы, например, использовать предмет на правую кнопку мыши.",
+  "jojo_ripples.key.disable_hotbars.desc": "Пока вы в режиме управления одной из сил, \uEAFD and \uEAFE будут заняты атаками из мода.\n\nЧерез эту клавишу вы можете временно отключить это, чтобы, например, использовать предмет на \uEAFE.",
   "jojo_ripples.key.jojo_menu": "Меню ДжоДжо",
   "jojo_ripples.key.jojo_menu.desc": "Меню механик мода ROTP, таких как открываемые навыки, кастомизация схем управления, скины Стендов и т.д.",
   
@@ -111,7 +111,6 @@
   "rotp_tag_nyi": "Пока не реализовано",
   
   "jojo_ripples.options.player_pref": "По выбору игрока",
-  "jojo_ripples.options.player_pref.composed": "%s: По выбору игрока",
   "jojo_ripples.toggle_overruled": "Эта настройка управляется сервером (%s)",
   "jojo_ripples.toggle.show_in_hud": "Показывать в интерфейсе",
   "jojo_ripples.config_category.client": "Клиент",
@@ -148,7 +147,7 @@
   "jojo_ripples.config.standStamina": "Стойкость Стенда",
   "jojo_ripples.config.standStamina.tooltip": "Включает/отключает механику полоски стойкости Стенда.",
   
-  "jojo_ripples.options.client.hud": "Интерфейс",
+  "jojo_ripples.options.client.controls": "Управление",
   "jojo_ripples.options.client.stand": "Стенд",
   "jojo_ripples.options.client.hamon": "Хамон",
   "jojo_ripples.options.client.vampirism": "Вампиризм",
@@ -334,7 +333,7 @@
   "ripples_hud.stand_range": "Расстояние до обладателя",
   "ripples_hud.stand_range.desc": "Если вы уведёте ваш Стенд за пределы его эффективной дальности, он станет слабее.\nКак правило, чем сильнее Стенд, тем меньше его дальность, из-за чего самые сильные Стенды наиболее эффективны только для ближнего боя.",
   "jojo_ripples.overlay.stand_strength": "Сила Стенда: %s",
-  "jojo_ripples.notification.stand_skill": "Доступны новые навыки Стенда:",
+  "jojo_ripples.notification.stand_skill": "Можно открыть новые навыки Стенда:",
   
   "ripples_hud.hold_key": "Удерж. %s",
   "ripples_hud.hotbar_switch": "(%s - выбрать способность)",
@@ -531,7 +530,7 @@
   "jojo_ripples.ability.manual_control": "Ручное управление",
 
   "jojo_ripples.skill.item_use": "Использование предметов",
-  "jojo_ripples.skill.item_use.desc": "Ваш Стенд может использовать блоки и предметы, находящиеся у него в руках.\n§7§oУдерживание Shift отключает использование предметов и позволяет вместо него использовать \uEAFE атаки Стенда.",
+  "jojo_ripples.skill.item_use.desc": "Ваш Стенд может использовать блоки и находящиеся у него в руках предметы.\n§7§oУдерживание Shift отключает использование предметов и позволяет вместо него использовать \uEAFE атаки Стенда.",
   "jojo_ripples.skill.item_use.controls": "\uEAFE, когда Стенд держит предмет в руке (без удерживания Shift)",
   "jojo_ripples.ability.item_use": "Использовать предмет",
 
@@ -647,6 +646,10 @@
   "jojo_ripples.ability.heal": "Лечение",
   "jojo.message.action_condition.cd_heal_self": "Вы не можете исцелить самого себя",
   "jojo.message.action_condition.heal_target": "Эту сущность нельзя исцелить",
+  
+  "jojo_ripples.skill.fix_broken_entity": "Починить разрушенный предмет",
+  "    перевести-jojo_ripples.skill.fix_broken_entity.desc": "Fix an item entity that was recently destroyed. Examples include Ghast and Ender Dragon fireballs or shattered Eyes of Ender.",
+  "jojo_ripples.skill.fix_broken_entity.controls": "Лечение на недавно разрушенную сущность предмета",
   
   "jojo_ripples.ability.fix_broken_entity": "Починить разрушенный предмет",
   "entity.jojo_ripples.cd_broken_entity": "Разрушенный предмет",

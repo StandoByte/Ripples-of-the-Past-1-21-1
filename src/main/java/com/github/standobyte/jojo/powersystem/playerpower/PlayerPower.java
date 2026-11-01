@@ -82,6 +82,7 @@ public class PlayerPower extends Power<PlayerPower> {
 	@Override
 	public void onPlayerCloneData(PlayerPower newEntityData, boolean wasDeath) {
 		super.onPlayerCloneData(newEntityData, wasDeath);
+		newEntityData.curPowerType = this.curPowerType;
 	}
 	
 	

@@ -43,6 +43,7 @@ public class StandInitHierophantGreen {
 				.addSkill(StandUnlockableSkill.unlockableAbility("puppet", 500).setIncomplete())
 
 				, id)
-			.discTooltipExperimental();
+			.discTooltipExperimental()
+			.init(stand -> stand.discStoryPartPriority = 1);
 	}
 }

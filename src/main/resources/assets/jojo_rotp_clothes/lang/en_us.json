@@ -77,6 +77,10 @@
   "character.jojo_ripples.avdol.short": "Avdol",
   
   
+  "character.jojo_ripples.vanilla_ice": "Vanilla Ice",
+  "character.jojo_ripples.vanilla_ice.short": "Vanilla Ice",
+  
+  
   "character.jojo_ripples.josuke4": "Josuke Higashikata",
   "character.jojo_ripples.josuke4.short": "Josuke",
   
@@ -99,6 +103,10 @@
   
   "character.jojo_ripples.keicho": "Keicho Nijimura",
   "character.jojo_ripples.keicho.short": "Keicho",
+  
+  
+  "character.jojo_ripples.tonio": "Tonio Trussardi",
+  "character.jojo_ripples.tonio.short": "Tonio",
   
   
   "character.jojo_ripples.shigechi": "Shigekiyo Yangu",
@@ -145,6 +153,22 @@
   "character.jojo_ripples.doppio.short": "Doppio",
   
   
+  "character.jojo_ripples.ghiaccio": "Ghiaccio",
+  "character.jojo_ripples.ghiaccio.short": "Ghiaccio",
+  
+  
+  "character.jojo_ripples.prosciutto": "Prosciutto",
+  "character.jojo_ripples.prosciutto.short": "Prosciutto",
+  
+  
+  "character.jojo_ripples.pesci": "Pesci",
+  "character.jojo_ripples.pesci.short": "Pesci",
+  
+  
+  "character.jojo_ripples.risotto": "Risotto Nero",
+  "character.jojo_ripples.risotto.short": "Risotto",
+  
+  
   "character.jojo_ripples.jolyne": "Jolyne Cujoh",
   "character.jojo_ripples.jolyne.short": "Jolyne",
   
@@ -189,8 +213,28 @@
   "character.jojo_ripples.valentine.short": "Valentine",
   
   
+  "character.jojo_ripples.pocoloco": "Pocoloco",
+  "character.jojo_ripples.pocoloco.short": "Pocoloco",
+  
+  
+  "character.jojo_ripples.oyecomova": "Oyecomova",
+  "character.jojo_ripples.oyecomova.short": "Oyecomova",
+  
+  
   "character.jojo_ripples.dr_ferdinand": "Dr. Ferdinand",
   "character.jojo_ripples.dr_ferdinand.short": "Ferdinand",
+  
+  
+  "character.jojo_ripples.ringo": "Ringo Roadagain",
+  "character.jojo_ripples.ringo.short": "Ringo",
+  
+  
+  "character.jojo_ripples.blackmore": "Blackmore",
+  "character.jojo_ripples.blackmore.short": "Blackmore",
+  
+  
+  "character.jojo_ripples.magent_magent": "Magent Magent",
+  "character.jojo_ripples.magent_magent.short": "Magent Magent",
   
   
   "character.jojo_ripples.wekapipo": "Wekapipo",

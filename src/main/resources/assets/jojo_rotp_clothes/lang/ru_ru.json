@@ -77,6 +77,10 @@
   "character.jojo_ripples.avdol.short": "Абдул",
   
   
+  "character.jojo_ripples.vanilla_ice": "Ванилла Айс",
+  "character.jojo_ripples.vanilla_ice.short": "Ванилла Айс",
+  
+  
   "character.jojo_ripples.josuke4": "Джоске Хигашиката",
   "character.jojo_ripples.josuke4.short": "Джоске",
   
@@ -99,6 +103,10 @@
   
   "character.jojo_ripples.keicho": "Кейчо Ниджимура",
   "character.jojo_ripples.keicho.short": "Кейчо",
+  
+  
+  "character.jojo_ripples.tonio": "Тонио Труссарди",
+  "character.jojo_ripples.tonio.short": "Тонио",
   
   
   "character.jojo_ripples.shigechi": "Шигекийо Янгу",
@@ -145,6 +153,22 @@
   "character.jojo_ripples.doppio.short": "Доппио",
   
   
+  "character.jojo_ripples.ghiaccio": "Гьяччо",
+  "character.jojo_ripples.ghiaccio.short": "Гьяччо",
+  
+  
+  "character.jojo_ripples.prosciutto": "Прошутто",
+  "character.jojo_ripples.prosciutto.short": "Прошутто",
+  
+  
+  "character.jojo_ripples.pesci": "Пеши",
+  "character.jojo_ripples.pesci.short": "Пеши",
+  
+  
+  "character.jojo_ripples.risotto": "Ризотто Неро",
+  "character.jojo_ripples.risotto.short": "Ризотто",
+  
+  
   "character.jojo_ripples.jolyne": "Джолин Куджо",
   "character.jojo_ripples.jolyne.short": "Джолин",
   
@@ -187,6 +211,30 @@
   
   "character.jojo_ripples.valentine": "Фанни Валентайн",
   "character.jojo_ripples.valentine.short": "Валентайн",
+  
+  
+  "character.jojo_ripples.pocoloco": "Поколоко",
+  "character.jojo_ripples.pocoloco.short": "Поколоко",
+																												  
+																												  
+  "character.jojo_ripples.oyecomova": "Ойекомова",
+  "character.jojo_ripples.oyecomova.short": "Ойекомова",
+  
+  
+  "character.jojo_ripples.dr_ferdinand": "Доктор Фердинанд",
+  "character.jojo_ripples.dr_ferdinand.short": "Фердинанд",
+  
+  
+  "character.jojo_ripples.ringo": "Ринго Роудагейн",
+  "character.jojo_ripples.ringo.short": "Ринго",
+																												  
+																												  
+  "character.jojo_ripples.blackmore": "Блэкмор",
+  "character.jojo_ripples.blackmore.short": "Блэкмор",
+																												  
+																												  
+  "character.jojo_ripples.magent_magent": "Маджент Маджент",
+  "character.jojo_ripples.magent_magent.short": "Маджент Маджент",
   
   
   "character.jojo_ripples.wekapipo": "Векапипо",

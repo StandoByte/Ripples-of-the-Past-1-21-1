@@ -112,11 +112,11 @@ public class ClientStandToggle implements Renderable {
 					overrulingCommonSetting.get().optionStatus);
 		}
 		else {
-			toggleTooltip = CommonComponents.optionStatus(getResultingValue()).copy();
+			toggleTooltip = BoolOrPlayerPref.optionStatus(getResultingValue()).copy();
 		}
 		toggle.setTooltip(Tooltip.create(toggleTooltip.withStyle(ChatFormatting.BLACK)));
 		
-		visibilityToggle.setTooltip(Tooltip.create(CommonComponents.optionStatus(
+		visibilityToggle.setTooltip(Tooltip.create(BoolOrPlayerPref.optionStatus(
 				Component.translatable("jojo_ripples.toggle.show_in_hud"), visibilityToggle.getState())
 				.copy().withStyle(ChatFormatting.BLACK)));
 		
@@ -134,7 +134,7 @@ public class ClientStandToggle implements Renderable {
 		visibilityToggle.render(guiGraphics, mouseX, mouseY, partialTick);
 		
 		if (toggle.isHovered() || visibilityToggle.isHovered()) {
-			TooltipParams.set(TooltipParams.paperStyle());
+			TooltipParams.set(TooltipParams.paperStyle(1));
 		}
 	}
 
