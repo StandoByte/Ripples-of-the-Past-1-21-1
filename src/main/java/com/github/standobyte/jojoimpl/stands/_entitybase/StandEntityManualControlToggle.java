@@ -104,7 +104,7 @@ public class StandEntityManualControlToggle extends Ability {
 			RenderSystem.enableBlend();
 			RenderSystem.defaultBlendFunc();
 			if (isControlled) {
-				PowerHud.renderStandIcon(standPower, poseStack, (int) x + 4, y - 4, ARGB32.multiply(color, 0x80FFFFFF));
+				PowerHud.renderStandIcon(standPower, poseStack, (int) x + 4, y - 4, ARGB32.multiply(color, 0x60FFFFFF));
 				RenderSystem.enableBlend();
 				RenderSystem.defaultBlendFunc();
 				poseStack.pushPose();
@@ -118,7 +118,7 @@ public class StandEntityManualControlToggle extends Ability {
 				poseStack.pushPose();
 				poseStack.scale(0.5f, 0.5f, 1);
 				poseStack.translate(x, y, 0);
-				ClientUtil.renderEntityFace(poseStack, x + 16, y, context.getUser(), ARGB32.multiply(color, 0x80FFFFFF), false);
+				ClientUtil.renderEntityFace(poseStack, x + 16, y, context.getUser(), ARGB32.multiply(color, 0x60FFFFFF), false);
 				poseStack.popPose();
 				guiGraphics.disableScissor();
 				PowerHud.renderStandIcon(standPower, poseStack, x - 2, y, color);
