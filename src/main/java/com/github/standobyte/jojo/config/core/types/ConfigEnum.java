@@ -9,12 +9,14 @@ import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
 public class ConfigEnum<T extends Enum<T>> extends ConfigOption<T> {
 	public final Class<T> enumClass;
+	public final T[] enumConstants;
 	protected DefaultedValue<T> value;
 	protected DefaultedValue<T> remoteValue;
 
 	public ConfigEnum(Class<T> enumClass, T defaultValue) {
 		super(CodecUtil.enumCodec(enumClass), NeoForgeStreamCodecs.enumCodec(enumClass));
 		this.enumClass = enumClass;
+		this.enumConstants = enumClass.getEnumConstants();
 		this.value = new DefaultedValue<>(defaultValue);
 	}
 

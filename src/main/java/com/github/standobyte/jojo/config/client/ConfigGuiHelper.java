@@ -39,6 +39,7 @@ import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats.StatWithValue;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
+import com.github.standobyte.jojo.util.functions.EnumUtil;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import it.unimi.dsi.fastutil.objects.Object2CharArrayMap;
@@ -213,23 +214,16 @@ public class ConfigGuiHelper {
 			ModConfigType type, @Nullable String icon) {
 		addOptionButton(cfgOption, type, icon, 
 				option -> {
-					BoolOrPlayerPref[] values = BoolOrPlayerPref.values();
-					BoolOrPlayerPref val = option.get();
-					BoolOrPlayerPref nextVal = values[(val.ordinal() + 1) % values.length];
-					option.set(nextVal);
+					option.set(EnumUtil.getNextWrapped(option.get(), cfgOption.enumConstants));
 				}, 
 				(Component name, BoolOrPlayerPref value) -> value.optionStatus(name));
 	}
 
 	public <T extends Enum<T>> void addEnumOptionButton(ConfigEnum<T> cfgOption, 
 			ModConfigType type, @Nullable String icon) {
-		Class<T> enumClass = cfgOption.enumClass;
 		addOptionButton(cfgOption, type, icon, 
 				option -> {
-					T[] values = enumClass.getEnumConstants();
-					T val = option.get();
-					T nextVal = values[(val.ordinal() + 1) % values.length];
-					option.set(nextVal);
+					option.set(EnumUtil.getNextWrapped(option.get(), cfgOption.enumConstants));
 				}, 
 				(Component name, T value) -> Component.translatable("options.generic_value", name, 
 						Component.translatable(getPrefix(modId, type)

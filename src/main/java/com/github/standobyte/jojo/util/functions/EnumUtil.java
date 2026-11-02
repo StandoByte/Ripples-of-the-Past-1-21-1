@@ -15,13 +15,30 @@ public class EnumUtil {
 		return map;
 	}
 	
+	
 	public static <T extends Enum<T>> T getNextWrapped(T constant) {
-		T[] values = (T[]) constant.getClass().getEnumConstants();
+		return getNextWrapped(constant, (T[]) constant.getClass().getEnumConstants());
+	}
+	
+	public static <T extends Enum<T>> T getNextWrapped(T constant, Class<T> enumClass) {
+		return getNextWrapped(constant, enumClass.getEnumConstants());
+	}
+	
+	public static <T extends Enum<T>> T getNextWrapped(T constant, T[] values) {
 		return values[(constant.ordinal() + 1) % values.length];
 	}
 	
+	
 	public static <T extends Enum<T>> T getPrevWrapped(T constant) {
-		T[] values = (T[]) constant.getClass().getEnumConstants();
+		return getPrevWrapped(constant, (T[]) constant.getClass().getEnumConstants());
+	}
+	
+	public static <T extends Enum<T>> T getPrevWrapped(T constant, Class<T> enumClass) {
+		return getPrevWrapped(constant, enumClass.getEnumConstants());
+	}
+	
+	public static <T extends Enum<T>> T getPrevWrapped(T constant, T[] values) {
 		return values[(constant.ordinal() - 1 + values.length) % values.length];
 	}
+	
 }
