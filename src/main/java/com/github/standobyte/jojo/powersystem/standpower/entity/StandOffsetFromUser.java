@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.powersystem.standpower.entity;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.config.RotpConfig;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.network.s2c.TrSyncStandOffsetPacket;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
@@ -42,7 +43,9 @@ public class StandOffsetFromUser {
 	private double clPrevOffsetDist = -1;
 	
 	public static StandOffsetFromUser createDefault(StandEntity standEntity) {
-		StandOffsetFromUser offset = new StandOffsetFromUser(standEntity, new Vec3(0.75, standEntity.Y_OFFSET, -0.75), Rotations.BODY);
+		StandOffsetFromUser offset = new StandOffsetFromUser(standEntity, 
+				new Vec3(0.75, standEntity.Y_OFFSET, -0.75), 
+				fromUserConfig(standEntity));
 		offset.grabOffset(new Vec3(-1, standEntity.Y_OFFSET, 1.5));
 		return offset;
 	}
@@ -58,6 +61,47 @@ public class StandOffsetFromUser {
 		this.grabIdleOffset = offset;
 		return this;
 	}
+	
+	
+	@Nullable
+	public static Rotations fromUserConfig(LivingEntity user) {
+		if (user instanceof Player player) {
+			var config = JojoMod.config.getPlayerBroadcast(player);
+			if (config != null) {
+				return getTypeFromConfig(config.standIdleRotRelative.get());
+			}
+		}
+		return null;
+	}
+
+	public static final Rotations DEFAULT = Rotations.BODY;
+	public static final RotpConfig.StandIdleRotation CONFIG_DEFAULT = RotpConfig.StandIdleRotation.BODY;
+	public static Rotations getTypeFromConfig(RotpConfig.StandIdleRotation configValue) {
+		return switch (configValue) {
+			case HEAD -> Rotations.HEAD;
+			case BODY -> Rotations.BODY;
+		};
+	}
+	
+	public void updateFromUserConfig(LivingEntity user) {
+		if (user != null) {
+			Rotations rotations = fromUserConfig(user);
+			if (rotations != null) {
+				setIdleRotationType(rotations);
+			}
+		}
+	}
+	
+	public void setIdleRotationType(Rotations idleRotations) {
+		if (this.idleRotations != idleRotations) {
+			boolean isIdle = isIdle();
+			this.idleRotations = idleRotations;
+			if (isIdle) {
+				rotations = idleRotations;
+			}
+		}
+	}
+	
 	
 	public static double leftMultiplierFromClientConfig(LivingEntity standUser) {
 		boolean isDefaultSide = true;

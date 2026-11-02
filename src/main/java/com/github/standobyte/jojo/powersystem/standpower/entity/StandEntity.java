@@ -268,6 +268,10 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			entityData.set(USER_ID, user.getId());
 		}
 		this.userPower = power;
+		
+		if (offsetFromUser != null) {
+			offsetFromUser.updateFromUserConfig(user);
+		}
 	}
 	
 	@Override

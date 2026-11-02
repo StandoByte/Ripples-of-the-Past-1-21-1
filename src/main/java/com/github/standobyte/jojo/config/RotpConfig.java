@@ -17,6 +17,7 @@ import com.github.standobyte.jojo.config.core.types.ConfigEnum;
 import com.github.standobyte.jojo.config.core.types.ConfigFloat;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.resolve.ClientResolveVisuals;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
 import net.minecraft.network.chat.Component;
@@ -88,6 +89,7 @@ public class RotpConfig {
 
 	public final static class ClientBroadcast {
 		public final ConfigEnum<HumanoidArm> standSide = new ConfigEnum<>(HumanoidArm.class, HumanoidArm.LEFT);
+		public final ConfigEnum<StandIdleRotation> standIdleRotRelative = new ConfigEnum<>(StandIdleRotation.class, StandOffsetFromUser.CONFIG_DEFAULT);
 		public final ConfigBool standBreaksBlocks = new ConfigBool(true);
 		public final ConfigBool standPicksUpItems = new ConfigBool(true);
 		public final ConfigBool standMovesBeyondEffRange = new ConfigBool(true);
@@ -148,6 +150,8 @@ public class RotpConfig {
 		//public final ConfigBool spawnCocoJumboTurtle;
 	}
 	
+	public enum StandIdleRotation { HEAD, BODY }
+	
 	public static boolean canStandBreakBlocks(LivingEntity playerUser) {
 		var config = JojoMod.config;
 		Common common = config.getCommon();
@@ -183,6 +187,7 @@ public class RotpConfig {
 						
 						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.stand"));
 						helper.addEnumOptionButton(clientBroadcast.standSide, ModConfigType.CLIENT_BROADCAST, null);
+						helper.addEnumOptionButton(clientBroadcast.standIdleRotRelative, ModConfigType.CLIENT_BROADCAST, null);
 						helper.addBooleanOptionButton(client.standAimMarker, ModConfigType.CLIENT, "stand_aim_marker");
 						helper.addBooleanOptionButton(client.standMotionTilt, ModConfigType.CLIENT, null);
 						helper.addBooleanOptionButton(client.standAura, ModConfigType.CLIENT, null);

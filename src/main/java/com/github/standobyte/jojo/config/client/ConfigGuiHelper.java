@@ -232,7 +232,9 @@ public class ConfigGuiHelper {
 					option.set(nextVal);
 				}, 
 				(Component name, T value) -> Component.translatable("options.generic_value", name, 
-						Component.translatable(getPrefix(modId, type) + ".option." + value.name().toLowerCase())));
+						Component.translatable(getPrefix(modId, type)
+								+ "." + cfgOption.getFieldName()
+								+ ".option." + value.name().toLowerCase())));
 	}
 	
 	public <T> void addOptionButton(ConfigOption<T> option, 
