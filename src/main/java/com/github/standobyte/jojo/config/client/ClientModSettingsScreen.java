@@ -162,7 +162,7 @@ public class ClientModSettingsScreen extends Screen {
 	
 	protected void revertUnsavedChanges() {
 		if (lastAppliedState != null && configBeingEdited != null) {
-			lastAppliedState.apply(configBeingEdited);
+			lastAppliedState.apply(configBeingEdited, minecraft.player);
 		}
 	}
 	

@@ -191,7 +191,7 @@ public class StandStats implements JsonConfigurable {
 		JsonObject config = json.getAsJsonObject();
 		for (StatWithValue field : StatWithValue.values()) {
 			Optional.ofNullable(config.getAsJsonPrimitive(field.nameInJson)).ifPresent(jsonValue -> {
-				getField(field).set(jsonValue.getAsDouble());
+				getField(field).setWithCallback(jsonValue.getAsDouble(), null);
 			});
 		}
 	}
@@ -199,7 +199,7 @@ public class StandStats implements JsonConfigurable {
 	@Override
 	public void restoreDefaults() {
 		for (StatWithValue field : StatWithValue.values()) {
-			getField(field).reset();
+			getField(field).resetWithCallback(null);
 		}
 	}
 	

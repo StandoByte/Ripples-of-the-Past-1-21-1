@@ -123,7 +123,7 @@ public class StandCommonConfig implements CommonConfig<StandType> {
 
 	@Override
 	public void reset() {
-		configState.reset();
+		configState.reset(null);
 	}
 	
 	
@@ -351,7 +351,7 @@ public class StandCommonConfig implements CommonConfig<StandType> {
 	
 	@Override
 	public void fromBuf(RegistryFriendlyByteBuf buf) {
-		configState.fromBuf(buf);
+		configState.fromBuf(buf, null);
 	}
 
 

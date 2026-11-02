@@ -9,7 +9,6 @@ import com.github.standobyte.jojo.config.client.ClientModSettingsScreen.ConfigTa
 import com.github.standobyte.jojo.config.client.ConfigGuiHelper;
 import com.github.standobyte.jojo.config.client.RegisterRotpConfigScreenTabEvent;
 import com.github.standobyte.jojo.config.core.ModConfig;
-import com.github.standobyte.jojo.config.core.ModConfig.CommonConfigState;
 import com.github.standobyte.jojo.config.core.ModConfigType;
 import com.github.standobyte.jojo.config.core.types.ClientConfigKeyBinding;
 import com.github.standobyte.jojo.config.core.types.ConfigBool;
@@ -17,6 +16,8 @@ import com.github.standobyte.jojo.config.core.types.ConfigEnum;
 import com.github.standobyte.jojo.config.core.types.ConfigFloat;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.resolve.ClientResolveVisuals;
+import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
@@ -43,13 +44,8 @@ public class RotpConfig {
 		//public final ConfigBool showLockedSlots = false;
 		public final ConfigBool abilitySelectionWheel = new ConfigBool(true);
 
-		public final ConfigBool resolveShaders = new ConfigBool(true) {
-			@Override
-			public void set(Boolean value, CommonConfigState cfgState) {
-				super.set(value, cfgState);
-				ClientResolveVisuals.onColorShiftSettingUpdated(value);
-			}
-		};
+		public final ConfigBool resolveShaders = new ConfigBool(true)
+				.withOnChangeCallback(ClientResolveVisuals::onColorShiftSettingUpdated);
 		//public final ConfigBool timeStopAnimation = true;
 		public final ConfigBool standMotionTilt = new ConfigBool(true);
 		//public final ConfigBool poseOnLmbRmb = true;
@@ -89,7 +85,15 @@ public class RotpConfig {
 
 	public final static class ClientBroadcast {
 		public final ConfigEnum<HumanoidArm> standSide = new ConfigEnum<>(HumanoidArm.class, HumanoidArm.LEFT);
-		public final ConfigEnum<StandIdleRotation> standIdleRotRelative = new ConfigEnum<>(StandIdleRotation.class, StandOffsetFromUser.CONFIG_DEFAULT);
+		public final ConfigEnum<StandIdleRotation> standIdleRotRelative = new ConfigEnum<>(StandIdleRotation.class, StandOffsetFromUser.CONFIG_DEFAULT)
+				.withOnChangeCallback((value, player) -> {
+					if (player != null) {
+						StandEntity summonedStand = StandUtil.getSummonedStand(player);
+						if (summonedStand != null) {
+							summonedStand.offsetFromUser.updateFromUserConfig(player);
+						}
+					}
+				});
 		public final ConfigBool standBreaksBlocks = new ConfigBool(true);
 		public final ConfigBool standPicksUpItems = new ConfigBool(true);
 		public final ConfigBool standMovesBeyondEffRange = new ConfigBool(true);

@@ -15,6 +15,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.world.entity.player.Player;
 
 public class ObjectConfigHelper<C> {
 	public final C configObj;
@@ -32,9 +33,9 @@ public class ObjectConfigHelper<C> {
 		}
 	}
 	
-	public void fromBuf(RegistryFriendlyByteBuf buf) {
+	public void fromBuf(RegistryFriendlyByteBuf buf, @Nullable Player relevantPlayer) {
 		for (ConfigOption<?> option : configOptions.values()) {
-			option.fromBuf(buf);
+			option.fromBufWithCallback(buf, relevantPlayer);
 		}
 	}
 	
@@ -43,9 +44,9 @@ public class ObjectConfigHelper<C> {
 		configOptions.get(editedOptionName).toBuf(buf);
 	}
 	
-	public void editFromBuf(RegistryFriendlyByteBuf buf) {
+	public void editFromBuf(RegistryFriendlyByteBuf buf, @Nullable Player relevantPlayer) {
 		String editedOptionName = buf.readUtf();
-		configOptions.get(editedOptionName).fromBuf(buf);
+		configOptions.get(editedOptionName).fromBufWithCallback(buf, relevantPlayer);
 	}
 	
 	public JsonObject toJson() {
@@ -87,9 +88,9 @@ public class ObjectConfigHelper<C> {
 		return true;
 	}
 	
-	public void reset() {
+	public void reset(@Nullable Player relevantPlayer) {
 		for (ConfigOption<?> option : configOptions.values()) {
-			option.reset();
+			option.resetWithCallback(relevantPlayer);
 		}
 	}
 	

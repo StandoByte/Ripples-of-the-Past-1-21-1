@@ -3,10 +3,14 @@ package com.github.standobyte.jojo.config.internal;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import org.spongepowered.include.com.google.common.base.Objects;
 
 import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.interfaces.ObjConfig;
+
+import net.minecraft.world.entity.player.Player;
 
 public class ConfigOptionsState {
 	private final Map<String, Object> stateSnapshot;
@@ -30,8 +34,8 @@ public class ConfigOptionsState {
 		return filterToOnlyChanged(this.stateSnapshot, configOptions);
 	}
 	
-	public void apply(ObjConfig config) {
-		apply(this.stateSnapshot, config.getAllConfigOptions());
+	public void apply(ObjConfig config, @Nullable Player relevantPlayer) {
+		apply(this.stateSnapshot, config.getAllConfigOptions(), relevantPlayer);
 	}
 
 
@@ -65,13 +69,13 @@ public class ConfigOptionsState {
 		return changedOnly;
 	}
 	
-	public static void apply(Map<String, Object> stateSnapshot, Map<String, ConfigOption<?>> configOptions) {
+	public static void apply(Map<String, Object> stateSnapshot, Map<String, ConfigOption<?>> configOptions, @Nullable Player relevantPlayer) {
 		for (var configOptionEntry : configOptions.entrySet()) {
 			String fieldName = configOptionEntry.getKey();
 			ConfigOption configOption = configOptionEntry.getValue();
 			Object snapshotValue = stateSnapshot.get(fieldName);
 			if (!Objects.equal(configOption.get(), snapshotValue)) {
-				configOption.set(snapshotValue);
+				configOption.setWithCallback(snapshotValue, relevantPlayer);
 			}
 		}
 	}

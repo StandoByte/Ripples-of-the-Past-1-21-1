@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.config.interfaces.ServerPlayerBroadcastConfig;
 import com.github.standobyte.jojo.config.internal.ObjectConfigHelper;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.world.entity.player.Player;
 
 public class ServerPlayerBroadcastObjectConfig<C2> implements ServerPlayerBroadcastConfig<C2> {
 	@Nullable private final ObjectConfigHelper<C2> configState;
@@ -25,8 +26,8 @@ public class ServerPlayerBroadcastObjectConfig<C2> implements ServerPlayerBroadc
 	}
 
 	@Override
-	public void reset() {
-		configState.reset();
+	public void reset(Player player) {
+		configState.reset(player);
 	}
 	
 	@Override
@@ -35,8 +36,8 @@ public class ServerPlayerBroadcastObjectConfig<C2> implements ServerPlayerBroadc
 	}
 	
 	@Override
-	public void fromBuf(RegistryFriendlyByteBuf buf) {
-		configState.fromBuf(buf);
+	public void fromBuf(RegistryFriendlyByteBuf buf, Player player) {
+		configState.fromBuf(buf, player);
 	}
 	
 }

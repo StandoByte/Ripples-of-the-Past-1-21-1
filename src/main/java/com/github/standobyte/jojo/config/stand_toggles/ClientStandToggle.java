@@ -32,7 +32,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.LinearLayout.Orientation;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -79,14 +78,7 @@ public class ClientStandToggle implements Renderable {
 		
 		toggle = new ToggleSwitch(x + 4, y + 2, Orientation.HORIZONTAL, 
 				setting, 
-				newVal -> {
-					setting.set(newVal);
-					
-					JojoMod.config.saveClient();
-					if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
-						JojoMod.config.sendClientBroadcast(true);
-					}
-				}, null) {
+				newVal -> toggle(), null) {
 			
 			@Override
 			public boolean getStateToRender() {
@@ -101,6 +93,15 @@ public class ClientStandToggle implements Renderable {
 					
 					JojoMod.config.saveClient();
 				}, null);
+	}
+	
+	public void toggle() {
+		setting.setWithCallback(!setting.get(), Minecraft.getInstance().player);
+		
+		JojoMod.config.saveClient();
+		if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
+			JojoMod.config.sendClientBroadcast(true);
+		}
 	}
 
 	@Override
@@ -159,15 +160,6 @@ public class ClientStandToggle implements Renderable {
 	protected static void _renderIcon(GuiIcon icon, PoseStack poseStack, int x, int y, int color) {
 		int offset = (int) (ICON_SIZE - icon.width) / 2;
 		icon.render(poseStack, x + offset, y + offset, color);
-	}
-	
-	public void toggle() {
-		setting.set(!setting.get());
-		
-		JojoMod.config.saveClient();
-		if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
-			JojoMod.config.sendClientBroadcast(true);
-		}
 	}
 	
 	public boolean getResultingValue() {

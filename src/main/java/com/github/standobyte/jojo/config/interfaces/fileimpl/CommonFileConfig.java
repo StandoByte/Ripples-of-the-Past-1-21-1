@@ -47,7 +47,7 @@ public class CommonFileConfig<C3> implements CommonConfig<C3> {
 
 	@Override
 	public void reset() {
-		configState.reset();
+		configState.reset(null);
 	}
 	
 	@Override
@@ -96,7 +96,7 @@ public class CommonFileConfig<C3> implements CommonConfig<C3> {
 	
 	@Override
 	public void fromBuf(RegistryFriendlyByteBuf buf) {
-		configState.fromBuf(buf);
+		configState.fromBuf(buf, null);
 	}
 	
 	

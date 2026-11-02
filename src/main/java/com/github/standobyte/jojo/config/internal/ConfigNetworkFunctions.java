@@ -173,7 +173,7 @@ public class ConfigNetworkFunctions {
 		ConfigId configId = payload.configId;
 		ModConfig<?, ?, ?> config = getConfig(configId);
 		ServerPlayerBroadcastConfig<?> broadcast = config.getBroadcastPlayerState(playerId);
-		broadcast.fromBuf(payload.read);
+		broadcast.fromBuf(payload.read, player);
 
 		PlayerBroadcastConfigPacket playerBroadcastPacket = new PlayerBroadcastConfigPacket(
 				playerId, configId, broadcast::toBuf);
@@ -201,12 +201,13 @@ public class ConfigNetworkFunctions {
 		ConfigId configId = payload.configId;
 		ModConfig<?, ?, ?> config = getConfig(configId);
 		ServerPlayerBroadcastConfig<?> broadcast = config.getBroadcastPlayerState(playerId);
+		Player remotePlayer = Minecraft.getInstance().level.getPlayerByUUID(playerId);
 		boolean reset = payload.read.isEmpty();
 		if (reset) {
-			broadcast.reset();
+			broadcast.reset(remotePlayer);
 		}
 		else {
-			broadcast.fromBuf(payload.read.get());
+			broadcast.fromBuf(payload.read.get(), remotePlayer);
 		}
 	}
 	
@@ -237,7 +238,7 @@ public class ConfigNetworkFunctions {
 					continue;
 				}
 				
-				field.fromBuf(buf);
+				field.fromBufWithCallback(buf, null);
 				editedConfigOptions.put(fieldName, field);
 				if (server.getGameRules().getBoolean(GameRules.RULE_SENDCOMMANDFEEDBACK)) {
 					CommandSourceStack srcStack = sender.createCommandSourceStack();

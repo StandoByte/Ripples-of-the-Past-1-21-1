@@ -115,7 +115,7 @@ public class NumericField extends EditBox {
 					if (validation.positive()) {
 						if (!Objects.equal(configOption.get(), newValue)) {
 							this._prevRecordedConfigValue = newValue;
-							configOption.set(newValue);
+							configOption.setWithCallback(newValue, Minecraft.getInstance().player);
 							// FIXME the decimals will probably get screwed by floating point error anyway because the value is still sent to the server as a double number... fuck...
 						}
 						color = EditBox.DEFAULT_TEXT_COLOR;
@@ -167,7 +167,7 @@ public class NumericField extends EditBox {
     		}
     		case InputConstants.MOUSE_BUTTON_RIGHT -> {
     			if (configOption != null) {
-    				configOption.reset();
+    				configOption.resetWithCallback(Minecraft.getInstance().player);
     			}
     			setFocused(false);
     		}

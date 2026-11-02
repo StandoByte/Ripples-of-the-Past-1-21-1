@@ -252,8 +252,13 @@ public class ConfigGuiHelper {
 		
 		OnButtonClick onPress = (b, mouseButton) -> {
 			switch (mouseButton) {
-				case InputConstants.MOUSE_BUTTON_LEFT -> changeValueOnClick.accept(option);
-				case InputConstants.MOUSE_BUTTON_RIGHT -> option.reset();
+				case InputConstants.MOUSE_BUTTON_LEFT -> {
+					changeValueOnClick.accept(option);
+					option.onChanged(Minecraft.getInstance().player);
+				}
+				case InputConstants.MOUSE_BUTTON_RIGHT -> {
+					option.resetWithCallback(Minecraft.getInstance().player);
+				}
 			}
 		};
 		

@@ -13,6 +13,9 @@ import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
 import com.github.standobyte.jojo.config.internal.ObjectConfigHelper;
 import com.google.gson.JsonObject;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
+
 public class ClientFileConfig<C1, C2> implements ClientConfig<C1, C2> {
 	@Nullable private final ObjectConfigHelper<C1> localOnly;
 	@Nullable private final ObjectConfigHelper<C2> broadcast;
@@ -48,11 +51,12 @@ public class ClientFileConfig<C1, C2> implements ClientConfig<C1, C2> {
 	
 	@Override
 	public void reset() {
+		Player player = Minecraft.getInstance().player;
 		if (localOnly != null) {
-			localOnly.reset();
+			localOnly.reset(player);
 		}
 		if (broadcast != null) {
-			broadcast.reset();
+			broadcast.reset(player);
 		}
 	}
 
