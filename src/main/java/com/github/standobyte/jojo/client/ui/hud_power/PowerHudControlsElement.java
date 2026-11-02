@@ -152,7 +152,8 @@ public class PowerHudControlsElement extends HudElement {
 			this.cooldownRatio = cooldownRatio;
 		}
 
-		public void renderInside(GuiGraphics guiGraphics, float x, float y, Minecraft mc, float partialTick, int alpha) {}
+		public void renderInside(GuiGraphics guiGraphics, float x, float y, Minecraft mc, 
+				float partialTick, int alpha, boolean showEmptyWindup) {}
 		
 		public void addHoverTooltip(List<Component> tooltipLines, Component keyName) {
 			tooltipLines.add(keybindAbilityName.copy().withStyle(ChatFormatting.BLACK));
@@ -181,7 +182,8 @@ public class PowerHudControlsElement extends HudElement {
 		}
 		
 		@Override
-		public void renderInside(GuiGraphics guiGraphics, float x, float y, Minecraft mc, float partialTick, int alpha) {
+		public void renderInside(GuiGraphics guiGraphics, float x, float y, Minecraft mc, 
+				float partialTick, int alpha, boolean showEmptyWindup) {
 			AbilityConditionCheck abilityCheck = this.ability;
 			Ability ability = abilityCheck.ability;
 			TextureAtlasSprite sprite = this.sprite;
@@ -195,7 +197,7 @@ public class PowerHudControlsElement extends HudElement {
 
 			if (mc.player != null) {
 				WindupIndicator windup = ability.cl_windupIndicator(mc.player, windupIndicator, partialTick);
-				if (windup != null) {
+				if (windup != null && (windup.value > 0 || showEmptyWindup)) {
 					renderWindupIndicator(guiGraphics, x + 13, y + 13, windup.value, windup.maxValue, mc, alpha);
 					WindupAtCrosshair.setRender(windup);
 				}
@@ -585,7 +587,7 @@ public class PowerHudControlsElement extends HudElement {
 				AbilityBindUI abilityUI = abilitySprite.getValue();
 				boolean greenHighlight = abilityUI.greenHighlight();
 				DrawHotbar.drawHotbarSlot(hotbarLength, i, greenHighlight, guiGraphics.pose(), x, y, alpha);
-				renderAbility(guiGraphics, x, y, abilityUI, mc, partialTick, alpha);
+				renderAbility(guiGraphics, x, y, abilityUI, mc, partialTick, alpha, true);
 
 				boolean isClicked = switch (abilityUI.inputMethod) {
 					case CLICK -> {
@@ -636,13 +638,14 @@ public class PowerHudControlsElement extends HudElement {
 				Runnable drawSelection = null;
 				for (HotbarSlotUI slot : hotbar.slots) {
 					AbilityBindUI abilityUI = slot.sprite;
+					boolean isSelected = slot == hotbar.selected;
 					boolean greenHighlight = abilityUI != null && abilityUI.greenHighlight();
 					DrawHotbar.drawHotbarSlot(hotbarLength, i, greenHighlight, guiGraphics.pose(), x, y, alpha);
 					if (abilityUI != null) {
-						renderAbility(guiGraphics, x, y, abilityUI, mc, partialTick, alpha);
+						renderAbility(guiGraphics, x, y, abilityUI, mc, partialTick, alpha, isSelected);
 					}
 					
-					if (slot == hotbar.selected) {
+					if (isSelected) {
 						int _x = x;
 						int _y = y;
 						drawSelection = () -> {
@@ -693,8 +696,9 @@ public class PowerHudControlsElement extends HudElement {
 		RenderSystem.disableBlend();
 	}
 
-	public static void renderAbility(GuiGraphics guiGraphics, float x, float y, AbilityBindUI abilityUi, Minecraft mc, float partialTick, int alpha) {
-		abilityUi.renderInside(guiGraphics, x, y, mc, partialTick, alpha);
+	public static void renderAbility(GuiGraphics guiGraphics, float x, float y, AbilityBindUI abilityUi, Minecraft mc, 
+			float partialTick, int alpha, boolean showEmptyWindup) {
+		abilityUi.renderInside(guiGraphics, x, y, mc, partialTick, alpha, showEmptyWindup);
 	}
 	
 	public static void renderCooldown(GuiGraphics guiGraphics, float bindX, float bindY, float cooldownRatio) {
