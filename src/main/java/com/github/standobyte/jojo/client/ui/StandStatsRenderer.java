@@ -166,9 +166,9 @@ public class StandStatsRenderer {
 							JojoMod.config.saveClient();
 							
 							ImageButton2 button = (ImageButton2) _button;
-							button.spriteEnabled = standStatsInvertBnW.getAsBoolean() ? 
+							button.sprites.enabled = standStatsInvertBnW.getAsBoolean() ? 
 									bnwInvertedButton : bnwButton;
-							button.spriteEnabledFocused = standStatsInvertBnW.getAsBoolean() ? 
+							button.sprites.enabledFocused = standStatsInvertBnW.getAsBoolean() ? 
 									bnwInvertedButtonHovered : bnwButtonHovered;
 						});
 				invertBnWButton.visible = doStandStatsRender(screen);
