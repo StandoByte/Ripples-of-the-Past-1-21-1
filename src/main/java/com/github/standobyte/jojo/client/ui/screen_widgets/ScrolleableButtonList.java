@@ -98,7 +98,14 @@ public class ScrolleableButtonList extends ContainerObjectSelectionList<Scrollea
 	}
 	
 	@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		return active && visible && super.mouseClicked(mouseX, mouseY, button);
+	}
+	
+	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+		if (!active || !visible) return false;
+		
 		if (isMouseOver(mouseX, mouseY)) {
 			ScrolleableButtonList.EntryWithButtons entry = getEntryAtPosition(mouseX, mouseY);
 			if (entry != null && entry.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) {
