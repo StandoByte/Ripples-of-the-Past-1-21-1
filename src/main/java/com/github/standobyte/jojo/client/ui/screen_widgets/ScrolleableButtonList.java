@@ -8,6 +8,7 @@ import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.Renderable;
@@ -16,6 +17,7 @@ import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.narration.NarratableEntry;
 
 public class ScrolleableButtonList extends ContainerObjectSelectionList<ScrolleableButtonList.EntryWithButtons> {
+	public static final int SCROLL_BAR_WIDTH = AbstractSelectionList.SCROLLBAR_WIDTH;
 	public int scrollbarPosOffset = 0;
 	public boolean disableBackground = false;
 	public boolean disableSeparators = false;

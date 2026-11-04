@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.config.client;
 
 import java.math.BigDecimal;
 import java.util.function.Function;
+import java.util.function.IntConsumer;
 
 import javax.annotation.Nullable;
 
@@ -137,6 +138,41 @@ public class NumericField extends EditBox {
 		
 		this.setValue(String.valueOf(configOption.get()));
 	}
+	
+	public void forInt(int minValue, int maxValue, IntConsumer onEdited) {
+		Function<String, Integer> parser = val -> val.isEmpty() ? Integer.valueOf(0) : Integer.valueOf(val);
+		boolean allowNegative = minValue < 0;
+		
+		this.valueParser = parser;
+		
+		this.setFilter(newValueString -> {
+			try {
+				parser.apply(newValueString);
+				return true;
+			} catch (final NumberFormatException e) {
+				return isPartialNumber(newValueString, allowNegative);
+			}
+		});
+		
+		this.setResponder(newValueString -> {
+			int color = 0xFFFF0000;
+			Tooltip tooltip = null;
+			
+			try {
+				Integer newValue = parser.apply(newValueString);
+				if (newValue != null && newValue >= minValue && newValue <= maxValue) {
+					color = EditBox.DEFAULT_TEXT_COLOR;
+					onEdited.accept(newValue);
+				}
+			} catch (final NumberFormatException e) {
+				// field probably is just empty/partial, ignore that
+			}
+			
+			this.setTextColor(color);
+			this.setTooltip(tooltip);
+		});
+	}
+	
 
 	public static boolean isPartialNumber(String value, boolean allowNegative) {
 		return switch (value) {
