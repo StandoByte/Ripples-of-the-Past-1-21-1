@@ -148,6 +148,7 @@
 	"client.keybindui.KeyEntryMixin",
 	"client.keybindui.KeyBindsListMixin",
 	"client.CreativeTabScreenMixin",
+	"client.LargeMapIcons",
 	"client.jojoposeui.ChatScreenMixin",
 	
 	"stand.theworld.timestop.client.LevelRendererPartialTickMixin",
