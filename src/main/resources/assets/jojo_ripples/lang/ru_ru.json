@@ -43,6 +43,8 @@
   "genitive.item.jojo_ripples.stand_arrow_meteorite": "стрелы из метеорита",
   "trim_material.jojo_ripples.jojo_meteor": "Метеоритная",
   
+  "jojo_ripples.container.explorer_cartography_table": "Создание карт исследователя",
+  
   "key.categories.jojo_ripples": "ДжоДжо: Ripples of the Past",
   "jojo_ripples.key.toggle_stand": "Призвать/отозвать Стенд",
   "jojo_ripples.key.toggle_stand.desc": "Также включает режим управления Стендом.",

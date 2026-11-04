@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo;
 
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.client.layer.HumanoidClothesModel;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
@@ -7,10 +8,16 @@ import com.github.standobyte.v1_21_4_stuff.missingmethods.Model_1_21_2plus;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.floats.FloatStack;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
+@EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
 public class UglyCrutchesClient {
 	public static FloatStack modelPoseXRot = new FloatArrayList();
 //	public static Stack<Vector3f> modelPoseRotation = new Stack<>();
@@ -81,6 +88,14 @@ public class UglyCrutchesClient {
 				coat.xRot = Mth.clamp(coat.xRot, 0, MathUtil.PI * 0.5f);
 			});
 		}
+	}
+	
+	
+	
+	public static BlockPos lastBlockInteractedWith;
+	@SubscribeEvent
+	public static void keepPosOfLastBlockInteractedWith(PlayerInteractEvent.RightClickBlock event) {
+		lastBlockInteractedWith = event.getPos();
 	}
 	
 }

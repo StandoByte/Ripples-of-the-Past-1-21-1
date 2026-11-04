@@ -17,6 +17,8 @@ import com.github.standobyte.jojo.entityattachment.custom_effect.sync.TrStandEff
 import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataPacket;
 import com.github.standobyte.jojo.mechanics.clothes.TrClothesItemsPacket;
 import com.github.standobyte.jojo.mechanics.clothes.sewing.ClSetSewingMachineItemPacket;
+import com.github.standobyte.jojo.mechanics.explorer_map_creation.packets.ClCartographyContainerModePacket;
+import com.github.standobyte.jojo.mechanics.explorer_map_creation.packets.ClExplorerMapDataPacket;
 import com.github.standobyte.jojo.mechanics.jojopose.ClJojoPoseActionPacket;
 import com.github.standobyte.jojo.mechanics.resolve.ClActivateResolvePacket;
 import com.github.standobyte.jojo.mechanics.resolve.TrResolvePacket;
@@ -108,6 +110,8 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClNpcDebugFlagTogglePacket.Handler(JojoMod.resLoc("clnpcdebug")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClStandItemInputPacket.Handler(JojoMod.resLoc("clstanditem")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClSetSewingMachineItemPacket.Handler(JojoMod.resLoc("clsewingitem")));
+		registerPacket(registrar, PayloadRegistrar::playToServer, new ClCartographyContainerModePacket.Handler(JojoMod.resLoc("clmaptable")));
+		registerPacket(registrar, PayloadRegistrar::playToServer, new ClExplorerMapDataPacket.Handler(JojoMod.resLoc("clmapdata")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClExtendedContainerClickPacket.Handler(JojoMod.resLoc("clslotclick")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClJojoPoseActionPacket.Handler(JojoMod.resLoc("cljjpose")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClCommonServerConfigEditPacket.Handler(JojoMod.resLoc("clcfgedit")));
