@@ -23,6 +23,7 @@ public class ClientTickables {
 	
 	@FunctionalInterface
 	public static interface Tickable {
+		/** @return Whether this object should stay in the ticking list */
 		boolean tick();
 	}
 }
