@@ -270,7 +270,7 @@ public class OnFrameApplyEntityAnim {
 				
 				if (standSummonAnim != null) {
 					boolean freezeAtSummonPose = userJojoPose != null;
-					if (freezeAtSummonPose && !standSummonAnim.anim.poses.isEmpty()) {
+					if (freezeAtSummonPose && standSummonAnim.anim.poses != null && !standSummonAnim.anim.poses.isEmpty()) {
 						float freezeAtSummonPoseTimestamp = standSummonAnim.anim.poses.values().iterator().next().timeInSeconds() * 20;
 						
 						if (animVariables.time > freezeAtSummonPoseTimestamp) {
