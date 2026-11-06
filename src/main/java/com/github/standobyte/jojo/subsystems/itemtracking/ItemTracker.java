@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.subsystems.itemtracking;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.UUID;
@@ -8,9 +10,12 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.init.ModItemDataComponents;
+import com.github.standobyte.jojo.util.functions.NBTUtil;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -59,7 +64,7 @@ public class ItemTracker {
 	protected final ItemTracking trackerSystem;
 
 	@Nullable protected ItemStack itemStack;
-	@Nullable protected UUID trackingPlayerId;
+	protected List<UUID> trackingPlayersId = new ArrayList<>(1);
 	@Nullable public String context;
 
 	@Nullable protected ResourceKey<Level> positionDimension;
@@ -76,7 +81,7 @@ public class ItemTracker {
 
 	public void setTrackedByPlayer(Player player) { setTrackedByPlayer(player.getUUID()); }
 	public void setTrackedByPlayer(UUID playerId) {
-		this.trackingPlayerId = playerId;
+		this.trackingPlayersId.add(playerId);
 		trackerSystem.setDirty();
 	}
 	
@@ -243,16 +248,15 @@ public class ItemTracker {
 
 
 	public void syncToPlayer(ServerLevel level) {
-		Player player = getTrackingPlayer(level);
-		if (player instanceof ServerPlayer serverPlayer) {
-			PacketDistributor.sendToPlayer(serverPlayer, new TrackedItemPacket(
-					trackerId, itemStack, context, 
-					positionEntity, Optional.ofNullable(positionBlock)));
+		for (UUID playerId : trackingPlayersId) {
+			Player player = level.getPlayerByUUID(playerId);
+			if (player instanceof ServerPlayer serverPlayer) {
+				PacketDistributor.sendToPlayer(serverPlayer, new TrackedItemPacket(
+						trackerId, itemStack, context, 
+						positionEntity, Optional.ofNullable(positionBlock)));
+			}
 		}
-	}
-
-	public Player getTrackingPlayer(ServerLevel level) {
-		return trackingPlayerId != null ? level.getPlayerByUUID(trackingPlayerId) : null;
+		
 	}
 	
 	
@@ -321,8 +325,9 @@ public class ItemTracker {
 	public Tag toNBT(boolean savePlayerId) {
 		CompoundTag nbt = new CompoundTag();
 		nbt.putUUID("Id", trackerId);
-		if (trackingPlayerId != null) {
-			nbt.putUUID("Player", trackingPlayerId);
+		if (!trackingPlayersId.isEmpty()) {
+			ListTag trackingPlayersNbt = NBTUtil.toList(trackingPlayersId, UUIDUtil.CODEC);
+			nbt.put("Players", trackingPlayersNbt);
 		}
 		if (context != null) {
 			nbt.putString("context", context);
@@ -335,7 +340,7 @@ public class ItemTracker {
 		UUID trackerUuid = nbt.getUUID("Id");
 		ItemTracker tracker = new ItemTracker(trackerUuid, trackerSystem);
 		
-		tracker.trackingPlayerId = nbt.hasUUID("Player") ? nbt.getUUID("Player") : null;
+		NBTUtil.fromList(nbt, "Players", tracker.trackingPlayersId, UUIDUtil.CODEC);
 		tracker.context = nbt.getString("context");
 		
 		return tracker;
