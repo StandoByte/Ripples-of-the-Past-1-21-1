@@ -235,11 +235,6 @@ public class ConfigGuiHelper {
 			ModConfigType type, @Nullable String icon, 
 			Consumer<ConfigOption<T>> changeValueOnClick, 
 			BiFunction<Component, T, MutableComponent> getValueMessage) {
-		if (curEntry == null) {
-			curEntry = new EntryWithButtons();
-			list.addEntry(curEntry);
-		}
-		
 		Component name = makeName(option, modId, type);
 		Component tooltipBody = makeTooltipBody(option, modId, type);
 		Component nameWithSprite = icon != null ? prependIcon(name, toIconPath(icon)) : name;
@@ -256,6 +251,19 @@ public class ConfigGuiHelper {
 			}
 		};
 		
+		ConfigButton button = new ConfigButton(-1, -1, -1, -1, 
+				name, nameWithSprite, 
+				onPress, tooltipBody, 
+				type, option, (BiFunction<Component, Object, MutableComponent>) getValueMessage);
+		addButton(button);
+	}
+	
+	public void addButton(ScrollingStringButton button) {
+		if (curEntry == null) {
+			curEntry = new EntryWithButtons();
+			list.addEntry(curEntry);
+		}
+		
 		int buttonWidth = Math.min((screen.width - 80) / 2, 150);
 		int x = switch (curEntry.children().size()) {
 			case 0 -> screen.width / 2 - 35 - buttonWidth;
@@ -263,10 +271,9 @@ public class ConfigGuiHelper {
 			default -> throw new IllegalStateException();
 		};
 		
-		ConfigButton button = new ConfigButton(-1, -1, buttonWidth, 20, 
-				name, nameWithSprite, 
-				onPress, tooltipBody, 
-				type, option, (BiFunction<Component, Object, MutableComponent>) getValueMessage);
+		button.setWidth(buttonWidth);
+		button.setHeight(20);
+		
 		if (curEntry.children().size() == 0) {
 			button.setAlignment(Alignment.RIGHT);
 		}
