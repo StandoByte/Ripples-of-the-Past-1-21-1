@@ -108,4 +108,28 @@ public class AttributeUtil {
 				modifier -> !exclude.contains(modifier.id()), attribute.getAttribute().value());
 	}
 
+
+	public static class BooleanAttributeUtil {
+
+		public static boolean getValueOrDefault(LivingEntity entity, Holder<Attribute> attribute, boolean defaultValue) {
+			if (entity == null) return defaultValue;
+			AttributeMap attributes = entity.getAttributes();
+			return attributes.hasAttribute(attribute) ? attributes.getValue(attribute) > 0 : defaultValue;
+		}
+
+		public static boolean getValueOrDefault(LivingEntity entity, Holder<Attribute> attribute) {
+			if (entity == null) return attribute.value().getDefaultValue() > 0;
+			AttributeMap attributes = entity.getAttributes();
+			return (attributes.hasAttribute(attribute) ? attributes.getValue(attribute) : attribute.value().getDefaultValue()) > 0;
+		}
+		
+		public static AttributeModifier modifierEnable(ResourceLocation modifierId) {
+			return new AttributeModifier(modifierId, 1, AttributeModifier.Operation.ADD_VALUE);
+		}
+		
+		public static AttributeModifier modifierDisable(ResourceLocation modifierId) {
+			return new AttributeModifier(modifierId, -1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+		}
+	}
+
 }

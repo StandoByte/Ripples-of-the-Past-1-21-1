@@ -443,6 +443,8 @@
   "attribute.name.jojo_ripples.stand_max_range": "Максимальная дальность Стенда",
   "attribute.name.jojo_ripples.stand_durability": "Стойкость Стенда",
   "attribute.name.jojo_ripples.stand_precision": "Точность Стенда",
+  "attribute.name.jojo_ripples.can_see_stands": "Возможность видеть Стенды",
+  "attribute.name.jojo_ripples.can_attack_stands": "Возможность атаковать Стенды",
   "attribute.name.jojo_ripples.sun_burn_damage": "Урон от солнца",
   
   "stand_hand_slot.main": "Ведущая рука %s",

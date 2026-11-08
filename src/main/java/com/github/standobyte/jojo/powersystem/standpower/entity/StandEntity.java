@@ -741,6 +741,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			.add(ModEntityAttributes.STAND_MAX_RANGE, 4)
 			.add(ModEntityAttributes.STAND_DURABILITY, 8)
 			.add(ModEntityAttributes.STAND_PRECISION, 8)
+			.add(ModEntityAttributes.CAN_ATTACK_STANDS, 1)
 			.add(Attributes.LUCK)
 			.add(Attributes.BLOCK_BREAK_SPEED)
 			.add(Attributes.SUBMERGED_MINING_SPEED)

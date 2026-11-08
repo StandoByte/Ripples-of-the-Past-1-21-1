@@ -13,6 +13,7 @@ import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.subsystems.entity_grab.LivingComponentGrab;
 import com.github.standobyte.jojo.util.functions.AttributeUtil;
+import com.github.standobyte.jojo.util.functions.AttributeUtil.BooleanAttributeUtil;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 
 import net.minecraft.core.Holder;
@@ -81,8 +82,8 @@ public class StandUtil {
 
     public static boolean entityCanSeeStands(LivingEntity entity) {
     	return entity.isSpectator()
-    			|| isEntityStandUser(entity) /*|| player.hasEffect(ModStatusEffects.SPIRIT_VISION.get())*/;
-    	// TODO spirit vision effect
+    			|| isEntityStandUser(entity) 
+    			|| BooleanAttributeUtil.getValueOrDefault(entity, ModEntityAttributes.CAN_SEE_STANDS);
     }
 
     public static boolean entityCanHearStands(Player player) {

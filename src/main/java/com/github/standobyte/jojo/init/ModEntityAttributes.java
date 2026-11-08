@@ -10,6 +10,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.BooleanAttribute;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -71,6 +72,14 @@ public class ModEntityAttributes {
 	// TODO stamina regen attribute
 
 
+	public static final Holder<Attribute> CAN_SEE_STANDS = ATTRIBUTES.register("can_see_stands", 
+			() -> new BooleanAttribute("attribute.name.jojo_ripples.can_see_stands", false)
+			.setSyncable(true));
+	
+	public static final Holder<Attribute> CAN_ATTACK_STANDS = ATTRIBUTES.register("can_attack_stands", 
+			() -> new BooleanAttribute("attribute.name.jojo_ripples.can_attack_stands", false)
+			.setSyncable(true));
+	
 	public static final Holder<Attribute> SUN_BURN_DAMAGE = ATTRIBUTES.register("sun_burn_damage", 
 			() -> new RangedAttribute("attribute.name.jojo_ripples.sun_burn_damage", 0, 0, 1024));
 	
@@ -85,6 +94,8 @@ public class ModEntityAttributes {
 			if (!event.has(entityType, STAND_DURABILITY)) event.add(entityType, STAND_DURABILITY);
 			if (!event.has(entityType, STAND_PRECISION)) event.add(entityType, STAND_PRECISION);
 			
+			if (!event.has(entityType, CAN_SEE_STANDS)) event.add(entityType, CAN_SEE_STANDS);
+			if (!event.has(entityType, CAN_ATTACK_STANDS)) event.add(entityType, CAN_ATTACK_STANDS);
 			if (!event.has(entityType, SUN_BURN_DAMAGE)) event.add(entityType, SUN_BURN_DAMAGE);
 		}
 	}
