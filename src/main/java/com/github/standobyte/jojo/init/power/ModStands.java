@@ -53,6 +53,7 @@ public class ModStands {
 	
 	public static final SimpleTagKey<StandType> PLAYER_CAN_GET_FROM_ARROW = SimpleTagKey.create(StandType.class, JojoMod.resLoc("arrow"));
 	public static final SimpleTagKey<StandType> DONT_ADD_DISC_TO_MAIN_CREATIVE_TAB = SimpleTagKey.create(StandType.class, JojoMod.resLoc("creative_disc"));
+	public static final SimpleTagKey<StandType> ADD_TO_IN_DEV_CATEGORY_ANYWAY = SimpleTagKey.create(StandType.class, JojoMod.resLoc("in_dev"));
 	@Deprecated
 	public static final SimpleTagKey<StandType> EXCLUDE_FROM_CREATIVE_TAB = DONT_ADD_DISC_TO_MAIN_CREATIVE_TAB;
 	public static final SimpleTagKey<StandType> NO_AUTOCOMPLETE_IN_CONSOLE_COMMANDS = SimpleTagKey.create(StandType.class, JojoMod.resLoc("commands"));
@@ -66,50 +67,50 @@ public class ModStands {
 	
 	public static final DeferredHolder<StandType, EntityStandType> STAR_PLATINUM = DEFAULT_STANDS.register("star_platinum", StandInitStarPlatinum::create);
 	public static final DeferredHolder<StandType, EntityStandType> HIEROPHANT_GREEN = DEFAULT_STANDS.register("hierophant_green", StandInitHierophantGreen::create);
-	public static final DeferredHolder<StandType, StandType> HERMIT_PURPLE = hideStand(DEFAULT_STANDS.register("hermit_purple", StandInitHermitPurple::create));
-	public static final DeferredHolder<StandType, EntityStandType> MAGICIANS_RED = hideStand(DEFAULT_STANDS.register("magicians_red", StandInitMagiciansRed::create));
-	public static final DeferredHolder<StandType, EntityStandType> SILVER_CHARIOT = hideStand(DEFAULT_STANDS.register("silver_chariot", StandInitSilverChariot::create));
+	public static final DeferredHolder<StandType, StandType> HERMIT_PURPLE = hideStand(DEFAULT_STANDS.register("hermit_purple", StandInitHermitPurple::create), true);
+	public static final DeferredHolder<StandType, EntityStandType> MAGICIANS_RED = hideStand(DEFAULT_STANDS.register("magicians_red", StandInitMagiciansRed::create), true);
+	public static final DeferredHolder<StandType, EntityStandType> SILVER_CHARIOT = hideStand(DEFAULT_STANDS.register("silver_chariot", StandInitSilverChariot::create), true);
 	public static final DeferredHolder<StandType, EntityStandType> THE_WORLD = DEFAULT_STANDS.register("the_world", StandInitTheWorld::create);
 	
 	public static final DeferredHolder<StandType, EntityStandType> CRAZY_DIAMOND = DEFAULT_STANDS.register("crazy_diamond", StandInitCrazyDiamond::create);
-	public static final DeferredHolder<StandType, EntityStandType> THE_HAND = hideStand(DEFAULT_STANDS.register("the_hand", StandInitTheHand::create));
-	public static final DeferredHolder<StandType, EntityStandType> ECHOES = hideStand(DEFAULT_STANDS.register("echoes", StandInitEchoes::create));
-	public static final DeferredHolder<StandType, EntityStandType> HEAVENS_DOOR = hideStand(DEFAULT_STANDS.register("heavens_door", StandInitHeavensDoor::create));
-	public static final DeferredHolder<StandType, EntityStandType> KILLER_QUEEN = hideStand(DEFAULT_STANDS.register("killer_queen", StandInitKillerQueen::create));
-	public static final DeferredHolder<StandType, StandType> BAD_COMPANY = hideStand(DEFAULT_STANDS.register("bad_company", StandInitBadCompany::create));
-	public static final DeferredHolder<StandType, StandType> HARVEST = hideStand(DEFAULT_STANDS.register("harvest", StandInitHarvest::create));
+	public static final DeferredHolder<StandType, EntityStandType> THE_HAND = hideStand(DEFAULT_STANDS.register("the_hand", StandInitTheHand::create), true);
+	public static final DeferredHolder<StandType, EntityStandType> ECHOES = hideStand(DEFAULT_STANDS.register("echoes", StandInitEchoes::create), true);
+	public static final DeferredHolder<StandType, EntityStandType> HEAVENS_DOOR = hideStand(DEFAULT_STANDS.register("heavens_door", StandInitHeavensDoor::create), true);
+	public static final DeferredHolder<StandType, EntityStandType> KILLER_QUEEN = hideStand(DEFAULT_STANDS.register("killer_queen", StandInitKillerQueen::create), true);
+	public static final DeferredHolder<StandType, StandType> BAD_COMPANY = hideStand(DEFAULT_STANDS.register("bad_company", StandInitBadCompany::create), true);
+	public static final DeferredHolder<StandType, StandType> HARVEST = hideStand(DEFAULT_STANDS.register("harvest", StandInitHarvest::create), true);
 	
-	public static final DeferredHolder<StandType, EntityStandType> GOLD_EXPERIENCE = hideStand(DEFAULT_STANDS.register("gold_experience", StandInitGoldExperience::create));
-	public static final DeferredHolder<StandType, EntityStandType> STICKY_FINGERS = hideStand(DEFAULT_STANDS.register("sticky_fingers", StandInitStickyFingers::create));
-	public static final DeferredHolder<StandType, StandType> SEX_PISTOLS = hideStand(DEFAULT_STANDS.register("sex_pistols", StandInitSexPistols::create));
-	public static final DeferredHolder<StandType, EntityStandType> AEROSMITH = hideStand(DEFAULT_STANDS.register("aerosmith", StandInitAerosmith::create));
-	public static final DeferredHolder<StandType, EntityStandType> PURPLE_HAZE = hideStand(DEFAULT_STANDS.register("purple_haze", StandInitPurpleHaze::create));
-	public static final DeferredHolder<StandType, EntityStandType> SPICE_GIRL = hideStand(DEFAULT_STANDS.register("spice_girl", StandInitSpiceGirl::create));
-	public static final DeferredHolder<StandType, EntityStandType> KING_CRIMSON = hideStand(DEFAULT_STANDS.register("king_crimson", StandInitKingCrimson::create));
+	public static final DeferredHolder<StandType, EntityStandType> GOLD_EXPERIENCE = hideStand(DEFAULT_STANDS.register("gold_experience", StandInitGoldExperience::create), true);
+	public static final DeferredHolder<StandType, EntityStandType> STICKY_FINGERS = hideStand(DEFAULT_STANDS.register("sticky_fingers", StandInitStickyFingers::create), true);
+	public static final DeferredHolder<StandType, StandType> SEX_PISTOLS = hideStand(DEFAULT_STANDS.register("sex_pistols", StandInitSexPistols::create), true);
+	public static final DeferredHolder<StandType, EntityStandType> AEROSMITH = hideStand(DEFAULT_STANDS.register("aerosmith", StandInitAerosmith::create), true);
+	public static final DeferredHolder<StandType, EntityStandType> PURPLE_HAZE = hideStand(DEFAULT_STANDS.register("purple_haze", StandInitPurpleHaze::create), true);
+	public static final DeferredHolder<StandType, EntityStandType> SPICE_GIRL = hideStand(DEFAULT_STANDS.register("spice_girl", StandInitSpiceGirl::create), true);
+	public static final DeferredHolder<StandType, EntityStandType> KING_CRIMSON = hideStand(DEFAULT_STANDS.register("king_crimson", StandInitKingCrimson::create), true);
 	
-	public static final DeferredHolder<StandType, EntityStandType> STONE_FREE = hideStand(DEFAULT_STANDS.register("stone_free", StandInitStoneFree::create));
-	public static final DeferredHolder<StandType, EntityStandType> KISS = hideStand(DEFAULT_STANDS.register("kiss", StandInitKiss::create));
-	public static final DeferredHolder<StandType, EntityStandType> WEATHER_REPORT = hideStand(DEFAULT_STANDS.register("weather_report", StandInitWeatherReport::create));
-	public static final DeferredHolder<StandType, EntityStandType> DIVER_DOWN = hideStand(DEFAULT_STANDS.register("diver_down", StandInitDiverDown::create));
-	public static final DeferredHolder<StandType, StandType> FOO_FIGHTERS = hideStand(DEFAULT_STANDS.register("foo_fighters", StandInitFooFighters::create));
-	public static final DeferredHolder<StandType, EntityStandType> WHITESNAKE = hideStand(DEFAULT_STANDS.register("whitesnake", StandInitWhitesnake::create));
-	public static final DeferredHolder<StandType, EntityStandType> C_MOON = hideStand(DEFAULT_STANDS.register("c_moon", StandInitCMoon::create));
-	public static final DeferredHolder<StandType, EntityStandType> MADE_IN_HEAVEN = hideStand(DEFAULT_STANDS.register("made_in_heaven", StandInitMadeInHeaven::create));
+	public static final DeferredHolder<StandType, EntityStandType> STONE_FREE = hideStand(DEFAULT_STANDS.register("stone_free", StandInitStoneFree::create), true);
+	public static final DeferredHolder<StandType, EntityStandType> KISS = hideStand(DEFAULT_STANDS.register("kiss", StandInitKiss::create), true);
+	public static final DeferredHolder<StandType, EntityStandType> WEATHER_REPORT = hideStand(DEFAULT_STANDS.register("weather_report", StandInitWeatherReport::create), true);
+	public static final DeferredHolder<StandType, EntityStandType> DIVER_DOWN = hideStand(DEFAULT_STANDS.register("diver_down", StandInitDiverDown::create), true);
+	public static final DeferredHolder<StandType, StandType> FOO_FIGHTERS = hideStand(DEFAULT_STANDS.register("foo_fighters", StandInitFooFighters::create), true);
+	public static final DeferredHolder<StandType, EntityStandType> WHITESNAKE = hideStand(DEFAULT_STANDS.register("whitesnake", StandInitWhitesnake::create), true);
+	public static final DeferredHolder<StandType, EntityStandType> C_MOON = hideStand(DEFAULT_STANDS.register("c_moon", StandInitCMoon::create), true);
+	public static final DeferredHolder<StandType, EntityStandType> MADE_IN_HEAVEN = hideStand(DEFAULT_STANDS.register("made_in_heaven", StandInitMadeInHeaven::create), true);
 	
-	public static final DeferredHolder<StandType, EntityStandType> SOFT_AND_WET = hideStand(DEFAULT_STANDS.register("soft_and_wet", StandInitSoftAndWet::create));
+	public static final DeferredHolder<StandType, EntityStandType> SOFT_AND_WET = hideStand(DEFAULT_STANDS.register("soft_and_wet", StandInitSoftAndWet::create), true);
 	
 	static {
-		PLAYER_CAN_GET_FROM_ARROW.add(STAR_PLATINUM);
-		PLAYER_CAN_GET_FROM_ARROW.add(CRAZY_DIAMOND);
+		//PLAYER_CAN_GET_FROM_ARROW.add(STAR_PLATINUM);
 		//PLAYER_CAN_GET_FROM_ARROW.add(THE_WORLD);
 		//PLAYER_CAN_GET_FROM_ARROW.add(HIEROPHANT_GREEN);
+		PLAYER_CAN_GET_FROM_ARROW.add(CRAZY_DIAMOND);
 	}
 	
 	
 	public static void addStandConfigs(RegisterRotpConfigEvent event) {
-		event.generateStandConfig(ModStands.CRAZY_DIAMOND);
 		event.generateStandConfig(ModStands.STAR_PLATINUM);
 		event.generateStandConfig(ModStands.THE_WORLD);
 		event.generateStandConfig(ModStands.HIEROPHANT_GREEN);
+		event.generateStandConfig(ModStands.CRAZY_DIAMOND);
 	}
 }

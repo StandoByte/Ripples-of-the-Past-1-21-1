@@ -135,7 +135,7 @@ public class StandInitStarPlatinum {
 				.addSkill(StandUnlockableSkill.unlockableAbility("time_stop", 5000).withAbility("time_resume").setIncomplete())
 
 				, id)
-			.discTooltipWIP()
+			.discTooltipWIP(true)
 			/* This is to make it appear first in the list of Stardust Crusaders Stands in the creative tab, as the protagonist's Stand */
 			.init(stand -> stand.discStoryPartPriority = 0);
 	}
