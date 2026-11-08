@@ -52,7 +52,7 @@ public class VanillaKeybinds {
 	public static VanillaKeybinds register(RegisterKeyMappingsEvent event) {
 		VanillaKeybinds binds = new VanillaKeybinds();
 		
-		event.register(binds.summonStand = new Jokerge(
+		event.register(binds.summonStand = new KeyMappingInRegistrationOrder(
 				JojoMod.MOD_ID + ".key.toggle_stand", 
 				new KeyCtxAndThen(() -> {
 					StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
@@ -61,7 +61,7 @@ public class VanillaKeybinds {
 				InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, MAIN_CATEGORY)
 				.inInitOrder().withDescTooltip());
 		
-		event.register(binds.standArmsOnlyHUD = new Jokerge(
+		event.register(binds.standArmsOnlyHUD = new KeyMappingInRegistrationOrder(
 				JojoMod.MOD_ID + ".key.stand_mode", 
 				new KeyCtxAndThen(() -> {
 					StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
@@ -70,7 +70,7 @@ public class VanillaKeybinds {
 				KeyModifier.CONTROL, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, MAIN_CATEGORY)
 				.inInitOrder().withDescTooltip());
 		
-		event.register(binds.playerPowerHUD = new Jokerge(
+		event.register(binds.playerPowerHUD = new KeyMappingInRegistrationOrder(
 				JojoMod.MOD_ID + ".key.non_stand_mode", 
 				new KeyCtxAndThen(() -> {
 					PlayerPower playerPower = ClientPowerCache.getPower(PowerClass.PLAYER_POWER);
@@ -79,25 +79,25 @@ public class VanillaKeybinds {
 				InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_G, MAIN_CATEGORY)
 				.inInitOrder().withDescTooltip());
 		
-		event.register(binds.useAbility = new Jokerge(
+		event.register(binds.useAbility = new KeyMappingInRegistrationOrder(
 				JojoMod.MOD_ID + ".key.use_special_ability", 
 				KeyConflictContext.IN_GAME, 
 				InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_X, MAIN_CATEGORY)
 				.inInitOrder().withDescTooltip());
 		
-		event.register(binds.switchSpecial = new Jokerge(
+		event.register(binds.switchSpecial = new KeyMappingInRegistrationOrder(
 				JojoMod.MOD_ID + ".key.ability_hotbar", 
 				KeyConflictContext.IN_GAME, 
 				InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_C, MAIN_CATEGORY)
 				.inInitOrder().withDescTooltip());
 		
-		event.register(binds.disableHUDControls = new Jokerge(
+		event.register(binds.disableHUDControls = new KeyMappingInRegistrationOrder(
 				JojoMod.MOD_ID + ".key.disable_hotbars", 
 				KeyConflictContext.IN_GAME, 
 				InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT, MAIN_CATEGORY)
 				.inInitOrder().withDescTooltip().canBeHoldOrToggle(JojoMod.config.getClient().toggleDisableHotbars));
 		
-		event.register(binds.jojoStuffMenu = new Jokerge(
+		event.register(binds.jojoStuffMenu = new KeyMappingInRegistrationOrder(
 				JojoMod.MOD_ID + ".key.jojo_menu", 
 				KeyConflictContext.IN_GAME, 
 				InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_BACKSLASH, MAIN_CATEGORY)
@@ -190,36 +190,36 @@ public class VanillaKeybinds {
 	public static final Set<String> ADD_DESC_TOOLTIP = new HashSet<>();
 	public static final Map<String, ConfigBool> HOLD_OR_TOGGLE = new HashMap<>();
 	
-	public static class Jokerge extends KeyMapping {
+	public static class KeyMappingInRegistrationOrder extends KeyMapping {
 		protected static Map<String, MutableInt> PER_CATEGORY = new HashMap<String, MutableInt>();
 		protected int orderIndex = Integer.MAX_VALUE;
 
-		public Jokerge(String name, int keyCode, String category) {	super(name, keyCode, category); }
-		public Jokerge(String name, InputConstants.Type type, int keyCode, String category) { super(name, type, keyCode, category); }
-		public Jokerge(String description, IKeyConflictContext keyConflictContext, InputConstants.Type inputType, int keyCode, String category) { super(description, keyConflictContext, inputType, keyCode, category); }
-		public Jokerge(String description, IKeyConflictContext keyConflictContext, InputConstants.Key keyCode, String category) { super(description, keyConflictContext, keyCode, category); }
-		public Jokerge(String description, IKeyConflictContext keyConflictContext, KeyModifier keyModifier, InputConstants.Type inputType, int keyCode, String category) { super(description, keyConflictContext, keyModifier, inputType, keyCode, category); }
-		public Jokerge(String description, IKeyConflictContext keyConflictContext, KeyModifier keyModifier, InputConstants.Key keyCode, String category) { super(description, keyConflictContext, keyModifier, keyCode, category); }
+		public KeyMappingInRegistrationOrder(String name, int keyCode, String category) {	super(name, keyCode, category); }
+		public KeyMappingInRegistrationOrder(String name, InputConstants.Type type, int keyCode, String category) { super(name, type, keyCode, category); }
+		public KeyMappingInRegistrationOrder(String description, IKeyConflictContext keyConflictContext, InputConstants.Type inputType, int keyCode, String category) { super(description, keyConflictContext, inputType, keyCode, category); }
+		public KeyMappingInRegistrationOrder(String description, IKeyConflictContext keyConflictContext, InputConstants.Key keyCode, String category) { super(description, keyConflictContext, keyCode, category); }
+		public KeyMappingInRegistrationOrder(String description, IKeyConflictContext keyConflictContext, KeyModifier keyModifier, InputConstants.Type inputType, int keyCode, String category) { super(description, keyConflictContext, keyModifier, inputType, keyCode, category); }
+		public KeyMappingInRegistrationOrder(String description, IKeyConflictContext keyConflictContext, KeyModifier keyModifier, InputConstants.Key keyCode, String category) { super(description, keyConflictContext, keyModifier, keyCode, category); }
 		
-		public Jokerge inInitOrder() {
+		public KeyMappingInRegistrationOrder inInitOrder() {
 			this.orderIndex = PER_CATEGORY.computeIfAbsent(this.getCategory(), __ -> new MutableInt()).getAndIncrement();
 			return this;
 		}
 		
-		public Jokerge withDescTooltip() {
+		public KeyMappingInRegistrationOrder withDescTooltip() {
 			ADD_DESC_TOOLTIP.add(this.getName());
 			return this;
 		}
 		
-		public Jokerge canBeHoldOrToggle(ConfigBool clientSetting) {
+		public KeyMappingInRegistrationOrder canBeHoldOrToggle(ConfigBool clientSetting) {
 			HOLD_OR_TOGGLE.put(this.getName(), clientSetting);
 			return this;
 		}
 
 		@Override
 		public int compareTo(KeyMapping other) {
-			if (this.getCategory() == other.getCategory() && other instanceof Jokerge jokerge) {
-				int compare = Integer.compare(this.orderIndex, jokerge.orderIndex);
+			if (this.getCategory() == other.getCategory() && other instanceof KeyMappingInRegistrationOrder otherRegOrder) {
+				int compare = Integer.compare(this.orderIndex, otherRegOrder.orderIndex);
 				if (compare != 0) return compare;
 			}
 			return super.compareTo(other);
