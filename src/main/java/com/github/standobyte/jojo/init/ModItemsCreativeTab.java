@@ -148,7 +148,7 @@ public class ModItemsCreativeTab extends CreativeModeTab implements CustomRender
 			
 			// placeholder stands
 			Map<String, List<StandType>> placeholderStandsByNamespace = StandType.getAllEnabledStands()
-					.filter(stand -> ModStands.ADD_TO_IN_DEV_CATEGORY_ANYWAY.contains(stand))
+					.filter(stand -> ModStands.ADD_TO_IN_DEV_CATEGORY_ANYWAY.contains(stand) && !stand.getUnlockableSkills().isEmpty())
 					.collect(Collectors.groupingBy(stand -> stand.getId().getNamespace()));
 			for (var namespaceEntry : placeholderStandsByNamespace.entrySet()) {
 				String namespace = namespaceEntry.getKey();
