@@ -4,10 +4,12 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.itemrender.ItemIconModels;
+import com.github.standobyte.jojo.client.ui.tutorial_toast.ToastsHelper;
 import com.github.standobyte.jojo.config.client.ClientModSettingsScreen;
 import com.github.standobyte.jojo.config.client.ClientModSettingsScreen.ConfigTabType;
 import com.github.standobyte.jojo.config.client.ConfigGuiHelper;
 import com.github.standobyte.jojo.config.client.RegisterRotpConfigScreenTabEvent;
+import com.github.standobyte.jojo.config.client.ScrollingStringButton;
 import com.github.standobyte.jojo.config.core.ModConfig;
 import com.github.standobyte.jojo.config.core.ModConfigType;
 import com.github.standobyte.jojo.config.core.types.ClientConfigKeyBinding;
@@ -21,6 +23,7 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
@@ -43,6 +46,12 @@ public class RotpConfig {
 		//public final ConfigBool hudHotbarFold = true;
 		//public final ConfigBool showLockedSlots = false;
 		public final ConfigBool abilitySelectionWheel = new ConfigBool(true);
+		public final ConfigBool tutorialEnabled = new ConfigBool(true)
+				.withOnChangeCallback(value -> {
+					if (!value) {
+						ToastsHelper.getInstance().hideAll();
+					}
+				});
 
 		public final ConfigBool resolveShaders = new ConfigBool(true)
 				.withOnChangeCallback(ClientResolveVisuals::onColorShiftSettingUpdated);
@@ -188,6 +197,11 @@ public class RotpConfig {
 						
 						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.controls"));
 						helper.addBooleanOptionButton(client.abilitySelectionWheel, ModConfigType.CLIENT, "ability_selection_wheel");
+						helper.addBooleanOptionButton(client.tutorialEnabled, ModConfigType.CLIENT, null);
+						helper.addButton(new ScrollingStringButton(-1, -1, -1, -1, 
+								Component.translatable("jojo_ripples.config.client.tutorialReset"), 
+								b -> ToastsHelper.getInstance().resetTutorial(), 
+								Tooltip.create(Component.translatable("jojo_ripples.config.client.tutorialReset.tooltip"))));
 						
 						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.stand"));
 						helper.addEnumOptionButton(clientBroadcast.standSide, ModConfigType.CLIENT_BROADCAST, null);

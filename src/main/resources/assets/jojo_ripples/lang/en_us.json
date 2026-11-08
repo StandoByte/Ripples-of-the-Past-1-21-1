@@ -134,6 +134,12 @@
   "jojo_ripples.key.jojo_menu": "JoJo menu",
   "jojo_ripples.key.jojo_menu.desc": "A menu for ROTP mechanics, with things unlockable skills, further controls customization, Stand skins, etc.",
   
+  "jojo_ripples.tutorial.summon_stand.tmp": "[%s] - summon Stand",
+  "jojo_ripples.tutorial.summon_stand.1": "[%s] - summon Stand,",
+  "jojo_ripples.tutorial.summon_stand.2": "[%s] - use arms only",
+  "jojo_ripples.tutorial.stand_skills.1": "[%s] -> Stand -> Skills",
+  "jojo_ripples.tutorial.stand_skills.2": "to unlock more abilities",
+  
   "itemGroup.jojo_ripples_main": "JoJo: Ripples of the Past",
   
   "jojo_ripples.subtitle.stone_mask_activation_entity": "Stone Mask activates",
@@ -248,6 +254,10 @@
   "jojo_ripples.config.client.showLockedSlots.tooltip": "Whether or not locked abilities show up in HUD hotbars as empty squares.",
   "jojo_ripples.config.client.abilitySelectionWheel": "Ability selection wheel",
   "jojo_ripples.config.client.abilitySelectionWheel.tooltip": "When selecting a special ability, a wheel where you can choose the ability with the mouse cursor will also appear on the screen.",
+  "jojo_ripples.config.client.tutorialEnabled": "Controls Tutorial",
+  "jojo_ripples.config.client.tutorialEnabled.tooltip": "Tutorial notifications popping up in right upper corner.",
+  "jojo_ripples.config.client.tutorialReset": "Reset Tutorial",
+  "jojo_ripples.config.client.tutorialReset.tooltip": "Show the tutorial tips once again.",
   "jojo_ripples.config.client.standAimMarker": "Stand aim marker",
   "jojo_ripples.config.client.standAimMarker.tooltip": "A marker showing the current aim target (block/entity) of your Stand.",
   "jojo_ripples.config.client.resolveShaders": "Resolve shaders",

@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
 import com.github.standobyte.jojo.client.ui.hud_misc.BottomLeftNotifications;
+import com.github.standobyte.jojo.client.ui.tutorial_toast.ModTutorialToasts;
 import com.github.standobyte.jojo.config.RotpConfig;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.Power;
@@ -119,6 +120,7 @@ public class StandTypePersistentData extends PowerData {
 					Component skillName = StandSkinComponent.translatable(stand, skill.tlKeyName);
 					BottomLeftNotifications.add(Component.translatable("jojo_ripples.list.entry.no_newline", skillName));
 				}
+				ModTutorialToasts.onStandExpAddedMakingNewSkillsAvailable();
 			}
 		}
 		else {

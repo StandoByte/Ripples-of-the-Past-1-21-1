@@ -61,6 +61,12 @@
   "jojo_ripples.key.jojo_menu": "Меню ДжоДжо",
   "jojo_ripples.key.jojo_menu.desc": "Меню механик мода ROTP, таких как открываемые навыки, кастомизация схем управления, скины Стендов и т.д.",
   
+  "jojo_ripples.tutorial.summon_stand.tmp": "[%s] - призвать Стенд",
+  "jojo_ripples.tutorial.summon_stand.1": "[%s] - призвать Стенд,",
+  "jojo_ripples.tutorial.summon_stand.2": "[%s] - исп. только руки",
+  "jojo_ripples.tutorial.stand_skills.1": "[%s] -> Стенд -> Навыки, ",
+  "jojo_ripples.tutorial.stand_skills.2": "чтобы открыть способности",
+  
   "itemGroup.jojo_ripples_main": "ДжоДжо: Ripples of the Past",
   
   "jojo_ripples.subtitle.stone_mask_activation_entity": "Каменная маска активирована",
@@ -172,6 +178,10 @@
   "jojo_ripples.config.client.showLockedSlots.tooltip": "Отображение ещё не разблокированных способностей в интерфейсе в виде пустых слотов.",
   "jojo_ripples.config.client.abilitySelectionWheel": "Колесо выбора способностей",
   "jojo_ripples.config.client.abilitySelectionWheel.tooltip": "При выборе особой способности на экране также будет появляться колесо, через которое можно выбрать способность, наведясь на неё курсором мыши.",
+  "jojo_ripples.config.client.tutorialEnabled": "Обучение управлению",
+  "jojo_ripples.config.client.tutorialEnabled.tooltip": "Подсказки, которые появляются в правом верхнем углу экрана.",
+  "jojo_ripples.config.client.tutorialReset": "Сбросить обучение",
+  "jojo_ripples.config.client.tutorialReset.tooltip": "Заново показать все подсказки управления.",
   "jojo_ripples.config.client.standAimMarker": "Маркер цели Стенда",
   "jojo_ripples.config.client.standAimMarker.tooltip": "Отображение маркера на цели (сущности/блоке), на которую сейчас нацелен ваш Стенд.",
   "jojo_ripples.config.client.resolveShaders": "Шейдеры решимости",
