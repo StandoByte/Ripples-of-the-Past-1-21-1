@@ -44,6 +44,7 @@ public class VanillaKeybinds {
 	public KeyMapping switchSpecial;
 	public KeyMapping disableHUDControls;
 	public KeyMapping jojoStuffMenu;
+	public KeyMapping standManualControl;
 
 	public StandToggleKeyMapping standToggle_breakBlocks;
 	public StandToggleKeyMapping standToggle_pickUpItems;
@@ -102,6 +103,12 @@ public class VanillaKeybinds {
 				KeyConflictContext.IN_GAME, 
 				InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_BACKSLASH, MAIN_CATEGORY)
 				.inInitOrder().withDescTooltip());
+		
+		event.register(binds.standManualControl = new KeyMappingInRegistrationOrder(
+				JojoMod.MOD_ID + ".key.stand_remote_control", 
+				KeyConflictContext.IN_GAME, 
+				InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_O, MAIN_CATEGORY)
+				.inInitOrder());
 		
 		// not registering these in the event to not add them to the settings menu
 		binds.standToggle_breakBlocks = new StandToggleKeyMapping(

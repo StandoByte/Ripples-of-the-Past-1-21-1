@@ -186,7 +186,7 @@ public class MovesetBuilder {
 			}
 			addBindToAllCtrlSchemesIfMissing("grab_release", InputMethod.CLICK, InputKey.Q);
 		}
-		addBindToAllCtrlSchemesIfMissing("manual_control", InputMethod.CLICK, InputKey.O);
+		addBindToAllCtrlSchemesIfMissing("manual_control", InputMethod.CLICK, new InputUseVanillaMapping("jojo_ripples.key.stand_remote_control"));
 		addBindToAllCtrlSchemesIfMissing("items_swap_w_user", InputMethod.CLICK, InputKey.F.withModifier(InputKey.Modifier.CONTROL));
 		addBindToAllCtrlSchemesIfMissing("items_swap_hands", InputMethod.CLICK, new InputUseVanillaMapping("key.swapOffhand"));
 		addBindToAllCtrlSchemesIfMissing("item_toss", InputMethod.CLICK, new InputUseVanillaMapping("key.drop"));
