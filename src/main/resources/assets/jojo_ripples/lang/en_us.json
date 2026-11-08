@@ -518,6 +518,7 @@
   "attribute.name.jojo_ripples.stand_max_range": "Max Stand Range",
   "attribute.name.jojo_ripples.stand_durability": "Stand Stamina",
   "attribute.name.jojo_ripples.stand_precision": "Stand Precision",
+  "attribute.name.jojo_ripples.sun_burn_damage": "Sun Burn Damage",
   
   "stand_hand_slot.main": "%s's main hand slot",
   "stand_hand_slot.off": "%s's offhand slot",
