@@ -118,7 +118,7 @@ public class StandInitStarPlatinum {
 				
 				.addSkill(StandUnlockableSkill.startingAbility("guard").setNotYetImplemented())
 
-				.addSkill(StandUnlockableSkill.startingAbility("manual_control"))
+				.addManualControlSkill()
 				.addSkill(new StandUnlockableSkill("item_use").setIsStartingSkill())
 				
 				.addSkill(StandUnlockableSkill.unlockableAbility("leap", 250).setNotYetImplemented())

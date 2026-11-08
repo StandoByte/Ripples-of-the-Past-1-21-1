@@ -11,7 +11,6 @@ import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
-import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
 import com.github.standobyte.jojo.client.textsymbols.IconSymbols;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.IJojoMenuScreen;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.PaperButton;
@@ -242,8 +241,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		skillListScrolling.renderScrollBar(skillListX - 8, skillListY + 1, 0, 4, guiGraphics, SCROLL_BAR, 1);
 
 		if (selectedSkill != null) {
-			TextUtil.drawRightAlignedString(guiGraphics, font, 
-					StandSkinComponent.translatable(standInstance, selectedSkill.tlKeyName), 
+			TextUtil.drawRightAlignedString(guiGraphics, font, selectedSkill.getSkillName(standInstance), 
 					x + getWindowWidth() - 10, y + 24, textColor, false);
 			
 			skillDescription.draw(4, 3, guiGraphics, this.minecraft.font, textColor, false);
@@ -281,7 +279,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		if (hovered != null) {
 			TooltipParams.set(TooltipParams.paperStyle(1));
 			List<FormattedCharSequence> skillNameTooltip = new ArrayList<>();
-			skillNameTooltip.add(StandSkinComponent.translatable(standInstance, hovered.tlKeyName)
+			skillNameTooltip.add(hovered.getSkillName(standInstance)
 					.withStyle(ChatFormatting.BLACK).getVisualOrderText());
 			switch (hovered.implemented) {
 				case WIP -> skillNameTooltip.add(Component.translatable("rotp_tag_wip")
@@ -367,8 +365,8 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		this.selectedSkill = skill;
 		if (skill != null && standPower.hasPower()) {
 			StandInstance stand = standPower.getStandInstance().get();
-			Component textDesc = StandSkinComponent.translatable(stand, selectedSkill.tlKeyDesc);
-			Component textControls = StandSkinComponent.translatable(stand, selectedSkill.tlKeyControls);
+			Component textDesc = selectedSkill.getSkillDescription(stand);
+			Component textControls = selectedSkill.getSkillControlsHint(stand);
 			skillDescription.setText(font.split(textDesc, 111));
 			skillControls.setText(font.split(textControls, 101));
 		}

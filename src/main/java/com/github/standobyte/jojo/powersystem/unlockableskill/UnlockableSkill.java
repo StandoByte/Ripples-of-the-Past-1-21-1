@@ -42,6 +42,10 @@ public abstract class UnlockableSkill {
 		tlKeyControls = tlKeyName + ".controls";
 	}
 	
+	public MutableComponent getSkillName(StandInstance standWithSkin) { return StandSkinComponent.translatable(standWithSkin, tlKeyName); }
+	public MutableComponent getSkillDescription(StandInstance standWithSkin) { return StandSkinComponent.translatable(standWithSkin, tlKeyDesc); }
+	public MutableComponent getSkillControlsHint(StandInstance standWithSkin) { return StandSkinComponent.translatable(standWithSkin, tlKeyControls); }
+	
 	public ConditionCheck canUnlockFromMenu(Power<?> userPower, PowerData data) {
 		List<String> missingPrerequsites = null;
 		for (String prerequisite : prerequisiteSkills) {

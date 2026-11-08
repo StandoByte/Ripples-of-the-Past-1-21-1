@@ -618,7 +618,6 @@
 
   "jojo_ripples.skill.manual_control": "Manual Control",
   "jojo_ripples.skill.manual_control.desc": "Directly control your Stand's movement within its maximum range.",
-  "jojo_ripples.skill.manual_control.controls": "O",
   "jojo_ripples.ability.manual_control": "Manual control",
 
   "jojo_ripples.skill.item_use": "Use Item",

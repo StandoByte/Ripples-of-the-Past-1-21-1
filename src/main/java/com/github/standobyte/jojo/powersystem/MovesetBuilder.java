@@ -19,9 +19,12 @@ import com.github.standobyte.jojo.powersystem.ability.controls.InputBindTemplate
 import com.github.standobyte.jojo.powersystem.ability.controls.InputKey;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputUseVanillaMapping;
+import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
 import com.github.standobyte.jojo.powersystem.unlockableskill.UnlockableSkill;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 @ApiStatus.NonExtendable
@@ -174,9 +177,20 @@ public class MovesetBuilder {
 	public MovesetBuilder addHumanoidStandSkills() {
 		return this
 		.addSkill(StandUnlockableSkill.startingAbility("guard").setNotYetImplemented())
-		.addSkill(StandUnlockableSkill.startingAbility("manual_control"))
+		.addManualControlSkill()
 		.addSkill(new StandUnlockableSkill("item_use").setIsStartingSkill())
 		.addSkill(StandUnlockableSkill.startingAbility("ledge_grab").setNotYetImplemented());
+	}
+	
+	public MovesetBuilder addManualControlSkill() {
+		return addSkill(new StandUnlockableSkill("manual_control") {
+			@Override
+			public MutableComponent getSkillControlsHint(StandInstance standWithSkin) {
+				return Component.keybind("jojo_ripples.key.stand_remote_control");
+			}
+		}
+		.withAbility("manual_control")
+		.setIsStartingSkill());
 	}
 	
 	protected void postInitControls() {
