@@ -255,6 +255,8 @@
   "jojo_ripples.config.client.showLockedSlots.tooltip": "Whether or not locked abilities show up in HUD hotbars as empty squares.",
   "jojo_ripples.config.client.abilitySelectionWheel": "Ability selection wheel",
   "jojo_ripples.config.client.abilitySelectionWheel.tooltip": "When selecting a special ability, a wheel where you can choose the ability with the mouse cursor will also appear on the screen.",
+  "jojo_ripples.config.client.rmbVanillaPriority": "Vanilla click priority",
+  "jojo_ripples.config.client.rmbVanillaPriority.tooltip": "If a right click uses a held item, or triggers a block/entity interaction, it doesn't trigger the \uEAFE attack from the mod.",
   "jojo_ripples.config.client.tutorialEnabled": "Controls Tutorial",
   "jojo_ripples.config.client.tutorialEnabled.tooltip": "Tutorial notifications popping up in right upper corner.",
   "jojo_ripples.config.client.tutorialReset": "Reset Tutorial",

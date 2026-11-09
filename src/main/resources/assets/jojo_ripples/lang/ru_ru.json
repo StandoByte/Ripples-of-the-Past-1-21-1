@@ -179,6 +179,8 @@
   "jojo_ripples.config.client.showLockedSlots.tooltip": "Отображение ещё не разблокированных способностей в интерфейсе в виде пустых слотов.",
   "jojo_ripples.config.client.abilitySelectionWheel": "Колесо выбора способностей",
   "jojo_ripples.config.client.abilitySelectionWheel.tooltip": "При выборе особой способности на экране также будет появляться колесо, через которое можно выбрать способность, наведясь на неё курсором мыши.",
+  "jojo_ripples.config.client.rmbVanillaPriority": "Приоритет обычного клика",
+  "jojo_ripples.config.client.rmbVanillaPriority.tooltip": "Если клик правой кнопкой мыши использует предмет в руке или вызывает взаимодействие с блоком/сущностью, он не применяет атаку на \uEAFE из мода.",
   "jojo_ripples.config.client.tutorialEnabled": "Обучение управлению",
   "jojo_ripples.config.client.tutorialEnabled.tooltip": "Подсказки, которые появляются в правом верхнем углу экрана.",
   "jojo_ripples.config.client.tutorialReset": "Сбросить обучение",

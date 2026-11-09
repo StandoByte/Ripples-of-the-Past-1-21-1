@@ -46,6 +46,7 @@ public class RotpConfig {
 		//public final ConfigBool hudHotbarFold = true;
 		//public final ConfigBool showLockedSlots = false;
 		public final ConfigBool abilitySelectionWheel = new ConfigBool(true);
+		public final ConfigBool rmbVanillaPriority = new ConfigBool(true);
 		public final ConfigBool tutorialEnabled = new ConfigBool(true)
 				.withOnChangeCallback(value -> {
 					if (!value) {
@@ -197,6 +198,7 @@ public class RotpConfig {
 						
 						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.controls"));
 						helper.addBooleanOptionButton(client.abilitySelectionWheel, ModConfigType.CLIENT, "ability_selection_wheel");
+						helper.addBooleanOptionButton(client.rmbVanillaPriority, ModConfigType.CLIENT, "rmb_vanilla_priority");
 						helper.addBooleanOptionButton(client.tutorialEnabled, ModConfigType.CLIENT, null);
 						helper.addButton(new ScrollingStringButton(-1, -1, -1, -1, 
 								Component.translatable("jojo_ripples.config.client.tutorialReset"), 
