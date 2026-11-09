@@ -193,6 +193,7 @@ public class EntityActionInstance implements HeldInput {
 	public boolean onStandUnsummonCommand(LivingEntity user, StandPower standPower, StandType standType) {
 		if ((phase == ActionPhase.BUTTON_CHARGE || phase == ActionPhase.WINDUP) && this.canBeCancelledInto(null)) {
 			forceStop();
+			syncPhaseChanges();
 		}
 		return true;
 	}
@@ -512,6 +513,7 @@ public class EntityActionInstance implements HeldInput {
 	}
 	
 	// XXX only sync actual phase changes
+	// FIXME (it's fucking annoying every time i forget it) make it be called implicitly based on the current usage
 	public void syncPhaseChanges() {
 		if (performer != null && !performer.level().isClientSide()) {
 			PacketDistributor.sendToPlayersTrackingEntityAndSelf(performer, new TrEntityActionPhaseTimePacket(performer.getId(), 
