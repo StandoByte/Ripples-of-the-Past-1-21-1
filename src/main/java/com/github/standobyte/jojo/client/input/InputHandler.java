@@ -388,6 +388,7 @@ public class InputHandler {
 		return cancelVanilla;
 	}
 	
+	@Deprecated
 	public boolean useAbilitiesOnKeyPress(CurInput abilities, ClientKey key, KeyModifier keyModifier) {
 		return useAbilitiesOnKeyPress(abilities, key, keyModifier, false, false);
 	}

@@ -296,7 +296,7 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 					InputHandler inputHandler = InputHandler.getInstance();
 					KeyModifier keyModifier = inputHandler.getCurModifier();
 					CurInput input = inputHandler.makeAbilitiesInput(keyModifier, slot.getBinds()::getAll);
-					inputHandler.useAbilitiesOnKeyPress(input, InputHandler.LMB, keyModifier);
+					inputHandler.useAbilitiesOnKeyPress(input, InputHandler.LMB, keyModifier, false, false);
 				}
 				onClose();
 				return true;
