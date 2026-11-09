@@ -35,17 +35,17 @@ public class PlayerClothesMenu extends AbstractContainerMenu {
 	}
 	
 	protected void initSlots(Inventory playerInventory, Player player) {
-		for (Slot slot : ContainerMenuUtil.armorSlots(playerInventory, player, 8, 8, slotIndices)) {
+		for (Slot slot : ContainerMenuUtil.armorSlots(playerInventory, player, 8, 20, slotIndices)) {
 			this.addSlot(slot);
 		}
 		
-		for (Slot slot : ContainerMenuUtil.clothesSlots(clothesInventory, player, 77, 8, slotIndices)) {
+		for (Slot slot : ContainerMenuUtil.clothesSlots(clothesInventory, player, 77, 20, slotIndices)) {
 			this.addSlot(slot);
 		}
 		
-		this.addSlot(ContainerMenuUtil.offhandSlot(playerInventory, player, 95, 62, slotIndices));
+		this.addSlot(ContainerMenuUtil.offhandSlot(playerInventory, player, 95, 74, slotIndices));
 		
-		for (Slot slot : ContainerMenuUtil.inventorySlots(playerInventory, 8, 84, slotIndices)) {
+		for (Slot slot : ContainerMenuUtil.inventorySlots(playerInventory, 8, 96, slotIndices)) {
 			this.addSlot(slot);
 		}
 	}
