@@ -107,8 +107,7 @@ public class StandEntityRenderer<
 		Minecraft mc = Minecraft.getInstance();
 		renderState.mayObstructView = mc.options.getCameraType().isFirstPerson() && entity.isFollowingUser();
 		if (renderState.mayObstructView) {
-			Entity cameraEntity = mc.getCameraEntity();
-			if (cameraEntity == null) cameraEntity = mc.player;
+			Entity cameraEntity = ClientUtil.getCameraEntity();
 			renderState.mayObstructView &= cameraEntity != null && entity.getUser() == cameraEntity;
 		}
 		

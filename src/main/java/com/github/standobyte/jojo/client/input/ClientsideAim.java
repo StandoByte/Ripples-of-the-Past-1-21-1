@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.client.input;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
+import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.network.c2s.ClAimTargetPacket;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
@@ -26,7 +27,7 @@ public class ClientsideAim {
 		cameraEntityAimTarget = mc.hitResult != null ? ActionTarget.fromVanilla(mc.hitResult) : ActionTarget.EMPTY;
 
 		if (mc.level != null && mc.player != null) {
-			boolean isPlayerCameraEntity = mc.player == mc.cameraEntity || mc.cameraEntity == null;
+			boolean isPlayerCameraEntity = ClientUtil.getCameraEntity() == mc.player;
 			if (isPlayerCameraEntity) {
 				playerAim.setTarget(cameraEntityAimTarget);
 			}
