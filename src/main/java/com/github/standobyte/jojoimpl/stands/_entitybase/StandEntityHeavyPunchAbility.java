@@ -280,7 +280,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 			if (isGrabVariation()) {
 				return new ActionTarget(punchTarget);
 			}
-			return StandEntityPunchAbility.aimAtPunchTarget(stand);
+			return StandEntityPunchAbility.getStandTargetForPunch(stand);
 		}
 
 	}

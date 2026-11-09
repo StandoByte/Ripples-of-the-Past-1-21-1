@@ -23,7 +23,6 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormula
 import com.github.standobyte.jojo.subsystems.target.ActionTarget;
 import com.github.standobyte.jojo.subsystems.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.subsystems.target.AimingEntity;
-import com.github.standobyte.jojo.subsystems.target.HitResultUtil;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityHeavyPunchAbility.HeavyPunchExplosion;
 
 import net.minecraft.core.BlockPos;
@@ -123,7 +122,7 @@ public class StandEntityHeavyPunchChargedAbility extends StandEntityAbility {
 		public void actionPerformEnd() {
 			Level level = level();
 			if (performer instanceof StandEntity stand) {
-				ActionTarget target = HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity), 0);
+				ActionTarget target = StandEntityPunchAbility.aimAtTargetInFront(stand);
 				if (!level.isClientSide()) {
 					StandPower standPower = StandPower.get(getPowerUser());
 					

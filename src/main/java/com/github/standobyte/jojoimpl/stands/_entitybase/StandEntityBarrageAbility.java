@@ -200,7 +200,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 			if (isGrabVariation()) {
 				return new ActionTarget(LivingComponentGrab.getEntityGrabbedBy(stand));
 			}
-			return StandEntityPunchAbility.aimAtPunchTarget(stand);
+			return StandEntityPunchAbility.aimAtTargetInFront(stand);
 		}
 		
 		protected void hitEntity(ActionTarget target, Level level, StandEntity stand) {
