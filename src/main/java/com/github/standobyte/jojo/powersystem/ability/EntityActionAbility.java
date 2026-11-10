@@ -91,6 +91,8 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 	@ApiStatus.OverrideOnly
 	public void initActionFromConfig(EntityActionInstance action, Level level, 
 			LivingEntity powerUser, LivingEntity performer) {
+		action.buttonHoldingPhase = this.buttonHoldingPhase;
+		
 		var map = action.phasesLength;
 		if (!map.containsKey(ActionPhase.BUTTON_CHARGE))	map.put(ActionPhase.BUTTON_CHARGE,	buttonChargePhase.getAsFloat());
 		if (!map.containsKey(ActionPhase.WINDUP))			map.put(ActionPhase.WINDUP,			windupPhase.getAsFloat());
