@@ -183,7 +183,7 @@ public class InputHandler {
 	}
 	
 	protected void tickReleaseEventQueue() {
-		if (mc.getConnection() != null) {
+		if (mc.getConnection() == null) {
 			keyReleaseEventQueue.clear();
 			return;
 		}
