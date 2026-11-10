@@ -28,8 +28,8 @@ public class ClientStandItemInputs {
 	public static void handle(ClientTickEvent.Pre event) {
 		StandEntity standEntity = ClientGlobals.playerStandEntity;
 		if (standEntity != null) {
-			if (Screen.hasControlDown()) {
-				while (keySwap.consumeClick()) {
+			while (keySwap.consumeClick()) {
+				if (Screen.hasControlDown()) {
 					PacketDistributor.sendToServer(ClStandItemInputPacket.packet(StandItemInput.Action.SWAP_USER_AND_STAND));
 				}
 			}
