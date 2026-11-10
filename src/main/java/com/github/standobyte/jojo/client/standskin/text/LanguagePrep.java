@@ -1,6 +1,5 @@
 package com.github.standobyte.jojo.client.standskin.text;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +27,7 @@ public class LanguagePrep {
 		for (Resource resource : resourceStack) {
 			try (InputStream inputStream = resource.open()) {
 				Language.loadFromJson(inputStream, storage::put, componentStorage::put);
-			} catch (IOException e) {
+			} catch (Exception e) {
 				JojoMod.getLogger().warn("Failed to load translations for {} for Stand skin {}", langCode, skinId, e);
 			}
 		}
