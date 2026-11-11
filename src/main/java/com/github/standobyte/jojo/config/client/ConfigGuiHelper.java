@@ -332,11 +332,10 @@ public class ConfigGuiHelper {
 	}
 	
 	public static MutableComponent prependIcon(Component text, GuiIcon icon) {
-		IconGlyphInfo spriteGlyph = new IconGlyphInfo(icon, 16, 16, 0, -4, 4);
-		//stand aim marker: new GuiIcon(iconPath, 17, 17), 17, 17, 0, -5, 5)
-		
 		char spriteCode = iconSymbols.computeIfAbsent(icon.file, 
-				__ -> IconGlyphsCache.makeCharCodeFor(spriteGlyph));
+				__ -> IconGlyphsCache.makeCharCodeFor(
+						//stand aim marker: new GuiIcon(iconPath, 17, 17), 17, 17, 0, -5, 5)
+						new IconGlyphInfo(icon, 16, 16, 0, -4, 4)));
 		return Component.literal(String.valueOf(spriteCode)).append(text);
 	}
 	

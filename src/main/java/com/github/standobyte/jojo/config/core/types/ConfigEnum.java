@@ -13,6 +13,10 @@ public class ConfigEnum<T extends Enum<T>> extends ConfigOption<T> {
 	protected DefaultedValue<T> value;
 	protected DefaultedValue<T> remoteValue;
 
+	public ConfigEnum(T defaultValue) {
+		this((Class<T>) defaultValue.getClass(), defaultValue);
+	}
+
 	public ConfigEnum(Class<T> enumClass, T defaultValue) {
 		super(CodecUtil.enumCodec(enumClass), NeoForgeStreamCodecs.enumCodec(enumClass));
 		this.enumClass = enumClass;
