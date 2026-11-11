@@ -221,6 +221,10 @@
   
   "jojo_ripples.config.title": "ROTP",
   
+  "jojo_ripples.config.clothesArmorPriority": "Worn item priority",
+  "jojo_ripples.config.clothesArmorPriority.tooltip": "Which piece will render on a player when they have a piece of armor and a corresponding piece of clothes equppied at the same time.",
+  "jojo_ripples.config.clothesArmorPriority.option.clothes": "Clothes",
+  "jojo_ripples.config.clothesArmorPriority.option.armor": "Armor",
   "jojo_ripples.config.standDamageMultiplier": "Stand damage multiplier",
   "jojo_ripples.config.standDamageMultiplier.tooltip": "Damage multiplier applied to all Stands.",
   "jojo_ripples.config.standExpGainMultiplier": "Stand exp gain multiplier",

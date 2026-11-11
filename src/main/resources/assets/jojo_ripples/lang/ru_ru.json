@@ -145,6 +145,10 @@
   
   "jojo_ripples.config.title": "ROTP",
   
+  "jojo_ripples.config.clothesArmorPriority": "Приоритет надетых предметов",
+  "jojo_ripples.config.clothesArmorPriority.tooltip": "Какой из двух предметов будет отображаться на игроке, когда на нём одновременно надет предмет брони и соответствующий ему предмет одежды.",
+  "jojo_ripples.config.clothesArmorPriority.option.clothes": "Одежда",
+  "jojo_ripples.config.clothesArmorPriority.option.armor": "Броня",
   "jojo_ripples.config.standDamageMultiplier": "Множитель урона от Стендов",
   "jojo_ripples.config.standDamageMultiplier.tooltip": "Множитель урона, который применяется ко всем Стендам.",
   "jojo_ripples.config.standExpGainMultiplier": "Множитель получаемого опыта Стенда",

@@ -111,6 +111,8 @@ public class RotpConfig {
 	}
 	
 	public static class Common {
+		public final ConfigEnum<ClothesArmorPriority> clothesArmorPriority = new ConfigEnum<>(ClothesArmorPriority.CLOTHES);
+		
 		//public final ConfigBool keepStandOnDeath;
 		//public final ConfigBool keepHamonOnDeath;
 		//public final ConfigBool keepVampirismOnDeath;
@@ -165,6 +167,7 @@ public class RotpConfig {
 	}
 	
 	public enum StandIdleRotation { HEAD, BODY }
+	public enum ClothesArmorPriority { CLOTHES, ARMOR }
 	
 	public static boolean canStandBreakBlocks(LivingEntity playerUser) {
 		var config = JojoMod.config;
@@ -223,6 +226,12 @@ public class RotpConfig {
 						helper.addModSettingsList(JojoMod.config);
 						
 						RotpConfig.Common common = JojoMod.config.getCommon();
+						
+						helper.addEnumOptionButton_dynIcon(common.clothesArmorPriority, ModConfigType.COMMON, 
+								priority -> switch (priority) {
+									case CLOTHES -> "armor_clothes__clothes";
+									case ARMOR -> "armor_clothes__armor";
+								});
 						
 						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.stand"));
 						helper.addBooleanOrPlayerPreferenceOptionButton(common.standsBreakBlocks, ModConfigType.COMMON, "stands_break_blocks");
