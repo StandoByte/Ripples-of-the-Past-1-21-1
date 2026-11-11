@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.config.client;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
@@ -81,6 +82,7 @@ public class ConfigGuiHelper {
 		screen.addConfigWidget(list);
 		return list;
 	}
+	
 	
 	public static ModConfig<?, ?, ?> getStandConfig(@Nullable StandType standType) {
 		return standType != null ? ConfigEventHandler.ALL_CONFIGS.getStandConfig(standType.getId()) : null;
@@ -201,27 +203,51 @@ public class ConfigGuiHelper {
 	}
 	
 	
-	public void addBooleanOptionButton(ConfigBool cfgOption, 
+	public ConfigButton addBooleanOptionButton(ConfigBool cfgOption, 
 			ModConfigType type, @Nullable String icon) {
-		addOptionButton(cfgOption, type, icon, 
+		return addBooleanOptionButton(cfgOption, type, icon, icon);
+	}
+	
+	public ConfigButton addBooleanOptionButton(ConfigBool cfgOption, 
+			ModConfigType type, @Nullable String iconTrue, @Nullable String iconFalse) {
+		return addOptionButton(cfgOption, type, 
+				value -> value ? iconTrue : iconFalse, 
 				option -> {
 					option.set(!option.get());
 				},
 				cfgOption::makeButtonMessage);
 	}
 	
-	public void addBooleanOrPlayerPreferenceOptionButton(ConfigEnum<BoolOrPlayerPref> cfgOption, 
+	
+	public ConfigButton addBooleanOrPlayerPreferenceOptionButton(ConfigEnum<BoolOrPlayerPref> cfgOption, 
 			ModConfigType type, @Nullable String icon) {
-		addOptionButton(cfgOption, type, icon, 
+		return addBooleanOrPlayerPreferenceOptionButton(cfgOption, type, icon, icon, icon);
+	}
+	
+	public ConfigButton addBooleanOrPlayerPreferenceOptionButton(ConfigEnum<BoolOrPlayerPref> cfgOption, 
+			ModConfigType type, @Nullable String iconTrue, @Nullable String iconFalse, @Nullable String iconPlayerPref) {
+		return addOptionButton(cfgOption, type, 
+				value -> switch (value) {
+					case TRUE -> iconTrue;
+					case FALSE -> iconFalse;
+					case PLAYER_PREFERENCE -> iconPlayerPref;
+				}, 
 				option -> {
 					option.set(EnumUtil.getNextWrapped(option.get(), cfgOption.enumConstants));
 				}, 
 				(Component name, BoolOrPlayerPref value) -> value.optionStatus(name));
 	}
 
-	public <T extends Enum<T>> void addEnumOptionButton(ConfigEnum<T> cfgOption, 
+	
+	public <T extends Enum<T>> ConfigButton addEnumOptionButton(ConfigEnum<T> cfgOption, 
 			ModConfigType type, @Nullable String icon) {
-		addOptionButton(cfgOption, type, icon, 
+		return addEnumOptionButton_dynIcon(cfgOption, type, value -> icon);
+	}
+	
+	public <T extends Enum<T>> ConfigButton addEnumOptionButton_dynIcon(ConfigEnum<T> cfgOption, 
+			ModConfigType type, Function<T, String> iconSwitch) {
+		return addOptionButton(cfgOption, type, 
+				iconSwitch, 
 				option -> {
 					option.set(EnumUtil.getNextWrapped(option.get(), cfgOption.enumConstants));
 				}, 
@@ -231,13 +257,24 @@ public class ConfigGuiHelper {
 								+ ".option." + value.name().toLowerCase())));
 	}
 	
-	public <T> void addOptionButton(ConfigOption<T> option, 
+	
+	@Deprecated
+	public <T> ConfigButton addOptionButton(ConfigOption<T> option, 
 			ModConfigType type, @Nullable String icon, 
+			Consumer<ConfigOption<T>> changeValueOnClick, 
+			BiFunction<Component, T, MutableComponent> getValueMessage) {
+		return addOptionButton(option, 
+				type, value -> icon, 
+				changeValueOnClick, 
+				getValueMessage);
+	}
+	
+	public <T> ConfigButton addOptionButton(ConfigOption<T> option, 
+			ModConfigType type, Function<T, String> getIcon, 
 			Consumer<ConfigOption<T>> changeValueOnClick, 
 			BiFunction<Component, T, MutableComponent> getValueMessage) {
 		Component name = makeName(option, modId, type);
 		Component tooltipBody = makeTooltipBody(option, modId, type);
-		Component nameWithSprite = icon != null ? prependIcon(name, toIconPath(icon)) : name;
 		
 		OnButtonClick onPress = (b, mouseButton) -> {
 			switch (mouseButton) {
@@ -252,10 +289,11 @@ public class ConfigGuiHelper {
 		};
 		
 		ConfigButton button = new ConfigButton(-1, -1, -1, -1, 
-				name, nameWithSprite, 
+				name, getIcon, 
 				onPress, tooltipBody, 
 				type, option, (BiFunction<Component, Object, MutableComponent>) getValueMessage);
 		addButton(button);
+		return button;
 	}
 	
 	public void addButton(ScrollingStringButton button) {
@@ -343,22 +381,22 @@ public class ConfigGuiHelper {
 		protected OnButtonClick onPress2;
 		protected ModConfigType configType;
 		protected ConfigOption<?> configOption;
-		protected Component optionNameNoSprite;
-		protected Component optionNameWithSprite;
+		protected Component optionName;
+		protected Function<?, String> getSprite;
 		protected BiFunction<Component, Object, MutableComponent> getValueMessage;
 		protected Object prevValue;
 		protected MultiLineScreenTooltip tooltip;
 
 		public ConfigButton(int pX, int pY, int pWidth, int pHeight, 
-				Component optionNameNoSprite, Component optionNameWithSprite, 
+				Component optionName, Function<?, String> getSprite, 
 				OnButtonClick pOnPress, Component tooltipBody,
 				ModConfigType type, ConfigOption<?> configOption, BiFunction<Component, Object, MutableComponent> getValueMessage) {
 			super(pX, pY, pWidth, pHeight, CommonComponents.EMPTY, pOnPress, null);
 			this.onPress2 = pOnPress;
 			this.configType = type;
 			this.configOption = configOption;
-			this.optionNameNoSprite = optionNameNoSprite;
-			this.optionNameWithSprite = optionNameWithSprite;
+			this.optionName = optionName;
+			this.getSprite = getSprite;
 			this.getValueMessage = getValueMessage;
 			
 			this.tooltip = new MultiLineScreenTooltip(CommonComponents.EMPTY, tooltipBody);
@@ -379,7 +417,9 @@ public class ConfigGuiHelper {
 		
 		
 		protected void updateMessage(Object newValue) {
-			Component message = getValueMessage.apply(optionNameWithSprite, newValue);
+			String icon = getSprite != null ? ((Function<Object, String>) getSprite).apply(newValue) : null;
+			Component nameWithSprite = icon != null ? prependIcon(optionName, toIconPath(icon)) : optionName;
+			Component message = getValueMessage.apply(nameWithSprite, newValue);
 			this.setMessage(message);
 			this.tooltip.setTitle(message.copy().withStyle(ChatFormatting.BOLD));
 		}
