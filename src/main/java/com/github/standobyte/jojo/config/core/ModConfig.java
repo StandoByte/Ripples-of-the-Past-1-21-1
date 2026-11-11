@@ -67,10 +67,15 @@ public class ModConfig<C1, C2, C3> implements ModConfigInterface<C1, C2, C3> {
 
 	@Override
 	public C2 getPlayerBroadcast(@Nullable Player player) {
-		if (!hasClientBroadcast()) return null;
+		if (!hasClientBroadcast()) {
+			throw new IllegalStateException("Config " + configId.modOrStandId() + "does not have a client broadcast member!");
+		}
 		
 		if (player == null || player.isLocalPlayer()) {
 			return clientConfig.getBroadcastObj();
+		}
+		if (serverBroadcast == null) {
+			throw new IllegalStateException("Player broadcast config storage was not properly initialized on " + currentEnvironment + "side!");
 		}
 		ServerPlayerBroadcastConfig<C2> broadcast = getBroadcastPlayerState(player.getUUID());
 		return broadcast != null ? broadcast.getObj() : null;
