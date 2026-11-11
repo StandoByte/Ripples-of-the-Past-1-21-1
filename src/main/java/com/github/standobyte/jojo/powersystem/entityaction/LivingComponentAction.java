@@ -132,7 +132,13 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 	@Override
 	public void tick() {
 		if (action != null) {
-			tickAction();
+			if (entity.isDeadOrDying()) {
+				action.forceStop();
+				clearAction();
+			}
+			else {
+				tickAction();
+			}
 			if (action != null && !entity.level().isClientSide()) {
 				SyncActionInstanceData.tickSyncDirtyData(entity, action.synchedData.getDataSyncher());
 			}
@@ -142,8 +148,12 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 	protected void tickAction() {
 		action._tickAction();
 		if (action.isOver()) {
-			setAction(null, null, SyncType.NO_SYNC);
+			clearAction();
 		}
+	}
+	
+	protected void clearAction() {
+		setAction(null, null, SyncType.NO_SYNC);
 	}
 	
 	
