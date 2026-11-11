@@ -378,14 +378,14 @@ public class ConfigGuiHelper {
 	}
 	
 	public static class ConfigButton extends ScrollingStringButton {
-		protected OnButtonClick onPress2;
-		protected ModConfigType configType;
-		protected ConfigOption<?> configOption;
-		protected Component optionName;
-		protected Function<?, String> getSprite;
-		protected BiFunction<Component, Object, MutableComponent> getValueMessage;
-		protected Object prevValue;
-		protected MultiLineScreenTooltip tooltip;
+		public OnButtonClick onPress2;
+		public ModConfigType configType;
+		public ConfigOption<?> configOption;
+		public Component optionName;
+		public Function<?, String> getSprite;
+		public BiFunction<Component, Object, MutableComponent> getValueMessage;
+		public Object prevValue;
+		public MultiLineScreenTooltip tooltip;
 
 		public ConfigButton(int pX, int pY, int pWidth, int pHeight, 
 				Component optionName, Function<?, String> getSprite, 

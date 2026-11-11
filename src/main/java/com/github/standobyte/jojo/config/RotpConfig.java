@@ -8,6 +8,7 @@ import com.github.standobyte.jojo.client.ui.tutorial_toast.ToastsHelper;
 import com.github.standobyte.jojo.config.client.ClientModSettingsScreen;
 import com.github.standobyte.jojo.config.client.ClientModSettingsScreen.ConfigTabType;
 import com.github.standobyte.jojo.config.client.ConfigGuiHelper;
+import com.github.standobyte.jojo.config.client.ConfigGuiHelper.ConfigButton;
 import com.github.standobyte.jojo.config.client.RegisterRotpConfigScreenTabEvent;
 import com.github.standobyte.jojo.config.client.ScrollingStringButton;
 import com.github.standobyte.jojo.config.core.ModConfig;
@@ -23,6 +24,8 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.HumanoidArm;
@@ -201,7 +204,16 @@ public class RotpConfig {
 						
 						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.controls"));
 						helper.addBooleanOptionButton(client.abilitySelectionWheel, ModConfigType.CLIENT, "ability_selection_wheel");
-						helper.addBooleanOptionButton(client.rmbVanillaPriority, ModConfigType.CLIENT, "rmb_vanilla_priority");
+						ConfigButton rmbVanillaPrioButton = helper.addBooleanOptionButton(client.rmbVanillaPriority, ModConfigType.CLIENT, "rmb_vanilla_priority");
+						KeyMapping disableHUDControls = InputHandler.getInstance().vanillaKeybinds.disableHUDControls;
+						if (!disableHUDControls.isUnbound()) {
+							rmbVanillaPrioButton.tooltip.body.add(
+									Component.translatable("jojo_ripples.config.client.rmbVanillaPriority.tooltip2", 
+											Component.translatable("jojo_ripples.config.client.rmbVanillaPriority.tooltip2."
+													+ (client.toggleDisableHotbars.getAsBoolean() ? "toggle" : "hold")),
+											Component.keybind(disableHUDControls.getName()))
+									.withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
+						}
 						helper.addBooleanOptionButton(client.tutorialEnabled, ModConfigType.CLIENT, null);
 						helper.addButton(new ScrollingStringButton(-1, -1, -1, -1, 
 								Component.translatable("jojo_ripples.config.client.tutorialReset"), 
