@@ -31,6 +31,8 @@ import com.github.standobyte.jojo.config.core.ModConfigType;
 import com.github.standobyte.jojo.config.core.types.ConfigBool;
 import com.github.standobyte.jojo.config.core.types.ConfigDouble;
 import com.github.standobyte.jojo.config.core.types.ConfigEnum;
+import com.github.standobyte.jojo.config.core.types.ConfigFloat;
+import com.github.standobyte.jojo.config.core.types.ConfigInt;
 import com.github.standobyte.jojo.config.internal.ConfigEventHandler;
 import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
 import com.github.standobyte.jojo.config.stand.StandCommonConfig;
@@ -195,6 +197,15 @@ public class ConfigGuiHelper {
 					}
 					case ConfigEnum<?> fieldEnum -> {
 						addEnumOptionButton(fieldEnum, ModConfigType.COMMON, null);
+					}
+					case ConfigInt fieldInt -> {
+						addNumericField(fieldInt, ModConfigType.COMMON, null);
+					}
+					case ConfigFloat fieldFloat -> {
+						addNumericField(fieldFloat, ModConfigType.COMMON, null);
+					}
+					case ConfigDouble fieldDouble -> {
+						addNumericField(fieldDouble, ModConfigType.COMMON, null);
 					}
 					default -> {}
 				}
