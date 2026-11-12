@@ -33,6 +33,18 @@ public class StatusEffectModified extends MobEffect {
 	public StatusEffectModified(MobEffectCategory category, int color, ParticleOptions particle) {
 		super(category, color, particle);
 	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends StatusEffectModified> T setUncurable() {
+		this.isUncurable = true;
+		return (T) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends StatusEffectModified> T setDisableCreeperLinger() {
+		this.disableCreeperLinger = true;
+		return (T) this;
+	}
 	
 
 	public void onAdded(LivingEntity entity, MobEffectInstance instance, @Nullable Entity source) {}
@@ -41,13 +53,6 @@ public class StatusEffectModified extends MobEffect {
 
 	public void onRemoved(LivingEntity entity, MobEffectInstance instance) {}
 	
-
-	@Deprecated
-	@SuppressWarnings("unchecked")
-	public <T extends StatusEffectModified> T setUncurable() {
-		this.isUncurable = true;
-		return (T) this;
-	}
 
 	@Override
 	public void fillEffectCures(Set<EffectCure> cures, MobEffectInstance effectInstance) {

@@ -6,11 +6,13 @@ import java.util.Set;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.customobjects.StatusEffectModified;
 import com.github.standobyte.jojo.mechanics.BleedingEffect;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveModeEffect;
 import com.github.standobyte.jojo.mechanics.standmeteorite.StandVirusEffect;
 import com.github.standobyte.jojo.mechanics.sunburn.HamonSpreadStatusEffect;
 import com.github.standobyte.jojo.mechanics.sunburn.SunBurnStatusEffect;
+import com.github.standobyte.jojo.util.functions.AttributeUtil.BooleanAttributeUtil;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
@@ -53,6 +55,12 @@ public class ModStatusEffects {
 
 	public static final DeferredHolder<MobEffect, StandVirusEffect> STAND_VIRUS = STATUS_EFFECTS.register("stand_virus",
 			id -> new StandVirusEffect(MobEffectCategory.HARMFUL, 0xC10019));
+
+	public static final DeferredHolder<MobEffect, MobEffect> SPIRIT_VISION = STATUS_EFFECTS.register("spirit_vision", 
+			id -> new StatusEffectModified(MobEffectCategory.BENEFICIAL, 0x8E45FF)
+					.setUncurable().setDisableCreeperLinger()
+					.addAttributeModifier(ModEntityAttributes.CAN_SEE_STANDS, JojoMod.resLoc("effect.spirit_vision"), 
+							BooleanAttributeUtil.TRUE_MODIFIER_VAL, BooleanAttributeUtil.TRUE_MODIFIER_OP));
 	
 
 	@SubscribeEvent
