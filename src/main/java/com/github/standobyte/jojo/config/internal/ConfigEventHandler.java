@@ -73,11 +73,14 @@ public class ConfigEventHandler {
 		
 		@SubscribeEvent
 		public static void onClientPlayerLoggedOut(ClientPlayerNetworkEvent.LoggingOut event) {
-			ALL_CONFIGS.allConfigs().forEach(config -> {
-				config.destroyBroadcastPlayersCfgHolder();
-				config.unsetCommonRemoteState();
-			});
-			ConfigNetworkFunctions.clClearServerHostUUID();
+			boolean isACTUALLYLoggingOutAndNotSomeBS = event.getConnection() != null;
+			if (isACTUALLYLoggingOutAndNotSomeBS) {
+				ALL_CONFIGS.allConfigs().forEach(config -> {
+					config.destroyBroadcastPlayersCfgHolder();
+					config.unsetCommonRemoteState();
+				});
+				ConfigNetworkFunctions.clClearServerHostUUID();
+			}
 		}
 		
 		@SubscribeEvent

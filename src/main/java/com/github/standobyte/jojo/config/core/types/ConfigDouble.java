@@ -80,14 +80,14 @@ public class ConfigDouble extends ConfigOption<Double> implements DoubleSupplier
 	
 	@Override
 	public void setRemoteState() {
-		super.setRemoteState();
 		remoteValue = new DefaultedValue.Double(getDefaultValue());
+		super.setRemoteState();
 	}
 	
 	@Override
 	public void unsetRemoteState() {
-		super.unsetRemoteState();
 		remoteValue = null;
+		super.unsetRemoteState();
 	}
 	
 	protected DefaultedValue.Double getValueToUse(CommonConfigState cfgState) {

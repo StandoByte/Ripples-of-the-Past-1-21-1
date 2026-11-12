@@ -103,10 +103,12 @@ public abstract class ConfigOption<T> implements Supplier<T> {
 	
 	public void setRemoteState() {
 		this.cfgState = CommonConfigState.REMOTE;
+		onChanged(null);
 	}
 	
 	public void unsetRemoteState() {
 		this.cfgState = CommonConfigState.LOCAL;
+		onChanged(null);
 	}
 	
 	protected abstract T get(CommonConfigState cfgState);

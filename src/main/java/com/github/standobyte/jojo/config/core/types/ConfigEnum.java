@@ -50,14 +50,14 @@ public class ConfigEnum<T extends Enum<T>> extends ConfigOption<T> {
 	
 	@Override
 	public void setRemoteState() {
-		super.setRemoteState();
 		remoteValue = new DefaultedValue<T>(getDefaultValue());
+		super.setRemoteState();
 	}
 	
 	@Override
 	public void unsetRemoteState() {
-		super.unsetRemoteState();
 		remoteValue = null;
+		super.unsetRemoteState();
 	}
 	
 	protected DefaultedValue<T> getValueToUse(CommonConfigState cfgState) {
