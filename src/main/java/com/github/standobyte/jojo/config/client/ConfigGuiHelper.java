@@ -331,7 +331,7 @@ public class ConfigGuiHelper {
 	}
 	
 	
-	public <T extends Number> void addNumericField(ConfigOption<T> option,
+	public <T extends Number> NumericField addNumericField(ConfigOption<T> option,
 			ModConfigType type, @Nullable String icon) {
 		curEntry = new EntryWithButtons();
 		list.addEntry(curEntry);
@@ -346,7 +346,6 @@ public class ConfigGuiHelper {
 		int buttonsWidth = Math.min((screen.width - 80) / 2, 150);
 		int leftButtonsX0 = screen.width / 2 - 35 - buttonsWidth;
 		int rightButtonsX0 = screen.width / 2 - 25;
-		int offsetFromRightButtonToRightEdge = screen.width - rightButtonsX0 + buttonsWidth;
 		
 		MultiLineScreenTooltip tooltip = new MultiLineScreenTooltip(CommonComponents.EMPTY, tooltipBody);
 		ConfigGuiHelper.TextLine nameRenderable = new ConfigGuiHelper.TextLine(nameWithSprite, Alignment.LEFT, ConfigGuiHelper.TextLine.WHITE) {
@@ -359,9 +358,11 @@ public class ConfigGuiHelper {
 			}
 		};
 		curEntry.addRenderable(nameRenderable, leftButtonsX0, 6);
-		curEntry.add(field, offsetFromRightButtonToRightEdge - field.getWidth() - 50, 0);
+		curEntry.add(field, rightButtonsX0 + buttonsWidth - field.getWidth(), 0);
 		
 		curEntry = null;
+		
+		return field;
 	}
 	
 	
