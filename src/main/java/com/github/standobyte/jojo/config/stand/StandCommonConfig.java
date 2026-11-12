@@ -179,8 +179,9 @@ public class StandCommonConfig implements CommonConfig<StandType> {
 			}
 			JsonObject configJson = stitchedConfig.stitchJson(standId);
 			
-			reset();
-			applyJson(configJson);
+			applyJson(configJson, false	/* 1 - This gets called very early on, there is nothing TO reset
+					 					 * 2 - This may cause the ConfigOption#onChanged to be called for no reason (once again because the value is default)
+					 					 */);
 		}
 		catch (IOException e) {
 			JojoMod.getLogger().error("", e);
@@ -188,7 +189,10 @@ public class StandCommonConfig implements CommonConfig<StandType> {
 	}
 	
 	// TODO move the old data-driven stand json stuff here
-	protected void applyJson(JsonObject configJson) {
+	protected void applyJson(JsonObject configJson, boolean doReset) {
+		if (doReset) {
+			reset();
+		}
 		JsonObject statsJson = JSONUtil.asObject(get(configJson, ElementType.STATS.path));
 		if (statsJson != null) {
 			for (var statConfigEntry : statConfigs.entrySet()) {
@@ -196,7 +200,7 @@ public class StandCommonConfig implements CommonConfig<StandType> {
 				JsonElement statJson = statsJson.get(key);
 				if (statJson != null) {
 					ConfigOption<?> statConfig = statConfigEntry.getValue();
-					statConfig.fromJson(statJson, key);
+					statConfig.fromJsonWithCallback(statJson, key);
 				}
 			}
 		}
@@ -213,7 +217,7 @@ public class StandCommonConfig implements CommonConfig<StandType> {
 						JsonElement configFieldJson = abilityConfigJsonEntry.getValue();
 						ConfigOption<?> field = abilityConfigs.get(fieldName);
 						if (field != null) {
-							field.fromJson(configFieldJson, fieldName);
+							field.fromJsonWithCallback(configFieldJson, fieldName);
 						}
 					}
 				}

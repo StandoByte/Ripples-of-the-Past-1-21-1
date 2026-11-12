@@ -73,7 +73,7 @@ public class ObjectConfigHelper<C> {
 			ConfigOption<?> field = optionEntry.getValue();
 			JsonElement fieldJson = json.get(fieldName);
 			if (fieldJson != null) {
-				field.fromJson(fieldJson, fieldName);
+				field.fromJsonWithCallback(fieldJson, fieldName);
 			}
 			else {
 				field.reset();

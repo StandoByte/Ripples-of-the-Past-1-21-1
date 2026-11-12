@@ -55,10 +55,10 @@ public class RotpConfig {
 					if (!value) {
 						ToastsHelper.getInstance().hideAll();
 					}
-				});
+				}, false);
 
 		public final ConfigBool resolveShaders = new ConfigBool(true)
-				.withOnChangeCallback(ClientResolveVisuals::onColorShiftSettingUpdated);
+				.withOnChangeCallback(ClientResolveVisuals::onColorShiftSettingUpdated, false);
 		//public final ConfigBool timeStopAnimation = true;
 		public final ConfigBool standMotionTilt = new ConfigBool(true);
 		//public final ConfigBool poseOnLmbRmb = true;

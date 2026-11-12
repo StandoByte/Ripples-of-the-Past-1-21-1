@@ -25,9 +25,12 @@ public abstract class ConfigOption<T> implements Supplier<T> {
 	// as much as I don't like functional spaghetti, this is prob worth it
 	// but if we end up needing smth more complex in the future, I'm removing this
 	protected BiConsumer<T, Player> onChanged;
-
-	public <C extends ConfigOption<T>> C withOnChangeCallback(Consumer<T> onChanged) {
-		return withOnChangeCallback((value, player) -> onChanged.accept(value));
+	protected boolean callChangeCallbackOnFileLoad = false;
+	
+	public <C extends ConfigOption<T>> C withOnChangeCallback(Consumer<T> onChanged, boolean callOnFileLoad) {
+		withOnChangeCallback((value, player) -> onChanged.accept(value));
+		this.callChangeCallbackOnFileLoad = callOnFileLoad;
+		return (C) this;
 	}
 	
 	/** Player argument depends on the config type:<ul>
@@ -76,6 +79,13 @@ public abstract class ConfigOption<T> implements Supplier<T> {
 	public void resetWithCallback(@Nullable Player relevantPlayer) {
 		reset();
 		onChanged(relevantPlayer);
+	}
+
+	public void fromJsonWithCallback(JsonElement json, String fieldName) {
+		fromJson(json, fieldName);
+		if (callChangeCallbackOnFileLoad) {
+			onChanged(null);
+		}
 	}
 
 	public void fromBufWithCallback(RegistryFriendlyByteBuf buf, @Nullable Player relevantPlayer) {
