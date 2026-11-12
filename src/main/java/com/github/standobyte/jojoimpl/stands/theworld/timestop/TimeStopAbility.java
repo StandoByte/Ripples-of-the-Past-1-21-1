@@ -1,11 +1,16 @@
 package com.github.standobyte.jojoimpl.stands.theworld.timestop;
 
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
 import com.github.standobyte.jojo.client.ui.hud_power.WindupIndicator;
+import com.github.standobyte.jojo.config.core.types.ConfigFloat;
+import com.github.standobyte.jojo.config.core.types.ConfigInt;
+import com.github.standobyte.jojo.config.stand.AbilityConfigField;
 import com.github.standobyte.jojo.init.ModSpecialActions;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.powersystem.Power;
@@ -32,11 +37,18 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
 public class TimeStopAbility extends EntityActionAbility {
+	@AbilityConfigField public final ConfigInt standWindupDuration;
+	@AbilityConfigField public final ConfigInt timeStopMaxTicks;
+	@AbilityConfigField public final ConfigFloat timeStopCooldownPerTick;
 
 	public TimeStopAbility(AbilityType<?> abilityType, AbilityId abilityId) {
 		super(abilityType, abilityId, TimeStopWindupAction::new);
 		canUseInStoppedTime = true;
-		setDefaultPhaseLength(ActionPhase.BUTTON_CHARGE, 30);
+		standWindupDuration = new ConfigInt(30).initNonNegative()
+				.withOnChangeCallback(ticks -> setDefaultPhaseLength(ActionPhase.BUTTON_CHARGE, ticks), true);
+		setDefaultPhaseLength(ActionPhase.BUTTON_CHARGE, standWindupDuration.getDefaultValue());
+		timeStopMaxTicks = new ConfigInt(100).initNonNegative();
+		timeStopCooldownPerTick = new ConfigFloat(3).initNonNegative();
 	}
 	
 	@Override
@@ -78,8 +90,8 @@ public class TimeStopAbility extends EntityActionAbility {
 		return super.cl_windupIndicator(clientPlayer, indicator, partialTick);
 	}
 	
-	public static int getDuration(LivingEntity user) {
-		return 100;
+	public int getDuration(LivingEntity user) {
+		return timeStopMaxTicks.getAsInt();
 	}
 	
 	
@@ -130,7 +142,8 @@ public class TimeStopAbility extends EntityActionAbility {
 		@Override
 		public void actionPerformStart() {
 			LivingEntity user = performer;
-			addTimeStopEffect(user, (Ability) ability, getDuration(user), false);
+			TimeStopAbility ability = (TimeStopAbility) this.ability;
+			addTimeStopEffect(user, ability);
 		}
 		
 	}
@@ -158,7 +171,7 @@ public class TimeStopAbility extends EntityActionAbility {
 	}
 	
 	
-	public static void addTimeStopEffect(LivingEntity user, @Nullable Ability ability, int duration, boolean stopWhenOtherTSEnds) {
+	public static void addTimeStopEffect(LivingEntity user, Consumer<TimeStopEffect> init) {
 		Level level = user.level();
 		if (!level.isClientSide()) {
 			StandPower standPower = StandPower.get(user);
@@ -166,16 +179,31 @@ public class TimeStopAbility extends EntityActionAbility {
 				// should be empty, but just in case
 				Stream<TimeStopEffect> oldEffects = standPower.userStandEffects.getEffectsOfType(ModStandAbilities.EFFECT_TIME_STOP.get());
 				TimeStopEffect timeStop = ModStandAbilities.EFFECT_TIME_STOP.get().create(level);
-				if (ability != null) {
-					timeStop.timeStopAbility = ability.getAbilityId();
-				}
-				timeStop.duration = duration;
+				init.accept(timeStop);
 				standPower.userStandEffects.addEffect(timeStop);
 				oldEffects.forEach(effect -> {
 					effect.remove();
 				});
 			}
 		}
+	}
+	
+	public static void addTimeStopEffect(LivingEntity user, @Nonnull TimeStopAbility ability) {
+		addTimeStopEffect(user, timeStop -> {
+			timeStop.timeStopAbility = ability.getAbilityId();
+			timeStop.duration = ability.getDuration(user);
+			timeStop.cooldownMultiplier = ability.timeStopCooldownPerTick.getAsFloat();
+		});
+	}
+	
+	@Deprecated
+	public static void addTimeStopEffect(LivingEntity user, @Nullable Ability ability, int duration, boolean stopWhenOtherTSEnds) {
+		addTimeStopEffect(user, timeStop -> {
+			if (ability != null) {
+				timeStop.timeStopAbility = ability.getAbilityId();
+			}
+			timeStop.duration = duration;
+		});
 	}
 
 

@@ -695,6 +695,12 @@
   "jojo_ripples.skill.time_stop.controls": "Special ability",
   "jojo_ripples.ability.time_stop": "Time Stop",
   "jojo_ripples.ability.time_stop.duration": "Time Stop (%ss)",
+  "jojo_ripples.config.time_stop#standWindupDuration": "Stand windup duration",
+  "jojo_ripples.config.time_stop#standWindupDuration.tooltip": "The duration of the Stand windup animation between pressing the button and triggering time stop itself (in ticks).",
+  "jojo_ripples.config.time_stop#timeStopMaxTicks": "Maximum time stop duration",
+  "jojo_ripples.config.time_stop#timeStopMaxTicks.tooltip": "The duration of the time stop itself (in ticks).",
+  "jojo_ripples.config.time_stop#timeStopCooldownPerTick": "Cooldown time multiplier",
+  "jojo_ripples.config.time_stop#timeStopCooldownPerTick.tooltip": "The duration of a time stop is multiplied by this number to apply cooldown for the ability. For example, if this value is 3, and time was stopped for 5 seconds, the cooldown is 5 * 3 = 15 seconds.",
   
   "jojo_ripples.vl_subtitle.star_platinum": "『Star Platinum!』",
   "jojo_ripples.vl_subtitle.star_finger": "『Star Finger!』",

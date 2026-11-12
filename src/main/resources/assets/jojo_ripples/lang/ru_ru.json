@@ -621,6 +621,12 @@
   "jojo_ripples.skill.time_stop.controls": "Особая способность",
   "jojo_ripples.ability.time_stop": "Остановка времени",
   "jojo_ripples.ability.time_stop.duration": "Остановка времени (%ss)",
+  "jojo_ripples.config.time_stop#standWindupDuration": "Длительность анимации Стенда",
+  "jojo_ripples.config.time_stop#standWindupDuration.tooltip": "Длительность анимации Стенда между нажатием способности и самой остановкой времени (в тиках).",
+  "jojo_ripples.config.time_stop#timeStopMaxTicks": "Макс. длительность остановки времени",
+  "jojo_ripples.config.time_stop#timeStopMaxTicks.tooltip": "Длительность самой остановки времени (в тиках).",
+  "jojo_ripples.config.time_stop#timeStopCooldownPerTick": "Множитель времени перезарядки",
+  "jojo_ripples.config.time_stop#timeStopCooldownPerTick.tooltip": "Длительность остановки времени умножается на это число, чтобы получить длительность перезарядки. Например, если этот множитель равен 3, после 5 секунд остановленного времени перезарядка будет равна 5 * 3 = 15 секундам.",
   
   "jojo_ripples.vl_subtitle.star_platinum": "『Star Platinum!』",
   "jojo_ripples.vl_subtitle.star_finger": "『Звёздный палец!』",
