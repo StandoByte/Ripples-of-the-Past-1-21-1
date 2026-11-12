@@ -97,7 +97,13 @@ public class ConfigNetworkFunctions {
 			if (mc.isLocalServer()) {
 				IntegratedServer integratedServer = mc.getSingleplayerServer();
 				if (integratedServer != null && integratedServer == server) {
-					UUID hostUUID = /*server.uuid*/ mc.player != null ? mc.player.getUUID() : null;
+					// FIXME the local player object has not been created (and therefore the uuid is still null) by the time PlayerEvent.PlayerLoggedInEvent is called (ConfigNetworkFunctions.sendServerHostUUID(ServerPlayer))
+					/* Though funnily enough it still ends up working correctly - 
+					 * the local server host will receive a packet with empty UUID optional 
+					 * and set hostOfARemoteServerTheClientIsCurrentlyConnectedTo to null, 
+					 * which is exactly the state that the host is supposed to be in.
+					 */
+					UUID hostUUID = integratedServer.uuid;
 					return hostUUID;
 				}
 			}

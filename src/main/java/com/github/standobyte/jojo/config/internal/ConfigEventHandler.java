@@ -11,6 +11,7 @@ import com.github.standobyte.jojo.config.core.ModConfig;
 import com.github.standobyte.jojo.config.core.RegisterRotpConfigEvent;
 import com.github.standobyte.jojo.core.JojoMod;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.api.distmarker.Dist;
@@ -74,12 +75,17 @@ public class ConfigEventHandler {
 		@SubscribeEvent
 		public static void onClientPlayerLoggedOut(ClientPlayerNetworkEvent.LoggingOut event) {
 			boolean isACTUALLYLoggingOutAndNotSomeBS = event.getConnection() != null;
-			if (isACTUALLYLoggingOutAndNotSomeBS) {
-				ALL_CONFIGS.allConfigs().forEach(config -> {
-					config.destroyBroadcastPlayersCfgHolder();
-					config.unsetCommonRemoteState();
+			boolean clientWasIntegratedServer = Minecraft.getInstance().isLocalServer(); // Minecraft#singleplayerServer is already null
+			if (isACTUALLYLoggingOutAndNotSomeBS && !clientWasIntegratedServer) {
+				ALL_CONFIGS.allConfigs().forEach(config -> {	// here's why we also check clientWasIntegratedServer:
+					config.destroyBroadcastPlayersCfgHolder();	// <- also done on ServerStoppingEvent 
+																/* (calling it too early here was the reason for crashes - 
+																 * the entities would still tick for a bit afterwards, 
+																 * so Stand entities tried to get the user's broadcast config for range check) 
+																 */
+					config.unsetCommonRemoteState();			// <- ModConfig#setCommonRemoteState() isn't called for integrated server host to begin with
 				});
-				ConfigNetworkFunctions.clClearServerHostUUID();
+				ConfigNetworkFunctions.clClearServerHostUUID();	// <- this is also only supposed to be sent to REMOTE players
 			}
 		}
 		
