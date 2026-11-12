@@ -306,11 +306,11 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 	}
 
 	@Override
-	public Component getName(Power<?> context) {
+	public Component getNameWithContext(Power<?> context) {
 		if (isHoming(context.getUser(), PowerClass.STAND.cast(context))) {
 			return StandSkinComponent.translatable(context, homingTlKey);
 		}
-		return super.getName(context);
+		return super.getNameWithContext(context);
 	}
 
 

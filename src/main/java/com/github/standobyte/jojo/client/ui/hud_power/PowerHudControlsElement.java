@@ -208,7 +208,7 @@ public class PowerHudControlsElement extends HudElement {
 		public void addHoverTooltip(List<Component> tooltipLines, Component keyName) {
 			Ability ability = this.ability.ability;
 			Power<?> power = ClientPowerCache.getPower(ability.abilityId.powerClass());
-			Component abilityName = ability.getName(power);
+			Component abilityName = ability.getNameWithContext(power);
 			Component line = Component.translatable("ripples_hud.key_ability", keyName, abilityName)
 					.withStyle(ChatFormatting.BLACK);
 			tooltipLines.add(line);
@@ -532,9 +532,9 @@ public class PowerHudControlsElement extends HudElement {
 				Power<?> userPower = ClientPowerCache.getPower(abilityId.powerClass());
 				float cooldown = cooldowns != null ? cooldowns.getCooldownRatio(abilityId, partialTick) : 0;
 
-				AbilityBindUI bindUI = new MovesetAbilityBindUI(abilityCtx, abilitySprites.getAbilityIcon(ability, userPower, standSkin),
+				AbilityBindUI bindUI = new MovesetAbilityBindUI(abilityCtx, abilitySprites.getAbilityIconWithContext(ability, userPower, standSkin),
 						key, modifier, inputMethod,
-						bindName, Component.translatable("ripples_hud.key_ability", bindName, ability.getName(userPower)),
+						bindName, Component.translatable("ripples_hud.key_ability", bindName, ability.getNameWithContext(userPower)),
 						cooldown);
 
 				return bindUI;

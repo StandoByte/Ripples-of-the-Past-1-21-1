@@ -616,10 +616,11 @@
   "jojo_ripples.ability.inhale": "Звёздный вдох",
   "jojo_ripples.subtitle.inhale": "Вдох",
   
-  "jojo_ripples.skill.time_stop": "Time Stop",
+  "jojo_ripples.skill.time_stop": "Остановка времени",
   "jojo_ripples.skill.time_stop.desc": "Ваш Стенд останавливает ход времени на короткий промежуток, позволяя только вам свободно совершать действия, пока время заморожено.",
   "jojo_ripples.skill.time_stop.controls": "Особая способность",
-  "jojo_ripples.ability.time_stop": "Time Stop (%ss)",
+  "jojo_ripples.ability.time_stop": "Остановка времени",
+  "jojo_ripples.ability.time_stop.duration": "Остановка времени (%ss)",
   
   "jojo_ripples.vl_subtitle.star_platinum": "『Star Platinum!』",
   "jojo_ripples.vl_subtitle.star_finger": "『Звёздный палец!』",

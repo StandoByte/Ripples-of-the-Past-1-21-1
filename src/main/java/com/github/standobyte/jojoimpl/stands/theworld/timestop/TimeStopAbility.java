@@ -4,6 +4,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
 import com.github.standobyte.jojo.client.ui.hud_power.WindupIndicator;
 import com.github.standobyte.jojo.init.ModSpecialActions;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
@@ -26,6 +27,7 @@ import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
@@ -174,6 +176,21 @@ public class TimeStopAbility extends EntityActionAbility {
 				});
 			}
 		}
+	}
+
+
+	protected String withDurationTlKey;
+	
+	@Override
+	protected void initVariationAssets() {
+		this.withDurationTlKey = tlKey(abilityId, ".duration");
+	}
+
+	@Override
+	public Component getNameWithContext(Power<?> context) {
+		int durationTicks = getDuration(context.getUser());
+		return StandSkinComponent.translatable(context, withDurationTlKey, 
+				String.format("%.2f", (float) durationTicks / 20F));
 	}
 
 }

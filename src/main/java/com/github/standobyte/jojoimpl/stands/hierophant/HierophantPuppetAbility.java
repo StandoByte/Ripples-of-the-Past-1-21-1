@@ -109,11 +109,11 @@ public class HierophantPuppetAbility extends StandEntityAbility {
 	}
 
 	@Override
-	public Component getName(Power<?> context) {
+	public Component getNameWithContext(Power<?> context) {
 		if (hasPuppetUnderControl(PowerClass.STAND.cast(context))) {
 			return StandSkinComponent.translatable(context, releaseTlKey);
 		}
-		return super.getName(context);
+		return super.getNameWithContext(context);
 	}
 
 }

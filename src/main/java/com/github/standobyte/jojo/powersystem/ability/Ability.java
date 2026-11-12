@@ -38,7 +38,7 @@ import net.minecraft.world.level.Level;
 public class Ability {
 	public final AbilityType<?> abilityType;
 	public final AbilityId abilityId;
-	protected String spriteName;
+	public String spriteName;
 	protected String nameTlKey;
 	
 	public AbilityUsageGroup usageGroup = AbilityUsageGroup.SPECIAL;
@@ -207,9 +207,6 @@ public class Ability {
 		return null;
 	}
 	
-	public Component getName(Power<?> context) {
-		return StandSkinComponent.translatable(context, nameTlKey);
-	}
 	
 	public static String tlKey(AbilityId abilityId, String postfix) {
 		return tlKey(abilityId.nameInMoveset() + postfix);
@@ -217,6 +214,14 @@ public class Ability {
 	
 	public static String tlKey(String abilityName) {
 		return "jojo_ripples.ability." + abilityName;
+	}
+	
+	public Component getNameWithContext(Power<?> context) {
+		return getName(context);
+	}
+	
+	public Component getName(Power<?> context) {
+		return StandSkinComponent.translatable(context, nameTlKey);
 	}
 	
 	public String getSpriteName(Power<?> context) {

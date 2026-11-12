@@ -55,7 +55,7 @@ public class AbilityIconSprites implements AutoCloseable {
 	}
 
 
-	public TextureAtlasSprite getAbilityIcon(Ability ability, Power<?> context, @Nullable StandSkin curStandSkin) {
+	public TextureAtlasSprite getAbilityIconWithContext(Ability ability, Power<?> context, @Nullable StandSkin curStandSkin) {
 		return getAbilityIcon(ability.getSpriteName(context), curStandSkin);
 	}
 
