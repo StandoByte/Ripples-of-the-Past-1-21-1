@@ -100,6 +100,7 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 		if (!map.containsKey(ActionPhase.RECOVERY))			map.put(ActionPhase.RECOVERY,		recoveryPhase.getAsFloat());
 	}
 
+	// XXX (Molang formulas in config) replace these fields with config option that can parse Molang from file
 	protected MolangValue buttonChargePhase = new MolangValue.Literal(0);
 	protected MolangValue windupPhase = new MolangValue.Literal(0);
 	protected MolangValue performPhase = new MolangValue.Literal(1);
