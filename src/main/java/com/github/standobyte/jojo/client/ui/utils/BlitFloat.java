@@ -320,10 +320,15 @@ public class BlitFloat {
 	private static float lerpUV(float coord, float coord0, float coord1, float minUV, float maxUV) {
 		return (float) Mth.lerp(Mth.inverseLerp(coord, coord0, coord1), minUV, maxUV);
 	}
+
 	
+	public static void fill(PoseStack poseStack, 
+			float minX, float minY, float maxX, float maxY, float blitOffset, int color) {
+		fill(RenderType.gui(), poseStack, minX, minY, maxX, maxY, blitOffset, color);
+	}
 	
-	public static void fill(PoseStack poseStack, float minX, float minY, float maxX, float maxY, float blitOffset, int color) {
-		RenderType renderType = RenderType.gui();
+	public static void fill(RenderType renderType, PoseStack poseStack, 
+			float minX, float minY, float maxX, float maxY, float blitOffset, int color) {
 		Matrix4f pose = poseStack.last().pose();
 		if (minX < maxX) {
 			float swap = minX;

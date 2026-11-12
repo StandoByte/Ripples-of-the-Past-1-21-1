@@ -30,7 +30,6 @@ import com.github.standobyte.jojo.client.textsymbols.IconSymbols;
 import com.github.standobyte.jojo.client.ui.DrawHotbar;
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHud.AbilityHud;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
-import com.github.standobyte.jojo.client.ui.utils.DrawRect;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.TextUtil;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
@@ -59,6 +58,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.BelowOrAboveWidgetTooltipPositioner;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FastColor;
@@ -703,8 +703,10 @@ public class PowerHudControlsElement extends HudElement {
 	
 	public static void renderCooldown(GuiGraphics guiGraphics, float bindX, float bindY, float cooldownRatio) {
 		if (cooldownRatio > 0) {
-			DrawRect.fillSingleRect(guiGraphics, 
-					bindX + 3, bindY + 3 + 16.0F * (1.0F - cooldownRatio), 16, 16.0F * cooldownRatio, 0x80FFFFFF);
+			float yOffset = 16.0F * (1.0F - cooldownRatio);
+			BlitFloat.fill(RenderType.guiOverlay(), guiGraphics.pose(), 
+					bindX + 3, bindY + 3 + yOffset, 
+					bindX + 19, bindY + 19, Ability.ABILITY_ICON_BLIT_OFFSET, 0x80FFFFFF);
 		}
 	}
 	

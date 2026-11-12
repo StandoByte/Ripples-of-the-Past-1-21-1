@@ -228,8 +228,9 @@ public class Ability {
 		return spriteName;
 	}
 	
+	public static final float ABILITY_ICON_BLIT_OFFSET = 5;
 	public void renderAbilityIcon(Power<?> context, GuiGraphics guiGraphics, TextureAtlasSprite sprite, float x, float y, int color) {
-		BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), sprite, x, y, 16, 16, 5, color);
+		BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), sprite, x, y, 16, 16, ABILITY_ICON_BLIT_OFFSET, color);
 	}
 	
 	// 
