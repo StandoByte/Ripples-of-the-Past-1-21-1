@@ -387,5 +387,11 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
     	skillListScrolling.scroll(scrollY);
     	return true;
     }
+	
+	@Override
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		if (closeOnKeybind(minecraft, keyCode, scanCode, modifiers)) return true;
+		return super.keyPressed(keyCode, scanCode, modifiers);
+	}
 
 }

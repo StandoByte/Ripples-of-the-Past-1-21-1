@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -136,6 +137,15 @@ public interface IJojoMenuScreen {
 		}
 		
 		return null;
+	}
+	
+	default boolean closeOnKeybind(Minecraft mc, int keyCode, int scanCode, int modifiers) {
+		if (InputHandler.getInstance().vanillaKeybinds.jojoStuffMenu.matches(keyCode, scanCode)) {
+			mc.setScreen(null);
+			mc.mouseHandler.grabMouse();
+			return true;
+		}
+		return false;
 	}
 	
 }

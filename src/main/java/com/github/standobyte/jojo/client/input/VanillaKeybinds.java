@@ -9,7 +9,6 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import org.lwjgl.glfw.GLFW;
 
 import com.github.standobyte.jojo.client.ClientPowerCache;
-import com.github.standobyte.jojo.client.ui.screen_jojomenu.IJojoMenuScreen;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.JojoMenuTabs;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.Tab;
 import com.github.standobyte.jojo.config.core.types.ConfigBool;
@@ -128,56 +127,68 @@ public class VanillaKeybinds {
 		
 		return binds;
 	}
+	
+	public static boolean shouldConsumeModKeyMappingClicks(Minecraft mc) {
+		return mc.level != null && mc.getOverlay() == null && mc.screen == null;
+	}
+	
+	public static boolean consumeAllClicks(KeyMapping keyMapping) {
+		if (keyMapping.clickCount == 0) {
+			return false;
+		} else {
+			keyMapping.clickCount = 0;
+			return true;
+		}
+	}
 
 
-	public void handleTick() {
+	public void handleTick(InputHandler inputHandler) {
 		Minecraft mc = Minecraft.getInstance();
-		InputHandler inputHandler = InputHandler.getInstance();
+		if (!shouldConsumeModKeyMappingClicks(mc)) return;
+		
 		boolean isFrozen = mc.player != null && TimeStopEffect.getIsFrozenInTime(mc.player);
 		
-		if (playerPowerHUD.consumeClick()) {
+		while (playerPowerHUD.consumeClick()) {
 			inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.PLAYER_POWER ? PowerClass.PLAYER_POWER : null;
 		}
 		
-		boolean toggleStandModeHud = standArmsOnlyHUD.consumeClick();
+		boolean toggleStandModeHud = consumeAllClicks(standArmsOnlyHUD);
 		StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 		StandType standType = standPower != null ? standPower.getPowerType() : null;
 		boolean hasSummonMechanic = standType != null && standType.hasSummonMechanic(standPower);
-		if (hasSummonMechanic) {
-			if (!isFrozen && summonStand.consumeClick()) {
-				PacketDistributor.sendToServer(ClNoParamsPacket.of(PacketType.SUMMON_STAND));
+		while (summonStand.consumeClick()) {
+			if (hasSummonMechanic) {
+				if (!isFrozen) {
+					PacketDistributor.sendToServer(ClNoParamsPacket.of(PacketType.SUMMON_STAND));
+				}
 			}
-		}
-		else if (summonStand.consumeClick()) {
-			toggleStandModeHud = true;
+			else {
+				toggleStandModeHud = true;
+			}
 		}
 		if (toggleStandModeHud) {
 			inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.STAND ? PowerClass.STAND : null;
 		}
 		
-		if (JojoMod.config.getClient().toggleDisableHotbars.getAsBoolean() && disableHUDControls.consumeClick()) {
-			InputHandler.inputsDisabled = !InputHandler.inputsDisabled;
+		while (disableHUDControls.consumeClick()) {
+			if (JojoMod.config.getClient().toggleDisableHotbars.getAsBoolean()) {
+				InputHandler.inputsDisabled = !InputHandler.inputsDisabled;
+			}
 		}
 		
-		if (jojoStuffMenu.consumeClick()) {
-			if (mc.screen instanceof IJojoMenuScreen) {
-				mc.popGuiLayer();
-			}
-			else {
-				Tab tab = JojoMenuTabs.getTabToOpenOnMenuKey();
-				if (tab != null) {
-					tab.onClick(mc, mc.screen);
-				}
+		if (consumeAllClicks(jojoStuffMenu)) {
+			Tab tab = JojoMenuTabs.getTabToOpenOnMenuKey();
+			if (tab != null) {
+				tab.onClick(mc, mc.screen);
 			}
 		}
 		
 		
-		if (mc.level != null) {
-			ClientStandToggle[] toggles = ClientStandToggles.lazyInitToggles();
-			for (ClientStandToggle toggle : toggles) {
-				if (toggle.keybind != null) {
-					KeyMapping keybind = toggle.keybind.apply(this);
-					if (keybind != null && keybind.consumeClick()) {
+		for (ClientStandToggle toggle : ClientStandToggles.lazyInitToggles()) {
+			if (toggle.keybind != null) {
+				KeyMapping keybind = toggle.keybind.apply(this);
+				if (keybind != null) {
+					while (keybind.consumeClick()) {
 						if (toggle.clientCanToggle()) {
 							toggle.toggle();
 							toggle.fadeOut.reset();

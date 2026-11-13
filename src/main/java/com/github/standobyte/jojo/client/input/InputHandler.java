@@ -122,7 +122,7 @@ public class InputHandler {
 	@SubscribeEvent
 	public void handleKeyBindingsPost(ClientTickEvent.Post event) {
 		tickHotbarsSelection();
-		vanillaKeybinds.handleTick();
+		vanillaKeybinds.handleTick(this);
 		tickReleaseEventQueue();
 		tickKeyPressIndication();
 	}

@@ -384,6 +384,8 @@ public class StandSkinsScreen extends Screen implements IJojoMenuScreen {
 	
 	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		if (closeOnKeybind(minecraft, keyCode, scanCode, modifiers)) return true;
+		
 		if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
 			if (skinFullView != null) {
 				selectSkin(skinFullView.skin);

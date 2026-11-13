@@ -224,6 +224,12 @@ public class StandInfoScreen extends Screen implements IJojoMenuScreen {
 		return super.mouseClicked(mouseX, mouseY, button);
 	}
 	
+	@Override
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		if (closeOnKeybind(minecraft, keyCode, scanCode, modifiers)) return true;
+		return super.keyPressed(keyCode, scanCode, modifiers);
+	}
+	
 	// XXX scrollable text box with the description
 	@Deprecated
 	public static float spHairTmpCrutch(StandType standType) {

@@ -118,9 +118,9 @@ public class ClientMobController extends ClientEntityController {
 				}
 			}
 			
-			while (mc.options.keyAttack.consumeClick()) {}
-			while (mc.options.keyUse.consumeClick()) {}
-			while (mc.options.keyPickItem.consumeClick()) {}
+			mc.options.keyAttack.clickCount = 0;
+			mc.options.keyUse.clickCount = 0;
+			mc.options.keyPickItem.clickCount = 0;
 			
 			this.lmbHeld = holdingLMB;
 			this.rmbHeld = holdingRMB;

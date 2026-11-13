@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.subsystems.entity_externalcontainer._stand.input;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
+import com.github.standobyte.jojo.client.input.VanillaKeybinds;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.client.ClientEntityController;
@@ -26,29 +27,30 @@ public class ClientStandItemInputs {
 	@SubscribeEvent
 	public static void handle(ClientTickEvent.Pre event) {
 		Minecraft mc = Minecraft.getInstance();
-		StandEntity standEntity = ClientGlobals.playerStandEntity;
-		if (standEntity != null && mc.player != null) {
-			while (keySwap.consumeClick()) {
-				if (Screen.hasControlDown()) {
+		if (VanillaKeybinds.shouldConsumeModKeyMappingClicks(mc)) {
+			StandEntity standEntity = ClientGlobals.playerStandEntity;
+			boolean doSwap = VanillaKeybinds.consumeAllClicks(keySwap);
+			if (standEntity != null && mc.player != null) {
+				if (doSwap && Screen.hasControlDown()) {
 					PacketDistributor.sendToServer(ClStandItemInputPacket.packet(StandItemInput.Action.SWAP_USER_AND_STAND));
 				}
-			}
-			
-			if (!standEntity.getMainHandItem().isEmpty() || !standEntity.getOffhandItem().isEmpty()) {
-				ClientEntityController curController = ClientEntityController.getInstance();
-				boolean isControllingTheStand = curController != null && curController.entity == standEntity;
-				boolean mainPlayerHandEmpty = mc.player.getMainHandItem().isEmpty(); 
-				boolean offPlayerHandEmpty = mc.player.getOffhandItem().isEmpty(); 
 				
-				if (isControllingTheStand || mainPlayerHandEmpty) {
-					while (mc.options.keyDrop.consumeClick()) {
-						boolean fullStack = Screen.hasControlDown();
-						PacketDistributor.sendToServer(ClStandItemInputPacket.packet(fullStack ? StandItemInput.Action.DROP_FULL_STACK : StandItemInput.Action.DROP));
+				if (!standEntity.getMainHandItem().isEmpty() || !standEntity.getOffhandItem().isEmpty()) {
+					ClientEntityController curController = ClientEntityController.getInstance();
+					boolean isControllingTheStand = curController != null && curController.entity == standEntity;
+					boolean mainPlayerHandEmpty = mc.player.getMainHandItem().isEmpty(); 
+					boolean offPlayerHandEmpty = mc.player.getOffhandItem().isEmpty(); 
+					
+					if (isControllingTheStand || mainPlayerHandEmpty) {
+						while (mc.options.keyDrop.consumeClick()) {
+							boolean fullStack = Screen.hasControlDown();
+							PacketDistributor.sendToServer(ClStandItemInputPacket.packet(fullStack ? StandItemInput.Action.DROP_FULL_STACK : StandItemInput.Action.DROP));
+						}
 					}
-				}
-				if (isControllingTheStand || mainPlayerHandEmpty && offPlayerHandEmpty) {
-					while (mc.options.keySwapOffhand.consumeClick()) {
-						PacketDistributor.sendToServer(ClStandItemInputPacket.packet(StandItemInput.Action.SWAP_HANDS));
+					if (isControllingTheStand || mainPlayerHandEmpty && offPlayerHandEmpty) {
+						while (mc.options.keySwapOffhand.consumeClick()) {
+							PacketDistributor.sendToServer(ClStandItemInputPacket.packet(StandItemInput.Action.SWAP_HANDS));
+						}
 					}
 				}
 			}
