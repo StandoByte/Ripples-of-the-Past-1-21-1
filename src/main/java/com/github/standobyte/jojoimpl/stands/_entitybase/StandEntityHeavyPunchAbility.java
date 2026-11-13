@@ -341,7 +341,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 
 		@Override
 		public float getEntityDamageAmount(Entity entity, double impact) {
-			return aoeDamage;
+			return (float) (aoeDamage * impact);
 		}
 
 		@Override
