@@ -209,8 +209,9 @@ public class StandArrowEntity extends AbstractArrow {
     		ItemStack arrowSaved = arrowItem.copy();
     		arrowItem.hurtAndBreak(1, serverLevel, target, itemType -> {
     			this.discard();
+    			LivingEntity arrowOwnerPlayer = owner instanceof LivingEntity living ? StandUtil.getStandUser(living) : null;
     			StandArrowItem.onBreakArrow(serverLevel, 
-    					owner instanceof LivingEntity __ ? __ : null, null, 
+    					arrowOwnerPlayer, null, 
     					getBoundingBox().getCenter(), itemType, arrowSaved);
     		});
     		if (gaveStand && !arrowItem.isEmpty()) {
