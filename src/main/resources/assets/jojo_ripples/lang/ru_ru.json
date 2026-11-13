@@ -540,7 +540,7 @@
   
   "jojo_ripples.skill.block_toss": "Бросок блока",
   "jojo_ripples.skill.block_toss.desc": "Киньте во врага блоком в руке вашего Стенда в качестве импровизированного оружия дальнего боя.",
-  "jojo_ripples.skill.block_toss.controls": "Удерживайте \uEAFE, когда Стенд держит блок",
+  "jojo_ripples.skill.block_toss.controls": "Удерживайте \uEAFD, когда Стенд держит блок",
   "jojo_ripples.ability.block_toss": "Бросок блока",
   "entity.jojo_ripples.thrown_block": "Блок",
   
