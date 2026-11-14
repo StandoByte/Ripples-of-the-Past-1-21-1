@@ -24,10 +24,12 @@ import com.github.standobyte.jojo.mechanics.resolve.ClActivateResolvePacket;
 import com.github.standobyte.jojo.mechanics.resolve.TrResolvePacket;
 import com.github.standobyte.jojo.mechanics.voiceline.PlayVoiceLinePacket;
 import com.github.standobyte.jojo.network.c2s.ClAbilityInputPacket;
+import com.github.standobyte.jojo.network.c2s.ClActivePowerPacket;
 import com.github.standobyte.jojo.network.c2s.ClAimTargetPacket;
 import com.github.standobyte.jojo.network.c2s.ClDebugCommandPacket;
 import com.github.standobyte.jojo.network.c2s.ClNoParamsPacket;
 import com.github.standobyte.jojo.network.c2s.ClSetStandSkinPacket;
+import com.github.standobyte.jojo.network.s2c.ActivePowerPacket;
 import com.github.standobyte.jojo.network.s2c.BloodParticlesPacket;
 import com.github.standobyte.jojo.network.s2c.BrokenBlocksParticlesAndSoundsPacket;
 import com.github.standobyte.jojo.network.s2c.DatapackStandsPacket;
@@ -95,6 +97,7 @@ public class PacketsRegister {
 	public static void register(RegisterPayloadHandlersEvent event) {
 		PayloadRegistrar registrar = event.registrar("1");
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClAbilityInputPacket.Handler(JojoMod.resLoc("clkey")));
+		registerPacket(registrar, PayloadRegistrar::playToServer, new ClActivePowerPacket.Handler(JojoMod.resLoc("clpwrmode")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClNoParamsPacket.Handler(JojoMod.resLoc("clsignal")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClAimTargetPacket.Handler(JojoMod.resLoc("clientaim")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClLearnSkillPacket.Handler(JojoMod.resLoc("cllearnskill")));
@@ -120,6 +123,7 @@ public class PacketsRegister {
 
         registerPacket(registrar, PayloadRegistrar::playToClient, new EntityToggleTagsPacket.Handler(JojoMod.resLoc("tag")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new DatapackStandsPacket.Handler(JojoMod.resLoc("datastands")));
+        registerPacket(registrar, PayloadRegistrar::playToClient, new ActivePowerPacket.Handler(JojoMod.resLoc("pwrmode")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrAbilityUsePacket.Handler(JojoMod.resLoc("abilityuse")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrEntityActionInstancePacket.Handler(JojoMod.resLoc("action")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrActionSynchedDataPacket.Handler(JojoMod.resLoc("actiondata")));

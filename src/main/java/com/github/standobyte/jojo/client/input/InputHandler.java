@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Queue;
 import java.util.function.BiFunction;
@@ -37,6 +38,7 @@ import com.github.standobyte.jojo.event.client.PreKeyInputEvent;
 import com.github.standobyte.jojo.mechanics.resolve.ClActivateResolvePacket;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
 import com.github.standobyte.jojo.network.c2s.ClAbilityInputPacket;
+import com.github.standobyte.jojo.network.c2s.ClActivePowerPacket;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
@@ -223,6 +225,7 @@ public class InputHandler {
 	
 	protected AbilityControlScheme curControlScheme;
 	public PowerClass<?> curPowerClassToggle = null;
+	protected PowerClass<?> prevPowerClassActive = null;
 	
 	protected void tickGetCurControlScheme() {
 		Power<?> curPower = null;
@@ -245,6 +248,25 @@ public class InputHandler {
 		else {
 			curControlScheme = null;
 		}
+
+		tickUpdateSendActivePowerToServer();
+	}
+	
+	protected void tickUpdateSendActivePowerToServer() {
+		PowerClass<?> powerClassActive = null;
+		if (mc.player != null) {
+			if (curControlScheme != null) {
+				powerClassActive = curControlScheme.powerClassCosmetic;
+			}
+			
+			if (prevPowerClassActive != powerClassActive) {
+				Optional<PowerClass<?>> optionalWrapper = Optional.ofNullable(powerClassActive);
+				Power.setPowersActive(mc.player, optionalWrapper);
+				PacketDistributor.sendToServer(new ClActivePowerPacket(optionalWrapper));
+			}
+		}
+		
+		prevPowerClassActive = powerClassActive;
 	}
 	
 	public AbilityControlScheme getActiveControlScheme() {

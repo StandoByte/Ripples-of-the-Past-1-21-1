@@ -14,6 +14,7 @@ import com.google.gson.JsonObject;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 
 public abstract class PowerType implements JsonConfigurable {
 	protected final MovesetBuilder movesetOriginal;
@@ -34,6 +35,8 @@ public abstract class PowerType implements JsonConfigurable {
 	public boolean isEnabled() {
 		return true;
 	}
+	
+	public void onUserActivateHUD(LivingEntity user, Power<?> power, boolean state) {}
 	
 	public abstract Component getName(Power<?> power);
 	
