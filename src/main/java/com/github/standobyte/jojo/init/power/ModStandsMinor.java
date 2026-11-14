@@ -519,6 +519,20 @@ public class ModStandsMinor {
 			, id)
 			.discTooltipExperimental().init(stand -> stand.discCategoryPriority += 1000)), true);
 	
+	public static final DeferredHolder<StandType, StandType> SKY_HIGH = hideStand(ENCOUNTER_STANDS.register("sky_high", id -> new StandType(
+			new StandStats.Builder()
+			.power(10)
+			.speed(10)
+			.range(10, 10)
+			.durability(10)
+			.precision(10)
+			.build(),
+
+			new MovesetBuilder()
+
+			, id)
+			.discTooltipExperimental().init(stand -> stand.discCategoryPriority += 1000)), true);
+	
 	public static final DeferredHolder<StandType, EntityStandType> FUN_FUN_FUN = hideStand(ENCOUNTER_STANDS.register("fun_fun_fun", id -> new EntityStandType(
 			new StandStats.Builder()
 			.power(10)
