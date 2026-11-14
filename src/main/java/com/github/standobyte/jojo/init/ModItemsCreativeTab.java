@@ -13,6 +13,7 @@ import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.init.power.ModStands;
+import com.github.standobyte.jojo.init.power.ModStandsMinor;
 import com.github.standobyte.jojo.mechanics.clothes.ClothesItem;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
@@ -148,7 +149,7 @@ public class ModItemsCreativeTab extends CreativeModeTab implements CustomRender
 			
 			// placeholder stands
 			Map<String, List<StandType>> placeholderStandsByNamespace = StandType.getAllEnabledStands()
-					.filter(stand -> ModStands.ADD_TO_IN_DEV_CATEGORY_ANYWAY.contains(stand) && !stand.getUnlockableSkills().isEmpty())
+					.filter(stand -> ModStands.ADD_TO_IN_DEV_CATEGORY_ANYWAY.contains(stand) && (ModStandsMinor.SHOW_IN_DEV_WITH_0_SKILLS || !stand.getUnlockableSkills().isEmpty()))
 					.collect(Collectors.groupingBy(stand -> stand.getId().getNamespace()));
 			for (var namespaceEntry : placeholderStandsByNamespace.entrySet()) {
 				String namespace = namespaceEntry.getKey();

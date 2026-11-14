@@ -577,6 +577,7 @@ public class ModStandsMinor {
 			.discTooltipExperimental().init(stand -> { stand.discCategoryPriority += 1000; stand.discStoryPartPriority = 870; })), true);
 	
 	
+	public static boolean SHOW_IN_DEV_WITH_0_SKILLS = true;
 	public static <H extends Holder<StandType>> H hideStand(H standType, boolean inDev) {
 		ModStands.DONT_ADD_DISC_TO_MAIN_CREATIVE_TAB.add(standType);
 		ModStands.NO_AUTOCOMPLETE_IN_CONSOLE_COMMANDS.add(standType);
