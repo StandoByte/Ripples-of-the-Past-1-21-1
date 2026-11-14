@@ -25,6 +25,18 @@ public final class StringUtil {
 		return string.substring(0, string.length() - characters);
 	}
 	
+	public static String trimFileExtension(String fileName, String extension) {
+		int characters = extension.length();
+		if (extension.charAt(0) != '.') ++characters;
+		return substrBack(fileName, characters);
+	}
+	
+	public static void trimFileExtension(String[] filePath, String extension) {
+		if (filePath.length > 0) {
+			filePath[filePath.length - 1] = trimFileExtension(filePath[filePath.length - 1], extension);
+		}
+	}
+	
 	
 	public static record StringWithNumber(String str, OptionalInt number) {
 		

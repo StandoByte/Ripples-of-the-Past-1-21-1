@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.config.internal.packets;
 
 import com.github.standobyte.jojo.PacketsRegister;
+import com.github.standobyte.jojo.config.core.ConfigId;
 import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -10,10 +11,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class ClCommonServerConfigResetPacket implements CustomPacketPayload {
-	public String modId;
+	public ConfigId configId;
 	
-	public ClCommonServerConfigResetPacket(String modId) {
-		this.modId = modId;
+	public ClCommonServerConfigResetPacket(ConfigId configId) {
+		this.configId = configId;
 	}
 	
 	
@@ -32,13 +33,13 @@ public class ClCommonServerConfigResetPacket implements CustomPacketPayload {
 
 		@Override
 		public void encode(ClCommonServerConfigResetPacket packet, RegistryFriendlyByteBuf buf) {
-			buf.writeUtf(packet.modId);
+			ConfigId.STREAM_CODEC.encode(buf, packet.configId);
 		}
 
 		@Override
 		public ClCommonServerConfigResetPacket decode(RegistryFriendlyByteBuf buf) {
-			String modId = buf.readUtf();
-			return new ClCommonServerConfigResetPacket(modId);
+			ConfigId configId = ConfigId.STREAM_CODEC.decode(buf);
+			return new ClCommonServerConfigResetPacket(configId);
 		}
 
 		@Override

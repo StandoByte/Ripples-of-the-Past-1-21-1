@@ -108,4 +108,32 @@ public class AttributeUtil {
 				modifier -> !exclude.contains(modifier.id()), attribute.getAttribute().value());
 	}
 
+
+	public static class BooleanAttributeUtil {
+		public static final double TRUE_MODIFIER_VAL = 1;
+		public static final AttributeModifier.Operation TRUE_MODIFIER_OP = AttributeModifier.Operation.ADD_VALUE;
+		public static final double FALSE_MODIFIER_VAL = -1;
+		public static final AttributeModifier.Operation FALSE_MODIFIER_OP = AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL;
+
+		public static boolean getValueOrDefault(LivingEntity entity, Holder<Attribute> attribute, boolean defaultValue) {
+			if (entity == null) return defaultValue;
+			AttributeMap attributes = entity.getAttributes();
+			return attributes.hasAttribute(attribute) ? attributes.getValue(attribute) > 0 : defaultValue;
+		}
+
+		public static boolean getValueOrDefault(LivingEntity entity, Holder<Attribute> attribute) {
+			if (entity == null) return attribute.value().getDefaultValue() > 0;
+			AttributeMap attributes = entity.getAttributes();
+			return (attributes.hasAttribute(attribute) ? attributes.getValue(attribute) : attribute.value().getDefaultValue()) > 0;
+		}
+		
+		public static AttributeModifier modifierEnable(ResourceLocation modifierId) {
+			return new AttributeModifier(modifierId, TRUE_MODIFIER_VAL, TRUE_MODIFIER_OP);
+		}
+		
+		public static AttributeModifier modifierDisable(ResourceLocation modifierId) {
+			return new AttributeModifier(modifierId, FALSE_MODIFIER_VAL, FALSE_MODIFIER_OP);
+		}
+	}
+
 }

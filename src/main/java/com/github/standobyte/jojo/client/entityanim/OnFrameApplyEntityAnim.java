@@ -227,7 +227,7 @@ public class OnFrameApplyEntityAnim {
 	@Nullable
 	private static AnimWithId getCurSummonAnimAndAdjustFreezeTime(StandEntity stand, StandSkin standSkin, LivingAnimState animVariables) {
 		if (!stand.clientStuff.summonAnimStopped) {
-			if (!animVariables.animId.isIdle) {
+			if (animVariables.animId != StandEntityRenderer.IDLE_ANIM) {
 				stand.clientStuff.summonAnimStopped = true;
 			}
 			else {
@@ -270,7 +270,7 @@ public class OnFrameApplyEntityAnim {
 				
 				if (standSummonAnim != null) {
 					boolean freezeAtSummonPose = userJojoPose != null;
-					if (freezeAtSummonPose && !standSummonAnim.anim.poses.isEmpty()) {
+					if (freezeAtSummonPose && standSummonAnim.anim.poses != null && !standSummonAnim.anim.poses.isEmpty()) {
 						float freezeAtSummonPoseTimestamp = standSummonAnim.anim.poses.values().iterator().next().timeInSeconds() * 20;
 						
 						if (animVariables.time > freezeAtSummonPoseTimestamp) {

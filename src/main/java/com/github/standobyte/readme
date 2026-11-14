@@ -13,6 +13,7 @@ Top-level packages:
 		
 		mechanics - Different somewhat self-contained gameplay mechanics and features (bleeding effect, Resolve mechanic, clothes feature, etc.).
 		adventure - Encompasses the systems for the PvE content.
+		sidecontent - One-off gameplay content, like items or blocks, that aren't very closely tied to the main content of the mod.
 		
 		command - Registration and implementation of console commands.
 		config - Mod config system.
@@ -27,7 +28,7 @@ Terminology:
 	PowerClass (previously PowerClassification enum) - Use PowerClass#get to get a StandPower or a PlayerPower object of a LivingEntity.
 	PowerType - An object that describes a specific type of power an entity can have (e.g. a single object for Star Platinum, an object for Hamon, etc.), has things like its default moveset, Stand stats, etc.
 	
-	Moveset - A map that contains all of the abilities the player currently has per each power class. Movesets are inherent to power types, but a moveset object is created for each power user entity individually.
+	Moveset - A map that contains all of the abilities the player currently has per each power class. Movesets are inherent to power types, and each moveset object is created once for each power type.
 	MovesetBuilder - Describes the moveset of a specific power type, and creates Moveset instances for each user individually.
 	
 	StandInstance - A data object describing the player's Stand (type, selected skin, parts taken away by Boy II Man, etc.)
@@ -38,7 +39,7 @@ Terminology:
 		StandTypePersistentData (previously StandActionLearningProgress served this purpose) - Saves things like Stand exp and learned Stand skills.
 	UnlockableSkill - An object that describes a specific thing the player can unlock (a Hamon/Stand/... ability or passive). Is contained in the MovesetBuilder - only one collection of these objects exists per each power type, so it's not meant to have a mutable state.
 	
-	Ability (previously Action) - a component part of a moveset. Each class extending Ability contains the logic of a specific ability. Because a Moveset object is created per user, unlike the 1.16.5 version, each Ability object is also separate for each player, so now you actually can store temporary variables inside Ability objects - still not recommended, but at least it shouldn't break multiplayer now.
+	Ability (previously Action) - a component part of a moveset. Each class extending Ability contains the logic of a specific ability.
 	AbilityType - a type object that is registered in a NeoForge registry, allows to create multiple different objects of a specific Ability sub-class with different configs (kind of like a relation between EntityType and Entity - each EntityType corresponds to a subclass of Entity, and can create instances of their entity on demand).
 	ConditionCheck (previously ActionConditionResult) - describes if an ability can be used currently - a boolean result of the check, and a message to send to the player if the check failed.
 	

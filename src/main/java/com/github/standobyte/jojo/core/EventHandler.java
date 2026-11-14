@@ -4,10 +4,12 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.entityattachment.DataEventListeners;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
+import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -43,10 +45,15 @@ public class EventHandler {
 
 	@SubscribeEvent
 	public static void onStartTracking(PlayerEvent.StartTracking event) {
-		DataEventListeners trackedData = entityEventListeners(event.getTarget());
+		Entity tracked = event.getTarget();
+		ServerPlayer tracking = (ServerPlayer) event.getEntity();;
+		DataEventListeners trackedData = entityEventListeners(tracked);
 		if (trackedData != null) {
-			ServerPlayer player = (ServerPlayer) event.getEntity();
-			trackedData.onTracking(player);
+			trackedData.onTracking(tracking);
+		}
+		
+		if (tracked instanceof LivingEntity livingTracked) {
+			Power.updatePowersActive(livingTracked, tracking);
 		}
 	}
 

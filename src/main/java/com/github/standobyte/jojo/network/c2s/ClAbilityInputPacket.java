@@ -83,8 +83,7 @@ public class ClAbilityInputPacket implements CustomPacketPayload {
 			short key = buf.readShort();
 			InputEventType inputEvent = buf.readEnum(InputEventType.class);
 			return switch (inputEvent) {
-				case RELEASE -> ClAbilityInputPacket.releaseHold(key);
-				default -> {
+				case PRESS_CLICK, PRESS_HOLD -> {
 					AbilityInputNetwork ability = AbilityInputNetwork.decodeInput(buf);
 					float timeTookToResolve = ability != null ? buf.readFloat() : 0;
 					
@@ -92,6 +91,7 @@ public class ClAbilityInputPacket implements CustomPacketPayload {
 					packet.extraData = NetworkUtil.extraPacketData(buf);
 					yield packet;
 				}
+				case RELEASE -> ClAbilityInputPacket.releaseHold(key);
 			};
 		}
 

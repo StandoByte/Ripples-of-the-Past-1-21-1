@@ -13,6 +13,8 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsScreen;
+import com.github.standobyte.jojo.config.stand.StandTypeClass;
+import com.github.standobyte.jojo.config.stand.datapack.DataDrivenStandsLoader;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.init.ModEntityAttributes;
@@ -30,8 +32,6 @@ import com.github.standobyte.jojo.powersystem.standpower.StandAwakening.Awakenin
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandStats;
 import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
-import com.github.standobyte.jojo.powersystem.standpower.datapack.DataDrivenStandsLoader;
-import com.github.standobyte.jojo.powersystem.standpower.datapack.StandTypeClass;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandStatFormulas;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand.BlankSummonedStand;
 import com.github.standobyte.jojo.util.functions.AttributeUtil;

@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList.EntryWithButtons.EntryWidgetOffset;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.Renderable;
@@ -14,9 +17,11 @@ import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.narration.NarratableEntry;
 
 public class ScrolleableButtonList extends ContainerObjectSelectionList<ScrolleableButtonList.EntryWithButtons> {
+	public static final int SCROLL_BAR_WIDTH = AbstractSelectionList.SCROLLBAR_WIDTH;
 	public int scrollbarPosOffset = 0;
 	public boolean disableBackground = false;
 	public boolean disableSeparators = false;
+	public List<EntryWidgetOffset> alwaysRender = new ArrayList<>();
 	
 	public ScrolleableButtonList(Minecraft minecraft, int x, int y, 
 			int width, int height, int itemHeight) {
@@ -39,10 +44,21 @@ public class ScrolleableButtonList extends ContainerObjectSelectionList<Scrollea
 	public int addEntry(EntryWithButtons entry) {
 		return super.addEntry(entry);
 	}
+	
+	/** For renderable objects that span more than one row (for example, the Stand stats circle) */
+	public <T extends Renderable & LayoutElement> void addAlwaysRenderedObject(
+			T object, int xOffset, int yOffset) {
+		this.alwaysRender.add(new EntryWidgetOffset(object, xOffset, yOffset));
+	}
 
 	@Override
 	public int getMaxPosition() {
 		return super.getMaxPosition();
+	}
+	
+	@Override
+	public int getRowTop(int index) {
+		return super.getRowTop(index);
 	}
 
 	@Override
@@ -59,17 +75,57 @@ public class ScrolleableButtonList extends ContainerObjectSelectionList<Scrollea
 		}
 	}
 
+
+	@Override
+    protected void renderListItems(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        int left = this.getRowLeft();
+        int top = this.getY() + 4 - (int)this.getScrollAmount() + this.headerHeight;
+        
+		for (EntryWidgetOffset objectWithOffset : alwaysRender) {
+			Object renderable = objectWithOffset.renderable;
+			int x = left + objectWithOffset.xOffset;
+			int y = top + objectWithOffset.yOffset;
+			((LayoutElement) renderable).setPosition(x, y);
+			((Renderable) renderable).render(guiGraphics, mouseX, mouseY, partialTick);
+		}
+		
+		super.renderListItems(guiGraphics, mouseX, mouseY, partialTick);
+    }
+	
+	@Override
+	protected boolean isValidMouseClick(int button) {
+		return true;
+	}
+	
+	@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		return active && visible && super.mouseClicked(mouseX, mouseY, button);
+	}
+	
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+		if (!active || !visible) return false;
+		
+		if (isMouseOver(mouseX, mouseY)) {
+			ScrolleableButtonList.EntryWithButtons entry = getEntryAtPosition(mouseX, mouseY);
+			if (entry != null && entry.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) {
+				return true;
+			}
+		}
+		
+		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+	}
+
+
 	public static class EntryWithButtons extends ContainerObjectSelectionList.Entry<EntryWithButtons> {
 		protected List<AbstractWidget> children = new ArrayList<>();
-		protected List<Object> renderables = new ArrayList<>();
-		protected List<EntryWidgetOffset> offsets = new ArrayList<>();
+		protected List<EntryWidgetOffset> renderables = new ArrayList<>();
 
 		public EntryWithButtons() {}
 		
 		public <T extends Renderable & LayoutElement> EntryWithButtons addRenderable(
 				T renderable, int xOffset, int yOffset) {
-			renderables.add(renderable);
-			offsets.add(new EntryWidgetOffset(xOffset, yOffset));
+			renderables.add(new EntryWidgetOffset(renderable, xOffset, yOffset));
 			return this;
 		}
 		
@@ -82,11 +138,10 @@ public class ScrolleableButtonList extends ContainerObjectSelectionList<Scrollea
 		public void render(GuiGraphics guiGraphics, int index, 
 				int top, int left, int width, int height, 
 				int mouseX, int mouseY, boolean hovering, float partialTick) {
-			for (int i = 0; i < renderables.size(); i++) {
-				Object renderable = renderables.get(i);
-				EntryWidgetOffset offset = offsets.get(i);
-				int x = left + offset.xOffset;
-				int y = top + offset.yOffset;
+			for (EntryWidgetOffset objectWithOffset : renderables) {
+				Object renderable = objectWithOffset.renderable;
+				int x = left + objectWithOffset.xOffset;
+				int y = top + objectWithOffset.yOffset;
 				((LayoutElement) renderable).setPosition(x, y);
 				((Renderable) renderable).render(guiGraphics, mouseX, mouseY, partialTick);
 			}
@@ -104,10 +159,12 @@ public class ScrolleableButtonList extends ContainerObjectSelectionList<Scrollea
 		
 		// not making it a record to keep the fields mutable just in case
 		protected static class EntryWidgetOffset {
+			protected Object renderable;
 			protected int xOffset;
 			protected int yOffset;
 			
-			public EntryWidgetOffset(int xOffset, int yOffset) {
+			public EntryWidgetOffset(Object renderable, int xOffset, int yOffset) {
+				this.renderable = renderable;
 				this.xOffset = xOffset;
 				this.yOffset = yOffset;
 			}

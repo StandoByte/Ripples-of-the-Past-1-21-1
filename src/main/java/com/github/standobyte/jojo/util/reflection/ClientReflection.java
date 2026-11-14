@@ -8,10 +8,16 @@ import java.util.SequencedMap;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.gui.components.SplashRenderer;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
+import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
+import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.resources.SplashManager;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.neoforged.fml.util.ObfuscationReflectionHelper;
@@ -49,5 +55,26 @@ public final class ClientReflection {
 			KEY_MAPPING_BY_NAME_CACHE = ReflectionUtil.getFieldValue(KEY_MAPPING_ALL, null);
 		}
 		return KEY_MAPPING_BY_NAME_CACHE;
+	}
+	
+
+	private static final Field PARTICLE_ENGINE_SPRITE_SETS = ObfuscationReflectionHelper.findField(ParticleEngine.class, "spriteSets");
+	public static Map<ResourceLocation, ? extends SpriteSet> getSpriteSets(ParticleEngine particleEngine) {
+		return ReflectionUtil.getFieldValue(PARTICLE_ENGINE_SPRITE_SETS, particleEngine);
+	}
+	
+
+	private static final Field TITLE_SCREEN_SPLASH = ObfuscationReflectionHelper.findField(TitleScreen.class, "splash");
+	public static SplashRenderer getSplash(TitleScreen titleScreen) {
+		return ReflectionUtil.getFieldValue(TITLE_SCREEN_SPLASH, titleScreen);
+	}
+	
+	public static void setSplash(TitleScreen titleScreen, SplashRenderer splash) {
+		ReflectionUtil.setFieldValue(TITLE_SCREEN_SPLASH, titleScreen, splash);
+	}
+
+	private static final Field SPLASH_MANAGER_SPLASHES = ObfuscationReflectionHelper.findField(SplashManager.class, "splashes");
+	public static List<String> getSplashes(SplashManager splashManager) {
+		return ReflectionUtil.getFieldValue(SPLASH_MANAGER_SPLASHES, splashManager);
 	}
 }

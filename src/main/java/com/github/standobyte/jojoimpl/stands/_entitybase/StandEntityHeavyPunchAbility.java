@@ -201,7 +201,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 					switch (target.getType()) {
 						case ENTITY -> hitEntity(target, level, stand, dmgSource, dmgAmount, explRadius);
 						case BLOCK -> hitBlock(target, level, stand, dmgSource, dmgAmount, explRadius);
-						default -> {}
+						case EMPTY -> {}
 					}
 
 					punchedTarget = target;
@@ -282,7 +282,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 			if (isGrabVariation()) {
 				return new ActionTarget(punchTarget);
 			}
-			return StandEntityPunchAbility.aimAtPunchTarget(stand);
+			return StandEntityPunchAbility.getStandTargetForPunch(stand);
 		}
 
 	}
@@ -343,7 +343,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 
 		@Override
 		public float getEntityDamageAmount(Entity entity, double impact) {
-			return aoeDamage;
+			return (float) (aoeDamage * impact);
 		}
 
 		@Override

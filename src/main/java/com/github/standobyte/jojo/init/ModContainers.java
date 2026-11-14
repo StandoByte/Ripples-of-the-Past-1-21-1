@@ -4,6 +4,7 @@ import com.github.standobyte.jojo.adventure.npc.NpcInventoryExchangeContainer;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.container.PlayerClothesMenu;
 import com.github.standobyte.jojo.mechanics.clothes.sewing.SewingMachineContainer;
+import com.github.standobyte.jojo.mechanics.explorer_map_creation.CartographyExplorerMapContainerMenu;
 import com.github.standobyte.jojo.subsystems.entity_externalcontainer._stand.StandHandsContainerMenu;
 
 import net.minecraft.core.registries.Registries;
@@ -22,6 +23,9 @@ public class ModContainers {
 
 	public static final DeferredHolder<MenuType<?>, MenuType<SewingMachineContainer>> SEWING_MACHINE = CONTAINERS.register("sewing_machine", 
 			key -> new MenuType<>((id, inventory) -> new SewingMachineContainer(id, inventory, ContainerLevelAccess.NULL), FeatureFlags.DEFAULT_FLAGS));
+
+	public static final DeferredHolder<MenuType<?>, MenuType<CartographyExplorerMapContainerMenu>> CARTOGRAPHY_TABLE_EXPLORER = CONTAINERS.register("explorer_map_table", 
+			key -> new MenuType<>(CartographyExplorerMapContainerMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
 	public static final DeferredHolder<MenuType<?>, MenuType<NpcInventoryExchangeContainer>> NPC_INV_EXCHANGE = CONTAINERS.register("npc_inv_exchange", 
 			key -> new MenuType<>(NpcInventoryExchangeContainer.CLIENT_FACTORY, FeatureFlags.DEFAULT_FLAGS));

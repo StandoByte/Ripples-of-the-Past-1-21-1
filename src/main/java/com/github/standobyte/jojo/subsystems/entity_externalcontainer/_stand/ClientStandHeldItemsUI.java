@@ -1,8 +1,10 @@
 package com.github.standobyte.jojo.subsystems.entity_externalcontainer._stand;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -14,6 +16,7 @@ import com.github.standobyte.jojo.client.ui.hud_power.PowerHudControlsElement;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
+import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.subsystems.entity_externalcontainer.ModdedContainerClickType;
 import com.github.standobyte.jojo.subsystems.entity_externalcontainer.PlayerExternalContainers;
@@ -24,12 +27,14 @@ import com.github.standobyte.jojo.subsystems.entity_opencontainer.OpenContainerA
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -37,6 +42,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
@@ -55,6 +61,10 @@ public class ClientStandHeldItemsUI extends ClientExternalContainerUI {
 	}
 	
 	
+	public static final Set<ResourceLocation> DISABLE_FOR_CONTAINERS = Util.make(new HashSet<>(), set -> {
+		set.add(ResourceLocation.fromNamespaceAndPath("ripples_balls", "corpse"));
+	});
+	
 	@SubscribeEvent
 	public static void onScreenOpened(ScreenEvent.Init.Post event) {
 		Screen screen = event.getScreen();
@@ -63,8 +73,13 @@ public class ClientStandHeldItemsUI extends ClientExternalContainerUI {
 			StandHandsContainerMenu standHandsContainer = PlayerExternalContainers.get(Minecraft.getInstance().player)
 					.getContainerOfType(StandHandsContainerMenu.class);
 			if (standHandsContainer != null) {
-				ClientStandHeldItemsUI containerUI = new ClientStandHeldItemsUI(inventoryScreen, standHandsContainer);
-				addToScreen(inventoryScreen, containerUI);
+				AbstractContainerMenu container = inventoryScreen.getMenu();
+				MenuType<?> containerType = container.menuType;
+				boolean disabledForContainerType = containerType != null && DISABLE_FOR_CONTAINERS.contains(BuiltInRegistries.MENU.getKey(containerType));
+				if (!disabledForContainerType) {
+					ClientStandHeldItemsUI containerUI = new ClientStandHeldItemsUI(inventoryScreen, standHandsContainer);
+					addToScreen(inventoryScreen, containerUI);
+				}
 			}
 		}
 	}
@@ -160,7 +175,7 @@ public class ClientStandHeldItemsUI extends ClientExternalContainerUI {
 		if (user != null && stand != null) {
 			AbstractContainerMenu mainContainer = mainScreen.getMenu();
 			Entity actualEntity = ((ContainerOpenedAsNonPlayer) mainContainer).jojo_ripples$getActualEntity();
-			clickableCheck = actualEntity != stand ? StandItemInput.distanceCondition(stand, user) : ConditionCheck.POSITIVE;
+			clickableCheck = actualEntity != stand ? StandUtil.distanceCondition(stand, user, StandItemInput.MAX_STAND_USER_DISTANCE) : ConditionCheck.POSITIVE;
 		}
 		
 		overlayMessage.tick();

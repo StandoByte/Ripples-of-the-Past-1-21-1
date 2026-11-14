@@ -14,15 +14,17 @@ import com.google.gson.JsonObject;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 
 public abstract class PowerType implements JsonConfigurable {
-	protected final DefaultedValue<MovesetBuilder> movesetConfigured;
-	protected Moveset baseMoveset;
+	protected final MovesetBuilder movesetOriginal;
+	protected final DefaultedValue<Moveset> movesetConfigured;
 	
 	public PowerType(ResourceLocation id, MovesetBuilder defaultMoveset) {
-		this.movesetConfigured = new DefaultedValue<>(defaultMoveset);
-		initBaseMoveset(id);
+		this.movesetOriginal = defaultMoveset;
+		this.movesetConfigured = new DefaultedValue<>(movesetOriginal.build(getPowerClass(), id));
 	}
+	
 	
 	@Nonnull public abstract PowerData newDataInstance();
 	
@@ -33,6 +35,8 @@ public abstract class PowerType implements JsonConfigurable {
 	public boolean isEnabled() {
 		return true;
 	}
+	
+	public void onUserActivateHUD(LivingEntity user, Power<?> power, boolean state) {}
 	
 	public abstract Component getName(Power<?> power);
 	
@@ -55,14 +59,14 @@ public abstract class PowerType implements JsonConfigurable {
 		
 		JsonObject movesetEditsJson = config.getAsJsonObject("moveset");
 		if (movesetEditsJson != null) {
-			MovesetBuilder configured = getDefaultMoveset().deepCopy();
-			Moveset.applyJsonConfig(configured, movesetEditsJson);
-			movesetConfigured.value = configured;
+			MovesetBuilder configuredBuilder = getDefaultMoveset().deepCopy();
+			Moveset.applyJsonConfig(configuredBuilder, movesetEditsJson);
+			Moveset configuredMoveset = configuredBuilder.build(getPowerClass(), getId());
+			movesetConfigured.value = configuredMoveset;
 		}
 		else {
 			movesetConfigured.reset();
 		}
-		initBaseMoveset(getId());
 	}
 	
 	@Override
@@ -73,25 +77,16 @@ public abstract class PowerType implements JsonConfigurable {
 	
 	@ApiStatus.Internal
 	public MovesetBuilder getDefaultMoveset() {
-		return this.movesetConfigured.defaultValue;
+		return this.movesetOriginal;
 	}
 	
-	protected void initBaseMoveset(ResourceLocation powerTypeId) {
-		this.baseMoveset = this.movesetConfigured.value.build(getPowerClass(), powerTypeId);
-	}
-	
-	public Moveset getBaseMoveset() {
-		return baseMoveset;
-	}
-	
-	public Moveset makeMoveset(Power<?> userPower) {
-		Moveset moveset = this.movesetConfigured.value.build(getPowerClass(), getId());
-		return moveset;
+	public DefaultedValue<Moveset> getMoveset() {
+		return movesetConfigured;
 	}
 	
 	
 	public Map<String, ? extends UnlockableSkill> getUnlockableSkills() {
-		return this.movesetConfigured.value.unlockableSkills;
+		return this.movesetOriginal.unlockableSkills;
 	}
 	
 }

@@ -2,15 +2,16 @@ package com.github.standobyte.jojo.subsystems.entity_externalcontainer._stand.in
 
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
+import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.subsystems.entity_grab.LivingComponentGrab;
-import com.github.standobyte.jojo.util.functions.MathUtil;
 
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 public class StandItemInput {
+	public static final double MAX_STAND_USER_DISTANCE = 4.5;
 
 	public enum Action {
 		DROP,
@@ -33,7 +34,7 @@ public class StandItemInput {
 				standEntity.setItemInHand(InteractionHand.MAIN_HAND, lItem);
 			}
 			case SWAP_USER_AND_STAND -> {
-				ConditionCheck condition = distanceCondition(standEntity, user);
+				ConditionCheck condition = StandUtil.distanceCondition(standEntity, user, MAX_STAND_USER_DISTANCE);
 				if (!condition.positive()) {
 					ConditionCheck.sendActionFailedMessage(null, condition, user);
 					return;
@@ -84,16 +85,6 @@ public class StandItemInput {
 		ItemStack standItem = stand.getItemInHand(hand);
 		stand.setItemInHand(hand, userItem);
 		user.setItemInHand(hand, standItem);
-	}
-	
-	public static ConditionCheck distanceCondition(StandEntity stand, LivingEntity user) {
-		if (stand == null || user == null) return ConditionCheck.NEGATIVE;
-		
-		if (!stand.isFollowingUser() && MathUtil.getAABBDistance(stand.getBoundingBox(), user.getBoundingBox()) > 4.5) {
-			return ConditionCheck.createNegative("stand_user_too_far");
-		}
-		
-		return ConditionCheck.POSITIVE;
 	}
 	
 }

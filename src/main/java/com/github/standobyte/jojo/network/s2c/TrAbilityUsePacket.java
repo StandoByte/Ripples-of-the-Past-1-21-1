@@ -89,8 +89,7 @@ public class TrAbilityUsePacket implements CustomPacketPayload {
 			short key = buf.readShort();
 			InputEventType inputType = buf.readEnum(InputEventType.class);
 			return switch (inputType) {
-				case RELEASE -> TrAbilityUsePacket.releaseHold(entityId, key);
-				default -> {
+				case PRESS_CLICK, PRESS_HOLD -> {
 					AbilityInputNetwork ability = AbilityInputNetwork.decodeInput(buf);
 					float timeTookToResolve = buf.readFloat();
 					
@@ -98,6 +97,7 @@ public class TrAbilityUsePacket implements CustomPacketPayload {
 					packet.extraData = NetworkUtil.extraPacketData(buf, buf.registryAccess());
 					yield packet;
 				}
+				case RELEASE -> TrAbilityUsePacket.releaseHold(entityId, key);
 			};
 		}
 

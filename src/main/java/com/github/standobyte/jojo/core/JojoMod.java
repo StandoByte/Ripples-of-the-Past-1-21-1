@@ -17,6 +17,7 @@ import com.github.standobyte.jojo.init.ModEntityDataSerializers;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.init.ModItems;
+import com.github.standobyte.jojo.init.ModMapDecorations;
 import com.github.standobyte.jojo.init.ModParticles;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.init.ModSpecialActions;
@@ -24,6 +25,8 @@ import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.init.power.ModPlayerPowers;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.init.power.ModStands;
+import com.github.standobyte.jojo.init.power.ModStandsMinor;
+import com.github.standobyte.jojo.modcompat.interfaces.OtherModInterfaces;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.resources.ResourceLocation;
@@ -32,6 +35,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
@@ -60,11 +64,14 @@ public class JojoMod {
 		ModStatusEffects.STATUS_EFFECTS.register(modEventBus);
 		ModBlockEntities.BLOCK_ENTITY_TYPES.register(modEventBus);
 		ModContainers.CONTAINERS.register(modEventBus);
+		ModMapDecorations.DECORATIONS.register(modEventBus);
 		
 		ModStandAbilities.ABILITY_TYPES.register(modEventBus);
 		ModEntityCustomEffects.CUSTOM_EFFECTS.register(modEventBus);
 		ModPlayerPowers.PLAYER_POWERS.register(modEventBus);
 		ModStands.DEFAULT_STANDS.register(modEventBus);
+		ModStandsMinor.ENCOUNTER_STANDS.register(modEventBus);
+		ModStandsMinor.METEORITE_STANDS.register(modEventBus);
 		ModSpecialActions.ACTIONS.register(modEventBus);
 	}
 	
@@ -75,7 +82,14 @@ public class JojoMod {
 	@SubscribeEvent
 	private void commonSetup(FMLCommonSetupEvent event) {
 	}
-	
+
+	@SubscribeEvent
+	private void interMod(InterModEnqueueEvent event) {
+		event.enqueueWork(() -> {
+			OtherModInterfaces.init();
+		});
+	}
+
 	@SubscribeEvent
 	private void registerNetwork(RegisterPayloadHandlersEvent event) {
 		PacketsRegister.register(event);
@@ -115,6 +129,8 @@ public class JojoMod {
 						RotpConfig.Common::new);
 			}
 		}
+		
+		ModStands.addStandConfigs(event);
 	}
 
 }

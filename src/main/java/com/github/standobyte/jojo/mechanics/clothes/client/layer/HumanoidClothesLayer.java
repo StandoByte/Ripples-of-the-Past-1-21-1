@@ -6,6 +6,7 @@ import com.github.standobyte.jojo.UglyCrutchesClient;
 import com.github.standobyte.jojo.client.firstperson.FirstPersonModelLayer;
 import com.github.standobyte.jojo.client.firstperson.FirstPersonRender;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
+import com.github.standobyte.jojo.config.RotpConfig.ClothesArmorPriority;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
@@ -24,6 +25,7 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -75,6 +77,19 @@ public class HumanoidClothesLayer<T extends LivingEntity, M extends HumanoidMode
 		ClothesModelLoader clothesModels = ClothesModelLoader.getInstance();
 		if (clothesModels == null) return;
 		for (ClothesSlotType piece : RENDER_ORDER) {
+			if (entity != null && 
+					JojoMod.config.getCommon().clothesArmorPriority.get() == ClothesArmorPriority.ARMOR) {
+				EquipmentSlot armorSlot = switch (piece) {
+					case HEAD -> EquipmentSlot.HEAD;
+					case CHEST -> EquipmentSlot.CHEST;
+					case LEGS -> EquipmentSlot.LEGS;
+					case FEET -> EquipmentSlot.FEET;
+				};
+				if (!entity.getItemBySlot(armorSlot).isEmpty()) {
+					continue;
+				}
+			}
+			
 			ItemStack clothesItem = clothesRS.items.get(piece); if (clothesItem.isEmpty()) continue;
 			var clothesComponent = clothesItem.get(ModItemDataComponents.CLOTHES_PIECE.get()); if (clothesComponent == null) continue;
 			var clothesPiece = clothesComponent.getPiece(); if (clothesPiece == null) continue;

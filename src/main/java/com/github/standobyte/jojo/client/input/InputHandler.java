@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Queue;
 import java.util.function.BiFunction;
@@ -37,9 +38,13 @@ import com.github.standobyte.jojo.event.client.PreKeyInputEvent;
 import com.github.standobyte.jojo.mechanics.resolve.ClActivateResolvePacket;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
 import com.github.standobyte.jojo.network.c2s.ClAbilityInputPacket;
+import com.github.standobyte.jojo.network.c2s.ClActivePowerPacket;
+import com.github.standobyte.jojo.network.c2s.ClNoParamsPacket;
+import com.github.standobyte.jojo.network.c2s.ClNoParamsPacket.PacketType;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
+import com.github.standobyte.jojo.powersystem.ability.AbilityId;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
@@ -51,6 +56,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.enums.Direction2D;
 import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopEffect;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -63,9 +69,11 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.Input;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.bus.api.EventPriority;
@@ -113,13 +121,13 @@ public class InputHandler {
 	
 	@SubscribeEvent
 	public void tickPre(ClientTickEvent.Pre event) {
-		tickGetCurControlScheme();
+		preTickGetCurControlScheme();
 	}
 	
 	@SubscribeEvent
 	public void handleKeyBindingsPost(ClientTickEvent.Post event) {
 		tickHotbarsSelection();
-		vanillaKeybinds.handleTick();
+		vanillaKeybinds.handleTick(this);
 		tickReleaseEventQueue();
 		tickKeyPressIndication();
 	}
@@ -180,7 +188,7 @@ public class InputHandler {
 	}
 	
 	protected void tickReleaseEventQueue() {
-		if (mc.getConnection() != null) {
+		if (mc.getConnection() == null) {
 			keyReleaseEventQueue.clear();
 			return;
 		}
@@ -218,21 +226,35 @@ public class InputHandler {
 	}
 	
 	
-	protected AbilityControlScheme curControlScheme;
 	public PowerClass<?> curPowerClassToggle = null;
+	public boolean putSummonedStandControlsOnTop = false;
+	protected AbilityControlScheme curControlScheme;
+	protected PowerClass<?> prevPowerClassActive = null;
 	
-	protected void tickGetCurControlScheme() {
+	protected void preTickGetCurControlScheme() {
 		Power<?> curPower = null;
 		
 		if (mc.player != null) {
-			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
-			if (standPower != null && standPower.hasPower() && standPower.getPowerType().showHUD(standPower)) {
-				curPower = standPower;
+			if (putSummonedStandControlsOnTop) {
+				StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+				if (standPower != null && standPower.hasPower() && standPower.getPowerType().showHUD(standPower)) {
+					curPower = standPower;
+				}
 			}
-			else if (curPowerClassToggle != null) {
-				Power<?> power = ClientPowerCache.getPower(curPowerClassToggle);
-				if (power != null && power.hasPower()) {
-					curPower = power;
+			if (curPower == null) {
+				if (curPowerClassToggle != null) {
+					Power<?> power = ClientPowerCache.getPower(curPowerClassToggle);
+					if (power != null && power.hasPower()) {
+						curPower = power;
+					}
+				}
+				else if (!putSummonedStandControlsOnTop) {
+					// a bit of a shitcode, but gets the job done
+					// in case the result of this whole thing sucks - just rewrite ts
+					StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+					if (standPower != null && standPower.hasPower() && standPower.getPowerType().showHUD(standPower)) {
+						curPower = standPower;
+					}
 				}
 			}
 		}
@@ -242,9 +264,63 @@ public class InputHandler {
 		else {
 			curControlScheme = null;
 		}
+
+		preTickUpdateSendActivePowerToServer();
 	}
 	
+	protected void preTickUpdateSendActivePowerToServer() {
+		PowerClass<?> powerClassActive = null;
+		if (mc.player != null) {
+			if (curControlScheme != null) {
+				powerClassActive = curControlScheme.powerClassCosmetic;
+			}
+			
+			if (prevPowerClassActive != powerClassActive) {
+				Optional<PowerClass<?>> optionalWrapper = Optional.ofNullable(powerClassActive);
+				Power.setPowersActive(mc.player, optionalWrapper);
+				PacketDistributor.sendToServer(new ClActivePowerPacket(optionalWrapper));
+			}
+		}
+		
+		prevPowerClassActive = powerClassActive;
+	}
+	
+	public void postTickHandleHudModeKeybinds(VanillaKeybinds keybinds) {
+		boolean isFrozen = mc.player != null && TimeStopEffect.getIsFrozenInTime(mc.player);
+		
+		while (keybinds.playerPowerHUD.consumeClick()) {
+			this.curPowerClassToggle = this.curPowerClassToggle != PowerClass.PLAYER_POWER ? PowerClass.PLAYER_POWER : null;
+			this.putSummonedStandControlsOnTop = false;
+		}
+		
+		boolean toggleStandModeHud = VanillaKeybinds.consumeAllClicks(keybinds.standArmsOnlyHUD);
+		StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+		StandType standType = standPower != null ? standPower.getPowerType() : null;
+		boolean hasSummonMechanic = standType != null && standType.hasSummonMechanic(standPower);
+		while (keybinds.summonStand.consumeClick()) {
+			if (hasSummonMechanic) {
+				if (!isFrozen) {
+					if (!standPower.isSummoned()) {
+						this.putSummonedStandControlsOnTop = true;
+					}
+					PacketDistributor.sendToServer(ClNoParamsPacket.of(PacketType.SUMMON_STAND));
+				}
+			}
+			else {
+				toggleStandModeHud = true;
+			}
+		}
+		if (toggleStandModeHud) {
+			this.putSummonedStandControlsOnTop = false;
+			this.curPowerClassToggle = this.curPowerClassToggle != PowerClass.STAND ? PowerClass.STAND : null;
+		}
+	}
+	
+	
 	public AbilityControlScheme getActiveControlScheme() {
+		if (mc.gameMode == null || mc.gameMode.getPlayerMode() == GameType.SPECTATOR) {
+			return null;
+		}
 		return curControlScheme;
 	}
 	
@@ -315,7 +391,9 @@ public class InputHandler {
 		@Nullable BaseAndActiveAbility heldAbility = abilities.heldAbility.curActiveAbility != null ? abilities.heldAbility : null;
 		@Nullable BaseAndActiveAbility clickAbility = abilities.clickAbility.curActiveAbility != null ? abilities.clickAbility : null;
 
-		boolean cancelVanilla = heldAbility != null || clickAbility != null;
+		boolean hasAbility = heldAbility != null || clickAbility != null;
+		boolean cancelVanilla = hasAbility;
+		boolean setHeldKey = true;
 		HeldKeyTimer heldKeyTimer = new HeldKeyTimer(key, cancelVanillaKeyRelease || cancelVanilla, keyModifier);
 		
 		int ambiguity = 0;
@@ -323,64 +401,89 @@ public class InputHandler {
 		if (heldAbility != null) ambiguity++;
 		if (clickAbility != null) ambiguity++;
 		
-		AmbiguousKeyPress ambiguousKeyPress = null;
-		if (ambiguity >= 2) {
-			ambiguousKeyPress = new AmbiguousKeyPress();
-			
-			if (dualClickToEnterResolve) {
-				ambiguousKeyPress.onDualKeyClick = (ClientKey secondKeyPressed, float timeTook) -> {
-					if (key == LMB && secondKeyPressed == RMB || key == RMB && secondKeyPressed == LMB) {
-						PacketDistributor.sendToServer(new ClActivateResolvePacket(true));
-						return true;
-					}
-					return false;
-				};
-			}
-
-			if (heldAbility != null) {
-				Ability heldBaseAbility = heldAbility.baseAbility;
-				ambiguousKeyPress.onHold = (float ticksToResolveHeld) -> {
-					AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(heldBaseAbility.abilityId.powerClass());
-					AbilityConditionCheck abilityResolved = curAbilities.getContextVariationContainer(heldBaseAbility);
-					doClickInput(InputEventType.PRESS_HOLD, keyId, heldBaseAbility, abilityResolved, ticksToResolveHeld);
-				};
-			}
-			
-			if (clickAbility != null) {
-				Ability clickBaseAbility = clickAbility.baseAbility;
-				ambiguousKeyPress.onClick = (float ticksToResolveClick) -> {
-					AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(clickBaseAbility.abilityId.powerClass());
-					AbilityConditionCheck abilityResolved = curAbilities.getContextVariationContainer(clickBaseAbility);
-					doClickInput(InputEventType.PRESS_CLICK, keyId, clickBaseAbility, abilityResolved, ticksToResolveClick);
-				};
+		if (!hasAbility) {
+			if (mc.screen == null && !inputsDisabled) {
+				cancelVanilla |= checkStartHotbarSelection(key) != null;
 			}
 		}
-		
-		if (ambiguousKeyPress != null) {
-			heldKeyTimer.setAmbiguousInputMethod(ambiguousKeyPress);
+		else if (forceUseVanillaRMBIfApplicable(key)) {
+			setHeldKey = false;
 		}
 		else {
-			InputMethod inputMethod = 
-					heldAbility != null ? InputMethod.HOLD : 
-					clickAbility != null ? InputMethod.CLICK : 
-					null;
-			if (inputMethod != null) {
+			AmbiguousKeyPress ambiguousKeyPress = null;
+			if (ambiguity >= 2) {
+				ambiguousKeyPress = new AmbiguousKeyPress();
+				
+				if (dualClickToEnterResolve) {
+					ambiguousKeyPress.onDualKeyClick = (ClientKey secondKeyPressed, float timeTook) -> {
+						if (key == LMB && secondKeyPressed == RMB || key == RMB && secondKeyPressed == LMB) {
+							PacketDistributor.sendToServer(new ClActivateResolvePacket(true));
+							return true;
+						}
+						return false;
+					};
+				}
+				
+				if (heldAbility != null) {
+					AbilityId baseAbilityId = heldAbility.baseAbility.abilityId;
+					Ability abilityToInput = heldAbility.getAbilityToInput();
+					ambiguousKeyPress.onHold = (float ticksToResolveHeld) -> {
+						AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(baseAbilityId.powerClass());
+						AbilityConditionCheck abilityResolved = curAbilities.getContextVariationContainer(baseAbilityId);
+						doClickInput(InputEventType.PRESS_HOLD, keyId, abilityToInput, abilityResolved, ticksToResolveHeld);
+					};
+				}
+				
+				if (clickAbility != null) {
+					AbilityId baseAbilityId = clickAbility.baseAbility.abilityId;
+					Ability abilityToInput = clickAbility.getAbilityToInput();
+					ambiguousKeyPress.onClick = (float ticksToResolveClick) -> {
+						AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(baseAbilityId.powerClass());
+						AbilityConditionCheck abilityResolved = curAbilities.getContextVariationContainer(baseAbilityId);
+						doClickInput(InputEventType.PRESS_CLICK, keyId, abilityToInput, abilityResolved, ticksToResolveClick);
+					};
+				}
+			}
+			
+			if (ambiguousKeyPress != null) {
+				heldKeyTimer.setAmbiguousInputMethod(ambiguousKeyPress);
+			}
+			else {
+				InputMethod inputMethod;
+				if (heldAbility != null)		inputMethod = InputMethod.HOLD;
+				else if (clickAbility != null)	inputMethod = InputMethod.CLICK;
+				else throw new IllegalStateException();
+				
 				switch (inputMethod) {
-					case HOLD -> doClickInput(InputEventType.PRESS_HOLD, keyId, heldAbility.baseAbility, heldAbility.curActiveAbility, 0);
-					case CLICK -> doClickInput(InputEventType.PRESS_CLICK, keyId, clickAbility.baseAbility, abilities.clickAbility.curActiveAbility, 0);
+					case HOLD -> doClickInput(InputEventType.PRESS_HOLD, keyId, heldAbility.getAbilityToInput(), heldAbility.curActiveAbility, 0);
+					case CLICK -> doClickInput(InputEventType.PRESS_CLICK, keyId, clickAbility.getAbilityToInput(), clickAbility.curActiveAbility, 0);
 				}
 			}
 		}
 		
-		putHeldKeyTimer(key, heldKeyTimer);
-		
-		if (heldAbility == null && clickAbility == null && mc.screen == null) {
-			checkStartHotbarSelection(key);
+		if (setHeldKey) {
+			putHeldKeyTimer(key, heldKeyTimer);
 		}
-		
 		return cancelVanilla;
 	}
 	
+	public boolean forceUseVanillaRMBIfApplicable(ClientKey pressedKey) {
+		if (ClientKey.fromVanillaKeybind(mc.options.keyUse) == pressedKey
+				&& JojoMod.config.getClient().rmbVanillaPriority.getAsBoolean()
+				&& ClientUtil.getCameraEntity() == mc.player
+				&& mc.options.keyUse.isConflictContextAndModifierActive()
+				&& !mc.options.keyUse.isUnbound()) {
+			InteractionResult result = ClientSideClickCopypasta.startUseItem();
+			if (result != InteractionResult.PASS || mc.player.isUsingItem()) {
+				mc.options.keyUse.setDown(true);
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	@Deprecated
 	public boolean useAbilitiesOnKeyPress(CurInput abilities, ClientKey key, KeyModifier keyModifier) {
 		return useAbilitiesOnKeyPress(abilities, key, keyModifier, false, false);
 	}
@@ -488,7 +591,7 @@ public class InputHandler {
 						}
 						timer.setAmbiguousInputMethod(null);
 					}
-					default -> {}
+					case CLICK -> {}
 				}
 			}
 		}
@@ -617,6 +720,17 @@ public class InputHandler {
 			this.baseAbility = null;
 			this.curActiveAbility = null;
 		}
+		
+		public Ability getAbilityToInput() {
+			if (curActiveAbility != null) {
+				boolean useReplacement = AbilityInputState.withValue(curActiveAbility.clientInputState)
+						.getFlag(AbilityInputState.CLIENT_SIDE_SUB_ABILITY_REPLACEMENT);
+				if (useReplacement && curActiveAbility.ability != null) {
+					return curActiveAbility.ability;
+				}
+			}
+			return baseAbility;
+		}
 	}
 	
 	
@@ -625,7 +739,8 @@ public class InputHandler {
 	public Map<AbilityHotbar, ClientKey> hotbarsSelection = new IdentityHashMap<>();
 	protected float hotbarsSelectionTimestamp;
 	
-	public void checkStartHotbarSelection(ClientKey pressedKey) {
+	@Nullable
+	public AbilityHotbar checkStartHotbarSelection(ClientKey pressedKey) {
 		AbilityControlScheme controlScheme = getActiveControlScheme();
 		if (controlScheme != null) {
 			AbilityHotbar wheelHotbar = null;
@@ -638,10 +753,12 @@ public class InputHandler {
 					setSelectingAbility(abilityHotbar, pressedKey, true);
 				}
 			}
-			if (JojoMod.config.getClient().abilitySelectionWheel.getAsBoolean() && wheelHotbar != null) {
+			if (wheelHotbar != null && JojoMod.config.getClient().abilitySelectionWheel.getAsBoolean()) {
 				mc.setScreen(new AbilitySelectionWheel(wheelHotbar));
 			}
+			return wheelHotbar;
 		}
+		return null;
 	}
 	
 	public void checkStopHotbarSelection(ClientKey releasedKey) {

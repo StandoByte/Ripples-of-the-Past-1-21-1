@@ -210,6 +210,16 @@ public final class MathUtil {
 	}
 	
 	
+	public static Vec3 moveTowards(Vec3 start, Vec3 dest, double maxOffset) {
+		Vec3 offset = dest.subtract(start);
+		double diffSqr = offset.lengthSqr();
+		if (diffSqr <= maxOffset * maxOffset) {
+			return dest;
+		}
+		return start.add(offset.scale(maxOffset / Math.sqrt(diffSqr)));
+	}
+	
+	
 	public static int min(int num1, int num2, int... nums) {
 		int min = (num1 <= num2) ? num1 : num2;
 		for (int num : nums) {

@@ -105,7 +105,7 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 						entity.getId(), action));
 				case TRACKING_AND_SELF -> PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new TrEntityActionInstancePacket(
 						entity.getId(), action));
-				default -> {}
+				case NO_SYNC -> {}
 			}
 		}
 		
@@ -133,7 +133,13 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 	@Override
 	public void tick() {
 		if (action != null) {
-			tickAction();
+			if (entity.isDeadOrDying()) {
+				action.forceStop();
+				clearAction();
+			}
+			else {
+				tickAction();
+			}
 			if (action != null && !entity.level().isClientSide()) {
 				SyncActionInstanceData.tickSyncDirtyData(entity, action.synchedData.getDataSyncher());
 			}
@@ -144,8 +150,12 @@ public class LivingComponentAction implements SynchronizablePlayerData, TickingE
 		action._tickAction();
 		if (action.isOver()
 				&& !StandEntityGuardAbility.onStandActionOver(entity, this)) {
-			setAction(null, null, SyncType.NO_SYNC);
+			clearAction();
 		}
+	}
+	
+	protected void clearAction() {
+		setAction(null, null, SyncType.NO_SYNC);
 	}
 	
 	

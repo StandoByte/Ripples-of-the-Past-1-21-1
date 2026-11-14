@@ -135,6 +135,14 @@ public class RotpAnimDefinition {
 			}
 		}
 	}
+	
+	public AnimFramePose animate(Model model, float seconds, float animSpeed, 
+			@Nullable AnimMolangVariables animVariables, 
+			@Nullable AnimFramePose prevPunchPose) {
+		AnimFramePose pose = calcAnimPose(seconds, animSpeed, animVariables, prevPunchPose);
+		animate(model, pose);
+		return pose;
+	}
 
 	@Deprecated
 	public AnimFramePose calcAnimPose(@Nullable AnimMolangVariables animVariables, 

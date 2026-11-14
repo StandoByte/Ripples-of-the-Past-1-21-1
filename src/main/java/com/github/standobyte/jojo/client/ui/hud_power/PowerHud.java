@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ClientTickHandler;
@@ -15,6 +17,7 @@ import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.text.StandNameSetColor;
 import com.github.standobyte.jojo.client.textsymbols.IconSymbols;
+import com.github.standobyte.jojo.client.ui.hud_misc.ChangeXpBar;
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHudControlsElement.AbilityBindUI;
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHudControlsElement.BindUI;
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHudControlsElement.HotbarUILine;
@@ -24,6 +27,7 @@ import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.TextUtil;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
+import com.github.standobyte.jojo.config.BoolOrPlayerPref;
 import com.github.standobyte.jojo.config.stand_toggles.ClientStandToggle;
 import com.github.standobyte.jojo.config.stand_toggles.ClientStandToggles;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -34,7 +38,10 @@ import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.client_screens.StandSkillsScreen;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData.StandExpSummary;
 import com.github.standobyte.jojo.powersystem.standpower.type.SummonedStand;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
@@ -56,8 +63,8 @@ import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
@@ -82,6 +89,13 @@ public class PowerHud {
 	public static void addHud(RegisterGuiLayersEvent event) {
 		event.registerBelow(VanillaGuiLayers.BOSS_OVERLAY, 
 				JojoMod.resLoc("ability_hud"), abilityHUDInstance = new AbilityHud());
+		event.registerBelowAll(JojoMod.resLoc("ability_hud_pre"), new LayeredDraw.Layer() {
+			
+			@Override
+			public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+				abilityHUDInstance.preRender(guiGraphics, deltaTracker);
+			}
+		});
 	}
 	
 	
@@ -135,8 +149,19 @@ public class PowerHud {
 			return element;
 		}
 		
+		public LayeredDraw.Layer beforeAllLayers() {
+			return new LayeredDraw.Layer() {
+
+				@Override
+				public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+					AbilityHud.this.preRender(guiGraphics, deltaTracker);
+				}
+			};
+		}
 		
-		public TriState forContainerMenu;
+		
+		/** DEFAULT - no container menu screen is currently opened; TRUE - container screen foreground; FALSE - container screen background */
+		public TriState forContainerMenu = TriState.DEFAULT;
 		private int mouseX;
 		private int mouseY;
 		
@@ -154,6 +179,7 @@ public class PowerHud {
 		public PowerHudControlsElement controls = 	addElement(new PowerHudControlsElement("controls", 4, 44, -1, -1));
 		public PowerIcon powerIcon = 			addElement(new PowerIcon("powerIcon", 11, 12, 16, 16));
 		public Resolve resolveBar = 			addElement(new Resolve("resolve_bar", 31, 12, 32, 16));
+		public RotpXpBarReplacement xpBar = 	addElement(new RotpXpBarReplacement("xp_bar"));
 		public Stamina staminaBar = 			addElement(new Stamina("stamina_bar", 81, 16, Bars.HORIZONTAL_LENGTH + 8, Bars.HORIZONTAL_WIDTH));
 		public StandRange standRange = 			addElement(new StandRange("stand_range", 
 				(int) staminaBar.xOffsetL + staminaBar.getWidth() + 10, (int) staminaBar.yOffsetU, -1, -1));
@@ -161,10 +187,9 @@ public class PowerHud {
 				HudElement.SnappingH.CENTER, HudElement.SnappingV.CENTER, -16, -16, 32, 32));
 		public StandToggles toggles = 			addElement(new StandToggles("stand_toggles", 4, 4, 32, 32));
 		
-		@Override
-		public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+		
+		public void preRender(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 			Minecraft mc = Minecraft.getInstance();
-			if (!canHaveHudOpen()) return;
 			
 			int mouseX = -1;
 			int mouseY = -1;
@@ -181,6 +206,16 @@ public class PowerHud {
 			}
 			WindupAtCrosshair.setRender(null);
 			setupRender(isContainer ? TriState.FALSE : TriState.DEFAULT, mouseX, mouseY);
+			
+			for (var element : elements.values()) {
+				element.preRender(guiGraphics, deltaTracker, mouseX, mouseY);
+			}
+		}
+		
+		@Override
+		public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+			Minecraft mc = Minecraft.getInstance();
+			if (mc.options.hideGui || !canHaveHudOpen()) return;
 			renderAbilitiesHUD(guiGraphics, deltaTracker);
 			WindupAtCrosshair.renderCrosshair(guiGraphics, deltaTracker, mc);
 		}
@@ -247,9 +282,9 @@ public class PowerHud {
 			super.initText();
 			tooltipText.body.clear();
 		}
-
+		
 		@Override
-		public boolean shouldRender() {
+		public void preRender(GuiGraphics guiGraphics, DeltaTracker deltaTracker, double mouseX, double mouseY) {
 			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 			standSummoned = standPower != null && standPower.isSummoned();
 			powerClass = null;
@@ -272,7 +307,10 @@ public class PowerHud {
 					standSummoned = false;
 				}
 			}
-			
+		}
+
+		@Override
+		public boolean shouldRender() {
 			return powerClass != null;
 		}
 
@@ -284,7 +322,7 @@ public class PowerHud {
 					if (ClientGlobals.playerStandEntity != null) {
 						StandEntity entity = ClientGlobals.playerStandEntity;
 						float partialTick = ClientUtil.partialTick(entity, deltaTracker, entity.level().tickRateManager());
-						alpha = ClientGlobals.playerStandEntity.clientStuff.getAlpha(entity, partialTick);
+						alpha = ClientGlobals.playerStandEntity.clientStuff.getAlpha(entity, partialTick, true);
 					}
 					else if (ClientGlobals.playerStand instanceof SummonedStand.SyncableSummonedStand stand) {
 						float partialTick = ClientUtil.partialTick(mc.player, deltaTracker, mc.level.tickRateManager());
@@ -885,7 +923,7 @@ public class PowerHud {
 			}
 			
 			if (hoveredToggle != null) {
-				Component text = CommonComponents.optionStatus(
+				Component text = BoolOrPlayerPref.optionStatus(
 						hoveredToggle.text, hoveredToggle.getResultingValue())
 						.withStyle(ChatFormatting.BLACK);
 				tooltip.set(Tooltip.create(text));
@@ -894,6 +932,111 @@ public class PowerHud {
 				tooltip.set(null);
 			}
 			super.checkTooltip(mouseX, mouseY, deltaTracker);
+		}
+		
+	}
+	
+	
+	public static class RotpXpBarReplacement extends HudElement {
+		public static final ResourceLocation STAND_EXP_BG = JojoMod.resLoc("textures/gui/experience_bar_stand_background.png");
+		public static final ResourceLocation STAND_EXP = JojoMod.resLoc("textures/gui/experience_bar_stand_progress.png");
+		public static final GuiIcon STAND_EXP_ICON = new GuiIcon(JojoMod.resLoc("textures/gui/sprites/stand_exp.png"), 0, 0, 10, 10, 10, 10);
+		public static final ResourceLocation HAMON_EXP_BG = JojoMod.resLoc("textures/gui/experience_bar_hamon_background.png");
+		public static final ResourceLocation HAMON_EXP = JojoMod.resLoc("textures/gui/experience_bar_hamon_progress.png");
+		public static final ResourceLocation VAMP_LIFEFORCE_BG = JojoMod.resLoc("textures/gui/experience_bar_vamp_background.png");
+		public static final ResourceLocation VAMP_LIFEFORCE = JojoMod.resLoc("textures/gui/experience_bar_vamp_progress.png");
+		
+		@Nullable protected XpBarStuff xpBarStuff;
+		
+		public RotpXpBarReplacement(String name) {
+			super(name, HudElement.SnappingH.CENTER, HudElement.SnappingV.DOWN, 
+					0, ChangeXpBar.DOWN_OFFSET - ChangeXpBar.HEIGHT - 2, ChangeXpBar.WIDTH, ChangeXpBar.HEIGHT + 4);
+		}
+		
+		@Override
+		public void preRender(GuiGraphics guiGraphics, DeltaTracker deltaTracker, double mouseX, double mouseY) {
+			xpBarStuff = null;
+			
+			if (ChangeXpBar.isXpBarVisible()) {
+				xpBarStuff = curXpBarType();
+				if (xpBarStuff != null) {
+					this.name = "xp_bar." + xpBarStuff.name;
+					if (xpBarStuff.tooltipName != null || xpBarStuff.tooltipDesc != null) {
+						this.tooltipText = new MultiLineScreenTooltip(
+								xpBarStuff.tooltipName != null ? xpBarStuff.tooltipName : 
+									Component.translatable("ripples_hud." + name).withStyle(ChatFormatting.BLACK), 
+								xpBarStuff.tooltipDesc != null ? xpBarStuff.tooltipDesc : 
+									Component.translatable("ripples_hud." + name + ".desc").withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY));
+						this.tooltip.set(this.tooltipText);
+					}
+					else {
+						initText();
+					}
+					ChangeXpBar.disableVanillaXpBar = true;
+				}
+			}
+		}
+		
+		@Nullable
+		protected XpBarStuff curXpBarType() {
+			Minecraft mc = Minecraft.getInstance();
+			if (mc.player != null) {
+				PowerClass<?> powerClass = hud.powerIcon.powerClass;
+				if (powerClass != null) {
+					if (powerClass == PowerClass.STAND) {
+						StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+						if (standPower != null && standPower.hasPower() && standPower.getPowerType().showHUD(standPower)) {
+							StandTypePersistentData levelingData = standPower.getCurTypeData();
+							if (levelingData != null) {
+								StandExpSummary expSummary = levelingData.expSummary(standPower);
+								
+								int maxPossibleExp = expSummary.total - expSummary.spent;
+								int canSpendExp = Math.min(levelingData.getExp(), maxPossibleExp);
+								boolean isAtMaxExp = canSpendExp >= maxPossibleExp;
+								int expAcquired = canSpendExp + expSummary.spent;
+								int expTotalForStand = expSummary.total;
+								
+								MutableComponent barTooltipName = isAtMaxExp ? 
+										Component.translatable("jojo_ripples.stand_exp.bar.full") : 
+										Component.translatable("jojo_ripples.stand_exp.bar", canSpendExp, expAcquired, expTotalForStand);
+								
+								return new XpBarStuff("stand_exp", STAND_EXP_BG, STAND_EXP, 
+										(float) expAcquired / (float) expTotalForStand, 
+										canSpendExp > 0 ? String.valueOf(canSpendExp) : "", 
+										StandSkillsScreen.STAND_EXP_NUMBER_COLOR, null,
+										barTooltipName.withStyle(ChatFormatting.BLACK), 
+										Component.translatable("jojo_ripples.stand_exp.desc").withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY));
+							}
+						}
+					}
+					//else if (powerClass == PowerClass.PLAYER_POWER) {
+					//	PlayerPower power = ClientPowerCache.getPower(PowerClass.PLAYER_POWER);
+					//	if (power != null && power.hasPower()) {
+					//		PlayerPowerType<?> powerType = power.getPowerType();
+					//		//...
+					//	}
+					//}
+				}
+			}
+			
+			return null;
+		}
+		
+		protected static record XpBarStuff(String name, 
+				ResourceLocation backgroundSprite, ResourceLocation progressSprite, 
+				float barProgress, String level, int levelColor, @Nullable GuiIcon icon,
+				@Nullable Component tooltipName, @Nullable Component tooltipDesc) {}
+
+		@Override
+		public boolean shouldRender() {
+			return xpBarStuff != null && !hud.forContainerMenu.isTrue();
+		}
+
+		@Override
+		public void renderElement(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+			ChangeXpBar.renderXpBar(guiGraphics, 
+					xpBarStuff.backgroundSprite, xpBarStuff.progressSprite, 
+					xpBarStuff.barProgress, xpBarStuff.level, xpBarStuff.levelColor, xpBarStuff.icon);
 		}
 		
 	}

@@ -78,15 +78,14 @@ public class ActionTarget {
 	}
 
 	public static ActionTarget fromVanilla(HitResult result) {
-		switch (result.getType()) {
-		case BLOCK:
-			BlockHitResult blockResult = (BlockHitResult) result;
-			return new ActionTarget(blockResult.getBlockPos(), blockResult.getDirection());
-		case ENTITY:
-			return new ActionTarget(((EntityHitResult) result).getEntity());
-		default:
-			return ActionTarget.EMPTY;
-		}
+		return switch (result.getType()) {
+			case BLOCK -> {
+				BlockHitResult blockResult = (BlockHitResult) result;
+				yield new ActionTarget(blockResult.getBlockPos(), blockResult.getDirection());
+			}
+			case ENTITY -> new ActionTarget(((EntityHitResult) result).getEntity());
+			case MISS -> ActionTarget.EMPTY;
+		};
 	}
 
 	public TargetType getType() {
@@ -105,7 +104,7 @@ public class ActionTarget {
 				}
 				yield entity == null || entity.isRemoved();
 			}
-			default -> true;
+			case EMPTY -> true;
 		};
 	}
 
@@ -130,36 +129,28 @@ public class ActionTarget {
 	}
 
 	public Optional<AABB> getBoundingBox(Level level) {
-		AABB aabb = null;
-		switch (type) {
-		case ENTITY:
-			aabb = getEntity().getBoundingBox();
-			break;
-		case BLOCK:
-			BlockState blockState = level.getBlockState(blockPos);
-			VoxelShape blockShape = blockState.getShape(level, blockPos);
-			if (!blockShape.isEmpty()) {
-				aabb = blockShape.bounds().move(blockPos);
+		AABB aabb = switch (type) {
+			case ENTITY -> getEntity().getBoundingBox();
+			case BLOCK -> {
+				BlockState blockState = level.getBlockState(blockPos);
+				VoxelShape blockShape = blockState.getShape(level, blockPos);
+				if (!blockShape.isEmpty()) {
+					yield blockShape.bounds().move(blockPos);
+				}
+				yield null;
 			}
-			break;
-		default:
-			break;
-		}
+			case EMPTY -> null;
+		};
 		return Optional.ofNullable(aabb);
 	}
 
 
 	public ActionTarget copy() {
-		switch (type) {
-		case EMPTY:
-			return ActionTarget.EMPTY;
-		case BLOCK:
-			return new ActionTarget(blockPos, face).withClipPos(clipPos);
-		case ENTITY:
-			return new ActionTarget(entityId).withClipPos(clipPos);
-		default:
-			return null;
-		}
+		return switch (type) {
+			case EMPTY -> ActionTarget.EMPTY;
+			case BLOCK -> new ActionTarget(blockPos, face).withClipPos(clipPos);
+			case ENTITY -> new ActionTarget(entityId).withClipPos(clipPos);
+		};
 	}
 
 	public static final StreamCodec<? super FriendlyByteBuf, ActionTarget> STREAM_CODEC_UNRESOLVED_ENTITY_ID = new StreamCodec<>() {
@@ -170,7 +161,7 @@ public class ActionTarget {
 			return switch (type) {
 				case ENTITY -> new ActionTarget(buffer.readInt()).withClipPos(clipPos);
 				case BLOCK -> new ActionTarget(buffer.readBlockPos(), buffer.readEnum(Direction.class)).withClipPos(clipPos);
-				default -> ActionTarget.EMPTY;
+				case EMPTY -> ActionTarget.EMPTY;
 			};
 		}
 		
@@ -186,7 +177,7 @@ public class ActionTarget {
 					buffer.writeBlockPos(value.getBlockPos());
 					buffer.writeEnum(value.getFace());
 				}
-				default -> {}
+				case EMPTY -> {}
 			}
 		}
 	};
@@ -228,16 +219,15 @@ public class ActionTarget {
 
 	public boolean sameTarget(ActionTarget target) {
 		if (target != null && this.type == target.type) {
-			switch (type) {
-			case BLOCK:
-				return this.blockPos.equals(target.blockPos);
-			case ENTITY:
-				int idThis = this.entity != null ? this.entity.getId() : this.entityId;
-				int idThat = target.entity != null ? target.entity.getId() : target.entityId;
-				return idThis == idThat;
-			default:
-				return true;
-			}
+			return switch (type) {
+				case BLOCK -> this.blockPos.equals(target.blockPos);
+				case ENTITY -> {
+					int idThis = this.entity != null ? this.entity.getId() : this.entityId;
+					int idThat = target.entity != null ? target.entity.getId() : target.entityId;
+					yield idThis == idThat;
+				}
+				case EMPTY ->true;
+			};
 		}
 		return false;
 	}
@@ -281,7 +271,7 @@ public class ActionTarget {
 			case BLOCK -> {
 				yield Vec3.atCenterOf(getBlockPos());
 			}
-			default -> null;
+			case EMPTY -> null;
 		};
 	}
 	

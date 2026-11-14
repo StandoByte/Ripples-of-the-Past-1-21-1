@@ -31,6 +31,7 @@ public class AbilityInputState {
 	public static final int ONLY_IN_CONTAINER = 2;
 	public static final int WITH_ITEM_HELD = 3;
 	public static final int HIGH_PRIORITY = 4;
+	public static final int CLIENT_SIDE_SUB_ABILITY_REPLACEMENT = 5;
 
 	
 	public static boolean isInputActive(AbilityInputState state, boolean inContainerMenu) {

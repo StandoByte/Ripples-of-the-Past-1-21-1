@@ -48,6 +48,11 @@ public class ClientUtil {
 //			ShaderEffectApplier.getInstance().updateCurrentShader();
 //		}
 	}
+	
+	public static Entity getCameraEntity() {
+		Minecraft mc = Minecraft.getInstance();
+		return mc.cameraEntity != null ? mc.cameraEntity : mc.player;
+	}
 
 	public static float partialTick() {
 		return partialTick(Minecraft.getInstance().getTimer(), false);

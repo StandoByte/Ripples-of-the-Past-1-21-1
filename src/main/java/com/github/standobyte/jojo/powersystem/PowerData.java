@@ -53,7 +53,7 @@ public abstract class PowerData implements INBTSerializable<CompoundTag> {
 			UnlockableSkill skill = skillEntry.getValue();
 			if (skill.isStarting) {
 				String skillName = skillEntry.getKey();
-				_setSkillUnlocked(skillName, true, false);
+				_setSkillUnlocked(skillName, true);
 			}
 		}
 	}
@@ -78,8 +78,10 @@ public abstract class PowerData implements INBTSerializable<CompoundTag> {
 			if (skill != null) {
 				ConditionCheck canUnlock = skill.canUnlockFromMenu(userPower, this);
 				if (canUnlock.positive()) {
-					_setSkillUnlocked(skillName, true, true);
-					syncUnlockedSkills(user);
+					if (_setSkillUnlocked(skillName, true)) {
+						srvOnSkillUnlocked(skill, userPower);
+						syncUnlockedSkills(user);
+					}
 					return true;
 				}
 			}
@@ -91,25 +93,31 @@ public abstract class PowerData implements INBTSerializable<CompoundTag> {
 		LivingEntity user = userPower.getUser();
 		if (user.level().isClientSide()) return;
 		
+		srvBeforeSkillsReset(userPower);
 		for (var skillEntry : getAllSkills().entrySet()) {
 			UnlockableSkill skill = skillEntry.getValue();
 			if (!skill.isStarting) {
 				String skillName = skillEntry.getKey();
-				_setSkillUnlocked(skillName, false, true);
+				_setSkillUnlocked(skillName, false);
 			}
 		}
 		
 		syncUnlockedSkills(user);
 	}
 	
+	protected void srvOnSkillUnlocked(UnlockableSkill skill, Power<?> userPower) {}
+	
+	protected void srvBeforeSkillsReset(Power<?> userPower) {}
+	
+	
 	@ApiStatus.NonExtendable
-	public boolean _setSkillUnlocked(String skillName, boolean unlocked, boolean inGameplay) {
+	public boolean _setSkillUnlocked(String skillName, boolean unlocked) {
 		UnlockableSkill skill = getAllSkills().get(skillName);
-		return skill != null ? _setSkillUnlocked(skill, unlocked, inGameplay) : false;
+		return skill != null ? _setSkillUnlocked(skill, unlocked) : false;
 	}
 	
 	@ApiStatus.Internal
-	public boolean _setSkillUnlocked(UnlockableSkill skill, boolean unlocked, boolean inGameplay) {
+	public boolean _setSkillUnlocked(UnlockableSkill skill, boolean unlocked) {
 		if (unlocked) {
 			if (unlockedSkills.add(skill.skillName)) {
 				_lockedAbilities.removeAll(skill.unlocksAbilities);
@@ -160,7 +168,7 @@ public abstract class PowerData implements INBTSerializable<CompoundTag> {
 		NBTUtil.getElementOptional(nbt, "skills", ListTag.class).ifPresent(skillsNbt -> {
 			if (skillsNbt.getElementType() == Tag.TAG_STRING) {
 				for (Tag element : skillsNbt) {
-					_setSkillUnlocked(element.getAsString(), true, false);
+					_setSkillUnlocked(element.getAsString(), true);
 				}
 			}
 		});
@@ -208,7 +216,7 @@ public abstract class PowerData implements INBTSerializable<CompoundTag> {
 	public void clSetUnlockedSkills(Collection<String> fromPacket) {
 		_clearUnlockedSkills();
 		for (String skillName : fromPacket) {
-			_setSkillUnlocked(skillName, true, false);
+			_setSkillUnlocked(skillName, true);
 		}
 	}
 	

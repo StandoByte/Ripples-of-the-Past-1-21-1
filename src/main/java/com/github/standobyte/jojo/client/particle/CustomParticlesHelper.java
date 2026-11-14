@@ -1,28 +1,39 @@
 package com.github.standobyte.jojo.client.particle;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.particle.type.custom.BloodFromEntityParticle;
 import com.github.standobyte.jojo.client.particle.type.custom.EntityPosParticle;
-import com.github.standobyte.jojo.util.NotYetImplemented;
+import com.github.standobyte.jojo.init.ModParticles;
+import com.github.standobyte.jojo.mixininterface.ParticleExtension;
+import com.github.standobyte.jojo.util.reflection.ClientReflection;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.client.CrazyDRestorationHandItemParticle;
 
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.ParticleStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.BreakingItemParticle;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.particle.TerrainParticle;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -30,52 +41,51 @@ import net.neoforged.neoforge.client.extensions.common.IClientBlockExtensions;
 
 public abstract class CustomParticlesHelper {
 
-//	private static final Map<ResourceLocation, SpriteSet> SPRITE_SETS = new HashMap<>();
-//
-//	public static void saveSprites(Minecraft mc) {
-//		Map<ResourceLocation, ? extends SpriteSet> spritesMap = ClientReflection.getSpriteSets(mc.particleEngine);
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.MENACING.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.CD_RESTORATION.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_SPARK.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_SPARK_BLUE.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_SPARK_YELLOW.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_SPARK_RED.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_SPARK_SILVER.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_BLUE.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_YELLOW.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_RED.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_SILVER.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_GREEN.get());
-//		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_RAINBOW.get());
-//	}
+	protected static final Map<ResourceLocation, SpriteSet> SPRITE_SETS = new HashMap<>();
 
-	public static SpriteSet getSavedSpriteSet(ParticleType<?> particleType) {
-		throw new NotYetImplemented();
-//		return SPRITE_SETS.get(ForgeRegistries.PARTICLE_TYPES.getKey(particleType));
+	public static void saveSprites(Minecraft mc) {
+		Map<ResourceLocation, ? extends SpriteSet> spritesMap = ClientReflection.getSpriteSets(mc.particleEngine);
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.MENACING.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.CD_RESTORATION.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_SPARK.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_SPARK_BLUE.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_SPARK_YELLOW.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_SPARK_RED.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_SPARK_SILVER.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_BLUE.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_YELLOW.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_RED.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_SILVER.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_GREEN.get());
+		CustomParticlesHelper.saveSprites(spritesMap, ModParticles.HAMON_AURA_RAINBOW.get());
 	}
 
-//	private static void saveSprites(Map<ResourceLocation, ? extends SpriteSet> sprites, ParticleType<?> particleType) {
-//		ResourceLocation key = ForgeRegistries.PARTICLE_TYPES.getKey(particleType);
-//		SPRITE_SETS.put(key, sprites.get(key));
-//	}
-//
-//
-//
+	public static SpriteSet getSavedSpriteSet(ParticleType<?> particleType) {
+		return SPRITE_SETS.get(BuiltInRegistries.PARTICLE_TYPE.getKey(particleType));
+	}
+
+	public static void saveSprites(Map<ResourceLocation, ? extends SpriteSet> sprites, ParticleType<?> particleType) {
+		ResourceLocation key = BuiltInRegistries.PARTICLE_TYPE.getKey(particleType);
+		SPRITE_SETS.put(key, sprites.get(key));
+	}
+
+
+
 //	public static void addMenacingParticleEmitter(Entity entity, SimpleParticleType particle) {
 //		Minecraft mc = Minecraft.getInstance();
 //		ClientReflection.getTrackingEmitters(Minecraft.getInstance().particleEngine).add(
 //				new MenacingParticleEmitter(mc.level, entity, particle, mc.player));
 //	}
 
-	public static boolean createCDRestorationParticle(LivingEntity entity, InteractionHand hand) {
+	public static Object createCDRestorationParticle(LivingEntity entity, InteractionHand hand) {
 		if (!ClientGlobals.canSeeStands) return false;
 
 		EntityPosParticle particle = CrazyDRestorationHandItemParticle.createCustomParticle((ClientLevel) entity.level(), entity, hand);
 		return addParticle(particle, particle.getPos(), false, false);
 	}
 
-	public static boolean createBloodParticle(ParticleOptions type, @Nullable Entity entity, 
+	public static Object createBloodParticle(ParticleOptions type, @Nullable Entity entity, 
 			double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
 		BloodFromEntityParticle particle = BloodFromEntityParticle.createCustomParticle(
 				type, Minecraft.getInstance().level, entity, x, y, z, xSpeed, ySpeed, zSpeed);
@@ -249,21 +259,37 @@ public abstract class CustomParticlesHelper {
 			});
 		}
 	}
+	
+	public static Object addItemParticleNoGravity(ItemStack item, 
+			double x, double y, double z, 
+			double xSpeed, double ySpeed, double zSpeed, int lifetime) {
+		Minecraft mc = Minecraft.getInstance();
+		ParticleEngine particleEngine = mc.particleEngine;
+		BreakingItemParticle particle = (BreakingItemParticle) particleEngine.createParticle(
+				new ItemParticleOption(ParticleTypes.ITEM, item), x, y, z, xSpeed, ySpeed, zSpeed);
+		particle.xd = xSpeed;
+		particle.yd = ySpeed;
+		particle.zd = zSpeed;
+		particle.setLifetime(lifetime);
+		particle.gravity = 0;
+		return particle;
+		
+	}
 
 //	public static void createParticlesEmitter(Entity entity, ParticleOptions type, int ticks) {
 //		Minecraft.getInstance().particleEngine.createTrackingEmitter(entity, type, ticks);
 //	}
 //
-	public static boolean addParticle(Particle particle, Vec3 particlePos, boolean overrideLimiter, boolean alwaysVisible) {
+	public static Object addParticle(Particle particle, Vec3 particlePos, boolean overrideLimiter, boolean alwaysVisible) {
 		Minecraft mc = Minecraft.getInstance();
 		Camera activerenderinfo = mc.gameRenderer.getMainCamera();
 		if (activerenderinfo.isInitialized() && mc.particleEngine != null && activerenderinfo.getPosition().distanceToSqr(particlePos) < 1024.0D) {
 			if (alwaysVisible || calculateParticleLevel(mc, mc.level, alwaysVisible) != ParticleStatus.MINIMAL) {
 				mc.particleEngine.add(particle);
-				return true;
+				return particle;
 			} 
 		}
-		return false;
+		return null;
 	}
 
 	private static ParticleStatus calculateParticleLevel(Minecraft mc, ClientLevel level, boolean overrideLimiter) {
@@ -282,4 +308,13 @@ public abstract class CustomParticlesHelper {
 	public static int particlesSetting() {
 		return Minecraft.getInstance().options.particles().get().getId();
 	}
+	
+	/**
+	 * @param particle Object type to be common code compatible, but is supposed to be {@link Particle}
+	 * @param entity
+	 */
+	public static void tieToEntity(Object particle, Entity entity) {
+		((ParticleExtension) particle).jojo_ripples$tieToEntity(entity);
+	}
+	
 }

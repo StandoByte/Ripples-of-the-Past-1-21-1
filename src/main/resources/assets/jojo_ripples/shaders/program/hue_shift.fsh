@@ -1,11 +1,12 @@
-#version 110
+#version 150
 
 uniform sampler2D DiffuseSampler;
 
-varying vec2 texCoord;
+in vec2 texCoord;
 
 uniform float ShiftAmount;
 uniform vec2 InSize;
+out vec4 fragColor;
 
 vec3 hue(float h) {
     float r = abs(h * 6.0 - 3.0) - 1.0;
@@ -43,10 +44,10 @@ vec3 RGBtoHSV(vec3 rgb) {
 }
 
 void main() {
-    vec4 rgb = texture2D(DiffuseSampler, texCoord);
+    vec4 rgb = texture(DiffuseSampler, texCoord);
     vec3 hsv = RGBtoHSV(rgb.rgb);
-    
+
     hsv.x = fract(hsv.x + ShiftAmount);
-    
-    gl_FragColor = vec4(HSVtoRGB(hsv), rgb.a);
+
+    fragColor = vec4(HSVtoRGB(hsv), rgb.a);
 }

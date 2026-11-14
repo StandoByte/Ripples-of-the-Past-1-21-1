@@ -230,7 +230,7 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 				Moveset moveset = power.getMoveset();									if (moveset == null) continue;
 				Ability ability = moveset.getAbility(abilityPath.abilityName());		if (ability == null) continue;
 				
-				abilityNames.add(ability.getName(power).copy().withStyle(ChatFormatting.BLACK));
+				abilityNames.add(ability.getNameWithContext(power).copy().withStyle(ChatFormatting.BLACK));
 			}
 		}
 		else {
@@ -245,7 +245,7 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 	public void renderSprite(@Nonnull AbilityConditionCheck _ability, GuiGraphics guiGraphics, int centerX, int centerY) {
 		Ability ability = _ability.ability;
 		Power<?> context = ClientPowerCache.getPower(ability.getAbilityId().powerClass());
-		TextureAtlasSprite abilitySprite = abilityIconSprites.getAbilityIcon(ability, context, standSkin); // context-dependent
+		TextureAtlasSprite abilitySprite = abilityIconSprites.getAbilityIconWithContext(ability, context, standSkin);
 		ability.renderAbilityIcon(context, guiGraphics, abilitySprite, 
 				centerX - 8, centerY - 8, BlitFloat.NO_TINT);
 	}
@@ -296,7 +296,7 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 					InputHandler inputHandler = InputHandler.getInstance();
 					KeyModifier keyModifier = inputHandler.getCurModifier();
 					CurInput input = inputHandler.makeAbilitiesInput(keyModifier, slot.getBinds()::getAll);
-					inputHandler.useAbilitiesOnKeyPress(input, InputHandler.LMB, keyModifier);
+					inputHandler.useAbilitiesOnKeyPress(input, InputHandler.LMB, keyModifier, false, false);
 				}
 				onClose();
 				return true;

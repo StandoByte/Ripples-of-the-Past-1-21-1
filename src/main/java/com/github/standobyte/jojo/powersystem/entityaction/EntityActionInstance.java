@@ -55,6 +55,7 @@ public class EntityActionInstance implements HeldInput {
 	@Nonnull public final EntityActionType ability;
 	@ApiStatus.Internal public Object2FloatMap<ActionPhase> phasesLength = new Object2FloatArrayMap<>();
 	@ApiStatus.Internal @Nullable public Object2FloatMap<ActionPhase> skippedWindupPhase = null;
+	@ApiStatus.Internal @Nullable public ActionPhase buttonHoldingPhase;
 	
 	public SynchedDataHelper synchedData = new SynchedDataHelper("act", this, () -> this.performer);
 	
@@ -170,7 +171,9 @@ public class EntityActionInstance implements HeldInput {
 	
 	@ApiStatus.OverrideOnly
 	public boolean canBeCancelledInto(@Nullable EntityActionType cancellingAbility) {
-		return cancellingAbility == null || phase == ActionPhase.RECOVERY;
+		return cancellingAbility == null
+				|| phase == ActionPhase.RECOVERY
+				|| phase == buttonHoldingPhase;
 	}
 	
 	
@@ -513,6 +516,7 @@ public class EntityActionInstance implements HeldInput {
 	}
 	
 	// XXX only sync actual phase changes
+	// FIXME (it's fucking annoying every time i forget it) make it be called implicitly based on the current usage
 	public void syncPhaseChanges() {
 		if (performer != null && !performer.level().isClientSide()) {
 			PacketDistributor.sendToPlayersTrackingEntityAndSelf(performer, new TrEntityActionPhaseTimePacket(performer.getId(), 

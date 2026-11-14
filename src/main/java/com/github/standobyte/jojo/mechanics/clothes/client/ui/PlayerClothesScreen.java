@@ -38,6 +38,7 @@ public class PlayerClothesScreen extends EffectRenderingInventoryScreen<PlayerCl
 	@Override
 	protected void init() {
 		super.init();
+		this.topPos -= 12;
 		this.imageHeight += 12;
 		this.widthTooNarrow = this.width < 379;
 //		this.recipeBookComponent.init(this.width, this.height, this.minecraft, this.widthTooNarrow, this.menu);
@@ -63,8 +64,8 @@ public class PlayerClothesScreen extends EffectRenderingInventoryScreen<PlayerCl
 			}
 			characterName = Component.translatable("jojo_ripples.menu.player.clothes.cur_character", characterName);
 			int x = (imageWidth - font.width(characterName)) / 2;
-			int y = -6;
-			guiGraphics.drawString(font, characterName, x, y, 4210752, false);
+			int y = 6;
+			guiGraphics.drawString(font, characterName, x, y, 0x404040, false);
 		}
 		
 //		guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
@@ -98,10 +99,10 @@ public class PlayerClothesScreen extends EffectRenderingInventoryScreen<PlayerCl
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-		int i = this.leftPos;
-		int j = this.topPos;
-		guiGraphics.blit(SCREEN_TEXTURE, i, j - 12, 0, 0, this.imageWidth, this.imageHeight);
-		renderEntityInInventoryFollowsMouse(guiGraphics, i + 26, j + 8, i + 75, j + 78, 30, 0.0625F, this.xMouse, this.yMouse, this.minecraft.player);
+		int x = this.leftPos;
+		int y = this.topPos;
+		guiGraphics.blit(SCREEN_TEXTURE, x, y, 0, 0, this.imageWidth, this.imageHeight);
+		renderEntityInInventoryFollowsMouse(guiGraphics, x + 26, y + 20, x + 75, y + 90, 30, 0.0625F, this.xMouse, this.yMouse, this.minecraft.player);
 	}
 
 	public static void renderEntityInInventoryFollowsMouse(

@@ -4,7 +4,6 @@ import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHud;
-import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.entityattachment.ComponentUtil;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
@@ -27,6 +26,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.util.FastColor.ARGB32;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
@@ -104,20 +104,24 @@ public class StandEntityManualControlToggle extends Ability {
 			RenderSystem.enableBlend();
 			RenderSystem.defaultBlendFunc();
 			if (isControlled) {
-				PowerHud.renderStandIcon(standPower, poseStack, (int) x + 4, y - 4, 0x40FFFFFF);
+				PowerHud.renderStandIcon(standPower, poseStack, (int) x + 4, y - 4, ARGB32.multiply(color, 0x60FFFFFF));
+				RenderSystem.enableBlend();
+				RenderSystem.defaultBlendFunc();
 				poseStack.pushPose();
 				poseStack.scale(0.5f, 0.5f, 1);
 				poseStack.translate(x, y, 0);
-				ClientUtil.renderEntityFace(poseStack, x + 4, y + 10, context.getUser(), BlitFloat.NO_TINT, false);
+				ClientUtil.renderEntityFace(poseStack, x + 4, y + 10, context.getUser(), color, false);
 				poseStack.popPose();
 			}
 			else {
+				//guiGraphics.enableScissor((int) x + 11, (int) y, (int) x + 16, (int) y + 16);
 				poseStack.pushPose();
 				poseStack.scale(0.5f, 0.5f, 1);
 				poseStack.translate(x, y, 0);
-				ClientUtil.renderEntityFace(poseStack, x + 16, y, context.getUser(), 0x80FFFFFF, false);
+				ClientUtil.renderEntityFace(poseStack, x + 16, y, context.getUser(), ARGB32.multiply(color, 0x60FFFFFF), false);
 				poseStack.popPose();
-				PowerHud.renderStandIcon(standPower, poseStack, x - 2, y, BlitFloat.NO_TINT);
+				//guiGraphics.disableScissor();
+				PowerHud.renderStandIcon(standPower, poseStack, x - 2, y, color);
 			}
 			guiGraphics.disableScissor();
 		}

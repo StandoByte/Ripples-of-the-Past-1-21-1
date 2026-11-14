@@ -55,7 +55,7 @@ public class AddClothesButton {
 				case PlayerClothesScreen clothesScreen -> {
 					Component goBackName = Component.translatable("container.inventory");
 					Button goBackButton = new ImageButton2(
-							containerScreen.getGuiLeft() + 153, containerScreen.getGuiTop() + 63, 16, 16, 
+							containerScreen.getGuiLeft() + 153, containerScreen.getGuiTop() + 75, 16, 16, 
 							BUTTON, BUTTON, BUTTON_HOVERED, BUTTON_HOVERED, 
 							b -> {
 								Minecraft mc = Minecraft.getInstance();

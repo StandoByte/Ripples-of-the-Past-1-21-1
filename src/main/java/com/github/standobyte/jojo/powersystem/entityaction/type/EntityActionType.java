@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
@@ -47,8 +48,13 @@ public interface EntityActionType {
 		EntityActionInstance action = createActionObj();
 		initActionFromConfig(action, level, powerUser, performer);
 		action.setStartingPhase();
-		if (extraInput != null) {
-			action.extraClientInput(extraInput);
+		if (extraInput != null && extraInput.isReadable()) {
+			try {
+				action.extraClientInput(extraInput);
+			}
+			catch (Exception e) {
+				JojoMod.getLogger().error("Input read error: Ability used by {}", powerUser, e);
+			}
 		}
 		return action;
 	}

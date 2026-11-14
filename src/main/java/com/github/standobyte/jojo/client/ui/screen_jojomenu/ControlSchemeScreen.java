@@ -147,7 +147,7 @@ public class ControlSchemeScreen extends Screen implements IJojoMenuScreen {
 		StandSkin standSkin = StandSkinsLoader.getCurSkin();
 		
 		for (AbilityEntry ability : mainAbilities) {
-			TextureAtlasSprite abilitySprite = abilityIconSprites.getAbilityIcon(ability.ability.name(), standSkin);
+			TextureAtlasSprite abilitySprite = abilityIconSprites.getAbilityIcon(ability.ability.spriteName, standSkin);
 			int abilityX = ability.x + x;
 			int abilityY = ability.y + y;
 			
@@ -187,6 +187,12 @@ public class ControlSchemeScreen extends Screen implements IJojoMenuScreen {
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (clickTab(mouseX, mouseY, button, this)) return true;
 		return super.mouseClicked(mouseX, mouseY, button);
+	}
+	
+	@Override
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		if (closeOnKeybind(minecraft, keyCode, scanCode, modifiers)) return true;
+		return super.keyPressed(keyCode, scanCode, modifiers);
 	}
 
 }

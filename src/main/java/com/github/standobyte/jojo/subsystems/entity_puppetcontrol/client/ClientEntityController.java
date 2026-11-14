@@ -61,7 +61,7 @@ public abstract class ClientEntityController {
 				setInstance(null);
 			}
 			else {
-				if (mc.cameraEntity == null || mc.cameraEntity == mc.player) {
+				if (ClientUtil.getCameraEntity() == mc.player) {
 					ClientUtil.setCameraEntityPreventShaderSwitch(instance.entity);
 				}
 			}

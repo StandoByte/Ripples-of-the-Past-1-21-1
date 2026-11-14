@@ -2,12 +2,18 @@ package com.github.standobyte.jojo.powersystem.standpower.type;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.client.ui.hud_misc.BottomLeftNotifications;
+import com.github.standobyte.jojo.client.ui.tutorial_toast.ModTutorialToasts;
+import com.github.standobyte.jojo.config.RotpConfig;
+import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.PowerData;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
@@ -25,6 +31,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class StandTypePersistentData extends PowerData {
@@ -47,17 +54,23 @@ public class StandTypePersistentData extends PowerData {
 	//}
 	
 	@Override
-	public boolean _setSkillUnlocked(UnlockableSkill skill, boolean unlocked, boolean inGameplay) {
-		boolean changed = super._setSkillUnlocked(skill, unlocked, inGameplay);
-		if (changed && inGameplay) {
-			if (unlocked) {
-				this.exp -= ((StandUnlockableSkill) skill).expToUnlock;
-			}
-			else {
+	protected void srvOnSkillUnlocked(UnlockableSkill skill, Power<?> userPower) {
+		if (!hasInfiniteExp(userPower.getUser())) {
+			this.exp -= ((StandUnlockableSkill) skill).expToUnlock;
+			syncExp(userPower.getUser());
+		}
+	}
+
+	@Override
+	protected void srvBeforeSkillsReset(Power<?> userPower) {
+		for (var skillEntry : getAllSkills().entrySet()) {
+			UnlockableSkill skill = skillEntry.getValue();
+			if (!hasInfiniteExp(userPower.getUser()) && !skill.isStarting && isSkillUnlocked(skill.skillName)) {
 				this.exp += ((StandUnlockableSkill) skill).expToUnlock;
 			}
 		}
-		return changed;
+
+		syncExp(userPower.getUser());
 	}
 	
 	
@@ -65,7 +78,13 @@ public class StandTypePersistentData extends PowerData {
 		return (int) exp;
 	}
 	
+	public static boolean hasInfiniteExp(LivingEntity user) {
+		return user instanceof Player player && player.isCreative();
+	}
+
+	/** Also applies {@link RotpConfig.Common#standExpGainMultiplier} value */
 	public int addExp(float exp, LivingEntity standUser) {
+		exp *= JojoMod.config.getCommon().standExpGainMultiplier.getAsFloat();
 		int prevInt = (int) this.exp;
 		this.exp += exp;
 		int newInt = (int) this.exp;
@@ -79,20 +98,28 @@ public class StandTypePersistentData extends PowerData {
 	
 	public void setExp(float exp, StandPower userPower, boolean clientSideNewSkillNotification) {
 		if (clientSideNewSkillNotification && userPower.hasPower()) {
-			Collection<? extends UnlockableSkill> couldUnlock = getAllSkills().values().stream()
-					.filter(skill -> skill.canUnlockFromMenu(userPower, this).positive()).collect(Collectors.toSet());
+			List<? extends UnlockableSkill> availableSkills = getAllSkills().values().stream()
+					.filter(skill -> !isSkillUnlocked(skill.skillName))
+					.toList();
+			
+			Set<String> couldUnlock = availableSkills.stream()
+					.filter(skill -> skill.canUnlockFromMenu(userPower, this).positive())
+					.map(skill -> skill.skillName)
+					.collect(Collectors.toSet());
 			
 			this.exp = exp;
 			
-			Collection<? extends UnlockableSkill> newSkillsToUnlock = getAllSkills().values().stream()
-					.filter(skill -> skill.canUnlockFromMenu(userPower, this).positive() && !couldUnlock.contains(skill)).toList();
+			Collection<? extends UnlockableSkill> newSkillsToUnlock = availableSkills.stream()
+					.filter(skill -> skill.canUnlockFromMenu(userPower, this).positive() && !couldUnlock.contains(skill.skillName))
+					.toList();
 			if (!newSkillsToUnlock.isEmpty()) {
 				StandInstance stand = userPower.getStandInstance().get();
 				BottomLeftNotifications.add(Component.translatable("jojo_ripples.notification.stand_skill"));
 				for (UnlockableSkill skill : newSkillsToUnlock) {
-					Component skillName = StandSkinComponent.translatable(stand, skill.tlKeyName);
+					Component skillName = skill.getSkillName(stand);
 					BottomLeftNotifications.add(Component.translatable("jojo_ripples.list.entry.no_newline", skillName));
 				}
+				ModTutorialToasts.onStandExpAddedMakingNewSkillsAvailable();
 			}
 		}
 		else {
@@ -112,24 +139,29 @@ public class StandTypePersistentData extends PowerData {
 		static StandExpSummary instance = new StandExpSummary();
 		public int spent, total, devPotential, remainingSkills, remainingHiddenSkills;
 		StandExpSummary clear() { spent = 0; total = 0; devPotential = 0; remainingSkills = 0; remainingHiddenSkills = 0; return this; }
+		
+		public static StandExpSummary expSummary(Iterable<StandUnlockableSkill> skills, @Nullable StandPower userPower, @Nullable StandTypePersistentData userData) {
+			StandExpSummary obj = StandExpSummary.instance.clear();
+			for (StandUnlockableSkill skill : skills) {
+				boolean isUnlocked = userData != null ? userData.isSkillUnlocked(skill.skillName) : false;
+				if (skill.expToUnlock > 0) {
+					obj.total += skill.expToUnlock;
+					if (isUnlocked) {
+						obj.spent += skill.expToUnlock;
+					}
+				}
+				if (!isUnlocked) {
+					obj.remainingSkills++;
+				}
+				obj.devPotential += skill.getDevPotentialCosmeticPoints(userPower, userData, isUnlocked);
+			}
+			return obj;
+		}
 	}
 	public StandExpSummary expSummary(StandPower userPower) {
-		StandExpSummary obj = StandExpSummary.instance.clear();
-		for (var skillEntry : getAllSkills().entrySet()) {
-			StandUnlockableSkill skill = (StandUnlockableSkill) skillEntry.getValue();
-			boolean isUnlocked = isSkillUnlocked(skill.skillName);
-			if (skill.expToUnlock > 0) {
-				obj.total += skill.expToUnlock;
-				if (isUnlocked) {
-					obj.spent += skill.expToUnlock;
-				}
-			}
-			if (!isUnlocked) {
-				obj.remainingSkills++;
-			}
-			obj.devPotential += skill.getDevPotentialCosmeticPoints(userPower, this, isUnlocked);
-		}
-		return obj;
+		return StandExpSummary.expSummary(
+				(Iterable<StandUnlockableSkill>) getAllSkills().values(), 
+				userPower, this);
 	}
 	
 

@@ -11,7 +11,6 @@ import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
-import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
 import com.github.standobyte.jojo.client.textsymbols.IconSymbols;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.IJojoMenuScreen;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.PaperButton;
@@ -50,6 +49,7 @@ import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
@@ -170,6 +170,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			onClose();
 			return;
 		}
+		LivingEntity standUser = standPower.getUser();
 		StandInstance standInstance = standPower.getStandInstance().get();
 		
 		deselectSkillButton.visible = selectedSkill != null;
@@ -231,7 +232,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			switch (skill.implemented) {
 				case NYI -> guiGraphics.fill(spriteX - 1, spriteY - 1, spriteX + 37, spriteY + 17, 0x80FF0000);
 				case WIP -> guiGraphics.fill(spriteX - 1, spriteY - 1, spriteX + 37, spriteY + 17, 0x80FFFF00);
-				default -> {}
+				case IMPLEMENTED -> {}
 			}
 			spriteY += 20;
 		}
@@ -240,8 +241,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		skillListScrolling.renderScrollBar(skillListX - 8, skillListY + 1, 0, 4, guiGraphics, SCROLL_BAR, 1);
 
 		if (selectedSkill != null) {
-			TextUtil.drawRightAlignedString(guiGraphics, font, 
-					StandSkinComponent.translatable(standInstance, selectedSkill.tlKeyName), 
+			TextUtil.drawRightAlignedString(guiGraphics, font, selectedSkill.getSkillName(standInstance), 
 					x + getWindowWidth() - 10, y + 24, textColor, false);
 			
 			skillDescription.draw(4, 3, guiGraphics, this.minecraft.font, textColor, false);
@@ -250,9 +250,17 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			skillControls.drawSmallScrollBar(guiGraphics);
 		}
 		
-		int maxExp = expSummary.total - expSummary.spent;
-		int exp = Math.min(levelingData.getExp(), maxExp);
-		Component expLine = exp < maxExp ? Component.literal(String.valueOf(exp)) : Component.translatable("jojo_ripples.stand_exp.max");
+		int maxPossibleExp = expSummary.total - expSummary.spent;
+		boolean hasInfiniteExp = StandTypePersistentData.hasInfiniteExp(standUser);
+		int canSpendExp = Math.min(levelingData.getExp(), maxPossibleExp);
+		boolean isAtMaxExp = canSpendExp >= maxPossibleExp;
+		int expAcquired = canSpendExp + expSummary.spent;
+		int expTotalForStand = expSummary.total;
+		
+		Component expLine = 
+				hasInfiniteExp 	? Component.literal("∞") :
+				!isAtMaxExp 	? Component.literal(String.valueOf(canSpendExp)) : 
+				Component.translatable("jojo_ripples.stand_exp.max");
 		expLine = Component.literal(String.valueOf(IconSymbols.STAND_EXP)).append(expLine);
 		guiGraphics.drawString(font, expLine, x + 41 - font.width(expLine) / 2, y + 33, STAND_EXP_NUMBER_COLOR, false);
 		
@@ -271,14 +279,14 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		if (hovered != null) {
 			TooltipParams.set(TooltipParams.paperStyle(1));
 			List<FormattedCharSequence> skillNameTooltip = new ArrayList<>();
-			skillNameTooltip.add(StandSkinComponent.translatable(standInstance, hovered.tlKeyName)
+			skillNameTooltip.add(hovered.getSkillName(standInstance)
 					.withStyle(ChatFormatting.BLACK).getVisualOrderText());
 			switch (hovered.implemented) {
 				case WIP -> skillNameTooltip.add(Component.translatable("rotp_tag_wip")
 						.withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC).getVisualOrderText());
 				case NYI -> skillNameTooltip.add(Component.translatable("rotp_tag_nyi")
 						.withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC).getVisualOrderText());
-				default -> {}
+				case IMPLEMENTED -> {}
 			}
 			setTooltipForNextRenderPass(skillNameTooltip);
 		}
@@ -287,7 +295,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			List<FormattedCharSequence> standExpTooltip = new ArrayList<>();
 			standExpTooltip.add(Component.translatable("jojo_ripples.stand_exp")
 					.withStyle(ChatFormatting.BLACK).getVisualOrderText());
-			standExpTooltip.add(Component.translatable("jojo_ripples.stand_exp.total", expSummary.spent + exp, expSummary.total)
+			standExpTooltip.add(Component.translatable("jojo_ripples.stand_exp.total", expAcquired, expTotalForStand)
 					.withStyle(ChatFormatting.BLACK).getVisualOrderText());
 			if (expSummary.remainingHiddenSkills > 0) {
 				standExpTooltip.add(Component.translatable("jojo_ripples.stand_exp.skills_left.hidden", expSummary.remainingSkills, expSummary.remainingHiddenSkills)
@@ -357,8 +365,8 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		this.selectedSkill = skill;
 		if (skill != null && standPower.hasPower()) {
 			StandInstance stand = standPower.getStandInstance().get();
-			Component textDesc = StandSkinComponent.translatable(stand, selectedSkill.tlKeyDesc);
-			Component textControls = StandSkinComponent.translatable(stand, selectedSkill.tlKeyControls);
+			Component textDesc = selectedSkill.getSkillDescription(stand);
+			Component textControls = selectedSkill.getSkillControlsHint(stand);
 			skillDescription.setText(font.split(textDesc, 111));
 			skillControls.setText(font.split(textControls, 101));
 		}
@@ -379,5 +387,11 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
     	skillListScrolling.scroll(scrollY);
     	return true;
     }
+	
+	@Override
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		if (closeOnKeybind(minecraft, keyCode, scanCode, modifiers)) return true;
+		return super.keyPressed(keyCode, scanCode, modifiers);
+	}
 
 }

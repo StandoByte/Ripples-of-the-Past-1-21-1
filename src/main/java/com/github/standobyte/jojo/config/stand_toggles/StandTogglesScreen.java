@@ -76,7 +76,9 @@ public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
 	
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-    	return keybindsHandler.keyPressed(keyCode, scanCode, modifiers) || super.keyPressed(keyCode, scanCode, modifiers);
+    	return keybindsHandler.keyPressed(keyCode, scanCode, modifiers)
+    			|| closeOnKeybind(minecraft, keyCode, scanCode, modifiers)
+    			|| super.keyPressed(keyCode, scanCode, modifiers);
     }
 	
     @Override

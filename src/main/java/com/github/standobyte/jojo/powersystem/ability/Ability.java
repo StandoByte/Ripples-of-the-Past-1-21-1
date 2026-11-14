@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.powersystem.ability;
 
+import java.util.Map;
+
 import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
@@ -10,12 +12,13 @@ import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
 import com.github.standobyte.jojo.client.ui.hud_power.WindupIndicator;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
+import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerData;
 import com.github.standobyte.jojo.powersystem.ability.condition.AbilityUsageContext;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
-import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities.AbilityConditionCheck;
+import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.ability.cooldown.AbilityCooldownTracker;
 import com.github.standobyte.jojo.powersystem.ability.finisher.AbilityStandFinisherData;
@@ -35,13 +38,15 @@ import net.minecraft.world.level.Level;
 public class Ability {
 	public final AbilityType<?> abilityType;
 	public final AbilityId abilityId;
-	protected String spriteName;
+	public String spriteName;
 	protected String nameTlKey;
 	
 	public AbilityUsageGroup usageGroup = AbilityUsageGroup.SPECIAL;
 	public boolean isSubAbility = false;
 	
 	@Nullable public AbilityStandFinisherData isStandFinisherOf = null;
+	
+	@ApiStatus.Internal public Map<String, ConfigOption<?>> __configOptionsCache;
 
 	public Ability(AbilityType<?> abilityType, AbilityId abilityId) {
 		this.abilityType = abilityType;
@@ -202,9 +207,6 @@ public class Ability {
 		return null;
 	}
 	
-	public Component getName(Power<?> context) {
-		return StandSkinComponent.translatable(context, nameTlKey);
-	}
 	
 	public static String tlKey(AbilityId abilityId, String postfix) {
 		return tlKey(abilityId.nameInMoveset() + postfix);
@@ -214,12 +216,21 @@ public class Ability {
 		return "jojo_ripples.ability." + abilityName;
 	}
 	
+	public Component getNameWithContext(Power<?> context) {
+		return getName(context);
+	}
+	
+	public Component getName(Power<?> context) {
+		return StandSkinComponent.translatable(context, nameTlKey);
+	}
+	
 	public String getSpriteName(Power<?> context) {
 		return spriteName;
 	}
 	
+	public static final float ABILITY_ICON_BLIT_OFFSET = 5;
 	public void renderAbilityIcon(Power<?> context, GuiGraphics guiGraphics, TextureAtlasSprite sprite, float x, float y, int color) {
-		BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), sprite, x, y, 16, 16, 0, color);
+		BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), sprite, x, y, 16, 16, ABILITY_ICON_BLIT_OFFSET, color);
 	}
 	
 	// 

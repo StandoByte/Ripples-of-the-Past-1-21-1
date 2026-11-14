@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.github.standobyte.jojo.PacketsRegister;
-import com.github.standobyte.jojo.powersystem.standpower.datapack.DataDrivenStandsLoader;
+import com.github.standobyte.jojo.config.stand.datapack.DataDrivenStandsLoader;
 import com.github.standobyte.jojo.util.functions_network.NetworkUtil;
 import com.google.gson.JsonObject;
 

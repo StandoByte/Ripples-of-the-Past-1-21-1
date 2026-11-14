@@ -4,6 +4,8 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.JojoModEntityVariables;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.entityattachment.custom_effect.EntityCustomEffectType;
@@ -46,10 +48,11 @@ import net.neoforged.neoforge.network.PacketDistributor;
  *   so TimeStopLevelTracker#add does nothing - defer the call somehow
  */
 public class TimeStopEffect extends StandEffectInstance implements TimeStopInstance {
-	public AbilityId timeStopAbility;
+	@Nullable public AbilityId timeStopAbility;
 	public boolean playedFX = false;
 	public boolean playedResumeFX = false;
 	public int duration = 100;
+	public float cooldownMultiplier = 3;
 	public ChunkPos initialPos;
 	public int tsTicks = 0;
 
@@ -146,7 +149,7 @@ public class TimeStopEffect extends StandEffectInstance implements TimeStopInsta
 			levelTracker.remove(this);
 			
 			if (timeStopAbility != null) {
-				int cooldown = tickCount * 3;
+				int cooldown = (int) (tickCount * cooldownMultiplier);
 				AbilityCooldownTracker.setCooldown(getStandUser(), timeStopAbility, cooldown);
 			}
 		}
@@ -211,6 +214,7 @@ public class TimeStopEffect extends StandEffectInstance implements TimeStopInsta
 		super.writeAdditionalSaveData(nbt);
 		nbt.putInt("TSTicks", tsTicks);
 		nbt.putInt("Duration", duration);
+		nbt.putFloat("CooldownMult", cooldownMultiplier);
 		nbt.putBoolean("PlayedFX", playedFX);
 		nbt.putBoolean("PlayedResumeFX", playedResumeFX);
 		NBTUtil.put(nbt, "Pos", initialPos, FUCK_MY_LIFE);
@@ -224,6 +228,7 @@ public class TimeStopEffect extends StandEffectInstance implements TimeStopInsta
 		super.readAdditionalSaveData(nbt);
 		tsTicks = nbt.getInt("TSTicks");
 		duration = nbt.getInt("Duration");
+		cooldownMultiplier = nbt.getFloat("CooldownMult");
 		playedFX = nbt.getBoolean("PlayedFX");
 		playedResumeFX = nbt.getBoolean("PlayedResumeFX");
 		initialPos = NBTUtil.getOptional(nbt, "Pos", FUCK_MY_LIFE).orElseThrow();

@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.client.input;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
+import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.network.c2s.ClAimTargetPacket;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
@@ -26,7 +27,7 @@ public class ClientsideAim {
 		cameraEntityAimTarget = mc.hitResult != null ? ActionTarget.fromVanilla(mc.hitResult) : ActionTarget.EMPTY;
 
 		if (mc.level != null && mc.player != null) {
-			boolean isPlayerCameraEntity = mc.player == mc.cameraEntity || mc.cameraEntity == null;
+			boolean isPlayerCameraEntity = ClientUtil.getCameraEntity() == mc.player;
 			if (isPlayerCameraEntity) {
 				playerAim.setTarget(cameraEntityAimTarget);
 			}
@@ -53,22 +54,32 @@ public class ClientsideAim {
 					aiming = stand;
 				}
 
-				/*
-				 * A crutch that patches aiming for abilities like Crazy Diamond's healing (hold and aim at an entity).
-				 * Due to stand user offset interpolation, when I tell the stand to move in front of me, 
-				 * on the next tick it's still a tiny bit behind me, which may cause the target that is just in the range for the player 
-				 * to still be out of reach for the stand, until it's completely in front of me
-				 */
-				boolean standOffsetLerping = aiming == stand && isPlayerCameraEntity && stand.isFollowingUser() && stand.offsetFromUser.getLerpAmount() < 1;
-				if (!standOffsetLerping) {
-					Vec3 lookPos = aiming.getEyePosition(partialTick);
-					Vec3 lookVec = aiming.calculateViewVector(
-							Mth.clamp(partialTick, aiming.xRotO, aiming.getXRot()), 
-							Mth.clamp(partialTick, aiming.yRotO, aiming.getYRot()));
-					ActionTarget target = HitResultUtil.clip(lookPos, lookVec, 
-							stand.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE), stand.getAttributeValue(Attributes.ENTITY_INTERACTION_RANGE), 
-							aiming.level(), entity -> StandEntityPunchAbility.canStandHit(stand, entity), aiming, precisionAimingDisabled(mc) ? 0 : stand.getPrecision());
-					standAim.setTarget(target);
+				boolean updateStandAim = true;
+				ActionTarget standTarget = cameraEntityAimTarget;
+				if (standTarget.isEmpty(mc.level)) {
+					/*
+					 * A crutch that patches aiming for abilities like Crazy Diamond's healing (hold and aim at an entity).
+					 * Due to stand user offset interpolation, when I tell the stand to move in front of me, 
+					 * on the next tick it's still a tiny bit behind me, which may cause the target that is just in the range for the player 
+					 * to still be out of reach for the stand, until it's completely in front of me
+					 */
+					boolean standOffsetLerping = aiming == stand && isPlayerCameraEntity && stand.isFollowingUser() && stand.offsetFromUser.getLerpAmount() < 1;
+					if (standOffsetLerping) {
+						updateStandAim = false;
+					}
+					else {
+						Vec3 lookPos = aiming.getEyePosition(partialTick);
+						Vec3 lookVec = aiming.calculateViewVector(
+								Mth.clamp(partialTick, aiming.xRotO, aiming.getXRot()), 
+								Mth.clamp(partialTick, aiming.yRotO, aiming.getYRot()));
+						ActionTarget target = HitResultUtil.clip(lookPos, lookVec, 
+								stand.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE), stand.getAttributeValue(Attributes.ENTITY_INTERACTION_RANGE), 
+								aiming.level(), entity -> StandEntityPunchAbility.canStandHit(stand, entity), aiming, precisionAimingDisabled(mc) ? 0 : stand.getPrecision());
+						standTarget = target;
+					}
+				}
+				if (updateStandAim) {
+					standAim.setTarget(standTarget);
 				}
 			}
 			else {

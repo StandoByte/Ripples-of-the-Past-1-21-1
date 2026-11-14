@@ -4,6 +4,7 @@ import com.github.standobyte.jojo.adventure.npc.client.NpcInventoryExchangeScree
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.client.ui.PlayerClothesScreen;
 import com.github.standobyte.jojo.mechanics.clothes.sewing.client.SewingMachineScreen;
+import com.github.standobyte.jojo.mechanics.explorer_map_creation.client.CartographyExplorerMapMenuScreen;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -17,6 +18,7 @@ public class ModContainerScreensClient {
 	public static void registerScreens(RegisterMenuScreensEvent event) {
 		event.register(ModContainers.PLAYER_CLOTHES.get(), PlayerClothesScreen::new);
 		event.register(ModContainers.SEWING_MACHINE.get(), SewingMachineScreen::new);
+		event.register(ModContainers.CARTOGRAPHY_TABLE_EXPLORER.get(), CartographyExplorerMapMenuScreen::new);
 		event.register(ModContainers.NPC_INV_EXCHANGE.get(), NpcInventoryExchangeScreen.SCREEN_FACTORY);
 	}
 	

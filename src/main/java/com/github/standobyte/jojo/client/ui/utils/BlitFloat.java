@@ -9,10 +9,13 @@ import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -316,5 +319,35 @@ public class BlitFloat {
 
 	private static float lerpUV(float coord, float coord0, float coord1, float minUV, float maxUV) {
 		return (float) Mth.lerp(Mth.inverseLerp(coord, coord0, coord1), minUV, maxUV);
+	}
+
+	
+	public static void fill(PoseStack poseStack, 
+			float minX, float minY, float maxX, float maxY, float blitOffset, int color) {
+		fill(RenderType.gui(), poseStack, minX, minY, maxX, maxY, blitOffset, color);
+	}
+	
+	public static void fill(RenderType renderType, PoseStack poseStack, 
+			float minX, float minY, float maxX, float maxY, float blitOffset, int color) {
+		Matrix4f pose = poseStack.last().pose();
+		if (minX < maxX) {
+			float swap = minX;
+			minX = maxX;
+			maxX = swap;
+		}
+
+		if (minY < maxY) {
+			float swap = minY;
+			minY = maxY;
+			maxY = swap;
+		}
+
+		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+		VertexConsumer buffer = bufferSource.getBuffer(renderType);
+		buffer.addVertex(pose, minX, minY, blitOffset).setColor(color);
+		buffer.addVertex(pose, minX, maxY, blitOffset).setColor(color);
+		buffer.addVertex(pose, maxX, maxY, blitOffset).setColor(color);
+		buffer.addVertex(pose, maxX, minY, blitOffset).setColor(color);
+		//guiGraphics.flushIfUnmanaged();
 	}
 }

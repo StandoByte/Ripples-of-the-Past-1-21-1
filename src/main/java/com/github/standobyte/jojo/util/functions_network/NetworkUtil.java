@@ -198,6 +198,25 @@ public class NetworkUtil {
 		int value = varInt ? buf.readVarInt() : buf.readInt();
 		return OptionalInt.of(value);
 	}
+
+	public static void writeIntArray(FriendlyByteBuf buf, int[] array) {
+		buf.writeVarInt(array.length);
+
+		for (int i : array) {
+			buf.writeInt(i);
+		}
+	}
+
+	public static int[] readIntArray(FriendlyByteBuf buf) {
+        int i = buf.readVarInt();
+        int[] aint = new int[i];
+
+        for (int j = 0; j < aint.length; j++) {
+            aint[j] = buf.readInt();
+        }
+
+        return aint;
+	}
 	
 	
 	/** "Small" means less than 128 elements */

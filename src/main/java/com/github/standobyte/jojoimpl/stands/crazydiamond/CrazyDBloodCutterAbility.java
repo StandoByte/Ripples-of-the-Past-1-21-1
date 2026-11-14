@@ -1,5 +1,7 @@
 package com.github.standobyte.jojoimpl.stands.crazydiamond;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.sound.ClientsideSoundsHelper;
 import com.github.standobyte.jojo.client.sound.sounds.EntityLingeringSoundInstance;
@@ -12,9 +14,11 @@ import com.github.standobyte.jojo.powersystem.entityaction.ActionPhase;
 import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.type.EntityActionType;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
+import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbility;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
+import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.EntityComponentController;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
@@ -33,6 +37,13 @@ public class CrazyDBloodCutterAbility extends StandEntityAbility {
 	@Override
 	public ConditionCheck checkSpecificConditions(Power<?> power) {
 		LivingEntity user = power.getUser();
+		
+		@Nullable StandEntity standEntity = StandUtil.getSummonedStand(power);
+		if (standEntity != null) {
+			ConditionCheck distanceCondition = StandUtil.distanceCondition(standEntity, user, 2);
+			if (!distanceCondition.positive()) return distanceCondition;
+		}
+		
 		if (user.getHealth() >= user.getMaxHealth()
 				&& !(user instanceof Player player && player.getAbilities().invulnerable)) {
 			return ConditionCheck.createNegative("full_health");
@@ -62,15 +73,20 @@ public class CrazyDBloodCutterAbility extends StandEntityAbility {
 				cutter.setShootingPosOf(user);
 				cutter.setStandSkinIdFrom(standPower);
 				
+				LivingEntity aimingEntity = EntityComponentController.getControlledEntityOrThis(user);
 				Vec3 pos = cutter.position();
+				float xRot = aimingEntity.getXRot();
+				float yRot = aimingEntity.getYRot();
+				Vec3 lookAngle = aimingEntity.calculateViewVector(xRot, yRot);
+				
 				// TODO (blood cutter) offset it a bit to the right (doesn't work correctly when looking up/down but i wanna go sleep already)
-				pos = pos.add(user.getLookAngle().yRot((float) -Math.PI / 2).scale(0.25));
+				pos = pos.add(lookAngle.yRot((float) -Math.PI / 2).scale(0.25));
 				cutter.setPos(pos);
 				
 				// FIXME projectile inaccuracy
 				// FIXME stutter when shooting a projectile
 //				cutter.shootFromRotation(user, 1.5f, standEntity.getProjectileInaccuracy(1.0F));
-				cutter.shootFromRotation(user, 1.5f, 0);
+				cutter.shootFromRotation(user, xRot, yRot, 0, 1.5f, 0);
 				addProjectileWithStandStats(cutter);
 
 				if (standPower != null) {

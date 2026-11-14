@@ -167,7 +167,8 @@ public class StandVanillaClickInput {
 									0 /* TODO tie stand item cooldowns to the user's item cooldowns */) {
 
 								@Override
-								public void renderInside(GuiGraphics guiGraphics, float x, float y, Minecraft mc, float partialTick, int alpha) {
+								public void renderInside(GuiGraphics guiGraphics, float x, float y, Minecraft mc, 
+										float partialTick, int alpha, boolean showEmptyWindup) {
 									guiGraphics.renderItem(standEntity, item, (int) x + 3, (int) y + 3, 67);
 								}
 

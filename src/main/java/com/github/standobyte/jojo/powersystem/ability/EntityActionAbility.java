@@ -91,6 +91,8 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 	@ApiStatus.OverrideOnly
 	public void initActionFromConfig(EntityActionInstance action, Level level, 
 			LivingEntity powerUser, LivingEntity performer) {
+		action.buttonHoldingPhase = this.buttonHoldingPhase;
+		
 		var map = action.phasesLength;
 		if (!map.containsKey(ActionPhase.BUTTON_CHARGE))	map.put(ActionPhase.BUTTON_CHARGE,	buttonChargePhase.getAsFloat());
 		if (!map.containsKey(ActionPhase.WINDUP))			map.put(ActionPhase.WINDUP,			windupPhase.getAsFloat());
@@ -98,6 +100,7 @@ public class EntityActionAbility extends Ability implements EntityActionType {
 		if (!map.containsKey(ActionPhase.RECOVERY))			map.put(ActionPhase.RECOVERY,		recoveryPhase.getAsFloat());
 	}
 
+	// XXX (Molang formulas in config) replace these fields with config option that can parse Molang from file
 	protected MolangValue buttonChargePhase = new MolangValue.Literal(0);
 	protected MolangValue windupPhase = new MolangValue.Literal(0);
 	protected MolangValue performPhase = new MolangValue.Literal(1);

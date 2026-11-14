@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.github.standobyte.jojo.client.CustomRenderCreativeTab;
@@ -11,6 +13,7 @@ import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.init.power.ModStands;
+import com.github.standobyte.jojo.init.power.ModStandsMinor;
 import com.github.standobyte.jojo.mechanics.clothes.ClothesItem;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesDataComponent;
 import com.github.standobyte.jojo.mechanics.clothes.itemdata.ClothesSlotType;
@@ -34,17 +37,23 @@ public class ModItemsCreativeTab extends CreativeModeTab implements CustomRender
 	protected int standsRow = -1;
 	protected int clothesRow = -1;
 	protected int wipRow = -1;
+	protected int wipStandsRow = -1;
+	protected int wipEncounterStandsRow = -1;
 	public List<ItemLike> unfinishedItems = new ArrayList<>();
 
 	public ModItemsCreativeTab(Builder builder) {
 		super(builder);
 	}
+
+	public void addRegularItems(CreativeModeTab.ItemDisplayParameters parameters) {
+		super.buildContents(parameters);
+	}
 	
 	@Override
 	public void buildContents(CreativeModeTab.ItemDisplayParameters parameters) {
-		// add regular items
-		super.buildContents(parameters);
+		addRegularItems(parameters);
 
+		HolderLookup.Provider registries = parameters.holders();
 		this.displayItems = new ArrayList<>(getDisplayItems());
 		Collection<ItemStack> tabItems = getDisplayItems();
 		Collection<ItemStack> searchItems = getSearchTabDisplayItems();
@@ -84,7 +93,7 @@ public class ModItemsCreativeTab extends CreativeModeTab implements CustomRender
 		rowBreak(tabItems, true);
 		
 		// add Stand discs
-		addStands(tabItems, searchItems, parameters.holders());
+		addStands(tabItems, searchItems, registries);
 
 		clothesRow = rowCount(tabItems);
 		rowBreak(tabItems, true);
@@ -92,7 +101,7 @@ public class ModItemsCreativeTab extends CreativeModeTab implements CustomRender
 		// add clothes items
 		ClothesItem clothesFactory = ModItems.CLOTHES_BASE_ITEM.get();
 		
-		parameters.holders()
+		registries
 		.lookup(JojoRegistries.CLOTHES_SETS_REG_KEY)
 		.map(clothesSets -> clothesSets.listElements()).orElseGet(Stream::empty)
 		.sorted(Comparator.comparing(setHolder -> setHolder.value().getStoryPart().orElse(null), StoryPart.COMPARATOR))
@@ -127,21 +136,55 @@ public class ModItemsCreativeTab extends CreativeModeTab implements CustomRender
 			}
 		});
 		
-		if (!JojoMod.disableDevStuff() && !movedItems.isEmpty()) {
-			wipRow = rowCount(tabItems);
-			rowBreak(tabItems, true);
-			for (ItemLike wipItem : movedItems) {
-				ItemStack stack = new ItemStack(wipItem);
-				tabItems.add(stack);
-				searchItems.add(stack);
+		if (!JojoMod.disableDevStuff()) {
+			if (!movedItems.isEmpty()) {
+				wipRow = rowCount(tabItems);
+				rowBreak(tabItems, true);
+				for (ItemLike wipItem : movedItems) {
+					ItemStack stack = new ItemStack(wipItem);
+					tabItems.add(stack);
+					searchItems.add(stack);
+				}
+			}
+			
+			// placeholder stands
+			Map<String, List<StandType>> placeholderStandsByNamespace = StandType.getAllEnabledStands()
+					.filter(stand -> ModStands.ADD_TO_IN_DEV_CATEGORY_ANYWAY.contains(stand) && (ModStandsMinor.SHOW_IN_DEV_WITH_0_SKILLS || !stand.getUnlockableSkills().isEmpty()))
+					.collect(Collectors.groupingBy(stand -> stand.getId().getNamespace()));
+			for (var namespaceEntry : placeholderStandsByNamespace.entrySet()) {
+				String namespace = namespaceEntry.getKey();
+				List<ItemStack> stands = namespaceEntry.getValue().stream()
+						.map(StandInstance::new)
+						.sorted(discsOrder(registries))
+						.map(StandDiscItem::withStand)
+						.toList();
+				if (!stands.isEmpty()) {
+					switch (namespace) {
+						case JojoMod.MOD_ID -> {
+							wipStandsRow = rowCount(tabItems);
+							rowBreak(tabItems, true);
+							stands.forEach(item -> {
+								tabItems.add(item);
+								searchItems.add(item);
+							});
+						}
+						case "encounter" -> {
+							wipEncounterStandsRow = rowCount(tabItems);
+							rowBreak(tabItems, true);
+							stands.forEach(item -> {
+								tabItems.add(item);
+								searchItems.add(item);
+							});
+						}
+					}
+				}
 			}
 		}
 	}
 	
 	protected void addStands(Collection<ItemStack> tabItems, Collection<ItemStack> searchItems, HolderLookup.Provider holders) {
-		Stream<StandType> stands = StandType.getAllEnabledStands()
-				.filter(stand -> !ModStands.EXCLUDE_FROM_CREATIVE_TAB.contains(stand));
-		stands
+		StandType.getAllEnabledStands()
+		.filter(stand -> !ModStands.DONT_ADD_DISC_TO_MAIN_CREATIVE_TAB.contains(stand))
 		.map(StandInstance::new)
 		.sorted(discsOrder(holders))
 		.map(StandDiscItem::withStand)
@@ -177,6 +220,7 @@ public class ModItemsCreativeTab extends CreativeModeTab implements CustomRender
 
 	public static final ResourceLocation CATEGORY_STANDS = JojoMod.resLoc("textures/gui/container/creative_stands.png");
 	public static final ResourceLocation CATEGORY_CLOTHES = JojoMod.resLoc("textures/gui/container/creative_clothes.png");
+	public static final ResourceLocation CATEGORY_GENERIC = JojoMod.resLoc("textures/gui/container/creative_separator.png");
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick, 
 			CreativeModeInventoryScreen screen, int rowScrolled) {
@@ -194,17 +238,24 @@ public class ModItemsCreativeTab extends CreativeModeTab implements CustomRender
 					screen);
 		}
 		
-		if (clothesRow >= 0) {
-			renderCategoryNameAt(guiGraphics, clothesRow - rowScrolled, 
-					CATEGORY_CLOTHES, 
-					Component.translatable("jojo_ripples.menu.player.clothes"),
+		if (wipRow >= 0) {
+			renderCategoryNameAt(guiGraphics, wipRow - rowScrolled, 
+					CATEGORY_GENERIC, 
+					Component.literal("Not yet implemented"),
 					screen);
 		}
 		
-		if (wipRow >= 0) {
-			renderCategoryNameAt(guiGraphics, wipRow - rowScrolled, 
-					CATEGORY_CLOTHES, 
-					Component.literal("Not yet implemented"),
+		if (wipStandsRow >= 0) {
+			renderCategoryNameAt(guiGraphics, wipStandsRow - rowScrolled, 
+					CATEGORY_GENERIC, 
+					Component.literal("Placeholder Stands"),
+					screen);
+		}
+		
+		if (wipEncounterStandsRow >= 0) {
+			renderCategoryNameAt(guiGraphics, wipEncounterStandsRow - rowScrolled, 
+					CATEGORY_GENERIC, 
+					Component.literal("Placeholder Stands (no exp)"),
 					screen);
 		}
 	}

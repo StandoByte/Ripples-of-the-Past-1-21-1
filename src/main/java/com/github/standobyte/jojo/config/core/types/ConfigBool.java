@@ -1,13 +1,20 @@
 package com.github.standobyte.jojo.config.core.types;
 
+import java.util.function.BooleanSupplier;
+
+import com.github.standobyte.jojo.config.BoolOrPlayerPref;
 import com.github.standobyte.jojo.config.core.ConfigOption;
+import com.github.standobyte.jojo.config.core.ModConfig.CommonConfigState;
 import com.github.standobyte.jojo.util.objects_java.DefaultedValue;
 import com.mojang.serialization.codecs.PrimitiveCodec;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.codec.ByteBufCodecs;
 
-public class ConfigBool extends ConfigOption<Boolean> {
+public class ConfigBool extends ConfigOption<Boolean> implements BooleanSupplier {
 	protected DefaultedValue.Bool value;
+	protected DefaultedValue.Bool remoteValue;
 
 	public ConfigBool(boolean defaultValue) {
 		super(PrimitiveCodec.BOOL, ByteBufCodecs.BOOL);
@@ -15,27 +22,56 @@ public class ConfigBool extends ConfigOption<Boolean> {
 	}
 
 	@Override
-	public Boolean get() {
-		return value.value;
+	public Boolean get(CommonConfigState cfgState) {
+		return getValueToUse(cfgState).value;
 	}
 	
+	@Override
 	public boolean getAsBoolean() {
-		return value.value;
+		return getValueToUse(cfgState).value;
 	}
 
 	@Override
-	public void set(Boolean value) {
-		this.value.value = value;
+	public void set(Boolean value, CommonConfigState cfgState) {
+		getValueToUse(cfgState).value = value;
 	}
 	
 	@Override
-	public boolean isDefault() {
-		return this.value.defaultValue == this.value.value;
+	public boolean isDefault(CommonConfigState cfgState) {
+		return getValueToUse(cfgState).value == getDefaultValue();
+	}
+	
+	public boolean getDefaultValue() {
+		return this.value.defaultValue;
 	}
 
 	@Override
-	public void reset() {
-		this.value.reset();
+	public void reset(CommonConfigState cfgState) {
+		getValueToUse(cfgState).reset();
+	}
+	
+	@Override
+	public void setRemoteState() {
+		remoteValue = new DefaultedValue.Bool(getDefaultValue());
+		super.setRemoteState();
+	}
+	
+	@Override
+	public void unsetRemoteState() {
+		remoteValue = null;
+		super.unsetRemoteState();
+	}
+	
+	protected DefaultedValue.Bool getValueToUse(CommonConfigState cfgState) {
+		return switch (cfgState) {
+			case LOCAL -> value;
+			case REMOTE -> remoteValue;
+		};
+	}
+	
+	
+	public MutableComponent makeButtonMessage(Component optionName, Boolean value) {
+		return BoolOrPlayerPref.optionStatus(optionName, value);
 	}
 
 }

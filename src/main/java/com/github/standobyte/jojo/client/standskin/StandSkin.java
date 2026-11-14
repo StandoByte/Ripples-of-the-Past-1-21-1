@@ -26,12 +26,14 @@ import com.github.standobyte.jojo.client.shader.core.ManualInitPostChain.PostCha
 import com.github.standobyte.jojo.client.sound.bgmloop.BgmTrackInfo;
 import com.github.standobyte.jojo.client.standskin.sound.CustomPathSound;
 import com.github.standobyte.jojo.client.standskin.text.CustomLangTranslatableContents;
+import com.github.standobyte.jojo.client.standskin.text.StandSkinComponent;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.core.JojoRegistries;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.subsystems.StoryPart;
 import com.github.standobyte.jojo.util.objects_mc.WeightsList;
 import com.mojang.blaze3d.pipeline.RenderTarget;
@@ -60,6 +62,7 @@ public class StandSkin {
 	public final boolean isDefault;
 	public final Optional<ResourceLocation> nonDefaultId;
 	protected final ResourcePathChecker standTexture;
+	protected final ResourcePathChecker standGlowTexture;
 	@Nullable protected final StandSkinColor color;
 	protected final Optional<ResourceLocation> storyPart;
 	
@@ -97,6 +100,9 @@ public class StandSkin {
 		this.standTexture = remapAssetPath(ResourceLocation.fromNamespaceAndPath(
 				standId.getNamespace(), 
 				"textures/entity/" + standId.getPath() + ".png"));
+		this.standGlowTexture = remapAssetPath(ResourceLocation.fromNamespaceAndPath(
+				standId.getNamespace(),
+				"textures/entity/" + standId.getPath() + "_glow.png"));
 		this.isDefault = skinId.equals(standId);
 		this.nonDefaultId = isDefault ? Optional.empty() : Optional.of(skinId);
 		this.color = color;
@@ -233,6 +239,10 @@ public class StandSkin {
 		return null;
 	}
 	
+	public MutableComponent getStandName() {
+		return StandSkinComponent.translatable(standTypeId, getNonDefaultId(), StandType.makeTlKey(standTypeId));
+	}
+	
 	public ResourceLocation getTexture(ResourceLocation path) {
 		return getTexture(path, path);
 	}
@@ -255,7 +265,18 @@ public class StandSkin {
 			return this.standTexture.or(defaultTex);
 		}
 	}
-	
+
+	@Nullable
+	public ResourceLocation getStandGlowTexture() {
+		if (this.standGlowTexture.resourceExists()) {
+			return this.standGlowTexture.path;
+		}
+		if (this != defaultSkin && defaultSkin != null) {
+			return defaultSkin.getStandGlowTexture();
+		}
+		return null;
+	}
+
 	public <M extends Model> M getModel(ResourceLocation modelPath, Function<LayerDefinition, M> newModelFactory) {
 		LoadedModel model = getModel(modelPath);
 		return model != null ? model.getMainModel(newModelFactory) : null;

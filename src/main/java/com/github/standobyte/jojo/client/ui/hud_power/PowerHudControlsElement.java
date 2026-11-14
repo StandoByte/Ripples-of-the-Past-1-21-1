@@ -30,7 +30,6 @@ import com.github.standobyte.jojo.client.textsymbols.IconSymbols;
 import com.github.standobyte.jojo.client.ui.DrawHotbar;
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHud.AbilityHud;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
-import com.github.standobyte.jojo.client.ui.utils.DrawRect;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.TextUtil;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
@@ -47,6 +46,7 @@ import com.github.standobyte.jojo.powersystem.ability.controls.InputMethod;
 import com.github.standobyte.jojo.powersystem.ability.cooldown.AbilityCooldownTracker;
 import com.github.standobyte.v1_21_4_stuff.missingmethods.ARGB;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.ChatFormatting;
@@ -58,6 +58,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.BelowOrAboveWidgetTooltipPositioner;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FastColor;
@@ -151,7 +152,8 @@ public class PowerHudControlsElement extends HudElement {
 			this.cooldownRatio = cooldownRatio;
 		}
 
-		public void renderInside(GuiGraphics guiGraphics, float x, float y, Minecraft mc, float partialTick, int alpha) {}
+		public void renderInside(GuiGraphics guiGraphics, float x, float y, Minecraft mc, 
+				float partialTick, int alpha, boolean showEmptyWindup) {}
 		
 		public void addHoverTooltip(List<Component> tooltipLines, Component keyName) {
 			tooltipLines.add(keybindAbilityName.copy().withStyle(ChatFormatting.BLACK));
@@ -180,7 +182,8 @@ public class PowerHudControlsElement extends HudElement {
 		}
 		
 		@Override
-		public void renderInside(GuiGraphics guiGraphics, float x, float y, Minecraft mc, float partialTick, int alpha) {
+		public void renderInside(GuiGraphics guiGraphics, float x, float y, Minecraft mc, 
+				float partialTick, int alpha, boolean showEmptyWindup) {
 			AbilityConditionCheck abilityCheck = this.ability;
 			Ability ability = abilityCheck.ability;
 			TextureAtlasSprite sprite = this.sprite;
@@ -194,7 +197,7 @@ public class PowerHudControlsElement extends HudElement {
 
 			if (mc.player != null) {
 				WindupIndicator windup = ability.cl_windupIndicator(mc.player, windupIndicator, partialTick);
-				if (windup != null) {
+				if (windup != null && (windup.value > 0 || showEmptyWindup)) {
 					renderWindupIndicator(guiGraphics, x + 13, y + 13, windup.value, windup.maxValue, mc, alpha);
 					WindupAtCrosshair.setRender(windup);
 				}
@@ -205,7 +208,7 @@ public class PowerHudControlsElement extends HudElement {
 		public void addHoverTooltip(List<Component> tooltipLines, Component keyName) {
 			Ability ability = this.ability.ability;
 			Power<?> power = ClientPowerCache.getPower(ability.abilityId.powerClass());
-			Component abilityName = ability.getName(power);
+			Component abilityName = ability.getNameWithContext(power);
 			Component line = Component.translatable("ripples_hud.key_ability", keyName, abilityName)
 					.withStyle(ChatFormatting.BLACK);
 			tooltipLines.add(line);
@@ -529,9 +532,9 @@ public class PowerHudControlsElement extends HudElement {
 				Power<?> userPower = ClientPowerCache.getPower(abilityId.powerClass());
 				float cooldown = cooldowns != null ? cooldowns.getCooldownRatio(abilityId, partialTick) : 0;
 
-				AbilityBindUI bindUI = new MovesetAbilityBindUI(abilityCtx, abilitySprites.getAbilityIcon(ability, userPower, standSkin),
+				AbilityBindUI bindUI = new MovesetAbilityBindUI(abilityCtx, abilitySprites.getAbilityIconWithContext(ability, userPower, standSkin),
 						key, modifier, inputMethod,
-						bindName, Component.translatable("ripples_hud.key_ability", bindName, ability.getName(userPower)),
+						bindName, Component.translatable("ripples_hud.key_ability", bindName, ability.getNameWithContext(userPower)),
 						cooldown);
 
 				return bindUI;
@@ -584,7 +587,7 @@ public class PowerHudControlsElement extends HudElement {
 				AbilityBindUI abilityUI = abilitySprite.getValue();
 				boolean greenHighlight = abilityUI.greenHighlight();
 				DrawHotbar.drawHotbarSlot(hotbarLength, i, greenHighlight, guiGraphics.pose(), x, y, alpha);
-				renderAbility(guiGraphics, x, y, abilityUI, mc, partialTick, alpha);
+				renderAbility(guiGraphics, x, y, abilityUI, mc, partialTick, alpha, true);
 
 				boolean isClicked = switch (abilityUI.inputMethod) {
 					case CLICK -> {
@@ -635,13 +638,14 @@ public class PowerHudControlsElement extends HudElement {
 				Runnable drawSelection = null;
 				for (HotbarSlotUI slot : hotbar.slots) {
 					AbilityBindUI abilityUI = slot.sprite;
+					boolean isSelected = slot == hotbar.selected;
 					boolean greenHighlight = abilityUI != null && abilityUI.greenHighlight();
 					DrawHotbar.drawHotbarSlot(hotbarLength, i, greenHighlight, guiGraphics.pose(), x, y, alpha);
 					if (abilityUI != null) {
-						renderAbility(guiGraphics, x, y, abilityUI, mc, partialTick, alpha);
+						renderAbility(guiGraphics, x, y, abilityUI, mc, partialTick, alpha, isSelected);
 					}
 					
-					if (slot == hotbar.selected) {
+					if (isSelected) {
 						int _x = x;
 						int _y = y;
 						drawSelection = () -> {
@@ -692,14 +696,17 @@ public class PowerHudControlsElement extends HudElement {
 		RenderSystem.disableBlend();
 	}
 
-	public static void renderAbility(GuiGraphics guiGraphics, float x, float y, AbilityBindUI abilityUi, Minecraft mc, float partialTick, int alpha) {
-		abilityUi.renderInside(guiGraphics, x, y, mc, partialTick, alpha);
+	public static void renderAbility(GuiGraphics guiGraphics, float x, float y, AbilityBindUI abilityUi, Minecraft mc, 
+			float partialTick, int alpha, boolean showEmptyWindup) {
+		abilityUi.renderInside(guiGraphics, x, y, mc, partialTick, alpha, showEmptyWindup);
 	}
 	
 	public static void renderCooldown(GuiGraphics guiGraphics, float bindX, float bindY, float cooldownRatio) {
 		if (cooldownRatio > 0) {
-			DrawRect.fillSingleRect(guiGraphics, 
-					bindX + 3, bindY + 3 + 16.0F * (1.0F - cooldownRatio), 16, 16.0F * cooldownRatio, 0x80FFFFFF);
+			float yOffset = 16.0F * (1.0F - cooldownRatio);
+			BlitFloat.fill(RenderType.guiOverlay(), guiGraphics.pose(), 
+					bindX + 3, bindY + 3 + yOffset, 
+					bindX + 19, bindY + 19, Ability.ABILITY_ICON_BLIT_OFFSET, 0x80FFFFFF);
 		}
 	}
 	
@@ -715,19 +722,30 @@ public class PowerHudControlsElement extends HudElement {
 				ratio = Mth.clamp(value / maxValue, 0, 1);
 			}
 			
-			BlitFloat.blitRadial(guiGraphics.pose(), mc, WINDUP_EMPTY.file, 
-					x, y, WINDUP_EMPTY.width, WINDUP_EMPTY.height, 10, 
-					ratio * (float) Math.PI * 2, 1 - ratio, color);
-			
-			BlitFloat.blitRadial(guiGraphics.pose(), mc, WINDUP_FULL.file, 
-					x, y, WINDUP_FULL.width, WINDUP_FULL.height, 10, 
-					0, ratio, color);
+			renderRadialIndicator(guiGraphics.pose(), x, y, 10, ratio, color);
 		}
 	}
 	
 	public static final GuiIcon WINDUP_EMPTY = new GuiIcon(JojoMod.resLoc("textures/gui/windup_empty.png"), 13, 13);
 	public static final GuiIcon WINDUP_FULL = new GuiIcon(JojoMod.resLoc("textures/gui/windup_full.png"), 13, 13);
 
+	public static void renderRadialIndicator(PoseStack poseStack, 
+			float x, float y, float blitOffset, float ratio, int color) {
+		renderRadialIndicator(poseStack, WINDUP_EMPTY, WINDUP_FULL, x, y, blitOffset, ratio, color);
+	}
+
+	public static void renderRadialIndicator(PoseStack poseStack, GuiIcon emptySprite, GuiIcon fullSprite, 
+			float x, float y, float blitOffset, float ratio, int color) {
+		Minecraft mc = Minecraft.getInstance();
+		
+		BlitFloat.blitRadial(poseStack, mc, emptySprite.file, 
+				x, y, emptySprite.width, emptySprite.height, blitOffset, 
+				ratio * (float) Math.PI * 2, 1 - ratio, color);
+		
+		BlitFloat.blitRadial(poseStack, mc, fullSprite.file, 
+				x, y, fullSprite.width, fullSprite.height, blitOffset, 
+				0, ratio, color);
+	}
 
 
 

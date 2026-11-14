@@ -128,10 +128,10 @@ public class StandInitCrazyDiamond {
 				.addSkill(StandUnlockableSkill.startingAbility("barrage"))
 				.addSkill(StandUnlockableSkill.startingAbility("heavy_punch"))
 				.addSkill(StandUnlockableSkill.unlockableAbility("hit_armor_fix", 200).setNotYetImplemented().prerequisiteSkill("repair_item", "heavy_punch"))
-				.addSkill(StandUnlockableSkill.startingAbility("finisher").prerequisiteSkill("heavy_punch"))
+				.addSkill(StandUnlockableSkill.startingAbility("finisher"))
 				.addSkill(StandUnlockableSkill.unlockableAbility("mishealing_punch", 200).setNotYetImplemented().prerequisiteSkill("heal", "finisher"))
-				.addSkill(StandUnlockableSkill.unlockableAbility("fuse_with_rock", 200).setNotYetImplemented().prerequisiteSkill("heal", "restore_terrain", "finisher"))
-				.addSkill(StandUnlockableSkill.startingAbility("heavy_charged").prerequisiteSkill("heavy_punch"))
+				.addSkill(StandUnlockableSkill.unlockableAbility("fuse_with_rock", 200).setNotYetImplemented().prerequisiteSkill("restore_terrain", "heal", "finisher"))
+				.addSkill(StandUnlockableSkill.startingAbility("heavy_charged"))
 				.addSkill(StandUnlockableSkill.unlockableAbility("leave_object", 200).setNotYetImplemented().prerequisiteSkill("heal", "heavy_charged"))
 
 				.addSkill(StandUnlockableSkill.startingAbility("grab").setIncomplete())
@@ -139,24 +139,28 @@ public class StandInitCrazyDiamond {
 				
 				.addSkill(StandUnlockableSkill.startingAbility("guard").setIncomplete())
 				
+				.addManualControlSkill()
+				.addSkill(new StandUnlockableSkill("item_use").setIsStartingSkill())
+				
+				.addSkill(StandUnlockableSkill.unlockableAbility("leap", 250).setNotYetImplemented())
+				.addSkill(StandUnlockableSkill.startingAbility("ledge_grab").setNotYetImplemented())
+				
+				
 				.addSkill(StandUnlockableSkill.startingAbility("repair_item"))
 
 				.addSkill(StandUnlockableSkill.unlockableAbility("heal", 100))
-				.addSkill(StandUnlockableSkill.unlockableAbility("revert_state", 100).setNotYetImplemented().prerequisiteSkill("heal", "restore_terrain"))
-				.addSkill(StandUnlockableSkill.unlockableAbility("uncraft", 0).prerequisiteSkill("repair_item", "revert_state"))
+				.addSkill(StandUnlockableSkill.unlockableAbility("fix_broken_entity", 0).setNotYetImplemented().prerequisiteSkill("heal"))
 
 				.addSkill(StandUnlockableSkill.unlockableAbility("restore_terrain", 150))
 				.addSkill(StandUnlockableSkill.unlockableAbility("block_anchor", 0).prerequisiteSkill("restore_terrain"))
 				.addSkill(StandUnlockableSkill.unlockableAbility("create_wall", 50).setNotYetImplemented().prerequisiteSkill("restore_terrain"))
+				
+				.addSkill(StandUnlockableSkill.unlockableAbility("revert_state", 100).setNotYetImplemented().prerequisiteSkill("restore_terrain", "heal"))
+				.addSkill(StandUnlockableSkill.unlockableAbility("uncraft", 0).prerequisiteSkill("revert_state", "repair_item"))
 
 				.addSkill(StandUnlockableSkill.unlockableAbility("block_bullet", 150))
-				.addSkill(StandUnlockableSkill.unlockableAbility("blood_cutter", 150))
-
-				.addSkill(StandUnlockableSkill.unlockableAbility("leap", 250).setNotYetImplemented())
-				.addSkill(StandUnlockableSkill.startingAbility("ledge_grab").setNotYetImplemented())
 				
-				.addSkill(StandUnlockableSkill.startingAbility("manual_control"))
-				.addSkill(new StandUnlockableSkill("item_use").setIsStartingSkill())
+				.addSkill(StandUnlockableSkill.unlockableAbility("blood_cutter", 150))
 
 				, id)
 			.discTooltipWIP()

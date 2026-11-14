@@ -200,6 +200,12 @@ public class CharacterProfileScreen extends Screen implements IJojoMenuScreen {
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
     	return infoLines.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
+	
+	@Override
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		if (closeOnKeybind(minecraft, keyCode, scanCode, modifiers)) return true;
+		return super.keyPressed(keyCode, scanCode, modifiers);
+	}
 
 
 

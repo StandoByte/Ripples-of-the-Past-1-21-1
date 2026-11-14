@@ -1,6 +1,7 @@
 package com.github.standobyte.jojoimpl.stands.theworld.timestop;
 
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
+import com.github.standobyte.jojo.powersystem.Moveset;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
@@ -47,7 +48,15 @@ public class TimeStopInvadeAbility extends Ability {
 	@Override
 	public void onClick(Level level, LivingEntity user, FriendlyByteBuf extraClientInput) {
 		// TODO a variation which stops as soon as the other time stop instances stop (Star Platinum asspull path)
-		TimeStopAbility.addTimeStopEffect(user, this, TimeStopAbility.getDuration(user), true);
+		if (!level.isClientSide()) {
+			StandPower standPower = StandPower.get(user);
+			if (standPower != null && standPower.hasPower()) {
+				Moveset moveset = standPower.getMoveset();
+				if (moveset.getAbility("time_stop") instanceof TimeStopAbility ability) {
+					TimeStopAbility.addTimeStopEffect(user, ability);
+				}
+			}
+		}
 	}
 
 }

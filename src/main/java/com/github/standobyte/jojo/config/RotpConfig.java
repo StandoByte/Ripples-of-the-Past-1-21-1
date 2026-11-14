@@ -1,20 +1,34 @@
 package com.github.standobyte.jojo.config;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.client.input.InputHandler;
 import com.github.standobyte.jojo.client.itemrender.ItemIconModels;
+import com.github.standobyte.jojo.client.ui.tutorial_toast.ToastsHelper;
 import com.github.standobyte.jojo.config.client.ClientModSettingsScreen;
 import com.github.standobyte.jojo.config.client.ClientModSettingsScreen.ConfigTabType;
 import com.github.standobyte.jojo.config.client.ConfigGuiHelper;
+import com.github.standobyte.jojo.config.client.ConfigGuiHelper.ConfigButton;
 import com.github.standobyte.jojo.config.client.RegisterRotpConfigScreenTabEvent;
+import com.github.standobyte.jojo.config.client.ScrollingStringButton;
+import com.github.standobyte.jojo.config.core.ModConfig;
 import com.github.standobyte.jojo.config.core.ModConfigType;
+import com.github.standobyte.jojo.config.core.types.ClientConfigKeyBinding;
 import com.github.standobyte.jojo.config.core.types.ConfigBool;
 import com.github.standobyte.jojo.config.core.types.ConfigEnum;
 import com.github.standobyte.jojo.config.core.types.ConfigFloat;
-import com.github.standobyte.jojo.config.core.types.ClientConfigKeyBinding;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.resolve.ClientResolveVisuals;
+import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
@@ -35,14 +49,16 @@ public class RotpConfig {
 		//public final ConfigBool hudHotbarFold = true;
 		//public final ConfigBool showLockedSlots = false;
 		public final ConfigBool abilitySelectionWheel = new ConfigBool(true);
+		public final ConfigBool rmbVanillaPriority = new ConfigBool(true);
+		public final ConfigBool tutorialEnabled = new ConfigBool(true)
+				.withOnChangeCallback(value -> {
+					if (!value) {
+						ToastsHelper.getInstance().hideAll();
+					}
+				}, false);
 
-		public final ConfigBool resolveShaders = new ConfigBool(true) {
-			@Override
-			public void set(Boolean value) {
-				super.set(value);
-				ClientResolveVisuals.onColorShiftSettingUpdated(value);
-			}
-		};
+		public final ConfigBool resolveShaders = new ConfigBool(true)
+				.withOnChangeCallback(ClientResolveVisuals::onColorShiftSettingUpdated, false);
 		//public final ConfigBool timeStopAnimation = true;
 		public final ConfigBool standMotionTilt = new ConfigBool(true);
 		//public final ConfigBool poseOnLmbRmb = true;
@@ -81,7 +97,16 @@ public class RotpConfig {
 	}
 
 	public final static class ClientBroadcast {
-		//public final ConfigEnum<HumanoidArm> standSide = HumanoidArm.LEFT;
+		public final ConfigEnum<HumanoidArm> standSide = new ConfigEnum<>(HumanoidArm.class, HumanoidArm.LEFT);
+		public final ConfigEnum<StandIdleRotation> standIdleRotRelative = new ConfigEnum<>(StandIdleRotation.class, StandOffsetFromUser.CONFIG_DEFAULT)
+				.withOnChangeCallback((value, player) -> {
+					if (player != null) {
+						StandEntity summonedStand = StandUtil.getSummonedStand(player);
+						if (summonedStand != null) {
+							summonedStand.offsetFromUser.updateFromUserConfig(player);
+						}
+					}
+				});
 		public final ConfigBool standBreaksBlocks = new ConfigBool(true);
 		public final ConfigBool standPicksUpItems = new ConfigBool(true);
 		public final ConfigBool standMovesBeyondEffRange = new ConfigBool(true);
@@ -89,6 +114,8 @@ public class RotpConfig {
 	}
 	
 	public static class Common {
+		public final ConfigEnum<ClothesArmorPriority> clothesArmorPriority = new ConfigEnum<>(ClothesArmorPriority.CLOTHES);
+		
 		//public final ConfigBool keepStandOnDeath;
 		//public final ConfigBool keepHamonOnDeath;
 		//public final ConfigBool keepVampirismOnDeath;
@@ -126,7 +153,8 @@ public class RotpConfig {
 		//private List<ResourceLocation> bannedStandsResLocs;
 
 		//public final ConfigBool abilitiesBreakBlocks;
-		//public final ConfigFloat standDamageMultiplier;
+		//public final ConfigFloat standDamageMultiplier = new ConfigFloat(1).initNonNegative();
+		public final ConfigFloat standExpGainMultiplier = new ConfigFloat(1).initNonNegative();
 		//public final ConfigFloat standResistanceMultiplier;
 		//public final ConfigBool skipStandProgression;
 		public final ConfigEnum<BoolOrPlayerPref> standsBreakBlocks = new ConfigEnum<>(BoolOrPlayerPref.class, BoolOrPlayerPref.PLAYER_PREFERENCE);
@@ -140,6 +168,9 @@ public class RotpConfig {
 		//public final ConfigBool saveDestroyedBlocks;
 		//public final ConfigBool spawnCocoJumboTurtle;
 	}
+	
+	public enum StandIdleRotation { HEAD, BODY }
+	public enum ClothesArmorPriority { CLOTHES, ARMOR }
 	
 	public static boolean canStandBreakBlocks(LivingEntity playerUser) {
 		var config = JojoMod.config;
@@ -162,23 +193,40 @@ public class RotpConfig {
 		
 		@SubscribeEvent
 		public static void register(RegisterRotpConfigScreenTabEvent event) {
-			event.register(RotpConfig.ID, (ConfigTabType configTab, ClientModSettingsScreen screen) -> {
-				ModConfigInterface<RotpConfig.Client, RotpConfig.ClientBroadcast, RotpConfig.Common> config = JojoMod.config;
-				ConfigGuiHelper helper = new ConfigGuiHelper(screen, RotpConfig.ID, config);
-				
+			event.register(RotpConfig.ID, (ClientModSettingsScreen screen, ConfigTabType configTab, @Nullable StandType standInStandTab) -> {
 				switch (configTab) {
 					case CLIENT -> {
-						RotpConfig.Client client = config.getClient();
-						RotpConfig.ClientBroadcast clientBroadcast = config.getPlayerBroadcast(null);
+						ConfigGuiHelper helper = new ConfigGuiHelper(screen, RotpConfig.ID);
+						helper.addModSettingsList(JojoMod.config);
 						
-						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.hud"));
+						RotpConfig.Client client = JojoMod.config.getClient();
+						RotpConfig.ClientBroadcast clientBroadcast = JojoMod.config.getPlayerBroadcast(null);
+						
+						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.controls"));
 						helper.addBooleanOptionButton(client.abilitySelectionWheel, ModConfigType.CLIENT, "ability_selection_wheel");
+						ConfigButton rmbVanillaPrioButton = helper.addBooleanOptionButton(client.rmbVanillaPriority, ModConfigType.CLIENT, "rmb_vanilla_priority");
+						KeyMapping disableHUDControls = InputHandler.getInstance().vanillaKeybinds.disableHUDControls;
+						if (!disableHUDControls.isUnbound()) {
+							rmbVanillaPrioButton.tooltip.body.add(
+									Component.translatable("jojo_ripples.config.client.rmbVanillaPriority.tooltip2", 
+											Component.translatable("jojo_ripples.config.client.rmbVanillaPriority.tooltip2."
+													+ (client.toggleDisableHotbars.getAsBoolean() ? "toggle" : "hold")),
+											Component.keybind(disableHUDControls.getName()))
+									.withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
+						}
+						helper.addBooleanOptionButton(client.tutorialEnabled, ModConfigType.CLIENT, null);
+						helper.addButton(new ScrollingStringButton(-1, -1, -1, -1, 
+								Component.translatable("jojo_ripples.config.client.tutorialReset"), 
+								b -> ToastsHelper.getInstance().resetTutorial(), 
+								Tooltip.create(Component.translatable("jojo_ripples.config.client.tutorialReset.tooltip"))));
 						
 						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.stand"));
-						helper.addBooleanOptionButton(config.getClient().standAimMarker, ModConfigType.CLIENT, "stand_aim_marker");
-						helper.addBooleanOptionButton(config.getClient().standMotionTilt, ModConfigType.CLIENT, null);
-						helper.addBooleanOptionButton(config.getClient().standAura, ModConfigType.CLIENT, null);
-						helper.addBooleanOptionButton(config.getClient().resolveShaders, ModConfigType.CLIENT, null);
+						helper.addEnumOptionButton(clientBroadcast.standSide, ModConfigType.CLIENT_BROADCAST, null);
+						helper.addEnumOptionButton(clientBroadcast.standIdleRotRelative, ModConfigType.CLIENT_BROADCAST, null);
+						helper.addBooleanOptionButton(client.standAimMarker, ModConfigType.CLIENT, "stand_aim_marker");
+						helper.addBooleanOptionButton(client.standMotionTilt, ModConfigType.CLIENT, null);
+						helper.addBooleanOptionButton(client.standAura, ModConfigType.CLIENT, null);
+						helper.addBooleanOptionButton(client.resolveShaders, ModConfigType.CLIENT, null);
 						
 						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.hamon"));
 						
@@ -186,12 +234,29 @@ public class RotpConfig {
 						helper.addBooleanOptionButton(clientBroadcast.vampireGlowingEyes_tmp, ModConfigType.CLIENT_BROADCAST, "vampire_glowing_eyes");
 					}
 					case COMMON -> {
-						RotpConfig.Common common = config.getCommon();
+						ConfigGuiHelper helper = new ConfigGuiHelper(screen, RotpConfig.ID);
+						helper.addModSettingsList(JojoMod.config);
+						
+						RotpConfig.Common common = JojoMod.config.getCommon();
+						
+						helper.addEnumOptionButton_dynIcon(common.clothesArmorPriority, ModConfigType.COMMON, 
+								priority -> switch (priority) {
+									case CLOTHES -> "armor_clothes__clothes";
+									case ARMOR -> "armor_clothes__armor";
+								});
 						
 						helper.addCategoryTitle(Component.translatable("jojo_ripples.options.client.stand"));
 						helper.addBooleanOrPlayerPreferenceOptionButton(common.standsBreakBlocks, ModConfigType.COMMON, "stands_break_blocks");
 						helper.addBooleanOptionButton(common.dropStandAsDisc, ModConfigType.COMMON, "stand_disc");
 						helper.addBooleanOptionButton(common.standStamina, ModConfigType.COMMON, "stand_stamina");
+						//helper.addNumericField(common.standDamageMultiplier, ModConfigType.COMMON, null);
+						helper.addNumericField(common.standExpGainMultiplier, ModConfigType.COMMON, null);
+					}
+					case STANDS -> {
+						ConfigGuiHelper helper = new ConfigGuiHelper(screen, RotpConfig.ID);
+						
+						ModConfig<?, ?, ?> standConfig = ConfigGuiHelper.getStandConfig(standInStandTab);
+						helper.generateStandConfigUI(RotpConfig.ID, standInStandTab, standConfig);
 					}
 				}
 				

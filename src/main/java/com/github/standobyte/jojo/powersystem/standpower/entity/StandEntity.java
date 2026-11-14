@@ -272,6 +272,10 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			entityData.set(USER_ID, user.getId());
 		}
 		this.userPower = power;
+		
+		if (offsetFromUser != null) {
+			offsetFromUser.updateFromUserConfig(user);
+		}
 	}
 	
 	@Override
@@ -439,7 +443,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			case BLOCK -> {
 				yield Vec3.atCenterOf(target.getBlockPos());
 			}
-			default -> null;
+			case EMPTY -> null;
 		};
 	}
 	
@@ -745,6 +749,7 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 			.add(ModEntityAttributes.STAND_MAX_RANGE, 4)
 			.add(ModEntityAttributes.STAND_DURABILITY, 8)
 			.add(ModEntityAttributes.STAND_PRECISION, 8)
+			.add(ModEntityAttributes.CAN_ATTACK_STANDS, 1)
 			.add(Attributes.LUCK)
 			.add(Attributes.BLOCK_BREAK_SPEED)
 			.add(Attributes.SUBMERGED_MINING_SPEED)

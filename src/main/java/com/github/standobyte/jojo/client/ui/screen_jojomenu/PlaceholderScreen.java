@@ -59,5 +59,11 @@ public class PlaceholderScreen extends Screen implements IJojoMenuScreen {
 		if (clickTab(mouseX, mouseY, button, this)) return true;
 		return super.mouseClicked(mouseX, mouseY, button);
 	}
+	
+	@Override
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		if (closeOnKeybind(minecraft, keyCode, scanCode, modifiers)) return true;
+		return super.keyPressed(keyCode, scanCode, modifiers);
+	}
 
 }

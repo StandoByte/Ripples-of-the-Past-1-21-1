@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.init;
 
+import com.github.standobyte.jojo.config.stand.datapack.DataDrivenStandsLoader;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.powersystem.standpower.datapack.DataDrivenStandsLoader;
 
 import net.minecraft.server.MinecraftServer;
 import net.neoforged.bus.api.SubscribeEvent;

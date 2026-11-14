@@ -34,7 +34,7 @@ public record StandSkinSoundPacket(Vec3 position, Holder<SoundEvent> sound,
 		if (stand == null) return null;
 		
 		return new StandSkinSoundPacket(position, sound, 
-				stand.getStandType().getId(), stand.getSelectedSkin(), 
+				stand.getStandId(), stand.getSelectedSkin(), 
 				soundCategory, volume, pitch);
 	}
 	

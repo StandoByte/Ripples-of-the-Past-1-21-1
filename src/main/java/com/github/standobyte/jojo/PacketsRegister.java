@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.config.internal.packets.ClCommonServerConfigRe
 import com.github.standobyte.jojo.config.internal.packets.ClPlayerBroadcastConfigPacket;
 import com.github.standobyte.jojo.config.internal.packets.PlayerBroadcastConfigPacket;
 import com.github.standobyte.jojo.config.internal.packets.RemoteCommonConfigPacket;
+import com.github.standobyte.jojo.config.internal.packets.RemoteHostUUIDConfigPacket;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.customobjects.explosion.CustomExplosionPacket;
 import com.github.standobyte.jojo.entityattachment.custom_effect.TrEntityCustomEffectsPacket;
@@ -16,15 +17,19 @@ import com.github.standobyte.jojo.entityattachment.custom_effect.sync.TrStandEff
 import com.github.standobyte.jojo.entityattachment.syncheddata.SynchedDataPacket;
 import com.github.standobyte.jojo.mechanics.clothes.TrClothesItemsPacket;
 import com.github.standobyte.jojo.mechanics.clothes.sewing.ClSetSewingMachineItemPacket;
+import com.github.standobyte.jojo.mechanics.explorer_map_creation.packets.ClCartographyContainerModePacket;
+import com.github.standobyte.jojo.mechanics.explorer_map_creation.packets.ClExplorerMapDataPacket;
 import com.github.standobyte.jojo.mechanics.jojopose.ClJojoPoseActionPacket;
 import com.github.standobyte.jojo.mechanics.resolve.ClActivateResolvePacket;
 import com.github.standobyte.jojo.mechanics.resolve.TrResolvePacket;
 import com.github.standobyte.jojo.mechanics.voiceline.PlayVoiceLinePacket;
 import com.github.standobyte.jojo.network.c2s.ClAbilityInputPacket;
+import com.github.standobyte.jojo.network.c2s.ClActivePowerPacket;
 import com.github.standobyte.jojo.network.c2s.ClAimTargetPacket;
 import com.github.standobyte.jojo.network.c2s.ClDebugCommandPacket;
 import com.github.standobyte.jojo.network.c2s.ClNoParamsPacket;
 import com.github.standobyte.jojo.network.c2s.ClSetStandSkinPacket;
+import com.github.standobyte.jojo.network.s2c.ActivePowerPacket;
 import com.github.standobyte.jojo.network.s2c.BloodParticlesPacket;
 import com.github.standobyte.jojo.network.s2c.BrokenBlocksParticlesAndSoundsPacket;
 import com.github.standobyte.jojo.network.s2c.DamageEventExtendedPacket;
@@ -93,6 +98,7 @@ public class PacketsRegister {
 	public static void register(RegisterPayloadHandlersEvent event) {
 		PayloadRegistrar registrar = event.registrar("1");
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClAbilityInputPacket.Handler(JojoMod.resLoc("clkey")));
+		registerPacket(registrar, PayloadRegistrar::playToServer, new ClActivePowerPacket.Handler(JojoMod.resLoc("clpwrmode")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClNoParamsPacket.Handler(JojoMod.resLoc("clsignal")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClAimTargetPacket.Handler(JojoMod.resLoc("clientaim")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClLearnSkillPacket.Handler(JojoMod.resLoc("cllearnskill")));
@@ -108,6 +114,8 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClNpcDebugFlagTogglePacket.Handler(JojoMod.resLoc("clnpcdebug")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClStandItemInputPacket.Handler(JojoMod.resLoc("clstanditem")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClSetSewingMachineItemPacket.Handler(JojoMod.resLoc("clsewingitem")));
+		registerPacket(registrar, PayloadRegistrar::playToServer, new ClCartographyContainerModePacket.Handler(JojoMod.resLoc("clmaptable")));
+		registerPacket(registrar, PayloadRegistrar::playToServer, new ClExplorerMapDataPacket.Handler(JojoMod.resLoc("clmapdata")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClExtendedContainerClickPacket.Handler(JojoMod.resLoc("clslotclick")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClJojoPoseActionPacket.Handler(JojoMod.resLoc("cljjpose")));
 		registerPacket(registrar, PayloadRegistrar::playToServer, new ClCommonServerConfigEditPacket.Handler(JojoMod.resLoc("clcfgedit")));
@@ -116,6 +124,7 @@ public class PacketsRegister {
 
         registerPacket(registrar, PayloadRegistrar::playToClient, new EntityToggleTagsPacket.Handler(JojoMod.resLoc("tag")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new DatapackStandsPacket.Handler(JojoMod.resLoc("datastands")));
+        registerPacket(registrar, PayloadRegistrar::playToClient, new ActivePowerPacket.Handler(JojoMod.resLoc("pwrmode")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrAbilityUsePacket.Handler(JojoMod.resLoc("abilityuse")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrEntityActionInstancePacket.Handler(JojoMod.resLoc("action")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new TrActionSynchedDataPacket.Handler(JojoMod.resLoc("actiondata")));
@@ -170,6 +179,7 @@ public class PacketsRegister {
 		registerPacket(registrar, PayloadRegistrar::playToClient, new PlayBgmCommand.PlayBgmCommandPacket.Handler(JojoMod.resLoc("bgm")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new ItemBreakVisualsPacket.Handler(JojoMod.resLoc("itemparticle")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new RemoteCommonConfigPacket.Handler(JojoMod.resLoc("cfgcommon")));
+		registerPacket(registrar, PayloadRegistrar::playToClient, new RemoteHostUUIDConfigPacket.Handler(JojoMod.resLoc("lanhost")));
 		registerPacket(registrar, PayloadRegistrar::playToClient, new PlayerBroadcastConfigPacket.Handler(JojoMod.resLoc("cfgplayer")));
 	}
 

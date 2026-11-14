@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.entityrender.ModelUtil;
+import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.entityattachment.TickingEntityData;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
@@ -14,6 +15,9 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.jojo.util.functions.UtilFunctions;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
@@ -21,8 +25,12 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.RenderLivingEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -154,63 +162,90 @@ public class LivingComponentGrab implements TickingEntityData {
 		this.yBodyRotDiffWhenGrabbed = thisEntity.yBodyRot - yRot;
 	}
 	
-	protected static Vec3 armChokeOffset = new Vec3(0, -0.125, 0);
-	@ApiStatus.Internal
-	public void setGrabbedPos() {
+	
+	protected void setGrabbedPos(float partialTick) {
 		if (grabbingEntity != null) {
-			HumanoidArm grabbingArm = HumanoidArm.LEFT;
-			double neckY = -thisEntity.getBbHeight() * 0.8 - 0.125;
-			Vec3 grabOffset = new Vec3(0, neckY, 0);
-			
-			boolean useModelArmPos = grabbingEntity.level().isClientSide();
-			float yRot = grabbingEntity.yBodyRot;
-			yRot = -yRot * MathUtil.DEG_TO_RAD;
-			if (useModelArmPos) {
-				Vec3 animOffset = ModelUtil.getModelPartPos(
-						grabbingEntity, 
-						grabbingArm == HumanoidArm.LEFT ? "left_item" : "right_item", armChokeOffset);
-				if (animOffset != null) {
-					animOffset = animOffset.yRot(yRot);
-					grabOffset = grabOffset.add(animOffset);
-					// TODO (grab) sync the offset to the server?
-				}
-				else {
-					useModelArmPos = false;
-				}
-			}
-			
-			if (!useModelArmPos) {
-				grabOffset = grabOffset.add(new Vec3(grabbingArm == HumanoidArm.LEFT ? 0.2 : -0.2, 1.5, 0.875)
-						/* lifting the target up and down a bit from x rotation would be cool, 
-						 * but we'd have to also adjust the grab animations for this and it's a PITA, 
-						 * so unfortunately this goes into the "commented out" hell
-						 */
-						// .xRot(-grabbingEntity.getXRot() * MathUtil.DEG_TO_RAD)
-						.yRot(yRot));
-			}
+			Vec3 grabOffset = getGrabOffset(grabbingEntity, partialTick);
 			
 			Vec3 grabbedPos = grabbingEntity.position().add(grabOffset);
-			thisEntity.setPos(grabbedPos.x, grabbedPos.y, grabbedPos.z);
-			thisEntity.setDeltaMovement(Vec3.ZERO);
-			for (Entity passenger : thisEntity.getPassengers()) {
-				thisEntity.positionRider(passenger);
+			applyPos(thisEntity, grabbedPos);
+		}
+	}
+	
+	protected static Vec3 armChokeOffset = new Vec3(0, -0.125, 0);
+	// TODO add a way to override grab offset for external grab methods (Hermit Purple, Sticky Fingers, etc.)
+	protected Vec3 getGrabOffset(LivingEntity grabbingEntity, float partialTick) {
+		HumanoidArm grabbingArm = HumanoidArm.LEFT;
+		double neckY = -thisEntity.getBbHeight() * 0.8 - 0.125;
+		Vec3 grabOffset = new Vec3(0, neckY, 0);
+		
+		boolean useModelArmPos = grabbingEntity.level().isClientSide();
+		//float yRot = partialTick == 1 ? grabbingEntity.yBodyRot : Mth.lerp(partialTick, grabbingEntity.yBodyRotO, grabbingEntity.yBodyRot);
+		float yRot = grabbingEntity.yBodyRot;
+		yRot = -yRot * MathUtil.DEG_TO_RAD;
+		if (useModelArmPos) {
+			Vec3 animOffset = ModelUtil.getModelPartPos(
+					grabbingEntity, 
+					grabbingArm == HumanoidArm.LEFT ? "left_item" : "right_item", armChokeOffset);
+			if (animOffset != null) {
+				animOffset = animOffset.yRot(yRot);
+				grabOffset = grabOffset.add(animOffset);
+				// TODO (grab) sync the offset to the server?
 			}
-			
-			if (!thisEntity.level().isClientSide()) {
-				applyRotationDiff();
+			else {
+				useModelArmPos = false;
 			}
+		}
+		
+		if (!useModelArmPos) {
+			grabOffset = grabOffset.add(new Vec3(grabbingArm == HumanoidArm.LEFT ? 0.2 : -0.2, 1.5, 0.875)
+					/* lifting the target up and down a bit from x rotation would be cool, 
+					 * but we'd have to also adjust the grab animations for this and it's a PITA, 
+					 * so unfortunately this goes into the "commented out" hell
+					 */
+					// .xRot(-grabbingEntity.getXRot() * MathUtil.DEG_TO_RAD)
+					.yRot(yRot));
+		}
+		return grabOffset;
+	}
+	
+	protected void applyPos(LivingEntity grabbedEntity, Vec3 grabbedPos) {
+		grabbedEntity.setPos(grabbedPos.x, grabbedPos.y, grabbedPos.z);
+		grabbedEntity.setDeltaMovement(Vec3.ZERO);
+		for (Entity passenger : thisEntity.getPassengers()) {
+			grabbedEntity.positionRider(passenger);
 		}
 	}
 
-	@ApiStatus.Internal
-	public void applyRotationDiff() {
+
+	protected void applyRotationDiff(float partialTick) {
 		if (grabbingEntity != null) {
-			thisEntity.setXRot(this.xRotWhenGrabbed);
-			float yRot = grabbingEntity.getYRot() + this.yRotDiffWhenGrabbed;
-			thisEntity.setYRot(yRot);
-			thisEntity.setYHeadRot(yRot + this.yHeadRotDiffWhenGrabbed);
-			thisEntity.setYBodyRot(yRot + this.yBodyRotDiffWhenGrabbed);
+			applyRotationDiff(thisEntity, partialTick);
 		}
+	}
+	
+	protected void applyRotationDiff(LivingEntity grabbedEntity, float partialTick) {
+		grabbedEntity.setXRot(this.xRotWhenGrabbed);
+
+		float _grabbingYRot0 = grabbingEntity.yBodyRotO;
+		float _grabbingYRot1 = grabbingEntity.yBodyRot;
+		float grabbingYRot;
+		if (partialTick == 1) {
+			grabbingYRot = _grabbingYRot1;
+		}
+		else {
+			while (_grabbingYRot0 - _grabbingYRot1 < 180) _grabbingYRot1 -= 360;
+			while (_grabbingYRot0 - _grabbingYRot1 > 180) _grabbingYRot1 += 360;
+			grabbingYRot = Mth.lerp(partialTick, _grabbingYRot0, _grabbingYRot1);
+		}
+		
+		float yRot = Mth.wrapDegrees(grabbingYRot + this.yRotDiffWhenGrabbed);
+		grabbedEntity.setYRot(yRot);
+		grabbedEntity.setYHeadRot(Mth.wrapDegrees(yRot + this.yHeadRotDiffWhenGrabbed));
+		grabbedEntity.setYBodyRot(Mth.wrapDegrees(yRot + this.yBodyRotDiffWhenGrabbed));
+		grabbedEntity.yRotO = yRot;
+		grabbedEntity.yHeadRotO = grabbedEntity.yHeadRot;
+		grabbedEntity.yBodyRotO = grabbedEntity.yBodyRot;
 	}
 	
 	
@@ -221,7 +256,56 @@ public class LivingComponentGrab implements TickingEntityData {
 		for (Entity entity : UtilFunctions.getEntities(level)) {
 			LivingComponentGrab grabComponent = entity.getData(attachmentType);
 			if (grabComponent != null) {
-				grabComponent.setGrabbedPos();
+				grabComponent.setGrabbedPos(1);
+				if (!level.isClientSide()) {
+					grabComponent.applyRotationDiff(1);
+				}
+			}
+		}
+	}
+	
+
+	@EventBusSubscriber(modid = JojoMod.MOD_ID, value = Dist.CLIENT)
+	public static class ClientEvents {
+
+		@SubscribeEvent
+		public static void onFrameRender(RenderFrameEvent.Pre event) {
+			Minecraft mc = Minecraft.getInstance();
+			if (mc.player != null) {
+				LivingComponentGrab grabComponent = mc.player.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
+				if (grabComponent != null && grabComponent.grabbingEntity != null) {
+					float partialTick = ClientUtil.partialTick(grabComponent.grabbingEntity, 
+							event.getPartialTick(), mc.level.tickRateManager());
+					grabComponent.applyRotationDiff(partialTick);
+				}
+			}
+		}
+
+		@SubscribeEvent
+		public static void onLivingRender(RenderLivingEvent.Pre<?, ?> event) {
+			LivingEntity entity = event.getEntity();
+			LivingComponentGrab grabComponent = entity.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
+			if (grabComponent != null && grabComponent.grabbingEntity != null) {
+				float partialTick = event.getPartialTick();
+				grabComponent.applyRotationDiff(partialTick);
+			}
+		}
+
+		@SubscribeEvent
+		public static void onRenderFrame(RenderLevelStageEvent event) {
+			RenderLevelStageEvent.Stage stage = event.getStage();
+			if (stage == RenderLevelStageEvent.Stage.AFTER_ENTITIES) {
+				Minecraft mc = Minecraft.getInstance();
+				ClientLevel level = mc.level;
+				var attachmentType = ModDataAttachmentTypes.LIVING_GRAB.get();
+				for (Entity entity : level.entitiesForRendering()) {
+					LivingComponentGrab grabComponent = entity.getData(attachmentType);
+					if (grabComponent != null && grabComponent.grabbingEntity != null) {
+						float partialTick = ClientUtil.partialTick(grabComponent.grabbingEntity, 
+								event.getPartialTick(), level.tickRateManager());
+						grabComponent.setGrabbedPos(partialTick);
+					}
+				}
 			}
 		}
 	}

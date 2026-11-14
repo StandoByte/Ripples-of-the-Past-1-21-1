@@ -109,31 +109,34 @@ public class StandInitStarPlatinum {
 				.addSkill(StandUnlockableSkill.startingAbility("punch"))
 				.addSkill(StandUnlockableSkill.startingAbility("barrage"))
 				.addSkill(StandUnlockableSkill.startingAbility("heavy_punch"))
-				.addSkill(StandUnlockableSkill.startingAbility("uppercut").prerequisiteSkill("heavy_punch").setIncomplete())
-				.addSkill(StandUnlockableSkill.unlockableAbility("ground_slam", 200).setNotYetImplemented().prerequisiteSkill("heavy_punch"))
-				.addSkill(StandUnlockableSkill.unlockableAbility("uppercut_ground_throw", 200).setNotYetImplemented().prerequisiteSkill("uppercut", "ground_slam"))
-				.addSkill(StandUnlockableSkill.startingAbility("heavy_charged").prerequisiteSkill("heavy_punch"))
+				.addSkill(StandUnlockableSkill.startingAbility("uppercut").setIncomplete())
+				.addSkill(StandUnlockableSkill.startingAbility("heavy_charged"))
 
 				.addSkill(StandUnlockableSkill.startingAbility("grab"))
 				.addSkill(StandUnlockableSkill.startingAbility("block_toss").setIncomplete())
-				.addSkill(StandUnlockableSkill.unlockableAbility("grab_throw", 100).prerequisiteSkill("grab").setIncomplete())
-				.addSkill(StandUnlockableSkill.unlockableAbility("grab_terrain", 150).setNotYetImplemented().withAbility("terrain_throw").prerequisiteSkill("grab"))
+				.addSkill(StandUnlockableSkill.unlockableAbility("grab_throw", 100).setIncomplete())
+				.addSkill(StandUnlockableSkill.unlockableAbility("grab_terrain", 150).setNotYetImplemented().withAbility("terrain_throw"))
 				
 				.addSkill(StandUnlockableSkill.startingAbility("guard").setIncomplete())
 
+				.addManualControlSkill()
+				.addSkill(new StandUnlockableSkill("item_use").setIsStartingSkill())
+				
+				.addSkill(StandUnlockableSkill.unlockableAbility("leap", 250).setNotYetImplemented())
+				.addSkill(StandUnlockableSkill.startingAbility("ledge_grab").setNotYetImplemented())
+				
+				
+				.addSkill(StandUnlockableSkill.unlockableAbility("ground_slam", 200).setNotYetImplemented())
+				.addSkill(StandUnlockableSkill.unlockableAbility("uppercut_ground_throw", 200).setNotYetImplemented().prerequisiteSkill("ground_slam"))
+				
+				
 				.addSkill(StandUnlockableSkill.startingAbility("enhanced_eyesight").setNotYetImplemented())
 				.addSkill(StandUnlockableSkill.unlockableAbility("star_finger", 250)/*.withAbility("star_finger_swipe")*/)
 				.addSkill(StandUnlockableSkill.unlockableAbility("inhale", 150))
 				.addSkill(StandUnlockableSkill.unlockableAbility("time_stop", 5000).withAbility("time_resume").setIncomplete())
 
-				.addSkill(StandUnlockableSkill.unlockableAbility("leap", 250).setNotYetImplemented())
-				.addSkill(StandUnlockableSkill.startingAbility("ledge_grab").setNotYetImplemented())
-				
-				.addSkill(StandUnlockableSkill.startingAbility("manual_control"))
-				.addSkill(new StandUnlockableSkill("item_use").setIsStartingSkill())
-
 				, id)
-			.discTooltipWIP()
+			.discTooltipWIP(true)
 			/* This is to make it appear first in the list of Stardust Crusaders Stands in the creative tab, as the protagonist's Stand */
 			.init(stand -> stand.discStoryPartPriority = 0);
 	}

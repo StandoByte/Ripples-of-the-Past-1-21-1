@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientProxy;
+import com.github.standobyte.jojo.config.RotpConfig;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.entityattachment.PostNbtReadEntityData;
 import com.github.standobyte.jojo.init.ModEntityAttributes;
@@ -59,9 +60,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	public void tick() {
 		super.tick();
 		tickStamina();
-		if (hasPower()) {
-			userStandEffects.tick();
-		}
+		userStandEffects.tick();
 		if (!user.level().isClientSide()) {
 			if (healingDamageFromArrow && !StandArrowItem.healArrowDamage(user)) {
 				healingDamageFromArrow = false;
@@ -76,7 +75,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		
 		if (summonedStand != null) {
 			summonedStand.tickStand(getUser(), this);
-			if (!user.level().isClientSide() && summonedStand.isUnsummoned()) {
+			if (!user.level().isClientSide() && summonedStand != null && summonedStand.isUnsummoned()) {
 				StandType type = getPowerType();
 				if (type != null) {
 					type.forceUnsummon(user, this);
@@ -103,7 +102,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		
 		LivingEntity user = getUser();
 		if (user != null) {
-			StandStats.updateStandStatAttributes(this, user);
+			StandStats.updateStandStatAttributes(this, user, null);
 		}
 		
 		if (user != null && !user.level().isClientSide()) {
@@ -170,6 +169,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		return (StandTypePersistentData) super.getCurTypeData();
 	}
 	
+	/** Also applies {@link RotpConfig.Common#standExpGainMultiplier} value */
 	public static int addExp(LivingEntity user, float exp) {
 		if (user != null && !user.level().isClientSide()) {
 			StandPower stand = StandPower.get(user);
@@ -177,7 +177,8 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		}
 		return 0;
 	}
-	
+
+	/** Also applies {@link RotpConfig.Common#standExpGainMultiplier} value */
 	public int addExp(float exp) {
 		StandTypePersistentData data = getCurTypeData();
 		return data != null ? data.addExp(exp, user) : 0;
@@ -287,7 +288,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	@Override
 	public void afterConfigApply() {
 		super.afterConfigApply();
-		StandStats.updateStandStatAttributes(this, user);
+		StandStats.updateStandStatAttributes(this, user, null);
 	}
 
 	@Override
@@ -360,7 +361,7 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 	 */
 	@Override
 	public void afterNbtRead() {
-		StandStats.updateStandStatAttributes(this, user);
+		StandStats.updateStandStatAttributes(this, user, null);
 	}
 	
 	

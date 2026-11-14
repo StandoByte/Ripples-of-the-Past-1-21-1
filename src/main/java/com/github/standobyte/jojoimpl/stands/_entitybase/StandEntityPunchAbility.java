@@ -33,6 +33,7 @@ import com.github.standobyte.jojo.subsystems.ServerBlockDestroyTracker.BlockBrea
 import com.github.standobyte.jojo.subsystems.entity_grab.LivingComponentGrab;
 import com.github.standobyte.jojo.subsystems.target.ActionTarget;
 import com.github.standobyte.jojo.subsystems.target.ActionTarget.TargetType;
+import com.github.standobyte.jojo.subsystems.target.ActionTargetAim;
 import com.github.standobyte.jojo.subsystems.target.AimingEntity;
 import com.github.standobyte.jojo.subsystems.target.HitResultUtil;
 import com.github.standobyte.jojo.util.OOPMoment;
@@ -147,7 +148,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 					switch (target.getType()) {
 						case ENTITY -> hitEntity(target, level, stand);
 						case BLOCK -> hitBlock(target, level, stand);
-						default -> {}
+						case EMPTY -> {}
 					}
 
 					punchedTarget = target;
@@ -237,7 +238,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 			if (isGrabVariation()) {
 				return new ActionTarget(LivingComponentGrab.getEntityGrabbedBy(stand));
 			}
-			return StandEntityPunchAbility.aimAtPunchTarget(stand);
+			return StandEntityPunchAbility.getStandTargetForPunch(stand);
 		}
 		
 		
@@ -249,7 +250,18 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 	}
 	
 	
-	public static ActionTarget aimAtPunchTarget(StandEntity stand) {
+	public static ActionTarget getStandTargetForPunch(StandEntity stand) {
+		ActionTargetAim aimFromClient = LivingComponentAction.getAim(stand);
+		if (aimFromClient != null) {
+			ActionTarget target = aimFromClient.getTarget();
+			if (!target.isEmpty(stand.level())) {
+				return target;
+			}
+		}
+		return aimAtTargetInFront(stand);
+	}
+	
+	public static ActionTarget aimAtTargetInFront(StandEntity stand) {
 		return HitResultUtil.clipEntityLook(stand, entity -> StandEntityPunchAbility.canStandHit(stand, entity), 0);
 	}
 	
@@ -273,7 +285,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 				BlockState blockState = level.getBlockState(blockPos);
 				yield blockState.getDestroySpeed(level, blockPos) != 0;
 			}
-			default -> false;
+			case EMPTY -> false;
 		};
 	}
 	

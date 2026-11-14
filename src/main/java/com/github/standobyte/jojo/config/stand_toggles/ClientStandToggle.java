@@ -16,10 +16,10 @@ import com.github.standobyte.jojo.client.ui.utils.ElementTransparency;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
 import com.github.standobyte.jojo.config.BoolOrPlayerPref;
-import com.github.standobyte.jojo.config.client.ConfigGuiHelper;
 import com.github.standobyte.jojo.config.client.ScrollingStringButton;
 import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.core.ModConfigType;
+import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -32,7 +32,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.LinearLayout.Orientation;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -79,10 +78,7 @@ public class ClientStandToggle implements Renderable {
 		
 		toggle = new ToggleSwitch(x + 4, y + 2, Orientation.HORIZONTAL, 
 				setting, 
-				newVal -> {
-					setting.set(newVal);
-					ConfigGuiHelper.onSettingChange(JojoMod.config, configToSave, setting);
-				}, null) {
+				newVal -> toggle(), null) {
 			
 			@Override
 			public boolean getStateToRender() {
@@ -94,8 +90,18 @@ public class ClientStandToggle implements Renderable {
 				hudVisibilitySetting, 
 				newVal -> {
 					hudVisibilitySetting.set(newVal);
-					ConfigGuiHelper.onSettingChange(JojoMod.config, ModConfigType.CLIENT, hudVisibilitySetting);
+					
+					JojoMod.config.saveClient();
 				}, null);
+	}
+	
+	public void toggle() {
+		setting.setWithCallback(!setting.get(), Minecraft.getInstance().player);
+		
+		JojoMod.config.saveClient();
+		if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
+			JojoMod.config.sendClientBroadcast(true);
+		}
 	}
 
 	@Override
@@ -107,11 +113,11 @@ public class ClientStandToggle implements Renderable {
 					overrulingCommonSetting.get().optionStatus);
 		}
 		else {
-			toggleTooltip = CommonComponents.optionStatus(getResultingValue()).copy();
+			toggleTooltip = BoolOrPlayerPref.optionStatus(getResultingValue()).copy();
 		}
 		toggle.setTooltip(Tooltip.create(toggleTooltip.withStyle(ChatFormatting.BLACK)));
 		
-		visibilityToggle.setTooltip(Tooltip.create(CommonComponents.optionStatus(
+		visibilityToggle.setTooltip(Tooltip.create(BoolOrPlayerPref.optionStatus(
 				Component.translatable("jojo_ripples.toggle.show_in_hud"), visibilityToggle.getState())
 				.copy().withStyle(ChatFormatting.BLACK)));
 		
@@ -129,7 +135,7 @@ public class ClientStandToggle implements Renderable {
 		visibilityToggle.render(guiGraphics, mouseX, mouseY, partialTick);
 		
 		if (toggle.isHovered() || visibilityToggle.isHovered()) {
-			TooltipParams.set(TooltipParams.paperStyle());
+			TooltipParams.set(TooltipParams.paperStyle(1));
 		}
 	}
 
@@ -154,11 +160,6 @@ public class ClientStandToggle implements Renderable {
 	protected static void _renderIcon(GuiIcon icon, PoseStack poseStack, int x, int y, int color) {
 		int offset = (int) (ICON_SIZE - icon.width) / 2;
 		icon.render(poseStack, x + offset, y + offset, color);
-	}
-	
-	public void toggle() {
-		setting.set(!setting.get());
-		ConfigGuiHelper.onSettingChange(JojoMod.config, configToSave, setting);
 	}
 	
 	public boolean getResultingValue() {

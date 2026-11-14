@@ -13,9 +13,11 @@ import org.jetbrains.annotations.ApiStatus;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.entityattachment.SynchronizablePlayerData;
 import com.github.standobyte.jojo.entityattachment.TickingEntityData;
+import com.github.standobyte.jojo.network.s2c.ActivePowerPacket;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.condition.AvailableAbilities;
 import com.github.standobyte.jojo.util.functions.NBTUtil;
+import com.github.standobyte.jojo.util.objects_java.DefaultedValue;
 import com.mojang.datafixers.util.Either;
 
 import net.minecraft.core.HolderLookup;
@@ -27,12 +29,14 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public abstract class Power<P extends Power<P>> implements SynchronizablePlayerData, TickingEntityData, INBTSerializable<CompoundTag> {
 	@Nonnull protected final LivingEntity user;
 	protected final Optional<ServerPlayer> serverPlayerUser;
-	protected Moveset moveset;
 	protected Map<ResourceLocation, Either<PowerData, CompoundTag>> powerData = new HashMap<>();
+	protected DefaultedValue<Moveset> powerCurMoveset;
+	protected boolean isActive;
 	
 	public Power(LivingEntity user) {
 		this.user = user;
@@ -64,7 +68,7 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	public abstract PowerType getPowerType();
 	
 	protected void onSetPowerType(@Nullable PowerData oldPowerData, @Nullable PowerType newPowerType) {
-		moveset = initMoveset(newPowerType);
+		powerCurMoveset = cacheMoveset(newPowerType);
 
 		if (!user.level().isClientSide()) {
 			if (oldPowerData != null) {
@@ -112,14 +116,14 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	
 	@Nonnull
 	public Moveset getMoveset() {
-		if (moveset == null) {
-			moveset = initMoveset(getPowerType());
+		if (powerCurMoveset == null) {
+			powerCurMoveset = cacheMoveset(getPowerType());
 		}
-		return moveset;
+		return powerCurMoveset.value;
 	}
 	
-	protected Moveset initMoveset(@Nullable PowerType powerType) {
-		return powerType != null ? powerType.makeMoveset(this) : Moveset.empty();
+	protected DefaultedValue<Moveset> cacheMoveset(@Nullable PowerType powerType) {
+		return powerType != null ? powerType.getMoveset() : Moveset.empty();
 	}
 	
 	@Nullable
@@ -165,13 +169,57 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	}
 	
 	
+	public boolean isActive() {
+		return isActive;
+	}
+	
+	public void setActive(boolean isActive) {
+		PowerType powerType = getPowerType();
+		if (powerType != null && this.isActive != isActive) {
+			powerType.onUserActivateHUD(user, this, isActive);
+			this.isActive = isActive;
+		}
+	}
+	
+	public static void setPowersActive(LivingEntity entity, Optional<PowerClass<?>> _activePower) {
+		PowerClass<?> activePower = _activePower.orElse(null);
+		for (PowerClass<?> powerClass : PowerClass.VALUES) {
+			Power<?> power = powerClass.get(entity);
+			if (power != null) {
+				boolean active = powerClass == activePower;
+				power.setActive(active);
+			}
+		}
+		
+		if (!entity.level().isClientSide()) {
+			PacketDistributor.sendToPlayersTrackingEntity(entity, new ActivePowerPacket(
+					entity.getId(), _activePower));
+		}
+	}
+	
+	public static void updatePowersActive(LivingEntity entity, ServerPlayer newlyTrackingPlayer) {
+		PowerClass<?> activePower = null;
+		for (PowerClass<?> powerClass : PowerClass.VALUES) {
+			Power<?> power = powerClass.get(entity);
+			if (power != null && power.isActive()) {
+				activePower = powerClass;
+				break;
+			}
+		}
+		if (activePower != null) {
+			PacketDistributor.sendToPlayer(newlyTrackingPlayer, new ActivePowerPacket(
+					entity.getId(), Optional.of(activePower)));
+		}
+	}
+	
+	
 	public Component getName() {
 		return getPowerType().getName(this);
 	}
 
 	
 	public void afterConfigApply() {
-		initMoveset(getPowerType());
+		cacheMoveset(getPowerType());
 	}
 
 	@Override
@@ -198,8 +246,8 @@ public abstract class Power<P extends Power<P>> implements SynchronizablePlayerD
 	}
 	
 	protected void onPlayerCloneData(P newEntityData, boolean wasDeath) {
-		newEntityData.moveset = this.moveset;
 		newEntityData.powerData = this.powerData;
+		newEntityData.powerCurMoveset = this.powerCurMoveset;
 	}
 	
 	@Override

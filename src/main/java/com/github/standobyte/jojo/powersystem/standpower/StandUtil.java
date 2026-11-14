@@ -9,9 +9,12 @@ import com.github.standobyte.jojo.modcompat.JojoModsInteraction;
 import com.github.standobyte.jojo.network.s2c.StandSkinSoundPacket;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.ability.condition.ConditionCheck;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.subsystems.entity_grab.LivingComponentGrab;
 import com.github.standobyte.jojo.util.functions.AttributeUtil;
+import com.github.standobyte.jojo.util.functions.AttributeUtil.BooleanAttributeUtil;
+import com.github.standobyte.jojo.util.functions.MathUtil;
 
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.Packet;
@@ -67,6 +70,11 @@ public class StandUtil {
     	return obj;
     }
     
+    public static LivingEntity getStandIfManuallyControlled(LivingEntity standUser) {
+    	StandEntity standEntity = getSummonedStand(standUser);
+    	return standEntity != null && standEntity.isManuallyControlled() ? standEntity : standUser;
+    }
+    
     public static boolean isEntityStandUser(LivingEntity entity) {
     	StandPower standData = StandPower.get(entity);
     	return standData != null && standData.hasPower() || JojoModsInteraction.entityHasStandFromAnotherMod(entity);
@@ -74,8 +82,8 @@ public class StandUtil {
 
     public static boolean entityCanSeeStands(LivingEntity entity) {
     	return entity.isSpectator()
-    			|| isEntityStandUser(entity) /*|| player.hasEffect(ModStatusEffects.SPIRIT_VISION.get())*/;
-    	// TODO spirit vision effect
+    			|| isEntityStandUser(entity) 
+    			|| BooleanAttributeUtil.getValueOrDefault(entity, ModEntityAttributes.CAN_SEE_STANDS);
     }
 
     public static boolean entityCanHearStands(Player player) {
@@ -164,6 +172,17 @@ public class StandUtil {
         		}
         	}
         }
+	}
+
+	
+	public static ConditionCheck distanceCondition(StandEntity stand, LivingEntity user, double distance) {
+		if (stand == null || user == null) return ConditionCheck.NEGATIVE;
+		
+		if (!stand.isFollowingUser() && MathUtil.getAABBDistance(stand.getBoundingBox(), user.getBoundingBox()) > distance) {
+			return ConditionCheck.createNegative("stand_user_too_far");
+		}
+		
+		return ConditionCheck.POSITIVE;
 	}
 
 }

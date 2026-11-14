@@ -166,9 +166,9 @@ public class StandStatsRenderer {
 							JojoMod.config.saveClient();
 							
 							ImageButton2 button = (ImageButton2) _button;
-							button.spriteEnabled = standStatsInvertBnW.getAsBoolean() ? 
+							button.sprites.enabled = standStatsInvertBnW.getAsBoolean() ? 
 									bnwInvertedButton : bnwButton;
-							button.spriteEnabledFocused = standStatsInvertBnW.getAsBoolean() ? 
+							button.sprites.enabledFocused = standStatsInvertBnW.getAsBoolean() ? 
 									bnwInvertedButtonHovered : bnwButtonHovered;
 						});
 				invertBnWButton.visible = doStandStatsRender(screen);
@@ -262,53 +262,42 @@ public class StandStatsRenderer {
 		STRENGTH        ("jojo_ripples.stand_stat.strength",       0,  -72) {
 			@Override
 			float getValueConverted(StandPower standData, StandStats stats, float levelRatio) {
-				float value = (float) stats.power();
-				if (value > 0) value = (value + 1) / 3;
-				return value;
+				return statValueConverted(stats.power());
 			}
 		},
 		SPEED           ("jojo_ripples.stand_stat.speed",          58, -39) {
 			@Override
 			float getValueConverted(StandPower standData, StandStats stats, float levelRatio) {
-				float value = (float) stats.speed();
-				if (value > 0) value = (value + 1) / 3;
-				return value;
+				return statValueConverted(stats.speed());
 			}
 		},
 		RANGE           ("jojo_ripples.stand_stat.range",          58,  32) {
 			@Override
 			float getValueConverted(StandPower standData, StandStats stats, float levelRatio) {
-				float value = (float) (stats.rangeEffective() + (stats.rangeMax() - stats.rangeEffective()) * 0.5);
-				if (value > 0) value = (float) (Math.log(value / 1.5) / LN_2 /* or log2(val / 1.5) */ + 1); 
-				return value;
+				return rangeStatValueConverted(stats.rangeEffective(), stats.rangeMax());
 			}
 		},
 		DURABILITY      ("jojo_ripples.stand_stat.durability",     0,   65) {
 			@Override
 			float getValueConverted(StandPower standData, StandStats stats, float levelRatio) {
-				float value = (float) stats.durability();
-				if (value > 0) value = (value + 1) / 3;
-				return value;
+				return statValueConverted(stats.durability());
 			}
 		},
 		PRECISION       ("jojo_ripples.stand_stat.precision",     -58,  32) {
 			@Override
 			float getValueConverted(StandPower standData, StandStats stats, float levelRatio) {
-				float value = (float) stats.precision();
-				if (value > 0) value = (value + 1) / 3;
-				return value;
+				return statValueConverted(stats.precision());
 			}
 		},
 		DEV_POTENTIAL   ("jojo_ripples.stand_stat.dev_potential", -58, -39) {
 			@Override
 			float getValueConverted(StandPower standData, StandStats stats, float levelRatio) {
-				StandTypePersistentData levelingData = standData.getCurTypeData();
-				if (levelingData != null) {
-					StandExpSummary exp = levelingData.expSummary(standData);
-					if (exp.devPotential == 0) {
-						return exp.remainingSkills == 0 ? 0 : 0.001f;
+				if (standData != null) {
+					StandTypePersistentData levelingData = standData.getCurTypeData();
+					if (levelingData != null) {
+						StandExpSummary exp = levelingData.expSummary(standData);
+						return devPotentialValueConverted(exp);
 					}
-					return (float) exp.devPotential / 300;
 				}
 				
 				return 0;
@@ -329,11 +318,29 @@ public class StandStatsRenderer {
 			this.y = y;
 		}
 
-		abstract float getValueConverted(StandPower standData, StandStats stats, float levelRatio);
+		abstract float getValueConverted(@Nullable StandPower standData, StandStats stats, float levelRatio);
 	}
+	
+	public static float statValueConverted(double value) {
+		if (value > 0) value = (value + 1) / 3;
+		return (float) value;
+	}
+	
+	public static float rangeStatValueConverted(double rangeEffective, double rangeMax) {
+		float value = (float) (rangeEffective + (rangeMax - rangeEffective) * 0.5);
+		if (value > 0) value = (float) (Math.log(value / 1.5) / LN_2 /* or log2(val / 1.5) */ + 1); 
+		return value;
+	}
+	
+	public static float devPotentialValueConverted(StandExpSummary exp) {
+		if (exp.devPotential == 0) {
+			return exp.remainingSkills == 0 ? 0 : 0.001f;
+		}
+		return (float) exp.devPotential / 300;
+	}
+ 
 
-
-	protected static final Map<ResourceLocation, CosmeticStandStats> OVERRIDE_STAT = new HashMap<>();
+	public static final Map<ResourceLocation, CosmeticStandStats> OVERRIDE_STAT = new HashMap<>();
 	public static void overrideCosmeticStats(ResourceLocation standId, CosmeticStandStats override) {
 		OVERRIDE_STAT.put(standId, override);
 	}
@@ -356,11 +363,11 @@ public class StandStatsRenderer {
 
 		public void preStatsRenderFrame(StandPower standData, float partialTick) {}
 
-		public float statConvertedValue(HexagonStandStat stat, StandPower standData, StandStats stats, float statLeveling) {
+		public float statConvertedValue(HexagonStandStat stat, @Nullable StandPower standData, StandStats stats, float statLeveling) {
 			return stat.getValueConverted(standData, stats, statLeveling);
 		}
 
-		public String statRankLetter(HexagonStandStat stat, StandPower standData, double statConvertedValue) {
+		public String statRankLetter(HexagonStandStat stat, @Nullable StandPower standData, double statConvertedValue) {
 			return getRankFromConvertedValue(statConvertedValue);
 		}
 
@@ -381,7 +388,7 @@ public class StandStatsRenderer {
 		}
 
 		protected Map<HexagonStandStat, MultiLineScreenTooltip> tooltip = new EnumMap<>(HexagonStandStat.class);
-		public List<FormattedCharSequence> statTooltip(HexagonStandStat standStat, Minecraft mc, StandPower standData) {
+		public List<FormattedCharSequence> statTooltip(HexagonStandStat standStat, Minecraft mc, @Nullable StandPower standData) {
 			return tooltip.computeIfAbsent(standStat, stat -> {
 				MultiLineScreenTooltip tooltip = new MultiLineScreenTooltip(stat.name, stat.desc);
 				return tooltip;
@@ -407,8 +414,8 @@ public class StandStatsRenderer {
 	protected static final int LETTER_TICK_START = 50;
 	protected static final float LETTER_FADE_IN = 1.5f;
 
-	protected static final int BLACK = 0x000000;
-	protected static final int WHITE = 0xFFFFFF;
+	public static final int BLACK = 0xFF000000;
+	public static final int WHITE = 0xFFFFFFFF;
 	protected static int bnw(int defaultColor, boolean invert) {
 		if (defaultColor == BLACK) 	return invert ? WHITE : BLACK;
 		else 						return invert ? BLACK : WHITE;
@@ -687,7 +694,7 @@ public class StandStatsRenderer {
 	 */
 	protected static final float COS_PI_BY_6 = Mth.sqrt(3.0f) / 2.0f;
 	protected static final float SIN_PI_BY_6 = 0.5f;
-	protected static void fillHexagon(GuiGraphics guiGraphics, float xCenter, float yCenter, 
+	public static void fillHexagon(GuiGraphics guiGraphics, float xCenter, float yCenter, 
 			float r1, float r2, float r3, float r4, float r5, float r6, 
 			int red, int green, int blue, int alpha) {
 		RenderSystem.disableDepthTest();

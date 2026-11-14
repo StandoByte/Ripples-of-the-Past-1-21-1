@@ -48,12 +48,12 @@ public abstract class HudElement implements GuiEventListener {
 		switch (snappingHorizontal) {
 			case LEFT -> this.xOffsetL = xOffset;
 			case RIGHT -> this.xOffsetR = xOffset;
-			default -> {}
+			case CENTER -> {}
 		}
 		switch (snappingVertical) {
 			case UP -> this.yOffsetU = yOffset;
 			case DOWN -> this.yOffsetD = yOffset;
-			default -> {}
+			case CENTER -> {}
 		}
 		updateRectangle(width, height);
 		
@@ -101,6 +101,8 @@ public abstract class HudElement implements GuiEventListener {
 	
 	public abstract boolean shouldRender();
 	public abstract void renderElement(GuiGraphics guiGraphics, DeltaTracker deltaTracker);
+	
+	public void preRender(GuiGraphics guiGraphics, DeltaTracker deltaTracker, double mouseX, double mouseY) {}
 	
 	public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker, double mouseX, double mouseY) {
 		updateRectangle();
