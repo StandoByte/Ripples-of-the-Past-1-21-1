@@ -39,6 +39,8 @@ import com.github.standobyte.jojo.mechanics.resolve.ClActivateResolvePacket;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
 import com.github.standobyte.jojo.network.c2s.ClAbilityInputPacket;
 import com.github.standobyte.jojo.network.c2s.ClActivePowerPacket;
+import com.github.standobyte.jojo.network.c2s.ClNoParamsPacket;
+import com.github.standobyte.jojo.network.c2s.ClNoParamsPacket.PacketType;
 import com.github.standobyte.jojo.powersystem.Power;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
@@ -54,6 +56,7 @@ import com.github.standobyte.jojo.powersystem.entityaction.EntityActionInstance;
 import com.github.standobyte.jojo.powersystem.entityaction.LivingComponentAction;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
+import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.util.enums.Direction2D;
 import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopEffect;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -118,7 +121,7 @@ public class InputHandler {
 	
 	@SubscribeEvent
 	public void tickPre(ClientTickEvent.Pre event) {
-		tickGetCurControlScheme();
+		preTickGetCurControlScheme();
 	}
 	
 	@SubscribeEvent
@@ -223,22 +226,35 @@ public class InputHandler {
 	}
 	
 	
-	protected AbilityControlScheme curControlScheme;
 	public PowerClass<?> curPowerClassToggle = null;
+	public boolean putSummonedStandControlsOnTop = false;
+	protected AbilityControlScheme curControlScheme;
 	protected PowerClass<?> prevPowerClassActive = null;
 	
-	protected void tickGetCurControlScheme() {
+	protected void preTickGetCurControlScheme() {
 		Power<?> curPower = null;
 		
 		if (mc.player != null) {
-			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
-			if (standPower != null && standPower.hasPower() && standPower.getPowerType().showHUD(standPower)) {
-				curPower = standPower;
+			if (putSummonedStandControlsOnTop) {
+				StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+				if (standPower != null && standPower.hasPower() && standPower.getPowerType().showHUD(standPower)) {
+					curPower = standPower;
+				}
 			}
-			else if (curPowerClassToggle != null) {
-				Power<?> power = ClientPowerCache.getPower(curPowerClassToggle);
-				if (power != null && power.hasPower()) {
-					curPower = power;
+			if (curPower == null) {
+				if (curPowerClassToggle != null) {
+					Power<?> power = ClientPowerCache.getPower(curPowerClassToggle);
+					if (power != null && power.hasPower()) {
+						curPower = power;
+					}
+				}
+				else if (!putSummonedStandControlsOnTop) {
+					// a bit of a shitcode, but gets the job done
+					// in case the result of this whole thing sucks - just rewrite ts
+					StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+					if (standPower != null && standPower.hasPower() && standPower.getPowerType().showHUD(standPower)) {
+						curPower = standPower;
+					}
 				}
 			}
 		}
@@ -249,10 +265,10 @@ public class InputHandler {
 			curControlScheme = null;
 		}
 
-		tickUpdateSendActivePowerToServer();
+		preTickUpdateSendActivePowerToServer();
 	}
 	
-	protected void tickUpdateSendActivePowerToServer() {
+	protected void preTickUpdateSendActivePowerToServer() {
 		PowerClass<?> powerClassActive = null;
 		if (mc.player != null) {
 			if (curControlScheme != null) {
@@ -268,6 +284,38 @@ public class InputHandler {
 		
 		prevPowerClassActive = powerClassActive;
 	}
+	
+	public void postTickHandleHudModeKeybinds(VanillaKeybinds keybinds) {
+		boolean isFrozen = mc.player != null && TimeStopEffect.getIsFrozenInTime(mc.player);
+		
+		while (keybinds.playerPowerHUD.consumeClick()) {
+			this.curPowerClassToggle = this.curPowerClassToggle != PowerClass.PLAYER_POWER ? PowerClass.PLAYER_POWER : null;
+			this.putSummonedStandControlsOnTop = false;
+		}
+		
+		boolean toggleStandModeHud = VanillaKeybinds.consumeAllClicks(keybinds.standArmsOnlyHUD);
+		StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+		StandType standType = standPower != null ? standPower.getPowerType() : null;
+		boolean hasSummonMechanic = standType != null && standType.hasSummonMechanic(standPower);
+		while (keybinds.summonStand.consumeClick()) {
+			if (hasSummonMechanic) {
+				if (!isFrozen) {
+					if (!standPower.isSummoned()) {
+						this.putSummonedStandControlsOnTop = true;
+					}
+					PacketDistributor.sendToServer(ClNoParamsPacket.of(PacketType.SUMMON_STAND));
+				}
+			}
+			else {
+				toggleStandModeHud = true;
+			}
+		}
+		if (toggleStandModeHud) {
+			this.putSummonedStandControlsOnTop = false;
+			this.curPowerClassToggle = this.curPowerClassToggle != PowerClass.STAND ? PowerClass.STAND : null;
+		}
+	}
+	
 	
 	public AbilityControlScheme getActiveControlScheme() {
 		if (mc.gameMode == null || mc.gameMode.getPlayerMode() == GameType.SPECTATOR) {

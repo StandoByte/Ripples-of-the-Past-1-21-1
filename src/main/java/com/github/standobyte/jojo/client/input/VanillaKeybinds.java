@@ -146,29 +146,7 @@ public class VanillaKeybinds {
 		Minecraft mc = Minecraft.getInstance();
 		if (!shouldConsumeModKeyMappingClicks(mc)) return;
 		
-		boolean isFrozen = mc.player != null && TimeStopEffect.getIsFrozenInTime(mc.player);
-		
-		while (playerPowerHUD.consumeClick()) {
-			inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.PLAYER_POWER ? PowerClass.PLAYER_POWER : null;
-		}
-		
-		boolean toggleStandModeHud = consumeAllClicks(standArmsOnlyHUD);
-		StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
-		StandType standType = standPower != null ? standPower.getPowerType() : null;
-		boolean hasSummonMechanic = standType != null && standType.hasSummonMechanic(standPower);
-		while (summonStand.consumeClick()) {
-			if (hasSummonMechanic) {
-				if (!isFrozen) {
-					PacketDistributor.sendToServer(ClNoParamsPacket.of(PacketType.SUMMON_STAND));
-				}
-			}
-			else {
-				toggleStandModeHud = true;
-			}
-		}
-		if (toggleStandModeHud) {
-			inputHandler.curPowerClassToggle = inputHandler.curPowerClassToggle != PowerClass.STAND ? PowerClass.STAND : null;
-		}
+		inputHandler.postTickHandleHudModeKeybinds(this);
 		
 		while (disableHUDControls.consumeClick()) {
 			if (JojoMod.config.getClient().toggleDisableHotbars.getAsBoolean()) {
