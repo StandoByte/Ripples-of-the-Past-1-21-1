@@ -267,7 +267,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		if (learnSkillButton.visible && selectedSkill != null) {
 			int expCostColor = getExpCostColor(selectedSkill);
 			if (expCostColor == STAND_EXP_NUMBER_COLOR) {
-				Component expCost = Component.literal(IconSymbols.STAND_EXP + " " + String.valueOf(selectedSkill.expToUnlock));
+				Component expCost = Component.literal(IconSymbols.STAND_EXP + String.valueOf(selectedSkill.expToUnlock));
 				guiGraphics.drawString(font, expCost, 
 						learnSkillButton.getX() - 4 - font.width(expCost), learnSkillButton.getY() + 6, 
 						expCostColor, false);

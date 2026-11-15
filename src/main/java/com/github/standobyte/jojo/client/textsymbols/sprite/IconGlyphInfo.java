@@ -20,7 +20,11 @@ public class IconGlyphInfo implements GlyphInfo {
 	public float offset;
 	
 	public IconGlyphInfo(GuiIcon icon, float width, float height) {
-		this(icon, width, height, 0, (7 - height) / 2f, 1);
+		this(icon, width, height, 1);
+	}
+	
+	public IconGlyphInfo(GuiIcon icon, float width, float height, float offset) {
+		this(icon, width, height, 0, (7 - height) / 2f, offset);
 	}
 	
 	public IconGlyphInfo(GuiIcon icon, float width, float height, float left, float up, float offset) {
