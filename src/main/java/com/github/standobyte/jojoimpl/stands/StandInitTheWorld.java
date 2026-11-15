@@ -43,7 +43,9 @@ public class StandInitTheWorld {
 				.finalizeControlScheme()
 
 
-				.addSkill(StandUnlockableSkill.unlockableAbility("time_stop", 500).withAbility("time_resume").setIncomplete())
+				.addSkill(StandUnlockableSkill.unlockableAbility("time_stop", 500)
+						.setIncomplete()
+						.withAbility("time_resume"))
 				.addSkill(new StandUnlockableSkill("item_use").setIsStartingSkill())
 
 				, id)
