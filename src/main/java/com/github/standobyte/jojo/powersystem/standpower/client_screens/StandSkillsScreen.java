@@ -19,6 +19,7 @@ import com.github.standobyte.jojo.client.ui.screen_jojomenu.TabCategory;
 import com.github.standobyte.jojo.client.ui.screen_widgets.PaperCornerTurnOverButton;
 import com.github.standobyte.jojo.client.ui.skill_tree.SkillTree;
 import com.github.standobyte.jojo.client.ui.skill_tree.StandSkillsStructured;
+import com.github.standobyte.jojo.client.ui.skill_tree.StandSkillsStructured.Sprites32x32;
 import com.github.standobyte.jojo.client.ui.utils.Alignment;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
@@ -64,7 +65,13 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 	public static final GuiIcon SCROLL_BAR = new GuiIcon(WINDOW, 243, 58, 5, 162, 256, 256);
 	public static final ResourceLocation PAGE_BACKWARD_HIGHLIGHTED_SPRITE = ResourceLocation.withDefaultNamespace("widget/page_backward_highlighted");
 	public static final ResourceLocation PAGE_BACKWARD_SPRITE = ResourceLocation.withDefaultNamespace("widget/page_backward");
-	public static final ResourceLocation SKILL_SQUARE = JojoMod.resLoc("stand_skill");
+	
+	public static final Sprites32x32 SKILL_SQUARE_UNLOCKABLE = new Sprites32x32(
+			JojoMod.resLoc("stand_skill"), null);
+	public static final Sprites32x32 SKILL_SQUARE_UNLOCKED = new Sprites32x32(
+			JojoMod.resLoc("stand_skill_unlocked"), JojoMod.resLoc("stand_skill_unlocked2"));
+	public static final Sprites32x32 SKILL_SQUARE_CLOSED = new Sprites32x32(
+			JojoMod.resLoc("stand_skill_closed"), null);
 	
 	protected TabCategory category;
 	protected Tab tab;
@@ -182,6 +189,15 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 				x, y + getWindowHeight() - PaperCornerTurnOverButton.HEIGHT, CommonComponents.GUI_BACK, 
 				button -> setSelectedSkill(null), HumanoidArm.LEFT, true));
 	}
+	
+	protected static Sprites32x32 getSkillSquareSprite(UnlockableSkill skill, 
+			StandTypePersistentData playerStandSkills, Map<String, ConditionCheck> unlockSkillChecks) {
+		if (playerStandSkills.isSkillUnlocked(skill.skillName)) {
+			return SKILL_SQUARE_UNLOCKED;
+		}
+		ConditionCheck canUnlock = unlockSkillChecks.get(skill.skillName);
+		return canUnlock.positive() ? SKILL_SQUARE_UNLOCKABLE : SKILL_SQUARE_CLOSED;
+	}
 
 	protected static final int SKILL_LIST_X = 22;
 	protected static final int SKILL_LIST_Y = 57;
@@ -220,7 +236,9 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 						0, 0, width, height, 256, 256, 
 						BlitFloat.NO_TINT);
 				
-				this.hoveredSkill = skillForest.draw(guiGraphics, x, y, mouseX, mouseY);
+				this.hoveredSkill = skillForest.draw(guiGraphics, 
+						skill -> getSkillSquareSprite(skill, levelingData, unlockSkillChecks), 
+						x, y, mouseX, mouseY);
 				
 				renderStandExp(guiGraphics, x + 4, y + height - 13, Alignment.LEFT, mouseX, mouseY, standUser, expSummary);
 				

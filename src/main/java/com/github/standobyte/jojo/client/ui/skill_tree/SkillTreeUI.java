@@ -3,8 +3,11 @@ package com.github.standobyte.jojo.client.ui.skill_tree;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
+
+import com.github.standobyte.jojo.client.ui.skill_tree.StandSkillsStructured.Sprites32x32;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -37,7 +40,7 @@ public class SkillTreeUI<T> {
 	}
 
 	/** @return Hovered node's value */
-	public T drawContents(GuiGraphics guiGraphics, int x, int y, int mouseX, int mouseY) {
+	public T drawContents(GuiGraphics guiGraphics, Function<T, Sprites32x32> getSprite32x32, int x, int y, int mouseX, int mouseY) {
 //		if (!this.centered) {
 //			this.scrollX = (double)(117 - (this.maxX + this.minX) / 2);
 //			this.scrollY = (double)(56 - (this.maxY + this.minY) / 2);
@@ -51,7 +54,7 @@ public class SkillTreeUI<T> {
 
 		this.root.drawConnectivity(guiGraphics, i, j, true);
 		this.root.drawConnectivity(guiGraphics, i, j, false);
-		T hoveredValue = this.root.draw(guiGraphics, i, j, mouseX, mouseY);
+		T hoveredValue = this.root.draw(guiGraphics, getSprite32x32, i, j, mouseX, mouseY);
 		guiGraphics.pose().popPose();
 		//guiGraphics.disableScissor();
 

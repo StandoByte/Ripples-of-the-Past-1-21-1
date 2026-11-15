@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.client.ui.skill_tree;
 
 import java.util.List;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
@@ -8,10 +9,10 @@ import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
+import com.github.standobyte.jojo.client.ui.skill_tree.StandSkillsStructured.Sprites32x32;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
-import com.github.standobyte.jojo.powersystem.standpower.client_screens.StandSkillsScreen;
 import com.github.standobyte.jojo.powersystem.unlockableskill.UnlockableSkill;
 import com.google.common.collect.Lists;
 
@@ -148,15 +149,22 @@ public class SkillNodeUI<T> {
 
 	/** @return Value if the node is hovered, null otherwise */
 	@Nullable
-	public T draw(GuiGraphics guiGraphics, int x, int y, int mouseX, int mouseY) {
+	public T draw(GuiGraphics guiGraphics, Function<T, Sprites32x32> getSprite32x32, int x, int y, int mouseX, int mouseY) {
 		SetIfNonNull<T> hovered = new SetIfNonNull<>();
 //		if (!this.display.isHidden() || this.progress != null && this.progress.isDone()) {
-			ResourceLocation frameSprite = StandSkillsScreen.SKILL_SQUARE;
+			Sprites32x32 frameSprites = getSprite32x32.apply(getValue());
+			ResourceLocation frameSpriteBG = frameSprites.background();
+			ResourceLocation frameSpriteFG = frameSprites.foreground();
 			int nodeX = this.x + x;
 			int nodeY = this.y + y;
-			guiGraphics.blitSprite(frameSprite, nodeX + 3, nodeY, 26, 26);
+			if (frameSpriteBG != null) {
+				guiGraphics.blitSprite(frameSpriteBG, nodeX, nodeY - 3, 32, 32);
+			}
 			T value = node.value();
 			renderIcon(value, guiGraphics, nodeX, nodeY);
+			if (frameSpriteFG != null) {
+				guiGraphics.blitSprite(frameSpriteFG, nodeX, nodeY - 3, 32, 32);
+			}
 			boolean isHovered = 
 					mouseX >= nodeX && mouseX <= nodeX + 26 && 
 					mouseY >= nodeY && mouseY <= nodeY + 26;
@@ -166,7 +174,7 @@ public class SkillNodeUI<T> {
 //		}
 
 		for (SkillNodeUI<T> child : this.children) {
-			hovered.set(child.draw(guiGraphics, x, y, mouseX, mouseY));
+			hovered.set(child.draw(guiGraphics, getSprite32x32, x, y, mouseX, mouseY));
 		}
 		return hovered.get();
 	}
