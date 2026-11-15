@@ -87,7 +87,7 @@ public class CrazyDBloodCutterAbility extends StandEntityAbility {
 				// FIXME stutter when shooting a projectile
 //				cutter.shootFromRotation(user, 1.5f, standEntity.getProjectileInaccuracy(1.0F));
 				cutter.shootFromRotation(user, xRot, yRot, 0, 1.5f, 0);
-				addProjectileWithStandStats(cutter);
+				level.addFreshEntity(cutter);
 
 				if (standPower != null) {
 					int cooldown = 300;

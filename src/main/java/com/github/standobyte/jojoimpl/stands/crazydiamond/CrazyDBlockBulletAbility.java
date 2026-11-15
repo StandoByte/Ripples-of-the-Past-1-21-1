@@ -237,7 +237,7 @@ public class CrazyDBlockBulletAbility extends StandEntityAbility {
 				// FIXME projectile inaccuracy
 //				standEntity.shootProjectile(bullet, 2.0F, 0.25F);
 				bullet.shootFromRotation(performer, 2.0f, 0);
-				addProjectileWithStandStats(bullet);
+				level.addFreshEntity(bullet);
 				
 				ItemStack item = blockAndItem.item();
 				ItemTracker itemTracker = ItemTracking.getItemTracker(item, level);
