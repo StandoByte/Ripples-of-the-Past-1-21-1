@@ -4,6 +4,7 @@ import java.util.OptionalInt;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.customobjects.DamageSourceModified;
 import com.github.standobyte.jojo.customobjects.entity_projectile.ModdedProjectileEntity;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModSoundEvents;
@@ -14,6 +15,7 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.subsystems.target.ActionTarget.TargetType;
 
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -34,6 +36,13 @@ public class CrazyDBloodCutterEntity extends ModdedProjectileEntity {
 	@Override
 	public int ticksLifespan() {
 		return 100;
+	}
+
+	@Override
+	protected DamageSource getDamageSource(LivingEntity owner) {
+		DamageSource dmgSource = super.getDamageSource(owner);
+		((DamageSourceModified) dmgSource).jojo_ripples$setScalesFromStandDamageConfig(true);
+		return dmgSource;
 	}
 
 	@Override

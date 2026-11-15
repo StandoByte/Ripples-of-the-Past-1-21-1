@@ -25,6 +25,8 @@ public interface DamageSourceModified {
 	void jojo_ripples$setDisableKBImpact(boolean flag);
 	void jojo_ripples$trackCausingExplosion(Explosion explosion);
 	
+	void jojo_ripples$setScalesFromStandDamageConfig(boolean flag);
+	
 	void jojo_ripples$setNoHurtSound(boolean flag);
 	void jojo_ripples$setNoFlinchModelAnim(boolean flag);
 	void jojo_ripples$setCameraTiltMultiplier(float multiplier);
@@ -35,6 +37,8 @@ public interface DamageSourceModified {
 	float jojo_ripples$verticalKnockbackAngleRatio();
 	boolean jojo_ripples$getDisabledKBImpact();
 	@Nullable Explosion jojo_ripples$getCausingExplosion();
+	
+	boolean jojo_ripples$getScalesFromStandDamageConfig();
 	
 	boolean jojo_ripples$getNoHurtSound();
 	boolean jojo_ripples$getNoFlinchModelAnim();

@@ -20,6 +20,8 @@ public class DamageSourceMixin implements DamageSourceModified {
 	@Unique private boolean disableKBImpact = false;
 	@Unique private Explosion causingExplosion = null;
 	
+	@Unique private boolean scalesFromStandDamageConfig = false;
+	
 	@Unique private boolean noHurtSound = false;
 	@Unique private boolean noFlinchModelAnim = false;
 	@Unique private float cameraTiltMultiplier = 1;
@@ -44,6 +46,12 @@ public class DamageSourceMixin implements DamageSourceModified {
 	@Override
 	public void jojo_ripples$trackCausingExplosion(Explosion explosion) {
 		this.causingExplosion = explosion;
+	}
+	
+
+	@Override
+	public void jojo_ripples$setScalesFromStandDamageConfig(boolean flag) {
+		this.scalesFromStandDamageConfig = flag;
 	}
 
 
@@ -92,6 +100,12 @@ public class DamageSourceMixin implements DamageSourceModified {
 	@Nullable
 	public Explosion jojo_ripples$getCausingExplosion() {
 		return causingExplosion;
+	}
+	
+	
+	@Override
+	public boolean jojo_ripples$getScalesFromStandDamageConfig() {
+		return scalesFromStandDamageConfig;
 	}
 
 	

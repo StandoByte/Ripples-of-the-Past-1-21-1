@@ -4,8 +4,11 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.customobjects.DamageSourceModified;
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModEntityAttributes;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.functions.AttributeUtil.BooleanAttributeUtil;
 
 import net.minecraft.core.Holder;
@@ -29,9 +32,14 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.damagesource.DamageContainer;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingShieldBlockEvent;
 
+@EventBusSubscriber(modid = JojoMod.MOD_ID)
 public class DamageUtil {
 	
 	public static Holder<DamageType> type(Level level, ResourceKey<DamageType> resourceKey) {
@@ -104,6 +112,27 @@ public class DamageUtil {
 	public static boolean canHurtStands(DamageSource dmgSource) {
 		return dmgSource.is(ModDamageTypes.CAN_HURT_STANDS)
 				|| dmgSource.getDirectEntity() instanceof LivingEntity attacker && BooleanAttributeUtil.getValueOrDefault(attacker, ModEntityAttributes.CAN_ATTACK_STANDS);
+	}
+	
+	public static boolean scalesFromStandDamageConfig(DamageSource dmgSource) {
+		return !dmgSource.is(ModDamageTypes.STAND_HEALTH_LINK) && (
+				dmgSource.getEntity() instanceof StandEntity
+				|| ((DamageSourceModified) dmgSource).jojo_ripples$getScalesFromStandDamageConfig());
+	}
+	
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	public static void reduceDamageFromConfig(LivingIncomingDamageEvent event) {
+		float multiplier = JojoMod.config.getCommon().standDamageMultiplier.getAsFloat();
+		if (multiplier != 1) {
+			LivingEntity target = event.getEntity();
+			if (target instanceof StandEntity) return; // intentional, so that stand vs stand damage stay the same
+			
+			DamageSource dmgSource = event.getSource();
+			if (scalesFromStandDamageConfig(dmgSource)) {
+				float dmgAmount = event.getAmount();
+				event.setAmount(dmgAmount * multiplier);
+			}
+		}
 	}
 
 	public static boolean isNotFriendlyFire(LivingEntity attacker, LivingEntity target) {
