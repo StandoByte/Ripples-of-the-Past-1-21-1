@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.ui.skill_tree;
+package com.github.standobyte.jojo.client.ui.skill_tree.more_complex;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -8,14 +8,16 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
-import javax.annotation.Nullable;
-
+import com.github.standobyte.jojo.client.ui.skill_tree.SetIfNonNull;
+import com.github.standobyte.jojo.client.ui.skill_tree.SkillNode;
+import com.github.standobyte.jojo.client.ui.skill_tree.Sprites32x32;
+import com.github.standobyte.jojo.client.ui.skill_tree.advancement_copypaste.SkillNodeUI;
+import com.github.standobyte.jojo.client.ui.skill_tree.advancement_copypaste.SkillTreeUI;
 import com.github.standobyte.jojo.powersystem.standpower.StandUnlockableSkill;
 import com.github.standobyte.jojo.powersystem.unlockableskill.UnlockableSkill;
 
 import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
 
 public class StandSkillsStructured {
 	public final List<List<SkillNodeUI<UnlockableSkill>>> singularSkillsBase = new ArrayList<>();
@@ -124,8 +126,6 @@ public class StandSkillsStructured {
 		}
 	}
 	
-	
-	public static record Sprites32x32(@Nullable ResourceLocation background, @Nullable ResourceLocation foreground) {}
 	
 	public StandUnlockableSkill draw(GuiGraphics guiGraphics, 
 			Function<UnlockableSkill, Sprites32x32> getSprite32x32, 

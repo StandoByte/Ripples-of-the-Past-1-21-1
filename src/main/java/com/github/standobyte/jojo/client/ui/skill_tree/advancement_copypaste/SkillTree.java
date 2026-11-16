@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.ui.skill_tree;
+package com.github.standobyte.jojo.client.ui.skill_tree.advancement_copypaste;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,6 +10,9 @@ import java.util.Set;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
+
+import com.github.standobyte.jojo.client.ui.skill_tree.SkillHolder;
+import com.github.standobyte.jojo.client.ui.skill_tree.SkillNode;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;

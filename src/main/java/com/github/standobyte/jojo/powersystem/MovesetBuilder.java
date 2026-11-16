@@ -10,8 +10,8 @@ import javax.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.github.standobyte.jojo.client.ui.skill_tree.SkillHolder;
-import com.github.standobyte.jojo.client.ui.skill_tree.SkillTree;
-import com.github.standobyte.jojo.client.ui.skill_tree.StandSkillsStructured;
+import com.github.standobyte.jojo.client.ui.skill_tree.advancement_copypaste.SkillTree;
+import com.github.standobyte.jojo.client.ui.skill_tree.more_complex.StandSkillsStructured;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;

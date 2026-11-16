@@ -1,9 +1,10 @@
-package com.github.standobyte.jojo.client.ui.skill_tree;
+package com.github.standobyte.jojo.client.ui.skill_tree.advancement_copypaste;
 
 import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.ui.skill_tree.SkillNode;
 import com.google.common.collect.Lists;
 
 // net.minecraft.advancements.TreeNodePosition copypaste

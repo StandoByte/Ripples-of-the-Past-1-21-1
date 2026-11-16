@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.ui.skill_tree;
+package com.github.standobyte.jojo.client.ui.skill_tree.advancement_copypaste;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -7,7 +7,10 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.ui.skill_tree.StandSkillsStructured.Sprites32x32;
+import com.github.standobyte.jojo.client.ui.skill_tree.SkillDisplayInfo;
+import com.github.standobyte.jojo.client.ui.skill_tree.SkillHolder;
+import com.github.standobyte.jojo.client.ui.skill_tree.SkillNode;
+import com.github.standobyte.jojo.client.ui.skill_tree.Sprites32x32;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;

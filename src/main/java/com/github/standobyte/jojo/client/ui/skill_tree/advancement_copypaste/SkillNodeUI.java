@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.client.ui.skill_tree;
+package com.github.standobyte.jojo.client.ui.skill_tree.advancement_copypaste;
 
 import java.util.List;
 import java.util.function.Function;
@@ -9,7 +9,10 @@ import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
-import com.github.standobyte.jojo.client.ui.skill_tree.StandSkillsStructured.Sprites32x32;
+import com.github.standobyte.jojo.client.ui.skill_tree.SetIfNonNull;
+import com.github.standobyte.jojo.client.ui.skill_tree.SkillDisplayInfo;
+import com.github.standobyte.jojo.client.ui.skill_tree.SkillNode;
+import com.github.standobyte.jojo.client.ui.skill_tree.Sprites32x32;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
