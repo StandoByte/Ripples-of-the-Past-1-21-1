@@ -63,8 +63,8 @@ public class StandSkillTreeUILayoutAutoGenerate {
 		
 		int minX = 1;
 		int minY = 3;
-		int maxX = -Integer.MAX_VALUE;
-		int maxY = -Integer.MAX_VALUE;
+		int maxX = minX;
+		int maxY = minY;
 		
 		int x = minX;
 		int y = minY;
@@ -79,8 +79,10 @@ public class StandSkillTreeUILayoutAutoGenerate {
 			x = minX;
 			y += 28;
 		}
+		if (!singularSkillRowsBase.isEmpty()) {
+			y += 4;
+		}
 		
-		y += 4;
 		for (VanillaSkillTreeLayout<UnlockableSkill> tree : trees) {
 			for (NodePosition<UnlockableSkill> skill : tree.widgets.values()) {
 				skill.x += x;
@@ -90,9 +92,11 @@ public class StandSkillTreeUILayoutAutoGenerate {
 			}
 			x += tree.getWidth() + 6;
 		}
+		if (!trees.isEmpty()) {
+			y = maxY + 28 + 4;
+		}
 		
 		x = minX;
-		y = maxY + 32;
 		for (List<NodePosition<UnlockableSkill>> row : singularSkillRowsBelow) {
 			for (NodePosition<UnlockableSkill> skill : row) {
 				skill.x += x;
@@ -100,7 +104,6 @@ public class StandSkillTreeUILayoutAutoGenerate {
 				x += 28;
 				maxX = Math.max(skill.x, maxX);
 				maxY = Math.max(skill.y, maxY);
-				x += 28;
 			}
 			x = minX;
 			y += 28;
