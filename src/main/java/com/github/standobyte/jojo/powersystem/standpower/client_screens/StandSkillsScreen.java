@@ -18,8 +18,8 @@ import com.github.standobyte.jojo.client.ui.screen_jojomenu.Tab;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.TabCategory;
 import com.github.standobyte.jojo.client.ui.screen_widgets.PaperCornerTurnOverButton;
 import com.github.standobyte.jojo.client.ui.skill_tree.Sprites32x32;
-import com.github.standobyte.jojo.client.ui.skill_tree.advancement_copypaste.SkillTree;
-import com.github.standobyte.jojo.client.ui.skill_tree.more_complex.StandSkillsStructured;
+import com.github.standobyte.jojo.client.ui.skill_tree.advancement_copypaste.SkillNodeUI;
+import com.github.standobyte.jojo.client.ui.skill_tree.more_complex.StandSkillTreeUI;
 import com.github.standobyte.jojo.client.ui.utils.Alignment;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
@@ -96,7 +96,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 	protected Button deselectSkillButton;
 	protected Map<String, ConditionCheck> unlockSkillChecks = new HashMap<>();
 	
-	protected StandSkillsStructured skillForest;
+	protected StandSkillTreeUI skillsLayout;
 	
 
 	public StandSkillsScreen(Component title, TabCategory category, Tab tab) {
@@ -131,8 +131,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		levelingData = standPower.getCurTypeData();
 		StandType standType = standPower.getPowerType();
 		skills = standType.getUnlockableSkills().values();
-		SkillTree<UnlockableSkill> skillHierarchy = standType.getSkillTree();
-		skillForest = StandSkillsStructured.structure(skillHierarchy.initUI(getMinecraft(), this));
+		skillsLayout = StandSkillTreeUI.create(standType.getSkillTreeLayout(), getMinecraft(), this);
 		skillListScrolling = new Scrolling(162, Iterables.size(skills) * 20 + 2);
 		standSkin = StandSkinsLoader.getInstance().getSkin(standPower);
 
@@ -236,7 +235,9 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 						0, 0, width, height, 256, 256, 
 						BlitFloat.NO_TINT);
 				
-				this.hoveredSkill = skillForest.draw(guiGraphics, 
+				SkillNodeUI<UnlockableSkill> hovered = skillsLayout.getHovered(x, y, mouseX, mouseY);
+				hoveredSkill = hovered != null ? (StandUnlockableSkill) hovered.getValue() : null;
+				skillsLayout.draw(guiGraphics, 
 						skill -> getSkillSquareSprite(skill, levelingData, unlockSkillChecks), 
 						x, y, mouseX, mouseY);
 				

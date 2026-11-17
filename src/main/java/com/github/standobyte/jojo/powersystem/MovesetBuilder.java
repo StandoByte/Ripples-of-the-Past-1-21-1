@@ -9,9 +9,7 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.github.standobyte.jojo.client.ui.skill_tree.SkillHolder;
-import com.github.standobyte.jojo.client.ui.skill_tree.advancement_copypaste.SkillTree;
-import com.github.standobyte.jojo.client.ui.skill_tree.more_complex.StandSkillsStructured;
+import com.github.standobyte.jojo.client.ui.skill_tree.more_complex.StandSkillTreeUILayout;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
@@ -34,7 +32,7 @@ import net.minecraft.resources.ResourceLocation;
 public class MovesetBuilder {
 	public final Map<String, ConfigAbilityFactory<?>> abilities = new LinkedHashMap<>();
 	public final Map<String, UnlockableSkill> unlockableSkills = new LinkedHashMap<>();
-	protected SkillTree<UnlockableSkill> skillTree;
+	public StandSkillTreeUILayout skillTreeUI;
 	
 	@ApiStatus.Internal public Map<String, ControlSchemeTemplate> controlSchemes = new LinkedHashMap<>();
 	@ApiStatus.Internal public ControlSchemeTemplate curControlScheme = new ControlSchemeTemplate();
@@ -159,14 +157,19 @@ public class MovesetBuilder {
 		return this;
 	}
 	
-	public SkillTree<UnlockableSkill> getSkillTree() {
-		if (skillTree == null) {
-			skillTree = new SkillTree<>(skill -> StandSkillsStructured.getParent(skill, unlockableSkills));
-			skillTree.addAll(unlockableSkills.entrySet().stream()
-					.map(entry -> new SkillHolder<>(entry.getKey(), entry.getValue()))
-					.toList());
+	public MovesetBuilder generateSkillTreeUI(Consumer<StandSkillTreeUILayout> edit) {
+		skillTreeUI = new StandSkillTreeUILayout();
+		skillTreeUI.generate(unlockableSkills);
+		edit.accept(skillTreeUI);
+		return this;
+	}
+	
+	public StandSkillTreeUILayout getSkillTreeLayout() {
+		if (skillTreeUI == null) {
+			skillTreeUI = new StandSkillTreeUILayout();
+			skillTreeUI.generate(unlockableSkills);
 		}
-		return skillTree;
+		return skillTreeUI;
 	}
 
 	

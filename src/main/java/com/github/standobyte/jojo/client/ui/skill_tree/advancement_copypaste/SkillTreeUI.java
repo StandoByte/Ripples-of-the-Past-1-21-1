@@ -42,8 +42,7 @@ public class SkillTreeUI<T> {
 		return this.rootNode;
 	}
 
-	/** @return Hovered node's value */
-	public T drawContents(GuiGraphics guiGraphics, Function<T, Sprites32x32> getSprite32x32, int x, int y, int mouseX, int mouseY) {
+	public void drawContents(GuiGraphics guiGraphics, Function<T, Sprites32x32> getSprite32x32, int x, int y, int mouseX, int mouseY) {
 //		if (!this.centered) {
 //			this.scrollX = (double)(117 - (this.maxX + this.minX) / 2);
 //			this.scrollY = (double)(56 - (this.maxY + this.minY) / 2);
@@ -57,11 +56,9 @@ public class SkillTreeUI<T> {
 
 		this.root.drawConnectivity(guiGraphics, i, j, true);
 		this.root.drawConnectivity(guiGraphics, i, j, false);
-		T hoveredValue = this.root.draw(guiGraphics, getSprite32x32, i, j, mouseX, mouseY);
+		this.root.draw(guiGraphics, getSprite32x32, i, j, mouseX, mouseY);
 		guiGraphics.pose().popPose();
 		//guiGraphics.disableScissor();
-
-		return hoveredValue;
 	}
 
 	public void drawTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY, int width, int height) {

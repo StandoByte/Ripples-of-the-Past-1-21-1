@@ -11,13 +11,20 @@ import javax.annotation.Nullable;
 public class SkillNode<T> {
 	private final SkillHolder<T> holder;
 	private final Optional<SkillDisplayInfo> display;
-	@Nullable
-	private final SkillNode<T> parent;
+	private final Set<SkillNode<T>> parents = new LinkedHashSet<>();
 	private final Set<SkillNode<T>> children = new LinkedHashSet<>();
+	
+	public static <T> SkillNode<T> withMultipleParents(SkillHolder<T> valueHolder, Collection<SkillNode<T>> parents) {
+		SkillNode<T> node = new SkillNode<>(valueHolder, null);
+		node.parents.addAll(parents);
+		return node;
+	}
 
 	public SkillNode(SkillHolder<T> valueHolder, @Nullable SkillNode<T> parent) {
 		this.holder = valueHolder;
-		this.parent = parent;
+		if (parent != null) {
+			parents.add(parent);
+		}
 		this.display = Optional.of(new SkillDisplayInfo());
 	}
 
@@ -35,7 +42,11 @@ public class SkillNode<T> {
 
 	@Nullable
 	public SkillNode<T> parent() {
-		return this.parent;
+		return !parents.isEmpty() ? parents.iterator().next() : null;
+	}
+
+	public Collection<SkillNode<T>> parents() {
+		return this.parents;
 	}
 
 	public SkillNode<T> root() {

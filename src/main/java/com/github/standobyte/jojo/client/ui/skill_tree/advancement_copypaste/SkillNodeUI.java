@@ -9,8 +9,8 @@ import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
-import com.github.standobyte.jojo.client.ui.skill_tree.SetIfNonNull;
 import com.github.standobyte.jojo.client.ui.skill_tree.SkillDisplayInfo;
+import com.github.standobyte.jojo.client.ui.skill_tree.SkillHolder;
 import com.github.standobyte.jojo.client.ui.skill_tree.SkillNode;
 import com.github.standobyte.jojo.client.ui.skill_tree.Sprites32x32;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
@@ -45,13 +45,13 @@ public class SkillNodeUI<T> {
 	private static final int TITLE_Y = 9;
 	private static final int TITLE_MAX_WIDTH = 163;
 	private static final int[] TEST_SPLIT_OFFSETS = new int[]{0, 10, -10, 25, -25};
-	private final SkillTreeUI<T> tab;
-	private final SkillNode<T> node;
-	private final SkillDisplayInfo display;
-	private final int width;
-	private final Minecraft minecraft;
+	protected final SkillTreeUI<T> tab;
+	protected final SkillNode<T> node;
+	protected final SkillDisplayInfo display;
+	protected final int width;
+	protected final Minecraft minecraft;
 	@Nullable
-	private SkillNodeUI<T> parent;
+	public SkillNodeUI<T> parent;
 	public final List<SkillNodeUI<T>> children = Lists.newArrayList();
 	public int x;
 	public int y;
@@ -112,13 +112,18 @@ public class SkillNodeUI<T> {
 	}
 
 	@Nullable
-	private SkillNodeUI<T> getFirstVisibleParent(SkillNode<T> node) {
+	protected SkillNodeUI<T> getFirstVisibleParent(SkillNode<T> node) {
 		do {
 			node = node.parent();
 		}
 		while (node != null && node.display().isEmpty());
 
-		return node != null && !node.display().isEmpty() ? this.tab.getWidget(node.holder()) : null;
+		return node != null && !node.display().isEmpty() ? getWidgetOnTab(node.holder()) : null;
+	}
+
+	@Nullable
+	protected SkillNodeUI<T> getWidgetOnTab(SkillHolder<T> holder) {
+		return this.tab.getWidget(holder);
 	}
 
 	public void drawConnectivity(GuiGraphics guiGraphics, int x, int y, boolean dropShadow) {
@@ -150,10 +155,7 @@ public class SkillNodeUI<T> {
 		}
 	}
 
-	/** @return Value if the node is hovered, null otherwise */
-	@Nullable
-	public T draw(GuiGraphics guiGraphics, Function<T, Sprites32x32> getSprite32x32, int x, int y, int mouseX, int mouseY) {
-		SetIfNonNull<T> hovered = new SetIfNonNull<>();
+	public void draw(GuiGraphics guiGraphics, Function<T, Sprites32x32> getSprite32x32, int x, int y, int mouseX, int mouseY) {
 //		if (!this.display.isHidden() || this.progress != null && this.progress.isDone()) {
 			Sprites32x32 frameSprites = getSprite32x32.apply(getValue());
 			ResourceLocation frameSpriteBG = frameSprites.background();
@@ -168,18 +170,11 @@ public class SkillNodeUI<T> {
 			if (frameSpriteFG != null) {
 				guiGraphics.blitSprite(frameSpriteFG, nodeX, nodeY - 3, 32, 32);
 			}
-			boolean isHovered = 
-					mouseX >= nodeX && mouseX <= nodeX + 26 && 
-					mouseY >= nodeY && mouseY <= nodeY + 26;
-			if (isHovered) {
-				hovered.set(value);
-			}
 //		}
 
 		for (SkillNodeUI<T> child : this.children) {
-			hovered.set(child.draw(guiGraphics, getSprite32x32, x, y, mouseX, mouseY));
+			child.draw(guiGraphics, getSprite32x32, x, y, mouseX, mouseY);
 		}
-		return hovered.get();
 	}
 	
 	protected void renderIcon(T value, GuiGraphics guiGraphics, int x, int y) {

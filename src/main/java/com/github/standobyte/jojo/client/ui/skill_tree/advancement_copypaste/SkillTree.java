@@ -115,7 +115,7 @@ public class SkillTree<T> {
 		return forest;
 	}
 	
-	static <T> void addChildNode(SkillNode<T> parent, SkillTreeUI<T> treeUI) {
+	public static <T> void addChildNode(SkillNode<T> parent, SkillTreeUI<T> treeUI) {
 		for (SkillNode<T> node : parent.children()) {
 			if (parent != node) {
 				treeUI.addNode(node);
