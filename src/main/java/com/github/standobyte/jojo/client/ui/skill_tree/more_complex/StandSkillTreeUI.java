@@ -9,8 +9,8 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ui.skill_tree.SkillHolder;
+import com.github.standobyte.jojo.client.ui.skill_tree.SkillNodeUI;
 import com.github.standobyte.jojo.client.ui.skill_tree.Sprites32x32;
-import com.github.standobyte.jojo.client.ui.skill_tree.advancement_copypaste.SkillNodeUI;
 import com.github.standobyte.jojo.powersystem.unlockableskill.UnlockableSkill;
 
 import net.minecraft.client.Minecraft;

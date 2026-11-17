@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.client.ui.skill_tree.more_complex;
 
-import com.github.standobyte.jojo.client.ui.skill_tree.advancement_copypaste.SkillNodeUI;
+import com.github.standobyte.jojo.client.ui.skill_tree.SkillNodeUI;
 import com.github.standobyte.jojo.client.ui.utils.Orientation;
 
 import net.minecraft.client.gui.GuiGraphics;
