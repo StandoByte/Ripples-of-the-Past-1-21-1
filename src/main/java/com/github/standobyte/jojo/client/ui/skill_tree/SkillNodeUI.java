@@ -5,21 +5,12 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.ClientPowerCache;
-import com.github.standobyte.jojo.client.standskin.StandSkin;
-import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
-import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
 import com.github.standobyte.jojo.client.ui.skill_tree.advancement_copypaste.SkillTreeUI;
-import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
-import com.github.standobyte.jojo.powersystem.PowerClass;
-import com.github.standobyte.jojo.powersystem.standpower.StandPower;
-import com.github.standobyte.jojo.powersystem.unlockableskill.UnlockableSkill;
 import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.StringSplitter;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
@@ -73,6 +64,8 @@ public class SkillNodeUI<T> {
 //
 		this.width = j + 3 + 5;
 	}
+	
+	protected void renderIcon(T value, GuiGraphics guiGraphics, int x, int y) {}
 	
 	public void updatePosition(SkillDisplayInfo display) {
 		this.x = Mth.floor(display.getX() * 28.0F);
@@ -172,19 +165,6 @@ public class SkillNodeUI<T> {
 		for (SkillNodeUI<T> child : this.children) {
 			child.draw(guiGraphics, getSprite32x32, x, y, mouseX, mouseY);
 		}
-	}
-	
-	protected void renderIcon(T value, GuiGraphics guiGraphics, int x, int y) {
-		renderSkillIcon((UnlockableSkill) value, guiGraphics, x, y);
-	}
-	
-	public static void renderSkillIcon(UnlockableSkill skill, GuiGraphics guiGraphics, int x, int y) {
-		AbilityIconSprites abilityIconSprites = StandSkinsLoader.getInstance().abilityIcons;
-		StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
-		StandSkin standSkin = StandSkinsLoader.getInstance().getSkin(standPower);
-		TextureAtlasSprite icon = abilityIconSprites.getAbilityIcon(skill.skillName, standSkin);
-		BlitFloat.blit(guiGraphics.pose(), Minecraft.getInstance(), icon, 
-				x + 8, y + 5, 16, 16, 0, BlitFloat.NO_TINT);
 	}
 
 	public int getWidth() {

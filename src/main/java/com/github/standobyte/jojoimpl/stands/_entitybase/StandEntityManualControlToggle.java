@@ -3,8 +3,8 @@ package com.github.standobyte.jojoimpl.stands._entitybase;
 import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.input.InputHandler;
-import com.github.standobyte.jojo.client.ui.hud_power.PowerHud;
-import com.github.standobyte.jojo.client.util.functions.ClientUtil;
+import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.client.ui.skill_tree.DrawStandSkillIcon;
 import com.github.standobyte.jojo.entityattachment.ComponentUtil;
 import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.powersystem.Power;
@@ -20,13 +20,10 @@ import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.EntityComponen
 import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.client.ClientEntityController;
 import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.client.stand.ClientStandController;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.FastColor.ARGB32;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
@@ -99,31 +96,9 @@ public class StandEntityManualControlToggle extends Ability {
 		if (standPower != null) {
 			ClientEntityController curControlledEntity = ClientEntityController.getInstance();
 			boolean isControlled = curControlledEntity != null && curControlledEntity.entity == ClientGlobals.playerStandEntity;
-			PoseStack poseStack = guiGraphics.pose();
-			guiGraphics.enableScissor((int) x, (int) y, (int) x + 16, (int) y + 16);
-			RenderSystem.enableBlend();
-			RenderSystem.defaultBlendFunc();
-			if (isControlled) {
-				PowerHud.renderStandIcon(standPower, poseStack, (int) x + 4, y - 4, ARGB32.multiply(color, 0x60FFFFFF));
-				RenderSystem.enableBlend();
-				RenderSystem.defaultBlendFunc();
-				poseStack.pushPose();
-				poseStack.scale(0.5f, 0.5f, 1);
-				poseStack.translate(x, y, 0);
-				ClientUtil.renderEntityFace(poseStack, x + 4, y + 10, context.getUser(), color, false);
-				poseStack.popPose();
-			}
-			else {
-				//guiGraphics.enableScissor((int) x + 11, (int) y, (int) x + 16, (int) y + 16);
-				poseStack.pushPose();
-				poseStack.scale(0.5f, 0.5f, 1);
-				poseStack.translate(x, y, 0);
-				ClientUtil.renderEntityFace(poseStack, x + 16, y, context.getUser(), ARGB32.multiply(color, 0x60FFFFFF), false);
-				poseStack.popPose();
-				//guiGraphics.disableScissor();
-				PowerHud.renderStandIcon(standPower, poseStack, x - 2, y, color);
-			}
-			guiGraphics.disableScissor();
+			DrawStandSkillIcon.renderManualControlSkillIcon(guiGraphics, 
+					x, y, color, isControlled, 
+					StandSkinsLoader.getInstance().getSkin(standPower), standPower.getUser());
 		}
 	}
 

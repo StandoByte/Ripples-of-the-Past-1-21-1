@@ -19,6 +19,7 @@ import com.github.standobyte.jojo.client.ui.screen_jojomenu.Tab;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.TabCategory;
 import com.github.standobyte.jojo.client.ui.screen_widgets.PaperCornerTurnOverButton;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList;
+import com.github.standobyte.jojo.client.ui.skill_tree.DrawStandSkillIcon;
 import com.github.standobyte.jojo.client.ui.skill_tree.SkillNodeUI;
 import com.github.standobyte.jojo.client.ui.skill_tree.Sprites32x32;
 import com.github.standobyte.jojo.client.ui.skill_tree.more_complex.StandSkillTreeUI;
@@ -41,7 +42,6 @@ import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersisten
 import com.github.standobyte.jojo.powersystem.unlockableskill.ClLearnSkillPacket;
 import com.github.standobyte.jojo.powersystem.unlockableskill.UnlockableSkill;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -50,7 +50,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -74,15 +73,16 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 	public static final Sprites32x32 SKILL_SQUARE_CLOSED = new Sprites32x32(
 			JojoMod.resLoc("stand_skill_closed"), null);
 	
-	protected AbilityIconSprites abilityIconSprites;
+	public AbilityIconSprites abilityIconSprites;
 	
 	protected TabCategory category;
 	protected Tab tab;
 
-	protected StandPower standPower;
-	protected StandTypePersistentData levelingData;
-	protected StandSkin standSkin;
+	public StandPower standPower;
+	public StandTypePersistentData levelingData;
+	public StandSkin standSkin;
 	protected Iterable<StandUnlockableSkill> skills = Collections.emptyList();
+	public Map<String, ConditionCheck> unlockSkillChecks = new HashMap<>();
 	
 	protected StandSkillScreenMode mode = StandSkillScreenMode.TREES;
 	@Nullable protected StandUnlockableSkill hoveredSkill;
@@ -92,14 +92,13 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 	protected ScrollingText skillDescription;
 	protected ScrollingText skillControls;
 	
+	protected StandSkillTreeUI skillsLayout;
+	
 	protected Button learnSkillButton;
 	protected Button resetSkillsButton;
 	protected Button learnAllSkillsButton;
 	protected MutableTooltipWrapper learnSkillTooltip;
 	protected Button deselectSkillButton;
-	protected Map<String, ConditionCheck> unlockSkillChecks = new HashMap<>();
-	
-	protected StandSkillTreeUI skillsLayout;
 	
 
 	public StandSkillsScreen(Component title, TabCategory category, Tab tab) {
@@ -350,20 +349,17 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 				int top, int left, int width, int height, 
 				int mouseX, int mouseY, boolean hovering, float partialTick) {
 			boolean isUnlocked = screen.levelingData.isSkillUnlocked(skill.skillName);
-			int expCostColor = !isUnlocked ? screen.getExpCostColor(skill) : STAND_EXP_NUMBER_COLOR;
-			boolean unlockedOrOnlyMissingStandExp = expCostColor == STAND_EXP_NUMBER_COLOR;
-			int skillSpriteColor = unlockedOrOnlyMissingStandExp ? BlitFloat.NO_TINT : 0x40404040;
 			
-			TextureAtlasSprite icon = screen.abilityIconSprites.getAbilityIcon(skill.skillName, screen.standSkin);
-			RenderSystem.enableBlend();
-			RenderSystem.defaultBlendFunc();
-			BlitFloat.blit(guiGraphics.pose(), screen.minecraft, icon, 
-					left, top, 16, 16, 0, skillSpriteColor);
+			DrawStandSkillIcon.drawSkillIcon(skill, 
+					screen.abilityIconSprites, screen.standSkin, 
+					guiGraphics, left, top,
+					DrawStandSkillIcon.drawnAsSilhouette(isUnlocked, screen.unlockSkillChecks.get(skill.skillName)));
 			
 			if (isUnlocked) {
 				guiGraphics.drawString(screen.font, String.valueOf(IconSymbols.CHECKMARK), left + 18, top + 4, 0xFFFFFFFF);
 			}
 			else {
+				int expCostColor = screen.getExpCostColor(skill);
 				int expToUnlock = skill.expToUnlock;
 				String expCostLine = expToUnlock > 0 ? String.valueOf(expToUnlock) : "-";
 				guiGraphics.drawString(screen.font, expCostLine, left + 18, top + 4, expCostColor, false);
@@ -422,12 +418,15 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 	public static final int STAND_EXP_NUMBER_COLOR = 0x00A000;
 	protected int getExpCostColor(StandUnlockableSkill skill) {
 		ConditionCheck check = unlockSkillChecks.get(skill.skillName);
-		if (check != null && (check.positive() || check == StandUnlockableSkill.NOT_ENOUGH_EXP)) {
-			return STAND_EXP_NUMBER_COLOR;
+		if (check != null) {
+			if (check.positive()) {
+				return STAND_EXP_NUMBER_COLOR;
+			}
+			if (check == StandUnlockableSkill.NOT_ENOUGH_EXP) {
+				return ChatFormatting.RED.getColor();
+			}
 		}
-		else {
-			return 0xB0B0B0;
-		}
+		return 0xB0B0B0;
 	}
 	
 	public void setSelectedSkill(StandUnlockableSkill skill) {

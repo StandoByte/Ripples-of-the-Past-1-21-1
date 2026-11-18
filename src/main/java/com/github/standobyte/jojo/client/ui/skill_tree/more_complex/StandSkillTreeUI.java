@@ -8,9 +8,12 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.ui.skill_tree.DrawStandSkillIcon;
 import com.github.standobyte.jojo.client.ui.skill_tree.SkillHolder;
+import com.github.standobyte.jojo.client.ui.skill_tree.SkillNode;
 import com.github.standobyte.jojo.client.ui.skill_tree.SkillNodeUI;
 import com.github.standobyte.jojo.client.ui.skill_tree.Sprites32x32;
+import com.github.standobyte.jojo.powersystem.standpower.client_screens.StandSkillsScreen;
 import com.github.standobyte.jojo.powersystem.unlockableskill.UnlockableSkill;
 
 import net.minecraft.client.Minecraft;
@@ -23,12 +26,24 @@ public class StandSkillTreeUI {
 	
 	public static StandSkillTreeUI create(StandSkillTreeUILayout layout, Minecraft mc, Screen screen) {
 		StandSkillTreeUI ui = new StandSkillTreeUI();
+		StandSkillsScreen screen_ = (StandSkillsScreen) screen;
 		for (NodePosition<UnlockableSkill> nodePos : layout.allNodes.values()) {
+			SkillNode<UnlockableSkill> node = nodePos.node;
+			UnlockableSkill skill = node.value();
 			SkillNodeUI<UnlockableSkill> widget = new SkillNodeUI<>(null, 
-					mc, nodePos.node, nodePos.node.display().get());
+					mc, node, node.display().get()) {
+
+				@Override
+				protected void renderIcon(UnlockableSkill value, GuiGraphics guiGraphics, int x, int y) {
+					DrawStandSkillIcon.drawSkillIcon(skill, 
+							screen_.abilityIconSprites, screen_.standSkin, 
+							guiGraphics, x + 8, y + 5, 
+							DrawStandSkillIcon.drawnAsSilhouette(skill, screen_.levelingData, screen_.unlockSkillChecks.get(skill.skillName)));
+				}
+			};
 			widget.x = nodePos.x;
 			widget.y = nodePos.y;
-			ui.widgets.put(nodePos.node.holder(), widget);
+			ui.widgets.put(node.holder(), widget);
 		}
 		for (var parentEntry : layout.linksToChildren.entrySet()) {
 			for (NodeConnection<UnlockableSkill> connection : parentEntry.getValue()) {
