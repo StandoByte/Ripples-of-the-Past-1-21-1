@@ -77,6 +77,10 @@ public final class ModItems {
 			});
 	public static final DeferredItem<Item> AJA_STONE = ITEMS.registerItem("aja_stone", Item::new, new Item.Properties().stacksTo(16));
 	public static final DeferredItem<Item> SUPER_AJA_STONE = ITEMS.registerItem("super_aja_stone", Item::new, new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
+	public static final DeferredItem<Item> POTTERY_SHERD_PILLAR_MAN_1 = ITEMS.registerItem("pottery_sherd_tribe", Item::new);
+	public static final DeferredItem<Item> POTTERY_SHERD_PILLAR_MAN_2 = ITEMS.registerItem("pottery_sherd_sun", Item::new);
+	public static final DeferredItem<Item> POTTERY_SHERD_PILLAR_MAN_3 = ITEMS.registerItem("pottery_sherd_mask", Item::new);
+	public static final DeferredItem<Item> POTTERY_SHERD_PILLAR_MAN_4 = ITEMS.registerItem("pottery_sherd_ultimate", Item::new);
 	public static final DeferredItem<Item> KNIFE = ITEMS.registerItem("knife", Item::new, new Item.Properties().stacksTo(16));
 	public static final DeferredItem<Item> LUCK_SWORD = ITEMS.registerItem("luck_sword", Item::new, new Item.Properties().stacksTo(1).rarity(Rarity.RARE));
 	public static final DeferredItem<Item> LUCK_PLUCK_SWORD = ITEMS.registerItem("luck_pluck_sword", Item::new, new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
@@ -180,6 +184,10 @@ public final class ModItems {
 			output.accept(METAL_BALL);
 			output.accept(AJA_STONE);
 			output.accept(SUPER_AJA_STONE);
+			output.accept(POTTERY_SHERD_PILLAR_MAN_1);
+			output.accept(POTTERY_SHERD_PILLAR_MAN_2);
+			output.accept(POTTERY_SHERD_PILLAR_MAN_3);
+			output.accept(POTTERY_SHERD_PILLAR_MAN_4);
 			output.accept(STONE_MASK_PROTOTYPE);
 			output.accept(STONE_MASK_AJA_SOCKET);
 			output.accept(STONE_MASK_AJA);
@@ -244,6 +252,10 @@ public final class ModItems {
 				METAL_BALL,
 				AJA_STONE,
 				SUPER_AJA_STONE,
+				POTTERY_SHERD_PILLAR_MAN_1,
+				POTTERY_SHERD_PILLAR_MAN_2,
+				POTTERY_SHERD_PILLAR_MAN_3,
+				POTTERY_SHERD_PILLAR_MAN_4,
 				STONE_MASK_PROTOTYPE,
 				STONE_MASK_AJA_SOCKET,
 				STONE_MASK_AJA,

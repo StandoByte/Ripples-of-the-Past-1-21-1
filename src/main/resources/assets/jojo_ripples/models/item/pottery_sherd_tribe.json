@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "jojo_ripples:item/pottery_sherd_1_tribe_of_darkness"
+  }
+}

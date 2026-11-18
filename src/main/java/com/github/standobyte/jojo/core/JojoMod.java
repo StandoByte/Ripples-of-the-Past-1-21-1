@@ -19,6 +19,7 @@ import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.init.ModMapDecorations;
 import com.github.standobyte.jojo.init.ModParticles;
+import com.github.standobyte.jojo.init.ModPotterySherds;
 import com.github.standobyte.jojo.init.ModSoundEvents;
 import com.github.standobyte.jojo.init.ModSpecialActions;
 import com.github.standobyte.jojo.init.ModStatusEffects;
@@ -65,6 +66,7 @@ public class JojoMod {
 		ModBlockEntities.BLOCK_ENTITY_TYPES.register(modEventBus);
 		ModContainers.CONTAINERS.register(modEventBus);
 		ModMapDecorations.DECORATIONS.register(modEventBus);
+		ModPotterySherds.POTTERY_SHERDS.register(modEventBus);
 		
 		ModStandAbilities.ABILITY_TYPES.register(modEventBus);
 		ModEntityCustomEffects.CUSTOM_EFFECTS.register(modEventBus);
