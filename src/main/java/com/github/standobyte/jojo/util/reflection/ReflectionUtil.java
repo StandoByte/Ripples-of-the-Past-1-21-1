@@ -190,7 +190,12 @@ public final class ReflectionUtil {
 	public static class UnableToAccessFieldException extends RuntimeException {
 
 		public static UnableToAccessFieldException onIllegalAccessException(IllegalAccessException e, Field field, Object instance) {
-			LOGGER.error(REFLECTION, "Unable to access field {} on an object of type {}", field.getName(), instance.getClass().getName(), e);
+			if (instance != null) {
+				LOGGER.error(REFLECTION, "Unable to access field {} on an object of type {}", field.getName(), instance.getClass().getName(), e);
+			}
+			else {
+				LOGGER.error(REFLECTION, "Unable to access field {}", field.getName(), e);
+			}
 			return new UnableToAccessFieldException(e);
 		}
 		
