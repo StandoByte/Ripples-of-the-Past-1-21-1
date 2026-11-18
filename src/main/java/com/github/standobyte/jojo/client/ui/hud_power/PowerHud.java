@@ -365,24 +365,21 @@ public class PowerHud {
 	}
 	
 	public static void renderClientStandIcon(PoseStack pose, float x, float y) {
-		renderStandIcon(ClientPowerCache.getPower(PowerClass.STAND), pose, x, y, BlitFloat.NO_TINT);
+		renderClientStandIcon(pose, x, y, BlitFloat.NO_TINT);
 	}
 	
 	public static void renderClientStandIcon(PoseStack pose, float x, float y, int color) {
-		renderStandIcon(ClientPowerCache.getPower(PowerClass.STAND), pose, x, y, color);
+		renderStandIcon(StandSkinsLoader.getCurSkin(), pose, x, y, color);
 	}
 	
-	public static void renderStandIcon(StandPower standPower, PoseStack pose, float x, float y, int color) {
-		if (standPower != null) {
-			StandSkin skin = StandSkinsLoader.getInstance().getSkin(standPower);
-			if (skin != null) {
-				GuiIcon icon = skin.getStandIcon();
-				if (icon != null) {
-					RenderSystem.enableBlend();
-					RenderSystem.defaultBlendFunc();
-					icon.render(pose, x, y, color);
-					RenderSystem.disableBlend();
-				}
+	public static void renderStandIcon(StandSkin standSkin, PoseStack pose, float x, float y, int color) {
+		if (standSkin != null) {
+			GuiIcon icon = standSkin.getStandIcon();
+			if (icon != null) {
+				RenderSystem.enableBlend();
+				RenderSystem.defaultBlendFunc();
+				icon.render(pose, x, y, color);
+				RenderSystem.disableBlend();
 			}
 		}
 	}
