@@ -1,10 +1,14 @@
 package com.github.standobyte.jojo.client.ui.screen_widgets;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
+import javax.annotation.Nullable;
+
 import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList.EntryWithButtons.EntryWidgetOffset;
+import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -15,12 +19,19 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 public class ScrolleableButtonList extends ContainerObjectSelectionList<ScrolleableButtonList.EntryWithButtons> {
 	public static final int SCROLL_BAR_WIDTH = AbstractSelectionList.SCROLLBAR_WIDTH;
+	public static final ResourceLocation SCROLLER_SPRITE = ResourceLocation.withDefaultNamespace("widget/scroller");
+	public static final ResourceLocation SCROLLER_BACKGROUND_SPRITE = ResourceLocation.withDefaultNamespace("widget/scroller_background");
+
 	public int scrollbarPosOffset = 0;
 	public boolean disableBackground = false;
 	public boolean disableSeparators = false;
+	public ResourceLocation scrollerSprite = SCROLLER_SPRITE;
+	@Nullable public ResourceLocation scrollerBGSprite = SCROLLER_BACKGROUND_SPRITE;
 	public List<EntryWidgetOffset> alwaysRender = new ArrayList<>();
 	
 	public ScrolleableButtonList(Minecraft minecraft, int x, int y, 
@@ -44,7 +55,17 @@ public class ScrolleableButtonList extends ContainerObjectSelectionList<Scrollea
 	public int addEntry(EntryWithButtons entry) {
 		return super.addEntry(entry);
 	}
-	
+
+	@Override
+	public void clearEntries() {
+		super.clearEntries();
+	}
+
+	@Override
+	public void replaceEntries(Collection<EntryWithButtons> entries) {
+		super.replaceEntries(entries);
+	}
+
 	/** For renderable objects that span more than one row (for example, the Stand stats circle) */
 	public <T extends Renderable & LayoutElement> void addAlwaysRenderedObject(
 			T object, int xOffset, int yOffset) {
@@ -61,6 +82,44 @@ public class ScrolleableButtonList extends ContainerObjectSelectionList<Scrollea
 		return super.getRowTop(index);
 	}
 
+	@Nullable
+	public EntryWithButtons getEntryAtPos(double mouseX, double mouseY) {
+		return super.getEntryAtPosition(mouseX, mouseY);
+	}
+	
+	@Override
+	public boolean isMouseOver(double mouseX, double mouseY) {
+		return super.isMouseOver(mouseX, mouseY) || isMouseAtScrollBar(mouseX, mouseY);
+	}
+	
+	public boolean isMouseAtScrollBar(double mouseX, double mouseY) {
+		return mouseY >= getY()
+				&& mouseY <= getBottom()
+				&& mouseX >= getScrollbarPosition()
+				&& mouseX <= getScrollbarPosition() + SCROLLBAR_WIDTH;
+	}
+	
+	
+	@Override
+	public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+		hovered = isMouseOver(mouseX, mouseY) ? getEntryAtPosition(mouseX, mouseY) : null;
+		renderListBackground(guiGraphics);
+		enableScissor(guiGraphics);
+		if (renderHeader) {
+			int x = getRowLeft();
+			int y = getY() + 4 - (int) getScrollAmount();
+			renderHeader(guiGraphics, x, y);
+		}
+
+		renderListItems(guiGraphics, mouseX, mouseY, partialTick);
+		guiGraphics.disableScissor();
+		renderListSeparators(guiGraphics);
+		renderScrollBar(guiGraphics);
+
+		renderDecorations(guiGraphics, mouseX, mouseY);
+		RenderSystem.disableBlend();
+	}
+
 	@Override
 	protected void renderListBackground(GuiGraphics guiGraphics) {
 		if (!disableBackground) {
@@ -72,6 +131,25 @@ public class ScrolleableButtonList extends ContainerObjectSelectionList<Scrollea
 	protected void renderListSeparators(GuiGraphics guiGraphics) {
 		if (!disableSeparators) {
 			super.renderListSeparators(guiGraphics);
+		}
+	}
+	
+	protected void renderScrollBar(GuiGraphics guiGraphics) {
+		if (scrollbarVisible()) {
+			int x = getScrollbarPosition();
+			int barHeight = (int)((float)(height * height) / (float) getMaxPosition());
+			barHeight = Mth.clamp(barHeight, 32, height - 8);
+			int barY = (int) getScrollAmount() * (height - barHeight) / getMaxScroll() + getY();
+			if (barY < getY()) {
+				barY = getY();
+			}
+
+			RenderSystem.enableBlend();
+			if (scrollerBGSprite != null) {
+				guiGraphics.blitSprite(scrollerBGSprite, x, getY(), SCROLL_BAR_WIDTH, getHeight());
+			}
+			guiGraphics.blitSprite(scrollerSprite, x, barY, SCROLL_BAR_WIDTH, barHeight);
+			RenderSystem.disableBlend();
 		}
 	}
 
