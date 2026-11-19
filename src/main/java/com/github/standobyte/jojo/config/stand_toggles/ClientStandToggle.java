@@ -1,12 +1,10 @@
 package com.github.standobyte.jojo.config.stand_toggles;
 
 import java.util.function.BooleanSupplier;
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
-import com.github.standobyte.jojo.client.input.InputHandler;
-import com.github.standobyte.jojo.client.input.VanillaKeybinds;
 import com.github.standobyte.jojo.client.ui.KeybindsEditingUI;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ToggleButton;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ToggleSwitch;
@@ -34,6 +32,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.LinearLayout.Orientation;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.neoforged.neoforge.common.util.Lazy;
 
 public class ClientStandToggle implements Renderable {
 	public final ConfigOption<Boolean> setting;
@@ -46,7 +45,7 @@ public class ClientStandToggle implements Renderable {
 	@Nullable public final GuiIcon offHudIcon;
 	public final BooleanSupplier activeWhen;
 	
-	public final Function<VanillaKeybinds, KeyMapping> keybind;
+	public final Lazy<KeyMapping> keybind;
 	
 	public ToggleSwitch toggle;
 	public Button keybindButton;
@@ -56,12 +55,12 @@ public class ClientStandToggle implements Renderable {
 	public ClientStandToggle(ConfigOption<Boolean> setting, @Nullable ConfigOption<BoolOrPlayerPref> overrulingCommonSetting,
 			ModConfigType configToSave, 
 			ConfigOption<Boolean> hudVisibilitySetting, BooleanSupplier renderInHudAndUseKeybindWhen, 
-			Function<VanillaKeybinds, KeyMapping> keybind, 
+			Supplier<KeyMapping> keybind, 
 			GuiIcon icon, @Nullable GuiIcon offIcon, Component text) {
 		this.setting = setting;
 		this.overrulingCommonSetting = overrulingCommonSetting;
 		this.configToSave = configToSave;
-		this.keybind = keybind;
+		this.keybind = Lazy.of(keybind);
 		this.text = text;
 		
 		this.hudVisibilitySetting = hudVisibilitySetting;
@@ -71,7 +70,7 @@ public class ClientStandToggle implements Renderable {
 	}
 	
 	public void init(int x, int y, KeybindsEditingUI keybindsHandler) {
-		KeyMapping keyMapping = keybind.apply(InputHandler.getInstance().vanillaKeybinds);
+		KeyMapping keyMapping = keybind.get();
 		if (keyMapping != null) {
 			keybindButton = keybindsHandler.addKeybind(keyMapping, JojoMod.config::saveClient, x + 155, y, 50, 20).button;
 		}

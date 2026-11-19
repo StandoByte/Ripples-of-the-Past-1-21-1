@@ -51,7 +51,7 @@ public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
 		
 		keybindsHandler = new KeybindsEditingUI();
 
-		ClientStandToggle[] toggles = ClientStandToggles.lazyInitToggles();
+		Iterable<ClientStandToggle> toggles = ClientStandToggles.get();
 		int x = getWindowX(this);
 		int y = getWindowY(this) + 8;
 		for (ClientStandToggle toggle : toggles) {

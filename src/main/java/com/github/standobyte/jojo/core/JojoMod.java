@@ -7,6 +7,7 @@ import com.github.standobyte.jojo.command.argument.ModCommandArguments;
 import com.github.standobyte.jojo.config.ModConfigInterface;
 import com.github.standobyte.jojo.config.RotpConfig;
 import com.github.standobyte.jojo.config.core.RegisterRotpConfigEvent;
+import com.github.standobyte.jojo.config.stand_toggles.ClientStandToggles;
 import com.github.standobyte.jojo.init.ModBlockEntities;
 import com.github.standobyte.jojo.init.ModBlocks;
 import com.github.standobyte.jojo.init.ModContainers;
@@ -31,6 +32,7 @@ import com.github.standobyte.jojo.modcompat.interfaces.OtherModInterfaces;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -110,7 +112,7 @@ public class JojoMod {
 	
 	public static ModConfigInterface<RotpConfig.Client, RotpConfig.ClientBroadcast, RotpConfig.Common> config;
 	
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.NORMAL)
 	public void registerConfig(RegisterRotpConfigEvent event) {
 		switch (event.environment) {
 			case CLIENT -> {
@@ -118,6 +120,8 @@ public class JojoMod {
 						RotpConfig.Client::new,
 						RotpConfig.ClientBroadcast::new, 
 						RotpConfig.Common::new);
+				
+				ClientStandToggles.init();
 			}
 			case DEDICATED_SERVER -> {
 				/* Because in our case the client config contains objects of classes that references client-only vanilla classes

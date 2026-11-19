@@ -870,7 +870,7 @@ public class PowerHud {
 			togglesToRender.clear();
 			transparencies.clear();
 			
-			ClientStandToggle[] toggles = ClientStandToggles.lazyInitToggles();
+			Iterable<ClientStandToggle> toggles = ClientStandToggles.get();
 			float partialTick = ClientUtil.partialTick(Minecraft.getInstance().getTimer(), false);
 			for (var toggle : toggles) {
 				boolean alwaysRender = toggle.hudVisibilitySetting.get();

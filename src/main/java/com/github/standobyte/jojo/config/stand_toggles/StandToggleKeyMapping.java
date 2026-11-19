@@ -30,8 +30,10 @@ public class StandToggleKeyMapping extends KeyMapping {
 	
 	public ClientStandToggle getToggle() {
 		if (toggle == null) {
-			ClientStandToggles.lazyInitToggles();
 			toggle = getToggle.get();
+			if (toggle == null) {
+				throw new IllegalStateException();
+			}
 		}
 		return toggle;
 	}

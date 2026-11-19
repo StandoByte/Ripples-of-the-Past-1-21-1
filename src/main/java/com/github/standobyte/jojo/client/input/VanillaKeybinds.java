@@ -16,13 +16,9 @@ import com.github.standobyte.jojo.config.stand_toggles.ClientStandToggle;
 import com.github.standobyte.jojo.config.stand_toggles.ClientStandToggles;
 import com.github.standobyte.jojo.config.stand_toggles.StandToggleKeyMapping;
 import com.github.standobyte.jojo.core.JojoMod;
-import com.github.standobyte.jojo.network.c2s.ClNoParamsPacket;
-import com.github.standobyte.jojo.network.c2s.ClNoParamsPacket.PacketType;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
-import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
-import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopEffect;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.KeyMapping;
@@ -32,7 +28,6 @@ import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.settings.IKeyConflictContext;
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import net.neoforged.neoforge.client.settings.KeyModifier;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 public class VanillaKeybinds {
 	public static final String MAIN_CATEGORY = "key.categories." + JojoMod.MOD_ID;
@@ -162,9 +157,9 @@ public class VanillaKeybinds {
 		}
 		
 		
-		for (ClientStandToggle toggle : ClientStandToggles.lazyInitToggles()) {
+		for (ClientStandToggle toggle : ClientStandToggles.get()) {
 			if (toggle.keybind != null) {
-				KeyMapping keybind = toggle.keybind.apply(this);
+				KeyMapping keybind = toggle.keybind.get();
 				if (keybind != null) {
 					while (keybind.consumeClick()) {
 						if (toggle.clientCanToggle()) {
