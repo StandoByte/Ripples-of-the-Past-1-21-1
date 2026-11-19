@@ -68,6 +68,7 @@ public class VanillaItemUseAsAction extends SpecialEntityActionType {
 	public static class ItemUsingInstance extends EntityActionInstance {
 		protected boolean isPlayerEntity;
 		protected ServerPlayer standUserPlayer;
+		protected boolean itemReleased;
 		
 		protected ItemStack usedItem;
 		UseAnim vanillaAnim;
@@ -100,10 +101,19 @@ public class VanillaItemUseAsAction extends SpecialEntityActionType {
 		
 		@Override
 		public void onButtonStopHold() { // lets stands shoot bows and throw tridents when the client releases RMB
-			if (!level().isClientSide() && !isPlayerEntity) {
+			if (!level().isClientSide() && !isPlayerEntity && !itemReleased) {
+				itemReleased = true;
 				ServerSideLivingClick.releaseUsingItem(performer, standUserPlayer);
 				setPhase(ActionPhase.RECOVERY, 0);
 				syncPhaseChanges();
+			}
+		}
+		
+		@Override
+		public void onActionCleared(@Nullable EntityActionInstance newAction) {
+			if (!level().isClientSide() && !isPlayerEntity && !itemReleased) {
+				itemReleased = true;
+				performer.stopUsingItem();
 			}
 		}
 		
