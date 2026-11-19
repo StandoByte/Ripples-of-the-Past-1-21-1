@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
+import com.github.standobyte.jojo.subsystems.entity_playerwrapper.EntityAsPlayerWrapper;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.locale.Language;
@@ -18,6 +19,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -97,9 +99,10 @@ public class StandArrowShardItem extends Item {
     	ItemStack item = itemEntity.getItem();
     	if (!item.isEmpty() && item.is(ModItems.STAND_ARROW_SHARD)) {
     		Player player = event.getPlayer();
-    		if (!StandArrowItem.isInvulnerable(player) && !StandUtil.isEntityStandUser(player)) {
-    			boolean gaveStand = StandArrowItem.giveStand(player.level(), player);
-    			StandArrowItem.dealDamageFromArrow(player, item, 
+    		LivingEntity actualEntity = player instanceof EntityAsPlayerWrapper crutch && crutch.getEntity() instanceof LivingEntity living ? living : player;
+    		if (!StandArrowItem.isInvulnerable(actualEntity) && !StandUtil.isEntityStandUser(actualEntity)) {
+    			boolean gaveStand = StandArrowItem.giveStand(actualEntity.level(), actualEntity);
+    			StandArrowItem.dealDamageFromArrow(actualEntity, item, 
     					itemEntity, itemEntity.getOwner(), true, gaveStand);
     			item.shrink(1);
     			event.setCanPickup(TriState.FALSE);

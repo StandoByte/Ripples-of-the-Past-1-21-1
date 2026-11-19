@@ -15,11 +15,13 @@ import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.init.ModDamageTypes;
+import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModItemDataComponents;
 import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.init.power.ModStands;
 import com.github.standobyte.jojo.network.s2c.ItemBreakVisualsPacket;
+import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandInstance;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
@@ -91,11 +93,11 @@ public class StandArrowItem extends ArrowItem {
     
     public static boolean giveStand(Level level, LivingEntity entity) {
         if (!level.isClientSide()) {
-        	boolean givePowerTypeStand = entity.getType() == EntityType.PLAYER;
+        	boolean givePowerTypeStand = entity.getType() == EntityType.PLAYER || entity.getType() == ModEntityTypes.CHARACTER.get();
         	
         	// TODO event
         	if (givePowerTypeStand) {
-        		StandPower stand = StandPower.get(entity);
+        		StandPower stand = PowerClass.STAND.attachGet(entity);
         		if (!stand.hasPower()) {
         			StandType standToGive = pickStandToGive(entity);
         			if (standToGive != null) {
