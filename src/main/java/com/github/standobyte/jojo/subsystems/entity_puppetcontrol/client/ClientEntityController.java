@@ -57,7 +57,7 @@ public abstract class ClientEntityController {
 	public static void clientTickPre() {
 		if (instance != null) {
 			Minecraft mc = instance.mc;
-			if (instance.entity == null || !instance.entity.isAlive() || mc.level == null) {
+			if (instance.entity == null || !instance.entity.isAlive() || mc.level == null || instance.entity.level() != mc.level) {
 				setInstance(null);
 			}
 			else {
