@@ -16,14 +16,19 @@ public enum EntityCustomEffectsClass {
 	
 	OTHER {
 		@Override public EntityCustomEffectsMap<EntityCustomEffect> get(Entity entity, boolean createIfAbsent) {
-			return getCustomEffects(entity, createIfAbsent);
+			return getCustomNonStandEffects(entity, createIfAbsent);
 		}
 	};
 	
 	public abstract EntityCustomEffectsMap<?> get(Entity entity, boolean createIfAbsent);
 	
-	// generics are so fucking annoying
+	@Deprecated(forRemoval = true)
 	public static EntityCustomEffectsMap<EntityCustomEffect> getCustomEffects(Entity entity, boolean createIfAbsent) {
+		return getCustomNonStandEffects(entity, createIfAbsent);
+	}
+	
+	// generics are so fucking annoying
+	public static EntityCustomEffectsMap<EntityCustomEffect> getCustomNonStandEffects(Entity entity, boolean createIfAbsent) {
 		var type = ModDataAttachmentTypes.ENTITY_CUSTOM_EFFECTS;
 		return createIfAbsent ? entity.getData(type) : entity.getExistingDataOrNull(type);
 	}
