@@ -260,6 +260,11 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		}
 		super.remove(reason);
 	}
+	
+	@Override
+    public boolean canUsePortal(boolean allowPassengers) {
+    	return false;
+    }
 
 	
 	@Override
