@@ -297,6 +297,11 @@ public class CrazyDHealAbility extends StandEntityAbility {
 			public final Synched synched = new Synched();
 			public float hpForExp;
 			
+			public void setIsRestoringHealth(boolean restoringHealth, boolean barrageVisuals) {
+				this.synched.isHealing = restoringHealth;
+				this.synched.barrageVisuals = barrageVisuals;
+			}
+			
 			public static class Synched {
 				public ActionTarget target;
 				public boolean isHealing;
