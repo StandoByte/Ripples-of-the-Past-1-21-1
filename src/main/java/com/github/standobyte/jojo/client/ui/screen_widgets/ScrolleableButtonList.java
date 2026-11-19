@@ -44,6 +44,13 @@ public class ScrolleableButtonList extends ContainerObjectSelectionList<Scrollea
     protected int getScrollbarPosition() {
     	return getX() + getRowWidth() - 6 + scrollbarPosOffset;
     }
+	
+	public void scrollToEntry(int index, int minScrollOffset) {
+		double amountMax = index * itemHeight;
+		double amountMin = amountMax - getHeight() + itemHeight + minScrollOffset;
+		double curAmount = getScrollAmount();
+		setScrollAmount(Mth.clamp(curAmount, amountMin, amountMax));
+	}
 
 	@Override
 	public int getRowWidth() {

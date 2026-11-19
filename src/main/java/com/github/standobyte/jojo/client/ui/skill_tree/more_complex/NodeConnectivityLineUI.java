@@ -5,19 +5,18 @@ import com.github.standobyte.jojo.client.ui.utils.Orientation;
 
 import net.minecraft.client.gui.GuiGraphics;
 
-public class NodeConnectivityLineUI {
-	public SkillNodeUI<?> parent;
-	public SkillNodeUI<?> child;
+public class NodeConnectivityLineUI<T> {
+	public SkillNodeUI<T> parent;
+	public SkillNodeUI<T> child;
 	public Orientation direction;
 	
-	public NodeConnectivityLineUI(SkillNodeUI<?> parent, SkillNodeUI<?> child, Orientation direction) {
+	public NodeConnectivityLineUI(SkillNodeUI<T> parent, SkillNodeUI<T> child, Orientation direction) {
 		this.parent = parent;
 		this.child = child;
 		this.direction = direction;
 	}
 	
-	public void draw(GuiGraphics guiGraphics, int x, int y, boolean dropShadow) {
-		int color = dropShadow ? 0xFF000000 : 0xFFFFFFFF;
+	public void draw(GuiGraphics guiGraphics, int x, int y, boolean dropShadow, int color) {
 		switch (direction) {
 			case HORIZONTAL -> {
 				int xStart = x + parent.x + 16;

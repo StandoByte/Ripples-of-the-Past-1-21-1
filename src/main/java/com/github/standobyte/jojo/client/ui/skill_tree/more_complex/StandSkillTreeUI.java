@@ -1,10 +1,10 @@
 package com.github.standobyte.jojo.client.ui.skill_tree.more_complex;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
@@ -20,12 +20,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 
-public class StandSkillTreeUI {
+public abstract class StandSkillTreeUI {
 	public Map<SkillHolder<UnlockableSkill>, SkillNodeUI<UnlockableSkill>> widgets = new LinkedHashMap<>();
-	public List<NodeConnectivityLineUI> connectivityLines = new ArrayList<>();
+	public Map<SkillHolder<UnlockableSkill>, List<NodeConnectivityLineUI<UnlockableSkill>>> connectivityLinesByChild = new HashMap<>();
 	
-	public static StandSkillTreeUI create(StandSkillTreeUILayout layout, Minecraft mc, Screen screen) {
-		StandSkillTreeUI ui = new StandSkillTreeUI();
+	public static void fill(StandSkillTreeUI ui, StandSkillTreeUILayout layout, Minecraft mc, Screen screen) {
 		StandSkillsScreen screen_ = (StandSkillsScreen) screen;
 		for (NodePosition<UnlockableSkill> nodePos : layout.allNodes.values()) {
 			SkillNode<UnlockableSkill> node = nodePos.node;
@@ -50,12 +49,11 @@ public class StandSkillTreeUI {
 				SkillNodeUI<UnlockableSkill> parent = ui.widgets.get(connection.parent.holder());
 				SkillNodeUI<UnlockableSkill> child = ui.widgets.get(connection.child.holder());
 				if (parent != null && child != null && parent != child) {
-					NodeConnectivityLineUI connectivity = new NodeConnectivityLineUI(parent, child, connection.direction);
-					ui.connectivityLines.add(connectivity);
+					NodeConnectivityLineUI<UnlockableSkill> connectivity = new NodeConnectivityLineUI<>(parent, child, connection.direction);
+					ui.connectivityLinesByChild.computeIfAbsent(connection.child.holder(), __ -> new ArrayList<>()).add(connectivity);
 				}
 			}
 		}
-		return ui;
 	}
 	
 	@Nullable
@@ -73,16 +71,34 @@ public class StandSkillTreeUI {
 	}
 
 	public void draw(GuiGraphics guiGraphics, 
-			Function<UnlockableSkill, Sprites32x32> getSprite32x32, 
 			int x, int y, int mouseX, int mouseY) {
-		for (NodeConnectivityLineUI line : connectivityLines) {
-			line.draw(guiGraphics, x, y, true);
-		}
-		for (NodeConnectivityLineUI line : connectivityLines) {
-			line.draw(guiGraphics, x, y, false);
-		}
+		drawConnectivityLines(guiGraphics, x, y, mouseX, mouseY, true);
+		drawConnectivityLines(guiGraphics, x, y, mouseX, mouseY, false);
+		drawSkills(guiGraphics, x, y, mouseX, mouseY);
+	}
+	
+	protected abstract Sprites32x32 getSkillSquareSprite(UnlockableSkill skill);
+	
+	protected void drawSkills(GuiGraphics guiGraphics, 
+			int x, int y, int mouseX, int mouseY) {
 		for (SkillNodeUI<UnlockableSkill> skill : widgets.values()) {
-			skill.draw(guiGraphics, getSprite32x32, x, y, mouseX, mouseY);
+			drawSkillNode(skill, guiGraphics,x, y, mouseX, mouseY);
 		}
 	}
+	
+	protected void drawSkillNode(SkillNodeUI<UnlockableSkill> skillNode, GuiGraphics guiGraphics, 
+			int x, int y, int mouseX, int mouseY) {
+		skillNode.draw(guiGraphics, this::getSkillSquareSprite, x, y, mouseX, mouseY);
+	}
+	
+	protected void drawConnectivityLines(GuiGraphics guiGraphics, 
+			int x, int y, int mouseX, int mouseY, boolean shadow) {
+		for (var lineEntryByChild : connectivityLinesByChild.entrySet()) {
+			for (NodeConnectivityLineUI<UnlockableSkill> line : lineEntryByChild.getValue()) {
+				int color = shadow ? 0xFF000000 : 0xFFFFFFFF;
+				line.draw(guiGraphics, x, y, shadow, color);
+			}
+		}
+	}
+	
 }

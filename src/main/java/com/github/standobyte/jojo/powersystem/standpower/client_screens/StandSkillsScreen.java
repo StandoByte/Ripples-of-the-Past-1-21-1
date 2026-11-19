@@ -20,9 +20,12 @@ import com.github.standobyte.jojo.client.ui.screen_jojomenu.TabCategory;
 import com.github.standobyte.jojo.client.ui.screen_widgets.PaperCornerTurnOverButton;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ScrolleableButtonList;
 import com.github.standobyte.jojo.client.ui.skill_tree.DrawStandSkillIcon;
+import com.github.standobyte.jojo.client.ui.skill_tree.SkillHolder;
 import com.github.standobyte.jojo.client.ui.skill_tree.SkillNodeUI;
 import com.github.standobyte.jojo.client.ui.skill_tree.Sprites32x32;
+import com.github.standobyte.jojo.client.ui.skill_tree.more_complex.NodeConnectivityLineUI;
 import com.github.standobyte.jojo.client.ui.skill_tree.more_complex.StandSkillTreeUI;
+import com.github.standobyte.jojo.client.ui.skill_tree.more_complex.StandSkillTreeUILayout;
 import com.github.standobyte.jojo.client.ui.utils.Alignment;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
@@ -42,6 +45,7 @@ import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersisten
 import com.github.standobyte.jojo.powersystem.unlockableskill.ClLearnSkillPacket;
 import com.github.standobyte.jojo.powersystem.unlockableskill.UnlockableSkill;
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -52,6 +56,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.HumanoidArm;
@@ -61,6 +66,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 	public static final ResourceLocation WINDOW = JojoMod.resLoc("textures/gui/paper_style/stand_skills.png");
 	public static final ResourceLocation WINDOW_BLANK = JojoMod.resLoc("textures/gui/paper_style/stand_skills2.png");
+	public static final GuiIcon SELECTED_SKILL = new GuiIcon(JojoMod.resLoc("textures/gui/paper_style/stand_skill_selected.png"), 38, 23);
 	public static final ResourceLocation SCROLLER_SPRITE = JojoMod.resLoc("widget/stand_skills_scroller");
 	public static final GuiIcon SCROLL_BAR = new GuiIcon(WINDOW, 243, 58, 5, 162, 256, 256);
 	public static final ResourceLocation PAGE_BACKWARD_HIGHLIGHTED_SPRITE = ResourceLocation.withDefaultNamespace("widget/page_backward_highlighted");
@@ -91,7 +97,8 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 	protected ScrolleableButtonList skillList;
 	protected ScrollingText skillDescription;
 	protected ScrollingText skillControls;
-	
+
+	protected StandSkillTreeUILayout skillsLayoutTemplate;
 	protected StandSkillTreeUI skillsLayout;
 	
 	protected Button learnSkillButton;
@@ -136,7 +143,35 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		standSkin = StandSkinsLoader.getInstance().getSkin(standInstance);
 		StandType standType = standInstance.getStandType();
 		
-		skillsLayout = StandSkillTreeUI.create(standType.getSkillTreeLayout(), getMinecraft(), this);
+		skillsLayoutTemplate = standType.getSkillTreeLayout();
+		skillsLayout = new StandSkillTreeUI() {
+			@Override
+			protected Sprites32x32 getSkillSquareSprite(UnlockableSkill skill) {
+				if (levelingData.isSkillUnlocked(skill.skillName)) {
+					return SKILL_SQUARE_UNLOCKED;
+				}
+				ConditionCheck canUnlock = unlockSkillChecks.get(skill.skillName);
+				return canUnlock.positive() ? SKILL_SQUARE_UNLOCKABLE : SKILL_SQUARE_CLOSED;
+			}
+			
+			@Override
+			protected void drawConnectivityLines(GuiGraphics guiGraphics, 
+					int x, int y, int mouseX, int mouseY, boolean shadow) {
+				super.drawConnectivityLines(guiGraphics, x, y, mouseX, mouseY, shadow);
+				if (!shadow && hoveredSkill != null) {
+					SkillHolder<UnlockableSkill> holder = skillsLayoutTemplate.allNodes.get(hoveredSkill.skillName).node.holder();
+					List<NodeConnectivityLineUI<UnlockableSkill>> lines = skillsLayout.connectivityLinesByChild.get(holder);
+					if (lines != null) {
+						for (NodeConnectivityLineUI<UnlockableSkill> line : lines) {
+							int color = levelingData.isSkillUnlocked(line.parent.getValue().skillName) ? 0xFF00FF00 : 0xFFFF0000;
+							line.draw(guiGraphics, x, y, shadow, color);
+						}
+					}
+				}
+			}
+			
+		};
+		StandSkillTreeUI.fill(skillsLayout, skillsLayoutTemplate, getMinecraft(), this);
 		
 		skillList = addRenderableWidget(new ScrolleableButtonList(getMinecraft(), 
 				x + 22, y + 58, 39, 162, 20));
@@ -210,15 +245,6 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			skillList.addEntry(entry);
 		}
 	}
-	
-	protected static Sprites32x32 getSkillSquareSprite(UnlockableSkill skill, 
-			StandTypePersistentData playerStandSkills, Map<String, ConditionCheck> unlockSkillChecks) {
-		if (playerStandSkills.isSkillUnlocked(skill.skillName)) {
-			return SKILL_SQUARE_UNLOCKED;
-		}
-		ConditionCheck canUnlock = unlockSkillChecks.get(skill.skillName);
-		return canUnlock.positive() ? SKILL_SQUARE_UNLOCKABLE : SKILL_SQUARE_CLOSED;
-	}
 
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float p_283123_) {
@@ -258,24 +284,42 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 				
 				SkillNodeUI<UnlockableSkill> hovered = skillsLayout.getHovered(x, y, mouseX, mouseY);
 				hoveredSkill = hovered != null ? (StandUnlockableSkill) hovered.getValue() : null;
-				skillsLayout.draw(guiGraphics, 
-						skill -> getSkillSquareSprite(skill, levelingData, unlockSkillChecks), 
-						x, y, mouseX, mouseY);
+				skillsLayout.draw(guiGraphics, x, y, mouseX, mouseY);
 				
 				renderStandExp(guiGraphics, x + 4, y + height - 13, Alignment.LEFT, mouseX, mouseY, standUser, expSummary);
 				
 				if (hoveredSkill != null) {
+					ConditionCheck canUnlock = unlockSkillChecks.get(hoveredSkill.skillName);
 					TooltipParams.set(TooltipParams.paperStyle(1));
 					List<FormattedCharSequence> skillNameTooltip = new ArrayList<>();
+					boolean grayOutName = !levelingData.isSkillUnlocked(hoveredSkill.skillName) && !canUnlock.positive();
 					skillNameTooltip.add(hoveredSkill.getSkillName(standInstance)
-							.withStyle(ChatFormatting.BLACK).getVisualOrderText());
+							.withStyle(grayOutName ? ChatFormatting.GRAY : ChatFormatting.BLACK).getVisualOrderText());
+					
 					switch (hoveredSkill.implemented) {
 						case WIP -> skillNameTooltip.add(Component.translatable("rotp_tag_wip")
-								.withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC).getVisualOrderText());
+								.withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD).getVisualOrderText());
 						case NYI -> skillNameTooltip.add(Component.translatable("rotp_tag_nyi")
-								.withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC).getVisualOrderText());
+								.withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD).getVisualOrderText());
 						case IMPLEMENTED -> {}
 					}
+					
+					if (!levelingData.isSkillUnlocked(hoveredSkill.skillName)) {
+						int expCostColor = getExpCostColor(hoveredSkill);
+						Component expCost = Component.literal(IconSymbols.STAND_EXP + String.valueOf(hoveredSkill.expToUnlock))
+								.withStyle(Style.EMPTY.withColor(expCostColor));
+						skillNameTooltip.add(expCost.getVisualOrderText());
+					}
+					
+					if (Screen.hasShiftDown()) {
+						if (!canUnlock.positive()) {
+							skillNameTooltip.addAll(font.split(canUnlock.warning().copy()
+									.withStyle(ChatFormatting.RED), 200));
+						}
+						skillNameTooltip.addAll(font.split(hoveredSkill.getSkillDescription(standInstance)
+								.withStyle(ChatFormatting.DARK_GRAY), 200));
+					}
+					
 					setTooltipForNextRenderPass(skillNameTooltip);
 				}
 			}
@@ -318,9 +362,9 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 							.withStyle(ChatFormatting.BLACK).getVisualOrderText());
 					switch (hoveredSkill.implemented) {
 						case WIP -> skillNameTooltip.add(Component.translatable("rotp_tag_wip")
-								.withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC).getVisualOrderText());
+								.withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD).getVisualOrderText());
 						case NYI -> skillNameTooltip.add(Component.translatable("rotp_tag_nyi")
-								.withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC).getVisualOrderText());
+								.withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD).getVisualOrderText());
 						case IMPLEMENTED -> {}
 					}
 					setTooltipForNextRenderPass(skillNameTooltip);
@@ -350,6 +394,12 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 				int mouseX, int mouseY, boolean hovering, float partialTick) {
 			boolean isUnlocked = screen.levelingData.isSkillUnlocked(skill.skillName);
 			
+			RenderSystem.enableBlend();
+			RenderSystem.defaultBlendFunc();
+			if (skill == screen.selectedSkill) {
+				SELECTED_SKILL.render(guiGraphics.pose(), left - 1, top - 3, screen.standSkin.getColors().text_white_bg());
+			}
+			
 			DrawStandSkillIcon.drawSkillIcon(skill, 
 					screen.abilityIconSprites, screen.standSkin, 
 					guiGraphics, left, top,
@@ -365,11 +415,11 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 				guiGraphics.drawString(screen.font, expCostLine, left + 18, top + 4, expCostColor, false);
 			}
 			
-			switch (skill.implemented) {
-				case NYI -> guiGraphics.fill(left - 1, top - 1, left + 37, top + 17, 0x80FF0000);
-				case WIP -> guiGraphics.fill(left - 1, top - 1, left + 37, top + 17, 0x80FFFF00);
-				case IMPLEMENTED -> {}
-			}
+			//switch (skill.implemented) {
+			//	case NYI -> guiGraphics.fill(left - 1, top - 1, left + 37, top + 17, 0x80FF0000);
+			//	case WIP -> guiGraphics.fill(left - 1, top - 1, left + 37, top + 17, 0x80FFFF00);
+			//	case IMPLEMENTED -> {}
+			//}
 			
 			super.render(guiGraphics, index, 
 					top, left, width, height, 
@@ -433,6 +483,17 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		if (this.selectedSkill != skill) {
 			skillDescription.scrolling.setScrollOffset(0);
 			skillControls.scrolling.setScrollOffset(0);
+			
+			if (mode != StandSkillScreenMode.SKILL_DESC) {
+				int i = 0;
+				for (var entry : skillList.children()) {
+					if (skill == ((SkillScrolleableListEntry) entry).skill) {
+						skillList.scrollToEntry(i, 4);
+						break;
+					}
+					i++;
+				}
+			}
 		}
 		this.selectedSkill = skill;
 		if (skill != null && standPower.hasPower()) {
