@@ -82,8 +82,10 @@ public abstract class HumanoidModelMixin/* extends ModelMixinSuperclass*/ extend
 		else {
 			HumanoidModel<?> this_ = (HumanoidModel<?>) (Object) this;
 			EntityRenderState.resetPose(this);
-			RotpAnimDefinition.animate(this, pose);
-			OldPlayerModelJank._onAnimate(this_);
+			if (pose != null) {
+				RotpAnimDefinition.animate(this, pose);
+				OldPlayerModelJank._onAnimate(this_);
+			}
 		}
 	}
 	
