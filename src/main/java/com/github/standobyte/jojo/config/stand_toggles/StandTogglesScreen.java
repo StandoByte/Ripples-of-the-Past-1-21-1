@@ -1,11 +1,14 @@
 package com.github.standobyte.jojo.config.stand_toggles;
 
+import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ui.KeybindsEditingUI;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.IJojoMenuScreen;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.Tab;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.TabCategory;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -48,17 +51,23 @@ public class StandTogglesScreen extends Screen implements IJojoMenuScreen {
 	@Override
 	public void init() {
 		super.init();
-		
-		keybindsHandler = new KeybindsEditingUI();
 
-		Iterable<ClientStandToggle> toggles = ClientStandToggles.get();
-		int x = getWindowX(this);
-		int y = getWindowY(this) + 8;
-		for (ClientStandToggle toggle : toggles) {
-			addToggleUI(toggle, x, y);
-			y += 24;
+		StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
+		if (standPower != null) {
+			keybindsHandler = new KeybindsEditingUI();
+			
+			Iterable<ClientStandToggle> toggles = StandTogglesHandler.get();
+			int x = getWindowX(this);
+			int y = getWindowY(this) + 8;
+			for (ClientStandToggle toggle : toggles) {
+				if (toggle.isAvailable(standPower)) {
+					addToggleUI(toggle, x, y);
+					y += 24;
+				}
+			}
+			
+			keybindsHandler.refresh();
 		}
-		keybindsHandler.refresh();
 		
 		openedAt = Util.getMillis();
 	}

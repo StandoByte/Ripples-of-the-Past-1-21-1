@@ -7,7 +7,7 @@ import com.github.standobyte.jojo.command.argument.ModCommandArguments;
 import com.github.standobyte.jojo.config.ModConfigInterface;
 import com.github.standobyte.jojo.config.RotpConfig;
 import com.github.standobyte.jojo.config.core.RegisterRotpConfigEvent;
-import com.github.standobyte.jojo.config.stand_toggles.ClientStandToggles;
+import com.github.standobyte.jojo.config.stand_toggles.RotpStandToggles;
 import com.github.standobyte.jojo.init.ModBlockEntities;
 import com.github.standobyte.jojo.init.ModBlocks;
 import com.github.standobyte.jojo.init.ModContainers;
@@ -120,8 +120,7 @@ public class JojoMod {
 						RotpConfig.Client::new,
 						RotpConfig.ClientBroadcast::new, 
 						RotpConfig.Common::new);
-				
-				ClientStandToggles.init();
+				RotpStandToggles.makeToggles();
 			}
 			case DEDICATED_SERVER -> {
 				/* Because in our case the client config contains objects of classes that references client-only vanilla classes

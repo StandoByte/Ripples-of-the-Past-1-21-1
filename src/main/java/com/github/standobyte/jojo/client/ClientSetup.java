@@ -5,6 +5,7 @@ import com.github.standobyte.jojo.client.itemrender.ModItemModelOverrides;
 import com.github.standobyte.jojo.client.particle.CustomParticlesHelper;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.JojoMenuTabs;
 import com.github.standobyte.jojo.config.client.ClientModSettingsScreen;
+import com.github.standobyte.jojo.config.stand_toggles.RotpStandToggles;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.subsystems.entity_puppetcontrol.client.stand.StandHudElements;
 
@@ -54,5 +55,6 @@ public class ClientSetup {
 	@SubscribeEvent
 	public void registerKeyBindings(RegisterKeyMappingsEvent event) {
 		InputHandler.init(event);
+		RotpStandToggles.makeKeyBindings();
 	}
 }

@@ -1,11 +1,11 @@
 package com.github.standobyte.jojo.config.stand_toggles;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ui.KeybindsEditingUI;
+import com.github.standobyte.jojo.client.ui.hud_power.PowerHudControlsElement;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ToggleButton;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ToggleSwitch;
 import com.github.standobyte.jojo.client.ui.utils.Alignment;
@@ -19,6 +19,8 @@ import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.core.ModConfigType;
 import com.github.standobyte.jojo.config.internal.ConfigNetworkFunctions;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.powersystem.PowerClass;
+import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -43,7 +45,6 @@ public class ClientStandToggle implements Renderable {
 	public final ConfigOption<Boolean> hudVisibilitySetting;
 	public final GuiIcon hudIcon;
 	@Nullable public final GuiIcon offHudIcon;
-	public final BooleanSupplier activeWhen;
 	
 	public final Lazy<KeyMapping> keybind;
 	
@@ -54,7 +55,7 @@ public class ClientStandToggle implements Renderable {
 	
 	public ClientStandToggle(ConfigOption<Boolean> setting, @Nullable ConfigOption<BoolOrPlayerPref> overrulingCommonSetting,
 			ModConfigType configToSave, 
-			ConfigOption<Boolean> hudVisibilitySetting, BooleanSupplier renderInHudAndUseKeybindWhen, 
+			ConfigOption<Boolean> hudVisibilitySetting, 
 			Supplier<KeyMapping> keybind, 
 			GuiIcon icon, @Nullable GuiIcon offIcon, Component text) {
 		this.setting = setting;
@@ -66,7 +67,16 @@ public class ClientStandToggle implements Renderable {
 		this.hudVisibilitySetting = hudVisibilitySetting;
 		this.hudIcon = icon;
 		this.offHudIcon = offIcon;
-		this.activeWhen = renderInHudAndUseKeybindWhen;
+	}
+	
+	/** @return If the toggle should show up in the Stand toggles JoJo menu tab */
+	public boolean isAvailable(StandPower standPower) {
+		return standPower != null && standPower.hasPower();
+	}
+
+	/** @return If the toggle should show up in the Stand toggles JoJo menu tab, and the key press should toggle it */
+	public boolean isAvailableAndActive(StandPower standPower) {
+		return isAvailable(standPower) && PowerHudControlsElement.controlsHaveTypeAndAbility(PowerClass.STAND, null);
 	}
 	
 	public void init(int x, int y, KeybindsEditingUI keybindsHandler) {

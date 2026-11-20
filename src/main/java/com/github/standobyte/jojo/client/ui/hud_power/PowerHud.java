@@ -29,7 +29,7 @@ import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.config.BoolOrPlayerPref;
 import com.github.standobyte.jojo.config.stand_toggles.ClientStandToggle;
-import com.github.standobyte.jojo.config.stand_toggles.ClientStandToggles;
+import com.github.standobyte.jojo.config.stand_toggles.StandTogglesHandler;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveCounter;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveModeEffect;
@@ -870,12 +870,13 @@ public class PowerHud {
 			togglesToRender.clear();
 			transparencies.clear();
 			
-			Iterable<ClientStandToggle> toggles = ClientStandToggles.get();
+			Iterable<ClientStandToggle> toggles = StandTogglesHandler.get();
+			StandPower standPower = ClientPowerCache.getPower(PowerClass.STAND);
 			float partialTick = ClientUtil.partialTick(Minecraft.getInstance().getTimer(), false);
 			for (var toggle : toggles) {
 				boolean alwaysRender = toggle.hudVisibilitySetting.get();
 				ElementTransparency fadeOut = toggle.fadeOut;
-				if (toggle.activeWhen.getAsBoolean() && (alwaysRender || fadeOut.shouldRender())) {
+				if (toggle.isAvailableAndActive(standPower) && (alwaysRender || fadeOut.shouldRender())) {
 					togglesToRender.add(toggle);
 					transparencies.add(alwaysRender ? 1f : fadeOut.getAlpha(partialTick));
 				}

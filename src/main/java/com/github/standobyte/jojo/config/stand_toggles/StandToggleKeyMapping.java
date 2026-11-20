@@ -2,7 +2,9 @@ package com.github.standobyte.jojo.config.stand_toggles;
 
 import java.util.function.Supplier;
 
+import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.input.KeyCtxAndThen;
+import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.InputConstants.Key;
 
@@ -23,7 +25,7 @@ public class StandToggleKeyMapping extends KeyMapping {
 		super(description, KeyConflictContext.IN_GAME, defaultKey, category);
 		setKeyConflictContext(new KeyCtxAndThen(() -> {
 			ClientStandToggle toggle = getToggle();
-			return toggle != null && toggle.activeWhen.getAsBoolean();
+			return toggle != null && toggle.isAvailableAndActive(ClientPowerCache.getPower(PowerClass.STAND));
 		}));
 		this.getToggle = toggleField;
 	}

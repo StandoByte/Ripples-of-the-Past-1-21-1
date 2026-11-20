@@ -17,6 +17,7 @@ import com.github.standobyte.jojo.config.core.types.ClientConfigKeyBinding;
 import com.github.standobyte.jojo.config.core.types.ConfigBool;
 import com.github.standobyte.jojo.config.core.types.ConfigEnum;
 import com.github.standobyte.jojo.config.core.types.ConfigFloat;
+import com.github.standobyte.jojo.config.stand_toggles.RotpStandToggles;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.resolve.ClientResolveVisuals;
 import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
@@ -78,22 +79,13 @@ public class RotpConfig {
 
 
 		public final ConfigBool toggleVisible_standBreaksBlocks = new ConfigBool(false);
-		public final ClientConfigKeyBinding toggleKeybind_standBreaksBlocks = new ClientConfigKeyBinding(() -> {
-			var inputHandler = InputHandler.getInstance();
-			return inputHandler != null ? inputHandler.vanillaKeybinds.standToggle_breakBlocks : null;
-		});
+		public final ClientConfigKeyBinding toggleKeybind_standBreaksBlocks = new ClientConfigKeyBinding(() -> RotpStandToggles.standToggle_breakBlocks);
 
 		public final ConfigBool toggleVisible_standPicksUpItems = new ConfigBool(false);
-		public final ClientConfigKeyBinding toggleKeybind_standPicksUpItems = new ClientConfigKeyBinding(() -> {
-			var inputHandler = InputHandler.getInstance();
-			return inputHandler != null ? inputHandler.vanillaKeybinds.standToggle_pickUpItems : null;
-		});
+		public final ClientConfigKeyBinding toggleKeybind_standPicksUpItems = new ClientConfigKeyBinding(() -> RotpStandToggles.standToggle_pickUpItems);
 
 		public final ConfigBool toggleVisible_standMovesBeyondEffRange = new ConfigBool(false);
-		public final ClientConfigKeyBinding toggleKeybind_standMovesBeyondEffRange = new ClientConfigKeyBinding(() -> {
-			var inputHandler = InputHandler.getInstance();
-			return inputHandler != null ? inputHandler.vanillaKeybinds.standToggle_moveBeyondEffRange : null;
-		});
+		public final ClientConfigKeyBinding toggleKeybind_standMovesBeyondEffRange = new ClientConfigKeyBinding(() -> RotpStandToggles.standToggle_moveBeyondEffRange);
 	}
 
 	public final static class ClientBroadcast {

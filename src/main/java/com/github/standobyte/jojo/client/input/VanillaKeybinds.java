@@ -12,9 +12,7 @@ import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.JojoMenuTabs;
 import com.github.standobyte.jojo.client.ui.screen_jojomenu.Tab;
 import com.github.standobyte.jojo.config.core.types.ConfigBool;
-import com.github.standobyte.jojo.config.stand_toggles.ClientStandToggle;
-import com.github.standobyte.jojo.config.stand_toggles.ClientStandToggles;
-import com.github.standobyte.jojo.config.stand_toggles.StandToggleKeyMapping;
+import com.github.standobyte.jojo.config.stand_toggles.StandTogglesHandler;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.playerpower.PlayerPower;
@@ -23,7 +21,6 @@ import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.settings.IKeyConflictContext;
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
@@ -39,10 +36,6 @@ public class VanillaKeybinds {
 	public KeyMapping disableHUDControls;
 	public KeyMapping jojoStuffMenu;
 	public KeyMapping standManualControl;
-
-	public StandToggleKeyMapping standToggle_breakBlocks;
-	public StandToggleKeyMapping standToggle_pickUpItems;
-	public StandToggleKeyMapping standToggle_moveBeyondEffRange;
 	
 	public static VanillaKeybinds register(RegisterKeyMappingsEvent event) {
 		VanillaKeybinds binds = new VanillaKeybinds();
@@ -104,22 +97,6 @@ public class VanillaKeybinds {
 				InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_O, MAIN_CATEGORY)
 				.inInitOrder());
 		
-		// not registering these in the event to not add them to the settings menu
-		binds.standToggle_breakBlocks = new StandToggleKeyMapping(
-				JojoMod.MOD_ID + ".stand_toggles.destroy_blocks", 
-				() -> ClientStandToggles.breakBlocks, 
-				InputConstants.UNKNOWN, MAIN_CATEGORY);
-		
-		binds.standToggle_pickUpItems = new StandToggleKeyMapping(
-				JojoMod.MOD_ID + ".stand_toggles.stand_pick_up_items", 
-				() -> ClientStandToggles.pickUpItems,
-				InputConstants.UNKNOWN, MAIN_CATEGORY);
-		
-		binds.standToggle_moveBeyondEffRange = new StandToggleKeyMapping(
-				JojoMod.MOD_ID + ".stand_toggles.stand_move_beyond_eff_range", 
-				() -> ClientStandToggles.moveBeyondEffectiveRange,
-				InputConstants.UNKNOWN, MAIN_CATEGORY);
-		
 		return binds;
 	}
 	
@@ -156,24 +133,7 @@ public class VanillaKeybinds {
 			}
 		}
 		
-		
-		for (ClientStandToggle toggle : ClientStandToggles.get()) {
-			if (toggle.keybind != null) {
-				KeyMapping keybind = toggle.keybind.get();
-				if (keybind != null) {
-					while (keybind.consumeClick()) {
-						if (toggle.clientCanToggle()) {
-							toggle.toggle();
-							toggle.fadeOut.reset();
-						}
-						else {
-							mc.gui.setOverlayMessage(Component.translatable("jojo_ripples.toggle_overruled", 
-									toggle.overrulingCommonSetting.get().optionStatus), false);
-						}
-					}
-				}
-			}
-		}
+		StandTogglesHandler.onTickPost(mc);
 	}
 	
 	
