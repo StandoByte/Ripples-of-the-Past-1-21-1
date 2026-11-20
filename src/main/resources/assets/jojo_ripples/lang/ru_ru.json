@@ -526,7 +526,7 @@
   
   "jojo_ripples.skill.finisher": "Добивающий удар",
   "jojo_ripples.skill.finisher.desc": "Более быстрый тяжёлый удар.",
-  "jojo_ripples.skill.finisher.controls": "\uEAFE с 1 шкалой добивающего удара",
+  "jojo_ripples.skill.finisher.controls": "\uEAFE с 1 шкалой добивающего удара (\uEB09)",
   "jojo_ripples.ability.finisher": "Добивающий удар",
   
   "jojo_ripples.skill.heavy_charged": "Усиленный тяжёлый удар",
@@ -586,12 +586,12 @@
   
   "jojo_ripples.skill.uppercut": "Добивающий апперкот",
   "jojo_ripples.skill.uppercut.desc": "Более быстрый тяжёлый удар, который подбрасывает цель вверх.",
-  "jojo_ripples.skill.uppercut.controls": "\uEAFE с 1 шкалой добивающего удара",
+  "jojo_ripples.skill.uppercut.controls": "\uEAFE с 1 шкалой добивающего удара (\uEB09)",
   "jojo_ripples.ability.uppercut": "Апперкот",
 
   "    перевести-jojo_ripples.skill.ground_slam": "Ground Slam",
   "    перевести-jojo_ripples.skill.ground_slam.desc": "Star Platinum punches downwards, damaging all enemies caught in the shockwave. Any direct target of this attack is hammered into the ground.",
-  "jojo_ripples.skill.ground_slam.controls": "\uEAFEx2 с 1 шкалой добивающего удара",
+  "jojo_ripples.skill.ground_slam.controls": "\uEAFEx2 с 1 шкалой добивающего удара (\uEB09)",
   "    перевести-jojo_ripples.ability.ground_slam": "Ground Slam",
 
   "    перевести-jojo_ripples.skill.grab_terrain": "Terrain Grab",

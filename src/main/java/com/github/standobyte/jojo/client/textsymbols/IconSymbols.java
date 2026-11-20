@@ -55,6 +55,9 @@ public class IconSymbols {
 	// EB08
 	public static final char STAND_EXP = IconGlyphsCache.makeCharCodeFor(new IconGlyphInfo(
 			new GuiIcon(JojoMod.resLoc("textures/gui/sprites/stand_exp.png"), 0, 0, 10, 10, 10, 10), 10, 10, 2));
+	// EB09
+	public static final char FINISHER_1_FULL = IconGlyphsCache.makeCharCodeFor(new IconGlyphInfo(
+			new GuiIcon(JojoMod.resLoc("textures/gui/sprites/finisher_1_full.png"), 0, 0, 18, 18, 18, 18), 9, 9));
 	
 	
 	public static boolean canRecolor = false;

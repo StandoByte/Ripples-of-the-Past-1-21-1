@@ -601,7 +601,7 @@
   
   "jojo_ripples.skill.finisher": "Finisher Punch",
   "jojo_ripples.skill.finisher.desc": "A faster heavy attack variation.",
-  "jojo_ripples.skill.finisher.controls": "\uEAFE with 1 finisher bar",
+  "jojo_ripples.skill.finisher.controls": "\uEAFE with 1 finisher bar (\uEB09)",
   "jojo_ripples.ability.finisher": "Finisher",
   
   "jojo_ripples.skill.heavy_charged": "Charged Heavy Punch",
@@ -660,12 +660,12 @@
   
   "jojo_ripples.skill.uppercut": "Finisher Uppercut",
   "jojo_ripples.skill.uppercut.desc": "A faster heavy attack variation that knocks the enemy upwards.",
-  "jojo_ripples.skill.uppercut.controls": "\uEAFE with 1 finisher bar",
+  "jojo_ripples.skill.uppercut.controls": "\uEAFE with 1 finisher bar (\uEB09)",
   "jojo_ripples.ability.uppercut": "Uppercut",
 
   "jojo_ripples.skill.ground_slam": "Ground Slam",
   "jojo_ripples.skill.ground_slam.desc": "Star Platinum punches downwards, damaging all enemies caught in the shockwave. Any direct target of this attack is hammered into the ground.",
-  "jojo_ripples.skill.ground_slam.controls": "\uEAFEx2 with 1 finisher bar",
+  "jojo_ripples.skill.ground_slam.controls": "\uEAFEx2 with 1 finisher bar (\uEB09)",
   "jojo_ripples.ability.ground_slam": "Ground Slam",
 
   "jojo_ripples.skill.grab_terrain": "Terrain Grab",
