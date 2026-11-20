@@ -179,6 +179,7 @@ public class EntityClothesInventory implements Container, SynchronizablePlayerDa
 		for (ClothesSlotType slot : ClothesSlotType.values()) {
 			CompoundTag itemNbt = itemsNbt.getCompound(slot.ordinal());
 			items.put(slot, ItemStack.parseOptional(provider, itemNbt));
+			lastItems.put(slot, ItemStack.EMPTY);
 		}
 	}
 
@@ -316,7 +317,7 @@ public class EntityClothesInventory implements Container, SynchronizablePlayerDa
 
 	@Override
 	public void onPlayerClone(Player newPlayer, boolean wasDeath) {
-		if (isWornClothesSavedOnDeath(newPlayer.level()) && !this.isEmpty()) {
+		if (!this.isEmpty() && (!wasDeath || isWornClothesSavedOnDeath(newPlayer.level()))) {
 			EntityClothesInventory newInventory = newPlayer.getData(ModDataAttachmentTypes.HUMANOID_CLOTHES.get());
 			for (var itemEntry : newInventory.items.entrySet()) {
 				itemEntry.setValue(this.items.get(itemEntry.getKey()));
