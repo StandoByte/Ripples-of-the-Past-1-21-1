@@ -1093,6 +1093,37 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 		Vec3 diffVec = dmgPosition.subtract(position()).normalize();
 		return diffVec.dot(viewVec) > 0.5;
 	}
+	
+	
+	@Override
+	public void setRemainingFireTicks(int ticks) {
+		if (canOnlyHurtFromStands) {
+			return;
+		}
+		else {
+			setFireTicksFromStand(ticks);
+		}
+	}
+	
+	public void setFireTicksFromStand(int ticks) {
+		if (healthLinkedWithUser) {
+			LivingEntity user = getUser();
+			user.setRemainingFireTicks(ticks);
+		}
+		else {
+			super.setRemainingFireTicks(ticks);
+		}
+	}
+	
+	public void igniteForTicksFromStand(int ticks) {
+		if (healthLinkedWithUser) {
+			LivingEntity user = getUser();
+			user.igniteForTicks(ticks);
+		}
+		else {
+			super.igniteForTicks(ticks);
+		}
+	}
 
 
 	@Deprecated

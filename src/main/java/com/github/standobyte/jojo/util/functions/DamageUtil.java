@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.init.ModDamageTypes;
 import com.github.standobyte.jojo.init.ModEntityAttributes;
+import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.functions.AttributeUtil.BooleanAttributeUtil;
 
 import net.minecraft.core.Holder;
@@ -69,14 +70,13 @@ public class DamageUtil {
 		return dealtDamage;
 	}
 
-	// TODO canSetStandOnFire parameter
 	public static void setOnFire(Entity entity, int fireTicks, boolean canSetStandOnFire) {
-//		if (canSetStandOnFire && entity instanceof StandEntity standEntity) {
-//			standEntity.setFireFromStand(fireSeconds);
-//		}
-//		else {
+		if (canSetStandOnFire && entity instanceof StandEntity standEntity) {
+			standEntity.igniteForTicksFromStand(fireTicks);
+		}
+		else {
 			entity.igniteForTicks(fireTicks);
-//		}
+		}
 	}
 
 	/**
