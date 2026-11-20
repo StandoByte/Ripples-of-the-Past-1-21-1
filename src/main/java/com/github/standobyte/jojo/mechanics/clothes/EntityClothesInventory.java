@@ -185,7 +185,9 @@ public class EntityClothesInventory implements Container, SynchronizablePlayerDa
 
 	@Override
 	public void syncToPlayer(ServerPlayer entityAsPlayer) {
-		// is already synced in serverTickUpdate(LivingEntity);
+		List<Pair<ClothesSlotType, ItemStack>> list = new ArrayList<>(items.size());
+		items.forEach((slot, item) -> list.add(Pair.of(slot, item.copy())));
+		PacketDistributor.sendToPlayer(entityAsPlayer, new TrClothesItemsPacket(entity.getId(), list));
 	}
 
 	@Override
