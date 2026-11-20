@@ -144,6 +144,8 @@
   "jojo_ripples.tutorial.summon_stand.2": "[%s] - use arms only",
   "jojo_ripples.tutorial.stand_skills.1": "[%s] -> Stand -> Skills",
   "jojo_ripples.tutorial.stand_skills.2": "to unlock more abilities",
+  "jojo_ripples.tutorial.wheel_click.1": "Tip: you can \uEAFD an ability in",
+  "jojo_ripples.tutorial.wheel_click.2": "the wheel to instantly use it",
   
   "itemGroup.jojo_ripples_main": "JoJo: Ripples of the Past",
   

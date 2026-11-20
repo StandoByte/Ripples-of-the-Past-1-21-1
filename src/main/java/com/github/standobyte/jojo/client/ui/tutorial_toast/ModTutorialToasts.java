@@ -28,6 +28,9 @@ public class ModTutorialToasts {
 	public static final ToastImpl STAND_SKILL = new ToastImpl(null, 
 			Component.translatable("jojo_ripples.tutorial.stand_skills.1", Component.keybind(JojoMod.MOD_ID + ".key.jojo_menu")), 
 			Component.translatable("jojo_ripples.tutorial.stand_skills.2", Component.keybind(JojoMod.MOD_ID + ".key.jojo_menu")));
+	public static final ToastImpl WHEEL_CLICK = new ToastImpl(null, 
+			Component.translatable("jojo_ripples.tutorial.wheel_click.1"), 
+			Component.translatable("jojo_ripples.tutorial.wheel_click.2"));
 	
 	@SubscribeEvent
 	public static void addToasts(FMLClientSetupEvent event) {
@@ -35,6 +38,7 @@ public class ModTutorialToasts {
 			ToastsHelper toasts = ToastsHelper.getInstance();
 			toasts.register("stand_summon", STAND_SUMMON);
 			toasts.register("stand_skills", STAND_SKILL);
+			toasts.register("wheel_click", WHEEL_CLICK);
 		});
 		ClientTickables.add(ModTutorialToasts::tick);
 	}
@@ -87,6 +91,18 @@ public class ModTutorialToasts {
 			ToastsHelper.showOneAtATimeWithCooldown(ModTutorialToasts.STAND_SKILL, 
 					toast -> toast.showOnceTimed(TimedToast.USUAL_DURATION));
 		}
+	}
+
+	private static int timesAbilityWheelOpened = 0;
+	public static void onAbilityWheelOpened() {
+		if (++timesAbilityWheelOpened >= 3 && ModTutorialToasts.WHEEL_CLICK.canShow()) {
+			ToastsHelper.showOneAtATimeWithCooldown(ModTutorialToasts.WHEEL_CLICK, 
+					toast -> toast.showOnceTimed(TimedToast.USUAL_DURATION));
+		}
+	}
+	
+	public static void onAbilityWheelClickedAbility() {
+		ModTutorialToasts.WHEEL_CLICK.setCompleted(true);
 	}
 	
 	

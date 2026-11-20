@@ -32,6 +32,7 @@ import com.github.standobyte.jojo.client.input.controlscheme.ClientInputBind;
 import com.github.standobyte.jojo.client.input.controlscheme.ClientKey;
 import com.github.standobyte.jojo.client.ui.AbilitySelectionWheel;
 import com.github.standobyte.jojo.client.ui.hud_power.PowerHud;
+import com.github.standobyte.jojo.client.ui.tutorial_toast.ModTutorialToasts;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.event.client.PreKeyInputEvent;
@@ -755,6 +756,7 @@ public class InputHandler {
 			}
 			if (wheelHotbar != null && JojoMod.config.getClient().abilitySelectionWheel.getAsBoolean()) {
 				mc.setScreen(new AbilitySelectionWheel(wheelHotbar));
+				ModTutorialToasts.onAbilityWheelOpened();
 			}
 			return wheelHotbar;
 		}

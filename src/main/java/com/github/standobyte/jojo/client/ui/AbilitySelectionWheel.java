@@ -20,6 +20,7 @@ import com.github.standobyte.jojo.client.input.controlscheme.AbilityHotbarSlot;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.client.standskin.sprites.AbilityIconSprites;
+import com.github.standobyte.jojo.client.ui.tutorial_toast.ModTutorialToasts;
 import com.github.standobyte.jojo.client.ui.utils.BlitFloat;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
@@ -297,6 +298,7 @@ public class AbilitySelectionWheel extends Screen implements ScreenLetsUseWASD {
 					KeyModifier keyModifier = inputHandler.getCurModifier();
 					CurInput input = inputHandler.makeAbilitiesInput(keyModifier, slot.getBinds()::getAll);
 					inputHandler.useAbilitiesOnKeyPress(input, InputHandler.LMB, keyModifier, false, false);
+					ModTutorialToasts.onAbilityWheelClickedAbility();
 				}
 				onClose();
 				return true;
