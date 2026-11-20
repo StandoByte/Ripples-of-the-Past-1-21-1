@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.subsystems.itemtracking;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -148,6 +149,23 @@ public class ItemTracker {
 
 	public ItemStack getItem() {
 		return itemStack;
+	}
+
+	@Nullable
+	public Player getTrackingPlayer(ServerLevel level) {
+		return !trackingPlayersId.isEmpty() ? level.getPlayerByUUID(trackingPlayersId.get(0)) : null;
+	}
+
+	public Iterable<Player> getTrackingPlayers(ServerLevel level) {
+		if (trackingPlayersId.isEmpty()) {
+			return Collections.emptyList();
+		}
+		List<Player> players = new ArrayList<>(trackingPlayersId.size());
+		for (UUID id : trackingPlayersId) {
+			Player player = level.getPlayerByUUID(id);
+			if (player != null) players.add(player);
+		}
+		return players;
 	}
 
 	public void tick(MinecraftServer server) {
