@@ -157,10 +157,9 @@ public class ActionTarget {
 		
 		@Override public ActionTarget decode(FriendlyByteBuf buffer) {
 			TargetType type = buffer.readEnum(TargetType.class);
-			Optional<Vec3> clipPos = NetworkUtil.readOptional(buffer, _Vec3.STREAM_CODEC);
 			return switch (type) {
-				case ENTITY -> new ActionTarget(buffer.readInt()).withClipPos(clipPos);
-				case BLOCK -> new ActionTarget(buffer.readBlockPos(), buffer.readEnum(Direction.class)).withClipPos(clipPos);
+				case ENTITY -> new ActionTarget(buffer.readInt()).withClipPos(NetworkUtil.readOptional(buffer, _Vec3.STREAM_CODEC));
+				case BLOCK -> new ActionTarget(buffer.readBlockPos(), buffer.readEnum(Direction.class)).withClipPos(NetworkUtil.readOptional(buffer, _Vec3.STREAM_CODEC));
 				case EMPTY -> ActionTarget.EMPTY;
 			};
 		}
@@ -168,14 +167,15 @@ public class ActionTarget {
 		@Override public void encode(FriendlyByteBuf buffer, ActionTarget value) {
 			TargetType type = value.getType();
 			buffer.writeEnum(type);
-			NetworkUtil.writeOptional(value.clipPos, buffer, _Vec3.STREAM_CODEC);
 			switch (type) {
 				case ENTITY -> {
 					buffer.writeInt(value.entityId);
+					NetworkUtil.writeOptional(value.clipPos, buffer, _Vec3.STREAM_CODEC);
 				}
 				case BLOCK -> {
 					buffer.writeBlockPos(value.getBlockPos());
 					buffer.writeEnum(value.getFace());
+					NetworkUtil.writeOptional(value.clipPos, buffer, _Vec3.STREAM_CODEC);
 				}
 				case EMPTY -> {}
 			}
