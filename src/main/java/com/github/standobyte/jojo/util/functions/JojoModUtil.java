@@ -21,7 +21,6 @@ import com.github.standobyte.jojo.network.s2c.BrokenBlocksParticlesAndSoundsPack
 import com.github.standobyte.jojo.network.s2c.EntitySyncMotionBypassingPacket;
 import com.github.standobyte.jojo.network.s2c.TrResetDeathTimePacket;
 import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
-import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDRestoreTerrainAbility;
 
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -46,7 +45,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.scores.Team;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -181,17 +179,9 @@ public class JojoModUtil {
 	}
 
 	
+	@Deprecated(forRemoval = true)
 	public static boolean canHarm(LivingEntity attacker, Entity target) {
-		if (attacker == target) return false;
-		Team team = attacker.getTeam();
-		Team team1 = target.getTeam();
-		if (team != null && team.isAlliedTo(team1) && !team.isAllowFriendlyFire()) {
-			return false;
-		}
-		if (attacker instanceof StandEntity attackerStand) {
-			return attackerStand.canAttackEntity(target);
-		}
-		return target instanceof LivingEntity && attacker.canAttack((LivingEntity) target);
+		return FriendlyFireCheck.isAllowedToHurt(attacker, target);
 	}
 
 	public static void onLivingResurrect(LivingEntity entity) {

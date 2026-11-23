@@ -37,6 +37,7 @@ import com.github.standobyte.jojo.subsystems.target.ActionTargetAim;
 import com.github.standobyte.jojo.subsystems.target.AimingEntity;
 import com.github.standobyte.jojo.subsystems.target.HitResultUtil;
 import com.github.standobyte.jojo.util.OOPMoment;
+import com.github.standobyte.jojo.util.functions.FriendlyFireCheck;
 import com.github.standobyte.jojo.util.functions.JojoModUtil;
 import com.github.standobyte.v1_21_4_stuff.missingmethods._EntitySelector;
 
@@ -266,12 +267,16 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 	}
 	
 	public static boolean canStandHit(StandEntity stand, Entity target) {
-		return canStandPick(stand, target) && stand.canAttackEntity(target);
+		return canStandPick(stand, target) && FriendlyFireCheck.isAllowedToHurt(stand, target);
 	}
 	
 	// TODO make stand entities not pickable, add a separate OR predicate to CAN_BE_PICKED
 	public static boolean canStandPick(StandEntity stand, Entity target) {
-		return _EntitySelector.CAN_BE_PICKED.test(target);
+		if (!_EntitySelector.CAN_BE_PICKED.test(target)) {
+			return false;
+		}
+		LivingEntity user = stand.getUser();
+		return !target.isPassengerOfSameVehicle(user);
 	}
 	
 	public static boolean playHitSound(ActionTarget target, Level level) {

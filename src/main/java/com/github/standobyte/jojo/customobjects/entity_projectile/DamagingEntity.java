@@ -15,6 +15,7 @@ import com.github.standobyte.jojo.powersystem.standpower.StandPower;
 import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.functions.DamageUtil;
+import com.github.standobyte.jojo.util.functions.FriendlyFireCheck;
 import com.github.standobyte.jojo.util.functions.JojoModUtil;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.jojo.util.functions.NBTUtil;
@@ -225,24 +226,7 @@ public abstract class DamagingEntity extends Projectile implements IEntityWithCo
 
 	@Override
 	protected boolean canHitEntity(Entity entity) {
-		if (super.canHitEntity(entity)) {
-			LivingEntity owner = getOwner();
-			if (owner == null) {
-				return true;
-			}
-			if (entity instanceof LivingEntity) {
-				if (entity.is(owner) || owner instanceof StandEntity && entity.is(((StandEntity) owner).getUser())) {
-					return canHitOwner();
-				}
-				else {
-					return owner.canAttack((LivingEntity) entity);
-				}
-			}
-			return !(checkPvpRules() && 
-					owner instanceof StandEntity stand && !stand.canAttackEntity(entity) || 
-					owner instanceof Player player && entity instanceof Player targetPlayer && !player.canHarmPlayer(targetPlayer));
-		}
-		return false;
+		return super.canHitEntity(entity) && FriendlyFireCheck.isAllowedToHurt(this, entity, canHitOwner());
 	}
 
 	public boolean canHitOwner() {

@@ -26,6 +26,7 @@ import com.github.standobyte.jojo.util.functions.AttributeUtil;
 import com.github.standobyte.jojo.util.functions.CollisionHelper;
 import com.github.standobyte.jojo.util.functions.CollisionHelper.BlockCollisionResult;
 import com.github.standobyte.jojo.util.functions.DamageUtil;
+import com.github.standobyte.jojo.util.functions.FriendlyFireCheck;
 import com.github.standobyte.jojo.util.functions.JojoModUtil;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.jojo.util.functions.NBTUtil;
@@ -243,7 +244,6 @@ public class KnockbackCollisionImpact implements TickingEntityData, INBTSerializ
 	protected void collideBoundingBox(Entity entity, Vec3 movementVec, boolean collideBlocks, boolean breakBlocks) {
 		Level level = entity.level();
 		if (level.isClientSide()) return;
-		LivingEntity living = entity instanceof LivingEntity __ ? __ : null;
 
 		AABB aabb = entity.getBoundingBox().inflate(0.25);
 		CollisionContext selectionContext = CollisionContext.of(entity);
@@ -257,8 +257,7 @@ public class KnockbackCollisionImpact implements TickingEntityData, INBTSerializ
 				CollisionHelper.getEntityCollisions(level, entity, aabb.expandTowards(movementVec), 
 						EntitySelector.NO_CREATIVE_OR_SPECTATOR.and(
 								e -> e.isPickable()
-								&& (attackerStandUser == null || JojoModUtil.canHarm(attackerStandUser, e))
-								&& !(living != null && !JojoModUtil.canHarm(living, e))
+								&& (attackerStandUser == null || FriendlyFireCheck.isAllowedToHurt(attackerStandUser, e))
 								)));
 		Collection<Entity> entitiesCollided = new ArrayList<>();
 		CollisionHelper.collideEntities(aabb, movementVec, level, 

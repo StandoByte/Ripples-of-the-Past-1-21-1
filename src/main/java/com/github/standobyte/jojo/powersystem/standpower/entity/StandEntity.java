@@ -18,7 +18,6 @@ import com.github.standobyte.jojo.customobjects.DamageSourceModified;
 import com.github.standobyte.jojo.customobjects.EntityStandVisibility;
 import com.github.standobyte.jojo.customobjects.EntityWithStandSkin;
 import com.github.standobyte.jojo.customobjects.LivingReactToNewAction;
-import com.github.standobyte.jojo.customobjects.entity_projectile.DamagingEntity;
 import com.github.standobyte.jojo.init.ModEntityAttributes;
 import com.github.standobyte.jojo.init.ModSpecialActions;
 import com.github.standobyte.jojo.mechanics.resolve.ResolveModeEffect;
@@ -41,6 +40,7 @@ import com.github.standobyte.jojo.subsystems.target.ActionTarget;
 import com.github.standobyte.jojo.util.functions.AttributeUtil;
 import com.github.standobyte.jojo.util.functions.BitwiseFlagUtil;
 import com.github.standobyte.jojo.util.functions.DamageUtil;
+import com.github.standobyte.jojo.util.functions.FriendlyFireCheck;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.jojo.util.functions.MathUtil.AABBDist;
 import com.github.standobyte.jojo.util.functions.UtilFunctions;
@@ -76,15 +76,12 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -93,6 +90,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.PlayerTeam;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.damagesource.DamageContainer;
 import net.neoforged.neoforge.common.util.TriState;
@@ -1129,39 +1127,22 @@ public class StandEntity extends LivingEntity implements SummonedStand, IEntityW
 	@Deprecated
 	@Override
 	public boolean canAttack(LivingEntity entity) {
-		if (entity.is(this)) return false;
-
-		LivingEntity user = getUser();
-		if (user != null) {
-			boolean canHarm = DamageUtil.isNotFriendlyFire(user, StandUtil.getStandUser(entity));
-			if (canHarm && entity instanceof Animal) {
-				canHarm &= !entity.isPassengerOfSameVehicle(user);
-				if (canHarm && entity instanceof TamableAnimal tameable) {
-					LivingEntity tameableOwner = tameable.getOwner();
-					canHarm &= !(tameableOwner != null && tameableOwner == user);
-				}
-			}
-			return canHarm;
-		}
-
-		return true;
+		return FriendlyFireCheck.isAllowedToHurt(this, entity);
+	}
+	
+	@Deprecated(forRemoval = true)
+	public boolean canAttackEntity(Entity target) {
+		return FriendlyFireCheck.isAllowedToHurt(this, target);
 	}
 
-	public boolean canAttackEntity(Entity target) {
-		if (target instanceof LivingEntity living) {
-			return canAttack(living);
-		}
+	@Override
+	public PlayerTeam getTeam() {
 		LivingEntity user = getUser();
-		if (target instanceof Projectile projectile) {
-			Entity owner = projectile.getOwner();
-			if (owner != null && (owner.is(this) || owner.is(user))) {
-				return target instanceof DamagingEntity modProjectile && modProjectile.canHitOwner();
-			}
-		}
-		if (user != null && target.getControllingPassenger() == user) {
-			return false;
-		}
-		return true;
+		return user != null ? user.getTeam() : super.getTeam();
+	}
+	
+	public boolean canHitUser() {
+		return false;
 	}
 	
 	

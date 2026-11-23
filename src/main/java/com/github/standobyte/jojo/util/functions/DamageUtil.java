@@ -22,14 +22,12 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.TraceableEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.scores.PlayerTeam;
 import net.neoforged.neoforge.common.damagesource.DamageContainer;
 import net.neoforged.neoforge.event.entity.living.LivingShieldBlockEvent;
 
@@ -106,23 +104,9 @@ public class DamageUtil {
 				|| dmgSource.getDirectEntity() instanceof LivingEntity attacker && BooleanAttributeUtil.getValueOrDefault(attacker, ModEntityAttributes.CAN_ATTACK_STANDS);
 	}
 
+	@Deprecated(forRemoval = true)
 	public static boolean isNotFriendlyFire(LivingEntity attacker, LivingEntity target) {
-		if (attacker.is(target)) {
-			return false;
-		}
-		// they added some dogshit to this method after 1.16.5
-//		if (!attacker.canAttack(target)) {
-//			return false;
-//		}
-		if (attacker instanceof TamableAnimal tameable && tameable.isOwnedBy(target)) return false;
-
-		PlayerTeam team1 = attacker.getTeam();
-		PlayerTeam team2 = target.getTeam();
-		if (team1 != null && team1.isAlliedTo(team2) && !team1.isAllowFriendlyFire()) {
-			return false;
-		}
-
-		return true;
+		return FriendlyFireCheck.isAllowedToHurt(attacker, target);
 	}
 
 	public static float addArmorPiercing(float damage, float armorPiercing, @Nullable LivingEntity armoredTarget, DamageSource dmgSource) {

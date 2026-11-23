@@ -42,6 +42,7 @@ import com.github.standobyte.jojo.subsystems.entity_grab.LivingComponentGrab;
 import com.github.standobyte.jojo.subsystems.target.ActionTarget;
 import com.github.standobyte.jojo.subsystems.target.ActionTarget.TargetType;
 import com.github.standobyte.jojo.subsystems.target.AimingEntity;
+import com.github.standobyte.jojo.util.functions.FriendlyFireCheck;
 import com.github.standobyte.jojo.util.functions.JojoModUtil;
 import com.github.standobyte.jojo.util.functions_network.StreamCodecs;
 import com.github.standobyte.jojoimpl.stands.crazydiamond.CrazyDBlockBulletAbility;
@@ -430,7 +431,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 			Iterator<Entity> iter = entities.iterator();
 			while (iter.hasNext()) {
 				Entity entity = iter.next();
-				if (!(entity instanceof LivingEntity && JojoModUtil.canHarm(attacker, entity)) || noDamage.contains(entity)) {
+				if (!(entity instanceof LivingEntity && FriendlyFireCheck.isAllowedToHurt(attacker, entity)) || noDamage.contains(entity)) {
 					iter.remove();
 				}
 			}

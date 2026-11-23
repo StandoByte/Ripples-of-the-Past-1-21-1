@@ -81,7 +81,7 @@ public class StandEntityGrabAbility extends StandEntityAbility {
 			if (performer instanceof StandEntity standEntity) {
 				LivingEntity user = standEntity.getUser();
 				ActionTarget target = HitResultUtil.clipEntityLook(standEntity, 
-						entity -> !entity.is(user) && StandEntityPunchAbility.canStandHit(standEntity, entity) && !(
+						entity -> !entity.is(user) && StandEntityPunchAbility.canStandPick(standEntity, entity) && !(
 								entity instanceof LivingEntity living && (
 										LivingComponentGrab.getEntityGrabbedBy(living) != null
 										|| LivingComponentGrab.getEntityGrabbing(living) != null)), 

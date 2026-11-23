@@ -26,6 +26,7 @@ import com.github.standobyte.jojo.powersystem.standpower.type.StandType;
 import com.github.standobyte.jojo.subsystems.target.ActionTarget;
 import com.github.standobyte.jojo.subsystems.target.AimingEntity;
 import com.github.standobyte.jojo.util.functions.DamageUtil;
+import com.github.standobyte.jojo.util.functions.FriendlyFireCheck;
 import com.github.standobyte.jojo.util.functions_network.NetworkUtil;
 import com.github.standobyte.jojo.util.objects_mc.EntityResolver;
 
@@ -226,7 +227,7 @@ public class EntityActionInstance implements HeldInput {
 	
 	public static boolean standEntityAttack(StandEntity stand, Entity target, DamageSource dmgSource, float dmgAmount) {
 		ServerLevel level = (ServerLevel) target.level();
-		boolean hurt = target.hurt(dmgSource, dmgAmount);
+		boolean hurt = FriendlyFireCheck.isAllowedToHurt(stand, target) && target.hurt(dmgSource, dmgAmount);
 		if (hurt) {
 			if (target instanceof LivingEntity targetLiving) {
 				LivingEntity user = stand.getUser();
