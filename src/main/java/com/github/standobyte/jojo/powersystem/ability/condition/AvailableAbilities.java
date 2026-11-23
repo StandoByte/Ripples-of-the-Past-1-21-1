@@ -41,10 +41,8 @@ public class AvailableAbilities {
 			}
 		}
 		
-		AbilityUsageContext ctxInstance = new AbilityUsageContext();
 		LivingEntity user = power.getUser();
-		ctxInstance.power = power;
-		ctxInstance.isFrozenInTime = TimeStopEffect.getIsFrozenInTime(user);
+		AbilityUsageContext ctxInstance = new AbilityUsageContext(power, TimeStopEffect.getIsFrozenInTime(user));
 		
 		// Checking usage conditions on all of the abilities (this would make the ability gray out in the HUD if you currently can't use it for some reason)
 		
