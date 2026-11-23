@@ -28,12 +28,28 @@ public class HitResultUtil {
 	public static ActionTarget clipEntityLook(LivingEntity aiming, Predicate<Entity> entityFilter, double standPrecision) {
 		return HitResultUtil.clip(aiming.getEyePosition(), aiming.getLookAngle(), 
 				aiming.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE), aiming.getAttributeValue(Attributes.ENTITY_INTERACTION_RANGE), 
-				aiming.level(), entityFilter, aiming, standPrecision);
+				aiming.level(), entityFilter, 
+				ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, 
+				aiming, standPrecision);
 	}
 
-	public static ActionTarget clip(Vec3 startingPos, Vec3 directionVec, double blockMaxRange, double entityMaxRange, 
-			Level level, Predicate<Entity> entityFilter, @Nullable Entity aiming, double standPrecision) {
-		boolean hitFluids = false;
+	@Deprecated
+	public static ActionTarget clip(Vec3 startingPos, Vec3 directionVec, 
+			double blockMaxRange, double entityMaxRange, 
+			Level level, Predicate<Entity> entityFilter, 
+			@Nullable Entity aiming, double standPrecision) {
+		return clip(startingPos, directionVec, 
+				blockMaxRange, entityMaxRange, 
+				level, entityFilter, 
+				ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, 
+				aiming, standPrecision);
+	}
+
+	public static ActionTarget clip(Vec3 startingPos, Vec3 directionVec, 
+			double blockMaxRange, double entityMaxRange, 
+			Level level, Predicate<Entity> entityFilter, 
+			ClipContext.Block blockClipMode, ClipContext.Fluid fluidClipMode, 
+			@Nullable Entity aiming, double standPrecision) {
 		CollisionContext entityCtx = aiming != null ? CollisionContext.of(aiming) : CollisionContext.empty();
 
 		double maxRange = Math.max(blockMaxRange, entityMaxRange);
@@ -42,8 +58,7 @@ public class HitResultUtil {
 		// raytrace blocks
 
 		Vec3 endPosBlocks = startingPos.add(directionVec.x * blockMaxRange, directionVec.y * blockMaxRange, directionVec.z * blockMaxRange);
-		ClipContext blockClipCtx = new ClipContext(startingPos, endPosBlocks, 
-				ClipContext.Block.COLLIDER, hitFluids ? ClipContext.Fluid.ANY : ClipContext.Fluid.NONE, entityCtx);
+		ClipContext blockClipCtx = new ClipContext(startingPos, endPosBlocks, blockClipMode, fluidClipMode, entityCtx);
 		BlockHitResult blockHitResult = clipBlocks(blockClipCtx, level);
 
 		maxRange = entityMaxRange;

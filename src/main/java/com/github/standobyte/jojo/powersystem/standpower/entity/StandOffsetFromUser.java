@@ -16,6 +16,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -206,7 +207,9 @@ public class StandOffsetFromUser {
 			Vec3 offsetNormalized = absoluteOffset.scale(1 / offsetLen);
 			ActionTarget target = HitResultUtil.clip(userEntity.getEyePosition(), offsetNormalized, 
 					targetCheckDist, targetCheckDist, 
-					level, EntitySelector.NO_SPECTATORS.and(e -> e != standEntity && e != userEntity), standEntity, 0);
+					level, EntitySelector.NO_SPECTATORS.and(e -> e != standEntity && e != userEntity), 
+					ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, 
+					standEntity, 0);
 			if (!target.isEmpty(level)) {
 				AABB targetBox = switch (target.getType()) {
 					case ENTITY -> target.getEntity().getBoundingBox();

@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -31,6 +32,10 @@ public class AttributeUtil {
 		if (entity == null) return attribute.value().getDefaultValue();
 		AttributeMap attributes = entity.getAttributes();
 		return attributes.hasAttribute(attribute) ? attributes.getValue(attribute) : attribute.value().getDefaultValue();
+	}
+
+	public static double ifLivingGetValueOrDefault(Entity entity, Holder<Attribute> attribute) {
+		return entity instanceof LivingEntity living ? getValueOrDefault(living, attribute) : attribute.value().getDefaultValue();
 	}
 	
 	public static void setBaseValue(AttributeMap attributes, Holder<Attribute> attribute, double baseValue) {
