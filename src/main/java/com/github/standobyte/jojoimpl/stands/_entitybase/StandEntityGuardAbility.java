@@ -115,6 +115,7 @@ public class StandEntityGuardAbility extends StandEntityAbility {
 	
 	
 	public static class GuardToggle extends StandEffectInstance implements HeldInput {
+		private boolean cancelCurAction = true;
 
 		public GuardToggle(EntityCustomEffectType<?> effectType) {
 			super(effectType);
@@ -154,19 +155,25 @@ public class StandEntityGuardAbility extends StandEntityAbility {
 				LivingEntity standUser = getStandUser();
 				StandEntity standEntity = StandUtil.getSummonedStand(standUser);
 				if (standEntity != null) {
-					LivingComponentAction actionComponent = LivingComponentAction.getComponent(standEntity);
-					EntityActionInstance curAction = actionComponent.getAction();
-					if (curAction == null) {
-						return setAction(actionComponent, standUser, standEntity);
+					StandEntityGuardAbility guardAbility = getGuardAbility();
+					if (guardAbility != null) {
+						LivingComponentAction actionComponent = LivingComponentAction.getComponent(standEntity);
+						EntityActionInstance curAction = actionComponent.getAction();
+						if (curAction != null && curAction.ability == guardAbility) {
+							cancelCurAction = false;
+						}
+						else if (curAction == null || cancelCurAction && curAction.canBeCancelledInto(guardAbility)) {
+							return setAction(guardAbility, actionComponent, standUser, standEntity);
+						}
 					}
 				}
 			}
 			return null;
 		}
 		
-		public HeldInput setAction(LivingComponentAction actionComponent, LivingEntity standUser, LivingEntity standEntity) {
-			StandEntityGuardAbility guardAbility = getGuardAbility();
+		public HeldInput setAction(EntityActionType guardAbility, LivingComponentAction actionComponent, LivingEntity standUser, LivingEntity standEntity) {
 			if (guardAbility != null) {
+				cancelCurAction = false;
 				EntityActionInstance guardAction = guardAbility.initActionOnAbilityUse(level, standUser, standEntity, null);
 				HeldInput action_ = actionComponent.setAction(guardAction, SyncType.TRACKING_AND_SELF);
 				return action_;
@@ -220,7 +227,7 @@ public class StandEntityGuardAbility extends StandEntityAbility {
 			if (standUser != null && standData != null) {
 				GuardToggle guardToggle = standData.userStandEffects.getEffectOfType(ModStandAbilities.GUARD_TOGGLE.get()).orElse(null);
 				if (guardToggle != null) {
-					var guardAction = guardToggle.setAction(actionComponent, standUser, standEntity);
+					var guardAction = guardToggle.setAction(guardToggle.getGuardAbility(), actionComponent, standUser, standEntity);
 					return guardAction != null;
 				}
 			}
