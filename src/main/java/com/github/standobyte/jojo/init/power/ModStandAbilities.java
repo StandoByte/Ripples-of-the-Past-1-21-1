@@ -11,6 +11,7 @@ import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityBlockTossAbi
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityGrabAbility;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityGrabReleaseAbility;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityGrabThrowAbility;
+import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityGuardAbility;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityHeavyPunchAbility;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityHeavyPunchChargedAbility;
 import com.github.standobyte.jojoimpl.stands._entitybase.StandEntityManualControlToggle;
@@ -69,6 +70,12 @@ public final class ModStandAbilities {
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityHeavyPunchChargedAbility>> HEAVY_CHARGED = ABILITY_TYPES.register(
 			"stand_heavy_charged", key -> new AbilityType<>(key, StandEntityHeavyPunchChargedAbility::new));
+	
+	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityGuardAbility>> GUARD = ABILITY_TYPES.register(
+			"stand_guard", key -> new AbilityType<>(key, StandEntityGuardAbility::new));
+
+	public static final DeferredHolder<EntityCustomEffectType<?>, EntityCustomEffectType<StandEntityGuardAbility.GuardToggle>> GUARD_TOGGLE = STAND_EFFECT_TYPES.register(
+			"stand_guard_toggle", key -> new EntityCustomEffectType<>(key, StandEntityGuardAbility.GuardToggle::new));
 	
 	public static final DeferredHolder<AbilityType<?>, AbilityType<StandEntityGrabAbility>> GRAB = ABILITY_TYPES.register(
 			"stand_grab", key -> new AbilityType<>(key, StandEntityGrabAbility::new));

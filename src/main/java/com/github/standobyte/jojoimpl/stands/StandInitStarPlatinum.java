@@ -72,7 +72,7 @@ public class StandInitStarPlatinum {
 //				.addAbility("terrain_throw", ModStandAbilities.GRAB_TERRAIN_THROW)
 //				.addAbility("uppercut_ground_throw", ModStandAbilities.HEAVY_PUNCH)
 
-//				.addAbility("guard", ModStandAbilities.GUARD)
+				.addAbility("guard", ModStandAbilities.GUARD)
 //				.addAbility("leap", ModStandAbilities.STAND_LEAP)
 				.addAbility("block_toss", ModStandAbilities.BLOCK_TOSS)
 				.addAbility("bearing_shot", ModStandAbilities.BEARING_SHOT)
@@ -90,6 +90,7 @@ public class StandInitStarPlatinum {
 					.bind("barrage", InputMethod.HOLD, InputKey.LMB)
 					.bind("heavy_punch", InputMethod.CLICK, InputKey.RMB)
 					.bind("heavy_charged", InputMethod.HOLD, InputKey.RMB)
+					.bind("guard", InputMethod.CLICK, InputKey.MMB)
 					.bind("grab", InputMethod.CLICK, InputKey.RMB.withModifier(InputKey.Modifier.CONTROL))
 					.bind("grab_throw", InputMethod.HOLD, InputKey.RMB)
 					.bind("block_toss", InputMethod.HOLD, InputKey.LMB)
@@ -122,7 +123,7 @@ public class StandInitStarPlatinum {
 						.withAbility("terrain_throw"))
 				
 				.addSkill(StandUnlockableSkill.startingAbility("guard")
-						.setNotYetImplemented())
+						.setIncomplete())
 
 				.addManualControlSkill()
 				.addSkill(new StandUnlockableSkill("item_use").setIsStartingSkill())

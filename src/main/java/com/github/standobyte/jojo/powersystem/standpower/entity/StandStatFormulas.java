@@ -72,31 +72,16 @@ public class StandStatFormulas {
 	}
 
 
-	public static float getPhysicalResistance(double durability, double strength, float blocked, float damageDealt) {
+	public static float getPhysicalResistance(double durability, double strength) {
 		double x = (durability * 2 + strength * 1) / 3;
 		double resistance = x / (x + 4); // simplified `1 - 1 / (x / 4 + 1)`
-		double dmgCoeff = 1;
-
-		if (blocked > 0) {
-			dmgCoeff -= 0.8 * blocked;
-			double furtherReductionCap = durability / 2;
-
-			if (damageDealt < furtherReductionCap) {
-				dmgCoeff *= damageDealt / furtherReductionCap;
-			}
-		}
 
 //		double config = JojoModConfig.getCommonConfigInstance(false).standResistanceMultiplier.get();
 //		if (config > 1) {
 //			dmgCoeff /= config;
 //		}
 
-		resistance += (1 - resistance) * Mth.clamp(1 - dmgCoeff, 0, 1);
 		return (float) resistance;
-	}
-
-	public static float getBlockingKnockbackMult(double durability) {
-		return Mth.clamp((float) Math.pow(2, 1 - durability / 4), 0, 1);
 	}
 
 	public static float getStaminaMultiplier(double durability) {

@@ -112,6 +112,16 @@ public class ClientUtil {
 		float alpha = ticks <= cycleTicks / 2 ? coeff * ticks : coeff * (cycleTicks - ticks);
 		return Math.min(alpha, maxAlpha - minAlpha) + minAlpha;
 	}
+	
+	public static float particleFadeOutAlpha(int age, int lifetime, float partialTick) {
+		float ageRatio = Math.min((age + partialTick) / (lifetime + 1), 1);
+		return 1.0f - 0.9f * ageRatio;
+	}
+	
+	public static float particleFadeInAlpha(int age, int lifetime, float partialTick) {
+		float ageRatio = Math.min((age + partialTick) / (lifetime + 1), 1);
+		return 0.1f + 0.9f * ageRatio;
+	}
 
 	public static void renderEntityFace(PoseStack poseStack, float x, float y, LivingEntity entity) { renderEntityFace(poseStack, x, y, entity, BlitFloat.NO_TINT, true); }
 	public static void renderEntityFace(PoseStack poseStack, float x, float y, LivingEntity entity, int color, boolean showOuterLayer) {

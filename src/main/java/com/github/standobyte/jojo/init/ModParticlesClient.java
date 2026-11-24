@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.init;
 
 import com.github.standobyte.jojo.client.particle.type.BloodParticle;
+import com.github.standobyte.jojo.client.particle.type.DamageGuardParticle;
 import com.github.standobyte.jojo.client.particle.type.MeteoriteVirusParticle;
 import com.github.standobyte.jojo.client.particle.type.OnomatopoeiaParticle;
 import com.github.standobyte.jojo.client.particle.type.RPSPickPartile;
@@ -31,6 +32,7 @@ public class ModParticlesClient {
 	@SubscribeEvent
 	public static void registerParticleFactories(RegisterParticleProvidersEvent event) {
 		event.registerSpriteSet(ModParticles.BLOOD.get(),				BloodParticle.Factory::new);
+		event.registerSpriteSet(ModParticles.DAMAGE_GUARD.get(),		DamageGuardParticle.Factory::new);
 		event.registerSpriteSet(ModParticles.HAMON_SPARK.get(),			HamonSparkParticle.HamonParticleFactory::new);
 		event.registerSpriteSet(ModParticles.HAMON_SPARK_BLUE.get(),	HamonSparkParticle.HamonParticleFactory::new);
 		event.registerSpriteSet(ModParticles.HAMON_SPARK_YELLOW.get(),	HamonSparkParticle.HamonParticleFactory::new);

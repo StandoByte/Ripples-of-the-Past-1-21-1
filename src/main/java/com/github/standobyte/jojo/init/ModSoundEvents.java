@@ -105,7 +105,7 @@ public class ModSoundEvents {
 
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAND_SUMMON = register("stand_summon");
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAND_UNSUMMON = register("stand_unsummon");
-	public static final DeferredHolder<SoundEvent, SoundEvent> STAND_DAMAGE_BLOCK = register("stand_damage_block");
+	public static final DeferredHolder<SoundEvent, SoundEvent> STAND_DAMAGE_GUARD = register("stand_damage_guard");
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAND_PUNCH_LIGHT = register("stand_punch_light");
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAND_PUNCH_BARRAGE = register("stand_punch_barrage");
 	public static final DeferredHolder<SoundEvent, SoundEvent> STAND_PUNCH_HEAVY = register("stand_punch_heavy");

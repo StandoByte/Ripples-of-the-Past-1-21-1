@@ -145,7 +145,7 @@ public class RotpConfig {
 		//private List<ResourceLocation> bannedStandsResLocs;
 
 		//public final ConfigBool abilitiesBreakBlocks;
-		//public final ConfigFloat standDamageMultiplier = new ConfigFloat(1).initNonNegative();
+		public final ConfigFloat standDamageMultiplier = new ConfigFloat(1).initNonNegative();
 		public final ConfigFloat standExpGainMultiplier = new ConfigFloat(1).initNonNegative();
 		//public final ConfigFloat standResistanceMultiplier;
 		//public final ConfigBool skipStandProgression;
@@ -241,7 +241,7 @@ public class RotpConfig {
 						helper.addBooleanOrPlayerPreferenceOptionButton(common.standsBreakBlocks, ModConfigType.COMMON, "stands_break_blocks");
 						helper.addBooleanOptionButton(common.dropStandAsDisc, ModConfigType.COMMON, "stand_disc");
 						helper.addBooleanOptionButton(common.standStamina, ModConfigType.COMMON, "stand_stamina");
-						//helper.addNumericField(common.standDamageMultiplier, ModConfigType.COMMON, null);
+						helper.addNumericField(common.standDamageMultiplier, ModConfigType.COMMON, null);
 						helper.addNumericField(common.standExpGainMultiplier, ModConfigType.COMMON, null);
 					}
 					case STANDS -> {

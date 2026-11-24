@@ -91,4 +91,12 @@ public abstract class LivingEntityMixin extends Entity {
 		
 		return true;
 	}
+	
+	
+	@Inject(method = "playHurtSound", at = @At("HEAD"), cancellable = true)
+	public void cancelHurtSoundOnGuard(DamageSource source, CallbackInfo ci) {
+		if (((DamageSourceModified) source).jojo_ripples$getNoHurtSound()) {
+			ci.cancel();
+		}
+	}
 }
