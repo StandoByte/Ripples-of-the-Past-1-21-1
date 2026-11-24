@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.client.ui.skill_tree.more_complex.StandSkillTreeUILayout;
 import com.github.standobyte.jojo.config.util.JsonConfigurable;
 import com.github.standobyte.jojo.powersystem.unlockableskill.UnlockableSkill;
 import com.github.standobyte.jojo.util.objects_java.DefaultedValue;
@@ -87,6 +88,10 @@ public abstract class PowerType implements JsonConfigurable {
 	
 	public Map<String, ? extends UnlockableSkill> getUnlockableSkills() {
 		return this.movesetOriginal.unlockableSkills;
+	}
+	
+	public StandSkillTreeUILayout getSkillTreeLayout() {
+		return this.movesetOriginal.getSkillTreeLayout();
 	}
 	
 }

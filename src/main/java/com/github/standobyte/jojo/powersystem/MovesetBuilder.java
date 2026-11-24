@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.client.ui.skill_tree.more_complex.StandSkillTreeUILayout;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.powersystem.ability.Ability;
 import com.github.standobyte.jojo.powersystem.ability.AbilityId;
@@ -31,6 +32,7 @@ import net.minecraft.resources.ResourceLocation;
 public class MovesetBuilder {
 	public final Map<String, ConfigAbilityFactory<?>> abilities = new LinkedHashMap<>();
 	public final Map<String, UnlockableSkill> unlockableSkills = new LinkedHashMap<>();
+	public StandSkillTreeUILayout skillTreeUI;
 	
 	@ApiStatus.Internal public Map<String, ControlSchemeTemplate> controlSchemes = new LinkedHashMap<>();
 	@ApiStatus.Internal public ControlSchemeTemplate curControlScheme = new ControlSchemeTemplate();
@@ -153,6 +155,21 @@ public class MovesetBuilder {
 	public MovesetBuilder addSkill(UnlockableSkill skill) {
 		unlockableSkills.put(skill.skillName, skill);
 		return this;
+	}
+	
+	public MovesetBuilder generateSkillTreeUI(Consumer<StandSkillTreeUILayout> edit) {
+		skillTreeUI = new StandSkillTreeUILayout();
+		skillTreeUI.generate(unlockableSkills);
+		edit.accept(skillTreeUI);
+		return this;
+	}
+	
+	public StandSkillTreeUILayout getSkillTreeLayout() {
+		if (skillTreeUI == null) {
+			skillTreeUI = new StandSkillTreeUILayout();
+			skillTreeUI.generate(unlockableSkills);
+		}
+		return skillTreeUI;
 	}
 
 	

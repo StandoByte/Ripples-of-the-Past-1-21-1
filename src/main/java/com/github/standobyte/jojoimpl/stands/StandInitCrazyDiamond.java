@@ -5,6 +5,7 @@ import static com.github.standobyte.jojo.init.power.ModStands.USE_SPECIAL;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.client.ui.utils.Orientation;
 import com.github.standobyte.jojo.init.power.ModStandAbilities;
 import com.github.standobyte.jojo.powersystem.MovesetBuilder;
 import com.github.standobyte.jojo.powersystem.ability.controls.InputKey;
@@ -182,6 +183,34 @@ public class StandInitCrazyDiamond {
 						.prerequisiteSkill("restore_terrain", "heal"))
 
 				.addSkill(StandUnlockableSkill.unlockableAbility("blood_cutter", 150))
+				
+				.generateSkillTreeUI(layout -> {
+					// listen, if it works - it works
+					layout.setPosition("repair_item", 		 98,  95);
+					layout.setPosition("hit_armor_fix", 	 85,  63);
+					layout.setPosition("uncraft", 			112,  63);
+					layout.setPosition("block_bullet", 		142,  63);
+					layout.setConnectivityDirection("repair_item", "hit_armor_fix", Orientation.VERTICAL);
+					layout.setConnectivityDirection("repair_item", "uncraft", Orientation.VERTICAL);
+					
+					layout.setPosition("heal", 				 78, 134);
+					layout.setPosition("fix_broken_entity",  46, 107);
+					layout.setPosition("mishealing_punch", 	 46, 134);
+					layout.setPosition("leave_object", 		 46, 161);
+					
+					layout.setPosition("restore_terrain", 	118, 134);
+					layout.setPosition("block_anchor", 		150, 121);
+					layout.setPosition("create_wall", 		150, 148);
+					
+					layout.setPosition("fuse_with_rock", 	 84, 176);
+					layout.setPosition("revert_state", 		112, 176);
+					layout.setConnectivityDirection("heal", "fuse_with_rock", Orientation.VERTICAL);
+					layout.setConnectivityDirection("heal", "revert_state", Orientation.VERTICAL);
+					layout.setConnectivityDirection("restore_terrain", "fuse_with_rock", Orientation.VERTICAL);
+					layout.setConnectivityDirection("restore_terrain", "revert_state", Orientation.VERTICAL);
+					
+					layout.setPosition("blood_cutter", 		142,  93);
+				})
 
 				, id)
 			.discTooltipWIP()
