@@ -93,6 +93,8 @@ public record ContainerSlotInput(
 
 		return null;
 	}
+
+	// TODO identify EquipmentSlot and make a getter
 	
 	public ItemStack getItem(Player player) {
 		Slot slot = getSlot(player);
