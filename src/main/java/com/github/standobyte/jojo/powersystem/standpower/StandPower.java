@@ -229,10 +229,14 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		}
 	}
 	
+	/** You should call this on server side only. */
 	public boolean consumeStamina(float amount) {
 		return consumeStamina(amount, false);
 	}
 	
+	/** On the contrary, if ticking is true, 
+	 * you should be calling this on both server and client sides - 
+	 * this way the stamina consumption looks smooth in the UI. */
 	public boolean consumeStamina(float amount, boolean ticking) {
 		if (isUserCreative() || !JojoMod.config.getCommon().standStamina.getAsBoolean()) {
 			return true;
