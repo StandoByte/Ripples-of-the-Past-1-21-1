@@ -1,7 +1,7 @@
 package com.github.standobyte.jojoimpl.stands.theworld.timestop;
 
+import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -177,7 +177,7 @@ public class TimeStopAbility extends EntityActionAbility {
 			StandPower standPower = StandPower.get(user);
 			if (standPower != null) {
 				// should be empty, but just in case
-				Stream<TimeStopEffect> oldEffects = standPower.userStandEffects.getEffectsOfType(ModStandAbilities.EFFECT_TIME_STOP.get());
+				List<TimeStopEffect> oldEffects = standPower.userStandEffects.getEffectsOfType(ModStandAbilities.EFFECT_TIME_STOP.get()).toList();
 				TimeStopEffect timeStop = ModStandAbilities.EFFECT_TIME_STOP.get().create(level);
 				init.accept(timeStop);
 				standPower.userStandEffects.addEffect(timeStop);
