@@ -51,14 +51,12 @@ public class FriendlyFireCheck {
 		return isAllowedToHurt(damagingEntity, targetEntity, false);
 	}
 	
-	public static final EntityCast attacker = new EntityCast();
-	public static final EntityCast target = new EntityCast();
 	public static boolean isAllowedToHurt(Entity damagingEntity, Entity targetEntity, boolean projectileCanHurtOwner) {
+		EntityCast attacker = new EntityCast();
+		EntityCast target = new EntityCast();
 		attacker.fill(damagingEntity);
 		target.fill(targetEntity);
 		boolean result = isAllowedToHurt(attacker, target, projectileCanHurtOwner);
-		attacker.clear();
-		target.clear();
 		return result;
 	}
 	
