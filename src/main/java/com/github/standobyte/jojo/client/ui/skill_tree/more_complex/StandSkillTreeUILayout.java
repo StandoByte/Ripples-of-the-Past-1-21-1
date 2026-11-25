@@ -77,11 +77,14 @@ public class StandSkillTreeUILayout {
 	}
 
 	public void setConnectivityDirection(String parentSkill, String childSkill, Orientation direction) {
-		for (var connection : linksToChildren.get(parentSkill)) {
-			String childName = connection.child.value().skillName;
-			if (childName.equals(childSkill)) {
-				connection.direction = direction;
-				return;
+		List<NodeConnection<UnlockableSkill>> connections = linksToChildren.get(parentSkill);
+		if (connections != null) {
+			for (NodeConnection<UnlockableSkill> connection : connections) {
+				String childName = connection.child.value().skillName;
+				if (childName.equals(childSkill)) {
+					connection.direction = direction;
+					return;
+				}
 			}
 		}
 	}
