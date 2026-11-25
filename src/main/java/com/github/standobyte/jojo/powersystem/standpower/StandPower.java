@@ -257,6 +257,23 @@ public class StandPower extends Power<StandPower> implements PostNbtReadEntityDa
 		}
 	}
 	
+	public boolean hasStamina(float amount) {
+		return amount <= getStamina();
+	}
+	
+	public void addStamina(float amount) {
+		addStamina(amount, false);
+	}
+	
+	public void addStamina(float amount, boolean ticking) {
+		if (ticking) {
+			staminaAddNextTick += amount;
+		}
+		else {
+			setStamina(getStamina() + amount);
+		}
+	}
+	
 	protected void tickStamina() {
 		if (this.usesStamina()) {
 			float staminaRegen = getPowerType().getStaminaRegen(this) + staminaAddNextTick;
