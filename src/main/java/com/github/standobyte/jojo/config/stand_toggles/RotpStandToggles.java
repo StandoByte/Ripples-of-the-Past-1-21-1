@@ -7,7 +7,6 @@ import com.github.standobyte.jojo.config.core.ModConfigType;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.mojang.blaze3d.platform.InputConstants;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
 public class RotpStandToggles {
@@ -22,7 +21,7 @@ public class RotpStandToggles {
 	// Called in JojoMod#registerConfig(RegisterRotpConfigEvent)
 	public static void makeToggles() {
 		var client = JojoMod.config.getClient();
-		var broadcastClient = JojoMod.config.getPlayerBroadcast(Minecraft.getInstance().player);
+		var broadcastClient = JojoMod.config.getPlayerBroadcast(null);
 		var common = JojoMod.config.getCommon();
 		
 		breakBlocks = new ClientStandToggle(
