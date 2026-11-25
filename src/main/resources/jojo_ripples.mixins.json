@@ -107,6 +107,7 @@
 	"client.HumanoidArmorLayerMixin",
     
 	"client.controls.KeyboardHandlerMixin",
+	"client.controls.KeyMappingClickIncrementWrap",
 	
 	"entity_like_player.puppetcontrol.mob.MobAILookMixin",
 	"entity_like_player.puppetcontrol.syncfix.ClientPacketListenerMixin",

@@ -1,12 +1,17 @@
 package com.github.standobyte.jojo.client.input;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 
+import com.github.standobyte.jojo.client.input.clickhold.AmbiguousKeyPress;
+import com.github.standobyte.jojo.client.input.controlscheme.ClientKey;
 import com.github.standobyte.jojo.config.core.types.ConfigBool;
 import com.mojang.blaze3d.platform.InputConstants;
 
@@ -20,6 +25,8 @@ public class VanillaKeyMappingExtended extends KeyMapping {
 	
 	protected static Map<String, MutableInt> PER_CATEGORY = new HashMap<String, MutableInt>();
 	protected int orderIndex = Integer.MAX_VALUE;
+	
+	protected List<Consumer<AmbiguousKeyPress>> holdBehaviorForClickHoldSystem;
 
 	public VanillaKeyMappingExtended(String name, int keyCode, String category) { super(name, keyCode, category); }
 	public VanillaKeyMappingExtended(String name, InputConstants.Type type, int keyCode, String category) { super(name, type, keyCode, category); }
@@ -42,6 +49,30 @@ public class VanillaKeyMappingExtended extends KeyMapping {
 		HOLD_OR_TOGGLE.put(this.getName(), clientSetting);
 		return this;
 	}
+	
+	/**
+	 * {@snippet : 
+	 * @SubscribeEvent(priority = EventPriority.LOW)
+	 * public static void afterKeybindsRegister(RegisterKeyMappingsEvent event) {
+	 * 	VanillaKeyMappingExtended summonStandKey = InputHandler.getInstance().vanillaKeybinds.summonStand;
+	 * 	summonStandKey.setUseClickHoldSystem(ambiguity -> {
+	 * 		StandPower stand = ClientPowerCache.getPower(PowerClass.STAND);
+	 * 		if (stand != null && stand.getPowerType() instanceof ActedStandType) {
+	 * 			ambiguity.onHold = timeTook -> ActSelectionWheel.openWheel();
+	 * 		}
+	 * 	});
+	 * }
+	 * }
+	 */
+	public VanillaKeyMappingExtended setUseClickHoldSystem(Consumer<AmbiguousKeyPress> onHold) {
+		if (holdBehaviorForClickHoldSystem == null) {
+			holdBehaviorForClickHoldSystem = new ArrayList<>();
+		}
+		holdBehaviorForClickHoldSystem.add(onHold);
+		return this;
+	}
+
+
 
 	@Override
 	public int compareTo(KeyMapping other) {
@@ -50,5 +81,25 @@ public class VanillaKeyMappingExtended extends KeyMapping {
 			if (compare != 0) return compare;
 		}
 		return super.compareTo(other);
+	}
+	
+	/** @return False if the increment should get canceled */
+	public boolean onClickCountIncrement() {
+		if (holdBehaviorForClickHoldSystem != null) {
+			AmbiguousKeyPress ambiguousKeyPress = new AmbiguousKeyPress();
+			ambiguousKeyPress.onClick = timeTook -> this.clickCount++;
+			for (Consumer<AmbiguousKeyPress> behavior : holdBehaviorForClickHoldSystem) {
+				behavior.accept(ambiguousKeyPress);
+			}
+			if (ambiguousKeyPress.onClick != null && ambiguousKeyPress.onHold != null) {
+				ClientKey key = ClientKey.fromVanillaKeybind(this);
+				HeldKeyTimer heldTimer = new HeldKeyTimer(key, true, getKeyModifier());
+				InputHandler.getInstance().putHeldKeyTimer(key, heldTimer);
+				heldTimer.ambiguousInputMethod = ambiguousKeyPress;
+				return false;
+			}
+		}
+		
+		return true;
 	}
 }
