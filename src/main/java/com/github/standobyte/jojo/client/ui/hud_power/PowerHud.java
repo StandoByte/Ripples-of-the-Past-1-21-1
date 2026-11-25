@@ -119,7 +119,7 @@ public class PowerHud {
 		AbstractContainerScreen<?> screen = event.getContainerScreen();
 		graphics.pose().pushPose();
 		graphics.pose().translate(-screen.getGuiLeft(), -screen.getGuiTop(), 0.0F);
-		abilityHUDInstance.setupRender(TriState.TRUE);
+		abilityHUDInstance.setupRender(TriState.TRUE, true);
 		abilityHUDInstance.renderAbilitiesHUD(graphics, Minecraft.getInstance().getTimer()/*getDeltaTracker()*/);
 		graphics.pose().popPose();
 	}
@@ -165,8 +165,19 @@ public class PowerHud {
 		private int mouseX;
 		private int mouseY;
 		
-		public void setupRender(TriState forContainerMenu) {
-			setupRender(forContainerMenu, -1, -1);
+		public void setupRender(TriState forContainerMenu, boolean addElementTooltips) {
+			int mouseX = -1;
+			int mouseY = -1;
+			if (addElementTooltips && forContainerMenu != TriState.FALSE) {
+				Minecraft mc = Minecraft.getInstance();
+				mouseX = (int)(mc.mouseHandler.xpos()
+						* (double)mc.getWindow().getGuiScaledWidth()
+						/ (double)mc.getWindow().getScreenWidth());
+				mouseY = (int)(mc.mouseHandler.ypos()
+						* (double)mc.getWindow().getGuiScaledHeight()
+						/ (double)mc.getWindow().getScreenHeight());
+			}
+			setupRender(forContainerMenu, mouseX, mouseY);
 		}
 		
 		public void setupRender(TriState forContainerMenu, int mouseX, int mouseY) {
@@ -191,21 +202,10 @@ public class PowerHud {
 		public void preRender(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 			Minecraft mc = Minecraft.getInstance();
 			
-			int mouseX = -1;
-			int mouseY = -1;
 			boolean isContainer = mc.screen instanceof AbstractContainerScreen;
-			if (!isContainer) {
-				if (mc.screen != null && hasElementTooltips(mc.screen)) {
-					mouseX = (int)(mc.mouseHandler.xpos()
-							* (double)mc.getWindow().getGuiScaledWidth()
-							/ (double)mc.getWindow().getScreenWidth());
-					mouseY = (int)(mc.mouseHandler.ypos()
-							* (double)mc.getWindow().getGuiScaledHeight()
-							/ (double)mc.getWindow().getScreenHeight());
-				}
-			}
+			boolean addElementTooltips = mc.screen != null && hasElementTooltips(mc.screen);
 			WindupAtCrosshair.setRender(null);
-			setupRender(isContainer ? TriState.FALSE : TriState.DEFAULT, mouseX, mouseY);
+			setupRender(isContainer ? TriState.FALSE : TriState.DEFAULT, addElementTooltips);
 			
 			for (var element : elements.values()) {
 				element.preRender(guiGraphics, deltaTracker, mouseX, mouseY);
