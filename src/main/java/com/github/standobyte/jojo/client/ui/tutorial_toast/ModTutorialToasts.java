@@ -3,10 +3,10 @@ package com.github.standobyte.jojo.client.ui.tutorial_toast;
 import com.github.standobyte.jojo.client.ClientPowerCache;
 import com.github.standobyte.jojo.client.ClientTickables;
 import com.github.standobyte.jojo.client.input.InputHandler;
+import com.github.standobyte.jojo.client.ui.screen_jojomenu.stand.StandSkillsScreen;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.powersystem.PowerClass;
 import com.github.standobyte.jojo.powersystem.standpower.StandPower;
-import com.github.standobyte.jojo.powersystem.standpower.client_screens.StandSkillsScreen;
 import com.github.standobyte.jojo.powersystem.standpower.type.StandTypePersistentData;
 
 import net.minecraft.client.Minecraft;

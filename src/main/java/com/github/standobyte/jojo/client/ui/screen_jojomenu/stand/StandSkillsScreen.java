@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.powersystem.standpower.client_screens;
+package com.github.standobyte.jojo.client.ui.screen_jojomenu.stand;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,7 +63,6 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-// TODO - move to jojo.client.ui.screen_jojomenu.stand package
 public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 	public static final ResourceLocation WINDOW = JojoMod.resLoc("textures/gui/paper_style/stand_skills.png");
 	public static final ResourceLocation WINDOW_BLANK = JojoMod.resLoc("textures/gui/paper_style/stand_skills2.png");

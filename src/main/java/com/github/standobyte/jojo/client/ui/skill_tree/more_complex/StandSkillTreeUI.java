@@ -8,12 +8,12 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import com.github.standobyte.jojo.client.ui.screen_jojomenu.stand.StandSkillsScreen;
 import com.github.standobyte.jojo.client.ui.skill_tree.DrawStandSkillIcon;
 import com.github.standobyte.jojo.client.ui.skill_tree.SkillHolder;
 import com.github.standobyte.jojo.client.ui.skill_tree.SkillNode;
 import com.github.standobyte.jojo.client.ui.skill_tree.SkillNodeUI;
 import com.github.standobyte.jojo.client.ui.skill_tree.Sprites32x32;
-import com.github.standobyte.jojo.powersystem.standpower.client_screens.StandSkillsScreen;
 import com.github.standobyte.jojo.powersystem.unlockableskill.UnlockableSkill;
 
 import net.minecraft.client.Minecraft;

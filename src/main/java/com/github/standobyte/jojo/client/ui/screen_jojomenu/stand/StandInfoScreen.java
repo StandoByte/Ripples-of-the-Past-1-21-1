@@ -1,4 +1,4 @@
-package com.github.standobyte.jojo.powersystem.standpower.client_screens;
+package com.github.standobyte.jojo.client.ui.screen_jojomenu.stand;
 
 import java.util.List;
 
@@ -36,7 +36,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.LivingEntity;
 
-// TODO - move to jojo.client.ui.screen_jojomenu.stand package
 public class StandInfoScreen extends Screen implements IJojoMenuScreen {
 	protected ResourceLocation texture;
 	protected TabCategory category;

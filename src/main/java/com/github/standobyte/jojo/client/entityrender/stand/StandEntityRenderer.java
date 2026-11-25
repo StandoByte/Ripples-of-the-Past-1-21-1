@@ -14,11 +14,11 @@ import com.github.standobyte.jojo.client.entityrender.parsemodel.loader.RotpGeck
 import com.github.standobyte.jojo.client.rendertype.ModRenderTypes;
 import com.github.standobyte.jojo.client.standskin.StandSkin;
 import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
+import com.github.standobyte.jojo.client.ui.screen_jojomenu.stand.StandInfoScreen;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.modcompat.interfaces.OtherModInterfaces;
 import com.github.standobyte.jojo.powersystem.entityaction.ActionAnimIdentifier;
-import com.github.standobyte.jojo.powersystem.standpower.client_screens.StandInfoScreen;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.objects_java.LazyNullable;
 import com.github.standobyte.v1_21_4_stuff.renderstate.ArmedEntityRenderState;
