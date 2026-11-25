@@ -144,6 +144,9 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 		StandType standType = standInstance.getStandType();
 		
 		skillsLayoutTemplate = standType.getSkillTreeLayout();
+		if (skillsLayoutTemplate.onScreenReopen != null) {
+			skillsLayoutTemplate.onScreenReopen.accept(skillsLayoutTemplate);
+		}
 		skillsLayout = new StandSkillTreeUI() {
 			@Override
 			protected Sprites32x32 getSkillSquareSprite(UnlockableSkill skill) {

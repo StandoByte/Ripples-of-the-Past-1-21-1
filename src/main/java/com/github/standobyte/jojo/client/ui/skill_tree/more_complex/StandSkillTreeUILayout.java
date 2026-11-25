@@ -7,6 +7,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.github.standobyte.jojo.client.ui.skill_tree.SkillHolder;
@@ -19,6 +20,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 public class StandSkillTreeUILayout {
 	public Map<String, NodePosition<UnlockableSkill>> allNodes = new HashMap<>();
 	public Map<String, List<NodeConnection<UnlockableSkill>>> linksToChildren = new HashMap<>();
+	public Consumer<StandSkillTreeUILayout> onScreenReopen;
 	
 	public void generate(Map<String, UnlockableSkill> allSkills) {
 		Map<String, SkillNode<UnlockableSkill>> nodes = new Object2ObjectOpenHashMap<>();

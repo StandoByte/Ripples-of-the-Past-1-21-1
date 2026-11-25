@@ -27,6 +27,7 @@ import com.github.standobyte.jojo.powersystem.unlockableskill.UnlockableSkill;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.fml.loading.FMLLoader;
 
 @ApiStatus.NonExtendable
 public class MovesetBuilder {
@@ -158,9 +159,16 @@ public class MovesetBuilder {
 	}
 	
 	public MovesetBuilder generateSkillTreeUI(Consumer<StandSkillTreeUILayout> edit) {
+		return generateSkillTreeUI(edit, false);
+	}
+	
+	public MovesetBuilder generateSkillTreeUI(Consumer<StandSkillTreeUILayout> edit, boolean enableHotswap) {
 		skillTreeUI = new StandSkillTreeUILayout();
 		skillTreeUI.generate(unlockableSkills);
 		edit.accept(skillTreeUI);
+		if (enableHotswap && !FMLLoader.isProduction()) {
+			skillTreeUI.onScreenReopen = edit;
+		}
 		return this;
 	}
 	
