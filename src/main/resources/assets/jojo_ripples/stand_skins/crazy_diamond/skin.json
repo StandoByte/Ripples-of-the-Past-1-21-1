@@ -1,6 +1,9 @@
 {  
 	"stand_type": "jojo_ripples:crazy_diamond",
-	"color" : "#4BEDE6",
+	"color" : {
+		"primary": "#4BEDE6",
+		"text_white_bg": "#08B2A7"
+	},
 	"story_part": "jojo_ripples:p4",
 	"scale": [ 0.65, 1.95 ]
 }
