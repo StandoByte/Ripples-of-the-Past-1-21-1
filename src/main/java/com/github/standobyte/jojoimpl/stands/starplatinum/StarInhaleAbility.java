@@ -18,6 +18,7 @@ import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntityAbili
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandOffsetFromUser;
 import com.github.standobyte.jojo.util.functions.DamageUtil;
 import com.github.standobyte.jojo.util.functions.MathUtil;
+import com.github.standobyte.jojoimpl.stands.theworld.timestop.TimeStopEffect;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -74,6 +75,7 @@ public class StarInhaleAbility extends StandEntityAbility {
                             && standEntity.hasLineOfSight(entity)
                             && entity.distanceToSqr(standEntity) > 0.5
                             && !entity.is(user)
+                            && !TimeStopEffect.getIsFrozenInTime(entity)
             ).forEach(entity -> {
                 double distance = entity.distanceTo(standEntity);
 
