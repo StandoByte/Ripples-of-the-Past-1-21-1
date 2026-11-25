@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github.standobyte.jojo.client.input.InputHandler;
-import com.github.standobyte.jojo.client.input.VanillaKeybinds;
+import com.github.standobyte.jojo.client.input.VanillaKeyMappingExtended;
 import com.github.standobyte.jojo.client.ui.screen_widgets.ButtonWithImage;
 import com.github.standobyte.jojo.client.ui.screen_widgets.utils.ButtonDecoration;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
@@ -36,7 +36,7 @@ public class VanillaKeybindsEntryModification {
 		boolean cancelOriginal = false;
 		boolean refreshEntry = false;
 
-		ConfigBool holdOrToggle = VanillaKeybinds.HOLD_OR_TOGGLE.get(keyName);
+		ConfigBool holdOrToggle = VanillaKeyMappingExtended.HOLD_OR_TOGGLE.get(keyName);
 		if (holdOrToggle != null) {
 			KeyEntryWithHoldToggle holdToggleButton = new KeyEntryWithHoldToggle(list, holdOrToggle);
 			KeyEntryWithNameShift changeKeyButtonWithNameInCenter = new KeyEntryWithNameShift(list, key, key.getDisplayName());
@@ -81,7 +81,7 @@ public class VanillaKeybindsEntryModification {
 			((KeyEntryDuck) entry).jojo_ripples$addButtonToTheLeftOfKey(abilityWheel20x20Button);
 		}
 
-		if (VanillaKeybinds.ADD_DESC_TOOLTIP.contains(keyName)) {
+		if (VanillaKeyMappingExtended.ADD_DESC_TOOLTIP.contains(keyName)) {
 			((KeyEntryDuck) entry).jojo_ripples$addTooltipDescription(Component.translatable(keyName + ".desc"));
 			refreshEntry = true;
 		}
