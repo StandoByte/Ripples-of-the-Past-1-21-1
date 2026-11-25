@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.client.ui.screen_widgets.ButtonWithImage;
 import com.github.standobyte.jojo.client.ui.screen_widgets.utils.ButtonDecoration;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.MultiLineScreenTooltip;
+import com.github.standobyte.jojo.config.ModConfigInterface;
 import com.github.standobyte.jojo.config.client.ConfigGuiHelper;
 import com.github.standobyte.jojo.config.core.ModConfigType;
 import com.github.standobyte.jojo.config.core.types.ConfigBool;
@@ -38,7 +39,7 @@ public class VanillaKeybindsEntryModification {
 
 		ConfigBool holdOrToggle = VanillaKeyMappingExtended.HOLD_OR_TOGGLE.get(keyName);
 		if (holdOrToggle != null) {
-			KeyEntryWithHoldToggle holdToggleButton = new KeyEntryWithHoldToggle(list, holdOrToggle);
+			KeyEntryWithHoldToggle holdToggleButton = new KeyEntryWithHoldToggle(list, JojoMod.config, holdOrToggle);
 			KeyEntryWithNameShift changeKeyButtonWithNameInCenter = new KeyEntryWithNameShift(list, key, key.getDisplayName());
 			@SuppressWarnings("rawtypes")
 			AbstractSelectionListAccessor _list = (AbstractSelectionListAccessor) list;
@@ -119,12 +120,12 @@ public class VanillaKeybindsEntryModification {
 		public Button holdToggleButton;
 		public List<Button> buttonsAsList;
 
-		public KeyEntryWithHoldToggle(KeyBindsList list, ConfigBool holdOrToggleConfig) {
+		public KeyEntryWithHoldToggle(KeyBindsList list, ModConfigInterface<?, ?, ?> modConfigObject, ConfigBool holdOrToggleConfig) {
 			this.list = list;
 			this.holdOrToggleConfig = holdOrToggleConfig;
 			this.holdToggleButton = Button.builder(CommonComponents.EMPTY, button -> {
 				holdOrToggleConfig.set(!holdOrToggleConfig.get());
-				JojoMod.config.saveClient();
+				modConfigObject.saveClient();
 			})
 			.bounds(0, 0, 75, 20)
 			.build();

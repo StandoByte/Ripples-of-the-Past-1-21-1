@@ -24,7 +24,7 @@ public class RotpStandToggles {
 		var broadcastClient = JojoMod.config.getPlayerBroadcast(null);
 		var common = JojoMod.config.getCommon();
 		
-		breakBlocks = new ClientStandToggle(
+		breakBlocks = new ClientStandToggle(JojoMod.config, 
 				broadcastClient.standBreaksBlocks, common.standsBreakBlocks, 
 				ModConfigType.CLIENT_BROADCAST, 
 				client.toggleVisible_standBreaksBlocks, 
@@ -33,7 +33,7 @@ public class RotpStandToggles {
 				Component.translatable("jojo_ripples.stand_toggles.destroy_blocks"));
 		StandTogglesHandler.addToggle(breakBlocks);
 		
-		pickUpItems = new ClientStandToggle(
+		pickUpItems = new ClientStandToggle(JojoMod.config, 
 				broadcastClient.standPicksUpItems, null, 
 				ModConfigType.CLIENT_BROADCAST, 
 				client.toggleVisible_standPicksUpItems, 
@@ -42,7 +42,7 @@ public class RotpStandToggles {
 				Component.translatable("jojo_ripples.stand_toggles.stand_pick_up_items"));
 		StandTogglesHandler.addToggle(pickUpItems);
 		
-		moveBeyondEffectiveRange = new ClientStandToggle(
+		moveBeyondEffectiveRange = new ClientStandToggle(JojoMod.config, 
 				broadcastClient.standMovesBeyondEffRange, null, 
 				ModConfigType.CLIENT_BROADCAST, 
 				client.toggleVisible_standMovesBeyondEffRange, 

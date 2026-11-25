@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.client.ui.utils.ElementTransparency;
 import com.github.standobyte.jojo.client.ui.utils.GuiIcon;
 import com.github.standobyte.jojo.client.ui.utils.tooltip.TooltipParams;
 import com.github.standobyte.jojo.config.BoolOrPlayerPref;
+import com.github.standobyte.jojo.config.ModConfigInterface;
 import com.github.standobyte.jojo.config.client.ScrollingStringButton;
 import com.github.standobyte.jojo.config.core.ConfigOption;
 import com.github.standobyte.jojo.config.core.ModConfigType;
@@ -37,6 +38,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.neoforged.neoforge.common.util.Lazy;
 
 public class ClientStandToggle implements Renderable {
+	public final ModConfigInterface<?, ?, ?> modConfigObject;
 	public final ConfigOption<Boolean> setting;
 	@Nullable public final ConfigOption<BoolOrPlayerPref> overrulingCommonSetting;
 	public final ModConfigType configToSave;
@@ -53,11 +55,13 @@ public class ClientStandToggle implements Renderable {
 	public ToggleButton visibilityToggle;
 	public ElementTransparency fadeOut = new ElementTransparency();
 	
-	public ClientStandToggle(ConfigOption<Boolean> setting, @Nullable ConfigOption<BoolOrPlayerPref> overrulingCommonSetting,
+	public ClientStandToggle(ModConfigInterface<?, ?, ?> modConfigObject, 
+			ConfigOption<Boolean> setting, @Nullable ConfigOption<BoolOrPlayerPref> overrulingCommonSetting,
 			ModConfigType configToSave, 
 			ConfigOption<Boolean> hudVisibilitySetting, 
 			Supplier<KeyMapping> keybind, 
 			GuiIcon icon, @Nullable GuiIcon offIcon, Component text) {
+		this.modConfigObject = modConfigObject;
 		this.setting = setting;
 		this.overrulingCommonSetting = overrulingCommonSetting;
 		this.configToSave = configToSave;
@@ -82,7 +86,7 @@ public class ClientStandToggle implements Renderable {
 	public void init(int x, int y, KeybindsEditingUI keybindsHandler) {
 		KeyMapping keyMapping = keybind.get();
 		if (keyMapping != null) {
-			keybindButton = keybindsHandler.addKeybind(keyMapping, JojoMod.config::saveClient, x + 155, y, 50, 20).button;
+			keybindButton = keybindsHandler.addKeybind(keyMapping, modConfigObject::saveClient, x + 155, y, 50, 20).button;
 		}
 		
 		toggle = new ToggleSwitch(x + 4, y + 2, Orientation.HORIZONTAL, 
@@ -100,16 +104,16 @@ public class ClientStandToggle implements Renderable {
 				newVal -> {
 					hudVisibilitySetting.set(newVal);
 					
-					JojoMod.config.saveClient();
+					modConfigObject.saveClient();
 				}, null);
 	}
 	
 	public void toggle() {
 		setting.setWithCallback(!setting.get(), Minecraft.getInstance().player);
 		
-		JojoMod.config.saveClient();
+		modConfigObject.saveClient();
 		if (ConfigNetworkFunctions.clientIsConnectedToAServer()) {
-			JojoMod.config.sendClientBroadcast(true);
+			modConfigObject.sendClientBroadcast(true);
 		}
 	}
 
