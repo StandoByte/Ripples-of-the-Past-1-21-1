@@ -50,6 +50,7 @@ public class StandEntityBarrageAbility extends StandEntityAbility {
 		setDefaultPhaseLength(ActionPhase.PERFORM, StandStatFormulas.getBarrageMaxDuration(8));
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 10);
 		noFinisherBarDecay = true;
+		isBufferedAsBaseAbility = true;
 	}
 	
 	@Override

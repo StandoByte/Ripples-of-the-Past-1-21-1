@@ -58,6 +58,7 @@ public class StandEntityPunchAbility extends StandEntityAbility {
 		setDefaultPhaseLength(ActionPhase.PERFORM, 2);
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 20);
 		noFinisherBarDecay = true;
+		isBufferedAsBaseAbility = true;
 	}
 	
 	@Override

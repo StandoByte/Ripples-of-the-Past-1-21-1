@@ -43,6 +43,13 @@ public class Ability {
 	
 	public AbilityUsageGroup usageGroup = AbilityUsageGroup.SPECIAL;
 	public boolean isSubAbility = false;
+	/** Set to true for abilities that should consistently flow from previous moves
+	 *  (e.g. punches in a combo, grab punches).
+	 *  False, on the other hand, it recommended for abilities that imply a more precise input from the player
+	 *  (e.g. ability variation for when the player is targeting a specific entity type). */
+	public boolean isBufferedAsBaseAbility = false;
+	@Deprecated(forRemoval = true)
+	public boolean isReplacingAnotherMoveOnClientSide = false;
 	
 	@Nullable public AbilityStandFinisherData isStandFinisherOf = null;
 	
@@ -198,6 +205,9 @@ public class Ability {
 		if (InputHandler.inputsDisabled || InputHandler.isNonWheelScreenOpened()) {
 			state.setFlag(AbilityInputState.IS_ACTIVE, false);
 			state.setFlag(AbilityInputState.VISIBLE_WHEN_INACTIVE, true);
+		}
+		if (isBufferedAsBaseAbility) {
+			state.setFlag(AbilityInputState.SEND_TO_SERVER_AS_BASE_ABILITY, true);
 		}
 		return state;
 	}

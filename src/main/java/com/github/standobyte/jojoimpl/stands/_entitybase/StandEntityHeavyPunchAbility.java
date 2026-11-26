@@ -78,6 +78,7 @@ public class StandEntityHeavyPunchAbility extends StandEntityAbility {
 		setDefaultPhaseLength(ActionPhase.PERFORM, 6);
 		setDefaultPhaseLength(ActionPhase.RECOVERY, 12);
 		noFinisherBarDecay = true;
+		isBufferedAsBaseAbility = true;
 	}
 
 	@Override

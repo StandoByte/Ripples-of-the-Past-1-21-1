@@ -427,7 +427,7 @@ public class InputHandler {
 				
 				if (heldAbility != null) {
 					AbilityId baseAbilityId = heldAbility.baseAbility.abilityId;
-					Ability abilityToInput = heldAbility.getAbilityToInput();
+					Ability abilityToInput = heldAbility.getAbilityToSend();
 					ambiguousKeyPress.onHold = (float ticksToResolveHeld) -> {
 						AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(baseAbilityId.powerClass());
 						AbilityConditionCheck abilityResolved = curAbilities.getContextVariationContainer(baseAbilityId);
@@ -437,7 +437,7 @@ public class InputHandler {
 				
 				if (clickAbility != null) {
 					AbilityId baseAbilityId = clickAbility.baseAbility.abilityId;
-					Ability abilityToInput = clickAbility.getAbilityToInput();
+					Ability abilityToInput = clickAbility.getAbilityToSend();
 					ambiguousKeyPress.onClick = (float ticksToResolveClick) -> {
 						AvailableAbilities curAbilities = ClientPowerCache.getAvailableAbilities(baseAbilityId.powerClass());
 						AbilityConditionCheck abilityResolved = curAbilities.getContextVariationContainer(baseAbilityId);
@@ -456,8 +456,8 @@ public class InputHandler {
 				else throw new IllegalStateException();
 				
 				switch (inputMethod) {
-					case HOLD -> doClickInput(InputEventType.PRESS_HOLD, keyId, heldAbility.getAbilityToInput(), heldAbility.curActiveAbility, 0);
-					case CLICK -> doClickInput(InputEventType.PRESS_CLICK, keyId, clickAbility.getAbilityToInput(), clickAbility.curActiveAbility, 0);
+					case HOLD -> doClickInput(InputEventType.PRESS_HOLD, keyId, heldAbility.getAbilityToSend(), heldAbility.curActiveAbility, 0);
+					case CLICK -> doClickInput(InputEventType.PRESS_CLICK, keyId, clickAbility.getAbilityToSend(), clickAbility.curActiveAbility, 0);
 				}
 			}
 		}
@@ -722,11 +722,11 @@ public class InputHandler {
 			this.curActiveAbility = null;
 		}
 		
-		public Ability getAbilityToInput() {
+		public Ability getAbilityToSend() {
 			if (curActiveAbility != null) {
-				boolean useReplacement = AbilityInputState.withValue(curActiveAbility.clientInputState)
-						.getFlag(AbilityInputState.CLIENT_SIDE_SUB_ABILITY_REPLACEMENT);
-				if (useReplacement && curActiveAbility.ability != null) {
+				boolean sendAsBaseAbility = AbilityInputState.withValue(curActiveAbility.clientInputState)
+						.getFlag(AbilityInputState.SEND_TO_SERVER_AS_BASE_ABILITY);
+				if (!sendAsBaseAbility && curActiveAbility.ability != null) {
 					return curActiveAbility.ability;
 				}
 			}
