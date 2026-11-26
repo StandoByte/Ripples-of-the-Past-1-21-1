@@ -81,7 +81,7 @@ public class LivingComponentGrab implements TickingEntityData {
 	@Override
 	public void tick() {
 		if (grabbedTarget != null) {
-			if (!grabbedTarget.isAlive()) {
+			if (!grabbedTarget.isAlive() || grabbedTarget.level() != thisEntity.level()) {
 				this.setGrabTarget(null);
 			}
 			else if (thisEntity instanceof StandEntity stand) {
@@ -93,7 +93,7 @@ public class LivingComponentGrab implements TickingEntityData {
 		}
 
 		if (grabbingEntity != null) {
-			if (!grabbingEntity.isAlive()) {
+			if (!grabbingEntity.isAlive() || grabbingEntity.level() != grabbingEntity.level()) {
 				grabbingEntity
 				.getData(ModDataAttachmentTypes.LIVING_GRAB.get())
 				.setGrabTarget(null);
@@ -186,7 +186,6 @@ public class LivingComponentGrab implements TickingEntityData {
 			for (Entity passenger : thisEntity.getPassengers()) {
 				thisEntity.positionRider(passenger);
 			}
-			JojoMod.LOGGER.debug("{} {} {} {}", yRot * MathUtil.RAD_TO_DEG, this.yRotDiffWhenGrabbed, this.yHeadRotDiffWhenGrabbed, this.yBodyRotDiffWhenGrabbed);
 			if (userOffsetFromStandWhenGrabbed != null) {
 				Entity standUser = this.standUser.getEntity(thisEntity.level());
 				if (standUser != null) {
