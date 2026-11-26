@@ -1,15 +1,14 @@
 package com.github.standobyte.jojo.adventure;
 
-import javax.annotation.Nullable;
-
 import com.github.standobyte.jojo.JojoModLivingVariables;
 import com.github.standobyte.jojo.ServerSavedData;
 import com.github.standobyte.jojo.client.ClientProxy;
 import com.github.standobyte.jojo.client.ClientTickHandler;
 import com.github.standobyte.jojo.client.ClientTickables;
+import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.event.SusBlockLootEvent;
 import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.init.ModParticles;
-import com.github.standobyte.jojo.mechanics.standarrow.StandArrowItem;
 import com.github.standobyte.jojo.mechanics.standarrow.StandArrowLore;
 import com.github.standobyte.jojo.powersystem.standpower.StandUtil;
 import com.github.standobyte.jojo.util.OOPMoment;
@@ -18,7 +17,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -26,14 +24,23 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 
+@EventBusSubscriber(modid = JojoMod.MOD_ID)
 public class SpawnArrowsInSusBlocks {
-
-	@Nullable
-	public static ItemStack standArrowToPut(LivingEntity player, ServerLevel level, BlockPos blockPos) {
+	
+	@SubscribeEvent(priority = EventPriority.LOW)
+	public static void addArrowIfNoOtherLootWasAdded(SusBlockLootEvent event) {
+		if (event.replacementItem != null) {
+			return;
+		}
+		
 		Holder<Item> arrowToPut = null;
+		LivingEntity player = event.player;
 		JojoModLivingVariables playerVars = JojoModLivingVariables.get(player);
-		ServerSavedData serverVars = ServerSavedData.get(level.getServer());
+		ServerSavedData serverVars = ServerSavedData.get(event.level.getServer());
 		RandomSource random = OOPMoment.RANDOM;
 
 		if (!playerVars.foundAnArrow || playerVars.findMoreArrowsTimer > 0) {
@@ -67,27 +74,27 @@ public class SpawnArrowsInSusBlocks {
 		if (arrowToPut != null) {
 			playerVars.foundAnArrow = true;
 			ItemStack item = arrowToPut.value().getDefaultInstance();
-			StandArrowLore.onArrowFoundInSusBlock(item, player, level, blockPos);
-			return item;
+			StandArrowLore.onArrowFoundInSusBlock(item, player, event.level, event.blockPos);
+			event.replacementItem = item;
+			event.sendMenacingParticles = true;
 		}
-		return null;
 	}
-	
-	public static void onItemSynchedToClient(BlockEntity brushableBlockEntity, ItemStack item) {
-		if (item.getItem() instanceof StandArrowItem) {
-			ClientTickables.add(() -> {
-				Level level = brushableBlockEntity.getLevel();
-				if (level != null && ClientProxy.getClientWorld() == level && !brushableBlockEntity.isRemoved()) {
-					if (ClientTickHandler.tickCount % 3 == 0 && !ClientProxy.isClientPaused()) {
-						BlockPos blockPos = brushableBlockEntity.getBlockPos();
-						Vec3 particlePos = randomPointAroundBlock(blockPos, 1.25, 2);
-						level.addParticle(ModParticles.MENACING.get(), particlePos.x, particlePos.y, particlePos.z, 0, 0, 0);
-					}
-					return true;
+
+
+
+	public static void onItemSynchedToClient_addParticles(BlockEntity brushableBlockEntity, ItemStack item) {
+		ClientTickables.add(() -> {
+			Level level = brushableBlockEntity.getLevel();
+			if (level != null && ClientProxy.getClientWorld() == level && !brushableBlockEntity.isRemoved()) {
+				if (ClientTickHandler.tickCount % 3 == 0 && !ClientProxy.isClientPaused()) {
+					BlockPos blockPos = brushableBlockEntity.getBlockPos();
+					Vec3 particlePos = randomPointAroundBlock(blockPos, 1.25, 2);
+					level.addParticle(ModParticles.MENACING.get(), particlePos.x, particlePos.y, particlePos.z, 0, 0, 0);
 				}
-				return false;
-			});
-		}
+				return true;
+			}
+			return false;
+		});
 	}
 	
 	public static Vec3 randomPointAroundBlock(BlockPos pos, double radiusMin, double radiusMax) {

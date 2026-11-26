@@ -9,6 +9,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.adventure.SpawnArrowsInSusBlocks;
 import com.github.standobyte.jojo.core.JojoMod;
+import com.github.standobyte.jojo.event.ModEventHooks;
+import com.github.standobyte.jojo.event.SusBlockLootEvent;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -32,30 +36,58 @@ public abstract class SusBlocksLoot extends BlockEntity {
 	@Shadow private ItemStack item = ItemStack.EMPTY;
 	@Shadow private ResourceKey<LootTable> lootTable;
 	@Unique private boolean rolledSpecialLoot = false;
+	@Unique private boolean addMenacingParticles = false;
 
 	@Inject(method = "unpackLootTable", at = @At("HEAD"))
-	public void replaceUnpackedItem(Player player, CallbackInfo ci) {
-		if (!rolledSpecialLoot && this.item.isEmpty()) {
-			ItemStack arrow = SpawnArrowsInSusBlocks.standArrowToPut(player, (ServerLevel) level, worldPosition);
-			if (arrow != null) {
-				this.item = arrow;
-				this.lootTable = null;
+	private void replaceUnpackedItem(Player player, CallbackInfo ci) {
+		if (!rolledSpecialLoot && item.isEmpty()) {
+			SusBlockLootEvent event = ModEventHooks.onSusBlockLootTableUnpack(player, (ServerLevel) level, worldPosition);
+			boolean changed = false;
+			if (event.replacementItem != null) {
+				item = event.replacementItem;
+				lootTable = null;
+				changed = true;
+			}
+			if (event.sendMenacingParticles) {
+				addMenacingParticles = event.sendMenacingParticles;
+				changed = true;
+			}
+			if (changed) {
+				setChanged();
 			}
 		}
 		rolledSpecialLoot = true;
 	}
 
-	@Inject(method = "saveAdditional", at = @At("TAIL"))
-	public void rotp$saveAdditional(CompoundTag tag, HolderLookup.Provider registries, CallbackInfo ci) {
+	@WrapMethod(method = "saveAdditional")
+	private void addCustomFieldsToSaved(CompoundTag tag, HolderLookup.Provider registries, Operation<Void> original) {
+		original.call(tag, registries);
+		addFieldsToNBT(tag);
+	}
+	
+	// I SWEAR it worked without this before
+	@WrapMethod(method = "getUpdateTag")
+	private CompoundTag addCustomFieldsToSynched(HolderLookup.Provider registries, Operation<CompoundTag> original) {
+		CompoundTag nbt = original.call(registries);
+		addFieldsToNBT(nbt);
+		return nbt;
+	}
+	
+	@Unique
+	private void addFieldsToNBT(CompoundTag tag) {
 		tag.putBoolean(JojoMod.MOD_ID + ":rolledSpecialLoot", rolledSpecialLoot);
+		tag.putBoolean(JojoMod.MOD_ID + ":gogogogogo", addMenacingParticles);
 	}
 
-	@Inject(method = "loadAdditional", at = @At("TAIL"))
-	public void rotp$loadAdditional(CompoundTag tag, HolderLookup.Provider registries, CallbackInfo ci) {
+	@WrapMethod(method = "loadAdditional")
+	private void loadCustomFields(CompoundTag tag, HolderLookup.Provider registries, Operation<Void> original) {
+		original.call(tag, registries);
 		rolledSpecialLoot = tag.getBoolean(JojoMod.MOD_ID + ":rolledSpecialLoot");
-		if (level != null && level.isClientSide()) {
-			SpawnArrowsInSusBlocks.onItemSynchedToClient(this, item);
+		addMenacingParticles = tag.getBoolean(JojoMod.MOD_ID + ":gogogogogo");
+		if (level != null && level.isClientSide() && addMenacingParticles) {
+			SpawnArrowsInSusBlocks.onItemSynchedToClient_addParticles(this, item);
 		}
 	}
+	
 	
 }
