@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.github.standobyte.jojo.client.ClientGlobals;
 import com.github.standobyte.jojo.client.entityrender.ModelUtil;
 import com.github.standobyte.jojo.client.util.functions.ClientUtil;
 import com.github.standobyte.jojo.core.JojoMod;
@@ -14,6 +15,7 @@ import com.github.standobyte.jojo.init.ModDataAttachmentTypes;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
 import com.github.standobyte.jojo.util.functions.MathUtil;
 import com.github.standobyte.jojo.util.functions.UtilFunctions;
+import com.github.standobyte.jojo.util.objects_mc.EntityResolver;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -46,9 +48,12 @@ public class LivingComponentGrab implements TickingEntityData {
 	private LivingEntity grabbedTarget = null;
 	
 	public float xRotWhenGrabbed;
+	public float yRotWhenGrabbed;
 	public float yRotDiffWhenGrabbed;
 	public float yHeadRotDiffWhenGrabbed;
 	public float yBodyRotDiffWhenGrabbed;
+	public EntityResolver standUser = new EntityResolver();
+	@Nullable public Vec3 userOffsetFromStandWhenGrabbed;
 	
 	public LivingComponentGrab(LivingEntity entity) {
 		this.thisEntity = entity;
@@ -156,33 +161,60 @@ public class LivingComponentGrab implements TickingEntityData {
 	
 	protected void saveRotationDiff(LivingEntity grabbing) {
 		this.xRotWhenGrabbed = thisEntity.getXRot();
-		float yRot = thisEntity.getYRot();
-		this.yRotDiffWhenGrabbed = yRot - grabbing.yBodyRot;
-		this.yHeadRotDiffWhenGrabbed = thisEntity.getYHeadRot() - yRot;
-		this.yBodyRotDiffWhenGrabbed = thisEntity.yBodyRot - yRot;
+		this.yRotWhenGrabbed = thisEntity.getYRot();
+		this.yRotDiffWhenGrabbed = yRotWhenGrabbed - grabbing.yBodyRot;
+		this.yHeadRotDiffWhenGrabbed = thisEntity.getYHeadRot() - yRotWhenGrabbed;
+		this.yBodyRotDiffWhenGrabbed = thisEntity.yBodyRot - yRotWhenGrabbed;
+		if (thisEntity instanceof StandEntity standEntity) {
+			LivingEntity user = standEntity.getUser();
+			if (user != null) {
+				standUser.setEntity(user);
+				userOffsetFromStandWhenGrabbed = user.position().subtract(thisEntity.position());
+			}
+		}
 	}
 	
 	
 	protected void setGrabbedPos(float partialTick) {
 		if (grabbingEntity != null) {
-			Vec3 grabOffset = getGrabOffset(grabbingEntity, partialTick);
+			float yRot = getGrabYRot(grabbingEntity, partialTick);
+			Vec3 grabOffset = getGrabOffset(grabbingEntity, partialTick, yRot);
 			
 			Vec3 grabbedPos = grabbingEntity.position().add(grabOffset);
-			applyPos(thisEntity, grabbedPos);
+			thisEntity.setPos(grabbedPos.x, grabbedPos.y, grabbedPos.z);
+			thisEntity.setDeltaMovement(Vec3.ZERO);
+			for (Entity passenger : thisEntity.getPassengers()) {
+				thisEntity.positionRider(passenger);
+			}
+			JojoMod.LOGGER.debug("{} {} {} {}", yRot * MathUtil.RAD_TO_DEG, this.yRotDiffWhenGrabbed, this.yHeadRotDiffWhenGrabbed, this.yBodyRotDiffWhenGrabbed);
+			if (userOffsetFromStandWhenGrabbed != null) {
+				Entity standUser = this.standUser.getEntity(thisEntity.level());
+				if (standUser != null) {
+					float grabbedStandYRot = partialTick == 1.0F ? thisEntity.getYRot() : Mth.lerp(partialTick, thisEntity.yRotO, thisEntity.getYRot());
+					Vec3 absoluteOffset = userOffsetFromStandWhenGrabbed.yRot((this.yRotWhenGrabbed - grabbedStandYRot) * MathUtil.DEG_TO_RAD);
+					Vec3 standUserPos = grabbedPos.add(absoluteOffset);
+					standUser.setPos(standUserPos.x, standUserPos.y, standUserPos.z);
+					standUser.setDeltaMovement(Vec3.ZERO);
+				}
+			}
 		}
+	}
+	
+	protected float getGrabYRot(LivingEntity grabbingEntity, float partialTick) {
+		//float yRot = partialTick == 1 ? grabbingEntity.yBodyRot : Mth.lerp(partialTick, grabbingEntity.yBodyRotO, grabbingEntity.yBodyRot);
+		float yRot = grabbingEntity.yBodyRot;
+		yRot = -yRot * MathUtil.DEG_TO_RAD;
+		return yRot;
 	}
 	
 	protected static Vec3 armChokeOffset = new Vec3(0, -0.125, 0);
 	// TODO add a way to override grab offset for external grab methods (Hermit Purple, Sticky Fingers, etc.)
-	protected Vec3 getGrabOffset(LivingEntity grabbingEntity, float partialTick) {
+	protected Vec3 getGrabOffset(LivingEntity grabbingEntity, float partialTick, float yRot) {
 		HumanoidArm grabbingArm = HumanoidArm.LEFT;
 		double neckY = -thisEntity.getBbHeight() * 0.8 - 0.125;
 		Vec3 grabOffset = new Vec3(0, neckY, 0);
 		
 		boolean useModelArmPos = grabbingEntity.level().isClientSide();
-		//float yRot = partialTick == 1 ? grabbingEntity.yBodyRot : Mth.lerp(partialTick, grabbingEntity.yBodyRotO, grabbingEntity.yBodyRot);
-		float yRot = grabbingEntity.yBodyRot;
-		yRot = -yRot * MathUtil.DEG_TO_RAD;
 		if (useModelArmPos) {
 			Vec3 animOffset = ModelUtil.getModelPartPos(
 					grabbingEntity, 
@@ -208,14 +240,6 @@ public class LivingComponentGrab implements TickingEntityData {
 		}
 		return grabOffset;
 	}
-	
-	protected void applyPos(LivingEntity grabbedEntity, Vec3 grabbedPos) {
-		grabbedEntity.setPos(grabbedPos.x, grabbedPos.y, grabbedPos.z);
-		grabbedEntity.setDeltaMovement(Vec3.ZERO);
-		for (Entity passenger : thisEntity.getPassengers()) {
-			grabbedEntity.positionRider(passenger);
-		}
-	}
 
 
 	protected void applyRotationDiff(float partialTick) {
@@ -225,8 +249,6 @@ public class LivingComponentGrab implements TickingEntityData {
 	}
 	
 	protected void applyRotationDiff(LivingEntity grabbedEntity, float partialTick) {
-		grabbedEntity.setXRot(this.xRotWhenGrabbed);
-
 		float _grabbingYRot0 = grabbingEntity.yBodyRotO;
 		float _grabbingYRot1 = grabbingEntity.yBodyRot;
 		float grabbingYRot;
@@ -240,12 +262,28 @@ public class LivingComponentGrab implements TickingEntityData {
 		}
 		
 		float yRot = Mth.wrapDegrees(grabbingYRot + this.yRotDiffWhenGrabbed);
+		float yHeadRot = Mth.wrapDegrees(yRot + this.yHeadRotDiffWhenGrabbed);
+		float yBodyRot = Mth.wrapDegrees(yRot + this.yBodyRotDiffWhenGrabbed);
 		grabbedEntity.setYRot(yRot);
-		grabbedEntity.setYHeadRot(Mth.wrapDegrees(yRot + this.yHeadRotDiffWhenGrabbed));
-		grabbedEntity.setYBodyRot(Mth.wrapDegrees(yRot + this.yBodyRotDiffWhenGrabbed));
+		grabbedEntity.setYHeadRot(yHeadRot);
+		grabbedEntity.setYBodyRot(yBodyRot);
 		grabbedEntity.yRotO = yRot;
 		grabbedEntity.yHeadRotO = grabbedEntity.yHeadRot;
 		grabbedEntity.yBodyRotO = grabbedEntity.yBodyRot;
+		grabbedEntity.setXRot(this.xRotWhenGrabbed);
+		
+		if (userOffsetFromStandWhenGrabbed != null) {
+			LivingEntity standUser = this.standUser.getEntityLiving(grabbedEntity.level());
+			if (standUser != null) {
+				standUser.setYRot(yRot);
+				standUser.setYHeadRot(yHeadRot);
+				standUser.setYBodyRot(yBodyRot);
+				standUser.yRotO = yRot;
+				standUser.yHeadRotO = standUser.yHeadRot;
+				standUser.yBodyRotO = standUser.yBodyRot;
+				standUser.setXRot(this.xRotWhenGrabbed);
+			}
+		}
 	}
 	
 	
@@ -271,6 +309,16 @@ public class LivingComponentGrab implements TickingEntityData {
 		@SubscribeEvent
 		public static void onFrameRender(RenderFrameEvent.Pre event) {
 			Minecraft mc = Minecraft.getInstance();
+			
+			if (ClientGlobals.playerStandEntity != null) {
+				LivingComponentGrab grabComponent = ClientGlobals.playerStandEntity.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
+				if (grabComponent != null && grabComponent.grabbingEntity != null) {
+					float partialTick = ClientUtil.partialTick(ClientGlobals.playerStandEntity, 
+							event.getPartialTick(), mc.level.tickRateManager());
+					grabComponent.applyRotationDiff(partialTick);
+				}
+			}
+			
 			if (mc.player != null) {
 				LivingComponentGrab grabComponent = mc.player.getData(ModDataAttachmentTypes.LIVING_GRAB.get());
 				if (grabComponent != null && grabComponent.grabbingEntity != null) {
