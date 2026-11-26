@@ -176,7 +176,9 @@ public class StandEntityRenderer<
 				StandSkin standSkin = renderState.skin;
 				if (standSkin != null) {
 					float[] scale = standSkin.getModelScale();
-					poseStack.scale(scale[0], scale[1], scale[0]);
+					if (scale[0] != 1 || scale[1] != 1) {
+						poseStack.scale(scale[0], scale[1], scale[0]);
+					}
 				}
 			}
 		}

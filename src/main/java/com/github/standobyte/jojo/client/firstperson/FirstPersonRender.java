@@ -111,7 +111,7 @@ public class FirstPersonRender {
 			
 			if (rotpAnimPose != null) {
 				// FIXME most likely this won't work correctly with scale attribute, fix ModelUtil.getModelPartPos
-				Vec3 headPos = ModelUtil.getModelPartPos(PlayerAnimRigLoad.getModel(), rotpAnimPose, "head", Vec3.ZERO);
+				Vec3 headPos = ModelUtil.getModelPartPos(povEntity, PlayerAnimRigLoad.getModel(), rotpAnimPose, "head", Vec3.ZERO);
 				if (headPos != null) {
 					headPos = headPos.add(0, -ModelUtil.LIVING_RENDER_Y_OFFSET_MAGIC, 0);
 					float yRot = -camera.getYRot();

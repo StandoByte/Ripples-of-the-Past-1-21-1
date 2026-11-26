@@ -18,6 +18,8 @@ import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimFramePose.ModelPartFrame;
 import com.github.standobyte.jojo.client.entityanim.pose.AnimatedEntity;
 import com.github.standobyte.jojo.client.entityrender.stand.StandEntityRenderer;
+import com.github.standobyte.jojo.client.standskin.StandSkin;
+import com.github.standobyte.jojo.client.standskin.StandSkinsLoader;
 import com.github.standobyte.jojo.core.JojoMod;
 import com.github.standobyte.jojo.mechanics.clothes.mannequin.MannequinEntity;
 import com.github.standobyte.jojo.powersystem.standpower.entity.StandEntity;
@@ -164,7 +166,7 @@ public class ModelUtil {
 	public static Vec3 getModelPartPos(Entity entity, AnimFramePose clientSavedPose, 
 			String modelPartName, Vec3 modelPartOffset) {
 		EntityModel<?> model = getEntityModel(entity);
-		return model != null ? getModelPartPos(
+		return model != null ? getModelPartPos(entity, 
 				model, clientSavedPose, 
 				modelPartName, modelPartOffset) : null;
 	}
@@ -178,7 +180,8 @@ public class ModelUtil {
 	// FIXME consider the entity scaling done in the renderer
 	static Vector3f offset = new Vector3f();
 	static Matrix4f pose = new Matrix4f();
-	public static Vec3 getModelPartPos(Model model, AnimFramePose savedPose, 
+	public static Vec3 getModelPartPos(Entity entity, 
+			Model model, AnimFramePose savedPose, 
 			String finalModelPartName, Vec3 finalModelPartOffset) {
 		ModelPartWithName[] inheritanceChain = ((ModelWithExtraFeatures) model).jojo_ripples$getPathToModelPart(finalModelPartName);
 		if (inheritanceChain == null || inheritanceChain.length == 0) {
@@ -224,7 +227,25 @@ public class ModelUtil {
 				offset);
 
 		offset = offset.mul(1, -1, -1).add(0, LIVING_RENDER_Y_OFFSET_MAGIC, 0);
+		
+		if (entity instanceof StandEntity standEntity) {
+			StandSkin standSkin = StandSkinsLoader.getInstance().getSkin(standEntity);
+			if (standSkin != null) {
+				float[] scale = standSkin.getModelScale();
+				if (scale[0] != 1 || scale[1] != 1) {
+					offset = offset.mul(scale[0], scale[1], scale[0]);
+				}
+			}
+		}
+		
 		return new Vec3(offset.x, offset.y, offset.z);
+	}
+	
+	@Deprecated
+	public static Vec3 getModelPartPos(
+			Model model, AnimFramePose savedPose, 
+			String finalModelPartName, Vec3 finalModelPartOffset) {
+		return getModelPartPos(null, model, savedPose, finalModelPartName, finalModelPartOffset);
 	}
 	
 	
