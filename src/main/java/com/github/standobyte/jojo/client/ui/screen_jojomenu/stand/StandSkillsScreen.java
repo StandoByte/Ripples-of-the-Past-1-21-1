@@ -293,11 +293,21 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 				
 				if (hoveredSkill != null) {
 					ConditionCheck canUnlock = unlockSkillChecks.get(hoveredSkill.skillName);
+					boolean isSkillUnlocked = levelingData.isSkillUnlocked(hoveredSkill.skillName);
 					TooltipParams.set(TooltipParams.paperStyle(1));
 					List<FormattedCharSequence> skillNameTooltip = new ArrayList<>();
-					boolean grayOutName = !levelingData.isSkillUnlocked(hoveredSkill.skillName) && !canUnlock.positive();
+					ChatFormatting nameColor;
+					if (isSkillUnlocked) {
+						nameColor = ChatFormatting.DARK_GREEN;
+					}
+					else if (canUnlock.positive() || canUnlock == StandUnlockableSkill.NOT_ENOUGH_EXP) {
+						nameColor = ChatFormatting.BLACK;
+					}
+					else {
+						nameColor = ChatFormatting.GRAY;
+					}
 					skillNameTooltip.add(hoveredSkill.getSkillName(standInstance)
-							.withStyle(grayOutName ? ChatFormatting.GRAY : ChatFormatting.BLACK).getVisualOrderText());
+							.withStyle(nameColor).getVisualOrderText());
 					
 					switch (hoveredSkill.implemented) {
 						case WIP -> skillNameTooltip.add(Component.translatable("rotp_tag_wip")
@@ -321,6 +331,10 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 						}
 						skillNameTooltip.addAll(font.split(hoveredSkill.getSkillDescription(standInstance)
 								.withStyle(ChatFormatting.DARK_GRAY), 200));
+					}
+					else {
+						skillNameTooltip.add(Component.translatable("jojo_ripples.stand_skills.shift_hint")
+								.withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC).getVisualOrderText());
 					}
 					
 					setTooltipForNextRenderPass(skillNameTooltip);

@@ -560,6 +560,7 @@
   "jojo_ripples.stand_skills.reset": "Reset",
   "jojo_ripples.stand_skills.not_enough_exp": "You don't have enough Stand EXP",
   "jojo_ripples.stand_skills.prerequisites": "You need to gain the following skills first: %s",
+  "jojo_ripples.stand_skills.shift_hint": "Hold Shift - skill description",
   "jojo_ripples.note.creative_only": "Creative only",
   
   "stand.unknown": "Unknown Stand: %s",
