@@ -185,7 +185,7 @@ public class ConfigNetworkFunctions {
 				playerId, configId, broadcast::toBuf);
 		UUID integratedHostUUID = getIntegratedServerHostUUID(player.server);
 		for (ServerPlayer otherPlayer : player.server.getPlayerList().getPlayers()) {
-			if (otherPlayer != player && !playerUUIDMatches(player, integratedHostUUID)) {
+			if (otherPlayer != player && !playerUUIDMatches(otherPlayer, integratedHostUUID)) {
 				PacketDistributor.sendToPlayer(otherPlayer, playerBroadcastPacket);
 			}
 		}
@@ -196,7 +196,7 @@ public class ConfigNetworkFunctions {
 				player.getUUID(), configId);
 		UUID integratedHostUUID = getIntegratedServerHostUUID(server);
 		for (ServerPlayer otherPlayer : server.getPlayerList().getPlayers()) {
-			if (otherPlayer != player && !playerUUIDMatches(player, integratedHostUUID)) {
+			if (otherPlayer != player && !playerUUIDMatches(otherPlayer, integratedHostUUID)) {
 				PacketDistributor.sendToPlayer(otherPlayer, playerBroadcastPacket);
 			}
 		}
