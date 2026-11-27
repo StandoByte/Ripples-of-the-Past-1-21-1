@@ -122,6 +122,7 @@ public class StandEntityRenderer<
 		renderState.skin = skin;
 		renderState.visibleParts = HumanoidPart.ALL;
 		renderState.tint = tint;
+		renderState.doScalingFromStandSkin = true;
 		
 		AnimFramePose pose = null;
 		switch (menuType) {
@@ -172,13 +173,17 @@ public class StandEntityRenderer<
 	protected void scale(T livingEntity, PoseStack poseStack, float partialTickTime) {
 		if (RenderStateCrutches.currentEntityRenderState != null) {
 			S renderState = (S) RenderStateCrutches.currentEntityRenderState;
-			if (renderState.doScalingFromStandSkin) {
-				StandSkin standSkin = renderState.skin;
-				if (standSkin != null) {
-					float[] scale = standSkin.getModelScale();
-					if (scale[0] != 1 || scale[1] != 1) {
-						poseStack.scale(scale[0], scale[1], scale[0]);
-					}
+			scale(renderState, poseStack);
+		}
+	}
+
+	protected void scale(S renderState, PoseStack poseStack) {
+		if (renderState.doScalingFromStandSkin) {
+			StandSkin standSkin = renderState.skin;
+			if (standSkin != null) {
+				float[] scale = standSkin.getModelScale();
+				if (scale[0] != 1 || scale[1] != 1) {
+					poseStack.scale(scale[0], scale[1], scale[0]);
 				}
 			}
 		}
@@ -306,6 +311,7 @@ public class StandEntityRenderer<
 		poseStack.pushPose();
 		
 		poseStack.translate(0, 1.5f, 0);
+		scale(renderState, poseStack);
 		poseStack.scale(1, -1, 1);
 		poseStack.mulPose(Axis.YP.rotationDegrees(180));
 		poseStack.scale(-1, 1, 1);
