@@ -13,7 +13,7 @@ import com.github.standobyte.jojo.powersystem.unlockableskill.UnlockableSkill;
 import net.minecraft.network.chat.Component;
 
 public class StandUnlockableSkill extends UnlockableSkill {
-	public int expToUnlock;
+	protected int expToUnlock;
 
 	public StandUnlockableSkill(String name) {
 		super(name);
@@ -37,9 +37,14 @@ public class StandUnlockableSkill extends UnlockableSkill {
 	
 	public int getDevPotentialCosmeticPoints(@Nullable StandPower userPower, @Nullable StandTypePersistentData data, boolean isUnlocked) {
 		if (isUnlocked) return 0;
+		int expToUnlock = getExpToUnlock();
 		if (expToUnlock > 0) return expToUnlock;
 		if (hidden) return 250;
 		return 1;
+	}
+	
+	public int getExpToUnlock() {
+		return implemented != DevStatus.NYI ? expToUnlock : 0;
 	}
 	
 	// Initialization methods

@@ -319,7 +319,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 					
 					if (!levelingData.isSkillUnlocked(hoveredSkill.skillName)) {
 						int expCostColor = getExpCostColor(hoveredSkill);
-						Component expCost = Component.literal(IconSymbols.STAND_EXP + String.valueOf(hoveredSkill.expToUnlock))
+						Component expCost = Component.literal(IconSymbols.STAND_EXP + String.valueOf(hoveredSkill.getExpToUnlock()))
 								.withStyle(Style.EMPTY.withColor(expCostColor));
 						skillNameTooltip.add(expCost.getVisualOrderText());
 					}
@@ -365,7 +365,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 				if (learnSkillButton.visible) {
 					int expCostColor = getExpCostColor(selectedSkill);
 					if (expCostColor == STAND_EXP_NUMBER_COLOR) {
-						Component expCost = Component.literal(IconSymbols.STAND_EXP + " " + String.valueOf(selectedSkill.expToUnlock));
+						Component expCost = Component.literal(IconSymbols.STAND_EXP + " " + String.valueOf(selectedSkill.getExpToUnlock()));
 						guiGraphics.drawString(font, expCost, 
 								learnSkillButton.getX() - 4 - font.width(expCost), learnSkillButton.getY() + 6, 
 								expCostColor, false);
@@ -427,7 +427,7 @@ public class StandSkillsScreen extends Screen implements IJojoMenuScreen {
 			}
 			else {
 				int expCostColor = screen.getExpCostColor(skill);
-				int expToUnlock = skill.expToUnlock;
+				int expToUnlock = skill.getExpToUnlock();
 				String expCostLine = expToUnlock > 0 ? String.valueOf(expToUnlock) : "-";
 				guiGraphics.drawString(screen.font, expCostLine, left + 18, top + 4, expCostColor, false);
 			}

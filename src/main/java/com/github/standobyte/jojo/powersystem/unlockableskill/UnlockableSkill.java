@@ -45,8 +45,13 @@ public abstract class UnlockableSkill {
 	public MutableComponent getSkillName(StandInstance standWithSkin) { return StandSkinComponent.translatable(standWithSkin, tlKeyName); }
 	public MutableComponent getSkillDescription(StandInstance standWithSkin) { return StandSkinComponent.translatable(standWithSkin, tlKeyDesc); }
 	public MutableComponent getSkillControlsHint(StandInstance standWithSkin) { return StandSkinComponent.translatable(standWithSkin, tlKeyControls); }
-	
+
+	public static final ConditionCheck NYI_SKILL_LOCKED = ConditionCheck.createNegative(Component.translatable("jojo_ripples.nyi_skill_locked"));
 	public ConditionCheck canUnlockFromMenu(Power<?> userPower, PowerData data) {
+		if (implemented == DevStatus.NYI) {
+			return NYI_SKILL_LOCKED;
+		}
+		
 		List<String> missingPrerequsites = null;
 		for (String prerequisite : prerequisiteSkills) {
 			if (!data.isSkillUnlocked(prerequisite)) {

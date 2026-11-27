@@ -56,7 +56,7 @@ public class StandTypePersistentData extends PowerData {
 	@Override
 	protected void srvOnSkillUnlocked(UnlockableSkill skill, Power<?> userPower) {
 		if (!hasInfiniteExp(userPower.getUser())) {
-			this.exp -= ((StandUnlockableSkill) skill).expToUnlock;
+			this.exp -= ((StandUnlockableSkill) skill).getExpToUnlock();
 			syncExp(userPower.getUser());
 		}
 	}
@@ -66,7 +66,7 @@ public class StandTypePersistentData extends PowerData {
 		for (var skillEntry : getAllSkills().entrySet()) {
 			UnlockableSkill skill = skillEntry.getValue();
 			if (!hasInfiniteExp(userPower.getUser()) && !skill.isStarting && isSkillUnlocked(skill.skillName)) {
-				this.exp += ((StandUnlockableSkill) skill).expToUnlock;
+				this.exp += ((StandUnlockableSkill) skill).getExpToUnlock();
 			}
 		}
 
@@ -144,10 +144,11 @@ public class StandTypePersistentData extends PowerData {
 			StandExpSummary obj = StandExpSummary.instance.clear();
 			for (StandUnlockableSkill skill : skills) {
 				boolean isUnlocked = userData != null ? userData.isSkillUnlocked(skill.skillName) : false;
-				if (skill.expToUnlock > 0) {
-					obj.total += skill.expToUnlock;
+				int expToUnlock = skill.getExpToUnlock();
+				if (expToUnlock > 0) {
+					obj.total += expToUnlock;
 					if (isUnlocked) {
-						obj.spent += skill.expToUnlock;
+						obj.spent += expToUnlock;
 					}
 				}
 				if (!isUnlocked) {
